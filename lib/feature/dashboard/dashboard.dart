@@ -1,0 +1,267 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:login_2_it_solution/core/theme/app_colors.dart';
+import 'package:login_2_it_solution/core/theme/app_text_style.dart';
+import 'package:login_2_it_solution/core/utils/custom_calender.dart';
+import 'package:login_2_it_solution/core/utils/menu_hover_bottun.dart';
+import 'package:login_2_it_solution/feature/dashboard/widget/add_leads_button.dart';
+import 'package:login_2_it_solution/feature/dashboard/widget/social_connect_card.dart';
+import 'package:login_2_it_solution/feature/sidebar/main_screen.dart';
+import 'package:login_2_it_solution/feature/sidebar/widget/bottom_bar.dart';
+import 'package:login_2_it_solution/feature/dashboard/widget/dashboard_card.dart';
+import 'package:login_2_it_solution/feature/sidebar/widget/top_bar.dart';
+import 'package:login_2_it_solution/feature/sidebar/sidebar_item.dart';
+import 'package:sizer/sizer.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final TextEditingController _dateController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background, // ✅ replaced
+      body: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                color: AppColors.background, // ✅ replaced
+                padding: EdgeInsets.only(top: 3.h, left: 3.w, right: 3.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// TOP HEADER ROW
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// LEFT SIDE (TITLE + SUBTITLE)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Lead Management",
+                              style: AppTextStyle.heading(),
+                            ),
+
+                            SizedBox(height: 0.5.h),
+
+                            Text(
+                              "Calling features that give you wings that fast..",
+                              style: AppTextStyle.small(
+                                color: AppColors.grey,
+                                size: 12.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        /// RIGHT SIDE (ACTIONS)
+                        Row(
+                          children: [
+                            /// SEARCH BOX
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors
+                                      .transparent, // 👈 important (no dark bg)
+                                  builder: (context) {
+                                    return Stack(
+                                      children: [
+                                        Positioned(
+                                          top: 20.h, // adjust position
+                                          right: 5.w, // adjust position
+                                          child: CustomCalendar(
+                                            onDateSelected: (date) {
+                                              _dateController.text = DateFormat(
+                                                'dd MMM yyyy',
+                                              ).format(date);
+                                              Navigator.pop(
+                                                context,
+                                              ); // optional (close popup)
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 15.w,
+                                    height: 5.h,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(8),
+                                        bottomLeft: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: TextField(
+                                        controller: _dateController,
+                                        readOnly: true,
+                                        style: AppTextStyle.small(
+                                          size: 11.sp,
+                                          color: AppColors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none, 
+                                          hintText: "Select Date",
+                                          hintStyle: AppTextStyle.small(
+                                            size: 11.sp,
+                                            color: AppColors.grey,
+                                          ),
+                                          isCollapsed: true,
+                                          contentPadding: EdgeInsets.zero,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  /// CALENDAR BUTTON
+                                  Container(
+                                    height: 5.h,
+                                    width: 5.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.indigo,
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(8),
+                                        bottomRight: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.calendar_month_outlined,
+                                      color: Colors.white,
+                                      size: 11.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(width: 1.w),
+
+                            /// ADD LEADS BUTTON
+                            AddLeadsButton(),
+
+                            SizedBox(width: 1.w),
+
+                            /// MENU BUTTON
+                            MenuHoverButton(),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+
+                    /// 🔥 SOCIAL CONNECT SECTION
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SocialConnectCard(
+                            title: "Connect facebook",
+                            buttonText: "Facebook Settings",
+                            buttonColor: AppColors.primary,
+                            icon: Icons.facebook,
+                            iconColor: AppColors.primary,
+                            ontap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      MainScreen(selectedIndex: 21),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 2.w),
+                        Expanded(
+                          child: SocialConnectCard(
+                            title: "Connect WhatsApp",
+                            buttonText: "Whatsapp Settings",
+                            buttonColor: AppColors.green,
+                            icon: Icons.chat,
+                            iconColor: AppColors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    /// CARDS
+                    Wrap(
+                      spacing: 2.w,
+                      runSpacing: 2.h,
+                      children: const [
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "NEW LEADS",
+                            message:
+                                'The combined count of new\nleads and unattended leads.',
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "FOLLOWUP LEADS",
+                            message: '_',
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "CLOSED LEADS",
+                            message: '.',
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "TOTAL CALLED",
+                            message: '.',
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "MISSED LEADS",
+                            message: '.',
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: DashboardCard(
+                            title: "TRANSFERRED LEADS",
+                            message: '.',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
