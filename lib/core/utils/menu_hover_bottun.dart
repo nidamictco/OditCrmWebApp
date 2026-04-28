@@ -97,13 +97,13 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
 
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              height: 4.3.h,
-              width: 4.3.h,
+              height: 6.h,
+              width: 6.h,
               decoration: BoxDecoration(
                 color: isHovering
                     ? Colors.blue.shade100
                     : const Color(0xffE5E7EB),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Icon(
                 Icons.menu,

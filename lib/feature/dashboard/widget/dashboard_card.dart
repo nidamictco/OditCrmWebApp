@@ -33,12 +33,12 @@ class _DashboardCardState extends State<DashboardCard> {
         // 👇 lift effect
         transform: Matrix4.translationValues(0, isHovering ? -6 : 0, 0),
 
-        width: 17.w,
+        width: 18.w,
         padding: const EdgeInsets.all(16),
 
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(5),
 
           // 👇 shadow change on hover
           boxShadow: [
@@ -61,7 +61,7 @@ class _DashboardCardState extends State<DashboardCard> {
               children: [
                 Text(
                   widget.title,
-                  style: AppTextStyle.medium(color: AppColors.grey),
+                  style: AppTextStyle.medium(color: AppColors.grey,weight: FontWeight.w600),
                 ),
                 
                 
@@ -89,7 +89,8 @@ class _DashboardCardState extends State<DashboardCard> {
                       ),
                     );
                   },
-                  child: Text("View Details", style: AppTextStyle.link()),
+                  child: Text("View Details",
+                      style: AppTextStyle.link(color: AppColors.grey,decorationColor: AppColors.grey)),
                 ),
                 GestureDetector(
                   onTap: () {

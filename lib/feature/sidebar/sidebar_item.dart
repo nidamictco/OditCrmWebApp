@@ -36,15 +36,17 @@ class _SidebarItemState extends State<SidebarItem> {
         widget.selectedIndex == 2;
 
     return Container(
+
       width: 250,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         color: AppColors.white,
+        border: BoxBorder.fromLTRB(right: BorderSide(color: Colors.black12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black,
             blurRadius: 10,
-            offset: const Offset(6, 3),
+            offset: const Offset(20, 3),
           ),
         ],
       ),
@@ -57,7 +59,7 @@ class _SidebarItemState extends State<SidebarItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                "Oxdo",
+                "Oxdo Leads",
                 style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
               ),
             ),

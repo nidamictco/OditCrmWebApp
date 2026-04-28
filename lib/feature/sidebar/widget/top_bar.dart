@@ -19,7 +19,7 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 10.h,
+      height: 11.h,
       padding: EdgeInsets.symmetric(horizontal: 1.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -44,24 +44,24 @@ class TopBar extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(width: 1.5.w),
+              SizedBox(width: 1.w),
 
               Container(
                 height: 6.h,
-                width: 15.w,
+                width: 18.w,
                 padding: EdgeInsets.symmetric(horizontal: 1.w),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: Color(0xfff3f3f9),
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.search, size: 12.sp, color: AppColors.grey),
+                    Icon(Icons.search, size: 13.sp, color: AppColors.grey),
                     SizedBox(width: 1.w),
                     Text(
                       "Search...",
-                      style: AppTextStyle.medium(
-                        size: 11.sp,
+                      style: AppTextStyle.small(
+                        size: 11.5.sp,
                         color: AppColors.grey,
                       ),
                     ),
@@ -115,7 +115,7 @@ class TopBar extends StatelessWidget {
         );
       },
       child: Container(
-        height: 10.h,
+        // height: 10.h,
         width: 12.w,
         padding: EdgeInsets.all(0.5.w),
         color: AppColors.greenCard,
@@ -130,8 +130,8 @@ class TopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Fathima Nida", style: AppTextStyle.small(size: 10.sp)),
-                Text("Admin", style: AppTextStyle.small(size: 10.sp)),
+                Text("Fathima Nida", style: AppTextStyle.small(size: 11.sp, color: AppColors.black, weight: FontWeight.w500)),
+                Text("Admin", style: AppTextStyle.small(size: 11.sp, color: AppColors.black, weight: FontWeight.w500)),
               ],
             ),
           ],

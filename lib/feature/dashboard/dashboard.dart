@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: SingleChildScrollView(
               child: Container(
                 color: AppColors.background, // ✅ replaced
-                padding: EdgeInsets.only(top: 3.h, left: 3.w, right: 3.h),
+                padding: EdgeInsets.only(top: 3.h, left: 2.w, right: 3.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -47,7 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Text(
                               "Lead Management",
-                              style: AppTextStyle.heading(),
+                              style: AppTextStyle.heading(size: 15),
                             ),
 
                             SizedBox(height: 0.5.h),
@@ -55,8 +55,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               "Calling features that give you wings that fast..",
                               style: AppTextStyle.small(
-                                color: AppColors.grey,
-                                size: 12.sp,
+                                color: AppColors.grey.withOpacity(0.8),
+                                size: 11.5.sp,
+                                weight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -98,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 children: [
                                   Container(
                                     width: 15.w,
-                                    height: 5.h,
+                                    height: 6.h,
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 5,
@@ -106,8 +107,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(8),
-                                        bottomLeft: Radius.circular(8),
+                                        topLeft: Radius.circular(4),
+                                        bottomLeft: Radius.circular(4),
                                       ),
                                     ),
                                     child: Center(
@@ -135,19 +136,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                   /// CALENDAR BUTTON
                                   Container(
-                                    height: 5.h,
-                                    width: 5.h,
+                                    height: 6.h,
+                                    width: 6.h,
                                     decoration: BoxDecoration(
                                       color: Colors.indigo,
                                       borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(8),
-                                        bottomRight: Radius.circular(8),
+                                        topRight: Radius.circular(4),
+                                        bottomRight: Radius.circular(4),
                                       ),
                                     ),
                                     child: Icon(
-                                      Icons.calendar_month_outlined,
+                                      Icons.search,
                                       color: Colors.white,
-                                      size: 11.sp,
+                                      size: 13.sp,
                                     ),
                                   ),
                                 ],
@@ -170,9 +171,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 2.h),
 
                     /// 🔥 SOCIAL CONNECT SECTION
-                    Row(
+                    Wrap(
+                      spacing: 2.w,
+                      runSpacing: 2.h,
                       children: [
-                        Expanded(
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width > 800 ? 38.w : 200.w,
                           child: SocialConnectCard(
                             title: "Connect facebook",
                             buttonText: "Facebook Settings",
@@ -190,8 +194,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             },
                           ),
                         ),
-                        SizedBox(width: 2.w),
-                        Expanded(
+                        // SizedBox(width: 2.w),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width > 600 ? 38.w : 200.w,
                           child: SocialConnectCard(
                             title: "Connect WhatsApp",
                             buttonText: "Whatsapp Settings",

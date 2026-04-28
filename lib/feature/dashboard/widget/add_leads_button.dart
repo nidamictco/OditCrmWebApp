@@ -34,14 +34,14 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
 
-          height: 5.h,
+          height: 6.h,
           padding: const EdgeInsets.symmetric(horizontal: 12),
 
           decoration: BoxDecoration(
             color: isHovering
                 ? AppColors.green
                 : AppColors.green.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(4),
           ),
 
           child: Row(
@@ -49,14 +49,14 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
               Icon(
                 Icons.add_circle_outline,
                 color: isHovering ? Colors.white : AppColors.green,
-                size: 2.h,
+                size: 2.5.h,
               ),
               const SizedBox(width: 5),
               Text(
                 "Add Leads",
                 style: AppTextStyle.small(
                   color: isHovering ? Colors.white : AppColors.green,
-                  size: 10.sp,
+                  size: 11.sp,
                 ),
               ),
             ],
