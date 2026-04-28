@@ -79,7 +79,6 @@ class AppTextStyle {
       // decorationThickness: 1.5,
       decorationStyle: TextDecorationStyle.solid,
       letterSpacing: 0.2,
-
     );
   }
 }
