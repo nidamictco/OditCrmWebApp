@@ -62,13 +62,13 @@ class AppTextStyle {
   }
 
   /// LINK TEXT
-  static TextStyle link({Color? color, double? size, FontWeight? weight}) {
+  static TextStyle link({Color? color, double? size, FontWeight? weight,}) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.primary,
       fontSize: size ?? 11.sp,
       fontWeight: weight ?? FontWeight.w500,
       decoration: TextDecoration.underline,
-      decorationColor: AppColors.primary,
+      decorationColor:color?? AppColors.primary,
     );
   }
 }

@@ -30,9 +30,25 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _header(),
-            SizedBox(height: 2.h),
-            _cardContainer(),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // ── Blue gradient header ──
+                _header(),
+                // ── Card overlapping the header ──
+                Positioned(
+                  top: 10.h, // starts 10h from top of header (overlaps bottom)
+                  left: 4.w,
+                  right: 4.w,
+                  child: _cardContainer(),
+                ),
+              ],
+            ),
+
+            // _header(),
+            // SizedBox(height: 2.h),
+            // _cardContainer(),
+            SizedBox(height: 8.h),
           ],
         ),
       ),
@@ -44,9 +60,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
     return Container(
       height: 18.h,
       width: double.infinity,
-      decoration: BoxDecoration( 
-        gradient: AppColors.gradientBlue,
-      ),
+      decoration: BoxDecoration(gradient: AppColors.gradientBlue),
     );
   }
 
@@ -59,19 +73,15 @@ class _GeneralSettingsState extends State<GeneralSettings> {
         padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(5),
           boxShadow: [
-            BoxShadow(
-              blurRadius: 10,
-              color: Colors.black.withOpacity(0.05),
-            )
+            BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.05)),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _tabs(),
-            Divider(),
             SizedBox(height: 1.h),
             selectedTab == 0 ? _pushNotifications() : _otherSettings(),
           ],
@@ -82,11 +92,17 @@ class _GeneralSettingsState extends State<GeneralSettings> {
 
   /// 🔷 TAB BAR
   Widget _tabs() {
-    return Row(
+    return Column(
       children: [
-        _tabItem("Push Notifications", 0),
-        SizedBox(width: 6.w),
-        _tabItem("Other Settings", 1),
+        Row(
+          children: [
+            _tabItem("Push Notifications", 0),
+            SizedBox(width: 6.w),
+            _tabItem("Other Settings", 1),
+          ],
+        ),
+
+        Divider(height: 1, thickness: 1, color: AppColors.divider),
       ],
     );
   }
@@ -109,9 +125,10 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           SizedBox(height: 0.7.h),
           Container(
             height: 2,
-            width: 25.w,
+            width: 15.w,
+            // ✅ active tab line drawn ON TOP of the divider
             color: isSelected ? AppColors.primary : Colors.transparent,
-          )
+          ),
         ],
       ),
     );
@@ -190,10 +207,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
   Widget _sectionTitle(String text) {
     return Padding(
       padding: EdgeInsets.only(top: 1.h, bottom: 0.5.h),
-      child: Text(
-        text,
-        style: AppTextStyle.link(),
-      ),
+      child: Text(text, style: AppTextStyle.link(color: AppColors.black)),
     );
   }
 
@@ -218,7 +232,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 SizedBox(height: 0.5.h),
                 Text(
                   subtitle,
-                  style: AppTextStyle.small(),
+                  style: AppTextStyle.medium(color: AppColors.grey),
                 ),
               ],
             ),
