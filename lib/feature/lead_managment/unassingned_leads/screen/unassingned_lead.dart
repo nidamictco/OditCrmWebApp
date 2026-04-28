@@ -6,6 +6,7 @@ import 'package:login_2_it_solution/core/utils/input_date.dart';
 import 'package:login_2_it_solution/core/utils/show_entries.dart';
 import 'package:login_2_it_solution/core/utils/table.dart';
 import 'package:login_2_it_solution/core/utils/top_bread_crumb_bar.dart';
+import 'package:login_2_it_solution/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class UnassingnedLead extends StatefulWidget {
@@ -97,20 +98,25 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                               weight: FontWeight.w600,
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 1.4.w,
-                              vertical: 1.2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              "Import",
-                              style: AppTextStyle.medium(
-                                color: Colors.white,
-                                weight: FontWeight.w400,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>MainScreen(selectedIndex: 14,)));
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 1.4.w,
+                                vertical: 1.2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                "Import",
+                                style: AppTextStyle.medium(
+                                  color: Colors.white,
+                                  weight: FontWeight.w400,
+                                ),
                               ),
                             ),
                           ),

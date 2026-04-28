@@ -99,48 +99,14 @@ class _SidebarItemState extends State<SidebarItem> {
                   subMenuItem("Import Leads", 14),
                   subMenuItem("Call History ", 3),
                   subMenuItem("Delete Leads", 4),
-                  subMenuItem("Unassigned Leads", 13),
                   subMenuItem("Transfer Leads", 5),
+                  subMenuItem("Unassigned Leads", 13),
                   subMenuItem("Phone Call Log ", 6),
                 ],
               ),
             ),
 
-            ///staff managment
-            Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                initiallyExpanded: isStaffSelected,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-                childrenPadding: EdgeInsets.zero,
-
-                visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                leading: Icon(
-                  Symbols.article_person_sharp,
-                  color: isStaffSelected ? AppColors.primary : AppColors.grey,
-                ),
-
-                title: Text(
-                  "Staff Management",
-                  style: AppTextStyle.medium(
-                    size: 14,
-                    color: isStaffSelected ? AppColors.primary : AppColors.grey,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-
-                children: [
-                  subMenuItem("Add Staff", 15),
-                  subMenuItem("View Staff", 16),
-                  subMenuItem("Designation", 17),
-                  subMenuItem("Delete Staff", 18),
-                ],
-              ),
-            ),
-
+           
             ///settings
             Theme(
               data: Theme.of(
@@ -177,6 +143,46 @@ class _SidebarItemState extends State<SidebarItem> {
                 ],
               ),
             ),
+
+
+             ///staff managment
+            Theme(
+              data: Theme.of(
+                context,
+              ).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                initiallyExpanded: isStaffSelected,
+                tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+                childrenPadding: EdgeInsets.zero,
+
+                visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+                leading: Icon(
+                  Symbols.article_person_sharp,
+                  color: isStaffSelected ? AppColors.primary : AppColors.grey,
+                ),
+
+                title: Text(
+                  "Staff Management",
+                  style: AppTextStyle.medium(
+                    size: 14,
+                    color: isStaffSelected ? AppColors.primary : AppColors.grey,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+
+                children: [
+                  subMenuItem("Add Staff", 15),
+                  subMenuItem("View Staff", 16),
+                  subMenuItem("Designation", 17),
+                  subMenuItem("Delete Staff", 18),
+                ],
+              ),
+            ),
+
+
+
+
 
             ///file manager
             Theme(

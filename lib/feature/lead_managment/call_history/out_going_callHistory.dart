@@ -19,66 +19,85 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(2.w),
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 2.w),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 15.w,
-                          child: Dropdown(label: "Staff", hint: 'All'),
-                        ),
-                        SizedBox(width: 1.w),
-                        SizedBox(
-                          width: 15.w,
-                          child: Dropdown(label: 'Lead Category', hint: 'All'),
-                        ),
-                        SizedBox(width: 1.w),
-                        SizedBox(
-                          width: 15.w,
-                          child: Dropdown(label: 'Lead Source', hint: 'All'),
-                        ),
-                        SizedBox(width: 1.w),
-                       SizedBox(
-                      width: 7.w,
-                      height: 4.5.h,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: const Color(0xff1BAA90),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "View",
-                            style: AppTextStyle.small(
-                              size: 10.sp,
-                              color: Colors.white,
-                            ),
-                          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(2.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 2.w),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.w,
+                        vertical: 2.h,
+                      ),
+                      child: Text(
+                        "Outgoing Call History ",
+                        style: AppTextStyle.medium(
+                          size: 13.6.sp,
+                          color: AppColors.black.withOpacity(0.77),
+                          weight: FontWeight.w600,
                         ),
                       ),
                     ),
-                      ],
+                    Divider(color: AppColors.divider),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 15.w,
+                            child: Dropdown(label: "Staff", hint: 'All'),
+                          ),
+                          SizedBox(width: 1.w),
+                          SizedBox(
+                            width: 15.w,
+                            child: Dropdown(
+                              label: 'Lead Category',
+                              hint: 'All',
+                            ),
+                          ),
+                          SizedBox(width: 1.w),
+                          SizedBox(
+                            width: 15.w,
+                            child: Dropdown(label: 'Lead Source', hint: 'All'),
+                          ),
+                          SizedBox(width: 1.w),
+                          SizedBox(
+                            width: 7.w,
+                            height: 4.5.h,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: const Color(0xff1BAA90),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "View",
+                                  style: AppTextStyle.small(
+                                    size: 10.sp,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 1.h),
-                 Divider(color: AppColors.divider,),
-                 ShowEntries(),
-                 SizedBox(
+                    SizedBox(height: 1.h),
+                    Divider(color: AppColors.divider),
+                    ShowEntries(),
+                    SizedBox(
                       child: CustomTable(
                         columns: [
                           // TableColumn(title: "", flex: 1),
@@ -88,7 +107,7 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
                           TableColumn(title: "Date", flex: 4),
                           TableColumn(title: "Event ID ", flex: 4),
                           TableColumn(title: "Response", flex: 4),
-                        ], 
+                        ],
                         rows:
                             [
                               [
@@ -97,7 +116,7 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
                                 "1234567890",
                                 "test",
                                 "test",
-                                'test'
+                                'test',
                               ],
                               [
                                 "1",
@@ -128,11 +147,12 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
                       ),
                     ),
                     Footer(),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

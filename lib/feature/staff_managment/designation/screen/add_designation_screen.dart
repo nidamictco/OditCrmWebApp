@@ -466,11 +466,11 @@ class _DesignationPermissionsScreenState
                       SizedBox(height: 1.5.h),
                       ..._groups.asMap().entries.map(
                         (e) => Padding(
-                          padding: EdgeInsets.only(bottom: 1.5.h),
+                          padding: EdgeInsets.only(bottom: 3.h),
                           child: _buildPermissionGroup(e.key, e.value),
                         ),
                       ),
-                      SizedBox(height: 1.h),
+                      SizedBox(height: 3.h),
                     ],
                   ),
                 ),
@@ -559,8 +559,8 @@ class _DesignationPermissionsScreenState
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.divider),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: AppColors.primary.withOpacity(0.69)),
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withOpacity(0.04),
@@ -598,23 +598,28 @@ class _DesignationPermissionsScreenState
                     child: Text(
                       group.title,
                       style: AppTextStyle.body(
+                        size: 11.3.sp,
                         color: AppColors.primary,
-                        weight: FontWeight.w600,
+                        weight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  Icon(
-                    group.expanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.grey,
-                    size: 14.sp,
-                  ),
+                  // Icon(
+                  //   group.expanded
+                  //       ? Icons.keyboard_arrow_up_rounded
+                  //       : Icons.keyboard_arrow_down_rounded,
+                  //   color: AppColors.grey,
+                  //   size: 14.sp,
+                  // ),
                 ],
               ),
             ),
           ),
-          if (group.expanded) _buildTable(groupIndex, group),
+          if (group.expanded)
+            Padding(
+              padding: EdgeInsets.all(1.w),
+              child: _buildTable(groupIndex, group),
+            ),
         ],
       ),
     );
@@ -623,7 +628,7 @@ class _DesignationPermissionsScreenState
   // ── Permissions Table ─────────────────────────────────────────────────────
 
   Widget _buildTable(int groupIndex, PermissionGroup group) {
-    final menuColW = 40.w;
+    final menuColW = 20.w;
     final permColW = 11.w;
     const cols = ['Menu', 'Create', 'View', 'Edit', 'Delete', 'Other'];
 
@@ -638,6 +643,8 @@ class _DesignationPermissionsScreenState
               border: Border(
                 top: BorderSide(color: AppColors.divider),
                 bottom: BorderSide(color: AppColors.divider),
+                left: BorderSide(color: AppColors.divider),
+                right: BorderSide(color: AppColors.divider),
               ),
             ),
             child: Row(
@@ -657,10 +664,7 @@ class _DesignationPermissionsScreenState
                   alignment: isMenu ? Alignment.centerLeft : Alignment.center,
                   child: Text(
                     e.value,
-                    style: AppTextStyle.small(
-                      color: AppColors.black,
-                      weight: FontWeight.w600,
-                    ),
+                    style: AppTextStyle.medium(weight: FontWeight.w600),
                   ),
                 );
               }).toList(),
@@ -694,9 +698,12 @@ class _DesignationPermissionsScreenState
       decoration: BoxDecoration(
         color: itemIndex.isEven ? AppColors.white : AppColors.container,
         border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : BorderSide(color: AppColors.divider),
+          // bottom: isLast
+          //     ? BorderSide.none
+          //     : BorderSide(color: AppColors.divider),
+          bottom: BorderSide(color: AppColors.divider),
+          left: BorderSide(color: AppColors.divider),
+          right: BorderSide(color: AppColors.divider),
         ),
       ),
       child: Row(
@@ -753,11 +760,11 @@ class _DesignationPermissionsScreenState
         child: enabled
             ? _buildCheckbox(
                 value: checked,
-                size: 1.sp,
+                size: 2.w,
                 onChanged: (_) =>
                     _togglePermission(groupIndex, itemIndex, type),
               )
-            : Icon(Icons.check_box, size: 11.sp, color: AppColors.lightGrey),
+            : Icon(Icons.check_box, size: 1.5.w, color: AppColors.lightGrey),
       );
     }).toList();
   }
@@ -779,7 +786,7 @@ class _DesignationPermissionsScreenState
         checkColor: AppColors.white,
         side: BorderSide(
           color: value ? AppColors.primary : AppColors.grey,
-          width: 1.5,
+          width: 0.07.w,
         ),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: VisualDensity.compact,
@@ -790,29 +797,20 @@ class _DesignationPermissionsScreenState
   // ── Submit Bar ────────────────────────────────────────────────────────────
 
   Widget _buildSubmitBar() {
-    return Container(
-      // ✅ color moved inside BoxDecoration
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.divider)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        3.w,
-        1.5.h,
-        3.w,
-        1.5.h + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton(
+    return Padding(
+      padding: EdgeInsets.all(2.w),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: SizedBox(
+          width: 7.5.w,
+          child: ElevatedButton(
             onPressed: _handleSubmit,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.green,
               foregroundColor: AppColors.white,
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.6.h),
+              padding: EdgeInsets.symmetric(horizontal: 0.5.w, vertical: 0.5.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(4),
               ),
               elevation: 0,
             ),
@@ -824,7 +822,7 @@ class _DesignationPermissionsScreenState
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
