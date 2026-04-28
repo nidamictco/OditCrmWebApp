@@ -148,7 +148,7 @@ class _ViewPageState extends State<ViewPage> {
                   size: 10.sp,
                   weight: FontWeight.w400,
                   color: Colors.grey.shade700,
-                ),
+                ), 
               ),
             ],
           ),

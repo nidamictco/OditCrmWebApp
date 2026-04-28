@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_2_it_solution/feature/rightside_menu/call_settings.dart/screen/call_settings.dart';
 import 'package:login_2_it_solution/feature/auth/screen/login.dart';
 import 'package:login_2_it_solution/feature/dashboard/dashboard.dart';
 import 'package:login_2_it_solution/feature/rightside_menu/lead_category/lead_category.dart';
@@ -28,32 +29,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-class Test extends StatefulWidget {
-  const Test({super.key});
-
-  @override
-  State<Test> createState() => _TestState();
-}
-
-class _TestState extends State<Test> {
-  @override
-  Widget build(BuildContext context) {
-    return 
-Scaffold(
-  appBar: AppBar(
-    actions: [
-      PopupMenuButton<String>(
-        onSelected: (value) {
-          print(value);
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(value: "A", child: Text("A")),
-          PopupMenuItem(value: "B", child: Text("B")),
-        ],
-      ),
-    ],
-  ),
-);;
-  }
-}

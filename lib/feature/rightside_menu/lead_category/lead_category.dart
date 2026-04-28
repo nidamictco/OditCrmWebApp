@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login_2_it_solution/core/utils/table.dart';
 import 'package:login_2_it_solution/core/utils/top_bread_crumb_bar.dart';
+import 'package:login_2_it_solution/feature/rightside_menu/lead_category/widget/popup_msg.dart';
 import 'package:sizer/sizer.dart';
 import 'package:login_2_it_solution/core/theme/app_colors.dart';
 import 'package:login_2_it_solution/core/theme/app_text_style.dart';
@@ -13,7 +14,10 @@ class LeadCategory extends StatefulWidget {
 }
 
 class _LeadCategoryState extends State<LeadCategory> {
-  bool isHovering = false;
+  int? hoveringIndex;
+
+  final TextEditingController categoryController = TextEditingController();
+  final TextEditingController costController = TextEditingController();
 
   int selectedEntries = 10;
   String selectedValue = '10';
@@ -106,21 +110,183 @@ class _LeadCategoryState extends State<LeadCategory> {
                           Row(
                             children: [
                               _actionBtn(
+                                0,
                                 "Add New",
                                 AppColors.greenLight,
                                 AppColors.green,
+                                () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AppDialog(
+                                        title: 'Add Lead Category',
+                                        body: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            /// Lead Category
+                                            const Text("Lead Category"),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: categoryController,
+                                              decoration: InputDecoration(
+                                                hintText: "Enter Category",
+                                                hintStyle: AppTextStyle.medium(
+                                                  size: 11.sp,
+                                                  color: AppColors.grey,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 16),
+
+                                            /// Cost
+                                            const Text("Cost"),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: costController,
+                                              decoration: InputDecoration(
+                                                hintText: "Enter Category",
+                                                hintStyle: AppTextStyle.medium(
+                                                  size: 11.sp,
+                                                  color: AppColors.grey,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // submitText: 'Submit',
+                                        onSubmit: () {
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                               SizedBox(width: 1.w),
                               _actionBtn(
+                                1,
                                 "Import",
                                 AppColors.blueLight,
                                 AppColors.primary,
+                                () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AppDialog(
+                                        title: 'Bulk Upload',
+                                        body: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            /// Lead Category
+                                            Text(
+                                              "Import CSV File",
+                                              style: AppTextStyle.medium(
+                                                size: 11.sp,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Container(
+                                              height: 5.h,
+                                              width: 50.w,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.white,
+                                                border: Border.all(
+                                                  color: AppColors.divider,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.file_upload),
+                                                  SizedBox(width: 1.h),
+                                                  Text(
+                                                    "Upload CSV File",
+                                                    style:
+                                                        AppTextStyle.medium(),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'Simple File',
+                                              style: AppTextStyle.small(
+                                                color: Colors.indigo,
+                                                size: 11.sp,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // submitText: 'Submit',
+                                        onSubmit: () {
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                               SizedBox(width: 1.w),
                               _actionBtn(
+                                2,
                                 "Bulk Add",
                                 AppColors.orangeLight,
                                 AppColors.orange,
+                                () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AppDialog(
+                                        title: 'Bulk Add Category',
+                                        body: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            /// Lead Category
+                                            const Text("Lead Category"),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: categoryController,
+                                              decoration: InputDecoration(
+                                                hintText: "Enter Category",
+                                                hintStyle: AppTextStyle.medium(
+                                                  size: 11.sp,
+                                                  color: AppColors.grey,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 16),
+                                          ],
+                                        ),
+                                        // submitText: 'Submit',
+                                        onSubmit: () {
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -271,14 +437,22 @@ class _LeadCategoryState extends State<LeadCategory> {
   }
 
   /// 🔹 ACTION BUTTON
-  Widget _actionBtn(String text, Color bg, Color color) {
+  Widget _actionBtn(
+    int index,
+    String text,
+    Color bg,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    final isHovering = hoveringIndex == index;
+
     return MouseRegion(
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
+      onEnter: (_) => setState(() => hoveringIndex = index),
+      onExit: (_) => setState(() => hoveringIndex = null),
       child: GestureDetector(
+        onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
           height: 5.h,
           padding: EdgeInsets.symmetric(horizontal: 3.w),
           decoration: BoxDecoration(
