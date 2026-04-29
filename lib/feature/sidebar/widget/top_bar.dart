@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/feature/sidebar/widget/hover/hover_icon.dart';
-import 'package:login_2_it_solution/feature/sidebar/widget/hover/profile_hover.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/feature/sidebar/widget/hover/hover_icon.dart';
+import 'package:oxdo/feature/sidebar/widget/hover/profile_hover.dart';
 import 'package:sizer/sizer.dart';
 
 

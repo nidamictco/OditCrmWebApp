@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/footer.dart';
-import 'package:login_2_it_solution/core/utils/show_entries.dart';
-import 'package:login_2_it_solution/core/utils/staff_top_bar.dart';
-import 'package:login_2_it_solution/core/utils/table.dart';
-import 'package:login_2_it_solution/feature/sidebar/main_screen.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/footer.dart';
+import 'package:oxdo/core/utils/show_entries.dart';
+import 'package:oxdo/core/utils/staff_top_bar.dart';
+import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class StaffReports extends StatefulWidget {
@@ -16,8 +16,7 @@ class StaffReports extends StatefulWidget {
 }
 
 class _StaffReportsState extends State<StaffReports> {
-
-bool isHovering = false;
+  bool isHovering = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,16 +29,18 @@ bool isHovering = false;
               parent: 'Staff Management',
               current: 'Staff Reports',
             ),
-            Padding(padding: EdgeInsets.all(2.w), child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Column(
-                children: [
-                  ///TITLE BAR
-                 Padding(
+            Padding(
+              padding: EdgeInsets.all(2.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Column(
+                  children: [
+                    ///TITLE BAR
+                    Padding(
                       padding: EdgeInsets.only(
                         left: 2.w,
                         right: 2.w,
@@ -56,7 +57,13 @@ bool isHovering = false;
                             onExit: (_) => setState(() => isHovering = false),
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 15,)));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        MainScreen(selectedIndex: 15),
+                                  ),
+                                );
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -91,7 +98,7 @@ bool isHovering = false;
                       ),
                     ),
                     Divider(color: AppColors.divider),
-                   SizedBox(height: 2.h),
+                    SizedBox(height: 2.h),
                     ShowEntries(),
                     SizedBox(
                       child: CustomTable(
@@ -105,31 +112,24 @@ bool isHovering = false;
                         ],
                         rows:
                             [
-                              ["1", "name", "1234567890", "10 min"],
-                              ["1", "name", "1234567890", "10 min"],
-                              ["1", "name", "1234567890", "10 min"],
+                              ["1", "name", "1234567890", "Telecalling"],
+                              ["2", "name", "1234567890", "Telecalling"],
+                              ["3", "name", "1234567890", "Telecalling"],
+                              ["4", "name", "1234567890", "Telecalling"],
                             ].map((row) {
                               return [
                                 Text(row[0], style: AppTextStyle.medium()),
                                 Text(row[1], style: AppTextStyle.medium()),
                                 Text(row[2], style: AppTextStyle.medium()),
-                                
+                                Text(row[3], style: AppTextStyle.medium()),
                                 Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                      SizedBox(width: 0.2.w),
-                                      Icon(
-                                        Icons.delete_outline,
-                                        size: 14.sp,
-                                        color: Colors.red,
-                                      ),
-                                    ],
+                                  child: IconButton(
+                                    icon: Icon(
+                                    Icons.preview,
+                                    size: 14.sp,
+                                    color: Colors.blue,
+                                  ),
+                                  onPressed: () {},
                                   ),
                                 ),
                               ];
@@ -137,9 +137,10 @@ bool isHovering = false;
                       ),
                     ),
                     Footer(),
-                ],
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),

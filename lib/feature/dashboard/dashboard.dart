@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/custom_calender.dart';
-import 'package:login_2_it_solution/core/utils/menu_hover_bottun.dart';
-import 'package:login_2_it_solution/feature/dashboard/widget/add_leads_button.dart';
-import 'package:login_2_it_solution/feature/dashboard/widget/social_connect_card.dart';
-import 'package:login_2_it_solution/feature/sidebar/main_screen.dart';
-import 'package:login_2_it_solution/feature/sidebar/widget/bottom_bar.dart';
-import 'package:login_2_it_solution/feature/dashboard/widget/dashboard_card.dart';
-import 'package:login_2_it_solution/feature/sidebar/widget/top_bar.dart';
-import 'package:login_2_it_solution/feature/sidebar/sidebar_item.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/custom_calender.dart';
+import 'package:oxdo/core/utils/menu_hover_bottun.dart';
+import 'package:oxdo/feature/dashboard/widget/add_leads_button.dart';
+import 'package:oxdo/feature/dashboard/widget/dashboard_card.dart';
+import 'package:oxdo/feature/dashboard/widget/social_connect_card.dart';
+import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class DashboardScreen extends StatefulWidget {

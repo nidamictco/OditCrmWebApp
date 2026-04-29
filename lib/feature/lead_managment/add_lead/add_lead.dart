@@ -1,10 +1,11 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/menu_hover_bottun.dart';
-import 'package:login_2_it_solution/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/menu_hover_bottun.dart';
+import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
@@ -17,6 +18,9 @@ class AddLeadPage extends StatefulWidget {
 
 class _AddLeadPageState extends State<AddLeadPage> {
   bool isHovering = false;
+
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController costController = TextEditingController();
 
   final List<String> leadCategory = [
     "Select lead Type ",
@@ -225,6 +229,107 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                         items: leadCategory,
                                         selectedValue: selectedCategory,
                                         onChanged: (String? p1) {},
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AppDialog(
+                                                title: 'Add Lead Category',
+                                                body: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    /// Lead Category
+                                                    Text(
+                                                      "Lead Category",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          categoryController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Category",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(height: 2.h),
+
+                                                    /// Cost
+                                                    Text(
+                                                      "Cost",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          costController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Category",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+
+                                                    Row(
+                                                      children: [
+                                                        Checkbox(
+                                                          value: false,
+                                                          onChanged: (value) {},
+                                                        ),
+                                                        SizedBox(width: 0.1),
+                                                        Text(
+                                                          "Add Subcategory",
+                                                          style:
+                                                              AppTextStyle.medium(
+                                                                size: 11.sp,
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                // submitText: 'Submit',
+                                                onSubmit: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
                                     ),
                                   ],
@@ -242,6 +347,59 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                           setState(() {
                                             selectedSource = p1?.trim();
                                           });
+                                        },
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AppDialog(
+                                                title: 'Add Lead Source',
+                                                body: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    /// Lead Category
+                                                    Text(
+                                                      "Lead Source",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          categoryController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Source",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(height: 2.h),
+                                                  ],
+                                                ),
+                                                // submitText: 'Submit',
+                                                onSubmit: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                          );
                                         },
                                       ),
                                     ),

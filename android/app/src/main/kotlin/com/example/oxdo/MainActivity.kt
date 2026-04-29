@@ -1,4 +1,4 @@
-package com.example.login_2_it_solution
+package com.example.oxdo
 
 import io.flutter.embedding.android.FlutterActivity
 

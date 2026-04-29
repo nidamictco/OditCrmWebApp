@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/tool_tips.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/tool_tips.dart';
 import 'package:sizer/sizer.dart';
 
 class Dropdown extends StatefulWidget {
   final String label;
   final String hint;
   final bool showHelp;
+  final bool showIcon;
   final List<String> items;
   final String? selectedValue;
   final Function(String?)? onChanged;
@@ -19,6 +20,7 @@ class Dropdown extends StatefulWidget {
     super.key,
     required this.label,
     required this.hint,
+    this.showIcon = false,
     this.showHelp = false,
     this.items = const [],
     this.selectedValue,
@@ -48,26 +50,15 @@ class _DropdownState extends State<Dropdown> {
         /// 🔹 LABEL + OPTIONAL HELP
         Row(
           children: [
+            if (widget.showIcon)
+              Icon(
+                Icons.person_2_outlined,
+                size: 12.sp,
+                color: AppColors.green,
+              ),
             Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
 
-            if (widget.showHelp) ...[
-              // SizedBox(width: 0.5.w),
-              // Container(
-              //   height: 1.8.h,
-              //   width: 1.8.h,
-              //   decoration: BoxDecoration(
-              //     border: Border.all(color: AppColors.green),
-              //     shape: BoxShape.circle,
-              //   ),
-              //   child: Center(
-              //     child: Text(
-              //       "?",
-              //       style: TextStyle(fontSize: 9.sp, color: AppColors.green),
-              //     ),
-              //   ),
-              // ),
-              ToolTipWidget(message: widget.message),
-            ],
+            if (widget.showHelp) ...[ToolTipWidget(message: widget.message)],
           ],
         ),
 
@@ -76,13 +67,20 @@ class _DropdownState extends State<Dropdown> {
         /// 🔹 DROPDOWN
         Container(
           height: 5.5.h,
-          padding: EdgeInsets.symmetric(horizontal: 1.w),
+          // padding: EdgeInsets.symmetric(horizontal: 1.w),
           decoration: _box(),
 
           child: DropdownSearch<String>(
             items: widget.items,
             selectedItem: widget.selectedValue,
             enabled: widget.enabled && widget.items.isNotEmpty,
+
+            dropdownButtonProps: DropdownButtonProps(
+              icon: Padding(
+                padding: EdgeInsets.only(right: 1.w),
+                child: Icon(Icons.keyboard_arrow_down),
+              ),
+            ),
 
             /// 🔥 POPUP STYLE
             popupProps: PopupProps.menu(
@@ -93,6 +91,11 @@ class _DropdownState extends State<Dropdown> {
 
             /// 🔥 INPUT STYLE
             dropdownDecoratorProps: DropDownDecoratorProps(
+              baseStyle: AppTextStyle.medium(
+                size: 11.sp,
+                weight: FontWeight.w400,
+                color: AppColors.black,
+              ),
               dropdownSearchDecoration: InputDecoration(
                 hintText: widget.hint,
                 hintStyle: AppTextStyle.small(
@@ -100,21 +103,27 @@ class _DropdownState extends State<Dropdown> {
                   color: AppColors.grey,
                 ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 1.w,
+                  // vertical: 1.5.h,
+                ),
               ),
-            ),
+            ), 
 
             /// 🔥 DISPLAY SELECTED VALUE (IMPORTANT FIX)
             dropdownBuilder: (context, selectedItem) {
               final isHint = selectedItem == null;
 
-              return Text(
-                isHint ? "Select ${widget.label}" : selectedItem,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: isHint
-                    ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                    : AppTextStyle.medium(size: 11.sp),
+              return Padding(
+                padding: EdgeInsets.all(0.4.w),
+                child: Text(
+                  isHint ? "Select ${widget.label}" : selectedItem,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: isHint
+                      ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
+                      : AppTextStyle.medium(size: 11.sp),
+                ),
               );
             },
 
