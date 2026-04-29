@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:sizer/sizer.dart';
 
 class FieldPositionDialog extends StatelessWidget {
@@ -10,7 +11,7 @@ class FieldPositionDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Container(
-        width: 500,
+        width: 30.w,
         padding: const EdgeInsets.all(0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -25,9 +26,12 @@ class FieldPositionDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Field Position",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.medium(
+                      size: 13.sp,
+                      weight: FontWeight.w600,
+                    ),
                   ),
                   InkWell(
                     onTap: () => Navigator.pop(context),
@@ -51,24 +55,27 @@ class FieldPositionDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: const Color(0xFF9EC3DC)),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Note: Field Position start from 0",
-                      style: TextStyle(color: Colors.black87),
+                      style: AppTextStyle.medium(
+                        color: Colors.black87,
+                        size: 11.sp,
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 2.h),
 
                   /// INPUT FIELDS
                   _buildField("Client Name", "0"),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 1.h),
 
                   _buildField("Phone", "1"),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 1.h),
 
                   _buildField("Address", "2"),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: 2.h),
 
                   /// BUTTONS
                   Row(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/utils/table.dart';
-import 'package:login_2_it_solution/core/utils/top_bread_crumb_bar.dart';
-import 'package:login_2_it_solution/feature/rightside_menu/lead_category/widget/popup_msg.dart';
+import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:sizer/sizer.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
 
 class LeadCategory extends StatefulWidget {
   const LeadCategory({super.key});

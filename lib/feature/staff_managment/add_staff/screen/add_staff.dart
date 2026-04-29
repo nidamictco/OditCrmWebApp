@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/dropdown.dart';
-import 'package:login_2_it_solution/core/utils/staff_top_bar.dart';
-import 'package:login_2_it_solution/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/staff_top_bar.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
 import 'package:sizer/sizer.dart';
 
 class AddStaff extends StatefulWidget {
@@ -282,7 +282,7 @@ class _AddStaffState extends State<AddStaff> {
     return Column(
       children: [
         InputField(label: "Phone Number*", hint: "Enter Phone Number"),
-        Dropdown(label: "Designation*",hint: "select designation",),
+        DropdownWithAdd(label: "Designation", items: ['Telecalling'], onTap: () {  }, selectedValue: '', onChanged: (String? p1) {  },showIcon: true,),
         InputField(label: "Email Id", hint: "Enter Your Email"),
         InputField(label: "Salary", hint: "Enter Salary"),
         Dropdown(label: "Accessible Users",hint: "select accessible users",),

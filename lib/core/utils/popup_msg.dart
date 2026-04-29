@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:sizer/sizer.dart';
 
 class AppDialog extends StatelessWidget {
   final String title;
@@ -40,27 +42,21 @@ class AppDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text(title, style: AppTextStyle.medium(size: 13.sp)),
                   InkWell(
                     onTap: onClose ?? () => Navigator.pop(context),
-                    child: const Icon(Icons.close),
+                    child: Icon(Icons.close, color: AppColors.black),
                   ),
                 ],
               ),
             ),
 
             /// 🔹 BODY (Reusable)
-            Padding(padding: const EdgeInsets.all(20), child: body),
+            Padding(padding: EdgeInsets.all(2.w), child: body),
 
             /// 🔹 FOOTER
             Padding(
-              padding: const EdgeInsets.only(right: 20, bottom: 20),
+              padding: EdgeInsets.only(right: 2.w, bottom: 2.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -68,35 +64,37 @@ class AppDialog extends StatelessWidget {
                   TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.grey.shade200,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.w,
+                        vertical: 1.w,
                       ),
                     ),
                     onPressed: onClose ?? () => Navigator.pop(context),
-                    child: const Text(
+                    child: Text(
                       "Close",
-                      style: TextStyle(color: Colors.black),
+                      style: AppTextStyle.small(
+                        size: 10.sp,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  SizedBox(width: 1.w),
 
                   /// Submit
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4C5A8E),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.w,
+                        vertical: 1.w,
                       ),
                     ),
                     onPressed: onSubmit,
                     child: Text(
                       'Submit',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                      style: AppTextStyle.small(
+                        size: 10.sp,
                         color: AppColors.white,
                       ),
                     ),

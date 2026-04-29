@@ -1,172 +1,34 @@
-// import 'package:flutter/material.dart';
-// import 'package:dropdown_search/dropdown_search.dart';
-// import 'package:login_2_it_solution/core/theme/app_colors.dart';
-// import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-// import 'package:sizer/sizer.dart';
-
-// class DropdownWithAdd extends StatefulWidget {
-//   final String label;
-//   final IconData icon;
-//   final List<String> items;
-//   final String? selectedValue;
-//   final Function(String?) onChanged;
-
-//   const DropdownWithAdd({
-//     super.key,
-//     required this.label,
-//     required this.icon,
-//     required this.items,
-//     required this.selectedValue,
-//     required this.onChanged,
-//   });
-
-//   @override
-//   State<DropdownWithAdd> createState() => _DropdownWithAddState();
-// }
-
-// class _DropdownWithAddState extends State<DropdownWithAdd> {
-//   late List<String> localItems;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     localItems = List.from(widget.items);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         /// 🔹 LABEL
-//         Row(
-//           children: [
-//             Icon(widget.icon, size: 16, color: AppColors.green),
-//             const SizedBox(width: 6),
-//             Text(widget.label),
-//           ],
-//         ),
-
-//         const SizedBox(height: 6),
-
-//         /// 🔹 FIELD
-//         Container(
-//           height: 5.5.h,
-//           decoration: BoxDecoration(
-//             border: Border.all(color: AppColors.divider),
-//             borderRadius: BorderRadius.circular(6),
-//             color: AppColors.greyCard,
-//           ),
-//           child: Row(
-//             children: [
-//               /// ➕ ADD BUTTON
-//               GestureDetector(
-//                 onTap: () => _showAddDialog(),
-//                 child: Container(
-//                   width: 50,
-//                   height: double.infinity,
-//                   decoration: const BoxDecoration(
-//                     color: Colors.blue,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(6),
-//                       bottomLeft: Radius.circular(6),
-//                     ),
-//                   ),
-//                   child: const Icon(Icons.add, color: Colors.white),
-//                 ),
-//               ),
-
-//               /// 🔽 DROPDOWN
-//               Expanded(
-//                 child: DropdownSearch<String>(
-//                   items: localItems,
-//                   selectedItem: widget.selectedValue,
-
-//                   popupProps: const PopupProps.menu(showSearchBox: true),
-
-//                   dropdownDecoratorProps: DropDownDecoratorProps(
-//                     baseStyle: AppTextStyle.medium(
-//                       size: 11.sp,
-//                       weight: FontWeight.w400,
-//                     ),
-//                     dropdownSearchDecoration: InputDecoration(
-//                       constraints: BoxConstraints(maxHeight: 50),
-//                       hintText: "Select ${widget.label}",
-//                       border: InputBorder.none,
-//                       contentPadding: EdgeInsets.symmetric(
-//                         horizontal: 1.w,
-//                         vertical: 1.h,
-//                       ),
-//                     ),
-//                   ),
-
-//                   onChanged: widget.onChanged,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   /// 🔥 ADD NEW ITEM DIALOG
-//   void _showAddDialog() {
-//     final TextEditingController controller = TextEditingController();
-
-//     showDialog(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           title: Text("Add ${widget.label}"),
-//           content: TextField(
-//             controller: controller,
-//             decoration: InputDecoration(hintText: "Enter new ${widget.label}"),
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.pop(context),
-//               child: const Text("Cancel"),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 if (controller.text.isNotEmpty) {
-//                   setState(() {
-//                     localItems.add(controller.text);
-//                   });
-//                   Navigator.pop(context);
-//                 }
-//               },
-//               child: const Text("Add"),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/tool_tips.dart';
 import 'package:sizer/sizer.dart';
 
 class DropdownWithAdd extends StatefulWidget {
+  final bool showIcon;
+  final bool showHelp;
   final String label;
   final IconData? icon;
   final List<String> items;
   final String? selectedValue;
+  final VoidCallback onTap;
   final Function(String?) onChanged;
+  final String message;
+  final bool showStar;
 
   const DropdownWithAdd({
     super.key,
+    this.showIcon = false,
+    this.showHelp = false,
     required this.label,
-     this.icon,
+    this.icon,
     required this.items,
+    required this.onTap,
     required this.selectedValue,
     required this.onChanged,
+    this.message="",
+    this.showStar=false,
   });
 
   @override
@@ -190,13 +52,18 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
         /// 🔹 LABEL
         Row(
           children: [
-            Icon(widget.icon, size: 16, color: AppColors.green),
-            const SizedBox(width: 6),
-            Text(widget.label,style: AppTextStyle.medium(size: 11.sp),),
+            if (widget.showIcon) ...[
+              Icon(widget.icon, size: 16, color: AppColors.green),
+              SizedBox(width: 1.w),
+            ],
+            Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
+            if(widget.showStar)...[Container()],
+            if(widget.showHelp)...[ToolTipWidget(message: widget.message)]
+            
           ],
         ),
 
-        const SizedBox(height: 6),
+        SizedBox(height: 1.h),
 
         /// 🔹 FIELD
         Container(
@@ -210,18 +77,18 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
             children: [
               /// ➕ ADD BUTTON
               GestureDetector(
-                onTap: () => _showAddDialog(),
+                onTap: widget.onTap,
                 child: Container(
-                  width: 50,
+                  width: 3.4.w,
                   height: double.infinity,
                   decoration: const BoxDecoration(
                     color: Colors.blue,
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(6),
-                      bottomLeft: Radius.circular(6),
+                      topLeft: Radius.circular(4),
+                      bottomLeft: Radius.circular(4),
                     ),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white),
+                  child: Icon(Icons.add, color: Colors.white),
                 ),
               ),
 
@@ -230,6 +97,13 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                 child: DropdownSearch<String>(
                   items: localItems,
                   selectedItem: widget.selectedValue,
+
+                  dropdownButtonProps: DropdownButtonProps(
+                    icon: Padding(
+                      padding: EdgeInsets.only(right: 1.w),
+                      child: Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ),
 
                   /// 🔥 POPUP STYLE (THIS IS THE MAIN CHANGE)
                   popupProps: PopupProps.menu(
@@ -241,18 +115,20 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
 
                     itemBuilder: (context, item, isSelected) {
                       return Container(
-                        height: 45, // 🔥 fixed item height
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        height: 3.5.h, // 🔥 fixed item height
+                        padding: EdgeInsets.symmetric(horizontal: 1.w),
                         alignment: Alignment.centerLeft,
                         color: isSelected
-                            ? const Color(0xff4A5D9E) // blue highlight like image
+                            ? const Color(
+                                0xff4A5D9E,
+                              ) // blue highlight like image
                             : Colors.white,
                         child: Text(
                           item,
-                          style: TextStyle(
-                            color:
-                                isSelected ? Colors.white : Colors.black87,
-                            fontSize: 12.sp,
+                          style: AppTextStyle.medium(
+                            weight: FontWeight.w400,
+                            color: isSelected ? Colors.white : Colors.black87,
+                            size: 11.sp,
                           ),
                         ),
                       );
@@ -267,8 +143,9 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                     searchFieldProps: TextFieldProps(
                       decoration: InputDecoration(
                         hintText: "Search...",
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -281,9 +158,14 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                     baseStyle: AppTextStyle.medium(
                       size: 11.sp,
                       weight: FontWeight.w400,
+                      color: AppColors.black,
                     ),
                     dropdownSearchDecoration: InputDecoration(
                       hintText: "Select ${widget.label}",
+                      hintStyle: AppTextStyle.small(
+                        size: 11.sp,
+                        color: AppColors.grey,
+                      ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 1.w,
@@ -299,42 +181,6 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
           ),
         ),
       ],
-    );
-  }
-
-  /// 🔥 ADD NEW ITEM DIALOG
-  void _showAddDialog() {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Add ${widget.label}"),
-          content: TextField(
-            controller: controller,
-            decoration:
-                InputDecoration(hintText: "Enter new ${widget.label}"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  setState(() {
-                    localItems.add(controller.text);
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text("Add"),
-            ),
-          ],
-        );
-      },
     );
   }
 }

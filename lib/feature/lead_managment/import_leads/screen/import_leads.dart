@@ -1,11 +1,14 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:login_2_it_solution/core/theme/app_colors.dart';
-import 'package:login_2_it_solution/core/theme/app_text_style.dart';
-import 'package:login_2_it_solution/core/utils/dropdown.dart';
-import 'package:login_2_it_solution/core/utils/top_bread_crumb_bar.dart';
-import 'package:login_2_it_solution/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
-import 'package:login_2_it_solution/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
+import 'package:oxdo/core/theme/app_colors.dart';
+import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/file_picker_field.dart';
+import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/core/utils/tool_tips.dart';
+import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
+import 'package:oxdo/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
 import 'package:sizer/sizer.dart';
 
 class ImportLeads extends StatefulWidget {
@@ -16,6 +19,13 @@ class ImportLeads extends StatefulWidget {
 }
 
 class _ImportLeadsState extends State<ImportLeads> {
+  int selectedTab = 0;
+
+final TextEditingController categoryController=TextEditingController();
+final TextEditingController sourceController=TextEditingController();
+final TextEditingController costController=TextEditingController();
+
+
   final List<String> leadCategory = [
     "Select lead Type ",
     "Need Further Followup",
@@ -51,221 +61,431 @@ class _ImportLeadsState extends State<ImportLeads> {
             ),
             Padding(
               padding: EdgeInsets.all(2.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: Column(
-                  children: [
-                    /// TITLE BAR
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                        vertical: 2.h,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Import Leads",
-                            style: AppTextStyle.medium(
-                              size: 13.6.sp,
-                              color: AppColors.black.withOpacity(0.77),
-                              weight: FontWeight.w600,
-                            ),
+              child: Column(
+                children: [
+                  _tabs(),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Column(
+                      children: [
+                        /// TITLE BAR
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2.w,
+                            vertical: 2.h,
                           ),
-                          Row(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _topButton(
-                                "Sample File",
-                                Colors.orange.shade50,
-                                Colors.orange,
-                              ),
-                              SizedBox(width: 1.w),
-                              InkWell(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) =>
-                                        const FieldPositionDialog(),
-                                  );
-                                },
-                                child: _topButton(
-                                  "Field Settings",
-                                  Colors.blue,
-                                  Colors.white,
+                              Text(
+                                "Import Leads",
+                                style: AppTextStyle.medium(
+                                  size: 13.6.sp,
+                                  color: AppColors.black.withOpacity(0.77),
+                                  weight: FontWeight.w600,
                                 ),
+                              ),
+                              Row(
+                                children: [
+                                  _topButton(
+                                    "Sample File",
+                                    Colors.orange.shade50,
+                                    Colors.orange,
+                                  ),
+                                  SizedBox(width: 1.w),
+                                  InkWell(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) =>
+                                            const FieldPositionDialog(),
+                                      );
+                                    },
+                                    child: _topButton(
+                                      "Field Settings",
+                                      Colors.blue,
+                                      Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Divider(color: AppColors.divider),
-                    SizedBox(height: 2.h),
+                        ),
+                        Divider(color: AppColors.divider),
+                        SizedBox(height: 2.h),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: Text(
-                        "There are two methods available for importing leads. The first option is to refer to the provided sample CSV format and use it directly. Alternatively, you can modify the field settings according to the recommended format before importing the leads.",
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey),
-                      ),
-                    ),
-
-                    SizedBox(height: 3.h),
-                    Padding(
-                      padding: EdgeInsets.only(left: 2.w, right: 40.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /// COUNTRY CODE
-                          _inputContainer(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.flag_outlined),
-                                SizedBox(width: 1.w),
-                                const Text("+91"),
-                              ],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2.w),
+                          child: Text(
+                            "There are two methods available for importing leads. The first option is to refer to the provided sample CSV format and use it directly. Alternatively, you can modify the field settings according to the recommended format before importing the leads.",
+                            style: AppTextStyle.medium(
+                              size: 11.sp,
+                              weight: FontWeight.w400,
+                              // color: AppColors.grey,
                             ),
                           ),
+                        ),
 
-                          SizedBox(height: 2.h),
+                        SizedBox(height: 3.h),
+                        Padding(
+                          padding: EdgeInsets.only(left: 2.w, right: 40.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              selectedTab == 0
+                                  ?
+                                    /// COUNTRY CODE
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Country Code',
+                                              style: AppTextStyle.medium(
+                                                // size: 11.sp,
+                                                // weight: FontWeight.w400,
+                                                // color: AppColors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              "*",
+                                              style: AppTextStyle.medium(
+                                                size: 11.sp,
+                                                weight: FontWeight.w600,
+                                                color: AppColors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 1.h),
+                                        _inputContainer(
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.flag_outlined),
+                                              SizedBox(width: 1.w),
+                                              const Text("+91"),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 2.h),
+                                      ],
+                                    )
+                                  : SizedBox(),
 
-                          /// LEAD STAGE
-                          Dropdown(
-                            items: leadStage,
-                            selectedValue: selectedLeadStages,
-                            onChanged: (val) =>
-                                setState(() => selectedLeadStages = val),
-                            label: 'Lead Stage',
-                            hint: 'Select Lead Stage',
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// CATEGORY
-                          DropdownWithAdd(
-                            label: 'Lead Category',
-                            icon: Icons.layers_outlined,
-                            items: leadCategory,
-                            selectedValue: selectedCategory,
-                            onChanged: (String? p1) {},
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// STAFF
-                          Dropdown(
-                            label: 'Staff',
-                            hint: 'Select Staff',
-                            items: staff,
-                            selectedValue: selectedStaff,
-                            onChanged: (val) =>
-                                setState(() => selectedStaff = val),
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// SOURCE
-                          DropdownWithAdd(
-                            label: 'Lead Source',
-                            icon: Icons.layers_rounded,
-                            items: leadSource,
-                            selectedValue: selectedSource,
-                            onChanged: (String? p1) {
-                              setState(() {
-                                selectedSource = p1?.trim();
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// PRIORITY
-                          Dropdown(
-                            items: priority,
-                            onChanged: (val) =>
-                                setState(() => selectedPriority = val),
-                            label: 'Priority',
-                            hint: 'Select Priority',
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// STATE
-                          Dropdown(
-                            label: "State",
-                            hint: 'Select State',
-                            showHelp: true,
-                            items: stateDistrictMap.keys.toList(),
-                            selectedValue: selectedState,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedState = value;
-
-                                /// reset district when state changes
-                                selectedDistrict = null;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// DISTRICT
-                          Dropdown(
-                            label: 'District',
-                            hint: 'Select District',
-                            items: selectedState == null
-                                ? []
-                                : stateDistrictMap[selectedState] ?? [],
-                            selectedValue: selectedDistrict,
-                            enabled:
-                                selectedState !=
-                                null, // 🔥 disable until state selected
-                            onChanged: (value) {
-                              setState(() {
-                                selectedDistrict = value;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 2.h),
-
-                          /// FILE PICKER
-                          _label("CSV file *"),
-                          _filePicker(),
-
-                          SizedBox(height: 3.h),
-
-                          /// SUBMIT
-                          SizedBox(
-                            width: 10.w,
-                            height: 5.h,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                              /// LEAD STAGE
+                              Dropdown( 
+                                showHelp: true,
+                                items: leadStage,
+                                selectedValue: selectedLeadStages,
+                                onChanged: (val) =>
+                                    setState(() => selectedLeadStages = val),
+                                label: 'Lead Stage',
+                                hint: 'Select Lead Stage',
                               ),
-                              onPressed: () {},
-                              child: Text(
-                                "Submit",
+
+                              SizedBox(height: 2.h),
+
+                              /// CATEGORY
+                              DropdownWithAdd(
+                                showHelp: true,
+                                label: 'Lead Category',
+                                icon: Icons.layers_outlined,
+                                items: leadCategory,
+                                selectedValue: selectedCategory,
+                                onChanged: (String? p1) {},
+                                onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AppDialog(
+                                                title: 'Add Lead Category',
+                                                body: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    /// Lead Category
+                                                    Text(
+                                                      "Lead Category",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          categoryController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Category",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(height: 2.h),
+
+                                                    /// Cost
+                                                    Text(
+                                                      "Cost",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          costController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Category",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+
+                                                    Row(
+                                                      children: [
+                                                        Checkbox(
+                                                          value: false,
+                                                          onChanged: (value) {},
+                                                        ),
+                                                        SizedBox(width: 0.1),
+                                                        Text(
+                                                          "Add Subcategory",
+                                                          style:
+                                                              AppTextStyle.medium(
+                                                                size: 11.sp,
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                // submitText: 'Submit',
+                                                onSubmit: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// STAFF
+                              Dropdown(
+                                label: 'Staff',
+                                hint: 'Select Staff',
+                                items: staff,
+                                selectedValue: selectedStaff,
+                                onChanged: (val) =>
+                                    setState(() => selectedStaff = val),
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// SOURCE
+                              DropdownWithAdd(
+                                showHelp: true,
+                                label: 'Lead Source',
+                                icon: Icons.layers_rounded,
+                                items: leadSource,
+                                selectedValue: selectedSource,
+                                onChanged: (String? p1) {
+                                  setState(() {
+                                    selectedSource = p1?.trim();
+                                  });
+                                },
+                               onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AppDialog(
+                                                title: 'Add Lead Source',
+                                                body: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    /// Lead Category
+                                                    Text(
+                                                      "Lead Source",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            size: 11.sp,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2.h),
+                                                    TextField(
+                                                      controller:
+                                                          categoryController,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            "Enter Source",
+                                                        hintStyle:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              color: AppColors
+                                                                  .grey,
+                                                            ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(height: 2.h),
+                                                  ],
+                                                ),
+                                                // submitText: 'Submit',
+                                                onSubmit: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// PRIORITY
+                              Dropdown(
+                                items: priority,
+                                onChanged: (val) =>
+                                    setState(() => selectedPriority = val),
+                                label: 'Priority',
+                                hint: 'Select Priority',
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// STATE
+                              Dropdown(
+                                showIcon: true,
+                                label: "State",
+                                hint: 'Select State',
+                                showHelp: true,
+                                items: stateDistrictMap.keys.toList(),
+                                selectedValue: selectedState,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedState = value;
+
+                                    /// reset district when state changes
+                                    selectedDistrict = null;
+                                  });
+                                },
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// DISTRICT
+                              Dropdown(
+                                showIcon: true,
+                                label: 'District',
+                                hint: 'Select District',
+                                items: selectedState == null
+                                    ? []
+                                    : stateDistrictMap[selectedState] ?? [],
+                                selectedValue: selectedDistrict,
+                                enabled:
+                                    selectedState !=
+                                    null, // 🔥 disable until state selected
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedDistrict = value;
+                                  });
+                                },
+                              ),
+
+                              SizedBox(height: 2.h),
+
+                              /// FILE PICKER
+                              _label("CSV file "),
+                              FilePickerField(
+                                allowedExtensions: [
+                                  'csv',
+                                ], // or leave null for any
+                                onFilePicked: (file) {
+                                  if (file != null) print(file.path);
+                                },
+                              ),
+                              Text(
+                                'Limit CSV file to 1000 rows.',
                                 style: AppTextStyle.medium(
                                   size: 10.sp,
-                                  color: AppColors.white,
+                                  color: Colors.lightBlue.shade900,
                                 ),
                               ),
-                            ),
+
+                              SizedBox(height: 3.h),
+
+                              /// SUBMIT
+                              SizedBox(
+                                width: 10.w,
+                                height: 5.h,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  onPressed: () {},
+                                  child: Text(
+                                    "Submit",
+                                    style: AppTextStyle.medium(
+                                      size: 10.sp,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 2.w),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -277,9 +497,22 @@ class _ImportLeadsState extends State<ImportLeads> {
   Widget _label(String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.8.h),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600),
+      child: Row(
+        children: [
+          Text(text, style: AppTextStyle.medium()),
+          Text(
+            "*",
+            style: AppTextStyle.medium(
+              size: 11.sp,
+              weight: FontWeight.w600,
+              color: AppColors.red,
+            ),
+          ),
+          ToolTipWidget(
+            message:
+                'Ensure that the file is uploaded \nonly in comma-saperated \nvalues(csv) format',
+          ),
+        ],
       ),
     );
   }
@@ -331,23 +564,47 @@ class _ImportLeadsState extends State<ImportLeads> {
         color: bg,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: TextStyle(color: textColor)),
+      child: Text(text, style: AppTextStyle.medium(color: textColor)),
     );
   }
 
-  Widget _filePicker() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.w),
-      height: 6.h,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: const [
-          Text("Choose file"),
-          SizedBox(width: 10),
-          Expanded(child: Text("No file chosen")),
+  /// 🔷 TAB BAR
+  Widget _tabs() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            _tabItem("With Country Code", 0),
+            SizedBox(width: 1.w),
+            _tabItem("Without Country Code", 1),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _tabItem(String title, int index) {
+    final isSelected = selectedTab == index;
+
+    return GestureDetector(
+      onTap: () => setState(() => selectedTab = index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.medium(
+              color: isSelected ? AppColors.primary : AppColors.grey,
+              weight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 0.7.h),
+          Container(
+            height: 2,
+            width: 10.w,
+            // ✅ active tab line drawn ON TOP of the divider
+            color: isSelected ? AppColors.primary : Colors.transparent,
+          ),
         ],
       ),
     );
@@ -363,59 +620,60 @@ class _ImportLeadsState extends State<ImportLeads> {
   };
 }
 
-class CustomDropdown extends StatelessWidget {
-  final String? value;
-  final String hint;
-  final List<String> items;
-  final bool showAdd;
-  final Function(String?) onChanged;
+// class CustomDropdown extends StatelessWidget {
+//   final String? value;
+//   final String hint;
+//   final List<String> items;
+//   final bool showAdd;
+//   final Function(String?) onChanged;
 
-  const CustomDropdown({
-    super.key,
-    required this.value,
-    required this.hint,
-    required this.items,
-    required this.onChanged,
-    this.showAdd = false,
-  });
+//   const CustomDropdown({
+//     super.key,
+//     required this.value,
+//     required this.hint,
+//     required this.items,
+//     required this.onChanged,
+//     this.showAdd = false,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.w),
-      height: 6.h,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          if (showAdd)
-            Container(
-              margin: EdgeInsets.only(right: 2.w),
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(Icons.add, color: Colors.white, size: 16),
-            ),
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: EdgeInsets.symmetric(horizontal: 2.w),
+//       height: 6.h,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.grey.shade300),
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       child: Row(
+//         children: [
+//           if (showAdd)
+//             Container(
+//               margin: EdgeInsets.only(right: 2.w),
+//               padding: const EdgeInsets.all(6),
+//               decoration: BoxDecoration(
+//                 color: Colors.blue,
+//                 borderRadius: BorderRadius.circular(6),
+//               ),
+//               child: const Icon(Icons.add, color: Colors.white, size: 16),
+//             ),
 
-          Expanded(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: value,
-                hint: Text(hint),
-                items: items
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: onChanged,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//           Expanded(
+//             child: DropdownButtonHideUnderline(
+//               child: DropdownButton<String>(
+//                 isExpanded: true,
+//                 value: value,
+//                 hint: Text(hint),
+//                 items: items
+//                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+//                     .toList(),
+//                 onChanged: onChanged,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+// }
