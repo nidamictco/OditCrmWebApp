@@ -10,7 +10,7 @@ import 'package:oxdo/feature/dashboard/widget/social_connect_card.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatefulWidget { 
   const DashboardScreen({super.key});
 
   @override

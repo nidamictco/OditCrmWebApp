@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -9,6 +10,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // 🔵 Background
@@ -20,7 +22,7 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildLoginCard(),
+                  _buildLoginCard(context),
                   SizedBox(height: 1.h),
                   Text(
                     "© 2026. Crafted with ❤️ by Mictco It Solutions",
@@ -45,8 +47,9 @@ class LoginScreen extends StatelessWidget {
             height: 300,
             width: double.infinity,
             decoration: const BoxDecoration(
+              color: AppColors.primary,
               gradient: LinearGradient(
-                colors: [Color(0xFF3A4F7A), Color(0xFF2F3E66)],
+                colors: [Color(0xFF3A4F7A), Color(0xFF1E3A5F)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -54,26 +57,17 @@ class LoginScreen extends StatelessWidget {
             child: Stack(
               children: [
                 // Optional overlay dots
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: 0.2,
-                    child: Image.network(
-                      "https://www.transparenttextures.com/patterns/stardust.png",
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
         ),
-        Expanded(child: Container(color: const Color(0xFFF3F3F3))),
+        Expanded(child: Container(color: AppColors.background)),
       ],
     );
   }
 
   // 🧾 Login Card
-  Widget _buildLoginCard() {
+  Widget _buildLoginCard(BuildContext context) {
     return Container(
       width: 400,
       padding: const EdgeInsets.all(24),
@@ -145,7 +139,12 @@ class LoginScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainScreen()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: const Color(0xFF1ABC9C),
