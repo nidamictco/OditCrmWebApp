@@ -1,8 +1,8 @@
 {
-    "name": "login_2_it_solution",
-    "short_name": "login_2_it_solution",
+    "name": "oxdo",
+    "short_name": "oxdo",
     "start_url": ".",
-    "display": "standalone",
+    "display": "standalone", 
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "A new Flutter project.",

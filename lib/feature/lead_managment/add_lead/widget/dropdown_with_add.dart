@@ -57,7 +57,14 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
               SizedBox(width: 1.w),
             ],
             Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
-            if(widget.showStar)...[Container()],
+            if(widget.showStar)...[Text(
+                                              "*",
+                                              style: AppTextStyle.medium(
+                                                size: 11.sp,
+                                                weight: FontWeight.w600,
+                                                color: AppColors.red,
+                                              ),
+                                            ),],
             if(widget.showHelp)...[ToolTipWidget(message: widget.message)]
             
           ],

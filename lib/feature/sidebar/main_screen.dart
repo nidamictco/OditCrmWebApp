@@ -1,6 +1,7 @@
 import 'dart:ui_web';
 
 import 'package:flutter/material.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/rightside_menu/call_settings.dart/screen/call_settings.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/feature/dashboard/dashboard.dart';
@@ -121,6 +122,8 @@ class _MainScreenState extends State<MainScreen> {
         return DesignationPermissionsScreen();
       case 28:
         return CloudCallSettingsScreen();
+      case 29:
+        return StaffProfileScreen();
       default:
         return const SizedBox();
     }

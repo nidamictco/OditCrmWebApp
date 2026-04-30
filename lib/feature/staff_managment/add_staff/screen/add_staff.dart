@@ -7,6 +7,7 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
+import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class AddStaff extends StatefulWidget {
@@ -24,7 +25,7 @@ class _AddStaffState extends State<AddStaff> {
 
   String? selectedDocuments;
 
-   File? selectedImage;
+  File? selectedImage;
   String fileName = "No file chosen";
 
   final ImagePicker _picker = ImagePicker();
@@ -224,25 +225,25 @@ class _AddStaffState extends State<AddStaff> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: SizedBox(
-                            width: 10.w,
-                            height: 5.h,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: Text(
-                                "Submit",
-                                style: AppTextStyle.medium(
-                                  size: 10.sp,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ),
+                      width: 10.w,
+                      height: 5.h,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
                           ),
+                        ),
+                        onPressed: () {},
+                        child: Text(
+                          "Submit",
+                          style: AppTextStyle.medium(
+                            size: 10.sp,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -258,7 +259,7 @@ class _AddStaffState extends State<AddStaff> {
       children: [
         InputField(label: "Name*", hint: "Enter Full Name"),
         InputField(label: "Password*", hint: "Password", isPassword: true),
-        Dropdown(label: "Staff Type",hint: 'select staff type',),
+        Dropdown(label: "Staff Type", hint: 'select staff type'),
         InputField(label: "Joining Date", hint: "Joining Date"),
 
         SizedBox(height: 2.h),
@@ -282,10 +283,27 @@ class _AddStaffState extends State<AddStaff> {
     return Column(
       children: [
         InputField(label: "Phone Number*", hint: "Enter Phone Number"),
-        DropdownWithAdd(label: "Designation", items: ['Telecalling'], onTap: () {  }, selectedValue: '', onChanged: (String? p1) {  },showIcon: true,),
+        DropdownWithAdd(
+          label: "Designation",
+          items: ['Telecalling'],
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) =>
+                  Dialog(child: DesignationPermissionsScreen()),
+            );
+          },
+          selectedValue: '',
+          onChanged: (String? p1) {},
+          showStar: true,
+        ),
         InputField(label: "Email Id", hint: "Enter Your Email"),
         InputField(label: "Salary", hint: "Enter Salary"),
-        Dropdown(label: "Accessible Users",hint: "select accessible users",),
+        Dropdown(
+          label: "Accessible Users",
+          hint: "select accessible users",
+          showStar: true,
+        ),
       ],
     );
   }
@@ -297,7 +315,7 @@ class _AddStaffState extends State<AddStaff> {
       children: [
         const Text("Staff Image"),
 
-         SizedBox(height: 1.h),
+        SizedBox(height: 1.h),
 
         /// FILE PICKER BAR
         Container(
@@ -330,9 +348,7 @@ class _AddStaffState extends State<AddStaff> {
                   padding: EdgeInsets.symmetric(horizontal: 2.w),
                   child: Text(
                     fileName,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade700),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -360,10 +376,7 @@ class _AddStaffState extends State<AddStaff> {
                 )
               : ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    selectedImage!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.file(selectedImage!, fit: BoxFit.cover),
                 ),
         ),
         SizedBox(height: 2.h),
@@ -374,7 +387,7 @@ class _AddStaffState extends State<AddStaff> {
               value: salaryAccount,
               onChanged: (v) => setState(() => salaryAccount = v!),
             ),
-            const Text("Salary A/C"),
+            Text("Salary A/C", style: AppTextStyle.medium()),
           ],
         ),
 
@@ -393,14 +406,14 @@ class _AddStaffState extends State<AddStaff> {
         SizedBox(height: 1.h),
 
         Row(
-          children: const [
+          children: [
             Icon(Icons.circle, size: 12),
             SizedBox(width: 5),
-            Text("Advance Amount"),
+            Text("Advance Amount", style: AppTextStyle.medium()),
             SizedBox(width: 20),
             Icon(Icons.circle_outlined, size: 12),
             SizedBox(width: 5),
-            Text("Pending Amount"),
+            Text("Pending Amount", style: AppTextStyle.medium()),
           ],
         ),
 
@@ -412,7 +425,7 @@ class _AddStaffState extends State<AddStaff> {
               value: pettyCash,
               onChanged: (v) => setState(() => pettyCash = v!),
             ),
-            const Text("Petty Cash A/C"),
+            Text("Petty Cash A/C", style: AppTextStyle.medium()),
           ],
         ),
       ],

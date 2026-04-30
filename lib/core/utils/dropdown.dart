@@ -15,6 +15,7 @@ class Dropdown extends StatefulWidget {
   final Function(String?)? onChanged;
   final bool enabled;
   final String message;
+  final bool showStar;
 
   const Dropdown({
     super.key,
@@ -27,6 +28,7 @@ class Dropdown extends StatefulWidget {
     this.onChanged,
     this.enabled = true,
     this.message = "",
+    this.showStar = false,
   });
 
   @override
@@ -57,6 +59,16 @@ class _DropdownState extends State<Dropdown> {
                 color: AppColors.green,
               ),
             Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
+            if (widget.showStar) ...[
+              Text(
+                "*",
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  weight: FontWeight.w600,
+                  color: AppColors.red,
+                ),
+              ),
+            ],
 
             if (widget.showHelp) ...[ToolTipWidget(message: widget.message)],
           ],
