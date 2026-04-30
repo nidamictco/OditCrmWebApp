@@ -61,10 +61,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAaho6H9DUuexdPUC6dJxpF8Np5V4YYgkI',
-    appId: '1:446854947362:ios:a95556fc878ec77f64e07b',
+    appId: '1:446854947362:ios:f68de24a836b855664e07b',
     messagingSenderId: '446854947362',
     projectId: 'oxdo-leads',
     storageBucket: 'oxdo-leads.firebasestorage.app',
-    iosBundleId: 'com.example.login2ItSolution',
+    iosBundleId: 'com.example.oxdo',
   );
+
 }
