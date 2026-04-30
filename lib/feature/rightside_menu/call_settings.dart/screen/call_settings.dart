@@ -5,16 +5,6 @@ import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:sizer/sizer.dart';
 
-// =============================================================================
-//  CLOUD CALL SETTINGS SCREEN
-//  Matches the web UI in image 3 exactly:
-//  • Left-aligned plain text tabs, short underline only under the active word
-//  • White card with rounded corners, subtle shadow, no heavy border
-//  • Table fills full card width using flex columns (no horizontal scroll)
-//  • "No Data Found" spans left ~50% with a right vertical border
-//  • Teal outlined "⊕ Add New" button — top-right of the card
-// =============================================================================
-
 class CloudCallSettingsScreen extends StatefulWidget {
   const CloudCallSettingsScreen({super.key});
 
@@ -107,36 +97,39 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
           // );
         },
 
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
 
-          height: 6.h,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+            height: 6.h,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
 
-          decoration: BoxDecoration(
-            color: isHovering
-                ? AppColors.green
-                : AppColors.green.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
+            decoration: BoxDecoration(
+              color: isHovering
+                  ? AppColors.green
+                  : AppColors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
 
-          child: Row(
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: isHovering ? Colors.white : AppColors.green,
-                size: 2.5.h,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                "Add Leads",
-                style: AppTextStyle.small(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
                   color: isHovering ? Colors.white : AppColors.green,
-                  size: 11.sp,
+                  size: 2.5.h,
                 ),
-              ),
-            ],
+                const SizedBox(width: 5),
+                Text(
+                  "Add New",
+                  style: AppTextStyle.small(
+                    color: isHovering ? Colors.white : AppColors.green,
+                    size: 11.sp,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -227,139 +220,28 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
                 controller: _tabController,
                 children: [
                   // ── Bonvoice → Cloud Call Settings ────────────────────────
-                 SingleChildScrollView(
-                          child: _sectionCard(
-                            title: 'Cloud Call Settings',
-                            onAddNew: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AppDialog(
-                                    title: 'Add Settings',
-                                    body: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 4.w,
-                                        vertical: 2.h,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          /// Provider Name
-                                          _buildLabel('Provider Name'),
-                                          _buildTextField(
-                                            controller: providerNameController,
-                                            hint: 'Provider Name',
-                                          ),
-                                          SizedBox(height: 2.h),
+                  SingleChildScrollView(
+                    child: _sectionCard(
+                      title: 'Cloud Call Settings',
+                      onAddNew: () {
+                        _showDialogforBonVoice();
+                      },
+                      columns: _cloudCallColumns,
+                      rows: _cloudCallRows,
+                    ),
+                  ),
 
-                                          /// Zip Call Checkbox
-                                          Row(
-                                            children: [
-                                              Checkbox(
-                                                value: isUsingZipCall,
-                                                onChanged: (val) => setState(
-                                                  () => isUsingZipCall =
-                                                      val ?? false,
-                                                ),
-                                                activeColor: AppColors.primary,
-                                                materialTapTargetSize:
-                                                    MaterialTapTargetSize
-                                                        .shrinkWrap,
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                              ),
-                                              SizedBox(width: 1.w),
-                                              Text(
-                                                'Are you using zip call',
-                                                style: AppTextStyle.medium(
-                                                  size: 11.sp,
-                                                  color: AppColors.black
-                                                      .withOpacity(0.7),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// Caller ID
-                                          _buildLabel('Caller ID'),
-                                          _buildTextField(
-                                            controller: callerIdController,
-                                            hint: 'Caller ID',
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// Channel ID
-                                          _buildLabel('Channel ID'),
-                                          _buildTextField(
-                                            controller: channelIdController,
-                                            hint: 'Channel ID',
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// Token
-                                          _buildLabel('Token'),
-                                          _buildTextField(
-                                            controller: tokenController,
-                                            hint: 'Token',
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// URL
-                                          _buildLabel('Url'),
-                                          _buildTextField(
-                                            controller: urlController,
-                                            hint: 'Url',
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// Accessible Users
-                                          _buildLabel('Accessible users'),
-                                          _buildDropdown(
-                                            hint: 'Select',
-                                            value: selectedUser,
-                                            items: accessibleUsers,
-                                            onChanged: (val) => setState(
-                                              () => selectedUser = val,
-                                            ),
-                                          ),
-                                          SizedBox(height: 2.h),
-
-                                          /// Lead Category
-                                          _buildLabel('Lead Category'),
-                                          _buildDropdown(
-                                            hint: 'Select Lead Category',
-                                            value: selectedLeadCategory,
-                                            items: leadCategories,
-                                            onChanged: (val) => setState(
-                                              () => selectedLeadCategory = val,
-                                            ),
-                                          ),
-                                          SizedBox(height: 2.h),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            columns: _cloudCallColumns,
-                            rows: _cloudCallRows,
-                          ),
-                        ),
-                      
-                        // ── Voxbay → IVR Settings ─────────────────────────────────
-                        SingleChildScrollView(
-                          child: _sectionCard(
-                            title: 'IVR Settings',
-                            onAddNew: () {
-                              // TODO: navigate or show dialog
-                            },
-                            columns: _ivrColumns,
-                            rows: _ivrRows,
-                          ),
-                        ),
+                  // ── Voxbay → IVR Settings ─────────────────────────────────
+                  SingleChildScrollView(
+                    child: _sectionCard(
+                      title: 'IVR Settings',
+                      onAddNew: () {
+                        _showDialogforVoxbay();
+                      },
+                      columns: _ivrColumns,
+                      rows: _ivrRows,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -385,13 +267,13 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
   }
 
   Widget _tabItem(String title, int index) {
-    final isSelected =  _tabController.index == index;
+    final isSelected = _tabController.index == index;
 
     return GestureDetector(
-       onTap: () {
-      _tabController.animateTo(index); 
-      setState(() {});
-    },
+      onTap: () {
+        _tabController.animateTo(index);
+        setState(() {});
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -416,7 +298,7 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
 
   Widget _buildLabel(String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 0.8.h),
+      padding: EdgeInsets.only(bottom: 0.8.h, left: 0.5.w),
       child: Text(
         text,
         style: AppTextStyle.medium(
@@ -433,17 +315,14 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
     required String hint,
   }) {
     return SizedBox(
-      height: 5.5.h,
+      height: 5.h,
       child: TextField(
         controller: controller,
         style: AppTextStyle.medium(size: 11.sp),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 3.w,
-            vertical: 1.5.h,
-          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 0.5.w),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
             borderSide: BorderSide(color: AppColors.divider),
@@ -467,7 +346,7 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
   }) {
     return Container(
       height: 5.5.h,
-      padding: EdgeInsets.symmetric(horizontal: 3.w),
+      padding: EdgeInsets.symmetric(horizontal: 0.5.w),
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.divider),
@@ -489,6 +368,380 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
           onChanged: onChanged,
         ),
       ),
+    );
+  }
+
+  void _showDialogforBonVoice() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Container(
+            width: 500,
+            color: AppColors.white,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  /// 🔹 HEADER
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD3E3EC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Add Settings',
+                          style: AppTextStyle.medium(size: 13.sp),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Icon(Icons.close, color: AppColors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /// 🔹 BODY (Reusable)
+                  Padding(
+                    padding: EdgeInsets.all(1.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        /// Provider Name
+                        _buildLabel('Provider Name'),
+                        _buildTextField(
+                          controller: providerNameController,
+                          hint: 'Provider Name',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Zip Call Checkbox
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isUsingZipCall,
+                              onChanged: (val) =>
+                                  setState(() => isUsingZipCall = val ?? false),
+                              activeColor: AppColors.primary,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            SizedBox(width: 1.w),
+                            Text(
+                              'Are you using zip call',
+                              style: AppTextStyle.medium(
+                                size: 11.sp,
+                                color: AppColors.black.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Caller ID
+                        _buildLabel('Caller ID'),
+                        _buildTextField(
+                          controller: callerIdController,
+                          hint: 'Caller ID',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Channel ID
+                        _buildLabel('Channel ID'),
+                        _buildTextField(
+                          controller: channelIdController,
+                          hint: 'Channel ID',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Token
+                        _buildLabel('Token'),
+                        _buildTextField(
+                          controller: tokenController,
+                          hint: 'Token',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// URL
+                        _buildLabel('Url'),
+                        _buildTextField(controller: urlController, hint: 'Url'),
+                        SizedBox(height: 2.h),
+
+                        /// Accessible Users
+                        _buildLabel('Accessible users'),
+                        _buildDropdown(
+                          hint: 'Select',
+                          value: selectedUser,
+                          items: accessibleUsers,
+                          onChanged: (val) =>
+                              setState(() => selectedUser = val),
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Lead Category
+                        _buildLabel('Lead Category'),
+                        _buildDropdown(
+                          hint: 'Select Lead Category',
+                          value: selectedLeadCategory,
+                          items: leadCategories,
+                          onChanged: (val) =>
+                              setState(() => selectedLeadCategory = val),
+                        ),
+                        SizedBox(height: 2.h),
+                      ],
+                    ),
+                  ),
+
+                  /// 🔹 FOOTER
+                  Padding(
+                    padding: EdgeInsets.only(right: 2.w, bottom: 2.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        /// Close
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              240,
+                              217,
+                              217,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 1.w,
+                              vertical: 1.w,
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            "Close",
+                            style: AppTextStyle.small(
+                              size: 10.sp,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 1.w),
+
+                        /// Submit
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.green,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2.w,
+                              vertical: 1.w,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'Submit',
+                            style: AppTextStyle.small(
+                              size: 10.sp,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void _showDialogforVoxbay() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Container(
+            width: 500,
+            color: AppColors.white,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  /// 🔹 HEADER
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD3E3EC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Add Voxbay Settings',
+                          style: AppTextStyle.medium(size: 13.sp),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Icon(Icons.close, color: AppColors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /// 🔹 BODY (Reusable)
+                  Padding(
+                    padding: EdgeInsets.all(1.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        /// Provider Name
+                        _buildLabel('Provider Name'),
+                        _buildTextField(
+                          controller: providerNameController,
+                          hint: 'Voxbay',
+                        ), 
+                        SizedBox(height: 2.h),
+
+                        /// Caller ID
+                        _buildLabel('Type'),
+                        _buildTextField(
+                          controller: callerIdController,
+                          hint: 'Incoming',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Channel ID
+                        _buildLabel('Customer'),
+                        _buildTextField(
+                          controller: channelIdController,
+                          hint: 'Customer',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// Token
+                        _buildLabel('Caller Id'),
+                        _buildTextField(
+                          controller: tokenController,
+                          hint: 'Caller Id',
+                        ),
+                        SizedBox(height: 2.h),
+
+                        /// URL
+                        _buildLabel('UID'),
+                        _buildTextField(controller: urlController, hint: 'UID'),
+                        SizedBox(height: 2.h),
+
+                        /// Accessible Users
+                        _buildLabel('PIN'),
+                        _buildTextField(controller: urlController, hint: 'PIN'),
+                        SizedBox(height: 2.h),
+
+                        /// ext
+                         _buildLabel('EXT no'),
+                        _buildTextField(controller: urlController, hint: 'EXT no'),
+                        SizedBox(height: 2.h),
+
+                        _buildLabel('Url'),
+                        _buildTextField(controller: urlController, hint: 'url'),
+                        SizedBox(height: 2.h),
+
+                        /// Accessible Users
+                        _buildLabel('Accessible users'),
+                        _buildDropdown(
+                          hint: 'Select',
+                          value: selectedUser,
+                          items: accessibleUsers,
+                          onChanged: (val) =>
+                              setState(() => selectedUser = val),
+                        ),
+                        SizedBox(height: 2.h),
+                      ],
+                    ),
+                  ),
+
+                  /// 🔹 FOOTER
+                  Padding(
+                    padding: EdgeInsets.only(right: 2.w, bottom: 2.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        /// Close
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              240,
+                              217,
+                              217,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 1.w,
+                              vertical: 1.w,
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            "Close",
+                            style: AppTextStyle.small(
+                              size: 10.sp,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 1.w),
+
+                        /// Submit
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.green,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2.w,
+                              vertical: 1.w,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'Submit',
+                            style: AppTextStyle.small(
+                              size: 10.sp,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

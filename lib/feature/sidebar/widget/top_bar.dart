@@ -5,7 +5,6 @@ import 'package:oxdo/feature/sidebar/widget/hover/hover_icon.dart';
 import 'package:oxdo/feature/sidebar/widget/hover/profile_hover.dart';
 import 'package:sizer/sizer.dart';
 
-
 class TopBar extends StatelessWidget {
   final bool isSidebarOpen;
   final VoidCallback onMenuTap;
@@ -28,7 +27,7 @@ class TopBar extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           /// LEFT SIDE
           Row(
@@ -70,6 +69,7 @@ class TopBar extends StatelessWidget {
               ),
             ],
           ),
+          Spacer(),
 
           /// RIGHT SIDE
           Row(
@@ -130,8 +130,22 @@ class TopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Fathima Nida", style: AppTextStyle.small(size: 11.sp, color: AppColors.black, weight: FontWeight.w500)),
-                Text("Admin", style: AppTextStyle.small(size: 11.sp, color: AppColors.black, weight: FontWeight.w500)),
+                Text(
+                  "Fathima Nida",
+                  style: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.black,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  "Admin",
+                  style: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.black,
+                    weight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ],

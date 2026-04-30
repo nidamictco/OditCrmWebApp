@@ -5,6 +5,7 @@ import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
@@ -125,11 +126,18 @@ class _StaffReportsState extends State<StaffReports> {
                                 Center(
                                   child: IconButton(
                                     icon: Icon(
-                                    Icons.preview,
-                                    size: 14.sp,
-                                    color: Colors.blue,
-                                  ),
-                                  onPressed: () {},
+                                      Icons.ads_click_outlined,
+                                      size: 14.sp,
+                                      color: Colors.blue.shade900,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MainScreen(selectedIndex: 29),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ];
