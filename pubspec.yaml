@@ -47,6 +47,12 @@ dependencies:
   firebase_core: ^4.7.0
   file_picker: ^8.0.0
   fl_chart: ^0.68.0
+  crypto: ^3.0.3
+  get_it: ^7.6.7 
+  flutter_bloc: ^8.1.4
+  cloud_firestore: ^6.3.0
+  bloc: ^8.1.4
+  shared_preferences: ^2.3.2
 
 dev_dependencies: 
   flutter_test:
