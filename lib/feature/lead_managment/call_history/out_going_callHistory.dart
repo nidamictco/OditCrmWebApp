@@ -5,6 +5,7 @@ import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:sizer/sizer.dart';
 
 class OutGoingCallhistory extends StatefulWidget {
@@ -22,6 +23,7 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            TopBreadcrumbBar(title: "Lead Management", subTitle: 'Call History',show2ndTitle: true,subTitle2: 'Call History',),
             Padding(
               padding: EdgeInsets.all(2.w),
               child: Container(

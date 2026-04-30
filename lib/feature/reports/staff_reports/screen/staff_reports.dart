@@ -5,7 +5,6 @@ import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
