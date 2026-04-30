@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -9,13 +7,17 @@ import 'package:sizer/sizer.dart';
 class TopBreadcrumbBar extends StatelessWidget {
   final String title;
   final String subTitle;
+  final String? subTitle2;
   final bool showMenu;
+  final bool show2ndTitle;
 
   const TopBreadcrumbBar({
     super.key,
     required this.title,
     required this.subTitle,
+    this.subTitle2,
     this.showMenu = true,
+    this.show2ndTitle = false,
   });
 
   @override
@@ -26,16 +28,12 @@ class TopBreadcrumbBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade300,
-            width: 0.6,
-          ),
+          bottom: BorderSide(color: Colors.grey.shade300, width: 0.6),
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
           /// LEFT SIDE (Breadcrumb)
           Row(
             children: [
@@ -49,11 +47,34 @@ class TopBreadcrumbBar extends StatelessWidget {
               ),
               SizedBox(width: 0.4.w),
 
-              Icon(
-                Icons.chevron_right,
-                size: 14.sp,
-                color: AppColors.grey,
-              ),
+              if (show2ndTitle == true)
+                Row(
+                  children: [
+                    Icon(
+                      Icons.chevron_right,
+                      size: 14.sp,
+                      color: AppColors.grey,
+                    ),
+
+                    SizedBox(width: 0.4.w),
+
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        subTitle,
+                        style: AppTextStyle.small(
+                          size: 10.5.sp,
+                          color: AppColors.grey,
+                          weight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+              Icon(Icons.chevron_right, size: 14.sp, color: AppColors.grey),
 
               SizedBox(width: 0.4.w),
 

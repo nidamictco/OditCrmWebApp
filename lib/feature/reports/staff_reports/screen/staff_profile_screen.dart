@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/time_line.dart';
 import 'package:oxdo/feature/reports/staff_reports/widget/note_dialog.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/add_staff/screen/add_staff.dart';
@@ -253,7 +254,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
             children: [
               // Left: Information Card
               Expanded(flex: 4, child: _InformationCard(staff: _staff)),
-              const SizedBox(width: 16),
+              SizedBox(width: 3.w),
               // Right: Call Status
               Expanded(
                 flex: 6,
@@ -264,7 +265,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                       selectedDate: _selectedDate,
                       onDateChanged: (d) => setState(() => _selectedDate = d),
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 3.w),
                     RecentActivityCard(),
                   ],
                 ),
@@ -1310,15 +1311,15 @@ class __CallStatusCardState extends State<_CallStatusCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _header(),
-          const Divider(height: 24),
+          Divider(height: 4.h),
 
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.only(bottom: 1.w, left: 2.w, right: 2.w),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(flex: 5, child: _leftStats()),
-                const SizedBox(width: 20),
+                SizedBox(width: 2.w),
                 Expanded(flex: 5, child: _rightChart()),
               ],
             ),
@@ -1348,12 +1349,34 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   Widget _leftStats() {
     return Column(
       children: [
-        _timeCard(),
-        const SizedBox(height: 12),
-        _miniStat("Closed", widget.data.closedCount, Colors.green),
-        const SizedBox(height: 12),
-        _miniStat("Cost", widget.data.costAmount, Colors.purple),
-        const SizedBox(height: 16),
+        Container(
+          padding: EdgeInsets.all(0.8.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFf5f5f5),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              _timeCard(),
+              SizedBox(height: 1.w),
+              _miniStat(
+                "Closed",
+                widget.data.closedCount,
+                Colors.green,
+                Color(0xFFbbdbb2),
+              ),
+              SizedBox(height: 1.w),
+              _miniStat(
+                "Cost",
+                widget.data.costAmount,
+                Colors.purple,
+                Color(0xFFf3d5fd),
+              ),
+              SizedBox(height: 1.w),
+            ],
+          ),
+        ),
+        SizedBox(height: 1.w),
 
         /// ALL PROGRESS BARS (PIXEL MATCH)
         _progress("TOTAL CALLED", 156, 1),
@@ -1364,59 +1387,99 @@ class __CallStatusCardState extends State<_CallStatusCard> {
         _progress("SWITCHED OFF", 11, 0.08),
         _progress("OUT OF COVERAGE AREA", 4, 0.03),
         _progress("NOT ATTENDED", 86, 0.7),
+        SizedBox(height: 1.w),
       ],
     );
   }
 
   Widget _timeCard() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F6F9),
+        color: const Color(0xFFe4e4e4),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.access_time, size: 26),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
                 "TIME DURATION",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                style: AppTextStyle.medium(
+                  color: Color(0xFF495057),
+                  size: 12.sp,
+                  weight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 4),
-              Text("CLOUD CALL : -"),
-              Text("PHONE CALL : -"),
+              Align(
+                alignment: Alignment.topCenter,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainScreen(selectedIndex: 30),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "View",
+                    style: AppTextStyle.link(
+                      color: Colors.blue[900],
+                      size: 11.sp,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-          const Spacer(),
-          const Text(
-            "View",
-            style: TextStyle(color: Colors.blue, fontSize: 12),
+          Row(
+            children: [
+              const Icon(Icons.access_time, size: 40),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 4),
+                  Text(
+                    "CLOUD CALL : -",
+                    style: AppTextStyle.medium(size: 11.sp),
+                  ),
+                  Text(
+                    "PHONE CALL : -",
+                    style: AppTextStyle.medium(size: 11.sp),
+                  ),
+                ],
+              ),
+
+              Spacer(),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _miniStat(String title, int value, Color color) {
+  Widget _miniStat(String title, int value, Color color, Color containerColor) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.w),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: containerColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(Icons.star, color: color),
           const SizedBox(width: 10),
-          Text(title.toUpperCase()),
+          Text(title.toUpperCase(), style: AppTextStyle.medium(size: 11)),
           const Spacer(),
           Text(
             "$value",
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: AppTextStyle.number(size: 12.sp, weight: FontWeight.bold),
           ),
         ],
       ),
@@ -1430,11 +1493,25 @@ class __CallStatusCardState extends State<_CallStatusCard> {
         children: [
           Row(
             children: [
-              Expanded(child: Text(label)),
-              Text("$value"),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyle.medium(
+                    size: 12.sp,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              Text(
+                "$value",
+                style: AppTextStyle.number(
+                  size: 11.sp,
+                  weight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 0.6.h),
           LinearProgressIndicator(
             value: percent,
             minHeight: 8,
@@ -1449,15 +1526,15 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   Widget _rightChart() {
     return Column(
       children: [
-        const SizedBox(height: 10),
+        SizedBox(height: 2.h),
         SizedBox(
-          height: 200,
-          width: 200,
+          height: 10.w,
+          width: 10.w,
           child: _DonutChart(
             leadsByCategory: {"Follow Up": 85, "Rejected": 15},
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 2.h),
         _categoryTable(),
       ],
     );
@@ -1490,9 +1567,9 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     String c4,
     String c5,
   ) {
-    final style = TextStyle(
-      fontWeight: header ? FontWeight.bold : FontWeight.normal,
-      fontSize: 12,
+    final style = AppTextStyle.medium(
+      size: header ? 10.5.sp : 9.5.sp,
+      weight: header ? FontWeight.w500 : FontWeight.w400,
     );
 
     return Container(

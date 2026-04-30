@@ -105,20 +105,22 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
               color: const Color.fromARGB(255, 71, 174, 243),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: IconButton(
-              icon: Icon(
-                Icons.contact_phone_rounded,
-                color: Colors.white,
-                size: 18,
+            child: Center(
+              child: IconButton(
+                icon: Icon(
+                  Icons.contact_phone_rounded,
+                  color: Colors.white,
+                  size: 15,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainScreen(selectedIndex: 26),
+                    ),
+                  );
+                },
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MainScreen(selectedIndex: 26),
-                  ),
-                );
-              },
             ),
           ),
         ],
