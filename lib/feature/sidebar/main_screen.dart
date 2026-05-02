@@ -6,7 +6,7 @@ import 'package:oxdo/feature/reports/staff_reports/screen/time_line.dart';
 import 'package:oxdo/feature/rightside_menu/call_settings.dart/screen/call_settings.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/feature/dashboard/dashboard.dart';
-import 'package:oxdo/feature/dashboard/lead_details.dart';
+import 'package:oxdo/feature/dashboard/lead_list_screen.dart';
 import 'package:oxdo/feature/file_manager/view/screen/view.dart';
 import 'package:oxdo/feature/lead_managment/call_history/out_going_callHistory.dart';
 import 'package:oxdo/feature/lead_managment/delete_leads/screens/delete_leads.dart';

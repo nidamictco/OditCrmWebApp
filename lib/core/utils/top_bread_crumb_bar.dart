@@ -32,7 +32,7 @@ class TopBreadcrumbBar extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           /// LEFT SIDE (Breadcrumb)
           Row(
@@ -88,6 +88,8 @@ class TopBreadcrumbBar extends StatelessWidget {
               ),
             ],
           ),
+
+          SizedBox(width: 2.w),
 
           /// RIGHT SIDE (Menu Button)
           if (showMenu) const MenuHoverButton(),
