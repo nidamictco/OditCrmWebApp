@@ -7,6 +7,7 @@ import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/feature/dashboard/widget/add_leads_button.dart';
 import 'package:sizer/sizer.dart';
 
+import '../sidebar/main_screen.dart';
 import 'follow_up_details_screen.dart';
 
 
@@ -822,7 +823,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         onTap: (){
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => FollowUpDetailsScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => MainScreen(selectedIndex: 31),
+                            ),
                           );
                         },
                         child: _LeadRow(

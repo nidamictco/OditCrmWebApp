@@ -63,7 +63,7 @@ class TopBreadcrumbBar extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        subTitle,
+                        subTitle2!,
                         style: AppTextStyle.small(
                           size: 10.5.sp,
                           color: AppColors.grey,

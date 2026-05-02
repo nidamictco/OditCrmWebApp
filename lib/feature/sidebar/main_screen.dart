@@ -38,6 +38,8 @@ import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_
 import 'package:oxdo/feature/staff_managment/designation/screen/designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/view_staff/screen/view_staff.dart';
 
+import '../dashboard/follow_up_details_screen.dart';
+
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
   const MainScreen({super.key, this.selectedIndex = 0});
@@ -127,6 +129,8 @@ class _MainScreenState extends State<MainScreen> {
         return StaffProfileScreen();
       case 30:
         return TimeLine();
+      case 31:
+        return FollowUpDetailsScreen();
       default:
         return const SizedBox();
     }
