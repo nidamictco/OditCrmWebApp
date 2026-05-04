@@ -45,6 +45,16 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
   }
 
   @override
+void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
+  super.didUpdateWidget(oldWidget);
+  if (oldWidget.items != widget.items) {
+    setState(() {
+      localItems = List.from(widget.items);
+    });
+  }
+}
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

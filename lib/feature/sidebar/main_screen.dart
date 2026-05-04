@@ -1,6 +1,7 @@
 import 'dart:ui_web';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/time_line.dart';
 import 'package:oxdo/feature/rightside_menu/call_settings.dart/screen/call_settings.dart';
@@ -17,7 +18,9 @@ import 'package:oxdo/feature/reports/scheduled_leads/screen/scheduled_leads.dart
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_reports.dart';
 import 'package:oxdo/feature/reports/transfer_leads/screen/transfer_leads_report.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/aditional_field.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/lead_category.dart';
+import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import 'package:oxdo/feature/rightside_menu/lead_category/screen/lead_category.dart';
+import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/lead_source_screen.dart';
 import 'package:oxdo/feature/rightside_menu/lead_stage/lead_stage.dart';
 import 'package:oxdo/feature/rightside_menu/unassigned_settings/lead_distribution_settings.dart';
@@ -32,15 +35,21 @@ import 'package:oxdo/feature/lead_managment/call_history/call_history.dart';
 import 'package:oxdo/feature/lead_managment/phone_call_log/phone_call_log.dart';
 import 'package:oxdo/feature/lead_managment/transfer_leads/transfer_leads.dart';
 import 'package:oxdo/feature/sidebar/sidebar_item.dart';
+import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_cubit.dart';
+import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
 import 'package:oxdo/feature/staff_managment/add_staff/screen/add_staff.dart';
 import 'package:oxdo/feature/staff_managment/delete_staff/screen/delete_staff.dart';
+import 'package:oxdo/feature/staff_managment/designation/cubit/designation_cubit.dart';
+import 'package:oxdo/feature/staff_managment/designation/model/designation_model.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/view_staff/screen/view_staff.dart';
 
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
-  const MainScreen({super.key, this.selectedIndex = 0});
+  final DesignationModel? designation;
+  final StaffModel? staff;
+  const MainScreen({super.key, this.selectedIndex = 0, this.designation, this.staff});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -49,6 +58,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late int selectedIndex; // ✅ local state
   bool isSidebarOpen = true;
+
+  // DesignationModel? designation;
 
   @override
   void initState() {
@@ -80,11 +91,16 @@ class _MainScreenState extends State<MainScreen> {
       case 6:
         return PhoneCallLog();
       case 7:
-        return LeadCategory();
+  return BlocProvider(
+    create: (_) => LeadCategoryCubit()..watchCategories(),
+    child: LeadCategory(), 
+  );
       case 8:
         return AdditionalFieldsSection();
       case 9:
-        return LeadSourceScreen();
+        return BlocProvider(
+          create: (_) => LeadSourceCubit()..watchSources(),
+          child: LeadSourceScreen());
       case 10:
         return LeadStagesScreen();
       case 11:
@@ -96,11 +112,22 @@ class _MainScreenState extends State<MainScreen> {
       case 14:
         return ImportLeads();
       case 15:
-        return AddStaff();
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => StaffCubit()),
+            BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
+          ],
+          child: AddStaff(staff: widget.staff,),
+        );
       case 16:
-        return ViewStaff();
+        return BlocProvider(create: (_) => StaffCubit(), child: ViewStaff());
+      // case 17:
+      //   return DesignationScreen();
       case 17:
-        return DesignationScreen();
+        return BlocProvider(
+          create: (_) => DesignationCubit(),
+          child: const DesignationScreen(),
+        );
       case 18:
         return DeleteStaff();
       case 19:
@@ -119,8 +146,13 @@ class _MainScreenState extends State<MainScreen> {
         return RejectedLeads();
       case 26:
         return OutGoingCallhistory();
+      // case 27:
+      //   return DesignationPermissionsScreen();
       case 27:
-        return DesignationPermissionsScreen();
+        return BlocProvider(
+          create: (_) => DesignationCubit(),
+          child: DesignationPermissionsScreen(designation: widget.designation),
+        );
       case 28:
         return CloudCallSettingsScreen();
       case 29:

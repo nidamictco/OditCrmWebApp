@@ -7,34 +7,35 @@ class UserModel {
 
   const UserModel({
     required this.id,
-     this.name,
+    this.name,
     required this.email,
     this.role,
     required this.password,
   });
 
-  factory UserModel.fromMap(String id, Map<String, dynamic> map) {
+  /// Field names match Firestore exactly: STAFF_ID, NAME, EMAIL, ROLE, PASSWORD
+  factory UserModel.fromMap(String docId, Map<String, dynamic> map) {
     return UserModel(
-      id: map['STAFF_ID'] as String,
+      id: (map['STAFF_ID'] as String?) ?? docId,
       name: map['NAME'] as String?,
-      email: map['EMAIL'] as String ,
+      email: (map['EMAIL'] as String?) ?? '',
       role: map['ROLE'] as String?,
-      password: map['PASSWORD'] as String,
+      password: (map['PASSWORD'] as String?) ?? '',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'ID': id,
+      'STAFF_ID': id,
       'NAME': name,
-     'EMAIL': email,
-      if (role != null) 'ROLE': role,
-       'PASSWORD': password,
+      'EMAIL': email,
+      'ROLE': role,
+      'PASSWORD': password,
     };
   }
 
   UserModel copyWith({
-    String? uid,
+    String? id,
     String? name,
     String? email,
     String? role,
@@ -50,5 +51,6 @@ class UserModel {
   }
 
   @override
-  String toString() => 'UserModel(uid: $id, name: $name, role: $role)';
+  String toString() =>
+      'UserModel(id: $id, name: $name, email: $email, role: $role)';
 }

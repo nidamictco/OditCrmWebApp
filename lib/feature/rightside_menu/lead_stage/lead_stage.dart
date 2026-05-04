@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/feature/rightside_menu/lead_category/model/lead_category_model.dart';
+import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
+import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 import 'package:sizer/sizer.dart';
 
 class LeadStagesScreen extends StatefulWidget {
@@ -16,258 +21,438 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
   String selectedValue = '10';
   List<String> dropdownItems = ['10', '20', '30', '40', '50'];
   bool isHovering = false;
+
+final TextEditingController stagesController = TextEditingController();
+ 
+
+// ─── search query (wired to the search box) ───────────────────────────────
+  String _searchQuery = '';
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+  void initState() {
+    super.initState();
+    // Start the real-time Firestore listener
+    context.read<LeadStageCubit>().watchCategories();
+  }
 
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            TopBreadcrumbBar(subTitle: "Lead Stages", title: "Dashboard"),
-            Padding(
-              padding: EdgeInsets.all(2.w),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 2.w),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(color: AppColors.lightGrey),
-                ),
+  @override
+  void dispose() {
+    stagesController.dispose();
+    super.dispose();
+  }
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// 🔹 HEADER
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Lead Stages",
-                                style: AppTextStyle.medium(
-                                  size: 13.6.sp,
-                                  color: AppColors.black.withOpacity(0.77),
-                                  weight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(width: 0.2.w),
-                              Tooltip(
-                                textAlign: TextAlign.center,
-                                message:
-                                    "Lead Stages lets you track the\nstage of a lead, and you can\nadd new statuses as needed\nto match your sales process.",
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                                waitDuration: const Duration(milliseconds: 200),
-                                child: Container(
-                                  height: 2.h,
-                                  width: 2.w,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.green,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.question_mark_rounded,
-                                    size: 10.sp,
-                                    color: AppColors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+  // ─── Filtered list based on search + entries limit ────────────────────────
+  List<LeadsModel> _filtered(List<LeadsModel> all) {
+    final q = _searchQuery.trim().toLowerCase();
+    final limit = int.tryParse(selectedValue) ?? 10;
+    final filtered = q.isEmpty
+        ? all
+        : all
+              .where(
+                (e) =>
+                    e.name.toLowerCase().contains(q) ||
+                    e.createdBy.toLowerCase().contains(q),
+              )
+              .toList();
+    return filtered.take(limit).toList();
+  }
 
-                          MouseRegion(
-                            onEnter: (_) => setState(() => isHovering = true),
-                            onExit: (_) => setState(() => isHovering = false),
-                            child: GestureDetector(
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                height: 5.h,
-                                padding: EdgeInsets.symmetric(horizontal: 3.w),
-                                decoration: BoxDecoration(
-                                  color: isHovering
-                                      ? AppColors.green
-                                      : AppColors.green.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "Add New",
-                                    style: AppTextStyle.small(
-                                      color: isHovering
-                                          ? Colors.white
-                                          : AppColors.green,
-                                      size: 10.sp,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+  // ─── Dialogs ──────────────────────────────────────────────────────────────
 
-                    SizedBox(height: 1.h),
-                    Divider(color: AppColors.divider),
-                    SizedBox(height: 3.h),
+  void _showAddDialog() {
+    stagesController.clear();
+    // costController.clear();
 
-                    /// 🔹 SWITCH
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Priority Required for All Stages",
-                            style: AppTextStyle.medium(),
-                          ),
-                          SizedBox(width: 0.4.w),
-                          Transform.scale(
-                            scale: 0.6,
-                            child: Switch(
-                              value: false,
-                              activeColor: AppColors.primary,
-                              onChanged: (value) {},
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 3.h),
-
-                    /// 🔹 FILTER
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Show ",
-                                style: AppTextStyle.medium(
-                                  size: 11.sp,
-                                  weight: FontWeight.w400,
-                                ),
-                              ),
-                              _smallDropdown(),
-                              Text(
-                                " entries",
-                                style: AppTextStyle.medium(
-                                  size: 11.sp,
-                                  weight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          Row(
-                            children: [
-                              Text(
-                                "Search:",
-                                style: AppTextStyle.medium(
-                                  size: 11.sp,
-                                  weight: FontWeight.w400,
-                                ),
-                              ),
-                              SizedBox(width: 1.w),
-                              Container(
-                                width: 12.w,
-                                height: 4.h,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.lightGrey,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    /// 🔹 TABLE
-                    SizedBox(
-                      child: CustomTable(
-                        columns: [
-                          TableColumn(title: "#", flex: 1),
-                          TableColumn(title: "Lead Stage", flex: 4),
-                          TableColumn(title: "Created By", flex: 4),
-                          TableColumn(title: "Action", flex: 2),
-                        ],
-                        rows:
-                            [
-                              ["1", "New", "-", ""],
-                              ["2", "Follow Up", "-", ""],
-                              ["3", "Rejected", "-", ""],
-                              ["4", "Closed", "-", ""],
-                              ["5", "Pending", "-", ""],
-                            ].map((row) {
-                              return [
-                                Text(row[0], style: AppTextStyle.medium()),
-                                Text(row[1], style: AppTextStyle.medium()),
-                                Text(row[2], style: AppTextStyle.medium()),
-
-                                /// ACTION
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.edit_outlined,
-                                      size: 14.sp,
-                                      color: Colors.blue,
-                                    ),
-                                  ],
-                                ),
-                              ];
-                            }).toList(),
-                      ),
-                    ),
-
-                    /// 🔹 FOOTER
-                    Padding(
-                      padding: EdgeInsets.all(2.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Showing 1 to 5 of 5 entries",
-                            style: AppTextStyle.medium(weight: FontWeight.w400),
-                          ),
-                          Row(
-                            children: [
-                              _paginationButton("Previous", false),
-                              SizedBox(width: 0.1.w),
-                              _pageNumber("1", true),
-                              SizedBox(width: 1.w),
-                              _paginationButton("Next", false),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AppDialog(
+          title: 'Add Lead Category',
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              /// Lead Category
+              const Text("Lead Stage"),
+              const SizedBox(height: 8),
+              TextField(
+                controller: stagesController,
+                decoration: InputDecoration(
+                  hintText: "Enter Stage",
+                  hintStyle: AppTextStyle.medium(
+                    size: 11.sp,
+                    color: AppColors.grey,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          onSubmit: () async {
+            final name = stagesController.text.trim();
+            if (name.isEmpty) return;
+
+            Navigator.pop(ctx);
+
+            await context.read<LeadStageCubit>().addCategory(
+              name: name,
+              // createdBy: '-',
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(LeadsModel category) {
+    stagesController.text = category.name;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AppDialog(
+          title: 'Edit Lead Stages',
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Lead Stages"),
+              const SizedBox(height: 8),
+              TextField(
+                controller: stagesController,
+                decoration: InputDecoration(
+                  hintText: "Enter Stages",
+                  hintStyle: AppTextStyle.medium(
+                    size: 11.sp,
+                    color: AppColors.grey,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16), 
+              
+            ],
+          ),
+          onSubmit: () async {
+            // ✅ Capture value BEFORE pop
+            final name = stagesController.text.trim();
+            final id = category.id; // ✅ capture id too
+
+            if (name.isEmpty) return;
+
+            Navigator.pop(ctx); // pop first
+
+            // ✅ Use outer screen context, not ctx
+            await context.read<LeadStageCubit>().updateStage(
+              id: id,
+              name: name,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(LeadsModel category) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AppDialog(
+        title: 'Delete Lead Stages',
+        submitText: 'Delete',
+        body: Padding(
+          padding: EdgeInsets.symmetric(vertical: 1.h),
+          child: Text(
+            'Are you sure you want to delete "${category.name}"?\nThis action cannot be undone.',
+            style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
+          ),
+        ),
+        onSubmit: () {
+          Navigator.pop(ctx);
+          context.read<LeadStageCubit>().deleteStage(id: category.id);
+        },
+      ),
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<LeadStageCubit,LeadStageState>(
+      listenWhen: (prev, cur) =>
+          cur.errorMessage != null && cur.errorMessage != prev.errorMessage,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.errorMessage!),
+            backgroundColor: AppColors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+      
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              TopBreadcrumbBar(subTitle: "Lead Stages", title: "Dashboard"),
+              Padding(
+                padding: EdgeInsets.all(2.w),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 2.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(color: AppColors.lightGrey),
+                  ),
+      
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// 🔹 HEADER
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "Lead Stages",
+                                  style: AppTextStyle.medium(
+                                    size: 13.6.sp,
+                                    color: AppColors.black.withOpacity(0.77),
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: 0.2.w),
+                                Tooltip(
+                                  textAlign: TextAlign.center,
+                                  message:
+                                      "Lead Stages lets you track the\nstage of a lead, and you can\nadd new statuses as needed\nto match your sales process.",
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                  waitDuration: const Duration(milliseconds: 200),
+                                  child: Container(
+                                    height: 2.h,
+                                    width: 2.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.green,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.question_mark_rounded,
+                                      size: 10.sp,
+                                      color: AppColors.green,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+      
+                            BlocBuilder<LeadStageCubit,LeadStageState>(
+                              buildWhen: (prev, cur) =>
+                                  cur.isSubmitting != prev.isSubmitting,
+                              builder: (context, state) {
+                               
+                                return MouseRegion(
+                                  onEnter: (_) => setState(() => isHovering = true),
+                                  onExit: (_) => setState(() => isHovering = false),
+                                  child: GestureDetector(
+                                    onTap: (){
+                                       if (!state.isSubmitting) _showAddDialog();
+                                    },
+                                    child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut,
+                                    height: 5.h,
+                                    padding: EdgeInsets.symmetric(horizontal: 3.w),
+                                    decoration: BoxDecoration(
+                                      color: isHovering 
+                                          ? AppColors.green
+                                          : AppColors.green.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Add New",
+                                        style: AppTextStyle.small(
+                                          color: isHovering
+                                              ? Colors.white
+                                              : AppColors.green,
+                                          size: 10.sp,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+      
+                      SizedBox(height: 1.h),
+                      Divider(color: AppColors.divider),
+                      SizedBox(height: 3.h),
+      
+                      /// 🔹 SWITCH
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Priority Required for All Stages",
+                              style: AppTextStyle.medium(),
+                            ),
+                            SizedBox(width: 0.4.w),
+                            Transform.scale(
+                              scale: 0.6,
+                              child: Switch(
+                                value: false,
+                                activeColor: AppColors.primary,
+                                onChanged: (value) {},
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+      
+                      SizedBox(height: 3.h),
+      
+                      /// 🔹 FILTER
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "Show ",
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                  ),
+                                ),
+                                _smallDropdown(),
+                                Text(
+                                  " entries",
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+      
+                            Row(
+                              children: [
+                                Text(
+                                  "Search:",
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                  ),
+                                ),
+                                SizedBox(width: 1.w),
+                                Container(
+                                  width: 12.w,
+                                  height: 4.h,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.lightGrey,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+      
+                      SizedBox(height: 2.h),
+      
+                      /// 🔹 TABLE
+                      SizedBox(
+                        child: CustomTable(
+                          columns: [
+                            TableColumn(title: "#", flex: 1),
+                            TableColumn(title: "Lead Stage", flex: 4),
+                            TableColumn(title: "Created By", flex: 4),
+                            TableColumn(title: "Action", flex: 2),
+                          ],
+                          rows:
+                              [
+                                ["1", "New", "-", ""],
+                                ["2", "Follow Up", "-", ""],
+                                ["3", "Rejected", "-", ""],
+                                ["4", "Closed", "-", ""],
+                                ["5", "Pending", "-", ""],
+                              ].map((row) {
+                                return [
+                                  Text(row[0], style: AppTextStyle.medium()),
+                                  Text(row[1], style: AppTextStyle.medium()),
+                                  Text(row[2], style: AppTextStyle.medium()),
+      
+                                  /// ACTION
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.edit_outlined,
+                                        size: 14.sp,
+                                        color: Colors.blue,
+                                      ),
+                                    ],
+                                  ),
+                                ];
+                              }).toList(),
+                        ),
+                      ),
+      
+                      /// 🔹 FOOTER
+                      Padding(
+                        padding: EdgeInsets.all(2.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Showing 1 to 5 of 5 entries",
+                              style: AppTextStyle.medium(weight: FontWeight.w400),
+                            ),
+                            Row(
+                              children: [
+                                _paginationButton("Previous", false),
+                                SizedBox(width: 0.1.w),
+                                _pageNumber("1", true),
+                                SizedBox(width: 1.w),
+                                _paginationButton("Next", false),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
