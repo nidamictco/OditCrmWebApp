@@ -1193,7 +1193,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Row(
                         children: [
-                          const SizedBox(width: 10),
                            Text(
                             'Sanidha',
                             style: AppTextStyle.heading(
@@ -1205,11 +1204,11 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           const _PriorityBadge(label: 'Lead priority: High'),
                           const Spacer(),
                           _headerIcon(Icons.edit_outlined, onTap: () {}),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 10),
                           _headerIcon(Icons.swap_horiz, onTap: () {}),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 10),
                           _headerIcon(Icons.add_box_outlined, onTap: () {}),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 10),
                           _headerIcon(Icons.delete_outline,
                               color: Colors.red.shade300, onTap: () {}),
                         ],
@@ -1292,13 +1291,13 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
         Icon(icon, size: 14, color: const Color(0xFF777777)),
         const SizedBox(width: 3),
         Text(text,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+            style: AppTextStyle.small(size: 12, color: Color(0xFF555555))),
       ],
     );
   }
 
   Widget _metaText(String text) =>
-      Text(text, style: const TextStyle(fontSize: 12, color: Color(0xFF555555)));
+      Text(text, style: AppTextStyle.small(size: 12, color: Color(0xFF555555)));
 
   Widget _divider() =>
       const Text('|', style: TextStyle(fontSize: 12, color: Color(0xFFBBBBBB)));
@@ -1899,10 +1898,9 @@ class _PriorityBadge extends StatelessWidget {
           color: const Color(0xFFFF5722),
           borderRadius: BorderRadius.circular(20)),
       child: Text(label,
-          style: const TextStyle(
+          style: AppTextStyle.medium(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600)),
+              weight: FontWeight.w600)),
     );
   }
 }
@@ -1919,10 +1917,10 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
           color: color, borderRadius: BorderRadius.circular(20)),
       child: Text(label,
-          style: const TextStyle(
+          style: AppTextStyle.heading(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600)),
+              size: 11,
+              weight: FontWeight.w600)),
     );
   }
 }
@@ -1951,10 +1949,10 @@ class _StatusChip extends StatelessWidget {
       decoration: BoxDecoration(
           color: _color, borderRadius: BorderRadius.circular(20)),
       child: Text(label,
-          style: const TextStyle(
+          style: AppTextStyle.medium(
               color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500)),
+              size: 12,
+              weight: FontWeight.w500)),
     );
   }
 }
