@@ -1,27 +1,26 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:oxdo/feature/auth/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Persists authentication session using [SharedPreferences].
 class SessionService {
   static const _keyIsLoggedIn = 'session_is_logged_in';
   static const _keyUser = 'session_user';
-
-  // ─── Write ───────────────────────────────────────────────────────────────
 
   Future<void> saveSession(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyIsLoggedIn, true);
     await prefs.setString(_keyUser, jsonEncode(user.toMap()));
+    log('[SessionService] Session saved for ${user.email}');
   }
 
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyIsLoggedIn);
     await prefs.remove(_keyUser);
+    log('[SessionService] Session cleared');
   }
-
-  // ─── Read ────────────────────────────────────────────────────────────────
 
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,10 +34,11 @@ class SessionService {
 
     try {
       final map = jsonDecode(raw) as Map<String, dynamic>;
-      final uid = map['uid'] as String? ?? '';
-      return UserModel.fromMap(uid, map);
-    } catch (_) {
-      // Corrupt data — wipe it.
+      // toMap() saves as STAFF_ID — fromMap reads STAFF_ID ✅
+      final docId = map['STAFF_ID'] as String? ?? '';
+      return UserModel.fromMap(docId, map);
+    } catch (e) {
+      log('[SessionService] Corrupt session data, clearing: $e');
       await clearSession();
       return null;
     }

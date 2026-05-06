@@ -1,10 +1,16 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -74,6 +80,12 @@ class _LeadsReportState extends State<LeadsReport> {
   String? selectedStatus;
   String? selectedStaff;
   String? selectedCreatedBy;
+
+  @override
+void initState() {
+  super.initState();
+  context.read<AddLeadCubit>().fetchLeads();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -323,244 +335,292 @@ class _LeadsReportState extends State<LeadsReport> {
                     Divider(color: AppColors.divider),
 
                     /// 🔹 TABLE CONTROLS
-                    // Padding(
-                    //   padding: EdgeInsets.only(
-                    //     top: 1.h,
-                    //     left: 2.w,
-                    //     right: 2.w,
-                    //     bottom: 1.h,
-                    //   ),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       Row(
-                    //         children: [
-                    //           Text(
-                    //             "Show ",
-                    //             style: AppTextStyle.medium(
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //           _smallDropdown(),
-                    //           Text(
-                    //             " entries",
-                    //             style: AppTextStyle.medium(
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       Row(
-                    //         children: [
-                    //           Text(
-                    //             "Search:",
-                    //             style: AppTextStyle.medium(
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //           SizedBox(width: 1.w),
-                    //           Container(
-                    //             width: 12.w,
-                    //             height: 4.h,
-                    //             decoration: _box(),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+                    
                     ShowEntries(),
 
-                    SizedBox(
-                      child: CustomTable(
-                        columns: [
-                          TableColumn(title: "#", flex: 1),
-                          TableColumn(title: "Name", flex: 4),
-                          TableColumn(title: "Phone No", flex: 4),
-                          TableColumn(title: "Category", flex: 4),
-                          TableColumn(title: "Last Updated", flex: 4),
-                          TableColumn(title: "Staff", flex: 4),
-                          TableColumn(title: "Status", flex: 4),
-                          TableColumn(title: "Created Date", flex: 4),
-                          TableColumn(title: "Cost", flex: 4),
-                          TableColumn(title: "Lead Source", flex: 4),
-                          TableColumn(title: "Action", flex: 2),
-                        ],
-                        rows:
-                            [
-                              [
-                                "1",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "2",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "3",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "4",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "5",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "6",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "7",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "8",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "9",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "10",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "11",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                            ].map((row) {
-                              return [
-                                Text(row[0], style: AppTextStyle.medium()),
-                                Text(row[1], style: AppTextStyle.medium()),
-                                Text(row[2], style: AppTextStyle.medium()),
-                                Text(row[3], style: AppTextStyle.medium()),
-                                Text(row[4], style: AppTextStyle.medium()),
-                                Text(row[5], style: AppTextStyle.medium()),
-                                Text(row[6], style: AppTextStyle.medium()),
-                                Text(row[7], style: AppTextStyle.medium()),
-                                Text(row[8], style: AppTextStyle.medium()),
-                                Text(row[9], style: AppTextStyle.medium()),
+                    // SizedBox(
+                    //   child: CustomTable(
+                    //     columns: [
+                    //       TableColumn(title: "#", flex: 1),
+                    //       TableColumn(title: "Name", flex: 4),
+                    //       TableColumn(title: "Phone No", flex: 4),
+                    //       TableColumn(title: "Category", flex: 4),
+                    //       TableColumn(title: "Last Updated", flex: 4),
+                    //       TableColumn(title: "Staff", flex: 4),
+                    //       TableColumn(title: "Status", flex: 4),
+                    //       TableColumn(title: "Created Date", flex: 4),
+                    //       TableColumn(title: "Cost", flex: 4),
+                    //       TableColumn(title: "Lead Source", flex: 4),
+                    //       TableColumn(title: "Action", flex: 2),
+                    //     ],
+                    //     rows:
+                    //         [
+                    //           [
+                    //             "1",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "2",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "3",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "4",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "5",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "6",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "7",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "8",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "9",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "10",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //           [
+                    //             "11",
+                    //             "name",
+                    //             "1234567890",
+                    //             "category",
+                    //             "Last Updated",
+                    //             "Staff",
+                    //             "Status",
+                    //             "Created Date",
+                    //             "Cost",
+                    //             "Lead Source",
+                    //             "",
+                    //           ],
+                    //         ].map((row) {
+                    //           return [
+                    //             Text(row[0], style: AppTextStyle.medium()),
+                    //             Text(row[1], style: AppTextStyle.medium()),
+                    //             Text(row[2], style: AppTextStyle.medium()),
+                    //             Text(row[3], style: AppTextStyle.medium()),
+                    //             Text(row[4], style: AppTextStyle.medium()),
+                    //             Text(row[5], style: AppTextStyle.medium()),
+                    //             Text(row[6], style: AppTextStyle.medium()),
+                    //             Text(row[7], style: AppTextStyle.medium()),
+                    //             Text(row[8], style: AppTextStyle.medium()),
+                    //             Text(row[9], style: AppTextStyle.medium()),
 
-                                /// ACTION
-                                Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ];
-                            }).toList(),
+                    //             /// ACTION
+                    //             Center(
+                    //               child: Row(
+                    //                 mainAxisAlignment: MainAxisAlignment.center,
+                    //                 children: [
+                    //                   Icon(
+                    //                     Icons.edit_outlined,
+                    //                     size: 14.sp,
+                    //                     color: Colors.blue,
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           ];
+                    //         }).toList(),
+                    //   ),
+                    // ),
+
+                   BlocBuilder<AddLeadCubit, AddLeadState>(
+  builder: (context, state) {
+    // Loading
+    if (state.listStatus == LeadListStatus.loading) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 6.h),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Error
+    if (state.listStatus == LeadListStatus.failure) {
+      return Padding(
+        padding: EdgeInsets.all(4.w),
+        child: Text(
+          state.listError ?? 'Something went wrong.',
+          style: AppTextStyle.medium(color: Colors.red),
+        ),
+      );
+    }
+
+    // Loaded but empty
+    if (state.listStatus == LeadListStatus.loaded && state.leads.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 6.h),
+        child: Center(
+          child: Text("No records found.", style: AppTextStyle.medium()),
+        ),
+      );
+    }
+
+    // Loaded with data
+    if (state.listStatus == LeadListStatus.loaded) {
+      return CustomTable(
+        columns: [
+          TableColumn(title: "#", flex: 1),
+          TableColumn(title: "Name", flex: 4),
+          TableColumn(title: "Phone No", flex: 4),
+          TableColumn(title: "Category", flex: 4),
+          TableColumn(title: "Staff", flex: 4),
+          TableColumn(title: "Status", flex: 4),
+          TableColumn(title: "Created Date", flex: 4),
+          TableColumn(title: "Lead Source", flex: 4),
+          TableColumn(title: "Action", flex: 2),
+        ],
+        rows: List.generate(state.leads.length, (i) {
+          final lead = state.leads[i];
+          return [
+            Text('${i + 1}', style: AppTextStyle.medium()),
+            Text(lead.clientName, style: AppTextStyle.medium()),
+            Text(lead.contactNumber, style: AppTextStyle.medium()),
+            Text(lead.leadCategory, style: AppTextStyle.medium()),
+            Text(lead.assignedStaff, style: AppTextStyle.medium()),
+            Text(lead.leadStage, style: AppTextStyle.medium()),
+            Text(
+              lead.createdAt != null
+                  ? DateFormat('dd MMM yyyy').format(lead.createdAt!)
+                  : '-',
+              style: AppTextStyle.medium(),
+            ),
+            Text(lead.leadSource, style: AppTextStyle.medium()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            MainScreen(selectedIndex: 1,lead:lead),
                       ),
-                    ),
+                    ), 
+                  child: Icon(Icons.edit,
+                      size: 14.sp, color: Colors.blue),
+                ),
+                GestureDetector(
+                  onTap: () =>{
+                  _confirmDelete(context, lead),
+                  },
+                  child: Icon(Icons.delete_outline,
+                      size: 14.sp, color: Colors.red),
+                ),
+              ],
+            ),
+          ];
+        }),
+      );
+    }
+
+    return const SizedBox();
+  },
+),
 
                     /// 🔹 FOOTER
                     Padding(
@@ -855,6 +915,38 @@ class _LeadsReportState extends State<LeadsReport> {
       border: Border.all(color: AppColors.divider),
       borderRadius: BorderRadius.circular(3),
       color: AppColors.greyCard,
+    );
+  }
+
+  // ─── Delete confirmation dialog ────────────────────────────────────────────
+
+  void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
+        content: Text(
+          'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
+          style: AppTextStyle.medium(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel',
+                style: AppTextStyle.medium(color: AppColors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ctx.read<AddLeadCubit>().deleteLead(lead.id!);
+            },
+            child: Text('Delete',
+                style: AppTextStyle.medium(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }

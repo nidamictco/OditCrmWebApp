@@ -1,40 +1,31 @@
-
-
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oxdo/feature/auth/model/user_model.dart';
 
-/// Handles user authentication against a Firestore [users] collection.
-///
-/// Expected Firestore document structure:
-/// /users/{docId}
-///   - username: String  (used as login identifier)
-///   - password: String  (plain or hashed — hash recommended in prod)
-///   - email: String?
-///   - role: String?
-///   - token: String?    (optional FCM / session token)
 class FirebaseAuthService {
   FirebaseAuthService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _users =>
+  CollectionReference<Map<String, dynamic>> get _staff =>
       _firestore.collection('STAFF');
 
-  /// Returns a [UserModel] if credentials match, otherwise throws.
   Future<UserModel> login({
     required String email,
     required String password,
   }) async {
     try {
-      log('log : email : ${email}2222222   $_users');
-      log('log : password : $password');
-      final query = await _users
-          .where('EMAIL', isEqualTo: email)
+      log('[FirebaseAuthService] Querying STAFF where EMAIL == $email');
+
+      final query = await _staff
+          .where('EMAIL', isEqualTo: email.trim())
+          .limit(1)
           .get();
-      print(query.docs.isEmpty);
+
+      log('[FirebaseAuthService] Docs found: ${query.docs.length}');
+
       if (query.docs.isEmpty) {
         throw AuthException('No account found for "$email".');
       }
@@ -42,20 +33,30 @@ class FirebaseAuthService {
       final doc = query.docs.first;
       final data = doc.data();
 
-      log("data['PASSWORD'] ${data['PASSWORD']}");
-      // ⚠️  In production use a hashed comparison (e.g. bcrypt via Cloud Function).
-      // For now we compare stored value directly.
+      log('[FirebaseAuthService] Raw doc data: $data');
+
       final storedPassword = data['PASSWORD'] as String? ?? '';
+
       if (storedPassword != password) {
         throw AuthException('Incorrect password.');
       }
 
-      return UserModel.fromMap(doc.id, data);
+      // ✅ Wrap fromMap in its own try so parse errors surface clearly
+      try {
+        final user = UserModel.fromMap(doc.id, data);
+        log('[FirebaseAuthService] UserModel built: $user');
+        return user;
+      } catch (e) {
+        log('[FirebaseAuthService] fromMap parse error: $e  |  raw data: $data');
+        throw AuthException('Failed to parse user data: $e');
+      }
     } on AuthException {
       rethrow;
     } on FirebaseException catch (e) {
+      log('[FirebaseAuthService] FirebaseException: ${e.message}');
       throw AuthException('Firebase error: ${e.message}');
-    } catch (e) {
+    } catch (e, st) {
+      log('[FirebaseAuthService] Unexpected: $e', stackTrace: st);
       throw AuthException('Unexpected error: $e');
     }
   }

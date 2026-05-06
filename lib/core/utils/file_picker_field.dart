@@ -1,4 +1,4 @@
-import 'dart:io';
+
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ import 'package:sizer/sizer.dart';
 
 class FilePickerField extends StatefulWidget {
   /// Called with the picked [File] (null if user cancels).
-  final ValueChanged<File?>? onFilePicked;
+  final ValueChanged<PlatformFile?>? onFilePicked;
 
   /// Allowed extensions, e.g. ['pdf', 'jpg', 'png'].
   /// Leave null to allow any file type.
@@ -46,15 +46,21 @@ class FilePickerField extends StatefulWidget {
 class _FilePickerFieldState extends State<FilePickerField> {
   String _fileName = '';
 
-  Future<void> _pickFile() async {
+   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
-      type: widget.allowedExtensions != null ? FileType.custom : FileType.any,
+      type:
+          widget.allowedExtensions != null
+              ? FileType.custom
+              : FileType.any,
       allowedExtensions: widget.allowedExtensions,
+      withData: true, // IMPORTANT FOR WEB
     );
 
-    if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
-      setState(() => _fileName = result.files.single.name);
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.single;
+
+      setState(() => _fileName = file.name);
+
       widget.onFilePicked?.call(file);
     }
   }

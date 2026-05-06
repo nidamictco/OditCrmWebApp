@@ -8,7 +8,7 @@ class AppDialog extends StatelessWidget {
   final Widget body;
   final VoidCallback? onSubmit;
   final VoidCallback? onClose;
-  // final String submitText;
+  final String? submitText;
 
   const AppDialog({
     super.key,
@@ -16,7 +16,7 @@ class AppDialog extends StatelessWidget {
     required this.body,
     this.onSubmit,
     this.onClose,
-    // this.submitText = "Submit",
+    this.submitText = "Submit",
   });
 
   @override
@@ -56,7 +56,7 @@ class AppDialog extends StatelessWidget {
               ),
 
               /// 🔹 BODY (Reusable)
-              Padding(padding: EdgeInsets.all(1.w), child: body),
+              Padding(padding: EdgeInsets.all(0.5.w), child: body),
 
               /// 🔹 FOOTER
               Padding(
@@ -101,7 +101,7 @@ class AppDialog extends StatelessWidget {
                       ),
                       onPressed: onSubmit,
                       child: Text(
-                        'Submit',
+                        submitText ?? 'Submit',
                         style: AppTextStyle.small(
                           size: 10.sp,
                           color: AppColors.white,

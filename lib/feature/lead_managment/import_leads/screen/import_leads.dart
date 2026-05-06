@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
@@ -7,7 +10,9 @@ import 'package:oxdo/core/utils/file_picker_field.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/tool_tips.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
+import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
 import 'package:sizer/sizer.dart';
 
@@ -19,476 +24,478 @@ class ImportLeads extends StatefulWidget {
 }
 
 class _ImportLeadsState extends State<ImportLeads> {
-  int selectedTab = 0;
+  // ── Controllers for quick-add dialogs ────────────────────────────────────
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _sourceController = TextEditingController();
+  final TextEditingController _costController = TextEditingController();
 
-final TextEditingController categoryController=TextEditingController();
-final TextEditingController sourceController=TextEditingController();
-final TextEditingController costController=TextEditingController();
+  // ── Picked CSV bytes held locally so we can pass on submit ───────────────
+  // ✅ FIX: store Uint8List (not File) to stay consistent with web + mobile
+  Uint8List? _pickedCsvBytes;
 
+  // ── Static dropdown data (non-Firestore) ─────────────────────────────────
+  // final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
+  final List<String> _priorities = ['High', 'Low', 'Negative', 'Normal'];
 
-  final List<String> leadCategory = [
-    "Select lead Type ",
-    "Need Further Followup",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-  final List<String> staff = ["Staff 1", "Staff 2", "Staff 3", "Staff 4"];
-  final List<String> priority = ["High", "Low", "Negative", "Normal"];
-  final List<String> leadSource = ["Direct Entry", "ADS", "Whatsapp"];
-  final List<String> leadStage = ["New", "Follow Up", "Closed", 'Rejected'];
+  final Map<String, List<String>> _stateDistrictMap = {
+    'Kerala': ['Ernakulam', 'Kottayam', 'Kozhikode'],
+    'Tamil Nadu': ['Chennai', 'Madurai'],
+    'Arunachal Pradesh': ['Tawang', 'Papum Pare', 'West Kameng'],
+  };
 
-  String? selectedCategory;
-  String? selectedSource;
-  String? selectedLeadStages;
-  String? selectedPriority;
-  String? selectedStaff;
+  @override
+  void initState() {
+    super.initState();
+    context.read<ImportLeadsCubit>().initialize();
+  }
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    _sourceController.dispose();
+    _costController.dispose();
+    super.dispose();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BUILD
+  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            TopBreadcrumbBar(
-              subTitle: 'Import Leads',
-              title: 'Leads Management',
-            ),
-            Padding(
-              padding: EdgeInsets.all(2.w),
-              child: Column(
-                children: [
-                  _tabs(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Column(
-                      children: [
-                        /// TITLE BAR
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            vertical: 2.h,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Import Leads",
-                                style: AppTextStyle.medium(
-                                  size: 13.6.sp,
-                                  color: AppColors.black.withOpacity(0.77),
-                                  weight: FontWeight.w600,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  _topButton(
-                                    "Sample File",
-                                    Colors.orange.shade50,
-                                    Colors.orange,
-                                  ),
-                                  SizedBox(width: 1.w),
-                                  InkWell(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) =>
-                                            const FieldPositionDialog(),
-                                      );
-                                    },
-                                    child: _topButton(
-                                      "Field Settings",
-                                      Colors.blue,
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+    return BlocConsumer<ImportLeadsCubit, ImportLeadsState>(
+      listener: _onStateChanged,
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                TopBreadcrumbBar(
+                  subTitle: 'Import Leads',
+                  title: 'Leads Management',
+                ),
+                Padding(
+                  padding: EdgeInsets.all(2.w),
+                  child: Column(
+                    children: [
+                      _tabs(state),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.divider),
                         ),
-                        Divider(color: AppColors.divider),
-                        SizedBox(height: 2.h),
-
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2.w),
-                          child: Text(
-                            "There are two methods available for importing leads. The first option is to refer to the provided sample CSV format and use it directly. Alternatively, you can modify the field settings according to the recommended format before importing the leads.",
-                            style: AppTextStyle.medium(
-                              size: 11.sp,
-                              weight: FontWeight.w400,
-                              // color: AppColors.grey,
-                            ),
-                          ),
+                        child: Column(
+                          children: [
+                            _titleBar(context),
+                            Divider(color: AppColors.divider),
+                            SizedBox(height: 2.h),
+                            _description(),
+                            SizedBox(height: 3.h),
+                            _formBody(context, state),
+                          ],
                         ),
-
-                        SizedBox(height: 3.h),
-                        Padding(
-                          padding: EdgeInsets.only(left: 2.w, right: 40.w),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              selectedTab == 0
-                                  ?
-                                    /// COUNTRY CODE
-                                    Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'Country Code',
-                                              style: AppTextStyle.medium(
-                                                // size: 11.sp,
-                                                // weight: FontWeight.w400,
-                                                // color: AppColors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              "*",
-                                              style: AppTextStyle.medium(
-                                                size: 11.sp,
-                                                weight: FontWeight.w600,
-                                                color: AppColors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 1.h),
-                                        _inputContainer(
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.flag_outlined),
-                                              SizedBox(width: 1.w),
-                                              const Text("+91"),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 2.h),
-                                      ],
-                                    )
-                                  : SizedBox(),
-
-                              /// LEAD STAGE
-                              Dropdown( 
-                                showHelp: true,
-                                items: leadStage,
-                                selectedValue: selectedLeadStages,
-                                onChanged: (val) =>
-                                    setState(() => selectedLeadStages = val),
-                                label: 'Lead Stage',
-                                hint: 'Select Lead Stage',
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// CATEGORY
-                              DropdownWithAdd(
-                                showHelp: true,
-                                label: 'Lead Category',
-                                icon: Icons.layers_outlined,
-                                items: leadCategory,
-                                selectedValue: selectedCategory,
-                                onChanged: (String? p1) {},
-                                onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AppDialog(
-                                                title: 'Add Lead Category',
-                                                body: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Lead Category
-                                                    Text(
-                                                      "Lead Category",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          categoryController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Category",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    SizedBox(height: 2.h),
-
-                                                    /// Cost
-                                                    Text(
-                                                      "Cost",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          costController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Category",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-
-                                                    Row(
-                                                      children: [
-                                                        Checkbox(
-                                                          value: false,
-                                                          onChanged: (value) {},
-                                                        ),
-                                                        SizedBox(width: 0.1),
-                                                        Text(
-                                                          "Add Subcategory",
-                                                          style:
-                                                              AppTextStyle.medium(
-                                                                size: 11.sp,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                // submitText: 'Submit',
-                                                onSubmit: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// STAFF
-                              Dropdown(
-                                label: 'Staff',
-                                hint: 'Select Staff',
-                                items: staff,
-                                selectedValue: selectedStaff,
-                                onChanged: (val) =>
-                                    setState(() => selectedStaff = val),
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// SOURCE
-                              DropdownWithAdd(
-                                showHelp: true,
-                                label: 'Lead Source',
-                                icon: Icons.layers_rounded,
-                                items: leadSource,
-                                selectedValue: selectedSource,
-                                onChanged: (String? p1) {
-                                  setState(() {
-                                    selectedSource = p1?.trim();
-                                  });
-                                },
-                               onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AppDialog(
-                                                title: 'Add Lead Source',
-                                                body: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Lead Category
-                                                    Text(
-                                                      "Lead Source",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          categoryController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Source",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    SizedBox(height: 2.h),
-                                                  ],
-                                                ),
-                                                // submitText: 'Submit',
-                                                onSubmit: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// PRIORITY
-                              Dropdown(
-                                items: priority,
-                                onChanged: (val) =>
-                                    setState(() => selectedPriority = val),
-                                label: 'Priority',
-                                hint: 'Select Priority',
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// STATE
-                              Dropdown(
-                                showIcon: true,
-                                label: "State",
-                                hint: 'Select State',
-                                showHelp: true,
-                                items: stateDistrictMap.keys.toList(),
-                                selectedValue: selectedState,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedState = value;
-
-                                    /// reset district when state changes
-                                    selectedDistrict = null;
-                                  });
-                                },
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// DISTRICT
-                              Dropdown(
-                                showIcon: true,
-                                label: 'District',
-                                hint: 'Select District',
-                                items: selectedState == null
-                                    ? []
-                                    : stateDistrictMap[selectedState] ?? [],
-                                selectedValue: selectedDistrict,
-                                enabled:
-                                    selectedState !=
-                                    null, // 🔥 disable until state selected
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedDistrict = value;
-                                  });
-                                },
-                              ),
-
-                              SizedBox(height: 2.h),
-
-                              /// FILE PICKER
-                              _label("CSV file "),
-                              FilePickerField(
-                                allowedExtensions: [
-                                  'csv',
-                                ], // or leave null for any
-                                onFilePicked: (file) {
-                                  if (file != null) print(file.path);
-                                },
-                              ),
-                              Text(
-                                'Limit CSV file to 1000 rows.',
-                                style: AppTextStyle.medium(
-                                  size: 10.sp,
-                                  color: Colors.lightBlue.shade900,
-                                ),
-                              ),
-
-                              SizedBox(height: 3.h),
-
-                              /// SUBMIT
-                              SizedBox(
-                                width: 10.w,
-                                height: 5.h,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.green,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                  child: Text(
-                                    "Submit",
-                                    style: AppTextStyle.medium(
-                                      size: 10.sp,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 2.w),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // LISTENER
+  // ─────────────────────────────────────────────────────────────────────────
+
+  void _onStateChanged(BuildContext context, ImportLeadsState state) {
+    if (state.status == ImportLeadsStatus.success &&
+        state.successMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.successMessage!),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      // ✅ FIX: clear local bytes after a successful import
+      setState(() => _pickedCsvBytes = null);
+    }
+
+    if (state.status == ImportLeadsStatus.failure &&
+        state.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.errorMessage!),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // UI SECTIONS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _titleBar(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Import Leads',
+            style: AppTextStyle.medium(
+              size: 13.6.sp,
+              color: AppColors.black.withOpacity(0.77),
+              weight: FontWeight.w600,
+            ),
+          ),
+          Row(
+            children: [
+              _topButton('Sample File', Colors.orange.shade50, Colors.orange),
+              SizedBox(width: 1.w),
+              InkWell(
+                onTap: () => showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<ImportLeadsCubit>(),
+                    child: const FieldPositionDialog(),
+                  ),
+                ),
+                child: _topButton('Field Settings', Colors.blue, Colors.white),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _description() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 2.w),
+      child: Text(
+        'There are two methods available for importing leads. The first option '
+        'is to refer to the provided sample CSV format and use it directly. '
+        'Alternatively, you can modify the field settings according to the '
+        'recommended format before importing the leads.',
+        style: AppTextStyle.medium(size: 11.sp, weight: FontWeight.w400),
+      ),
+    );
+  }
+
+  Widget _formBody(BuildContext context, ImportLeadsState state) {
+    final cubit = context.read<ImportLeadsCubit>();
+
+    // ✅ FIX: added null-safe fallback for name fields to prevent type errors
+    final categoryNames = state.categories
+        .map((c) => c.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    final sourceNames = state.sources
+        .map((s) => s.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    final stagesNames = state.stages
+        .map((s) => s.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    // ✅ FIX: StaffModel.name may be nullable — cast safely
+    final staffNames = state.staffList
+        .map((s) => s.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    print('DEBUG stages: ${state.stages.length} → $stagesNames');
+    return Padding(
+      padding: EdgeInsets.only(left: 2.w, right: 40.w, bottom: 2.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Country code (only on Tab 0) ──────────────────────────────────
+          if (state.selectedTab == 0) ...[
+            _countryCodeField(cubit),
+            SizedBox(height: 2.h),
+          ],
+
+          // ── Lead Stage ────────────────────────────────────────────────────
+          Dropdown(
+            showHelp: true,
+            items: stagesNames,
+            // items: ['new lead', 'qualified lead', 'converted lead'],
+            selectedValue: state.selectedLeadStage,
+            onChanged: cubit.selectLeadStage,
+            label: 'Lead Stage',
+            hint: 'Select Lead Stage',
+          ),
+          SizedBox(height: 2.h),
+
+          // ── Lead Category ─────────────────────────────────────────────────
+          DropdownWithAdd(
+            showHelp: true,
+            label: 'Lead Category',
+            icon: Icons.layers_outlined,
+            items: categoryNames,
+            selectedValue: state.selectedCategory,
+            onChanged: cubit.selectCategory,
+            onTap: () => _showAddCategoryDialog(context, cubit),
+          ),
+          SizedBox(height: 2.h),
+
+          // ── Staff ─────────────────────────────────────────────────────────
+          state.isLoading
+              ? _loadingDropdown('Staff')
+              : Dropdown(
+                  label: 'Staff',
+                  hint: 'Select Staff',
+                  items: staffNames,
+                  selectedValue: state.selectedStaff,
+                  onChanged: cubit.selectStaff,
+                ),
+          SizedBox(height: 2.h),
+
+          // ── Lead Source ───────────────────────────────────────────────────
+          DropdownWithAdd(
+            showHelp: true,
+            label: 'Lead Source',
+            icon: Icons.layers_rounded,
+            items: sourceNames,
+            selectedValue: state.selectedSource,
+            onChanged: cubit.selectSource,
+            onTap: () => _showAddSourceDialog(context, cubit),
+          ),
+          SizedBox(height: 2.h),
+
+          // ── Priority ──────────────────────────────────────────────────────
+          Dropdown(
+            items: _priorities,
+            onChanged: cubit.selectPriority,
+            label: 'Priority',
+            hint: 'Select Priority',
+            selectedValue: state.selectedPriority,
+          ),
+          SizedBox(height: 2.h),
+
+          // ── State ─────────────────────────────────────────────────────────
+          Dropdown(
+            showIcon: true,
+            label: 'State',
+            hint: 'Select State',
+            showHelp: true,
+            items: _stateDistrictMap.keys.toList(),
+            selectedValue: state.selectedState,
+            onChanged: cubit.selectState,
+          ),
+          SizedBox(height: 2.h),
+
+          // ── District ──────────────────────────────────────────────────────
+          Dropdown(
+            showIcon: true,
+            label: 'District',
+            hint: 'Select District',
+            items: state.selectedState == null
+                ? []
+                : _stateDistrictMap[state.selectedState] ?? [],
+            selectedValue: state.selectedDistrict,
+            enabled: state.selectedState != null,
+            onChanged: cubit.selectDistrict,
+          ),
+          SizedBox(height: 2.h),
+
+          // ── CSV File picker ───────────────────────────────────────────────
+          _label('CSV file '),
+          FilePickerField(
+            allowedExtensions: ['csv'],
+            // onFilePicked: (file) async {
+            //   if (file != null) {
+            //     final bytes = await file.readAsBytes();
+            //     setState(() => _pickedCsvBytes = bytes);
+            //     cubit.setCsvBytes(bytes);
+            //   }
+            // },
+            onFilePicked: (file) async {
+              if (file != null && file.bytes != null) {
+                final bytes = file.bytes!;
+
+                setState(() => _pickedCsvBytes = bytes);
+
+                cubit.setCsvBytes(bytes);
+              }
+            },
+          ),
+          Text(
+            'Limit CSV file to 1000 rows.',
+            style: AppTextStyle.medium(
+              size: 10.sp,
+              color: Colors.lightBlue.shade900,
+            ),
+          ),
+          SizedBox(height: 3.h),
+
+          // ── Error banner ──────────────────────────────────────────────────
+          if (state.errorMessage != null && !state.isImporting)
+            _errorBanner(state.errorMessage!),
+
+          // ── Submit ────────────────────────────────────────────────────────
+          _submitButton(context, state, cubit),
+          SizedBox(height: 2.w),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SMALL WIDGETS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _countryCodeField(ImportLeadsCubit cubit) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Country Code', style: AppTextStyle.medium()),
+            Text(
+              '*',
+              style: AppTextStyle.medium(
+                size: 11.sp,
+                weight: FontWeight.w600,
+                color: AppColors.red,
               ),
             ),
           ],
+        ),
+        SizedBox(height: 1.h),
+        SizedBox(
+          height: 5.h,
+          width: 45.w,
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.divider),
+              borderRadius: BorderRadius.circular(3),
+              color: AppColors.greyCard,
+            ),
+            child: CountryCodePicker(
+              onChanged: (country) =>
+                  cubit.setDialCode(country.dialCode ?? '+91'),
+              initialSelection: 'IN',
+              showCountryOnly: false,
+              showOnlyCountryWhenClosed: false,
+              alignLeft: true,
+              padding: EdgeInsets.zero,
+              textStyle: AppTextStyle.body(size: 11.sp),
+              flagWidth: 16,
+              dialogBackgroundColor: AppColors.white,
+              dialogSize: Size(30.w, 80.h),
+              dialogTextStyle: AppTextStyle.body(size: 11.sp),
+              searchStyle: AppTextStyle.body(size: 11.sp),
+              searchDecoration: InputDecoration(
+                hintText: 'Search country',
+                hintStyle: AppTextStyle.small(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.divider),
+                ),
+                contentPadding: EdgeInsets.all(1.w),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _submitButton(
+    BuildContext context,
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) {
+    // ✅ FIX: button is active only when not importing AND bytes are available
+    final bool canSubmit = !state.isImporting && _pickedCsvBytes != null;
+
+    return SizedBox(
+      width: 10.w,
+      height: 5.h,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: canSubmit ? AppColors.green : Colors.grey.shade400,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        onPressed: canSubmit
+            ? () => cubit.importLeads(csvBytes: _pickedCsvBytes!)
+            : null,
+        child: state.isImporting
+            ? const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                'Submit',
+                style: AppTextStyle.medium(size: 10.sp, color: AppColors.white),
+              ),
+      ),
+    );
+  }
+
+  Widget _loadingDropdown(String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyle.medium()),
+        SizedBox(height: 0.8.h),
+        Container(
+          height: 5.h,
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(4),
+            color: AppColors.greyCard,
+          ),
+          child: Center(
+            child: SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.orange,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _errorBanner(String message) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 1.5.h),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 1.5.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          border: Border.all(color: Colors.red.shade200),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          message,
+          style: AppTextStyle.small(color: Colors.red.shade700),
         ),
       ),
     );
@@ -501,7 +508,7 @@ final TextEditingController costController=TextEditingController();
         children: [
           Text(text, style: AppTextStyle.medium()),
           Text(
-            "*",
+            '*',
             style: AppTextStyle.medium(
               size: 11.sp,
               weight: FontWeight.w600,
@@ -510,49 +517,10 @@ final TextEditingController costController=TextEditingController();
           ),
           ToolTipWidget(
             message:
-                'Ensure that the file is uploaded \nonly in comma-saperated \nvalues(csv) format',
+                'Ensure that the file is uploaded\nonly in '
+                'comma-separated\nvalues (csv) format',
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _inputContainer({required Widget child}) {
-    return SizedBox(
-      height: 5.h,
-      width: 45.w, // ✅ IMPORTANT FIX
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.divider),
-          borderRadius: BorderRadius.circular(3),
-          color: AppColors.greyCard,
-        ),
-        child: CountryCodePicker(
-          onChanged: (country) {
-            print(country.dialCode);
-          },
-          initialSelection: 'IN',
-          showCountryOnly: false,
-          showOnlyCountryWhenClosed: false,
-          alignLeft: true,
-          padding: EdgeInsets.zero,
-          textStyle: AppTextStyle.body(size: 11.sp),
-          flagWidth: 16,
-          dialogBackgroundColor: AppColors.white,
-          dialogSize: Size(30.w, 80.h),
-          dialogTextStyle: AppTextStyle.body(size: 11.sp),
-          searchStyle: AppTextStyle.body(size: 11.sp),
-          searchDecoration: InputDecoration(
-            hintText: "Search country",
-            hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppColors.divider),
-            ),
-            contentPadding: EdgeInsets.all(1.w),
-          ),
-        ),
       ),
     );
   }
@@ -568,26 +536,24 @@ final TextEditingController costController=TextEditingController();
     );
   }
 
-  /// 🔷 TAB BAR
-  Widget _tabs() {
-    return Column(
+  // ─────────────────────────────────────────────────────────────────────────
+  // TAB BAR
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _tabs(ImportLeadsState state) {
+    return Row(
       children: [
-        Row(
-          children: [
-            _tabItem("With Country Code", 0),
-            SizedBox(width: 1.w),
-            _tabItem("Without Country Code", 1),
-          ],
-        ),
+        _tabItem('With Country Code', 0, state.selectedTab),
+        SizedBox(width: 1.w),
+        _tabItem('Without Country Code', 1, state.selectedTab),
       ],
     );
   }
 
-  Widget _tabItem(String title, int index) {
+  Widget _tabItem(String title, int index, int selectedTab) {
     final isSelected = selectedTab == index;
-
     return GestureDetector(
-      onTap: () => setState(() => selectedTab = index),
+      onTap: () => context.read<ImportLeadsCubit>().selectTab(index),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -602,7 +568,6 @@ final TextEditingController costController=TextEditingController();
           Container(
             height: 2,
             width: 10.w,
-            // ✅ active tab line drawn ON TOP of the divider
             color: isSelected ? AppColors.primary : Colors.transparent,
           ),
         ],
@@ -610,70 +575,109 @@ final TextEditingController costController=TextEditingController();
     );
   }
 
-  String? selectedState;
-  String? selectedDistrict;
+  // ─────────────────────────────────────────────────────────────────────────
+  // DIALOGS
+  // ─────────────────────────────────────────────────────────────────────────
 
-  final Map<String, List<String>> stateDistrictMap = {
-    "Kerala": ["Ernakulam", "Kottayam", "Kozhikode"],
-    "Tamil Nadu": ["Chennai", "Madurai"],
-    "Arunachal Pradesh": ["Tawang", "Papum Pare", "West Kameng"],
-  };
+  void _showAddCategoryDialog(BuildContext context, ImportLeadsCubit cubit) {
+    _categoryController.clear();
+    _costController.clear();
+    showDialog(
+      context: context,
+      builder: (_) => AppDialog(
+        title: 'Add Lead Category',
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: _categoryController,
+              decoration: InputDecoration(
+                hintText: 'Enter Category',
+                hintStyle: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text('Cost', style: AppTextStyle.medium(size: 11.sp)),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: _costController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Enter Cost',
+                hintStyle: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Row(
+              children: [
+                Checkbox(value: false, onChanged: (_) {}),
+                SizedBox(width: 0.1),
+                Text(
+                  'Add Subcategory',
+                  style: AppTextStyle.medium(size: 11.sp),
+                ),
+              ],
+            ),
+          ],
+        ),
+        onSubmit: () {
+          Navigator.pop(context);
+          cubit.refreshCategories();
+        },
+        onClose: () => Navigator.pop(context),
+      ),
+    );
+  }
+
+  void _showAddSourceDialog(BuildContext context, ImportLeadsCubit cubit) {
+    _sourceController.clear();
+    showDialog(
+      context: context,
+      builder: (_) => AppDialog(
+        title: 'Add Lead Source',
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: _sourceController,
+              decoration: InputDecoration(
+                hintText: 'Enter Source',
+                hintStyle: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+          ],
+        ),
+        onSubmit: () {
+          Navigator.pop(context);
+          cubit.refreshSources();
+        },
+        onClose: () => Navigator.pop(context),
+      ),
+    );
+  }
 }
-
-// class CustomDropdown extends StatelessWidget {
-//   final String? value;
-//   final String hint;
-//   final List<String> items;
-//   final bool showAdd;
-//   final Function(String?) onChanged;
-
-//   const CustomDropdown({
-//     super.key,
-//     required this.value,
-//     required this.hint,
-//     required this.items,
-//     required this.onChanged,
-//     this.showAdd = false,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: EdgeInsets.symmetric(horizontal: 2.w),
-//       height: 6.h,
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey.shade300),
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: Row(
-//         children: [
-//           if (showAdd)
-//             Container(
-//               margin: EdgeInsets.only(right: 2.w),
-//               padding: const EdgeInsets.all(6),
-//               decoration: BoxDecoration(
-//                 color: Colors.blue,
-//                 borderRadius: BorderRadius.circular(6),
-//               ),
-//               child: const Icon(Icons.add, color: Colors.white, size: 16),
-//             ),
-
-//           Expanded(
-//             child: DropdownButtonHideUnderline(
-//               child: DropdownButton<String>(
-//                 isExpanded: true,
-//                 value: value,
-//                 hint: Text(hint),
-//                 items: items
-//                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-//                     .toList(),
-//                 onChanged: onChanged,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-// }

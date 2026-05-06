@@ -36,7 +36,6 @@ class _SidebarItemState extends State<SidebarItem> {
         widget.selectedIndex == 2;
 
     return Container(
-
       width: 250,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
@@ -108,7 +107,6 @@ class _SidebarItemState extends State<SidebarItem> {
               ),
             ),
 
-           
             ///settings
             Theme(
               data: Theme.of(
@@ -146,8 +144,7 @@ class _SidebarItemState extends State<SidebarItem> {
               ),
             ),
 
-
-             ///staff managment
+            ///staff managment
             Theme(
               data: Theme.of(
                 context,
@@ -177,14 +174,10 @@ class _SidebarItemState extends State<SidebarItem> {
                   subMenuItem("Add Staff", 15),
                   subMenuItem("View Staff", 16),
                   subMenuItem("Designation", 17),
-                  subMenuItem("Delete Staff", 18),
+                  subMenuItem("Deleted Staff", 18),
                 ],
               ),
             ),
-
-
-
-
 
             ///file manager
             Theme(

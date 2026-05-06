@@ -14,7 +14,7 @@ class BottomBar extends StatelessWidget {
       alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(right: 20),
       child: Text(
-        "Design & Develop by Login2 Creations",
+        "Design & Develop by Mictco Creations",
         style: AppTextStyle.medium(
           size: 11.sp,
           weight: FontWeight.w400,

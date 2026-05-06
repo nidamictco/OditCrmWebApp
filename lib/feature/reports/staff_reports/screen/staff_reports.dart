@@ -123,20 +123,28 @@ class _StaffReportsState extends State<StaffReports> {
                                 Text(row[2], style: AppTextStyle.medium()),
                                 Text(row[3], style: AppTextStyle.medium()),
                                 Center(
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.ads_click_outlined,
-                                      size: 14.sp,
-                                      color: Colors.blue.shade900,
-                                    ),
-                                    onPressed: () {
+                                  child: GestureDetector(
+                                    onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => MainScreen(selectedIndex: 29),
+                                          builder: (context) =>
+                                              MainScreen(selectedIndex: 29),
                                         ),
                                       );
                                     },
+                                    child: Container(
+                                      padding: EdgeInsets.all(0.1.w),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade900,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Icon(
+                                        Icons.ads_click_outlined,
+                                        size: 14.sp,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ];

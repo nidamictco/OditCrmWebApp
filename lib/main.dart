@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/firebase_auth_service/firebase_auth_service.dart';
+import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/auth_gate.dart';
