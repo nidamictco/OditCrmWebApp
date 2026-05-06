@@ -1,5 +1,3 @@
-// lib/features/lead_category/data/models/lead_category_model.dart
-
 class LeadsModel {
   final String id;
   final String name;
@@ -21,7 +19,7 @@ class LeadsModel {
   ) {
     return LeadsModel(
       id: docId,
-      name: data['name'] as String? ?? '',
+      name: data['name'].toString().toUpperCase(),
       createdBy: data['createdBy'] as String? ?? '',
       idOfCreator: data['idOfCreator'] as String? ?? '',
       createdAt: data['createdAt'] != null

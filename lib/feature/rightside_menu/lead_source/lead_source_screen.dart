@@ -5,7 +5,7 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/model/lead_category_model.dart';
+import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_state.dart';
 import 'package:sizer/sizer.dart';
@@ -358,6 +358,19 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                     ),
                                     borderRadius: BorderRadius.circular(4),
                                     color: AppColors.white,
+                                  ),
+                                  child:  TextField(
+                                    onChanged: (v) =>
+                                        setState(() => _searchQuery = v),
+                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
+                                    decoration: const InputDecoration(
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 10,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
                                   ),
                                 ),
                               ],

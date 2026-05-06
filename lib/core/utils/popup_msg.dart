@@ -56,7 +56,7 @@ class AppDialog extends StatelessWidget {
               ),
 
               /// 🔹 BODY (Reusable)
-              Padding(padding: EdgeInsets.all(1.w), child: body),
+              Padding(padding: EdgeInsets.all(0.5.w), child: body),
 
               /// 🔹 FOOTER
               Padding(

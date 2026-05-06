@@ -1,1 +1,35 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"oxdo-leads","appId":"1:446854947362:android:a213d69fe10c946564e07b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"oxdo-leads","configurations":{"ios":"1:446854947362:ios:f68de24a836b855664e07b"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "oxdo-leads",
+          "appId": "1:446854947362:android:a213d69fe10c946564e07b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "oxdo-leads",
+          "configurations": {
+            "ios": "1:446854947362:ios:f68de24a836b855664e07b"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

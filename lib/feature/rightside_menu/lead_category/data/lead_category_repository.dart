@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/model/user_model.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/model/lead_category_model.dart';
+import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 
 abstract class ILeadCategoryRepository {
   Stream<List<LeadsModel>> watchCategories();

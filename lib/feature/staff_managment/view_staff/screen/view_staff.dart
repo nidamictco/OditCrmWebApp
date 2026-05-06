@@ -1,293 +1,7 @@
-// import 'package:flutter/material.dart';
-// import 'package:oxdo/core/theme/app_colors.dart';
-// import 'package:oxdo/core/theme/app_text_style.dart';
-// import 'package:oxdo/core/utils/dropdown.dart';
-// import 'package:oxdo/core/utils/footer.dart';
-// import 'package:oxdo/core/utils/show_entries.dart';
-// import 'package:oxdo/core/utils/staff_top_bar.dart';
-// import 'package:oxdo/core/utils/table.dart';
-// import 'package:oxdo/feature/sidebar/main_screen.dart';
-// import 'package:sizer/sizer.dart';
-
-// class ViewStaff extends StatefulWidget {
-//   const ViewStaff({super.key});
-
-//   @override
-//   State<ViewStaff> createState() => _ViewStaffState();
-// }
-
-// class _ViewStaffState extends State<ViewStaff> {
-//   bool isHovering = false;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppColors.background,
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             StaffTopBar(
-//               title: 'Staff List',
-//               current: 'View Staff',
-//               parent: 'Staff Management',
-//             ),
-//             Padding(
-//               padding: EdgeInsets.all(2.w),
-//               child: Container(
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(4),
-//                   border: Border.all(color: AppColors.divider),
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Padding(
-//                       padding: EdgeInsets.only(
-//                         left: 2.w,
-//                         right: 2.w,
-//                         top: 2.h,
-//                         bottom: 1.h,
-//                       ),
-//                       child: Align(
-//                         alignment: Alignment.centerRight,
-//                         child: SizedBox(
-//                           width: 7.5.w,
-//                           height: 4.5.h,
-//                           child: MouseRegion(
-//                             onEnter: (_) => setState(() => isHovering = true),
-//                             onExit: (_) => setState(() => isHovering = false),
-//                             child: GestureDetector(
-//                               onTap: () {
-//                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 15,)));
-//                               },
-//                               child: AnimatedContainer(
-//                                 duration: const Duration(milliseconds: 200),
-//                                 curve: Curves.easeInOut,
-//                                 height: 5.h,
-//                                 // padding: EdgeInsets.symmetric(horizontal: 3.w),
-//                                 decoration: BoxDecoration(
-//                                   border: Border.all(
-//                                     color: AppColors.orange,
-//                                     width: 0.02.w,
-//                                   ),
-//                                   color: isHovering
-//                                       ? AppColors.orange
-//                                       : AppColors.orange.withOpacity(0.1),
-//                                   borderRadius: BorderRadius.circular(4),
-//                                 ),
-//                                 child: Center(
-//                                   child: Text(
-//                                     "Add New",
-//                                     style: AppTextStyle.small(
-//                                       color: isHovering
-//                                           ? Colors.white
-//                                           : AppColors.orange,
-//                                       size: 10.sp,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     Divider(color: AppColors.divider),
-
-//                     Padding(
-//                       padding: EdgeInsets.symmetric(
-//                         horizontal: 2.w,
-//                         vertical: 1.h,
-//                       ),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         mainAxisAlignment: MainAxisAlignment.start,
-//                         children: [
-//                           // Text('Permissions', style: AppTextStyle.medium()),
-//                           Row(
-//                             children: [
-//                               SizedBox(
-//                                 width: 17.w,
-//                                 child: Dropdown(
-//                                   label: 'Permissions',
-//                                   hint: 'All',
-//                                 ),
-//                               ),
-//                               SizedBox(width: 1.w),
-//                               Padding(
-//                                 padding: EdgeInsets.only(top: 2.h),
-//                                 child: SizedBox(
-//                                   width: 7.w,
-//                                   height: 4.5.h,
-//                                   child: DecoratedBox(
-//                                     decoration: BoxDecoration(
-//                                       color: const Color(0xff1BAA90),
-//                                       borderRadius: BorderRadius.circular(6),
-//                                     ),
-//                                     child: Center(
-//                                       child: Text(
-//                                         "View",
-//                                         style: AppTextStyle.small(
-//                                           size: 10.sp,
-//                                           color: Colors.white,
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                     SizedBox(height: 2.h),
-//                     Padding(
-//                       padding: EdgeInsets.symmetric(
-//                         horizontal: 2.w,
-//                         vertical: 1.h,
-//                       ),
-//                       child: Row(
-//                         children: [
-//                           Container(
-//                             height: 5.h,
-//                             width: 6.w,
-//                             decoration: BoxDecoration(
-//                               color: AppColors.green,
-//                               border: Border.all(color: AppColors.divider),
-//                               borderRadius: BorderRadius.circular(6),
-//                             ),
-//                             child: Center(
-//                               child: Text(
-//                                 "Active",
-//                                 style: AppTextStyle.small(
-//                                   color: Colors.white,
-//                                   size: 10.sp,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                           SizedBox(width: 0.6.w),
-//                           Container(
-//                             height: 5.h,
-//                             width: 6.w,
-//                             decoration: BoxDecoration(
-//                               color: AppColors.red.withOpacity(0.8),
-//                               border: Border.all(color: AppColors.divider),
-//                               borderRadius: BorderRadius.circular(6),
-//                             ),
-//                             child: Center(
-//                               child: Text(
-//                                 "Inactive",
-//                                 style: AppTextStyle.small(
-//                                   color: Colors.white,
-//                                   size: 10.sp,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                     Divider(color: AppColors.divider),
-
-//                     SizedBox(height: 2.h),
-//                     ShowEntries(),
-//                     SizedBox(
-//                       child: CustomTable(
-//                         columns: [
-//                           // TableColumn(title: "", flex: 1),
-//                           TableColumn(title: "#", flex: 1),
-//                           TableColumn(title: "Name", flex: 4),
-//                           TableColumn(title: "Staff Type", flex: 4),
-//                           TableColumn(title: "Status ", flex: 4),
-//                           TableColumn(title: "Phone Number ", flex: 4),
-//                           TableColumn(title: "Designation ", flex: 4),
-//                           TableColumn(title: "Expiry Date", flex: 4),
-//                           TableColumn(title: "Crated at", flex: 4),
-//                           TableColumn(title: "Action", flex: 2),
-//                         ],
-//                         rows:
-//                             [
-//                               [
-//                                 "1",
-//                                 "name",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                               ],
-//                               [
-//                                 "1",
-//                                 "name",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                               ],
-//                               [
-//                                 "1",
-//                                 "name",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                                 "1234567890",
-//                                 "10 min",
-//                               ],
-//                             ].map((row) {
-//                               return [
-//                                 Text(row[0], style: AppTextStyle.medium()),
-//                                 Text(row[1], style: AppTextStyle.medium()),
-//                                 Text(row[2], style: AppTextStyle.medium()),
-//                                 Text(row[3], style: AppTextStyle.medium()),
-//                                 Text(row[4], style: AppTextStyle.medium()),
-//                                 Text(row[5], style: AppTextStyle.medium()),
-//                                 Text(row[6], style: AppTextStyle.medium()),
-//                                 Text(row[7], style: AppTextStyle.medium()),
-//                                 Center(
-//                                   child: Row(
-//                                     mainAxisAlignment: MainAxisAlignment.center,
-//                                     children: [
-//                                       Icon(
-//                                         Icons.edit_outlined,
-//                                         size: 14.sp,
-//                                         color: Colors.blue,
-//                                       ),
-//                                       SizedBox(width: 0.2.w),
-//                                       Icon(
-//                                         Icons.delete_outline,
-//                                         size: 14.sp,
-//                                         color: Colors.red,
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ),
-//                               ];
-//                             }).toList(),
-//                       ),
-//                     ),
-//                     Footer(),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
@@ -308,22 +22,53 @@ class ViewStaff extends StatefulWidget {
 class _ViewStaffState extends State<ViewStaff> {
   bool isHovering = false;
   String _activeFilter = 'All'; // 'All' | 'Active' | 'Inactive'
+  String _searchQuery = '';
+  String _selectedEntries = '10';
 
   @override
   void initState() {
     super.initState();
-    // Fetch staff list when screen loads
     context.read<StaffCubit>().fetchAll();
   }
 
-  // ─── Filter helpers ───────────────────────────────────────────────────────
+  // ─── Filtering pipeline ────────────────────────────────────────────────────
+  // FIX: single method applies all three filters in order:
+  //   1. status (Active / Inactive / All)
+  //   2. search query (name)
+  //   3. entries limit
+  List<StaffModel> _filtered(List<StaffModel> all) {
+    List<StaffModel> result = all;
 
-  List<StaffModel> _applyFilters(List<StaffModel> list) {
-    // Future: filter by _selectedPermission (staffType) if needed
-    return list;
+    // 1. Active/Inactive filter
+    if (_activeFilter == 'Active') {
+      result = result
+          .where((s) => (s.staffType ?? '').toLowerCase() == 'active')
+          .toList();
+    } else if (_activeFilter == 'Inactive') {
+      result = result
+          .where((s) => (s.staffType ?? '').toLowerCase() != 'active')
+          .toList();
+    }
+
+    // 2. Search query — matches name (extend with more fields as needed)
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      result = result
+          .where(
+            (s) =>
+                s.name.toLowerCase().contains(q) ||
+                (s.phone.toLowerCase().contains(q)) ||
+                (s.designation ?? '').toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
+    // 3. Entries limit
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    return result.take(limit).toList();
   }
 
-  // ─── Delete confirmation dialog ───────────────────────────────────────────
+  // ─── Delete confirmation dialog ────────────────────────────────────────────
 
   void _confirmDelete(BuildContext ctx, StaffModel staff) {
     showDialog(
@@ -347,7 +92,8 @@ class _ViewStaffState extends State<ViewStaff> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              ctx.read<StaffCubit>().deleteStaff(staff.id!);
+              // ctx.read<StaffCubit>().restoreStaff(staff);
+              ctx.read<StaffCubit>().deleteStaff(staff.id!, staff);
             },
             child: Text(
               'Delete',
@@ -359,7 +105,7 @@ class _ViewStaffState extends State<ViewStaff> {
     );
   }
 
-  // ─── Status badge ─────────────────────────────────────────────────────────
+  // ─── Status badge ──────────────────────────────────────────────────────────
 
   Widget _statusBadge(String? status) {
     final isActive = (status ?? '').toLowerCase() == 'active';
@@ -386,7 +132,7 @@ class _ViewStaffState extends State<ViewStaff> {
     );
   }
 
-  // ─── Build ────────────────────────────────────────────────────────────────
+  // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -405,9 +151,9 @@ class _ViewStaffState extends State<ViewStaff> {
           }
           if (state is StaffDeleted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Staff member deleted successfully.'),
-                backgroundColor: AppColors.green,
+              const SnackBar(
+                content: Text('Staff member deleted successfully.'),
+                backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -433,7 +179,7 @@ class _ViewStaffState extends State<ViewStaff> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ─── Add New button ───────────────────────────────
+                        // ─── Add New button ─────────────────────────────────
                         Padding(
                           padding: EdgeInsets.only(
                             left: 2.w,
@@ -452,15 +198,13 @@ class _ViewStaffState extends State<ViewStaff> {
                                 onExit: (_) =>
                                     setState(() => isHovering = false),
                                 child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            MainScreen(selectedIndex: 15),
-                                      ),
-                                    );
-                                  },
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          MainScreen(selectedIndex: 15),
+                                    ),
+                                  ),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,
@@ -494,10 +238,9 @@ class _ViewStaffState extends State<ViewStaff> {
                         ),
 
                         Divider(color: AppColors.divider),
-
                         SizedBox(height: 2.h),
 
-                        // ─── Active / Inactive filter buttons ──────────────
+                        // ─── Active / Inactive filter buttons ───────────────
                         Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: 2.w,
@@ -532,11 +275,18 @@ class _ViewStaffState extends State<ViewStaff> {
                           ),
                         ),
 
-                        // Divider(color: AppColors.divider),
                         SizedBox(height: 2.h),
-                        ShowEntries(),
 
-                        // ─── Table ─────────────────────────────────────────
+                        // ✅ Callbacks write into parent state so _filtered() works
+                        ShowEntries(
+                          initialSearch: _searchQuery,
+                          initialEntries: _selectedEntries,
+                          onSearchChanged: (v) =>
+                              setState(() => _searchQuery = v),
+                          onEntriesChanged: (v) =>
+                              setState(() => _selectedEntries = v),
+                        ),
+
                         _buildTableSection(state),
 
                         Footer(),
@@ -552,7 +302,7 @@ class _ViewStaffState extends State<ViewStaff> {
     );
   }
 
-  // ─── Filter toggle button ─────────────────────────────────────────────────
+  // ─── Filter toggle button ──────────────────────────────────────────────────
 
   Widget _filterButton({
     required String label,
@@ -584,9 +334,10 @@ class _ViewStaffState extends State<ViewStaff> {
     );
   }
 
-  // ─── Table section (handles all states) ──────────────────────────────────
+  // ─── Table section ─────────────────────────────────────────────────────────
 
   Widget _buildTableSection(StaffState state) {
+    // Loading
     if (state is StaffLoading) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -599,6 +350,7 @@ class _ViewStaffState extends State<ViewStaff> {
       );
     }
 
+    // Error
     if (state is StaffError) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
@@ -643,24 +395,17 @@ class _ViewStaffState extends State<ViewStaff> {
       );
     }
 
-    // Resolve list from both StaffListLoaded and StaffDeleted (which triggers fetchAll → reloads)
-    List<StaffModel> staffList = [];
-    if (state is StaffListLoaded) {
-      staffList = state.staffList;
-    }
+    // StaffDeleted only carries deletedId — the cubit calls fetchAll() after
+    // deletion which emits StaffListLoaded, so we only read the list from there.
+    final List<StaffModel> rawList = state is StaffListLoaded
+        ? state.staffList
+        : [];
 
-    // Apply active/inactive filter
-    if (_activeFilter == 'Active') {
-      staffList = staffList
-          .where((s) => (s.staffType ?? '').toLowerCase() == 'active')
-          .toList();
-    } else if (_activeFilter == 'Inactive') {
-      staffList = staffList
-          .where((s) => (s.staffType ?? '').toLowerCase() != 'active')
-          .toList();
-    }
+    // ✅ _filtered() applies status + search + limit in one pass
+    final List<StaffModel> staffList = _filtered(rawList);
 
-    if (staffList.isEmpty && state is StaffListLoaded) {
+    // Empty state
+    if (staffList.isEmpty) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h),
         child: Center(
@@ -684,96 +429,114 @@ class _ViewStaffState extends State<ViewStaff> {
     }
 
     // ─── Populated table ───────────────────────────────────────────────────
-    return SizedBox(
-      child: CustomTable(
-        columns: [
-          TableColumn(title: "#", flex: 1),
-          TableColumn(title: "Name", flex: 4),
-          TableColumn(title: "Staff Type", flex: 4),
-          TableColumn(title: "Status", flex: 4),
-          TableColumn(title: "Phone Number", flex: 4),
-          TableColumn(title: "Designation", flex: 4),
-          TableColumn(title: "Joining Date", flex: 4),
-          TableColumn(title: "Created At", flex: 4),
-          TableColumn(title: "Action", flex: 2),
-        ],
-        rows: staffList.asMap().entries.map((entry) {
-          final index = entry.key;
-          final staff = entry.value;
+    return CustomTable(
+      columns: [
+        TableColumn(title: "#", flex: 1),
+        TableColumn(title: "Name", flex: 4),
+        TableColumn(title: "Staff Type", flex: 4),
+        TableColumn(title: "Status", flex: 4),
+        TableColumn(title: "Phone Number", flex: 4),
+        TableColumn(title: "Designation", flex: 4),
+        TableColumn(title: "Joining Date", flex: 4),
+        TableColumn(title: "Created At", flex: 4),
+        TableColumn(title: "Action", flex: 2),
+      ],
+      rows: staffList.asMap().entries.map((entry) {
+        final index = entry.key;
+        final staff = entry.value;
 
-          final createdAt = staff.createdAt != null
-              ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
-                    '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
-                    '${staff.createdAt!.year}'
-              : '—';
+        final createdAt = staff.createdAt != null
+            ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
+                  '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
+                  '${staff.createdAt!.year}'
+            : '—';
 
-          return [
-            Text('${index + 1}', style: AppTextStyle.medium()),
-            Text(
-              staff.name,
-              style: AppTextStyle.medium(),
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
-            _statusBadge(staff.staffType),
-            Text(staff.phone, style: AppTextStyle.medium()),
-            Text(
-              staff.designation ?? '—',
-              style: AppTextStyle.medium(),
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
-            Text(createdAt, style: AppTextStyle.medium()),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Edit
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Navigate to edit screen — pass staff.id
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                MainScreen(selectedIndex: 15, staff: staff),
-                          ),
-                        );
-                      },
-                      child: Tooltip(
-                        message: 'Edit',
-                        child: Icon(
-                          Icons.edit_outlined,
-                          size: 14.sp,
-                          color: Colors.blue,
-                        ),
+        return [
+          Text('${index + 1}', style: AppTextStyle.medium()),
+          Text(
+            staff.name,
+            style: AppTextStyle.medium(),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
+          _statusBadge(staff.staffType),
+          Text(staff.phone, style: AppTextStyle.medium()),
+          Text(
+            staff.designation ?? '—',
+            style: AppTextStyle.medium(),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
+          Text(createdAt, style: AppTextStyle.medium()),
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            MainScreen(selectedIndex: 15, staff: staff),
+                      ),
+                    ),
+                    child: Tooltip(
+                      message: 'Edit',
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: 14.sp,
+                        color: Colors.blue,
                       ),
                     ),
                   ),
-                  SizedBox(width: 0.4.w),
-                  // Delete
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => _confirmDelete(context, staff),
-                      child: Tooltip(
-                        message: 'Delete',
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 14.sp,
-                          color: Colors.red,
+                ),
+                SizedBox(width: 0.4.w),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreen(selectedIndex: 29),
                         ),
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(0.1.w),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade900,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      child: Icon(
+                        Icons.ads_click_outlined, 
+                        size: 10.sp,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 0.4.w),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => _confirmDelete(context, staff),
+                    child: Tooltip(
+                      message: 'Delete',
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 14.sp,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ];
-        }).toList(),
-      ),
+          ),
+        ];
+      }).toList(),
     );
   }
 }

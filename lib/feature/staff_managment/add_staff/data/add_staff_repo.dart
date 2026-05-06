@@ -19,7 +19,10 @@ class StaffRepository {
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('STAFF');
-
+  
+   CollectionReference<Map<String, dynamic>> get _deletedCollection =>
+      _firestore.collection('DELETED_STAFF');
+ 
   // ─── Upload file to Firebase Storage ─────────────────────────────────────
 
   /// Uploads [file] to Storage under [folder]/[fileName].
@@ -130,13 +133,23 @@ class StaffRepository {
     log('[StaffRepository] Staff deleted: $id');
   }
 
-  // ─── Fetch single ─────────────────────────────────────────────────────────
 
-  Future<StaffModel?> getStaff(String id) async {
-    final doc = await _collection.doc(id).get();
-    if (!doc.exists) return null;
-    return StaffModel.fromFirestore(doc);
-  }
+Future<void> moveToDeleted(StaffModel staff) async {
+  assert(staff.id != null, 'ID must not be null');
+  
+  final deletedStaff = staff.copyWith(
+    deletedAt: DateTime.now(), 
+  );
+
+  
+  await _deletedCollection.add(deletedStaff.toMap());
+  await _collection.doc(staff.id).delete();
+  
+  log('[StaffRepository] Staff moved to DELETED_STAFF: ${staff.id}');
+}
+
+
+
 
   // ─── Fetch all ────────────────────────────────────────────────────────────
 
@@ -153,5 +166,76 @@ class StaffRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map(StaffModel.fromFirestore).toList());
+  }
+
+
+
+
+  ///-------------deleted staff-----------
+  Future<String> restoreStaff(
+    StaffModel staff, {
+    File? imageFile,
+    File? documentFile,
+  }) async {
+    String? imageUrl;
+    String? documentUrl;
+
+    // Upload image if provided
+    if (imageFile != null) {
+      final ext = imageFile.path.split('.').last;
+      final fileName = 'staff_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      imageUrl = await _uploadFile(
+        file: imageFile,
+        folder: 'staff_images',
+        fileName: fileName,
+      );
+      log('[StaffRepository] Image uploaded: $imageUrl');
+    }
+
+    // Upload document if provided
+    if (documentFile != null) {
+      final ext = documentFile.path.split('.').last;
+      final fileName = 'doc_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      documentUrl = await _uploadFile(
+        file: documentFile,
+        folder: 'staff_documents',
+        fileName: fileName,
+      );
+      log('[StaffRepository] Document uploaded: $documentUrl');
+    }
+
+    final finalStaff = staff.copyWith(
+      imageUrl: imageUrl,
+      documentUrl: documentUrl,
+      createdAt: DateTime.now(), 
+    );
+
+    final docRef = await _collection.add(finalStaff.toMap());
+    await _deletedCollection.doc(staff.id).delete(); 
+    return docRef.id;
+  }
+
+// ________________fectch deleted staff________________
+
+Future<List<StaffModel>> fetchDeletedStaff() async {
+    final snap =
+        await _deletedCollection.orderBy('createdAt', descending: true).get();
+    return snap.docs.map(StaffModel.fromFirestore).toList();
+  }
+
+ //__________deleting deleted staff permanently_______________
+
+Future<void> deleteStaffPermanently(String id) async {
+  await _deletedCollection.doc(id).delete();
+  log('[StaffRepository] Staff deleted permanently: $id');
+}
+
+
+  // ─── Fetch single ─────────────────────────────────────────────────────────
+
+  Future<StaffModel?> getStaff(String id) async {
+    final doc = await _collection.doc(id).get();
+    if (!doc.exists) return null;
+    return StaffModel.fromFirestore(doc);
   }
 }

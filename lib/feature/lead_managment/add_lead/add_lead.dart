@@ -1,505 +1,722 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/menu_hover_bottun.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/widget/dropdown_with_add.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:sizer/sizer.dart';
 
 class AddLeadPage extends StatefulWidget {
-  const AddLeadPage({super.key});
+  final AddLeadModel? lead;
+  const AddLeadPage({super.key, this.lead});
 
   @override
   State<AddLeadPage> createState() => _AddLeadPageState();
 }
 
 class _AddLeadPageState extends State<AddLeadPage> {
-  bool isHovering = false;
+  // ── Standard Controllers ───────────────────────────────────────────────────
+  final TextEditingController _clientNameCtrl = TextEditingController();
+  final TextEditingController _contactCtrl = TextEditingController();
+  final TextEditingController _whatsappCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _addressCtrl = TextEditingController();
+  final TextEditingController _pinCtrl = TextEditingController();
+  final TextEditingController _postOfficeCtrl = TextEditingController();
+  final TextEditingController _remarksCtrl = TextEditingController();
+  final TextEditingController _dialogNameCtrl = TextEditingController();
 
-  TextEditingController categoryController = TextEditingController();
-  TextEditingController costController = TextEditingController();
+  String? _leadStage;
+  String? _leadSource;
+  String? _leadCategory;
+  String? _leadPriority;
 
-  final List<String> leadCategory = [
-    "Select lead Type ",
-    "Need Further Followup",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
+  // ── Additional field controllers — keyed by AdditionalFieldModel.id ────────
 
-  final List<String> leadSource = ["Direct Entry", "ADS", "Whatsapp"];
-  final List<String> priority = ["High", "Low", "Negative", "Normal"];
-  final List<String> leadStage = ["New", "Follow Up", "Closed", 'Rejected'];
+  final Map<String, TextEditingController> _additionalCtrlMap = {};
 
-  String? selectedCategory;
-  String? selectedSource;
-  String? selectedPriority;
-  String? selectedLeadStage;
+  // Dial codes
+  String _contactDialCode = '+91';
+  String _whatsappDialCode = '+91';
+
+  final List<String> priority = ['High', 'Low', 'Negative', 'Normal'];
+
+  final Map<String, List<String>> stateDistrictMap = {
+    'Kerala': [
+      'Ernakulam',
+      'Kottayam',
+      'Kozhikode',
+      'Thiruvananthapuram',
+      'Thrissur',
+      'Malappuram',
+      'Palakkad',
+      'Kollam',
+      'Alappuzha',
+      'Kannur',
+      'Kasaragod',
+      'Wayanad',
+      'Idukki',
+      'Pathanamthitta',
+    ],
+    'Tamil Nadu': ['Chennai', 'Madurai', 'Coimbatore', 'Salem'],
+    'Arunachal Pradesh': ['Tawang', 'Papum Pare', 'West Kameng'],
+    'Karnataka': ['Bengaluru', 'Mysuru', 'Hubballi'],
+    'Maharashtra': ['Mumbai', 'Pune', 'Nagpur'],
+  };
+
+  bool get _isEditMode => widget.lead != null;
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<AddLeadCubit>().initialize();
+    if (_isEditMode) _prefillIfEditing(widget.lead!);
+  }
+
+  void _prefillIfEditing(AddLeadModel lead) {
+    _clientNameCtrl.text = lead.clientName;
+    _contactCtrl.text = lead.contactNumber;
+    _whatsappCtrl.text = lead.whatsappNumber;
+    _emailCtrl.text = lead.email;
+    _addressCtrl.text = lead.address;
+    _pinCtrl.text = lead.pinCode;
+    _postOfficeCtrl.text = lead.postOffice;
+    _remarksCtrl.text = lead.remarks;
+    _leadStage = lead.leadStage;
+    _leadSource = lead.leadSource;
+    _leadCategory = lead.leadCategory;
+    _leadPriority = lead.priority;
+  }
+
+  void _syncAdditionalControllers(List<dynamic> fields) {
+    final incomingIds = fields.map((f) => f.id as String).toSet();
+
+    // Remove stale controllers
+    _additionalCtrlMap.keys
+        .where((id) => !incomingIds.contains(id))
+        .toList()
+        .forEach((id) {
+          _additionalCtrlMap.remove(id)?.dispose();
+        });
+
+    // Add new ones
+    for (final field in fields) {
+      final id = field.id as String;
+      _additionalCtrlMap.putIfAbsent(id, () => TextEditingController());
+    }
+  }
+
+  @override
+  void dispose() {
+    _clientNameCtrl.dispose();
+    _contactCtrl.dispose();
+    _whatsappCtrl.dispose();
+    _emailCtrl.dispose();
+    _addressCtrl.dispose();
+    _pinCtrl.dispose();
+    _postOfficeCtrl.dispose();
+    _remarksCtrl.dispose();
+    _dialogNameCtrl.dispose();
+    for (final c in _additionalCtrlMap.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
+
+  void _submit() {
+    final state = context.read<AddLeadCubit>().state;
+    final additionalValues = <String, String>{};
+    for (final field in state.additionalFields) {
+      final id = field.id;
+      if (id != null) {
+        additionalValues[field.fieldName] =
+            _additionalCtrlMap[id]?.text.trim() ?? '';
+      }
+    }
+
+    context.read<AddLeadCubit>().submitLead(
+      clientName: _clientNameCtrl.text,
+      contactNumber: _contactCtrl.text,
+      contactDialCode: _contactDialCode,
+      whatsappNumber: _whatsappCtrl.text,
+      whatsappDialCode: _whatsappDialCode,
+      email: _emailCtrl.text,
+      address: _addressCtrl.text,
+      pinCode: _pinCtrl.text,
+      postOffice: _postOfficeCtrl.text,
+      remarks: _remarksCtrl.text,
+      additionalFieldValues: additionalValues,
+    );
+  }
+
+  void _clearForm() {
+    _clientNameCtrl.clear();
+    _contactCtrl.clear();
+    _whatsappCtrl.clear();
+    _emailCtrl.clear();
+    _addressCtrl.clear();
+    _pinCtrl.clear();
+    _postOfficeCtrl.clear();
+    _remarksCtrl.clear();
+    
+    for (final c in _additionalCtrlMap.values) {
+      c.clear();
+    }
+
+    setState(() {
+    _leadCategory = null;
+    _leadSource = null;
+    _leadStage = null;
+    _leadPriority = null;
+  });
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          _buildHeader(),
+    return BlocListener<AddLeadCubit, AddLeadState>(
+      listenWhen: (prev, cur) =>
+          cur.errorMessage != prev.errorMessage ||
+          cur.successMessage != prev.successMessage ||
+          cur.additionalFields != prev.additionalFields,
+      listener: (context, state) {
+        if (state.additionalFields.isNotEmpty) {
+          _syncAdditionalControllers(state.additionalFields);
+        }
 
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  /// 🔥 HEADER
-                  SizedBox(height: 2.h),
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: AppColors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          _clearForm();
+          //  context.read<AddLeadCubit>().resetSelections(); 
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 2.h),
 
-                  /// TOP SECTION
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// LEFT
-                        Expanded(
-                          flex: 3,
-                          child: _sectionCard(
-                            "Customer Details",
-                            Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _field(
-                                        "Client Name",
-                                        true,
-                                        Icons.person_outline,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: _phoneField(
-                                        "Contact Number",
-                                        true,
-                                        Icons.call_outlined,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.5.h),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _phoneField(
-                                        "Whatsapp Number",
-                                        false,
-                                        Icons.call_outlined,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: _field(
-                                        "Email",
-                                        false,
-                                        Icons.email_outlined,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.5.h),
-                                _multilineField(
-                                  "Address",
-                                  Icons.location_on_outlined,
-                                ),
-                                SizedBox(height: 1.5.h),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _field(
-                                        "Pin Code",
-                                        false,
-                                        Icons.pin_drop_outlined,
-                                      ),
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    Expanded(
-                                      child: _field(
-                                        "Post Office",
-                                        false,
-                                        Icons.location_city,
-                                      ),
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    Expanded(
-                                      child: _dropdown(
-                                        "State",
-                                        Icons.flag_outlined,
-                                        items: stateDistrictMap.keys.toList(),
-                                        selectedValue: selectedState,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedState = value;
-
-                                            /// reset district when state changes
-                                            selectedDistrict = null;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    Expanded(
-                                      child: _dropdown(
-                                        "District",
-                                        Icons.location_on_outlined,
-                                        items: selectedState == null
-                                            ? []
-                                            : stateDistrictMap[selectedState] ??
-                                                  [],
-                                        selectedValue: selectedDistrict,
-                                        enabled:
-                                            selectedState !=
-                                            null, // 🔥 disable until state selected
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedDistrict = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(width: 2.w),
-
-                        /// RIGHT
-                        Expanded(
-                          flex: 1,
-                          child: _sectionCard(
-                            "Product Info",
-                            Column(
-                              children: [
-                                _dropdown(
-                                  "Product",
-                                  Icons.production_quantity_limits_outlined,
-                                ),
-                                SizedBox(height: 1.5.h),
-                                _field("Cost", false, Icons.money),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 2.h),
-
-                  /// BOTTOM SECTION
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _sectionCard(
-                            "Lead Information",
-                            Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _dropdown(
-                                        "Assign Staff",
-                                        Icons.person_outline,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: DropdownWithAdd(
-                                        label: 'Lead Category',
-                                        icon: Icons.layers_outlined,
-                                        items: leadCategory,
-                                        selectedValue: selectedCategory,
-                                        onChanged: (String? p1) {},
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AppDialog(
-                                                title: 'Add Lead Category',
-                                                body: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Lead Category
-                                                    Text(
-                                                      "Lead Category",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          categoryController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Category",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    SizedBox(height: 2.h),
-
-                                                    /// Cost
-                                                    Text(
-                                                      "Cost",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          costController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Category",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-
-                                                    Row(
-                                                      children: [
-                                                        Checkbox(
-                                                          value: false,
-                                                          onChanged: (value) {},
-                                                        ),
-                                                        SizedBox(width: 0.1),
-                                                        Text(
-                                                          "Add Subcategory",
-                                                          style:
-                                                              AppTextStyle.medium(
-                                                                size: 11.sp,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                // submitText: 'Submit',
-                                                onSubmit: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.5.h),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: DropdownWithAdd(
-                                        label: 'Lead Source',
-                                        icon: Icons.layers_rounded,
-                                        items: leadSource,
-                                        selectedValue: selectedSource,
-                                        onChanged: (String? p1) {
-                                          setState(() {
-                                            selectedSource = p1?.trim();
-                                          });
-                                        },
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AppDialog(
-                                                title: 'Add Lead Source',
-                                                body: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Lead Category
-                                                    Text(
-                                                      "Lead Source",
-                                                      style:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                          ),
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    TextField(
-                                                      controller:
-                                                          categoryController,
-                                                      decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter Source",
-                                                        hintStyle:
-                                                            AppTextStyle.medium(
-                                                              size: 11.sp,
-                                                              color: AppColors
-                                                                  .grey,
-                                                            ),
-                                                        border: OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    SizedBox(height: 2.h),
-                                                  ],
-                                                ),
-                                                // submitText: 'Submit',
-                                                onSubmit: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: _dropdown(
-                                        "Priority",
-                                        Icons.flag_outlined,
-                                        items: priority,
-                                        selectedValue: selectedPriority,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedPriority = value?.trim();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: _dropdown(
-                                        "Lead Stage",
-                                        Icons.task_outlined,
-                                        items: leadStage,
-                                        selectedValue: selectedLeadStage,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedLeadStage = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.5.h),
-                                _multilineField(
-                                  "Remarks",
-                                  Icons.note_alt_outlined,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 2.w),
-                        const Expanded(flex: 1, child: SizedBox()),
-                      ],
-                    ),
-                  ),
-
-                  // submit button
-                  Padding(
-                    padding: EdgeInsets.only(right: 2.w),
-                    child: Container(
-                      margin: EdgeInsets.all(2.w),
-                      width: double.infinity,
-                      height: 10.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(3),
+                    // ── Customer Details ──────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      child: _sectionCard(
+                        'Customer Details',
+                        _buildCustomerDetails(),
+                        Symbols.person,
                       ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 2.h,
-                        horizontal: 2.w,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: 6.5.w,
-                          height: 5.h,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.green,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                    ),
+
+                    // ── Additional Details (only if fields exist) ─────────
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      buildWhen: (p, c) =>
+                          p.additionalFields != c.additionalFields ||
+                          p.isLoadingAdditionalFields !=
+                              c.isLoadingAdditionalFields,
+                      builder: (context, state) {
+                        // Still fetching — show a subtle shimmer/placeholder row
+                        if (state.isLoadingAdditionalFields) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 2.w),
+                            child: _sectionCard(
+                              'Additional Details',
+                              SizedBox(
+                                height: 8.h,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                               ),
+                              Icons.add_circle_outline_rounded,
                             ),
-                            child: Text(
-                              "Submit",
-                              style: AppTextStyle.medium(
-                                size: 11.sp,
-                                color: AppColors.white,
-                              ),
-                            ),
+                          );
+                        }
+
+                        // No custom fields configured — hide section entirely
+                        if (state.additionalFields.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2.w),
+                          child: _sectionCard(
+                            'Additional Details',
+                            _buildAdditionalDetails(state),
+                            Icons.add_circle_outline_rounded,
                           ),
-                        ),
+                        );
+                      },
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    // ── Lead Information ──────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      child: _sectionCard(
+                        'Lead Information',
+                        _buildLeadInformation(),
+                        Symbols.info,
                       ),
                     ),
-                  ),
-                ],
+
+                    // ── Submit Button ─────────────────────────────────────
+                    _buildSubmitButton(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  /// ================= COMPONENTS =================
+  // ── Section: Additional Details ────────────────────────────────────────────
 
-  Widget _sectionCard(String title, Widget child) {
+  Widget _buildAdditionalDetails(AddLeadState state) {
+    final fields = state.additionalFields;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
+        final columnSpacing = 2.w;
+        const rowSpacing = 12.0;
+
+        final fieldWidgets = fields.map((field) {
+          final id = field.id ?? field.fieldName;
+          final controller =
+              _additionalCtrlMap[id] ??
+              (_additionalCtrlMap[id] = TextEditingController());
+
+          return _field(
+            field.fieldName,
+            false,
+            Icons.description_outlined,
+            controller: controller,
+          );
+        }).toList();
+
+        final rows = <Widget>[];
+        for (var i = 0; i < fieldWidgets.length; i += crossAxisCount) {
+          final rowChildren = <Widget>[];
+          for (var j = 0; j < crossAxisCount; j++) {
+            final idx = i + j;
+            if (idx < fieldWidgets.length) {
+              rowChildren.add(Expanded(child: fieldWidgets[idx]));
+            } else {
+              rowChildren.add(const Expanded(child: SizedBox.shrink()));
+            }
+            if (j < crossAxisCount - 1) {
+              rowChildren.add(SizedBox(width: columnSpacing));
+            }
+          }
+          rows.add(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rowChildren,
+            ),
+          );
+          if (i + crossAxisCount < fieldWidgets.length) {
+            rows.add(SizedBox(height: rowSpacing));
+          }
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: rows,
+        );
+      },
+    );
+  }
+
+  // ── Section: Customer Details ──────────────────────────────────────────────
+
+  Widget _buildCustomerDetails() {
+    return BlocBuilder<AddLeadCubit, AddLeadState>(
+      buildWhen: (p, c) =>
+          p.selectedState != c.selectedState ||
+          p.selectedDistrict != c.selectedDistrict,
+      builder: (context, state) {
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _field(
+                    'Client Name',
+                    true,
+                    Icons.person_outline,
+                    controller: _clientNameCtrl,
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: _phoneField(
+                    'Contact Number',
+                    true,
+                    Icons.call_outlined,
+                    controller: _contactCtrl,
+                    onDialCodeChanged: (c) =>
+                        setState(() => _contactDialCode = c),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1.5.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _phoneField(
+                    'Whatsapp Number',
+                    false,
+                    Icons.call_outlined,
+                    controller: _whatsappCtrl,
+                    onDialCodeChanged: (c) =>
+                        setState(() => _whatsappDialCode = c),
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: _field(
+                    'Email',
+                    false,
+                    Icons.email_outlined,
+                    controller: _emailCtrl,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1.5.h),
+            _multilineField(
+              'Address',
+              Icons.location_on_outlined,
+              controller: _addressCtrl,
+            ),
+            SizedBox(height: 1.5.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _field(
+                    'Pin Code',
+                    false,
+                    Icons.pin_drop_outlined,
+                    controller: _pinCtrl,
+                  ),
+                ),
+                SizedBox(width: 1.w),
+                Expanded(
+                  child: _field(
+                    'Post Office',
+                    false,
+                    Icons.location_city,
+                    controller: _postOfficeCtrl,
+                  ),
+                ),
+                SizedBox(width: 1.w),
+                Expanded(
+                  child: _dropdown(
+                    'State',
+                    Icons.flag_outlined,
+                    items: stateDistrictMap.keys.toList(),
+                    selectedValue: state.selectedState,
+                    onChanged: (v) =>
+                        context.read<AddLeadCubit>().selectState(v),
+                  ),
+                ),
+                SizedBox(width: 1.w),
+                Expanded(
+                  child: _dropdown(
+                    'District',
+                    Icons.location_on_outlined,
+                    items: state.selectedState == null
+                        ? []
+                        : stateDistrictMap[state.selectedState] ?? [],
+                    selectedValue: state.selectedDistrict,
+                    enabled: state.selectedState != null,
+                    onChanged: (v) =>
+                        context.read<AddLeadCubit>().selectDistrict(v),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ── Section: Lead Information ──────────────────────────────────────────────
+
+  Widget _buildLeadInformation() {
+    return BlocBuilder<AddLeadCubit, AddLeadState>(
+      builder: (context, state) {
+        final cubit = context.read<AddLeadCubit>();
+        final categoryNames = state.categories.map((e) => e.name).toList();
+        final sourceNames = state.sources.map((e) => e.name).toList();
+        final stagesNames = state.stages.map((e) => e.name).toList();
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _readOnlyField(
+                    'Assign Staff',
+                    Icons.person_outline,
+                    state.assignedStaffName,
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: DropdownWithAdd(
+                    label: 'Lead Category',
+                    icon: Icons.layers_outlined,
+                    items: categoryNames,
+                    // selectedValue: state.selectedCategory,
+                    selectedValue: _leadCategory,
+                    onChanged: (v) {
+                      setState(() => _leadCategory = v);
+                      cubit.selectCategory(v);
+                    },
+                    onTap: _showAddCategoryDialog,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1.5.h),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownWithAdd(
+                    label: 'Lead Source',
+                    icon: Icons.layers_rounded,
+                    items: sourceNames,
+                    selectedValue: _leadSource,
+                    onChanged: (v) {
+                      setState(() => _leadSource = v);
+                      cubit.selectSource(v);
+                    },
+                    onTap: _showAddSourceDialog,
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: _dropdown(
+                    'Priority',
+                    Icons.flag_outlined,
+                    items: priority,
+                    selectedValue: _leadPriority,
+                    onChanged: (v) {
+                      setState(() => _leadPriority = v);
+                      cubit.selectPriority(v);
+                    },
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: Dropdown(
+                    showHelp: true,
+                    items: stagesNames,
+                    // items: ['new lead', 'qualified lead', 'converted lead'],
+                    selectedValue: _leadStage,
+                    onChanged: cubit.selectLeadStage,
+                    label: 'Lead Stage',
+                    hint: 'Select Lead Stage',
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1.5.h),
+            _multilineField(
+              'Remarks',
+              Icons.note_alt_outlined,
+              controller: _remarksCtrl,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ── Submit Button ──────────────────────────────────────────────────────────
+
+  Widget _buildSubmitButton() {
+    return Padding(
+      padding: EdgeInsets.only(right: 2.w),
+      child: Container(
+        margin: EdgeInsets.all(2.w),
+        width: double.infinity,
+        height: 10.h,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(3),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 2.w),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: BlocBuilder<AddLeadCubit, AddLeadState>(
+            buildWhen: (p, c) => p.isSubmitting != c.isSubmitting,
+            builder: (context, state) {
+              return SizedBox(
+                width: 6.5.w,
+                height: 5.h,
+                child: ElevatedButton(
+                  onPressed: state.isSubmitting ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.green,
+                    disabledBackgroundColor: AppColors.green.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: state.isSubmitting
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.white,
+                          ),
+                        )
+                      : Text(
+                          'Submit',
+                          style: AppTextStyle.medium(
+                            size: 11.sp,
+                            color: AppColors.white,
+                          ),
+                        ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Dialogs ────────────────────────────────────────────────────────────────
+
+  void _showAddCategoryDialog() {
+    _dialogNameCtrl.clear();
+    showDialog(
+      context: context,
+      builder: (ctx) => AppDialog(
+        title: 'Add Lead Category',
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: _dialogNameCtrl,
+              decoration: InputDecoration(
+                hintText: 'Enter Category',
+                hintStyle: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ],
+        ),
+        onSubmit: () async {
+          final name = _dialogNameCtrl.text.trim();
+          if (name.isEmpty) return;
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Category "$name" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAddSourceDialog() {
+    _dialogNameCtrl.clear();
+    showDialog(
+      context: context,
+      builder: (ctx) => AppDialog(
+        title: 'Add Lead Source',
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: _dialogNameCtrl,
+              decoration: InputDecoration(
+                hintText: 'Enter Source',
+                hintStyle: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ],
+        ),
+        onSubmit: () async {
+          final name = _dialogNameCtrl.text.trim();
+          if (name.isEmpty) return;
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Source "$name" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Reusable Widgets ───────────────────────────────────────────────────────
+
+  Widget _sectionCard(String title, Widget child, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 2.h),
       decoration: BoxDecoration(
@@ -520,13 +737,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             ),
             child: Row(
               children: [
-                Icon(
-                  // Icons.person_2_outlined,
-                  Symbols.person,
-                  size: 13.sp,
-                  weight: 600,
-                  color: AppColors.green,
-                ),
+                Icon(icon, size: 13.sp, weight: 600, color: AppColors.green),
                 SizedBox(width: 1.w),
                 Text(
                   title,
@@ -544,7 +755,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-  Widget _field(String label, bool required, IconData icons) {
+  Widget _field(
+    String label,
+    bool required,
+    IconData icons, {
+    TextEditingController? controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -554,6 +770,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           height: 5.h,
           decoration: _box(),
           child: TextField(
+            controller: controller,
             style: AppTextStyle.body(size: 11.sp),
             decoration: InputDecoration(
               hintText: label,
@@ -567,19 +784,47 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-  Widget _phoneField(String label, bool required, IconData icons) {
+  Widget _readOnlyField(String label, IconData icons, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(label, false, icons),
+        SizedBox(height: 0.5.h),
+        Container(
+          height: 5.h,
+          decoration: _box(),
+          padding: EdgeInsets.symmetric(horizontal: 1.w),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value.isEmpty ? 'Loading...' : value,
+            style: value.isEmpty
+                ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
+                : AppTextStyle.body(size: 11.sp),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _phoneField(
+    String label,
+    bool required,
+    IconData icons, {
+    TextEditingController? controller,
+    void Function(String)? onDialCodeChanged,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label(label, required, icons),
         SizedBox(height: 0.5.h),
-
         Row(
           children: [
-            /// ✅ Country Picker Container
             SizedBox(
               height: 5.h,
-              width: 7.5.w, // ✅ IMPORTANT FIX
+              width: 7.5.w,
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
@@ -588,9 +833,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   color: AppColors.grey.withValues(alpha: 0.2),
                 ),
                 child: CountryCodePicker(
-                  onChanged: (country) {
-                    print(country.dialCode);
-                  },
+                  onChanged: (country) =>
+                      onDialCodeChanged?.call(country.dialCode ?? '+91'),
                   initialSelection: 'IN',
                   showCountryOnly: false,
                   showOnlyCountryWhenClosed: false,
@@ -603,7 +847,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   dialogTextStyle: AppTextStyle.body(size: 11.sp),
                   searchStyle: AppTextStyle.body(size: 11.sp),
                   searchDecoration: InputDecoration(
-                    hintText: "Search country",
+                    hintText: 'Search country',
                     hintStyle: AppTextStyle.small(
                       size: 11.sp,
                       color: AppColors.grey,
@@ -617,19 +861,17 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
               ),
             ),
-
             SizedBox(width: 0.25.w),
-
-            /// 📱 Phone Input
             Expanded(
               child: Container(
                 height: 5.h,
                 decoration: _box(),
                 child: TextField(
+                  controller: controller,
                   style: AppTextStyle.body(size: 11.sp),
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    hintText: "Enter number",
+                    hintText: 'Enter number',
                     hintStyle: AppTextStyle.small(
                       size: 11.sp,
                       color: AppColors.grey,
@@ -646,7 +888,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-  Widget _multilineField(String label, IconData icons) {
+  Widget _multilineField(
+    String label,
+    IconData icons, {
+    TextEditingController? controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -656,6 +902,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           height: 10.h,
           decoration: _box(),
           child: TextField(
+            controller: controller,
             maxLines: null,
             style: AppTextStyle.body(size: 11.sp),
             decoration: InputDecoration(
@@ -683,59 +930,41 @@ class _AddLeadPageState extends State<AddLeadPage> {
       children: [
         _label(label, false, icons),
         SizedBox(height: 0.5.h),
-
         Container(
           height: 5.h,
           padding: EdgeInsets.symmetric(horizontal: 1.w),
           decoration: _box(),
-
           child: DropdownSearch<String>(
             items: items,
             asyncItems: null,
             selectedItem: selectedValue,
             enabled: enabled && items.isNotEmpty,
-
             popupProps: PopupProps.menu(
               showSearchBox: true,
               fit: FlexFit.loose,
-              constraints: BoxConstraints(maxHeight: 300),
+              constraints: const BoxConstraints(maxHeight: 300),
             ),
-
             dropdownDecoratorProps: DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
-                hintText: "Select $label",
+                hintText: 'Select $label',
                 hintStyle: AppTextStyle.small(
                   size: 11.sp,
                   color: AppColors.grey,
                 ),
                 border: InputBorder.none,
-                floatingLabelAlignment: FloatingLabelAlignment.center,
               ),
             ),
-
-            /// 🔥 THIS IS THE MAIN FIX
             dropdownBuilder: (context, selectedItem) {
               final isHint = selectedItem == null;
-
-              return Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      isHint ? "Select $label" : selectedItem,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: isHint
-                          ? AppTextStyle.small(
-                              size: 11.sp,
-                              color: AppColors.grey,
-                            )
-                          : AppTextStyle.body(size: 11.sp),
-                    ),
-                  ),
-                ],
+              return Text(
+                isHint ? 'Select $label' : selectedItem,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: isHint
+                    ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
+                    : AppTextStyle.body(size: 11.sp),
               );
             },
-
             onChanged: onChanged,
           ),
         ),
@@ -751,7 +980,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         Text(text, style: AppTextStyle.medium()),
         if (required)
           Text(
-            "*",
+            '*',
             style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
           ),
       ],
@@ -777,20 +1006,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          /// LEFT
           Text(
-            "ADD NEW LEAD",
+            'ADD NEW LEAD',
             style: AppTextStyle.medium(
               size: 13.sp,
               color: AppColors.black.withOpacity(0.77),
               weight: FontWeight.w700,
             ),
           ),
-
-          /// RIGHT
           Row(
             children: [
-              /// Breadcrumb
               Row(
                 children: [
                   Text('Lead Management', style: AppTextStyle.medium()),
@@ -801,10 +1026,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ),
                 ],
               ),
-
               SizedBox(width: 1.w),
-
-              /// MENU BUTTON
               MenuHoverButton(),
             ],
           ),
@@ -812,14 +1034,4 @@ class _AddLeadPageState extends State<AddLeadPage> {
       ),
     );
   }
-
-  String? selectedState;
-  String? selectedDistrict;
-
-  /// State → District Map
-  final Map<String, List<String>> stateDistrictMap = {
-    "Kerala": ["Ernakulam", "Kottayam", "Kozhikode"],
-    "Tamil Nadu": ["Chennai", "Madurai"],
-    "Arunachal Pradesh": ["Tawang", "Papum Pare", "West Kameng"],
-  };
 }

@@ -59,19 +59,20 @@ class StaffCubit extends Cubit<StaffState> {
 
   // ─── Delete ───────────────────────────────────────────────────────────────
 
-  Future<void> deleteStaff(String id) async {
-    emit(StaffLoading());
-    try {
-      await _repository.deleteStaff(id);
-      log('[StaffCubit] Staff deleted: $id');
-      emit(StaffDeleted(id));
-      // Refresh list after delete
-      await fetchAll();
-    } catch (e, st) {
-      log('[StaffCubit] Delete error: $e', stackTrace: st);
-      emit(StaffError(e.toString()));
-    }
+ Future<void> deleteStaff(String id, StaffModel staff) async {
+  emit(StaffLoading());
+  try {
+    await _repository.moveToDeleted(staff); // ✅ single atomic operation
+    log('[StaffCubit] Staff moved to deleted: $id');
+    emit(StaffDeleted(id));
+    await fetchAll();
+  } catch (e, st) {
+    log('[StaffCubit] Delete error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
   }
+}
+
+
 
   // ─── Fetch single ─────────────────────────────────────────────────────────
 
@@ -102,6 +103,56 @@ class StaffCubit extends Cubit<StaffState> {
       emit(StaffError(e.toString()));
     }
   }
+
+
+
+///---------deleted staff-----------
+///
+  Future<void> restoreStaff(
+    StaffModel staff, { 
+    File? imageFile,
+    File? documentFile,
+  }) async {
+    emit(StaffSaving());
+    try {
+      final docId = await _repository.restoreStaff(
+        staff, 
+        imageFile: imageFile,
+        documentFile: documentFile,
+      );
+      log('[StaffCubit] Staff added: $docId');
+      emit(StaffSaved(docId));
+      await fetchDeletedStaff();
+    } catch (e, st) {
+      log('[StaffCubit] Add error: $e', stackTrace: st);
+      emit(StaffError(e.toString()));
+    }
+  }
+
+ Future<void> fetchDeletedStaff() async {
+    emit(StaffLoading());
+    try {
+      final list = await _repository.fetchDeletedStaff();
+      emit(StaffListLoaded(list));
+    } catch (e, st) {
+      log('[StaffCubit] FetchAll error: $e', stackTrace: st);
+      emit(StaffError(e.toString()));
+    }
+  }
+
+ Future<void> deleteStaffPermanently(String id) async {
+    emit(StaffLoading());
+    try {
+      await _repository.deleteStaffPermanently(id);
+      log('[StaffCubit] Staff deleted permanently: $id');
+      emit(StaffDeleted(id));
+      await fetchDeletedStaff();
+    } catch (e, st) {
+      log('[StaffCubit] Delete error: $e', stackTrace: st);
+      emit(StaffError(e.toString()));
+    }
+  }
+
 
   // ─── Reset ────────────────────────────────────────────────────────────────
 

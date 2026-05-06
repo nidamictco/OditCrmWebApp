@@ -27,8 +27,8 @@ class DropdownWithAdd extends StatefulWidget {
     required this.onTap,
     required this.selectedValue,
     required this.onChanged,
-    this.message="",
-    this.showStar=false,
+    this.message = "",
+    this.showStar = false,
   });
 
   @override
@@ -45,14 +45,14 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
   }
 
   @override
-void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
-  super.didUpdateWidget(oldWidget);
-  if (oldWidget.items != widget.items) {
-    setState(() {
-      localItems = List.from(widget.items);
-    });
+  void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items) {
+      setState(() {
+        localItems = List.from(widget.items);
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -67,16 +67,17 @@ void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
               SizedBox(width: 1.w),
             ],
             Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
-            if(widget.showStar)...[Text(
-                                              "*",
-                                              style: AppTextStyle.medium(
-                                                size: 11.sp,
-                                                weight: FontWeight.w600,
-                                                color: AppColors.red,
-                                              ),
-                                            ),],
-            if(widget.showHelp)...[ToolTipWidget(message: widget.message)]
-            
+            if (widget.showStar) ...[
+              Text(
+                "*",
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  weight: FontWeight.w600,
+                  color: AppColors.red,
+                ),
+              ),
+            ],
+            if (widget.showHelp) ...[ToolTipWidget(message: widget.message)],
           ],
         ),
 
@@ -125,27 +126,24 @@ void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
                   /// 🔥 POPUP STYLE (THIS IS THE MAIN CHANGE)
                   popupProps: PopupProps.menu(
                     showSearchBox: true,
+                    fit: FlexFit.loose,
 
-                    constraints: BoxConstraints(
-                      maxHeight: 300, // 🔥 fixed dropdown height
-                    ),
-
+                   
                     itemBuilder: (context, item, isSelected) {
                       return Container(
-                        height: 3.5.h, // 🔥 fixed item height
                         padding: EdgeInsets.symmetric(horizontal: 1.w),
                         alignment: Alignment.centerLeft,
                         color: isSelected
                             ? const Color(
                                 0xff4A5D9E,
-                              ) // blue highlight like image
+                              ) 
                             : Colors.white,
                         child: Text(
                           item,
                           style: AppTextStyle.medium(
                             weight: FontWeight.w400,
                             color: isSelected ? Colors.white : Colors.black87,
-                            size: 11.sp,
+                            size: 11.4.sp,
                           ),
                         ),
                       );

@@ -21,6 +21,7 @@ class StaffModel {
   final String? documentUrl;   // Firebase Storage URL after upload
   final String? accessibleUsers;
   final DateTime? createdAt;
+  final DateTime? deletedAt;
 
   const StaffModel({
     this.id,
@@ -43,6 +44,7 @@ class StaffModel {
     this.documentUrl,
     this.accessibleUsers,
     this.createdAt,
+    this.deletedAt,
   });
 
   // ─── copyWith ────────────────────────────────────────────────────────────
@@ -68,6 +70,7 @@ class StaffModel {
     String? documentUrl,
     String? accessibleUsers,
     DateTime? createdAt,
+    DateTime? deletedAt,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -90,6 +93,7 @@ class StaffModel {
       documentUrl: documentUrl ?? this.documentUrl,
       accessibleUsers: accessibleUsers ?? this.accessibleUsers,
       createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -118,6 +122,7 @@ class StaffModel {
       documentUrl: map['documentUrl'],
       accessibleUsers: map['accessibleUsers'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
+      deletedAt: (map['deletedAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -144,6 +149,9 @@ class StaffModel {
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
+      'deletedAt': deletedAt != null
+          ? Timestamp.fromDate(deletedAt!)
+          : null,
     };
   }
 }

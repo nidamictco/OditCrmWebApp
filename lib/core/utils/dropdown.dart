@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
@@ -36,12 +37,30 @@ class Dropdown extends StatefulWidget {
 }
 
 class _DropdownState extends State<Dropdown> {
+  List<String> localItems = [];
   BoxDecoration _box() {
     return BoxDecoration(
       border: Border.all(color: AppColors.divider),
       borderRadius: BorderRadius.circular(3),
       color: AppColors.greyCard,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    localItems = List.from(widget.items);
+  }
+
+  @override
+  void didUpdateWidget(covariant Dropdown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!listEquals(oldWidget.items, widget.items)) {
+      setState(() {
+        localItems = List.from(widget.items);
+      });
+    }
   }
 
   @override
@@ -83,9 +102,9 @@ class _DropdownState extends State<Dropdown> {
           decoration: _box(),
 
           child: DropdownSearch<String>(
-            items: widget.items,
+            items: localItems,
             selectedItem: widget.selectedValue,
-            enabled: widget.enabled && widget.items.isNotEmpty,
+            enabled: widget.enabled && localItems.isNotEmpty,
 
             dropdownButtonProps: DropdownButtonProps(
               icon: Padding(
@@ -98,7 +117,7 @@ class _DropdownState extends State<Dropdown> {
             popupProps: PopupProps.menu(
               showSearchBox: true,
               fit: FlexFit.loose,
-              constraints: const BoxConstraints(maxHeight: 300),
+              // constraints:BoxConstraints(maxHeight: 30.h),
             ),
 
             /// 🔥 INPUT STYLE
@@ -120,7 +139,7 @@ class _DropdownState extends State<Dropdown> {
                   // vertical: 1.5.h,
                 ),
               ),
-            ), 
+            ),
 
             /// 🔥 DISPLAY SELECTED VALUE (IMPORTANT FIX)
             dropdownBuilder: (context, selectedItem) {

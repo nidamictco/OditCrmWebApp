@@ -8,7 +8,7 @@ import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_state.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/model/lead_category_model.dart';
+import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 
 class LeadCategory extends StatefulWidget {
   const LeadCategory({super.key});
@@ -79,6 +79,7 @@ class _LeadCategoryState extends State<LeadCategory> {
               const Text("Lead Category"),
               const SizedBox(height: 8),
               TextField(
+                style:AppTextStyle.medium(weight: FontWeight.w400) ,
                 controller: categoryController,
                 decoration: InputDecoration(
                   hintText: "Enter Category",
@@ -98,6 +99,7 @@ class _LeadCategoryState extends State<LeadCategory> {
               const Text("Cost"),
               const SizedBox(height: 8),
               TextField(
+                style:AppTextStyle.medium(weight: FontWeight.w400) ,
                 controller: costController,
                 decoration: InputDecoration(
                   hintText: "Enter Cost",
@@ -499,7 +501,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                   child: TextField(
                                     onChanged: (v) =>
                                         setState(() => _searchQuery = v),
-                                    style: AppTextStyle.small(size: 10.sp),
+                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(

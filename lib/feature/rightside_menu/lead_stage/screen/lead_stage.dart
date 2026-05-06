@@ -5,7 +5,7 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/model/lead_category_model.dart';
+import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 import 'package:sizer/sizer.dart';
@@ -22,10 +22,9 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
   List<String> dropdownItems = ['10', '20', '30', '40', '50'];
   bool isHovering = false;
 
-final TextEditingController stagesController = TextEditingController();
- 
+  final TextEditingController stagesController = TextEditingController();
 
-// ─── search query (wired to the search box) ───────────────────────────────
+  // ─── search query (wired to the search box) ───────────────────────────────
   String _searchQuery = '';
 
   @override
@@ -133,8 +132,7 @@ final TextEditingController stagesController = TextEditingController();
                   ),
                 ),
               ),
-              const SizedBox(height: 16), 
-              
+              const SizedBox(height: 16),
             ],
           ),
           onSubmit: () async {
@@ -178,10 +176,9 @@ final TextEditingController stagesController = TextEditingController();
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LeadStageCubit,LeadStageState>(
+    return BlocListener<LeadStageCubit, LeadStageState>(
       listenWhen: (prev, cur) =>
           cur.errorMessage != null && cur.errorMessage != prev.errorMessage,
       listener: (context, state) {
@@ -195,7 +192,7 @@ final TextEditingController stagesController = TextEditingController();
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
-      
+
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -209,7 +206,7 @@ final TextEditingController stagesController = TextEditingController();
                     borderRadius: BorderRadius.circular(3),
                     border: Border.all(color: AppColors.lightGrey),
                   ),
-      
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -242,7 +239,9 @@ final TextEditingController stagesController = TextEditingController();
                                     color: Colors.white,
                                     fontSize: 12,
                                   ),
-                                  waitDuration: const Duration(milliseconds: 200),
+                                  waitDuration: const Duration(
+                                    milliseconds: 200,
+                                  ),
                                   child: Container(
                                     height: 2.h,
                                     width: 2.w,
@@ -262,53 +261,59 @@ final TextEditingController stagesController = TextEditingController();
                                 ),
                               ],
                             ),
-      
-                            BlocBuilder<LeadStageCubit,LeadStageState>(
+
+                            BlocBuilder<LeadStageCubit, LeadStageState>(
                               buildWhen: (prev, cur) =>
                                   cur.isSubmitting != prev.isSubmitting,
                               builder: (context, state) {
-                               
                                 return MouseRegion(
-                                  onEnter: (_) => setState(() => isHovering = true),
-                                  onExit: (_) => setState(() => isHovering = false),
+                                  onEnter: (_) =>
+                                      setState(() => isHovering = true),
+                                  onExit: (_) =>
+                                      setState(() => isHovering = false),
                                   child: GestureDetector(
-                                    onTap: (){
-                                       if (!state.isSubmitting) _showAddDialog();
+                                    onTap: () {
+                                      if (!state.isSubmitting) _showAddDialog();
                                     },
                                     child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut,
-                                    height: 5.h,
-                                    padding: EdgeInsets.symmetric(horizontal: 3.w),
-                                    decoration: BoxDecoration(
-                                      color: isHovering 
-                                          ? AppColors.green
-                                          : AppColors.green.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Add New",
-                                        style: AppTextStyle.small(
-                                          color: isHovering
-                                              ? Colors.white
-                                              : AppColors.green,
-                                          size: 10.sp,
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      curve: Curves.easeInOut,
+                                      height: 5.h,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 3.w,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isHovering
+                                            ? AppColors.green
+                                            : AppColors.green.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Add New",
+                                          style: AppTextStyle.small(
+                                            color: isHovering
+                                                ? Colors.white
+                                                : AppColors.green,
+                                            size: 10.sp,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),
                       ),
-      
+
                       SizedBox(height: 1.h),
                       Divider(color: AppColors.divider),
                       SizedBox(height: 3.h),
-      
+
                       /// 🔹 SWITCH
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2.w),
@@ -330,9 +335,9 @@ final TextEditingController stagesController = TextEditingController();
                           ],
                         ),
                       ),
-      
+
                       SizedBox(height: 3.h),
-      
+
                       /// 🔹 FILTER
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2.w),
@@ -358,7 +363,7 @@ final TextEditingController stagesController = TextEditingController();
                                 ),
                               ],
                             ),
-      
+
                             Row(
                               children: [
                                 Text(
@@ -379,52 +384,109 @@ final TextEditingController stagesController = TextEditingController();
                                     borderRadius: BorderRadius.circular(4),
                                     color: AppColors.white,
                                   ),
+                                  child: TextField(
+                                    onChanged: (v) =>
+                                        setState(() => _searchQuery = v),
+                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
+                                    decoration: const InputDecoration(
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 10,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ],
                         ),
                       ),
-      
+
                       SizedBox(height: 2.h),
-      
+
                       /// 🔹 TABLE
-                      SizedBox(
-                        child: CustomTable(
-                          columns: [
-                            TableColumn(title: "#", flex: 1),
-                            TableColumn(title: "Lead Stage", flex: 4),
-                            TableColumn(title: "Created By", flex: 4),
-                            TableColumn(title: "Action", flex: 2),
-                          ],
-                          rows:
-                              [
-                                ["1", "New", "-", ""],
-                                ["2", "Follow Up", "-", ""],
-                                ["3", "Rejected", "-", ""],
-                                ["4", "Closed", "-", ""],
-                                ["5", "Pending", "-", ""],
-                              ].map((row) {
+                      BlocBuilder<LeadStageCubit, LeadStageState>(
+                        // bloc: leadStageCubit,
+                        builder: (context, state) {
+                          // Loading skeleton
+                          if (state.isLoading) {
+                            return SizedBox(
+                              height: 20.h,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+
+                          final rows = _filtered(state.stages);
+
+                          return SizedBox(
+                            child: CustomTable(
+                              columns: [
+                                TableColumn(title: "#", flex: 1),
+                                TableColumn(title: "Lead Source", flex: 4),
+                                TableColumn(title: "Created By", flex: 4),
+                                TableColumn(title: "Action", flex: 2),
+                              ],
+                              rows: rows.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final cat = entry.value;
+                                final isDeleting = state.deletingId == cat.id;
+
                                 return [
-                                  Text(row[0], style: AppTextStyle.medium()),
-                                  Text(row[1], style: AppTextStyle.medium()),
-                                  Text(row[2], style: AppTextStyle.medium()),
-      
-                                  /// ACTION
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                    ],
+                                  Text(
+                                    '${index + 1}',
+                                    style: AppTextStyle.medium(),
                                   ),
+                                  Text(cat.name, style: AppTextStyle.medium()),
+                                  Text(
+                                    cat.createdBy,
+                                    style: AppTextStyle.medium(),
+                                  ),
+
+                                  /// ACTION
+                                  isDeleting
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.red,
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            // 🔹 Edit — opens edit dialog
+                                            GestureDetector(
+                                              onTap: () => _showEditDialog(cat),
+                                              child: Icon(
+                                                Icons.edit_outlined,
+                                                size: 14.sp,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                            // 🔹 Delete — opens confirm dialog
+                                            GestureDetector(
+                                              onTap: () => _confirmDelete(cat),
+                                              child: Icon(
+                                                Icons.delete_outline,
+                                                size: 14.sp,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                 ];
                               }).toList(),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-      
+
                       /// 🔹 FOOTER
                       Padding(
                         padding: EdgeInsets.all(2.w),
@@ -433,14 +495,16 @@ final TextEditingController stagesController = TextEditingController();
                           children: [
                             Text(
                               "Showing 1 to 5 of 5 entries",
-                              style: AppTextStyle.medium(weight: FontWeight.w400),
+                              style: AppTextStyle.medium(
+                                weight: FontWeight.w400,
+                              ),
                             ),
                             Row(
                               children: [
                                 _paginationButton("Previous", false),
                                 SizedBox(width: 0.1.w),
                                 _pageNumber("1", true),
-                                SizedBox(width: 1.w),
+                                SizedBox(width: 0.1.w),
                                 _paginationButton("Next", false),
                               ],
                             ),
@@ -455,25 +519,6 @@ final TextEditingController stagesController = TextEditingController();
           ),
         ),
       ),
-    );
-  }
-
-  DataColumn _column(String title) {
-    return DataColumn(
-      label: Text(title, style: AppTextStyle.medium(weight: FontWeight.w600)),
-    );
-  }
-
-  DataRow _row(int index) {
-    final item = _data[index];
-
-    return DataRow(
-      cells: [
-        DataCell(Text("${index + 1}")),
-        DataCell(Text(item['stage'] ?? '—')),
-        DataCell(Text("-")),
-        DataCell(Icon(Icons.edit, color: AppColors.primary, size: 18)),
-      ],
     );
   }
 

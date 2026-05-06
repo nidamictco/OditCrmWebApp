@@ -32,7 +32,7 @@ class TopBreadcrumbBar extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           /// LEFT SIDE (Breadcrumb)
           Row(
@@ -63,7 +63,7 @@ class TopBreadcrumbBar extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        subTitle,
+                        subTitle2!,
                         style: AppTextStyle.small(
                           size: 10.5.sp,
                           color: AppColors.grey,
@@ -88,6 +88,8 @@ class TopBreadcrumbBar extends StatelessWidget {
               ),
             ],
           ),
+
+          SizedBox(width: 2.w),
 
           /// RIGHT SIDE (Menu Button)
           if (showMenu) const MenuHoverButton(),
