@@ -206,8 +206,8 @@ class _MainScreenState extends State<MainScreen> {
         return StaffProfileScreen();
       case 30:
         return TimeLine();
-      // case 31:
-      //   return FollowUpDetailsScreen();
+      case 31:
+        return FollowUpDetailsScreen();
       default:
         return const SizedBox();
     }
