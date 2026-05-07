@@ -35,10 +35,7 @@ class _LeadDistributionSettingsScreenState
       body: SingleChildScrollView(
         child: Column(
           children: [
-            TopBreadcrumbBar(
-              subTitle: "Dashboard",
-              title: "Unassigned Lead Distribution Settings",
-            ),
+            TopBreadcrumbBar(subTitle: "Unassigned Lead Distribution Settings", title: 'Settings'),
             Padding(
               padding: EdgeInsets.all(2.w),
               child: Container(

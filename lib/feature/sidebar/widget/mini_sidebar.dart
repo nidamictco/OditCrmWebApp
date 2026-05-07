@@ -25,9 +25,14 @@ class MiniSidebar extends StatelessWidget {
           /// LOGO
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.sp),
-            child: Text(
-              "Oxdo",
-              style: AppTextStyle.heading(size: 11.sp, weight: FontWeight.w700),
+            child: Center(
+              child: Text(
+                "Oxdo Leads",
+                style: AppTextStyle.heading(
+                  size: 11.sp,
+                  weight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
 
@@ -46,12 +51,58 @@ class MiniSidebar extends StatelessWidget {
             title: "Lead Management",
             isExpandable: true,
             children: [
-              "Dashboard",
               "Add Lead",
               "Leads Report",
               "Call History",
               "Transfer Leads",
               "Phone Call Log",
+            ],
+            onItemTap: (index) => onItemSelected(index + 1),
+          ),
+
+          /// LEAD MANAGEMENT
+          HoverSidebarItem(
+            icon: Icons.settings,
+            title: "Settings",
+            isExpandable: true,
+            children: ["General Settings", "Facebook Settings"],
+            onItemTap: (index) => onItemSelected(index + 1),
+          ),
+
+          /// LEAD MANAGEMENT
+          HoverSidebarItem(
+            icon: Icons.person,
+            title: "Staff Management",
+            isExpandable: true,
+            children: [
+              "Add Staff",
+              "View Staff",
+              "Designations",
+              "Deleted Staff",
+            ],
+            onItemTap: (index) => onItemSelected(index + 1),
+          ),
+
+          /// LEAD MANAGEMENT
+          HoverSidebarItem(
+            icon: Icons.folder,
+            title: "Files Manager",
+            isExpandable: true,
+            children: ["View"],
+            onItemTap: (index) => onItemSelected(index + 1),
+          ),
+
+          /// LEAD MANAGEMENT
+          HoverSidebarItem(
+            icon: Icons.file_copy,
+            title: "Reports",
+            isExpandable: true,
+            children: [
+              "Staff Report",
+              "Transfer Leads Reports",
+              "Total Leads Reports",
+              "Scheduled Leads Reports",
+              "Rejected leads Reports",
             ],
             onItemTap: (index) => onItemSelected(index + 1),
           ),
