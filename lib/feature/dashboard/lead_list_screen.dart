@@ -821,12 +821,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                       final lead = leads[index];
                       return InkWell(
                         onTap: (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainScreen(selectedIndex: 31),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => MainScreen(selectedIndex: 31),
+                          //   ),
+                          // );
                         },
                         child: _LeadRow(
                           lead: lead,

@@ -1377,7 +1377,7 @@ class _FollowupTabContent extends StatelessWidget {
 
           // ✅ Rendered as plain Column children — no ListView required
           ...dates.map((date) =>
-              _DateGroup(date: date, entries: grouped[date]!)),
+              _DateGroup(date: date, entries: grouped[date]!, time: grouped[date]![0].time, entry: grouped[date]![0],)),
 
           const SizedBox(height: 20),
         ],
@@ -1388,8 +1388,10 @@ class _FollowupTabContent extends StatelessWidget {
 
 class _DateGroup extends StatelessWidget {
   final String date;
+  final String time;
   final List<FollowupEntry> entries;
-  const _DateGroup({required this.date, required this.entries});
+  final FollowupEntry entry;
+  const _DateGroup({required this.date, required this.entries, required this.time, required this.entry});
 
   @override
   Widget build(BuildContext context) {
@@ -1398,18 +1400,19 @@ class _DateGroup extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Timeline column
-          SizedBox(
-            width: 80,
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 64,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE0E0E0),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+          Column(
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 70,
+                height: 70,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0E0),
+                  // borderRadius: BorderRadius.circular(6),
+                  shape: BoxShape.circle
+                ),
+                child: Center(
                   child: Text(
                     date,
                     textAlign: TextAlign.center,
@@ -1419,14 +1422,48 @@ class _DateGroup extends StatelessWidget {
                         color: Color(0xFF555555)),
                   ),
                 ),
-                Expanded(
-                  child: Center(
-                    child: Container(
-                        width: 1.5, color: const Color(0xFFDDDDDD)),
+              ),
+              Center(
+                child: Container(
+                  height: 50,
+                  width: 1,
+                  color: const Color(0xFFDDDDDD),
+                ),
+              ),
+              SizedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF00BCD4),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        time,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF444444)),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              Center(
+                child: Row(
+                  children: [
+                    Container(
+                        width: 1, color: const Color(0xFFDDDDDD)),
+                    const SizedBox(width: 6),
+                    _FollowupCard(entry: entry)
+                  ],
+                ),
+              ),
+            ],
           ),
           // Cards
           Expanded(
@@ -1448,27 +1485,10 @@ class _FollowupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16, bottom: 16, top: 8),
+      padding: const EdgeInsets.only(right: 16,),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: const BoxDecoration(
-                    color: Color(0xFF00BCD4), shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 6),
-              Text(entry.time,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF444444))),
-            ],
-          ),
-          const SizedBox(height: 6),
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -1500,7 +1520,7 @@ class _FollowupCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Color(0xFF222222))),
-                      const Spacer(),
+                      // const Spacer(),
                       Icon(Icons.edit_outlined,
                           size: 18, color: Colors.green.shade600),
                       const SizedBox(width: 8),
@@ -1513,6 +1533,7 @@ class _FollowupCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(14),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _cardRow('Called Date', entry.calledDate),
                       const SizedBox(height: 6),
@@ -1520,10 +1541,11 @@ class _FollowupCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       _cardRow('Tags', entry.tags),
                       const SizedBox(height: 6),
-                      _cardRow('Remark', ':  -${entry.remark}'),
+                      _cardRow('Remark', '-${entry.remark}'),
                       const SizedBox(height: 6),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(
                             width: 90,
@@ -1553,22 +1575,25 @@ class _FollowupCard extends StatelessWidget {
   }
 
   Widget _cardRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(label,
-              style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF555555),
-                  fontWeight: FontWeight.w500)),
-        ),
-        Expanded(
-          child: Text(':  $value',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
-        ),
-      ],
+    return SizedBox(
+      width: 350,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF555555),
+                    fontWeight: FontWeight.w500)),
+          ),
+          Expanded(
+            child: Text(':  $value',
+                style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
+          ),
+        ],
+      ),
     );
   }
 }
