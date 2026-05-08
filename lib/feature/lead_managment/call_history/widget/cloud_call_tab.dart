@@ -50,22 +50,22 @@ class _CloudCallTabState extends State<CloudCallTab> {
               Row(
                 children: [
                   Expanded(
-                    child: InputDate(
-                      label: "From Date",
-                      controller: fromDate,
-                      top: 48.h,
-                      left: 28.w,
-                    ),
-                  ),
-                  SizedBox(width: 2.w),
-                  Expanded(
-                    child: InputDate(
-                      label: "To Date",
-                      controller: toDate,
-                      top: 48.h,
-                      left: 42.w,
-                    ),
-                  ),
+  child: InputDate(
+    label: "From Date",
+    fromController: fromDate,
+    toController: toDate,
+    isFrom: true,  // shows fromDate value
+  ),
+),
+SizedBox(width: 2.w),
+Expanded(
+  child: InputDate(
+    label: "To Date",
+    fromController: fromDate,
+    toController: toDate,
+    isFrom: false, // shows toDate value
+  ),
+),
                   SizedBox(width: 2.w),
                   Expanded(
                     child: _dropdown(

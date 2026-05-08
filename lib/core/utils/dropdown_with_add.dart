@@ -116,6 +116,7 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                   items: localItems,
                   selectedItem: widget.selectedValue,
 
+                  // enabled: widget.enabled && localItems.isNotEmpty,
                   dropdownButtonProps: DropdownButtonProps(
                     icon: Padding(
                       padding: EdgeInsets.only(right: 1.w),
@@ -126,24 +127,28 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                   /// 🔥 POPUP STYLE (THIS IS THE MAIN CHANGE)
                   popupProps: PopupProps.menu(
                     showSearchBox: true,
+                    showSelectedItems: true,
                     fit: FlexFit.loose,
 
-                   
                     itemBuilder: (context, item, isSelected) {
                       return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 1.w),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 1.w,
+                          vertical: 1.h,
+                        ),
                         alignment: Alignment.centerLeft,
                         color: isSelected
-                            ? const Color(
-                                0xff4A5D9E,
-                              ) 
+                            ? const Color(0xff4A5D9E)
                             : Colors.white,
-                        child: Text(
-                          item,
-                          style: AppTextStyle.medium(
-                            weight: FontWeight.w400,
-                            color: isSelected ? Colors.white : Colors.black87,
-                            size: 11.4.sp,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Text(
+                            item,
+                            style: AppTextStyle.medium(
+                              weight: FontWeight.w400,
+                              color: isSelected ? Colors.white : Colors.black87,
+                              size: 11.sp,
+                            ),
                           ),
                         ),
                       );
@@ -156,11 +161,14 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                     ),
 
                     searchFieldProps: TextFieldProps(
+                      // padding: EdgeInsets.symmetric(horizontal: 10,vertical: 1),
                       decoration: InputDecoration(
                         hintText: "Search...",
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 10,
+                          vertical: 0,
                         ),
+                        visualDensity: VisualDensity.comfortable,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),

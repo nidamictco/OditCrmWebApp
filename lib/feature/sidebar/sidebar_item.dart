@@ -99,7 +99,7 @@ class _SidebarItemState extends State<SidebarItem> {
                   subMenuItem("Leads Report", 2),
                   subMenuItem("Import Leads", 14),
                   subMenuItem("Call History ", 3),
-                  subMenuItem("Delete Leads", 4),
+                  subMenuItem("Deleted Leads", 4),
                   subMenuItem("Transfer Leads", 5),
                   subMenuItem("Unassigned Leads", 13),
                   subMenuItem("Phone Call Log ", 6),

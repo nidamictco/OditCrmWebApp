@@ -16,7 +16,7 @@
           }
         }
       }
-    }
+    } 
   },
   "hosting": {
     "public": "build/web",

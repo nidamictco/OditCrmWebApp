@@ -28,8 +28,8 @@ class ShowEntries extends StatefulWidget {
 
 class _ShowEntriesState extends State<ShowEntries> {
   late String selectedValue;
-  final List<String> dropdownItems = ['1', '5', '10', '50', '100'];
-  late final TextEditingController _searchController;
+  final List<String> dropdownItems = ['1','10', '50', '100','500'];
+  late final TextEditingController _searchController; 
 
   @override
   void initState() {

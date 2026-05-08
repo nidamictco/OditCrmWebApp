@@ -104,8 +104,8 @@ class _DropdownState extends State<Dropdown> {
           child: DropdownSearch<String>(
             items: localItems,
             selectedItem: widget.selectedValue,
-            enabled: widget.enabled && localItems.isNotEmpty,
 
+            // enabled: widget.enabled && localItems.isNotEmpty,
             dropdownButtonProps: DropdownButtonProps(
               icon: Padding(
                 padding: EdgeInsets.only(right: 1.w),
@@ -116,8 +116,42 @@ class _DropdownState extends State<Dropdown> {
             /// 🔥 POPUP STYLE
             popupProps: PopupProps.menu(
               showSearchBox: true,
+              showSelectedItems: true,
+
               fit: FlexFit.loose,
-              // constraints:BoxConstraints(maxHeight: 30.h),
+              itemBuilder: (context, item, isSelected) {
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+                  alignment: Alignment.centerLeft,
+                  color: isSelected ? const Color(0xff4A5D9E) : Colors.white,
+                  child: Text(
+                    item,
+                    style: AppTextStyle.medium(
+                      size: 11.sp,
+                      weight: FontWeight.w400,
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                  ),
+                );
+              },
+              menuProps: MenuProps(
+                backgroundColor: Colors.white,
+                elevation: 4,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              searchFieldProps: TextFieldProps(
+                decoration: InputDecoration(
+                  hintText: "Search...",
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  visualDensity: VisualDensity.comfortable,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
             ),
 
             /// 🔥 INPUT STYLE
@@ -136,28 +170,10 @@ class _DropdownState extends State<Dropdown> {
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 1.w,
-                  // vertical: 1.5.h,
+                  vertical: 1.h,
                 ),
               ),
             ),
-
-            /// 🔥 DISPLAY SELECTED VALUE (IMPORTANT FIX)
-            dropdownBuilder: (context, selectedItem) {
-              final isHint = selectedItem == null;
-
-              return Padding(
-                padding: EdgeInsets.all(0.4.w),
-                child: Text(
-                  isHint ? "Select ${widget.label}" : selectedItem,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: isHint
-                      ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                      : AppTextStyle.medium(size: 11.sp),
-                ),
-              );
-            },
-
             onChanged: widget.onChanged,
           ),
         ),

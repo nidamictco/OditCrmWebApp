@@ -1,3 +1,5 @@
+//
+
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -10,17 +12,71 @@ class TableColumn {
   TableColumn({required this.title, this.flex = 1});
 }
 
-class CustomTable extends StatelessWidget {
+class CustomTable extends StatefulWidget {
   final List<TableColumn> columns;
   final List<List<Widget>> rows;
   final String emptyMessage;
+  final bool showCheckboxes; // 🔹 NEW: toggle checkbox column
+  final List<bool>? initialCheckedStates; // 🔹 NEW: optional initial states
+  final void Function(int rowIndex, bool checked)?
+  onCheckChanged; // 🔹 NEW: callback
 
   const CustomTable({
     super.key,
     required this.columns,
     required this.rows,
     this.emptyMessage = "No data available in table",
+    this.showCheckboxes = false,
+    this.initialCheckedStates,
+    this.onCheckChanged,
   });
+
+  @override
+  State<CustomTable> createState() => _CustomTableState();
+}
+
+class _CustomTableState extends State<CustomTable> {
+  late List<bool> _checkedStates;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkedStates = widget.initialCheckedStates != null
+        ? List<bool>.from(widget.initialCheckedStates!)
+        : List<bool>.filled(widget.rows.length, false);
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 🔹 Sync state if rows change
+    if (widget.rows.length != _checkedStates.length) {
+      _checkedStates = widget.initialCheckedStates != null
+          ? List<bool>.from(widget.initialCheckedStates!)
+          : List<bool>.filled(widget.rows.length, false);
+    }
+  }
+
+  /// 🔹 true = all checked, false = none, null = some (indeterminate)
+  bool? get _isAllSelected {
+    if (_checkedStates.every((e) => e)) return true;
+    if (_checkedStates.every((e) => !e)) return false;
+    return null; // indeterminate
+  }
+
+  /// 🔹 If all selected → deselect all, otherwise → select all
+  void _toggleSelectAll() {
+    final selectAll = _isAllSelected != true;
+    setState(() {
+      for (int i = 0; i < _checkedStates.length; i++) {
+        _checkedStates[i] = selectAll;
+      }
+    });
+    // 🔹 Notify parent for every row
+    for (int i = 0; i < _checkedStates.length; i++) {
+      widget.onCheckChanged?.call(i, selectAll);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +91,12 @@ class CustomTable extends StatelessWidget {
       child: Column(
         children: [
           _buildHeader(),
-
-          /// 🔹 EMPTY STATE
-          if (rows.isEmpty)
+          if (widget.rows.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 6.h),
               child: Center(
                 child: Text(
-                  emptyMessage,
+                  widget.emptyMessage,
                   style: AppTextStyle.medium(color: Colors.grey),
                 ),
               ),
@@ -59,62 +113,107 @@ class CustomTable extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.lightGrey.withOpacity(0.5),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
         border: Border(bottom: BorderSide(color: AppColors.divider)),
       ),
       child: Row(
-        children: List.generate(columns.length, (index) {
-          final col = columns[index];
-
-          return Expanded(
-            flex: col.flex,
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 2.h),
-              decoration: BoxDecoration(
-                border: Border(
-                  right: index == columns.length - 1
-                      ? BorderSide.none
-                      : BorderSide(color: AppColors.divider),
+        children: [
+          // 🔹 Checkbox header placeholder (keeps alignment)
+          if (widget.showCheckboxes)
+            SizedBox(
+              width: 5.w,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 2.h),
+                decoration: BoxDecoration(
+                  border: Border(right: BorderSide(color: AppColors.divider)),
+                ),
+                child: Checkbox(
+                  value: _isAllSelected, // 🔹 tri-state: true / false / null
+                  tristate: true,
+                  activeColor: AppColors.primary,
+                  onChanged: (_) => _toggleSelectAll(),
                 ),
               ),
-              child: Text(
-                col.title,
-                style: AppTextStyle.medium(weight: FontWeight.w600),
-              ),
             ),
-          );
-        }),
+
+          // 🔹 Regular column headers
+          ...List.generate(widget.columns.length, (index) {
+            final col = widget.columns[index];
+            return Expanded(
+              flex: col.flex,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 2.h),
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: index == widget.columns.length - 1
+                        ? BorderSide.none
+                        : BorderSide(color: AppColors.divider),
+                  ),
+                ),
+                child: Text(
+                  col.title,
+                  style: AppTextStyle.medium(weight: FontWeight.w600),
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
 
   /// 🔹 ROWS
   List<Widget> _buildRows() {
-    return List.generate(rows.length, (rowIndex) {
+    return List.generate(widget.rows.length, (rowIndex) {
       return Container(
         decoration: BoxDecoration(
           color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
           border: Border(bottom: BorderSide(color: AppColors.divider)),
         ),
         child: Row(
-          children: List.generate(rows[rowIndex].length, (colIndex) {
-            return Expanded(
-              flex: columns[colIndex].flex,
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(vertical: 2.h),
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: colIndex == columns.length - 1
-                        ? BorderSide.none
-                        : BorderSide(color: AppColors.divider),
+          children: [
+            // 🔹 Checkbox cell
+            if (widget.showCheckboxes)
+              SizedBox(
+                width: 5.w,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(vertical: 1.h),
+                  decoration: BoxDecoration(
+                    border: Border(right: BorderSide(color: AppColors.divider)),
+                  ),
+                  child: Checkbox(
+                    value: _checkedStates[rowIndex],
+                    activeColor: AppColors.primary, // use your brand color
+                    onChanged: (val) {
+                      setState(() => _checkedStates[rowIndex] = val ?? false);
+                      widget.onCheckChanged?.call(rowIndex, val ?? false);
+                    },
                   ),
                 ),
-                child: rows[rowIndex][colIndex],
               ),
-            );
-          }),
+
+            // 🔹 Regular data cells
+            ...List.generate(widget.rows[rowIndex].length, (colIndex) {
+              return Expanded(
+                flex: widget.columns[colIndex].flex,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(vertical: 2.h),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: colIndex == widget.columns.length - 1
+                          ? BorderSide.none
+                          : BorderSide(color: AppColors.divider),
+                    ),
+                  ),
+                  child: widget.rows[rowIndex][colIndex],
+                ),
+              );
+            }),
+          ],
         ),
       );
     });

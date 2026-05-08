@@ -52,17 +52,18 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                           Expanded(
                             child: InputDate(
                               label: 'From Date',
-                              controller: _fromDateController,
-                              top: 32.h,
+                              fromController: _fromDateController,
+                              toController: _toDateController,
+                              isFrom: true,
                             ),
                           ),
                           SizedBox(width: 2.w),
                           Expanded(
                             child: InputDate(
                               label: 'To Date',
-                              controller: _toDateController,
-                              top: 32.h,
-                              left: 43.w,
+                              fromController: _fromDateController,
+                              toController: _toDateController,
+                              isFrom: false,
                             ),
                           ),
                           SizedBox(width: 2.w),
