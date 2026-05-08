@@ -1043,6 +1043,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/top_bread_crumb_bar.dart';
@@ -1515,10 +1516,11 @@ class _FollowupCard extends StatelessWidget {
           SizedBox(height: 100,),
               Text(
                 entry.time,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF444444)),
+                style: AppTextStyle.medium(color: Color(0xFF444444),size: 12)
+                // const TextStyle(
+                //     fontSize: 12,
+                //     fontWeight: FontWeight.w500,
+                //     color: Color(0xFF444444)),
               ),
           SizedBox(height: 25,),
           Container(
@@ -1549,7 +1551,7 @@ class _FollowupCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(entry.agent,
-                          style: const TextStyle(
+                          style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Color(0xFF222222))),
@@ -1580,16 +1582,16 @@ class _FollowupCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(
+                           SizedBox(
                             width: 90,
                             child: Text('Status',
-                                style: TextStyle(
+                                style: GoogleFonts.poppins(
                                     fontSize: 13,
                                     color: Color(0xFF555555),
                                     fontWeight: FontWeight.w500)),
                           ),
-                          const Text(': ',
-                              style: TextStyle(color: Color(0xFF555555))),
+                           Text(': ',
+                              style: GoogleFonts.poppins(color: Color(0xFF555555))),
                           const SizedBox(width: 4),
                           _StatusChip(label: entry.status),
                         ],
@@ -1616,14 +1618,14 @@ class _FollowupCard extends StatelessWidget {
           SizedBox(
             width: 90,
             child: Text(label,
-                style: const TextStyle(
+                style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: Color(0xFF555555),
                     fontWeight: FontWeight.w500)),
           ),
           Expanded(
             child: Text(':  $value',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
+                style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF333333))),
           ),
         ],
       ),
