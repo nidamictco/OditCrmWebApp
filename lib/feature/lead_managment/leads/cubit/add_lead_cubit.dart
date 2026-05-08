@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/data/add_lead_repo.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/data/lead_category_repository.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/data/lead_source_repo.dart';
 import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart';
+import 'package:oxdo/feature/staff_managment/add_staff/data/add_staff_repo.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository          _leadRepository;
@@ -16,6 +18,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   final ILeadSourceRepository       _sourceRepository;
   final ILeadStageRepository        _leadStageRepository;
   final AdditionalFieldsRepository  _additionalFieldsRepo;
+  final StaffRepository _staffRepository;
 
   StreamSubscription? _categorySubscription;
   StreamSubscription? _sourceSubscription;
@@ -27,11 +30,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     ILeadSourceRepository?      sourceRepository,
     ILeadStageRepository?       leadStageRepository,
     AdditionalFieldsRepository? additionalFieldsRepo,
+    StaffRepository?            staffRepository,
   })  : _leadRepository       = leadRepository      ?? AddLeadRepository(),
         _categoryRepository   = categoryRepository  ?? LeadCategoryRepository(),
         _sourceRepository     = sourceRepository    ?? LeadSourceRepository(),
         _leadStageRepository  = leadStageRepository ?? LeadStageRepository(),
         _additionalFieldsRepo = additionalFieldsRepo ?? AdditionalFieldsRepositoryImpl(),
+        _staffRepository      = staffRepository     ?? StaffRepository(),
         super(const AddLeadState());
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -140,11 +145,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // ── Delete ────────────────────────────────────────────────────────────────
 
-  Future<void> deleteLead(String id) async {
+  Future<void> deleteLead(String id, AddLeadModel lead) async {
     if (state.isDeleting) return;
     emit(state.copyWith(isDeleting: true, clearError: true));
     try {
-      await _leadRepository.deleteLead(id);
+      await _leadRepository.moveToDeleted(lead);
       final updated = state.leads.where((l) => l.id != id).toList();
       emit(state.copyWith(
         isDeleting:     false,
@@ -281,4 +286,85 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (msg.contains('Contact number')) return msg;
     return 'Something went wrong. Please try again.';
   }
+
+
+
+  ///--------------deleted leads-------------
+  ///---------------------------------------------
+  
+  Future<void> restoreLead(AddLeadModel lead) async {
+    emit(state.copyWith(isUpdating: true, clearError: true));
+    try {
+      await _leadRepository.restoreLead(lead);
+      emit(state.copyWith(isUpdating: false, successMessage: 'Lead restored successfully.'));
+      await fetchDeletedLeads();
+    } catch (e) {
+      emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
+    }
+  }
+
+  Future<void> fetchDeletedLeads() async {
+    emit(state.copyWith(listStatus: LeadListStatus.loading, clearListError: true));
+    try {
+      final leads = await _leadRepository.fetchDeletedLeads();
+      emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
+    } catch (e) {
+      emit(state.copyWith(
+        listStatus: LeadListStatus.failure,
+        listError:  _friendlyError(e),
+      ));
+    }
+  }
+
+  Future<void> permanentlyDeleteLead(String id) async {
+    emit(state.copyWith(isDeleting: true, clearError: true));
+    try {
+      await _leadRepository.permanentlyDeleteLead(id);
+      final updated = state.leads.where((l) => l.id != id).toList();
+      emit(state.copyWith(
+        isDeleting:     false, 
+        leads:          updated,
+        successMessage: 'Lead deleted successfully.',
+      ));
+      await fetchDeletedLeads();
+    } catch (e) {
+      emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+    }
+  }
+// ----------------fetch staff----------------
+Future<void> fetchStaff() async {
+  try {
+    final list = await _staffRepository.fetchAll();
+    emit(state.copyWith(staffList: list));
+  } catch (e) {
+    log('[AddLeadCubit] fetchStaff error: $e');
+  }
+}
+
+Future<void> assignStaff({
+  required String leadId,
+  required String staffId,
+  required String staffName,
+}) async {
+  emit(state.copyWith(isUpdating: true, clearError: true));
+  try {
+    await _leadRepository.assignStaff(leadId, staffId, staffName);
+    // 🔹 Update local list so UI reflects immediately without re-fetch
+    final updatedLeads = state.leads.map((l) {
+      return l.id == leadId
+          ? l.copyWith(assignedStaffId: staffId, assignedStaff: staffName)
+          : l;
+    }).toList();
+    emit(state.copyWith(
+      isUpdating:     false,
+      leads:          updatedLeads,
+      successMessage: 'Staff assigned successfully.',
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      isUpdating:   false,
+      errorMessage: _friendlyError(e),
+    ));
+  }}
+
 }

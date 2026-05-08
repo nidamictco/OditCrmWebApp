@@ -1,6 +1,7 @@
-import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
 enum LeadListStatus { initial, loading, loaded, failure }
@@ -36,6 +37,8 @@ class AddLeadState {
   final List<AdditionalFieldModel> additionalFields;
   final bool isLoadingAdditionalFields;
 
+  final List<StaffModel> staffList;
+
   const AddLeadState({
     this.status = AddLeadStatus.initial,
     this.isSubmitting = false,
@@ -58,6 +61,7 @@ class AddLeadState {
     this.assignedStaffName = '',
     this.additionalFields = const [],
     this.isLoadingAdditionalFields = false,
+    this.staffList = const [],
   });
 
   bool get isLoading        => status == AddLeadStatus.loading;
@@ -84,6 +88,7 @@ class AddLeadState {
     String? selectedDistrict,
     String? assignedStaffName,
     List<AdditionalFieldModel>? additionalFields,
+    List<StaffModel>? staffList,
     bool? isLoadingAdditionalFields,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError         = false,
@@ -118,6 +123,7 @@ class AddLeadState {
       assignedStaffName:    assignedStaffName ?? this.assignedStaffName,
       additionalFields:           additionalFields          ?? this.additionalFields,
       isLoadingAdditionalFields:  isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
+      staffList: staffList ?? this.staffList,
     );
   }
 }

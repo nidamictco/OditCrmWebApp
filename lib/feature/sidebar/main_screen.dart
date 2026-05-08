@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/data/add_lead_repo.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
@@ -15,9 +15,9 @@ import 'package:oxdo/feature/dashboard/dashboard.dart';
 import 'package:oxdo/feature/dashboard/lead_list_screen.dart';
 import 'package:oxdo/feature/file_manager/view/screen/view.dart';
 import 'package:oxdo/feature/lead_managment/call_history/out_going_callHistory.dart';
-import 'package:oxdo/feature/lead_managment/delete_leads/screens/delete_leads.dart';
+import 'package:oxdo/feature/lead_managment/leads/screen/delete_leads/screens/delete_leads.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/screen/import_leads.dart';
-import 'package:oxdo/feature/lead_managment/unassingned_leads/screen/unassingned_lead.dart';
+import 'package:oxdo/feature/lead_managment/leads/screen/unassingned_leads/screen/unassingned_lead.dart';
 import 'package:oxdo/feature/reports/rejected_leads_report/screen/rejected_leads.dart';
 import 'package:oxdo/feature/reports/scheduled_leads/screen/scheduled_leads.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_reports.dart';
@@ -39,11 +39,11 @@ import 'package:oxdo/feature/settings/general_settings/screen/general_settings.d
 import 'package:oxdo/feature/sidebar/widget/bottom_bar.dart';
 import 'package:oxdo/feature/sidebar/widget/mini_sidebar.dart';
 import 'package:oxdo/feature/sidebar/widget/top_bar.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/add_lead.dart';
-import 'package:oxdo/feature/lead_managment/lead_report/lead_report.dart';
+import 'package:oxdo/feature/lead_managment/leads/screen/add_lead/screen/add_lead.dart';
+import 'package:oxdo/feature/lead_managment/leads/screen/lead_report/lead_report.dart';
 import 'package:oxdo/feature/lead_managment/call_history/call_history.dart';
 import 'package:oxdo/feature/lead_managment/phone_call_log/phone_call_log.dart';
-import 'package:oxdo/feature/lead_managment/transfer_leads/transfer_leads.dart';
+import 'package:oxdo/feature/lead_managment/leads/screen/transfer_leads/transfer_leads.dart';
 import 'package:oxdo/feature/sidebar/sidebar_item.dart';
 import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_cubit.dart';
 import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
@@ -104,7 +104,7 @@ class _MainScreenState extends State<MainScreen> {
             categoryRepository: LeadCategoryRepository(),
             sourceRepository: LeadSourceRepository(),
           ),
-          child:  AddLeadPage(lead: widget.lead),
+          child: AddLeadPage(lead: widget.lead),
         );
       case 2:
         return BlocProvider(
@@ -114,7 +114,14 @@ class _MainScreenState extends State<MainScreen> {
       case 3:
         return CallHistoryPage();
       case 4:
-        return DeleteLeads();
+        return BlocProvider(
+          create: (_) => AddLeadCubit(
+            leadRepository: AddLeadRepository(),
+            categoryRepository: LeadCategoryRepository(),
+            sourceRepository: LeadSourceRepository(),
+          )..fetchDeletedLeads(),
+          child: DeleteLeads(),
+        );
       case 5:
         return TransferLeads();
       case 6:
@@ -146,7 +153,10 @@ class _MainScreenState extends State<MainScreen> {
       case 12:
         return NewLeadsPage();
       case 13:
-        return UnassingnedLead();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: UnassingnedLead(),
+        );
       case 14:
         return BlocProvider(
           create: (_) => ImportLeadsCubit(repository: ImportLeadsRepository()),
@@ -171,8 +181,9 @@ class _MainScreenState extends State<MainScreen> {
         );
       case 18:
         return BlocProvider(
-          create: (_) =>  StaffCubit()..fetchDeletedStaff(),
-          child: DeletedStaffScreen());
+          create: (_) => StaffCubit()..fetchDeletedStaff(),
+          child: DeletedStaffScreen(),
+        );
       case 19:
         return ViewPage();
       case 20:

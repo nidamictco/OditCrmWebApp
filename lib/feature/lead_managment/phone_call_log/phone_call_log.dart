@@ -99,22 +99,22 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                         children: [
                           SizedBox(
                             width: 17.5.w,
-                            child: InputDate(
-                              label: "From Date",
-                              controller: _fromDateController,
-                              left: 25.w,
-                              top: 43.h,
-                            ),
+                            child:  InputDate(
+    label: "From Date",
+    fromController: _fromDateController,
+    toController: _toDateController,
+    isFrom: true,  // shows fromDate value
+  ),
                           ),
                           SizedBox(width: 2.w),
                           SizedBox(
                             width: 17.5.w,
-                            child: InputDate(
-                              label: "To Date",
-                              controller: _toDateController,
-                              left: 40.w,
-                              top: 43.h,
-                            ),
+                            child:  InputDate(
+    label: "From Date",
+    fromController: _fromDateController,
+    toController: _toDateController,
+    isFrom: true,  // shows fromDate value
+  ),
                           ),
                           SizedBox(width: 2.w),
                           SizedBox(

@@ -110,17 +110,18 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                               Expanded(
                                 child: InputDate(
                                   label: 'From Date',
-                                  controller: _fromDateController,
-                                  top: 46.h,
+                                  fromController: _fromDateController,
+                                  toController: _toDateController,
+                                  isFrom: true,
                                 ),
                               ),
                               SizedBox(width: 2.w),
                               Expanded(
                                 child: InputDate(
                                   label: 'To Date',
-                                  controller: _toDateController,
-                                  top: 46.h,
-                                  left: 44.w,
+                                  fromController: _fromDateController,
+                                  toController: _toDateController,
+                                  isFrom: false,
                                 ),
                               ),
                               SizedBox(width: 2.w),

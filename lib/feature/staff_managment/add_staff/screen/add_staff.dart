@@ -18,7 +18,6 @@ import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_
 import 'package:sizer/sizer.dart';
 
 class AddStaff extends StatefulWidget {
-  /// Pass an existing [StaffModel] to enable edit mode.
   final StaffModel? staff;
   const AddStaff({super.key, this.staff});
 

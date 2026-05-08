@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/footer.dart';
@@ -77,7 +76,7 @@ class _TransferLeadsState extends State<TransferLeads> {
             ),
             Padding(
               padding: EdgeInsets.all(2.w),
-              child: Container( 
+              child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(4),
@@ -124,18 +123,18 @@ class _TransferLeadsState extends State<TransferLeads> {
                               Expanded(
                                 child: InputDate(
                                   label: "From Date",
-                                  controller: _fromDateController,
-                                  left: 27.w,
-                                  top: 45.h,
+                                  fromController: _fromDateController,
+                                  toController: _toDateController,
+                                  isFrom: true, // shows fromDate value
                                 ),
                               ),
                               SizedBox(width: 2.w),
                               Expanded(
                                 child: InputDate(
                                   label: "To Date",
-                                  controller: _toDateController,
-                                  left: 41.w,
-                                  top: 45.h,
+                                  fromController: _fromDateController,
+                                  toController: _toDateController,
+                                  isFrom: false, // shows fromDate value
                                 ),
                               ),
                               SizedBox(width: 2.w),
@@ -234,55 +233,6 @@ class _TransferLeadsState extends State<TransferLeads> {
                     Divider(color: AppColors.divider),
 
                     /// 🔹 TABLE CONTROLS
-                    // Padding(
-                    //   padding: EdgeInsets.only(
-                    //     top: 1.h,
-                    //     left: 2.w,
-                    //     right: 2.w,
-                    //     bottom: 1.h,
-                    //   ),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       Row(
-                    //         children: [
-                    //           Text(
-                    //             "Show ",
-                    //             style: AppTextStyle.medium(
-                    //               size: 11.sp,
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //           _smallDropdown(),
-                    //           Text(
-                    //             " entries",
-                    //             style: AppTextStyle.medium(
-                    //               size: 11.sp,
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       Row(
-                    //         children: [
-                    //           Text(
-                    //             "Search:",
-                    //             style: AppTextStyle.medium(
-                    //               size: 11.sp,
-                    //               weight: FontWeight.w400,
-                    //             ),
-                    //           ),
-                    //           SizedBox(width: 1.w),
-                    //           Container(
-                    //             width: 12.w,
-                    //             height: 4.h,
-                    //             decoration: _box(),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                     ShowEntries(),
 
                     /// 🔹 TABLE HEADER
@@ -340,110 +290,6 @@ class _TransferLeadsState extends State<TransferLeads> {
                                 "Lead Source",
                                 "",
                               ],
-                              [
-                                "4",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "5",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "6",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "7",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "8",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "9",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "10",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
-                              [
-                                "11",
-                                "name",
-                                "1234567890",
-                                "category",
-                                "Last Updated",
-                                "Staff",
-                                "Status",
-                                "Created Date",
-                                "Cost",
-                                "Lead Source",
-                                "",
-                              ],
                             ].map((row) {
                               return [
                                 Text(row[0], style: AppTextStyle.medium()),
@@ -470,6 +316,11 @@ class _TransferLeadsState extends State<TransferLeads> {
                                 ),
                               ];
                             }).toList(),
+                        showCheckboxes: true,
+                        // initialCheckedStates: [false, false, false], // optional
+                        onCheckChanged: (index, isChecked) {
+                          print("Row $index is now $isChecked");
+                        },
                       ),
                     ),
 

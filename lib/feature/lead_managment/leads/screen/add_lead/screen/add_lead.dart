@@ -1081,9 +1081,9 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/menu_hover_bottun.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/lead_managment/add_lead/model/add_lead_model.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:sizer/sizer.dart';
 
@@ -1664,7 +1664,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       cubit.selectLeadStage(v);
                     },
                     label: 'Lead Stage',
-                    hint: 'Select Lead Stage',
+                    hint: 'Select Stages',
                   ),
                 ),
               ],
