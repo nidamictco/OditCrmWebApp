@@ -1328,20 +1328,25 @@ class _FollowupTabContent extends StatelessWidget {
         children: [
           // Action bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Followup Details',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF222222)),
+                  style: AppTextStyle.heading(
+                    size: 18,
+                    // weight: FontWeight.w700,
+                    color: Color(0xFF495057),
+                  )
+                  // TextStyle(
+                  //     fontSize: 16,
+                  //     fontWeight: FontWeight.w700,
+                  //     color: Color(0xFF222222)),
                 ),
                 const Spacer(),
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF25D366),
+                    color: AppColors.green,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   padding:
@@ -1359,7 +1364,7 @@ class _FollowupTabContent extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF009688),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -1367,9 +1372,9 @@ class _FollowupTabContent extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 9),
                   ),
-                  child: const Text('Add Follow-up',
-                      style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600)),
+                  child:  Text('Add Follow-up',
+                      style: AppTextStyle.small(size: 13, color: AppColors.white)),
+                      // TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
@@ -1396,83 +1401,101 @@ class _DateGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Timeline column
-          Column(
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 70,
-                height: 70,
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0E0E0),
-                  // borderRadius: BorderRadius.circular(6),
-                  shape: BoxShape.circle
-                ),
-                child: Center(
-                  child: Text(
-                    date,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF555555)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30,),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Timeline column
+            Column(
+              children: [
+                const SizedBox(height: 8),
+                Container(
+                  width: 90,
+                  height: 90,
+                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFc1c1c1),
+                    // borderRadius: BorderRadius.circular(6),
+                    shape: BoxShape.circle
+                  ),
+                  child: Center(
+                    child: Text(
+                      date,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.heading(size:13 ,color: Color(0xFF555555),weight: FontWeight.w600),
+                      // const TextStyle(
+                      //     fontSize: 11,
+                      //     fontWeight: FontWeight.w600,
+                      //     color: Color(0xFF555555)),
+                    ),
                   ),
                 ),
-              ),
-              Center(
-                child: Container(
-                  height: 50,
-                  width: 1,
-                  color: const Color(0xFFDDDDDD),
-                ),
-              ),
-              SizedBox(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF00BCD4),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF444444)),
-                      ),
-                    ],
+                Center(
+                  child: Container(
+                    height: 43,
+                    width: 1,
+                    color: const Color(0xFFDDDDDD),
                   ),
                 ),
-              Center(
-                child: Row(
-                  children: [
-                    Container(
-                        width: 1, color: const Color(0xFFDDDDDD)),
-                    const SizedBox(width: 6),
-                    _FollowupCard(entry: entry)
-                  ],
+                Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00BCD4),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          // Cards
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: entries.map((e) => _FollowupCard(entry: e)).toList(),
+                // SizedBox(
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: [
+                //         Container(
+                //           width: 10,
+                //           height: 10,
+                //           decoration: const BoxDecoration(
+                //             color: Color(0xFF00BCD4),
+                //             shape: BoxShape.circle,
+                //           ),
+                //         ),
+                //         const SizedBox(width: 6),
+                //         Text(
+                //           time,
+                //           style: const TextStyle(
+                //               fontSize: 12,
+                //               fontWeight: FontWeight.w500,
+                //               color: Color(0xFF444444)),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // Center(
+                //   child: Row(
+                //     children: [
+                //       Container(
+                //           width: 1, color: const Color(0xFFDDDDDD)),
+                //       const SizedBox(width: 6),
+                //       _FollowupCard(entry: entry)
+                //     ],
+                //   ),
+                // ),
+                Expanded(
+                  child: Container(
+                      width: 1, color: const Color(0xFFDDDDDD)),
+                ),
+              ],
             ),
-          ),
-        ],
+            // Cards
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: entries.map((e) => _FollowupCard(entry: e)).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1485,11 +1508,21 @@ class _FollowupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16,),
+      padding: const EdgeInsets.only(right: 16,bottom: 20, top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 100,),
+              Text(
+                entry.time,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF444444)),
+              ),
+          SizedBox(height: 25,),
           Container(
+            width: 550,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
@@ -1520,7 +1553,7 @@ class _FollowupCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Color(0xFF222222))),
-                      // const Spacer(),
+                      const Spacer(),
                       Icon(Icons.edit_outlined,
                           size: 18, color: Colors.green.shade600),
                       const SizedBox(width: 8),
@@ -1576,7 +1609,7 @@ class _FollowupCard extends StatelessWidget {
 
   Widget _cardRow(String label, String value) {
     return SizedBox(
-      width: 350,
+      // width: 350,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
