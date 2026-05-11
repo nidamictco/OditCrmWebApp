@@ -1308,7 +1308,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       Text(text, style: AppTextStyle.small(size: 12, color: Color(0xFF555555)));
 
   Widget _divider() =>
-      const Text('|', style: TextStyle(fontSize: 12, color: Color(0xFFBBBBBB)));
+       Text('|', style: GoogleFonts.poppins(fontSize: 12, color: Color(0xFFBBBBBB)));
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1608,7 +1608,7 @@ class _DateGroup extends StatelessWidget {
                 Container(
                   width: 90,
                   height: 90,
-                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 20),
                   decoration: BoxDecoration(
                     color: const Color(0xFFc1c1c1),
                     // borderRadius: BorderRadius.circular(6),
@@ -1844,8 +1844,8 @@ class _ActivitiesTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text('Activities',
-              style: TextStyle(
+           Text('Activities',
+              style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF222222))),
@@ -1888,19 +1888,19 @@ class _ActivityItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(entry.agent,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                         color: Color(0xFF222222))),
                 const SizedBox(height: 3),
                 Text(entry.description,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Color(0xFF555555),
                         height: 1.5)),
                 const SizedBox(height: 4),
                 Text(entry.dateTime,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontSize: 12, color: Color(0xFF999999))),
               ],
             ),
@@ -1920,9 +1920,9 @@ class _DetailsTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(
+    TextStyle labelStyle = GoogleFonts.poppins(
         fontSize: 13, color: Color(0xFF888888), fontWeight: FontWeight.w500);
-    const valueStyle = TextStyle(fontSize: 13, color: Color(0xFF222222));
+    TextStyle valueStyle = GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222));
 
     return Container(
       color: Colors.white,
@@ -1931,8 +1931,8 @@ class _DetailsTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text('Details',
-              style: TextStyle(
+           Text('Details',
+              style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF222222))),
@@ -1962,8 +1962,8 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 12),
-          const Text('Lead handled staffs',
-              style: TextStyle(
+           Text('Lead handled staffs',
+              style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF222222))),
@@ -2066,13 +2066,13 @@ class _DetailCell extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('$label :',
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
                 fontSize: 13,
                 color: Color(0xFF888888),
                 fontWeight: FontWeight.w500)),
         const SizedBox(height: 2),
         Text(value,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF222222))),
+            style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222))),
       ],
     );
   }
@@ -2114,17 +2114,17 @@ class _StaffCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF222222))),
                 const SizedBox(height: 2),
                 Text(phone,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontSize: 12, color: Color(0xFF777777))),
                 const SizedBox(height: 6),
                 Text('$activities Activities',
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                         fontSize: 12, color: Color(0xFF555555))),
               ],
             ),
