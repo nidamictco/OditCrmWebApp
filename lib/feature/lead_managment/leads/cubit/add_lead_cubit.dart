@@ -10,7 +10,7 @@ import 'package:oxdo/feature/rightside_menu/custom_field_settings/data/custom_fi
 import 'package:oxdo/feature/rightside_menu/lead_category/data/lead_category_repository.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/data/lead_source_repo.dart';
 import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/data/add_staff_repo.dart';
+import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository          _leadRepository;

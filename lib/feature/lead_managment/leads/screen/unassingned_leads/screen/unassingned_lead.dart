@@ -27,8 +27,6 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
   final TextEditingController _fromDateController = TextEditingController();
   final TextEditingController _toDateController = TextEditingController();
 
-
-
   final List<String> leadCategory = [
     "Select lead Type ",
     "Need Further Followup",
@@ -382,6 +380,21 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                               SizedBox(
                                 child: CustomTable(
                                   key: ValueKey(_tableKey),
+                                  showCheckboxes: true,
+                                  // key: ValueKey(filteredList.length),
+                                  onCheckChanged: (rowIndex, isChecked) {
+                                    setState(() {
+                                      if (isChecked) {
+                                        if (!_selectedIndices.contains(
+                                          rowIndex,
+                                        )) {
+                                          _selectedIndices.add(rowIndex);
+                                        }
+                                      } else {
+                                        _selectedIndices.remove(rowIndex);
+                                      }
+                                    });
+                                  },
                                   columns: [
                                     TableColumn(title: "#", flex: 1),
                                     TableColumn(title: "Name", flex: 4),
@@ -426,7 +439,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       Text(
                                         lead.createdAt != null
                                             ? DateFormat(
-                                                'dd MMM yyyy',
+                                                'dd-MM-yyyy',
                                               ).format(lead.createdAt!)
                                             : '-',
                                         style: AppTextStyle.medium(),
@@ -458,21 +471,6 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       ),
                                     ];
                                   }).toList(),
-                                  showCheckboxes: true,
-                                  // key: ValueKey(filteredList.length),
-                                  onCheckChanged: (rowIndex, isChecked) {
-                                    setState(() {
-                                      if (isChecked) {
-                                        if (!_selectedIndices.contains(
-                                          rowIndex,
-                                        )) {
-                                          _selectedIndices.add(rowIndex);
-                                        }
-                                      } else {
-                                        _selectedIndices.remove(rowIndex);
-                                      }
-                                    });
-                                  },
                                 ),
                               ),
                               Padding(
@@ -575,7 +573,29 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                 onTap: hasSelection
                                     ? () =>
                                           _showAssignStaffDialog(selectedLeads)
-                                    : null,
+                                    : () => ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Please select atleast one lead to assign staff.',
+                                                style: AppTextStyle.medium(
+                                                  color: AppColors.white,
+                                                  weight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            ),
+                                          ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 1.w,
@@ -637,7 +657,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                         Text(
                           "${selectedLeads.length} lead(s) selected",
                           style: AppTextStyle.medium(
-                            color: AppColors.grey,
+                            color: AppColors.black,
                             weight: FontWeight.w500,
                           ),
                         ),
@@ -672,14 +692,10 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                       }
 
                       Navigator.pop(dialogContext);
-                      // 🔹 Clear selection — assigned leads auto-disappear
-                      // because _filteredLeads filters out assignedStaffId != ''
                       setState(() {
                         _selectedIndices = [];
-                        _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
-                      });
-                      // context.read<AddLeadCubit>().fetchLeads();
-                    },
+                        _tableKey++;});
+                     },
                   );
                 },
               );
@@ -694,6 +710,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Delete Leads"),
         content: Text(
           "Are you sure you want to delete ${selectedLeads.length} lead(s)?",
@@ -757,4 +774,3 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
     return widgets;
   }
 }
-

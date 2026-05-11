@@ -1,6 +1,6 @@
 
 
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 
 abstract class StaffState {}

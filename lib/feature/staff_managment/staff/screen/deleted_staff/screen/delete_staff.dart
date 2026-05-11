@@ -6,9 +6,9 @@ import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
+import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class DeletedStaffScreen extends StatefulWidget {

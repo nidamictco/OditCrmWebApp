@@ -100,7 +100,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
@@ -192,7 +191,7 @@ class _InputDateState extends State<InputDate> {
         GestureDetector(
           onTap: _openPicker,
           child: Container(
-            height: 4.5.h,
+            height: 5.2.h,
             decoration: _box(),
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.symmetric(horizontal: 1.w),

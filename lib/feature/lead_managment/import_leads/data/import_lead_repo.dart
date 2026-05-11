@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 // ── Abstract contract ─────────────────────────────────────────────────────────
 

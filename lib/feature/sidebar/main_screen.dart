@@ -45,15 +45,15 @@ import 'package:oxdo/feature/lead_managment/call_history/call_history.dart';
 import 'package:oxdo/feature/lead_managment/phone_call_log/phone_call_log.dart';
 import 'package:oxdo/feature/lead_managment/leads/screen/transfer_leads/transfer_leads.dart';
 import 'package:oxdo/feature/sidebar/sidebar_item.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/screen/add_staff.dart';
-import 'package:oxdo/feature/staff_managment/deleted_staff/screen/delete_staff.dart';
+import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
+import 'package:oxdo/feature/staff_managment/staff/screen/deleted_staff/screen/delete_staff.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/designation_cubit.dart';
 import 'package:oxdo/feature/staff_managment/designation/model/designation_model.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/designation_screen.dart';
-import 'package:oxdo/feature/staff_managment/view_staff/screen/view_staff.dart';
+import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/view_staff.dart';
 
 import '../dashboard/follow_up_details_screen.dart';
 
@@ -123,7 +123,17 @@ class _MainScreenState extends State<MainScreen> {
           child: DeleteLeads(),
         );
       case 5:
-        return TransferLeads();
+        return BlocProvider(
+          create: (_) =>
+              AddLeadCubit(
+                  leadRepository: AddLeadRepository(),
+                  categoryRepository: LeadCategoryRepository(),
+                  sourceRepository: LeadSourceRepository(),
+                )
+                ..fetchLeads()
+                ..fetchStaff(),
+          child: TransferLeads(),
+        );
       case 6:
         return PhoneCallLog();
       case 7:
@@ -191,13 +201,19 @@ class _MainScreenState extends State<MainScreen> {
       case 21:
         return FacebookSettings();
       case 22:
-        return StaffReports();
+        return BlocProvider(
+          create: (context) => StaffCubit()..fetchAll(),
+          child: StaffReports(),
+        );
       case 23:
         return TransferLeadsReport();
       case 24:
         return ScheduledLeads();
       case 25:
-        return RejectedLeads();
+        return BlocProvider(
+          create: (context) => AddLeadCubit(),
+          child: RejectedLeads(),
+        );
       case 26:
         return OutGoingCallhistory();
       // case 27:
