@@ -10,7 +10,7 @@ import 'package:oxdo/feature/dashboard/widget/social_connect_card.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
-class DashboardScreen extends StatefulWidget { 
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
@@ -19,16 +19,23 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, // ✅ replaced
+      backgroundColor: AppColors.background,
       body: Row(
         children: [
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                color: AppColors.background, // ✅ replaced
+                color: AppColors.background,
                 padding: EdgeInsets.only(top: 3.h, left: 2.w, right: 3.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,22 +75,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               onTap: () {
                                 showDialog(
                                   context: context,
-                                  barrierColor: Colors
-                                      .transparent, // 👈 important (no dark bg)
+                                  barrierColor: Colors.transparent,
                                   builder: (context) {
                                     return Stack(
                                       children: [
                                         Positioned(
-                                          top: 20.h, // adjust position
-                                          right: 5.w, // adjust position
+                                          top: 20.h,
+                                          right: 5.w,
                                           child: CustomCalendar(
                                             onDateSelected: (date) {
                                               _dateController.text = DateFormat(
-                                                'dd MMM yyyy',
+                                                'dd-MM-yyyy',
                                               ).format(date);
-                                              Navigator.pop(
-                                                context,
-                                              ); // optional (close popup)
+                                              Navigator.pop(context);
                                             },
                                           ),
                                         ),
@@ -118,8 +122,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                         textAlign: TextAlign.center,
                                         decoration: InputDecoration(
-                                          border: InputBorder.none, 
-                                          hintText: "Select Date",
+                                          border: InputBorder.none,
+                                          // hintText: _dateController.text,
                                           hintStyle: AppTextStyle.small(
                                             size: 11.sp,
                                             color: AppColors.grey,
@@ -173,7 +177,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       runSpacing: 2.h,
                       children: [
                         SizedBox(
-                          width: MediaQuery.of(context).size.width > 800 ? 38.w : 200.w,
+                          width: MediaQuery.of(context).size.width > 800
+                              ? 38.w
+                              : 200.w,
                           child: SocialConnectCard(
                             title: "Connect facebook",
                             buttonText: "Facebook Settings",
@@ -193,7 +199,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         // SizedBox(width: 2.w),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width > 600 ? 38.w : 200.w,
+                          width: MediaQuery.of(context).size.width > 600
+                              ? 38.w
+                              : 200.w,
                           child: SocialConnectCard(
                             title: "Connect WhatsApp",
                             buttonText: "Whatsapp Settings",

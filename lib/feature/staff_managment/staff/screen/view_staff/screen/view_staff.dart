@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/footer.dart';
+import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
+import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class ViewStaff extends StatefulWidget {
@@ -25,17 +26,18 @@ class _ViewStaffState extends State<ViewStaff> {
   String _searchQuery = '';
   String _selectedEntries = '10';
 
+  List<int> _selectedIndices = [];
+  int _tableKey = 0;
+  int _currentPage = 1;
+
   @override
   void initState() {
     super.initState();
     context.read<StaffCubit>().fetchAll();
   }
 
-  // ─── Filtering pipeline ────────────────────────────────────────────────────
-  // FIX: single method applies all three filters in order:
-  //   1. status (Active / Inactive / All)
-  //   2. search query (name)
-  //   3. entries limit
+  // ─── Filtering────────────────────────────────────────────────────
+
   List<StaffModel> _filtered(List<StaffModel> all) {
     List<StaffModel> result = all;
 
@@ -64,8 +66,39 @@ class _ViewStaffState extends State<ViewStaff> {
     }
 
     // 3. Entries limit
+    // final limit = int.tryParse(_selectedEntries) ?? 10;
+    // return result.take(limit).toList();
+    return result;
+  }
+
+  List<StaffModel> _pagedLeads(List<StaffModel> allFiltered) {
     final limit = int.tryParse(_selectedEntries) ?? 10;
-    return result.take(limit).toList();
+    final start = (_currentPage - 1) * limit;
+    final end = (start + limit).clamp(0, allFiltered.length);
+    if (start >= allFiltered.length) return [];
+    return allFiltered.sublist(start, end);
+  }
+
+  int _totalPages(int totalCount) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    if (totalCount == 0) return 1;
+    return (totalCount / limit).ceil();
+  }
+
+  void _goToPage(int page, int total) {
+    final tp = _totalPages(total);
+    if (page < 1 || page > tp) return;
+    setState(() {
+      _currentPage = page;
+      _selectedIndices = [];
+      _tableKey++;
+    });
+  }
+
+  void _resetPage() {
+    _currentPage = 1;
+    _selectedIndices = [];
+    _tableKey++;
   }
 
   // ─── Delete confirmation dialog ────────────────────────────────────────────
@@ -277,19 +310,20 @@ class _ViewStaffState extends State<ViewStaff> {
 
                         SizedBox(height: 2.h),
 
-                        // ✅ Callbacks write into parent state so _filtered() works
                         ShowEntries(
                           initialSearch: _searchQuery,
                           initialEntries: _selectedEntries,
-                          onSearchChanged: (v) =>
-                              setState(() => _searchQuery = v),
-                          onEntriesChanged: (v) =>
-                              setState(() => _selectedEntries = v),
+                          onSearchChanged: (v) => setState(() {
+                            _searchQuery = v;
+                            _resetPage();
+                          }),
+                          onEntriesChanged: (v) => setState(() {
+                            _selectedEntries = v;
+                            _resetPage();
+                          }),
                         ),
 
                         _buildTableSection(state),
-
-                        Footer(),
                       ],
                     ),
                   ),
@@ -395,148 +429,214 @@ class _ViewStaffState extends State<ViewStaff> {
       );
     }
 
-    // StaffDeleted only carries deletedId — the cubit calls fetchAll() after
-    // deletion which emits StaffListLoaded, so we only read the list from there.
+    //  final List<StaffModel> rawList = state is StaffListLoaded
+    //       ? state.staffList
+    //       : [];
+
+    //   final List<StaffModel> staffList = _filtered(rawList);
+
     final List<StaffModel> rawList = state is StaffListLoaded
         ? state.staffList
         : [];
 
-    // ✅ _filtered() applies status + search + limit in one pass
-    final List<StaffModel> staffList = _filtered(rawList);
+    final allFiltered = _filtered(rawList);
+    final totalCount = allFiltered.length;
+    final totalPages = _totalPages(totalCount);
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    if (_currentPage > totalPages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _currentPage = totalPages);
+      });
+    }
+    final pagedList = _pagedLeads(allFiltered);
 
-    // Empty state
-    if (staffList.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.people_outline,
-                color: Colors.grey.shade400,
-                size: 20.sp,
-              ),
-              SizedBox(height: 1.h),
+    // "Showing X to Y of Z entries"
+    final showFrom = totalCount == 0 ? 0 : (_currentPage - 1) * limit + 1;
+    final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
+
+    // ─── Populated table ───────────────────────────────────────────────────
+    return Column(
+      children: [
+        CustomTable(
+          columns: [
+            TableColumn(title: "#", flex: 1),
+            TableColumn(title: "Name", flex: 4),
+            TableColumn(title: "Staff Type", flex: 4),
+            TableColumn(title: "Status", flex: 4),
+            TableColumn(title: "Phone Number", flex: 4),
+            TableColumn(title: "Designation", flex: 4),
+            TableColumn(title: "Joining Date", flex: 4),
+            TableColumn(title: "Created At", flex: 4),
+            TableColumn(title: "Action", flex: 2),
+          ],
+          rows: pagedList.asMap().entries.map((entry) {
+            final index = entry.key;
+            final staff = entry.value;
+            final serial = (_currentPage - 1) * limit + index + 1;
+
+            final createdAt = staff.createdAt != null
+                ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
+                      '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
+                      '${staff.createdAt!.year}'
+                : '—';
+
+            return [
+              Text('$serial', style: AppTextStyle.medium()),
               Text(
-                'No staff members found.',
-                style: AppTextStyle.medium(color: Colors.grey.shade500),
+                staff.name,
+                style: AppTextStyle.medium(),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
+              _statusBadge(staff.staffType),
+              Text(staff.phone, style: AppTextStyle.medium()),
+              Text(
+                staff.designation ?? '—',
+                style: AppTextStyle.medium(),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
+              Text(createdAt, style: AppTextStyle.medium()),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                MainScreen(selectedIndex: 15, staff: staff),
+                          ),
+                        ),
+                        child: Tooltip(
+                          message: 'Edit',
+                          child: Icon(
+                            Icons.edit_outlined,
+                            size: 14.sp,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 0.4.w),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  MainScreen(selectedIndex: 29),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(0.1.w),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade900,
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          child: Icon(
+                            Icons.ads_click_outlined,
+                            size: 10.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 0.4.w),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _confirmDelete(context, staff),
+                        child: Tooltip(
+                          message: 'Delete',
+                          child: Icon(
+                            Icons.delete_outline,
+                            size: 14.sp,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ];
+          }).toList(),
+        ),
+
+        /// 🔹 FOOTER
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Showing $showFrom to $showTo of $totalCount entries",
+                style: AppTextStyle.medium(weight: FontWeight.w400),
+              ),
+              Row(
+                children: [
+                  PageButton(
+                    label: 'Previous',
+                    enabled: _currentPage > 1,
+                    isLeft: true,
+                    onTap: () => _goToPage(_currentPage - 1, totalCount),
+                  ),
+                  ..._buildPageNumbers(totalPages, totalCount),
+                  PageButton(
+                    label: 'Next',
+                    enabled: _currentPage < totalPages,
+                    isRight: true,
+                    onTap: () => _goToPage(_currentPage + 1, totalCount),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-      );
-    }
-
-    // ─── Populated table ───────────────────────────────────────────────────
-    return CustomTable(
-      columns: [
-        TableColumn(title: "#", flex: 1),
-        TableColumn(title: "Name", flex: 4),
-        TableColumn(title: "Staff Type", flex: 4),
-        TableColumn(title: "Status", flex: 4),
-        TableColumn(title: "Phone Number", flex: 4),
-        TableColumn(title: "Designation", flex: 4),
-        TableColumn(title: "Joining Date", flex: 4),
-        TableColumn(title: "Created At", flex: 4),
-        TableColumn(title: "Action", flex: 2),
       ],
-      rows: staffList.asMap().entries.map((entry) {
-        final index = entry.key;
-        final staff = entry.value;
+    );
+  }
 
-        final createdAt = staff.createdAt != null
-            ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
-                  '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
-                  '${staff.createdAt!.year}'
-            : '—';
+  // ── Page number chips ───────────────────────
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-        return [
-          Text('${index + 1}', style: AppTextStyle.medium()),
-          Text(
-            staff.name,
-            style: AppTextStyle.medium(),
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
-          _statusBadge(staff.staffType),
-          Text(staff.phone, style: AppTextStyle.medium()),
-          Text(
-            staff.designation ?? '—',
-            style: AppTextStyle.medium(),
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
-          Text(createdAt, style: AppTextStyle.medium()),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            MainScreen(selectedIndex: 15, staff: staff),
-                      ),
-                    ),
-                    child: Tooltip(
-                      message: 'Edit',
-                      child: Icon(
-                        Icons.edit_outlined,
-                        size: 14.sp,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 0.4.w),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MainScreen(selectedIndex: 29),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(0.1.w),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade900,
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                      child: Icon(
-                        Icons.ads_click_outlined, 
-                        size: 10.sp,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 0.4.w),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => _confirmDelete(context, staff),
-                    child: Tooltip(
-                      message: 'Delete',
-                      child: Icon(
-                        Icons.delete_outline,
-                        size: 14.sp,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+    final List<Widget> widgets = [];
+
+    // Show at most 5 page buttons centered around current page
+    int start = (_currentPage - 2).clamp(1, totalPages);
+    int end = (start + 4).clamp(1, totalPages);
+    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
+
+    for (int page = start; page <= end; page++) {
+      final isActive = page == _currentPage;
+      widgets.add(
+        GestureDetector(
+          onTap: () => _goToPage(page, totalCount),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.primary : AppColors.white,
+              border: Border.all(color: AppColors.lightGrey),
+            ),
+            child: Text(
+              '$page',
+              style: AppTextStyle.small(
+                size: 11.sp,
+                color: isActive ? AppColors.white : AppColors.grey,
+              ),
             ),
           ),
-        ];
-      }).toList(),
-    );
+        ),
+      );
+    }
+    return widgets;
   }
 }

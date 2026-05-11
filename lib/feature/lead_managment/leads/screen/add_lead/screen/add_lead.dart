@@ -193,7 +193,7 @@
 //     _pinCtrl.clear();
 //     _postOfficeCtrl.clear();
 //     _remarksCtrl.clear();
-    
+
 //     for (final c in _additionalCtrlMap.values) {
 //       c.clear();
 //     }
@@ -1070,7 +1070,6 @@
 //   }
 // }
 
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -1556,20 +1555,22 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
                 SizedBox(width: 1.w),
                 Expanded(
-                  child: _dropdown(
-                    'State',
-                    Icons.flag_outlined,
+                  child: Dropdown(
+                    showIcon: true,
+                    icon: Icons.location_on_outlined,
                     items: stateDistrictMap.keys.toList(),
                     selectedValue: state.selectedState,
                     onChanged: (v) =>
                         context.read<AddLeadCubit>().selectState(v),
+                    label: 'State',
+                    hint: 'Select State',
                   ),
                 ),
                 SizedBox(width: 1.w),
                 Expanded(
-                  child: _dropdown(
-                    'District',
-                    Icons.location_on_outlined,
+                  child: Dropdown(
+                    showIcon: true,
+                    icon: Icons.location_on_outlined,
                     items: state.selectedState == null
                         ? []
                         : stateDistrictMap[state.selectedState] ?? [],
@@ -1577,6 +1578,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     enabled: state.selectedState != null,
                     onChanged: (v) =>
                         context.read<AddLeadCubit>().selectDistrict(v),
+                    label: 'District',
+                    hint: 'Select District',
                   ),
                 ),
               ],
@@ -1613,6 +1616,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: DropdownWithAdd(
                     label: 'Lead Category',
                     icon: Icons.layers_outlined,
+                    showIcon: true,
                     items: categoryNames,
                     selectedValue: _leadCategory,
                     onChanged: (v) {
@@ -1630,6 +1634,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 Expanded(
                   child: DropdownWithAdd(
                     label: 'Lead Source',
+                    showIcon: true,
                     icon: Icons.layers_rounded,
                     items: sourceNames,
                     selectedValue: _leadSource,
@@ -1642,15 +1647,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
                 SizedBox(width: 2.w),
                 Expanded(
-                  child: _dropdown(
-                    'Priority',
-                    Icons.flag_outlined,
+                  child: Dropdown(
+                    icon: Icons.flag_outlined,
+                    showIcon: true,
+                    showHelp: true,
                     items: priority,
                     selectedValue: _leadPriority,
                     onChanged: (v) {
                       setState(() => _leadPriority = v);
                       cubit.selectPriority(v);
                     },
+                    label: 'Priority',
+                    hint: 'Select Priority',
                   ),
                 ),
                 SizedBox(width: 2.w),
@@ -2025,61 +2033,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
               border: InputBorder.none,
               contentPadding: EdgeInsets.all(1.w),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _dropdown(
-    String label,
-    IconData icons, {
-    List<String> items = const [],
-    String? selectedValue,
-    Function(String?)? onChanged,
-    bool enabled = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _label(label, false, icons),
-        SizedBox(height: 0.5.h),
-        Container(
-          height: 5.h,
-          padding: EdgeInsets.symmetric(horizontal: 1.w),
-          decoration: _box(),
-          child: DropdownSearch<String>(
-            items: items,
-            asyncItems: null,
-            selectedItem: selectedValue,
-            enabled: enabled && items.isNotEmpty,
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              fit: FlexFit.loose,
-              constraints: const BoxConstraints(maxHeight: 300),
-            ),
-            dropdownDecoratorProps: DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                hintText: 'Select $label',
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: InputBorder.none,
-              ),
-            ),
-            dropdownBuilder: (context, selectedItem) {
-              final isHint = selectedItem == null;
-              return Text(
-                isHint ? 'Select $label' : selectedItem,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: isHint
-                    ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                    : AppTextStyle.body(size: 11.sp),
-              );
-            },
-            onChanged: onChanged,
           ),
         ),
       ],

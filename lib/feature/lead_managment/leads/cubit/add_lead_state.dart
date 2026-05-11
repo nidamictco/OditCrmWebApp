@@ -1,7 +1,7 @@
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_field_model.dart';
-import 'package:oxdo/feature/staff_managment/add_staff/model/staff_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
 enum LeadListStatus { initial, loading, loaded, failure }

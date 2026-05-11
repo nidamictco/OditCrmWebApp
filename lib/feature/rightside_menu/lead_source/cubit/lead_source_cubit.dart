@@ -70,6 +70,31 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
     }
   }
 
+  //  Future<void> fetchLeadSource() async {
+  //   emit(state.copyWith(status: LeadSourceStatus.loading));
+
+  //   _sourcesSubscription?.cancel();
+  //   _sourcesSubscription = _repository.watchSource().listen(
+  //     (sources) {
+  //       emit(
+  //         state.copyWith(
+  //           status: LeadSourceStatus.success,
+  //           sources: [...sources],
+  //           clearError: true,
+  //         ),
+  //       );
+  //     },
+  //     onError: (Object error) {
+  //       emit(
+  //         state.copyWith(
+  //           status: LeadSourceStatus.failure,
+  //           errorMessage: _friendlyError(error),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // } 
+
   /// Update the name of an existing category.
   Future<void> updateSource({
     required String id,

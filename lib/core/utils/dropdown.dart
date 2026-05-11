@@ -11,6 +11,7 @@ class Dropdown extends StatefulWidget {
   final String hint;
   final bool showHelp;
   final bool showIcon;
+  final IconData icon;
   final List<String> items;
   final String? selectedValue;
   final Function(String?)? onChanged;
@@ -30,6 +31,7 @@ class Dropdown extends StatefulWidget {
     this.enabled = true,
     this.message = "",
     this.showStar = false,
+    this.icon = Icons.person_2_outlined,
   });
 
   @override
@@ -73,7 +75,7 @@ class _DropdownState extends State<Dropdown> {
           children: [
             if (widget.showIcon)
               Icon(
-                Icons.person_2_outlined,
+                widget.icon,
                 size: 12.sp,
                 color: AppColors.green,
               ),

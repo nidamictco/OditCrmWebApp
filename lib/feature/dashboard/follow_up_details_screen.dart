@@ -1044,6 +1044,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/top_bread_crumb_bar.dart';
@@ -1061,6 +1066,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
+
+
 
   final List<FollowupEntry> _followups = const [
     FollowupEntry(
@@ -1310,10 +1317,26 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
 class _FollowupTabContent extends StatelessWidget {
   final List<FollowupEntry> followups;
-  const _FollowupTabContent({required this.followups});
+  // final AddLeadModel lead;
+  const _FollowupTabContent({required this.followups,});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _CalledDateCtrl = TextEditingController();
+ final TextEditingController _CallStatusCtrl = TextEditingController();
+ final TextEditingController _leadStagetCtrl = TextEditingController();
+ final TextEditingController _productCtrl = TextEditingController();
+ final TextEditingController _costCtrl = TextEditingController();
+ final TextEditingController _WhtsppNoCtrl = TextEditingController();
+ final TextEditingController _emailCtrl = TextEditingController();
+final TextEditingController  _addressm=TextEditingController();
+final TextEditingController _remarksCtrl=TextEditingController();
+
+String? _leadStage;
+  String? _leadSource;
+  String? _leadCategory;
+  String? _leadPriority;
+
     // Group entries by date
     final Map<String, List<FollowupEntry>> grouped = {};
     for (final f in followups) {
@@ -1363,7 +1386,9 @@ class _FollowupTabContent extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // _addFollowUpBottom(context, lead);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -1390,6 +1415,175 @@ class _FollowupTabContent extends StatelessWidget {
       ),
     );
   }
+  // void _addFollowUpBottom(BuildContext context, AddLeadModel lead){
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AppDialog(
+  //       title: 'Add Follow-Up',
+  //        body:  Column(
+  //         children: [
+  //           Row(
+  //             children: [
+  //                Expanded(
+  //                 child: Dropdown(
+  //                   showStar: true,
+  //                   items: [],
+  //                   selectedValue: ,
+  //                   onChanged: (v) {
+
+  //                   },
+  //                   label: 'Called Status',
+  //                   hint: 'Select',
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           Row(children: [
+  //              Expanded(
+  //                 child: Dropdown(
+  //                   showHelp: true,
+  //                   showStar: true,
+  //                   items: [],
+  //                   selectedValue: _leadStage,
+  //                   onChanged: (v) {
+  //                     // setState(() => _leadStage = v);
+  //                     // cubit.selectLeadStage(v);
+  //                   },
+  //                   label: 'Lead Stage',
+  //                   hint: 'Select Stages',
+  //                 ),
+  //               ),
+  //                Expanded(child: _field(
+  //                   'Product',
+  //                   true,
+  //                   Icons.person_outline,
+  //                   controller: _productCtrl,
+  //                 ),
+  //                )
+  //           ],),
+  //           Row(
+  //             children: [
+  //               Expanded(child: _field(
+  //                   'Cost',
+  //                   true,
+  //                   null,
+  //                   // Icons.person_outline,
+  //                   controller: ,
+  //                 ),
+  //                ),
+  //                 Expanded(child:DropdownWithAdd(
+  //                   label: 'Lead Category',
+  //                   icon: Icons.layers_outlined,
+  //                   items: [],
+  //                   selectedValue: _leadCategory,
+  //                   onChanged: (v) {
+  //                     // setState(() => _leadCategory = v);
+  //                     // cubit.selectCategory(v);
+  //                   },
+  //                   onTap: _showAddCategoryDialog,
+  //                 ),
+  //                ),
+  //             ],
+  //           ),
+  //          Row(
+  //           children: [
+
+  //           ],
+  //          )
+  //         ],
+  //       ),
+
+  //     ),
+  //   );
+  // }
+  // Widget _field(
+  //   String label,
+  //   bool required,
+  //   IconData? icons, {
+  //   TextEditingController? controller,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       _label(label, required, icons!),
+  //       SizedBox(height: 0.5.h),
+  //       Container(
+  //         height: 5.h,
+  //         decoration: BoxDecoration(
+  //     border: Border.all(color: AppColors.divider),
+  //     borderRadius: BorderRadius.circular(4),
+  //     color: AppColors.greyCard,
+  //   ),
+  //         child: TextField(
+  //           controller: controller,
+  //           style: AppTextStyle.body(size: 11.sp),
+  //           decoration: InputDecoration(
+  //             hintText: label,
+  //             hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
+  //             border: InputBorder.none,
+  //             contentPadding: EdgeInsets.all(1.w),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+  //  Widget _label(String text, bool required, IconData icons) {
+  //   return Row(
+  //     children: [
+  //       Icon(icons, size: 12.sp, color: AppColors.green),
+  //       SizedBox(width: 0.5.w),
+  //       Text(text, style: AppTextStyle.medium()),
+  //       if (required)
+  //         Text(
+  //           '*',
+  //           style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+  //         ),
+  //     ],
+  //   );
+  // }
+  // void _showAddCategoryDialog() {
+  //   _dialogNameCtrl.clear();
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AppDialog(
+  //       title: 'Add Lead Category',
+  //       body: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+  //           SizedBox(height: 2.h),
+  //           TextField(
+  //             controller: _dialogNameCtrl,
+  //             decoration: InputDecoration(
+  //               hintText: 'Enter Category',
+  //               hintStyle: AppTextStyle.medium(
+  //                 size: 11.sp,
+  //                 color: AppColors.grey,
+  //               ),
+  //               border: OutlineInputBorder(
+  //                 borderRadius: BorderRadius.circular(4),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       onSubmit: () async {
+  //         final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+  //         Navigator.pop(ctx);
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Category "$name" added.'),
+  //             backgroundColor: AppColors.green,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 }
 
 class _DateGroup extends StatelessWidget {
@@ -1833,6 +2027,7 @@ class _DetailsTabContent extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _DetailGrid extends StatelessWidget {
@@ -2015,4 +2210,6 @@ class _StatusChip extends StatelessWidget {
               weight: FontWeight.w500)),
     );
   }
+
+
 }
