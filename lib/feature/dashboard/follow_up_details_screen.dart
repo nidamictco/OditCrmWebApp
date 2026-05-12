@@ -1041,12 +1041,12 @@
 //   }
 // }
 
-
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
-import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -1065,8 +1065,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
-
- 
 
   final List<FollowupEntry> _followups = const [
     FollowupEntry(
@@ -1097,13 +1095,13 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     ActivityEntry(
       agent: 'Shahid',
       description:
-      'Status changed to Rejected. Cost Updated from to 0\nLead Category Updated from May Visit to',
+          'Status changed to Rejected. Cost Updated from to 0\nLead Category Updated from May Visit to',
       dateTime: '20-04-2026 04:42 PM',
     ),
     ActivityEntry(
       agent: 'Shahid',
       description:
-      'Status changed to Follow Up. Next followup scheduled to 20-04-2026 10:38\nCost Updated from to 0',
+          'Status changed to Follow Up. Next followup scheduled to 20-04-2026 10:38\nCost Updated from to 0',
       dateTime: '19-04-2026 08:39 PM',
     ),
     ActivityEntry(
@@ -1185,11 +1183,14 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
           Row(
             children: [
               CircleAvatar(
-                  backgroundColor: AppColors.white,
-                  radius: 30,
-                  child: const Icon(Icons.person, size: 30, color: Color(0xFF888888)),
-
+                backgroundColor: AppColors.white,
+                radius: 30,
+                child: const Icon(
+                  Icons.person,
+                  size: 30,
+                  color: Color(0xFF888888),
                 ),
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1197,15 +1198,19 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                   children: [
                     // Name row
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       child: Row(
                         children: [
-                           Text(
+                          Text(
                             'Sanidha',
                             style: AppTextStyle.heading(
-                                size: 20,
-                                weight: FontWeight.w700,
-                                color: Color(0xFF222222)),
+                              size: 20,
+                              weight: FontWeight.w700,
+                              color: Color(0xFF222222),
+                            ),
                           ),
                           const SizedBox(width: 10),
                           const _PriorityBadge(label: 'Lead priority: High'),
@@ -1216,8 +1221,11 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           const SizedBox(width: 10),
                           _headerIcon(Icons.add_box_outlined, onTap: () {}),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.delete_outline,
-                              color: Colors.red.shade300, onTap: () {}),
+                          _headerIcon(
+                            Icons.delete_outline,
+                            color: Colors.red.shade300,
+                            onTap: () {},
+                          ),
                         ],
                       ),
                     ),
@@ -1232,7 +1240,10 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           _metaItem(Icons.phone, '8086287726'),
                           _divider(),
-                          _metaItem(Icons.location_on_outlined, 'Karuvarkund, Malappuram'),
+                          _metaItem(
+                            Icons.location_on_outlined,
+                            'Karuvarkund, Malappuram',
+                          ),
                           _divider(),
                           _metaText('Create Date : 18 Apr, 2026'),
                           _divider(),
@@ -1242,7 +1253,10 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           _divider(),
                           _metaText('Cost : 0'),
                           _divider(),
-                          const _StatusBadge(label: 'Rejected', color: Color(0xFF2196F3)),
+                          const _StatusBadge(
+                            label: 'Rejected',
+                            color: Color(0xFF2196F3),
+                          ),
                         ],
                       ),
                     ),
@@ -1253,8 +1267,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                       child: _metaText('Lead Source : Ads'),
                     ),
                     const SizedBox(height: 10),
-
-
                   ],
                 ),
               ),
@@ -1285,10 +1297,15 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     );
   }
 
-  Widget _headerIcon(IconData icon,
-      {Color color = const Color(0xFF555555), VoidCallback? onTap}) {
+  Widget _headerIcon(
+    IconData icon, {
+    Color color = const Color(0xFF555555),
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
-        onTap: onTap, child: Icon(icon, size: 22, color: color));
+      onTap: onTap,
+      child: Icon(icon, size: 22, color: color),
+    );
   }
 
   Widget _metaItem(IconData icon, String text) {
@@ -1297,8 +1314,10 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       children: [
         Icon(icon, size: 14, color: const Color(0xFF777777)),
         const SizedBox(width: 3),
-        Text(text,
-            style: AppTextStyle.small(size: 12, color: Color(0xFF555555))),
+        Text(
+          text,
+          style: AppTextStyle.small(size: 12, color: Color(0xFF555555)),
+        ),
       ],
     );
   }
@@ -1314,31 +1333,38 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 // Tab 1 – Followup content (shrink-wraps inside ScrollView)
 // ─────────────────────────────────────────────────────────
 
-class _FollowupTabContent extends StatelessWidget {
+class _FollowupTabContent extends StatefulWidget {
   final List<FollowupEntry> followups;
   // final AddLeadModel lead;
-  const _FollowupTabContent({required this.followups,});
+  const _FollowupTabContent({required this.followups /*required this.lead*/});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController _CalledDateCtrl = TextEditingController();
- final TextEditingController _CallStatusCtrl = TextEditingController();
- final TextEditingController _leadStagetCtrl = TextEditingController();
- final TextEditingController _productCtrl = TextEditingController();
- final TextEditingController _costCtrl = TextEditingController();
- final TextEditingController _WhtsppNoCtrl = TextEditingController();
- final TextEditingController _emailCtrl = TextEditingController();
-final TextEditingController  _addressm=TextEditingController();
-final TextEditingController _remarksCtrl=TextEditingController();
+  State<_FollowupTabContent> createState() => _FollowupTabContentState();
+}
 
-String? _leadStage;
+class _FollowupTabContentState extends State<_FollowupTabContent> {
+  final TextEditingController _calledDateCtrl = TextEditingController();
+  final TextEditingController _callStatusCtrl = TextEditingController();
+  final TextEditingController _leadStagetCtrl = TextEditingController();
+  final TextEditingController _productCtrl = TextEditingController();
+  final TextEditingController _costCtrl = TextEditingController();
+  final TextEditingController _WhtsppNoCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _addressm = TextEditingController();
+  final TextEditingController _remarksCtrl = TextEditingController();
+
+  final TextEditingController __dialogNameCtrl = TextEditingController();
+
+  String? _leadStage;
   String? _leadSource;
   String? _leadCategory;
   String? _leadPriority;
-
+  @override
+  Widget build(BuildContext context) {
+    final Widget divider = SizedBox(width: 1.w);
     // Group entries by date
     final Map<String, List<FollowupEntry>> grouped = {};
-    for (final f in followups) {
+    for (final f in widget.followups) {
       grouped.putIfAbsent(f.date, () => []).add(f);
     }
     final dates = grouped.keys.toList();
@@ -1360,7 +1386,7 @@ String? _leadStage;
                     size: 18,
                     // weight: FontWeight.w700,
                     color: Color(0xFF495057),
-                  )
+                  ),
                   // TextStyle(
                   //     fontSize: 16,
                   //     fontWeight: FontWeight.w700,
@@ -1372,175 +1398,360 @@ String? _leadStage;
                     color: AppColors.green,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
                   child: const Row(
                     children: [
                       Icon(Icons.chat, color: Colors.white, size: 16),
                       SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 16),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () { 
-                    // _addFollowUpBottom(context, lead);
+                  onPressed: () {
+                    _addFollowUpBottom(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 9),
+                      horizontal: 14,
+                      vertical: 9,
+                    ),
                   ),
-                  child:  Text('Add Follow-up',
-                      style: AppTextStyle.small(size: 13, color: AppColors.white)),
-                      // TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'Add Follow-up',
+                    style: AppTextStyle.small(size: 13, color: AppColors.white),
+                  ),
+                  // TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
           ),
 
           // ✅ Rendered as plain Column children — no ListView required
-          ...dates.map((date) =>
-              _DateGroup(date: date, entries: grouped[date]!, time: grouped[date]![0].time, entry: grouped[date]![0],)),
+          ...dates.map(
+            (date) => _DateGroup(
+              date: date,
+              entries: grouped[date]!,
+              time: grouped[date]![0].time,
+              entry: grouped[date]![0],
+            ),
+          ),
 
           const SizedBox(height: 20),
         ],
       ),
     );
   }
-  // void _addFollowUpBottom(BuildContext context, AddLeadModel lead){
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AppDialog(
-  //       title: 'Add Follow-Up',
-  //        body:  Column(
-  //         children: [
-  //           Row(
-  //             children: [
-  //                Expanded(
-  //                 child: Dropdown(
-  //                   showStar: true,
-  //                   items: [],
-  //                   selectedValue: ,
-  //                   onChanged: (v) {
-                      
-  //                   },
-  //                   label: 'Called Status',
-  //                   hint: 'Select',
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           Row(children: [
-  //              Expanded(
-  //                 child: Dropdown(
-  //                   showHelp: true,
-  //                   showStar: true,
-  //                   items: [],
-  //                   selectedValue: _leadStage,
-  //                   onChanged: (v) {
-  //                     // setState(() => _leadStage = v);
-  //                     // cubit.selectLeadStage(v);
-  //                   },
-  //                   label: 'Lead Stage',
-  //                   hint: 'Select Stages',
-  //                 ),
-  //               ),
-  //                Expanded(child: _field(
-  //                   'Product',
-  //                   true,
-  //                   Icons.person_outline,
-  //                   controller: _productCtrl,
-  //                 ),
-  //                )
-  //           ],),
-  //           Row(
-  //             children: [
-  //               Expanded(child: _field(
-  //                   'Cost',
-  //                   true,
-  //                   null,
-  //                   // Icons.person_outline,
-  //                   controller: ,
-  //                 ),
-  //                ),
-  //                 Expanded(child:DropdownWithAdd(
-  //                   label: 'Lead Category',
-  //                   icon: Icons.layers_outlined,
-  //                   items: [],
-  //                   selectedValue: _leadCategory,
-  //                   onChanged: (v) {
-  //                     // setState(() => _leadCategory = v);
-  //                     // cubit.selectCategory(v);
-  //                   },
-  //                   onTap: _showAddCategoryDialog,
-  //                 ),
-  //                ),
-  //             ],
-  //           ),
-  //          Row(
-  //           children: [
 
-  //           ],
-  //          )
-  //         ],
-  //       ),
-        
-  //     ),
-  //   );
-  // }
-  // Widget _field(
-  //   String label,
-  //   bool required,
-  //   IconData? icons, {
-  //   TextEditingController? controller,
-  // }) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       _label(label, required, icons!),
-  //       SizedBox(height: 0.5.h),
-  //       Container(
-  //         height: 5.h,
-  //         decoration: BoxDecoration(
-  //     border: Border.all(color: AppColors.divider),
-  //     borderRadius: BorderRadius.circular(4),
-  //     color: AppColors.greyCard,
-  //   ),
-  //         child: TextField(
-  //           controller: controller,
-  //           style: AppTextStyle.body(size: 11.sp),
-  //           decoration: InputDecoration(
-  //             hintText: label,
-  //             hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-  //             border: InputBorder.none,
-  //             contentPadding: EdgeInsets.all(1.w),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-  //  Widget _label(String text, bool required, IconData icons) {
-  //   return Row(
-  //     children: [
-  //       Icon(icons, size: 12.sp, color: AppColors.green),
-  //       SizedBox(width: 0.5.w),
-  //       Text(text, style: AppTextStyle.medium()),
-  //       if (required)
-  //         Text(
-  //           '*',
-  //           style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
-  //         ),
-  //     ],
-  //   );
-  // }
+  void _addFollowUpBottom(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AppDialog(
+        title: 'Add Follow-Up',
+        width: 60.w,
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: InputDate(
+                      label: "Called Date",
+                      fromController: _calledDateCtrl,
+                      toController: _calledDateCtrl,
+                      isFrom: true,
+                    ),
+                  ),
+                  SizedBox(width: 1.w),
+                  Expanded(
+                    child: Dropdown(
+                      showStar: true,
+                      items: [],
+                      selectedValue: _callStatusCtrl.text,
+                      onChanged: (v) {
+                        // _callStatusCtrl.text=v;
+                      },
+                      label: 'Called Status',
+                      hint: 'Select',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Dropdown(
+                      showHelp: true,
+                      showStar: true,
+                      items: [],
+                      selectedValue: _leadStage,
+                      onChanged: (v) {
+                        // setState(() => _leadStage = v);
+                        // cubit.selectLeadStage(v);
+                      },
+                      label: 'Lead Stage',
+                      hint: 'Select Stages',
+                    ),
+                  ),
+                  SizedBox(width: 1.w),
+                  Expanded(
+                    child: _field(
+                      'Product',
+                      true,
+                      Icons.person_outline,
+                      controller: _productCtrl,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _field(
+                      'Cost',
+                      true,
+                      null,
+                      // Icons.person_outline,
+                      controller: _costCtrl,
+                    ),
+                  ),
+                  SizedBox(width: 1.w),
+                  Expanded(
+                    child: DropdownWithAdd(
+                      label: 'Lead Category',
+                      icon: Icons.layers_outlined,
+                      items: [],
+                      selectedValue: _leadCategory,
+                      onChanged: (v) {
+                        // setState(() => _leadCategory = v);
+                        // cubit.selectCategory(v);
+                      },
+                      // onTap: _showAddCategoryDialog,
+                      onTap: () {},
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Dropdown(
+                      icon: Icons.flag_outlined,
+                      showIcon: true,
+                      showHelp: true,
+                      items: [],
+                      selectedValue: _leadPriority,
+                      onChanged: (v) {
+                        setState(() => _leadPriority = v);
+                        // cubit.selectPriority(v);
+                      },
+                      label: 'Priority',
+                      hint: 'Select Priority',
+                    ),
+                  ),
+                  SizedBox(width: 1.w),
+                  Expanded(
+                    child: _phoneField(
+                      'Whatsapp Number',
+                      false,
+                      Icons.call_outlined,
+                      controller: _WhtsppNoCtrl,
+                      onDialCodeChanged: (c) =>
+                          setState(() => _WhtsppNoCtrl.text = c),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _field(
+                      'Email',
+                      true,
+                      null,
+                      // Icons.person_outline,
+                      controller: _emailCtrl,
+                    ),
+                  ),
+                  SizedBox(width: 1.w),
+                  Expanded(
+                    child: _field(
+                      'Address',
+                      true,
+                      null,
+                      // Icons.person_outline,
+                      controller: _addressm,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _field(
+                      'Remark',
+                      true,
+                      null,
+                      // Icons.person_outline,
+                      controller: _addressm,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _field(
+    String label,
+    bool required,
+    IconData? icons, {
+    TextEditingController? controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(label, required, icons),
+        SizedBox(height: 0.5.h),
+        Container(
+          height: 5.h,
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(4),
+            color: AppColors.greyCard,
+          ),
+          child: TextField(
+            controller: controller,
+            style: AppTextStyle.body(size: 11.sp),
+            decoration: InputDecoration(
+              hintText: label,
+              hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(1.w),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _label(String text, bool required, IconData? icons) {
+    return Row(
+      children: [
+        Icon(icons, size: 12.sp, color: AppColors.green),
+        SizedBox(width: 0.5.w),
+        Text(text, style: AppTextStyle.medium()),
+        if (required)
+          Text(
+            '*',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+          ),
+      ],
+    );
+  }
+
+  Widget _phoneField(
+    String label,
+    bool required,
+    IconData icons, {
+    TextEditingController? controller,
+    void Function(String)? onDialCodeChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(label, required, icons),
+        SizedBox(height: 0.5.h),
+        Row(
+          children: [
+            SizedBox(
+              height: 5.h,
+              width: 7.5.w,
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.divider),
+                  borderRadius: BorderRadius.circular(4),
+                  color: AppColors.grey.withValues(alpha: 0.2),
+                ),
+                child: CountryCodePicker(
+                  onChanged: (country) =>
+                      onDialCodeChanged?.call(country.dialCode ?? '+91'),
+                  initialSelection: 'IN',
+                  showCountryOnly: false,
+                  showOnlyCountryWhenClosed: false,
+                  alignLeft: true,
+                  padding: EdgeInsets.zero,
+                  textStyle: AppTextStyle.body(size: 11.sp),
+                  flagWidth: 16,
+                  dialogBackgroundColor: AppColors.white,
+                  dialogSize: Size(30.w, 80.h),
+                  dialogTextStyle: AppTextStyle.body(size: 11.sp),
+                  searchStyle: AppTextStyle.body(size: 11.sp),
+                  searchDecoration: InputDecoration(
+                    hintText: 'Search country',
+                    hintStyle: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.divider),
+                    ),
+                    contentPadding: EdgeInsets.all(1.w),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 0.25.w),
+            Expanded(
+              child: Container(
+                height: 5.h,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.divider),
+                  borderRadius: BorderRadius.circular(4),
+                  color: AppColors.greyCard,
+                ),
+                child: TextField(
+                  controller: controller,
+                  style: AppTextStyle.body(size: 11.sp),
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: 'Enter number',
+                    hintStyle: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(1.w),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   // void _showAddCategoryDialog() {
   //   _dialogNameCtrl.clear();
   //   showDialog(
@@ -1590,13 +1801,18 @@ class _DateGroup extends StatelessWidget {
   final String time;
   final List<FollowupEntry> entries;
   final FollowupEntry entry;
-  const _DateGroup({required this.date, required this.entries, required this.time, required this.entry});
+  const _DateGroup({
+    required this.date,
+    required this.entries,
+    required this.time,
+    required this.entry,
+  });
 
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30,),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1607,17 +1823,24 @@ class _DateGroup extends StatelessWidget {
                 Container(
                   width: 90,
                   height: 90,
-                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 15),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 15,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFc1c1c1),
                     // borderRadius: BorderRadius.circular(6),
-                    shape: BoxShape.circle
+                    shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       date,
                       textAlign: TextAlign.center,
-                      style: AppTextStyle.heading(size:13 ,color: Color(0xFF555555),weight: FontWeight.w600),
+                      style: AppTextStyle.heading(
+                        size: 13,
+                        color: Color(0xFF555555),
+                        weight: FontWeight.w600,
+                      ),
                       // const TextStyle(
                       //     fontSize: 11,
                       //     fontWeight: FontWeight.w600,
@@ -1676,8 +1899,7 @@ class _DateGroup extends StatelessWidget {
                 //   ),
                 // ),
                 Expanded(
-                  child: Container(
-                      width: 1, color: const Color(0xFFDDDDDD)),
+                  child: Container(width: 1, color: const Color(0xFFDDDDDD)),
                 ),
               ],
             ),
@@ -1702,19 +1924,20 @@ class _FollowupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16,bottom: 20, top: 16),
+      padding: const EdgeInsets.only(right: 16, bottom: 20, top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 100,),
-              Text(
-                entry.time,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF444444)),
-              ),
-          SizedBox(height: 25,),
+          SizedBox(height: 100),
+          Text(
+            entry.time,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF444444),
+            ),
+          ),
+          SizedBox(height: 25),
           Container(
             width: 550,
             decoration: BoxDecoration(
@@ -1723,9 +1946,10 @@ class _FollowupCard extends StatelessWidget {
               border: Border.all(color: const Color(0xFFEEEEEE)),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2))
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
               ],
             ),
             child: Column(
@@ -1738,21 +1962,33 @@ class _FollowupCard extends StatelessWidget {
                       const CircleAvatar(
                         radius: 14,
                         backgroundColor: Color(0xFFEEEEEE),
-                        child: Icon(Icons.person,
-                            size: 16, color: Color(0xFF888888)),
+                        child: Icon(
+                          Icons.person,
+                          size: 16,
+                          color: Color(0xFF888888),
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text(entry.agent,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Color(0xFF222222))),
+                      Text(
+                        entry.agent,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF222222),
+                        ),
+                      ),
                       const Spacer(),
-                      Icon(Icons.edit_outlined,
-                          size: 18, color: Colors.green.shade600),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: Colors.green.shade600,
+                      ),
                       const SizedBox(width: 8),
-                      Icon(Icons.delete_outline,
-                          size: 18, color: Colors.red.shade400),
+                      Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: Colors.red.shade400,
+                      ),
                     ],
                   ),
                 ),
@@ -1776,14 +2012,19 @@ class _FollowupCard extends StatelessWidget {
                         children: [
                           const SizedBox(
                             width: 90,
-                            child: Text('Status',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF555555),
-                                    fontWeight: FontWeight.w500)),
+                            child: Text(
+                              'Status',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF555555),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                          const Text(': ',
-                              style: TextStyle(color: Color(0xFF555555))),
+                          const Text(
+                            ': ',
+                            style: TextStyle(color: Color(0xFF555555)),
+                          ),
                           const SizedBox(width: 4),
                           _StatusChip(label: entry.status),
                         ],
@@ -1809,15 +2050,20 @@ class _FollowupCard extends StatelessWidget {
         children: [
           SizedBox(
             width: 90,
-            child: Text(label,
-                style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF555555),
-                    fontWeight: FontWeight.w500)),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF555555),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           Expanded(
-            child: Text(':  $value',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
+            child: Text(
+              ':  $value',
+              style: const TextStyle(fontSize: 13, color: Color(0xFF333333)),
+            ),
           ),
         ],
       ),
@@ -1842,11 +2088,14 @@ class _ActivitiesTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text('Activities',
-              style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          const Text(
+            'Activities',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 16),
           // ✅ Spread entries as Column children — no ListView
           ...activities.map((a) => _ActivityItem(entry: a)),
@@ -1874,10 +2123,7 @@ class _ActivityItem extends StatelessWidget {
                 backgroundColor: Color(0xFFEEEEEE),
                 child: Icon(Icons.person, size: 20, color: Color(0xFF888888)),
               ),
-              Container(
-                  width: 1.5,
-                  height: 40,
-                  color: const Color(0xFFE0E0E0)),
+              Container(width: 1.5, height: 40, color: const Color(0xFFE0E0E0)),
             ],
           ),
           const SizedBox(width: 12),
@@ -1885,21 +2131,31 @@ class _ActivityItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entry.agent,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Color(0xFF222222))),
+                Text(
+                  entry.agent,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Color(0xFF222222),
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(entry.description,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF555555),
-                        height: 1.5)),
+                Text(
+                  entry.description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF555555),
+                    height: 1.5,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(entry.dateTime,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF999999))),
+                Text(
+                  entry.dateTime,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF999999),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1919,7 +2175,10 @@ class _DetailsTabContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const labelStyle = TextStyle(
-        fontSize: 13, color: Color(0xFF888888), fontWeight: FontWeight.w500);
+      fontSize: 13,
+      color: Color(0xFF888888),
+      fontWeight: FontWeight.w500,
+    );
     const valueStyle = TextStyle(fontSize: 13, color: Color(0xFF222222));
 
     return Container(
@@ -1929,24 +2188,34 @@ class _DetailsTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text('Details',
-              style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          const Text(
+            'Details',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
-          const _DetailGrid(rows: [
-            ['Phone', '+917902207315', 'Address', 'Cheruplasheri'],
-            ['State', '', 'District', ''],
-            ['Post office', '', 'Pincode', ''],
-            ['Whatsapp_number', '+917902207315', 'Email', ''],
-            ['Created Date', '25 Apr, 2026', 'Created By', 'Oxdo technologies pvt ltd'],
-            ['Lead Category', 'May Visit', 'Assigned Staff', 'Shahid'],
-            ['Cost', '0', 'Call Status', 'Follow Up'],
-            ['Products', '', '', ''],
-          ]),
+          const _DetailGrid(
+            rows: [
+              ['Phone', '+917902207315', 'Address', 'Cheruplasheri'],
+              ['State', '', 'District', ''],
+              ['Post office', '', 'Pincode', ''],
+              ['Whatsapp_number', '+917902207315', 'Email', ''],
+              [
+                'Created Date',
+                '25 Apr, 2026',
+                'Created By',
+                'Oxdo technologies pvt ltd',
+              ],
+              ['Lead Category', 'May Visit', 'Assigned Staff', 'Shahid'],
+              ['Cost', '0', 'Call Status', 'Follow Up'],
+              ['Products', '', '', ''],
+            ],
+          ),
           const SizedBox(height: 8),
           _detailRow(
             labelStyle: labelStyle,
@@ -1955,16 +2224,19 @@ class _DetailsTabContent extends StatelessWidget {
             leftVal: 'Direct Entry',
             right: 'Remarks',
             rightVal:
-            'planning to visit on 4th may with friends, some friends are in different places. will try to visit before 4th otherwise will come on 4th',
+                'planning to visit on 4th may with friends, some friends are in different places. will try to visit before 4th otherwise will come on 4th',
           ),
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 12),
-          const Text('Lead handled staffs',
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          const Text(
+            'Lead handled staffs',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -2007,25 +2279,30 @@ class _DetailsTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('$left :', style: labelStyle),
-              const SizedBox(height: 2),
-              Text(leftVal, style: valueStyle),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$left :', style: labelStyle),
+                const SizedBox(height: 2),
+                Text(leftVal, style: valueStyle),
+              ],
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('$right :', style: labelStyle),
-              const SizedBox(height: 2),
-              Text(rightVal, style: valueStyle),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$right :', style: labelStyle),
+                const SizedBox(height: 2),
+                Text(rightVal, style: valueStyle),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
-
 }
 
 class _DetailGrid extends StatelessWidget {
@@ -2041,9 +2318,13 @@ class _DetailGrid extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _DetailCell(label: row[0], value: row[1])),
+              Expanded(
+                child: _DetailCell(label: row[0], value: row[1]),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _DetailCell(label: row[2], value: row[3])),
+              Expanded(
+                child: _DetailCell(label: row[2], value: row[3]),
+              ),
             ],
           ),
         );
@@ -2063,14 +2344,19 @@ class _DetailCell extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label :',
-            style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF888888),
-                fontWeight: FontWeight.w500)),
+        Text(
+          '$label :',
+          style: const TextStyle(
+            fontSize: 13,
+            color: Color(0xFF888888),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF222222))),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 13, color: Color(0xFF222222)),
+        ),
       ],
     );
   }
@@ -2111,19 +2397,30 @@ class _StaffCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF222222))),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF222222),
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(phone,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF777777))),
+                Text(
+                  phone,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF777777),
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text('$activities Activities',
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF555555))),
+                Text(
+                  '$activities Activities',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF555555),
+                  ),
+                ),
               ],
             ),
           ),
@@ -2148,12 +2445,16 @@ class _PriorityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-          color: const Color(0xFFFF5722),
-          borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: AppTextStyle.medium(
-              color: Colors.white,
-              weight: FontWeight.w600)),
+        color: const Color(0xFFFF5722),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyle.medium(
+          color: Colors.white,
+          weight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }
@@ -2168,12 +2469,17 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-          color: color, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: AppTextStyle.heading(
-              color: Colors.white,
-              size: 11,
-              weight: FontWeight.w600)),
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyle.heading(
+          color: Colors.white,
+          size: 11,
+          weight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }
@@ -2200,14 +2506,17 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-          color: _color, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: AppTextStyle.medium(
-              color: Colors.white,
-              size: 12,
-              weight: FontWeight.w500)),
+        color: _color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyle.medium(
+          color: Colors.white,
+          size: 12,
+          weight: FontWeight.w500,
+        ),
+      ),
     );
   }
-
-  
 }

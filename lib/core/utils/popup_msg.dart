@@ -9,11 +9,13 @@ class AppDialog extends StatelessWidget {
   final VoidCallback? onSubmit;
   final VoidCallback? onClose;
   final String? submitText;
+  final double? width;
 
   const AppDialog({
     super.key,
     required this.title,
     required this.body,
+    this.width,
     this.onSubmit,
     this.onClose,
     this.submitText = "Submit",
@@ -24,7 +26,7 @@ class AppDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Container(
-        width: 500,
+        width: width ?? 50.w,
         color: AppColors.white,
         child: SingleChildScrollView(
           child: Column(

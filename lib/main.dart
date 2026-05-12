@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,12 +32,11 @@ class ErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Center(child: Text('Failed to start: $error')),
-      ),
+      home: Scaffold(body: Center(child: Text('Failed to start: $error'))),
     );
   }
 }
+
 class OxdoApp extends StatelessWidget {
   const OxdoApp({super.key});
 
@@ -45,20 +45,23 @@ class OxdoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(
-  authService: FirebaseAuthService(),
-  sessionService: SessionService(),
-)..checkSession(), 
+        authService: FirebaseAuthService(),
+        sessionService: SessionService(),
+      )..checkSession(),
       child: Sizer(
         builder: (context, orientation, deviceType) {
           return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Oxdo',
-          theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-          home: AuthGate(),
-        );
-      }
+            supportedLocales: const [Locale('en')],
+            localizationsDelegates: const [CountryLocalizations.delegate],
+            debugShowCheckedModeBanner: false,
+            title: 'Oxdo',
+            theme: ThemeData(
+              colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+            ),
+            home: AuthGate(),
+          );
+        },
       ),
     );
   }
 }
-

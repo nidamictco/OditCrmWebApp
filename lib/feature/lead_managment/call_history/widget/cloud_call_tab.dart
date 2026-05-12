@@ -1,5 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:sizer/sizer.dart';
@@ -68,24 +69,23 @@ Expanded(
 ),
                   SizedBox(width: 2.w),
                   Expanded(
-                    child: _dropdown(
-                      "Staff",
+                    child: Dropdown(
+                      
                       items: staff,
                       selectedValue: selectedStaff,
                       onChanged: (v) {
                         setState(() => selectedStaff = v);
-                      },
-                    ),
+                      }, label: "Staff", hint: 'Select',
+                    ), 
                   ),
                   SizedBox(width: 2.w),
                   Expanded(
-                    child: _dropdown(
-                      "Call Type",
+                    child: Dropdown(
                       items: callType,
                       selectedValue: selectedCallType,
                       onChanged: (v) {
                         setState(() => selectedCallType = v);
-                      },
+                      }, label:"Call Type",hint: 'Select',
                     ),
                   ),
                 ],
@@ -249,75 +249,75 @@ Expanded(
     );
   }
 
-  Widget _dropdown(
-    String label, {
-    List<String> items = const [],
-    String? selectedValue,
-    Function(String?)? onChanged,
-    bool enabled = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.black,
-            weight: FontWeight.w500,
-          ),
-        ),
+  // Widget _dropdown(
+  //   String label, {
+  //   List<String> items = const [],
+  //   String? selectedValue,
+  //   Function(String?)? onChanged,
+  //   bool enabled = true,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: AppTextStyle.small(
+  //           size: 11.sp,
+  //           color: AppColors.black,
+  //           weight: FontWeight.w500,
+  //         ),
+  //       ),
 
-        SizedBox(height: 0.5.h),
+  //       SizedBox(height: 0.5.h),
 
-        Container(
-          height: 5.h,
-          padding: EdgeInsets.symmetric(horizontal: 1.w),
-          decoration: _box(),
+  //       Container(
+  //         height: 5.h,
+  //         padding: EdgeInsets.symmetric(horizontal: 1.w),
+  //         decoration: _box(),
 
-          child: DropdownSearch<String>(
-            items: items,
-            selectedItem: selectedValue,
+  //         child: DropdownSearch<String>(
+  //           items: items,
+  //           selectedItem: selectedValue,
 
-            /// ✅ FIX (NO CRASH)
-            enabled: enabled && items.isNotEmpty,
+  //           /// ✅ FIX (NO CRASH)
+  //           enabled: enabled && items.isNotEmpty,
 
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              fit: FlexFit.loose,
-              constraints: const BoxConstraints(maxHeight: 300),
-            ),
+  //           popupProps: PopupProps.menu(
+  //             showSearchBox: true,
+  //             fit: FlexFit.loose,
+  //             constraints: const BoxConstraints(maxHeight: 300),
+  //           ),
 
-            dropdownDecoratorProps: DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                hintText: "Select $label",
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
+  //           dropdownDecoratorProps: DropDownDecoratorProps(
+  //             dropdownSearchDecoration: InputDecoration(
+  //               hintText: "Select $label",
+  //               hintStyle: AppTextStyle.small(
+  //                 size: 11.sp,
+  //                 color: AppColors.grey,
+  //               ),
+  //               border: InputBorder.none,
+  //               contentPadding: EdgeInsets.zero,
+  //             ),
+  //           ),
 
-            dropdownBuilder: (context, selectedItem) {
-              final isHint = selectedItem == null;
+  //           dropdownBuilder: (context, selectedItem) {
+  //             final isHint = selectedItem == null;
 
-              return Text(
-                isHint ? "Select $label" : selectedItem,
-                overflow: TextOverflow.ellipsis,
-                style: isHint
-                    ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                    : AppTextStyle.medium(size: 11.sp),
-              );
-            },
+  //             return Text(
+  //               isHint ? "Select $label" : selectedItem,
+  //               overflow: TextOverflow.ellipsis,
+  //               style: isHint
+  //                   ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
+  //                   : AppTextStyle.medium(size: 11.sp),
+  //             );
+  //           },
 
-            onChanged: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
+  //           onChanged: onChanged,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _viewButton() {
     return Container(

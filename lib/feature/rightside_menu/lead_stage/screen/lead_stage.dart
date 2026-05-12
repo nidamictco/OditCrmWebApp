@@ -138,13 +138,11 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
           onSubmit: () async {
             // ✅ Capture value BEFORE pop
             final name = stagesController.text.trim();
-            final id = category.id; // ✅ capture id too
+            final id = category.id;
 
             if (name.isEmpty) return;
 
-            Navigator.pop(ctx); // pop first
-
-            // ✅ Use outer screen context, not ctx
+            Navigator.pop(ctx);
             await context.read<LeadStageCubit>().updateStage(
               id: id,
               name: name,
@@ -387,7 +385,10 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                   child: TextField(
                                     onChanged: (v) =>
                                         setState(() => _searchQuery = v),
-                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
+                                    style: AppTextStyle.small(
+                                      size: 10.sp,
+                                      color: AppColors.black,
+                                    ),
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -469,6 +470,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                 color: Colors.blue,
                                               ),
                                             ),
+                                            SizedBox(width: 1.w),
                                             // 🔹 Delete — opens confirm dialog
                                             GestureDetector(
                                               onTap: () => _confirmDelete(cat),
@@ -580,94 +582,4 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
       ),
     );
   }
-
-  Widget _customTable() {
-    return Container(
-      // height: ,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGrey),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        children: [
-          /// 🔹 HEADER
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 2.w),
-            decoration: BoxDecoration(
-              color: AppColors.greyCard,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
-            ),
-            child: Row(
-              children: [
-                _headerCell("#", 1),
-                _headerCell("Lead Stage", 4),
-                _headerCell("Created By", 4),
-                _headerCell("Action", 2),
-              ],
-            ),
-          ),
-
-          /// 🔹 ROWS
-          ...List.generate(_data.length, (index) {
-            final item = _data[index];
-
-            return Container(
-              padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 2.w),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.lightGrey)),
-              ),
-              child: Row(
-                children: [
-                  _cell("${index + 1}", 1),
-                  _cell(item['stage'] ?? '-', 4),
-                  _cell("", 4),
-                  Expanded(
-                    flex: 2,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(
-                        Icons.edit_outlined,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _headerCell(String text, int flex) {
-    return Expanded(
-      flex: flex,
-      child: Text(
-        text,
-        style: AppTextStyle.medium(weight: FontWeight.w600, size: 11.sp),
-      ),
-    );
-  }
-
-  Widget _cell(String text, int flex) {
-    return Expanded(
-      flex: flex,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(text, style: AppTextStyle.small(size: 11.sp)),
-      ),
-    );
-  }
 }
-
-/// MOCK DATA
-final List<Map<String, String>> _data = [
-  {"stage": "New"},
-  {"stage": "Follow Up"},
-  {"stage": "Rejected"},
-  {"stage": "Closed"},
-  {"stage": "Pending"},
-];

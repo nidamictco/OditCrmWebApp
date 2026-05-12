@@ -1712,7 +1712,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
             builder: (context, state) {
               final isBusy = state.isSubmitting || state.isUpdating;
               return SizedBox(
-                width: 6.5.w,
                 height: 5.h,
                 child: ElevatedButton(
                   onPressed: isBusy ? null : _submit,

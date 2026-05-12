@@ -473,14 +473,14 @@ class _TransferLeadsState extends State<TransferLeads> {
                                               ),
                                             ),
                                             GestureDetector(
-                                          onTap: () =>
-                                              _confirmDelete(context, lead),
-                                          child: Icon(
-                                            Icons.delete_outline,
-                                            size: 14.sp,
-                                            color: Colors.red,
-                                          ),
-                                        ),
+                                              onTap: () =>
+                                                  _confirmDelete(context, lead),
+                                              child: Icon(
+                                                Icons.delete_outline,
+                                                size: 14.sp,
+                                                color: Colors.red,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -654,9 +654,9 @@ class _TransferLeadsState extends State<TransferLeads> {
       ),
     );
   }
-// ------------functions-------------
+  // ------------functions-------------
 
-void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
+  void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     showDialog(
       context: ctx,
       builder: (_) => AlertDialog(
@@ -690,7 +690,6 @@ void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     );
   }
 
-
   void _showAssignStaffDialog(List<AddLeadModel> selectedLeads) {
     String? selectedStaffId;
     String? selectedStaffName;
@@ -710,33 +709,37 @@ void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
 
                   return AppDialog(
                     title: 'Assign Staff',
-                    body: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${selectedLeads.length} lead(s) selected",
-                          style: AppTextStyle.medium(
-                            color: AppColors.black,
-                            weight: FontWeight.w500,
+                    width: 50.w,
+                    body: Padding(
+                      padding: EdgeInsets.all(1.w),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${selectedLeads.length} lead(s) selected",
+                            style: AppTextStyle.medium(
+                              color: AppColors.black,
+                              weight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 1.5.h),
-                        Dropdown(
-                          label: 'Staff',
-                          hint: 'Select Staff',
-                          items: staffNames,
-                          selectedValue: selectedStaffName,
-                          onChanged: (val) {
-                            setDialogState(() {
-                              selectedStaffName = val;
-                              selectedStaffId = staffList
-                                  .firstWhere((s) => s.name == val)
-                                  .id;
-                            });
-                          },
-                        ),
-                      ],
+                          SizedBox(height: 1.5.h),
+                          Dropdown(
+                            label: 'Staff',
+                            hint: 'Select Staff',
+                            items: staffNames,
+                            selectedValue: selectedStaffName,
+                            onChanged: (val) {
+                              setDialogState(() {
+                                selectedStaffName = val;
+                                selectedStaffId = staffList
+                                    .firstWhere((s) => s.name == val)
+                                    .id;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                     onClose: () => Navigator.pop(dialogContext),
                     onSubmit: () async {

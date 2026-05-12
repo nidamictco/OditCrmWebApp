@@ -385,31 +385,35 @@ class _ImportLeadsState extends State<ImportLeads> {
               borderRadius: BorderRadius.circular(3),
               color: AppColors.greyCard,
             ),
-            child: CountryCodePicker(
-              onChanged: (country) =>
-                  cubit.setDialCode(country.dialCode ?? '+91'),
-              initialSelection: 'IN',
-              showCountryOnly: false,
-              showOnlyCountryWhenClosed: false,
-              alignLeft: true,
-              padding: EdgeInsets.zero,
-              textStyle: AppTextStyle.body(size: 11.sp),
-              flagWidth: 16,
-              dialogBackgroundColor: AppColors.white,
-              dialogSize: Size(30.w, 80.h),
-              dialogTextStyle: AppTextStyle.body(size: 11.sp),
-              searchStyle: AppTextStyle.body(size: 11.sp),
-              searchDecoration: InputDecoration(
-                hintText: 'Search country',
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
+            child: Localizations.override(
+              context: context,
+              locale: Locale('en'),
+              child: CountryCodePicker(
+                onChanged: (country) =>
+                    cubit.setDialCode(country.dialCode ?? '+91'),
+                initialSelection: 'IN',
+                showCountryOnly: false,
+                showOnlyCountryWhenClosed: false,
+                alignLeft: true,
+                padding: EdgeInsets.zero,
+                textStyle: AppTextStyle.body(size: 11.sp),
+                flagWidth: 16,
+                dialogBackgroundColor: AppColors.white,
+                dialogSize: Size(30.w, 80.h),
+                dialogTextStyle: AppTextStyle.body(size: 11.sp),
+                searchStyle: AppTextStyle.body(size: 11.sp),
+                searchDecoration: InputDecoration(
+                  hintText: 'Search country',
+                  hintStyle: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.grey,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.divider),
+                  ),
+                  contentPadding: EdgeInsets.all(1.w),
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.divider),
-                ),
-                contentPadding: EdgeInsets.all(1.w),
               ),
             ),
           ),

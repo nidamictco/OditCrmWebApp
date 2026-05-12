@@ -1,5 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/table.dart';
@@ -99,28 +100,28 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                         children: [
                           SizedBox(
                             width: 17.5.w,
-                            child:  InputDate(
-    label: "From Date",
-    fromController: _fromDateController,
-    toController: _toDateController,
-    isFrom: true,  // shows fromDate value
-  ),
+                            child: InputDate(
+                              label: "From Date",
+                              fromController: _fromDateController,
+                              toController: _toDateController,
+                              isFrom: true,
+                            ),
                           ),
                           SizedBox(width: 2.w),
                           SizedBox(
                             width: 17.5.w,
-                            child:  InputDate(
-    label: "From Date",
-    fromController: _fromDateController,
-    toController: _toDateController,
-    isFrom: true,  // shows fromDate value
-  ),
+                            child: InputDate(
+                              label: "To Date",
+                              fromController: _fromDateController,
+                              toController: _toDateController,
+                              isFrom: false,
+                            ),
                           ),
                           SizedBox(width: 2.w),
                           SizedBox(
                             width: 17.5.w,
-                            child: _dropdown(
-                              "Staff",
+                            child: Dropdown(
+                              // "Staff",
                               items: staff,
                               selectedValue: selectedStaff,
                               onChanged: (val) {
@@ -128,6 +129,8 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                                   selectedStaff = val;
                                 });
                               },
+                              label: 'Staff',
+                              hint: 'Select Staff',
                             ),
                           ),
                           SizedBox(width: 2.w),
@@ -255,25 +258,12 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                                 Text(row[4], style: AppTextStyle.medium()),
                                 Text(row[5], style: AppTextStyle.medium()),
                                 Text(row[6], style: AppTextStyle.medium()),
+                                Text(row[7], style: AppTextStyle.medium()),
                                 Center(
                                   child: Icon(
                                     Icons.edit_outlined,
                                     size: 14.sp,
                                     color: Colors.blue,
-                                  ),
-                                ),
-
-                                /// ACTION
-                                Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                    ],
                                   ),
                                 ),
                               ];
@@ -423,75 +413,75 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
     );
   }
 
-  Widget _dropdown(
-    String label, {
-    List<String> items = const [],
-    String? selectedValue,
-    Function(String?)? onChanged,
-    bool enabled = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.black,
-            weight: FontWeight.w500,
-          ),
-        ),
+  // Widget _dropdown(
+  //   String label, {
+  //   List<String> items = const [],
+  //   String? selectedValue,
+  //   Function(String?)? onChanged,
+  //   bool enabled = true,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: AppTextStyle.small(
+  //           size: 11.sp,
+  //           color: AppColors.black,
+  //           weight: FontWeight.w500,
+  //         ),
+  //       ),
 
-        SizedBox(height: 0.5.h),
+  //       SizedBox(height: 0.5.h),
 
-        Container(
-          height: 5.h,
-          padding: EdgeInsets.symmetric(horizontal: 1.w),
-          decoration: _box(),
+  //       Container(
+  //         height: 5.h,
+  //         padding: EdgeInsets.symmetric(horizontal: 1.w),
+  //         decoration: _box(),
 
-          child: DropdownSearch<String>(
-            items: items,
-            selectedItem: selectedValue,
+  //         child: DropdownSearch<String>(
+  //           items: items,
+  //           selectedItem: selectedValue,
 
-            /// ✅ FIX (NO CRASH)
-            enabled: enabled && items.isNotEmpty,
+  //           /// ✅ FIX (NO CRASH)
+  //           enabled: enabled && items.isNotEmpty,
 
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              fit: FlexFit.loose,
-              constraints: const BoxConstraints(maxHeight: 300),
-            ),
+  //           popupProps: PopupProps.menu(
+  //             showSearchBox: true,
+  //             fit: FlexFit.loose,
+  //             constraints: const BoxConstraints(maxHeight: 300),
+  //           ),
 
-            dropdownDecoratorProps: DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                hintText: "Select $label",
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
+  //           dropdownDecoratorProps: DropDownDecoratorProps(
+  //             dropdownSearchDecoration: InputDecoration(
+  //               hintText: "Select $label",
+  //               hintStyle: AppTextStyle.small(
+  //                 size: 11.sp,
+  //                 color: AppColors.grey,
+  //               ),
+  //               border: InputBorder.none,
+  //               contentPadding: EdgeInsets.zero,
+  //             ),
+  //           ),
 
-            dropdownBuilder: (context, selectedItem) {
-              final isHint = selectedItem == null;
+  //           dropdownBuilder: (context, selectedItem) {
+  //             final isHint = selectedItem == null;
 
-              return Text(
-                isHint ? "Select $label" : selectedItem,
-                overflow: TextOverflow.ellipsis,
-                style: isHint
-                    ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                    : AppTextStyle.medium(size: 11.sp),
-              );
-            },
+  //             return Text(
+  //               isHint ? "Select $label" : selectedItem,
+  //               overflow: TextOverflow.ellipsis,
+  //               style: isHint
+  //                   ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
+  //                   : AppTextStyle.medium(size: 11.sp),
+  //             );
+  //           },
 
-            onChanged: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
+  //           onChanged: onChanged,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _viewButton() {
     return SizedBox(
