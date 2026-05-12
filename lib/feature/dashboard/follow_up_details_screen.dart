@@ -1043,6 +1043,7 @@
 
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/core/utils/input_date.dart';
@@ -1065,6 +1066,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
+
+
 
   final List<FollowupEntry> _followups = const [
     FollowupEntry(
@@ -1326,7 +1329,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       Text(text, style: AppTextStyle.small(size: 12, color: Color(0xFF555555)));
 
   Widget _divider() =>
-      const Text('|', style: TextStyle(fontSize: 12, color: Color(0xFFBBBBBB)));
+       Text('|', style: GoogleFonts.poppins(fontSize: 12, color: Color(0xFFBBBBBB)));
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1417,7 +1420,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    _addFollowUpBottom(context);
+                    // _addFollowUpBottom(context, lead);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -1456,302 +1459,133 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       ),
     );
   }
+  // void _addFollowUpBottom(BuildContext context, AddLeadModel lead){
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AppDialog(
+  //       title: 'Add Follow-Up',
+  //        body:  Column(
+  //         children: [
+  //           Row(
+  //             children: [
+  //                Expanded(
+  //                 child: Dropdown(
+  //                   showStar: true,
+  //                   items: [],
+  //                   selectedValue: ,
+  //                   onChanged: (v) {
 
-  void _addFollowUpBottom(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AppDialog(
-        title: 'Add Follow-Up',
-        width: 60.w,
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: InputDate(
-                      label: "Called Date",
-                      fromController: _calledDateCtrl,
-                      toController: _calledDateCtrl,
-                      isFrom: true,
-                    ),
-                  ),
-                  SizedBox(width: 1.w),
-                  Expanded(
-                    child: Dropdown(
-                      showStar: true,
-                      items: [],
-                      selectedValue: _callStatusCtrl.text,
-                      onChanged: (v) {
-                        // _callStatusCtrl.text=v;
-                      },
-                      label: 'Called Status',
-                      hint: 'Select',
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Dropdown(
-                      showHelp: true,
-                      showStar: true,
-                      items: [],
-                      selectedValue: _leadStage,
-                      onChanged: (v) {
-                        // setState(() => _leadStage = v);
-                        // cubit.selectLeadStage(v);
-                      },
-                      label: 'Lead Stage',
-                      hint: 'Select Stages',
-                    ),
-                  ),
-                  SizedBox(width: 1.w),
-                  Expanded(
-                    child: _field(
-                      'Product',
-                      true,
-                      Icons.person_outline,
-                      controller: _productCtrl,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _field(
-                      'Cost',
-                      true,
-                      null,
-                      // Icons.person_outline,
-                      controller: _costCtrl,
-                    ),
-                  ),
-                  SizedBox(width: 1.w),
-                  Expanded(
-                    child: DropdownWithAdd(
-                      label: 'Lead Category',
-                      icon: Icons.layers_outlined,
-                      items: [],
-                      selectedValue: _leadCategory,
-                      onChanged: (v) {
-                        // setState(() => _leadCategory = v);
-                        // cubit.selectCategory(v);
-                      },
-                      // onTap: _showAddCategoryDialog,
-                      onTap: () {},
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Dropdown(
-                      icon: Icons.flag_outlined,
-                      showIcon: true,
-                      showHelp: true,
-                      items: [],
-                      selectedValue: _leadPriority,
-                      onChanged: (v) {
-                        setState(() => _leadPriority = v);
-                        // cubit.selectPriority(v);
-                      },
-                      label: 'Priority',
-                      hint: 'Select Priority',
-                    ),
-                  ),
-                  SizedBox(width: 1.w),
-                  Expanded(
-                    child: _phoneField(
-                      'Whatsapp Number',
-                      false,
-                      Icons.call_outlined,
-                      controller: _WhtsppNoCtrl,
-                      onDialCodeChanged: (c) =>
-                          setState(() => _WhtsppNoCtrl.text = c),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _field(
-                      'Email',
-                      true,
-                      null,
-                      // Icons.person_outline,
-                      controller: _emailCtrl,
-                    ),
-                  ),
-                  SizedBox(width: 1.w),
-                  Expanded(
-                    child: _field(
-                      'Address',
-                      true,
-                      null,
-                      // Icons.person_outline,
-                      controller: _addressm,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _field(
-                      'Remark',
-                      true,
-                      null,
-                      // Icons.person_outline,
-                      controller: _addressm,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  //                   },
+  //                   label: 'Called Status',
+  //                   hint: 'Select',
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           Row(children: [
+  //              Expanded(
+  //                 child: Dropdown(
+  //                   showHelp: true,
+  //                   showStar: true,
+  //                   items: [],
+  //                   selectedValue: _leadStage,
+  //                   onChanged: (v) {
+  //                     // setState(() => _leadStage = v);
+  //                     // cubit.selectLeadStage(v);
+  //                   },
+  //                   label: 'Lead Stage',
+  //                   hint: 'Select Stages',
+  //                 ),
+  //               ),
+  //                Expanded(child: _field(
+  //                   'Product',
+  //                   true,
+  //                   Icons.person_outline,
+  //                   controller: _productCtrl,
+  //                 ),
+  //                )
+  //           ],),
+  //           Row(
+  //             children: [
+  //               Expanded(child: _field(
+  //                   'Cost',
+  //                   true,
+  //                   null,
+  //                   // Icons.person_outline,
+  //                   controller: ,
+  //                 ),
+  //                ),
+  //                 Expanded(child:DropdownWithAdd(
+  //                   label: 'Lead Category',
+  //                   icon: Icons.layers_outlined,
+  //                   items: [],
+  //                   selectedValue: _leadCategory,
+  //                   onChanged: (v) {
+  //                     // setState(() => _leadCategory = v);
+  //                     // cubit.selectCategory(v);
+  //                   },
+  //                   onTap: _showAddCategoryDialog,
+  //                 ),
+  //                ),
+  //             ],
+  //           ),
+  //          Row(
+  //           children: [
 
-  Widget _field(
-    String label,
-    bool required,
-    IconData? icons, {
-    TextEditingController? controller,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _label(label, required, icons),
-        SizedBox(height: 0.5.h),
-        Container(
-          height: 5.h,
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.divider),
-            borderRadius: BorderRadius.circular(4),
-            color: AppColors.greyCard,
-          ),
-          child: TextField(
-            controller: controller,
-            style: AppTextStyle.body(size: 11.sp),
-            decoration: InputDecoration(
-              hintText: label,
-              hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(1.w),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  //           ],
+  //          )
+  //         ],
+  //       ),
 
-  Widget _label(String text, bool required, IconData? icons) {
-    return Row(
-      children: [
-        Icon(icons, size: 12.sp, color: AppColors.green),
-        SizedBox(width: 0.5.w),
-        Text(text, style: AppTextStyle.medium()),
-        if (required)
-          Text(
-            '*',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
-          ),
-      ],
-    );
-  }
-
-  Widget _phoneField(
-    String label,
-    bool required,
-    IconData icons, {
-    TextEditingController? controller,
-    void Function(String)? onDialCodeChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _label(label, required, icons),
-        SizedBox(height: 0.5.h),
-        Row(
-          children: [
-            SizedBox(
-              height: 5.h,
-              width: 7.5.w,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.divider),
-                  borderRadius: BorderRadius.circular(4),
-                  color: AppColors.grey.withValues(alpha: 0.2),
-                ),
-                child: CountryCodePicker(
-                  onChanged: (country) =>
-                      onDialCodeChanged?.call(country.dialCode ?? '+91'),
-                  initialSelection: 'IN',
-                  showCountryOnly: false,
-                  showOnlyCountryWhenClosed: false,
-                  alignLeft: true,
-                  padding: EdgeInsets.zero,
-                  textStyle: AppTextStyle.body(size: 11.sp),
-                  flagWidth: 16,
-                  dialogBackgroundColor: AppColors.white,
-                  dialogSize: Size(30.w, 80.h),
-                  dialogTextStyle: AppTextStyle.body(size: 11.sp),
-                  searchStyle: AppTextStyle.body(size: 11.sp),
-                  searchDecoration: InputDecoration(
-                    hintText: 'Search country',
-                    hintStyle: AppTextStyle.small(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.divider),
-                    ),
-                    contentPadding: EdgeInsets.all(1.w),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 0.25.w),
-            Expanded(
-              child: Container(
-                height: 5.h,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.divider),
-                  borderRadius: BorderRadius.circular(4),
-                  color: AppColors.greyCard,
-                ),
-                child: TextField(
-                  controller: controller,
-                  style: AppTextStyle.body(size: 11.sp),
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: 'Enter number',
-                    hintStyle: AppTextStyle.small(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(1.w),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
+  //     ),
+  //   );
+  // }
+  // Widget _field(
+  //   String label,
+  //   bool required,
+  //   IconData? icons, {
+  //   TextEditingController? controller,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       _label(label, required, icons!),
+  //       SizedBox(height: 0.5.h),
+  //       Container(
+  //         height: 5.h,
+  //         decoration: BoxDecoration(
+  //     border: Border.all(color: AppColors.divider),
+  //     borderRadius: BorderRadius.circular(4),
+  //     color: AppColors.greyCard,
+  //   ),
+  //         child: TextField(
+  //           controller: controller,
+  //           style: AppTextStyle.body(size: 11.sp),
+  //           decoration: InputDecoration(
+  //             hintText: label,
+  //             hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
+  //             border: InputBorder.none,
+  //             contentPadding: EdgeInsets.all(1.w),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+  //  Widget _label(String text, bool required, IconData icons) {
+  //   return Row(
+  //     children: [
+  //       Icon(icons, size: 12.sp, color: AppColors.green),
+  //       SizedBox(width: 0.5.w),
+  //       Text(text, style: AppTextStyle.medium()),
+  //       if (required)
+  //         Text(
+  //           '*',
+  //           style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+  //         ),
+  //     ],
+  //   );
+  // }
   // void _showAddCategoryDialog() {
   //   _dialogNameCtrl.clear();
   //   showDialog(
@@ -1823,10 +1657,7 @@ class _DateGroup extends StatelessWidget {
                 Container(
                   width: 90,
                   height: 90,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 15,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 20),
                   decoration: BoxDecoration(
                     color: const Color(0xFFc1c1c1),
                     // borderRadius: BorderRadius.circular(6),
@@ -1928,16 +1759,16 @@ class _FollowupCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 100),
-          Text(
-            entry.time,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF444444),
-            ),
-          ),
-          SizedBox(height: 25),
+          SizedBox(height: 100,),
+              Text(
+                entry.time,
+                style: AppTextStyle.medium(color: Color(0xFF444444),size: 12)
+                // const TextStyle(
+                //     fontSize: 12,
+                //     fontWeight: FontWeight.w500,
+                //     color: Color(0xFF444444)),
+              ),
+          SizedBox(height: 25,),
           Container(
             width: 550,
             decoration: BoxDecoration(
@@ -1969,14 +1800,11 @@ class _FollowupCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        entry.agent,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Color(0xFF222222),
-                        ),
-                      ),
+                      Text(entry.agent,
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Color(0xFF222222))),
                       const Spacer(),
                       Icon(
                         Icons.edit_outlined,
@@ -2010,21 +1838,16 @@ class _FollowupCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(
+                           SizedBox(
                             width: 90,
-                            child: Text(
-                              'Status',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF555555),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            child: Text('Status',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Color(0xFF555555),
+                                    fontWeight: FontWeight.w500)),
                           ),
-                          const Text(
-                            ': ',
-                            style: TextStyle(color: Color(0xFF555555)),
-                          ),
+                           Text(': ',
+                              style: GoogleFonts.poppins(color: Color(0xFF555555))),
                           const SizedBox(width: 4),
                           _StatusChip(label: entry.status),
                         ],
@@ -2050,20 +1873,15 @@ class _FollowupCard extends StatelessWidget {
         children: [
           SizedBox(
             width: 90,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF555555),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: Text(label,
+                style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Color(0xFF555555),
+                    fontWeight: FontWeight.w500)),
           ),
           Expanded(
-            child: Text(
-              ':  $value',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF333333)),
-            ),
+            child: Text(':  $value',
+                style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF333333))),
           ),
         ],
       ),
@@ -2088,14 +1906,11 @@ class _ActivitiesTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text(
-            'Activities',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF222222),
-            ),
-          ),
+           Text('Activities',
+              style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF222222))),
           const SizedBox(height: 16),
           // ✅ Spread entries as Column children — no ListView
           ...activities.map((a) => _ActivityItem(entry: a)),
@@ -2131,31 +1946,21 @@ class _ActivityItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  entry.agent,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Color(0xFF222222),
-                  ),
-                ),
+                Text(entry.agent,
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Color(0xFF222222))),
                 const SizedBox(height: 3),
-                Text(
-                  entry.description,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF555555),
-                    height: 1.5,
-                  ),
-                ),
+                Text(entry.description,
+                    style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Color(0xFF555555),
+                        height: 1.5)),
                 const SizedBox(height: 4),
-                Text(
-                  entry.dateTime,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF999999),
-                  ),
-                ),
+                Text(entry.dateTime,
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Color(0xFF999999))),
               ],
             ),
           ),
@@ -2174,12 +1979,9 @@ class _DetailsTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(
-      fontSize: 13,
-      color: Color(0xFF888888),
-      fontWeight: FontWeight.w500,
-    );
-    const valueStyle = TextStyle(fontSize: 13, color: Color(0xFF222222));
+    TextStyle labelStyle = GoogleFonts.poppins(
+        fontSize: 13, color: Color(0xFF888888), fontWeight: FontWeight.w500);
+    TextStyle valueStyle = GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222));
 
     return Container(
       color: Colors.white,
@@ -2188,14 +1990,11 @@ class _DetailsTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-          const Text(
-            'Details',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF222222),
-            ),
-          ),
+           Text('Details',
+              style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF222222))),
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
@@ -2229,14 +2028,11 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 12),
-          const Text(
-            'Lead handled staffs',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF222222),
-            ),
-          ),
+           Text('Lead handled staffs',
+              style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF222222))),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -2344,19 +2140,14 @@ class _DetailCell extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$label :',
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF888888),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text('$label :',
+            style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Color(0xFF888888),
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF222222)),
-        ),
+        Text(value,
+            style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222))),
       ],
     );
   }
@@ -2397,30 +2188,19 @@ class _StaffCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF222222),
-                  ),
-                ),
+                Text(name,
+                    style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF222222))),
                 const SizedBox(height: 2),
-                Text(
-                  phone,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF777777),
-                  ),
-                ),
+                Text(phone,
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Color(0xFF777777))),
                 const SizedBox(height: 6),
-                Text(
-                  '$activities Activities',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF555555),
-                  ),
-                ),
+                Text('$activities Activities',
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Color(0xFF555555))),
               ],
             ),
           ),
@@ -2519,4 +2299,6 @@ class _StatusChip extends StatelessWidget {
       ),
     );
   }
+
+
 }

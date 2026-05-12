@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/feature/dashboard/widget/add_leads_button.dart';
 import 'package:sizer/sizer.dart';
@@ -337,77 +338,53 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   Divider(color: AppColors.divider),
 
                   /// 🔹 TABLE CONTROLS
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: 1.h,
-                      left: 2.w,
-                      right: 2.w,
-                      bottom: 1.h,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Show ",
-                              style: AppTextStyle.medium(size: 11.sp),
-                            ),
-                            _smallDropdown(),
-                            Text(
-                              " entries",
-                              style: AppTextStyle.medium(size: 11.sp),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "Search:",
-                              style: AppTextStyle.medium(size: 11.sp),
-                            ),
-                            SizedBox(width: 1.w),
-                            Container(
-                              width: 12.w,
-                              height: 4.h,
-                              decoration: _box(),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  /// 🔹 TABLE HEADER
-                  // Container(
-                  //   margin: EdgeInsets.symmetric(horizontal: 2.w),
-                  //   padding: EdgeInsets.all(0.2.w),
-                  //   color: AppColors.greyCard,
+                  // Padding(
+                  //   padding: EdgeInsets.only(
+                  //     top: 1.h,
+                  //     left: 2.w,
+                  //     right: 2.w,
+                  //     bottom: 1.h,
+                  //   ),
                   //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   //     children: [
-                  //       _checkbox(),
-                  //       _th("#"),
-                  //       _th("Name"),
-                  //       _th("Contact Number"),
-                  //       _th("Lead Category"),
-                  //       _th("Staff"),
-                  //       _th("Status"),
-                  //       _th("Action"),
+                  //       Row(
+                  //         children: [
+                  //           Text(
+                  //             "Show ",
+                  //             style: AppTextStyle.medium(size: 11.sp),
+                  //           ),
+                  //           _smallDropdown(),
+                  //           Text(
+                  //             " entries",
+                  //             style: AppTextStyle.medium(size: 11.sp),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       Row(
+                  //         children: [
+                  //           Text(
+                  //             "Search:",
+                  //             style: AppTextStyle.medium(size: 11.sp),
+                  //           ),
+                  //           SizedBox(width: 1.w),
+                  //           Container(
+                  //             width: 12.w,
+                  //             height: 4.h,
+                  //             decoration: _box(),
+                  //           ),
+                  //         ],
+                  //       ),
                   //     ],
                   //   ),
                   // ),
-                  //
-                  // /// 🔹 EMPTY
-                  // _empty(),
+
+                  ShowEntries(),
+
+                  /// 🔹 TABLE HEADER
 
                   Expanded(child: _buildTable()),
-                  // _buildTableHeader(),
-                  // SizedBox(
-                  //   height: MediaQuery.of(context).size.height,
-                  //     child: _buildTableBody()),
-
                   Divider(color: AppColors.divider),
-
                   /// 🔹 FOOTER
                   Padding(
                     padding: EdgeInsets.symmetric(
@@ -597,78 +574,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           style: AppTextStyle.small(size: 10.sp, color: Colors.white),
         ),
       ),
-    );
-  }
-
-  Widget _topButton(String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 1.5.w, vertical: 1.2.h),
-      decoration: BoxDecoration(
-        color: AppColors.greenLight,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(text, style: AppTextStyle.small(color: AppColors.green)),
-    );
-  }
-
-  Widget _checkbox() {
-    return SizedBox(
-      width: 4.w,
-      child: Checkbox(value: false, onChanged: (_) {}),
-    );
-  }
-
-  Widget _th(String text) {
-    return Expanded(
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: AppTextStyle.medium(size: 11.sp),
-      ),
-    );
-  }
-
-  Widget _empty() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.h),
-      child: Text(
-        "No data available in table",
-        style: AppTextStyle.medium(size: 10.sp),
-      ),
-    );
-  }
-
-  Widget _smallDropdown() {
-    return Container(
-      width: 4.2.w,
-      height: 4.h,
-      decoration: _box(),
-      alignment: Alignment.center,
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedValue,
-          isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, size: 16),
-          onChanged: (v) {
-            setState(() => selectedValue = v!);
-          },
-          items: dropdownItems
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _pagination(String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-      margin: EdgeInsets.only(left: 1.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGrey),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(text, style: AppTextStyle.small(color: AppColors.grey)),
     );
   }
 
