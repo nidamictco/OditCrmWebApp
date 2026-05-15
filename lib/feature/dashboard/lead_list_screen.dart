@@ -182,7 +182,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         child: Column(
           // shrinkWrap: true,
           children: [
-            TopBreadcrumbBar(title: 'Dashboard', subTitle: 'New Leads'),
+            TopBreadcrumbBar(title: 'DASHBOARD', subTitle: widget.fromCard.toUpperCase()),
         
             Padding(
               padding: EdgeInsets.all(2.w),
