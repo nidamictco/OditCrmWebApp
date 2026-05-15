@@ -429,12 +429,6 @@ class _ViewStaffState extends State<ViewStaff> {
       );
     }
 
-    //  final List<StaffModel> rawList = state is StaffListLoaded
-    //       ? state.staffList
-    //       : [];
-
-    //   final List<StaffModel> staffList = _filtered(rawList);
-
     final List<StaffModel> rawList = state is StaffListLoaded
         ? state.staffList
         : [];
@@ -499,29 +493,26 @@ class _ViewStaffState extends State<ViewStaff> {
               Text(createdAt, style: AppTextStyle.medium()),
               Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                MainScreen(selectedIndex: 15, staff: staff),
-                          ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MainScreen(selectedIndex: 15, staff: staff),
                         ),
-                        child: Tooltip(
-                          message: 'Edit',
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 14.sp,
-                            color: Colors.blue,
-                          ),
+                      ),
+                      child: Tooltip(
+                        message: 'Edit',
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: 14.sp,
+                          color: Colors.blue,
                         ),
                       ),
                     ),
-                    SizedBox(width: 0.4.w),
+
                     Center(
                       child: GestureDetector(
                         onTap: () {
@@ -539,26 +530,54 @@ class _ViewStaffState extends State<ViewStaff> {
                             color: Colors.blue.shade900,
                             borderRadius: BorderRadius.circular(1),
                           ),
-                          child: Icon(
-                            Icons.ads_click_outlined,
-                            size: 10.sp,
-                            color: Colors.white,
+                          child: Tooltip(
+                            message: 'View profile',
+                            child: Icon(
+                              Icons.ads_click_outlined,
+                              size: 10.sp,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 0.4.w),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
+                    SizedBox(width: 0.1.w),
+                    Center(
                       child: GestureDetector(
-                        onTap: () => _confirmDelete(context, staff),
-                        child: Tooltip(
-                          message: 'Delete',
-                          child: Icon(
-                            Icons.delete_outline,
-                            size: 14.sp,
-                            color: Colors.red,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  MainScreen(selectedIndex: 32),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(0.1.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(1),
                           ),
+                          child: Tooltip(
+                            message: 'Change Password',
+                            child: Icon(
+                              Icons.vpn_key_outlined,
+                              size: 10.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _confirmDelete(context, staff),
+                      child: Tooltip(
+                        message: 'Delete',
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 14.sp,
+                          color: Colors.red,
                         ),
                       ),
                     ),

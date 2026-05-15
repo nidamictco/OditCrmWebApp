@@ -328,7 +328,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           Text(deletedAt, style: AppTextStyle.medium()),
           // ─── Action: Restore button ──────────────────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Center(
                 child: MouseRegion(

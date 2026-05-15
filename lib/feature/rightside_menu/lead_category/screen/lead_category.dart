@@ -71,48 +71,52 @@ class _LeadCategoryState extends State<LeadCategory> {
       builder: (ctx) {
         return AppDialog(
           title: 'Add Lead Category',
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /// Lead Category
-              const Text("Lead Category"),
-              const SizedBox(height: 8),
-              TextField(
-                style:AppTextStyle.medium(weight: FontWeight.w400) ,
-                controller: categoryController,
-                decoration: InputDecoration(
-                  hintText: "Enter Category",
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              /// Cost
-              const Text("Cost"),
-              const SizedBox(height: 8),
-              TextField(
-                style:AppTextStyle.medium(weight: FontWeight.w400) ,
-                controller: costController,
-                decoration: InputDecoration(
-                  hintText: "Enter Cost",
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
+          width: 35.w,
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// Lead Category
+                const Text("Lead Category"),
+                const SizedBox(height: 8),
+                TextField(
+                  style: AppTextStyle.medium(weight: FontWeight.w400),
+                  controller: categoryController,
+                  decoration: InputDecoration(
+                    hintText: "Enter Category",
+                    hintStyle: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
-              ),
-            ],
+            
+                const SizedBox(height: 16),
+            
+                /// Cost
+                const Text("Cost"),
+                const SizedBox(height: 8),
+                TextField(
+                  style: AppTextStyle.medium(weight: FontWeight.w400),
+                  controller: costController,
+                  decoration: InputDecoration(
+                    hintText: "Enter Cost",
+                    hintStyle: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           onSubmit: () async {
             final name = categoryController.text.trim();
@@ -311,7 +315,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                               builder: (context, state) {
                                 return Row(
                                   children: [
-                                    _actionBtn( 
+                                    _actionBtn(
                                       0,
                                       "Add New",
                                       AppColors.greenLight,
@@ -501,7 +505,10 @@ class _LeadCategoryState extends State<LeadCategory> {
                                   child: TextField(
                                     onChanged: (v) =>
                                         setState(() => _searchQuery = v),
-                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
+                                    style: AppTextStyle.small(
+                                      size: 10.sp,
+                                      color: AppColors.black,
+                                    ),
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -570,7 +577,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                         )
                                       : Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.start,
                                           children: [
                                             // 🔹 Edit — opens edit dialog
                                             GestureDetector(
@@ -581,6 +588,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                 color: Colors.blue,
                                               ),
                                             ),
+                                            SizedBox(width: 1.w),
                                             // 🔹 Delete — opens confirm dialog
                                             GestureDetector(
                                               onTap: () => _confirmDelete(cat),

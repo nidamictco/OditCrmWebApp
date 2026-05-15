@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/input_date.dart';
+import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
@@ -23,21 +25,6 @@ class DeleteLeads extends StatefulWidget {
 class _DeleteLeadsState extends State<DeleteLeads> {
   final TextEditingController _fromDateController = TextEditingController();
   final TextEditingController _toDateController = TextEditingController();
-  final List<String> leadCategory = [
-    "Select lead Type ",
-    "Need Further Followup",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-
-  final List<String> assingedStaff = ["John", "Doe", "Smith", "Alice", "Bob"];
-  final List<String> leadSource = ["Direct Entry", "ADS", "Whatsapp"];
-  final List<String> deletedBy = ["John", "Doe", "Smith", "Alice", "Bob"];
 
   String? selectedCategory;
   String? selectedSource;
@@ -47,10 +34,22 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   String _searchQuery = '';
   String _selectedEntries = '10';
 
+  List<int> _selectedIndices = [];
+  int _tableKey = 0;
+  int _currentPage = 1;
+
   @override
   void initState() {
     super.initState();
     context.read<AddLeadCubit>().fetchDeletedLeads();
+    context.read<AddLeadCubit>().fetchStaff();
+    // context.read<AddLeadCubit>().fetchLeads();
+    context.read<AddLeadCubit>().initialize();
+
+    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
 
   @override
@@ -60,8 +59,105 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     super.dispose();
   }
 
+  String? _appliedCategory;
+  String? _appliedSource;
+  String? _appliedStaff;
+  String? _appliedDeletedBy;
+  DateTime? _appliedFromDate;
+  DateTime? _appliedToDate;
+
+  // ── Called ONLY when "View" is tapped ───────────────────────────────────────
+  void _applyFilters() {
+    setState(() {
+      _appliedCategory = selectedCategory;
+      _appliedSource = selectedSource;
+      _appliedStaff = selectedAssignedStaff;
+      _appliedDeletedBy = selectedDeletedBy;
+      _appliedFromDate = _parseDate(_fromDateController.text);
+      _appliedToDate = _parseDate(_toDateController.text);
+      _resetPage();
+    });
+  }
+
+  DateTime? _parseDate(String text) {
+    try {
+      return DateFormat('dd-MM-yyyy').parse(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Skip placeholder "Select …" values ──────────────────────────────────────
+  bool _isPlaceholder(String? val) =>
+      val == null ||
+      val.trim().isEmpty ||
+      val.toLowerCase().startsWith('select');
+
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
+
+    // ── Date range ─────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .toList();
+    }
+
+    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
+
+    // ── Lead Source — stored UPPERCASE in Firestore ───────────────────────────
+    if (!_isPlaceholder(_appliedSource)) {
+      final source = _appliedSource!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadSource.toUpperCase() == source)
+          .toList();
+    }
+
+    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    if (!_isPlaceholder(_appliedStaff)) {
+      result = result
+          .where(
+            (l) =>
+                l.assignedStaff.toLowerCase() ==
+                _appliedStaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Deleted By — stored as-is ─────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedDeletedBy)) {
+      result = result
+          .where(
+            (l) =>
+                l.assignedStaff.toLowerCase() ==
+                _appliedDeletedBy!.trim().toLowerCase(),
+          )
+          .toList();
+    }
 
     // Search filter
     final q = _searchQuery.trim().toLowerCase();
@@ -78,85 +174,36 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     // Entries limit
     final limit = int.tryParse(_selectedEntries) ?? 10;
     return result.take(limit).toList();
+  }
 
-    // // Date filter
-    // final fromDate = _fromDateController.text.trim();
-    // final toDate = _toDateController.text.trim();
+  List<AddLeadModel> _pagedLeads(List<AddLeadModel> allFiltered) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    final start = (_currentPage - 1) * limit;
+    final end = (start + limit).clamp(0, allFiltered.length);
+    if (start >= allFiltered.length) return [];
+    return allFiltered.sublist(start, end);
+  }
 
-    // if (fromDate.isNotEmpty || toDate.isNotEmpty) {
-    //   result = result.where((lead) {
-    //     final leadDateStr = lead.date;
-    //     if (leadDateStr == null || leadDateStr.isEmpty) return false;
+  int _totalPages(int totalCount) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    if (totalCount == 0) return 1;
+    return (totalCount / limit).ceil();
+  }
 
-    //     final leadDate = DateTime.tryParse(leadDateStr.split('T')[0]);
-    //     if (leadDate == null) return false;
+  void _goToPage(int page, int total) {
+    final tp = _totalPages(total);
+    if (page < 1 || page > tp) return;
+    setState(() {
+      _currentPage = page;
+      _selectedIndices = [];
+      _tableKey++;
+    });
+  }
 
-    //     if (fromDate.isNotEmpty) {
-    //       final fDate = DateTime.tryParse(fromDate);
-    //       if (fDate != null && leadDate.isBefore(fDate)) return false;
-    //     }
-    //     if (toDate.isNotEmpty) {
-    //       final tDate = DateTime.tryParse(toDate);
-    //       if (tDate != null && leadDate.isAfter(tDate)) return false;
-    //     }
-
-    //     return true;
-    //   }).toList();
-    // }
-
-    // // Category filter
-    // if (selectedCategory != null &&
-    //     selectedCategory != "Select lead Type " &&
-    //     selectedCategory != "All") {
-    //   result = result
-    //       .where(
-    //         (lead) =>
-    //             (lead.category ?? '').toLowerCase() ==
-    //             selectedCategory!.toLowerCase(),
-    //       )
-    //       .toList();
-    // }
-
-    // // Source filter
-    // if (selectedSource != null &&
-    //     selectedSource != "Select Source" &&
-    //     selectedSource != "All") {
-    //   result = result
-    //       .where(
-    //         (lead) =>
-    //             (lead.leadSource ?? '').toLowerCase() ==
-    //             selectedSource!.toLowerCase(),
-    //       )
-    //       .toList();
-    // }
-
-    // // Assigned staff filter
-    // if (selectedAssignedStaff != null &&
-    //     selectedAssignedStaff != "Select Staff" &&
-    //     selectedAssignedStaff != "All") {
-    //   result = result
-    //       .where(
-    //         (lead) =>
-    //             (lead.assigned ?? '').toLowerCase() ==
-    //             selectedAssignedStaff!.toLowerCase(),
-    //       )
-    //       .toList();
-    // }
-
-    // // Deleted by filter
-    // if (selectedDeletedBy != null &&
-    //     selectedDeletedBy != "Select Deleted By" &&
-    //     selectedDeletedBy != "All") {
-    //   result = result
-    //       .where(
-    //         (lead) =>
-    //             (lead.deletedBy ?? '').toLowerCase() ==
-    //             selectedDeletedBy!.toLowerCase(),
-    //       )
-    //       .toList();
-    // }
-
-    // return result;
+  void _resetPage() {
+    _currentPage = 1;
+    _selectedIndices = [];
+    _tableKey++;
   }
 
   @override
@@ -234,131 +281,191 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                         Divider(color: AppColors.divider),
 
                         /// FILTERS
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 2.w,
-                            right: 2.w,
-                            top: 2.w,
-                            bottom: 1.h,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                 Expanded(
-  child: InputDate(
-    label: "From Date",
-    fromController: _fromDateController,
-    toController: _toDateController,
-    isFrom: true,  // shows fromDate value
-  ),
-),
-SizedBox(width: 2.w),
-Expanded(
-  child: InputDate(
-    label: "To Date",
-    fromController: _fromDateController,
-    toController: _toDateController,
-    isFrom: false, // shows toDate value
-  ),
-),
-SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: Dropdown(
-                                      showHelp: true,
-                                      items: leadCategory,
-                                      selectedValue: selectedCategory,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedCategory = val;
-                                        });
-                                      },
-                                      label: "Lead Category",
-                                      hint: 'Select Lead Category',
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: Dropdown(
-                                      label: "Lead Source",
-                                      hint: 'Select Lead Source',
-                                      showHelp: true,
-                                      items: leadSource,
-                                      selectedValue: selectedSource,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedSource = val;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
+                        BlocBuilder<AddLeadCubit, AddLeadState>(
+                          builder: (context, state) {
+                            final categoryItems = state.categories
+                                .map((e) => e.name)
+                                .toList();
+                            final sourceItems = state.sources
+                                .map((e) => e.name)
+                                .toList();
+                            // final stageItems = state.stages
+                            //     .map((e) => e.name)
+                            //     .toList();
+                            final staffItems = state.staffList
+                                .map((e) => e.name)
+                                .toList();
+                            final deletedByItems = state.staffList
+                                .map((e) => e.name)
+                                .toList();
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                left: 2.w,
+                                right: 2.w,
+                                top: 2.w,
+                                bottom: 1.h,
                               ),
-
-                              SizedBox(height: 1.h),
-
-                              Row(
+                              child: Column(
                                 children: [
-                                  SizedBox(
-                                    width: 17.45.w,
-                                    child: Dropdown(
-                                      label: "Assigned Staff",
-                                      hint: 'Select Assigned Staff',
-                                      items: assingedStaff,
-                                      selectedValue: selectedAssignedStaff,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedAssignedStaff = val;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  SizedBox(
-                                    width: 17.45.w,
-                                    child: Dropdown(
-                                      label: "Deleted By",
-                                      hint: 'Select Deleted By',
-                                      showHelp: true,
-                                      items: deletedBy,
-                                      selectedValue: selectedDeletedBy,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedDeletedBy = val;
-                                        });
-                                      },
-                                      message: '.',
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 2.h),
-                                    child: SizedBox(
-                                      width: 7.w,
-                                      height: 4.5.h,
-                                      child: DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xff1BAA90),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: InputDate(
+                                          label: "From Date",
+                                          fromController: _fromDateController,
+                                          toController: _toDateController,
+                                          isFrom: true, // shows fromDate value
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            "View",
-                                            style: AppTextStyle.small(
-                                              size: 10.sp,
-                                              color: Colors.white,
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: InputDate(
+                                          label: "To Date",
+                                          fromController: _fromDateController,
+                                          toController: _toDateController,
+                                          isFrom: false, // shows toDate value
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: Dropdown(
+                                          showHelp: true,
+                                          items: categoryItems,
+                                          selectedValue: selectedCategory,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              selectedCategory = val;
+                                            });
+                                          },
+                                          label: "Lead Category",
+                                          hint: 'Select Lead Category',
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: Dropdown(
+                                          label: "Lead Source",
+                                          hint: 'Select Lead Source',
+                                          showHelp: true,
+                                          items: sourceItems,
+                                          selectedValue: selectedSource,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              selectedSource = val;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: 1.h),
+
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 17.45.w,
+                                        child: Dropdown(
+                                          label: "Assigned Staff",
+                                          hint: 'Select Assigned Staff',
+                                          items: staffItems,
+                                          selectedValue: selectedAssignedStaff,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              selectedAssignedStaff = val;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      SizedBox(
+                                        width: 17.45.w,
+                                        child: Dropdown(
+                                          label: "Deleted By",
+                                          hint: 'Select Deleted By',
+                                          showHelp: true,
+                                          items: deletedByItems,
+                                          selectedValue: selectedDeletedBy,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              selectedDeletedBy = val;
+                                            });
+                                          },
+                                          message: '.',
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () => _applyFilters(),
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 2.h),
+                                          child: SizedBox(
+                                            width: 7.w,
+                                            height: 4.5.h,
+                                            child: DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xff1BAA90),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  "View",
+                                                  style: AppTextStyle.small(
+                                                    size: 10.sp,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(width: 1.w),
+                                      if (selectedCategory != null ||
+                                          selectedSource != null ||
+                                          selectedAssignedStaff != null ||
+                                          selectedDeletedBy != null)
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedCategory = null;
+                                              selectedSource = null;
+                                              selectedAssignedStaff = null;
+                                              selectedDeletedBy = null;
+                                              _resetPage();
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 7.w,
+                                            height: 4.5.h,
+                                            padding: EdgeInsets.all(1.h),
+                                            margin: EdgeInsets.only(top: 2.h),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.orange,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              'Reset Filters',
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
 
                         Divider(color: AppColors.divider),
@@ -374,9 +481,6 @@ SizedBox(width: 2.w),
                         ),
 
                         _buildTavbleSection(state),
-
-                        ///FOOTER
-                        Footer(),
 
                         SizedBox(height: 2.h),
                       ],
@@ -444,104 +548,165 @@ SizedBox(width: 2.w),
 
     final List<AddLeadModel> rawList =
         leadState.listStatus == LeadListStatus.loaded ? leadState.leads : [];
-    final List<AddLeadModel> filteredList = _filteredLeads(rawList);
-    // // Empty state
-    // if (filteredList.isEmpty) {
-    //   return Padding(
-    //     padding: EdgeInsets.symmetric(vertical: 6.h),
-    //     child: Center(
-    //       child: Column(
-    //         mainAxisSize: MainAxisSize.min,
-    //         children: [
-    //           Icon(
-    //             Icons.delete_outline,
-    //             color: Colors.grey.shade400,
-    //             size: 20.sp,
-    //           ),
-    //           SizedBox(height: 1.h),
-    //           Text(
-    //             'No deleted leads found.',
-    //             style: AppTextStyle.medium(color: Colors.grey.shade500),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   );
-    // }
-    return SizedBox(
-      child: CustomTable(
-        columns: [
-          TableColumn(title: "#", flex: 1),
-          TableColumn(title: "Name", flex: 4),
-          TableColumn(title: "Contact Number", flex: 4),
-          TableColumn(title: "Lead Category", flex: 4),
-          TableColumn(title: "Assigned Staff", flex: 4),
-          TableColumn(title: "Lead Status", flex: 4),
-          // TableColumn(title: "Last Called", flex: 4),
-          TableColumn(title: "Delete Date", flex: 4),
-          TableColumn(title: "Deleted By", flex: 4),
-          TableColumn(title: "Action", flex: 2),
-        ],
-        rows: filteredList.asMap().entries.map((entry) {
-          final index = entry.key;
-          final lead = entry.value;
-          final deletedAt = lead.createdAt != null
-              ? '${lead.createdAt!.day.toString().padLeft(2, '0')}/'
-                    '${lead.createdAt!.month.toString().padLeft(2, '0')}/'
-                    '${lead.createdAt!.year}'
-              : '—';
-          return [
-            Text('${index + 1}', style: AppTextStyle.medium()),
-            Text(lead.clientName, style: AppTextStyle.medium()),
-            Text(lead.contactNumber, style: AppTextStyle.medium()),
-            Text(lead.leadCategory, style: AppTextStyle.medium()),
-            Text(lead.assignedStaff, style: AppTextStyle.medium()),
-            Text(lead.leadStage, style: AppTextStyle.medium()),
-            // Text(lead.lastCalled, style: AppTextStyle.medium()),
-            Text(deletedAt, style: AppTextStyle.medium()),
-            Text(lead.assignedStaff ?? "—", style: AppTextStyle.medium()),
+    // final List<AddLeadModel> filteredList = _filteredLeads(rawList);
+    final allFiltered = _filteredLeads(rawList);
+    final totalCount = allFiltered.length;
+    final totalPages = _totalPages(totalCount);
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    if (_currentPage > totalPages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _currentPage = totalPages);
+      });
+    }
+    final pagedList = _pagedLeads(allFiltered);
 
-            /// ACTION
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    // "Showing X to Y of Z entries"
+    final showFrom = totalCount == 0 ? 0 : (_currentPage - 1) * limit + 1;
+    final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
+    return Column(
+      children: [
+        SizedBox(
+          child: CustomTable(
+            columns: [
+              TableColumn(title: "#", flex: 1),
+              TableColumn(title: "Name", flex: 4),
+              TableColumn(title: "Contact Number", flex: 4),
+              TableColumn(title: "Lead Category", flex: 4),
+              TableColumn(title: "Assigned Staff", flex: 4),
+              TableColumn(title: "Lead Status", flex: 4),
+              // TableColumn(title: "Last Called", flex: 4),
+              TableColumn(title: "Delete Date", flex: 4),
+              TableColumn(title: "Deleted By", flex: 4),
+              TableColumn(title: "Action", flex: 2),
+            ],
+            rows: pagedList.asMap().entries.map((entry) {
+              final index = entry.key;
+              final lead = entry.value;
+              final deletedAt = lead.deletedAt != null
+                  ? '${lead.deletedAt!.day.toString().padLeft(2, '0')}/'
+                        '${lead.deletedAt!.month.toString().padLeft(2, '0')}/'
+                        '${lead.deletedAt!.year}'
+                  : '—';
+              return [
+                Text('${index + 1}', style: AppTextStyle.medium()),
+                Text(lead.clientName, style: AppTextStyle.medium()),
+                Text(lead.contactNumber, style: AppTextStyle.medium()),
+                Text(lead.leadCategory, style: AppTextStyle.medium()),
+                Text(lead.assignedStaff, style: AppTextStyle.medium()),
+                Text(lead.leadStage, style: AppTextStyle.medium()),
+                // Text(lead.lastCalled, style: AppTextStyle.medium()),
+                Text(deletedAt, style: AppTextStyle.medium()),
+                Text(lead.assignedStaff ?? "—", style: AppTextStyle.medium()),
+
+                /// ACTION
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _confirmRestore(context, lead),
+                        child: Tooltip(
+                          message: 'Restore',
+                          child: Icon(
+                            Icons.restore,
+                            size: 14.sp,
+                            color: AppColors.green,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 0.5.w),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _confirmDelete(context, lead),
+                        child: Tooltip(
+                          message: 'Delete',
+                          child: Icon(
+                            Icons.delete_outline,
+                            size: 14.sp,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ];
+            }).toList(),
+          ),
+        ),
+
+        /// 🔹 FOOTER
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Showing $showFrom to $showTo of $totalCount entries",
+                style: AppTextStyle.medium(weight: FontWeight.w400),
+              ),
+              Row(
                 children: [
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => _confirmRestore(context, lead),
-                      child: Tooltip(
-                        message: 'Restore',
-                        child: Icon(
-                          Icons.restore,
-                          size: 14.sp,
-                          color: AppColors.green,
-                        ),
-                      ),
-                    ),
+                  PageButton(
+                    label: 'Previous',
+                    enabled: _currentPage > 1,
+                    isLeft: true,
+                    onTap: () => _goToPage(_currentPage - 1, totalCount),
                   ),
-                  // SizedBox(width: 0.1.w),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => _confirmDelete(context, lead),
-                      child: Tooltip(
-                        message: 'Delete',
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 14.sp,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
+                  ..._buildPageNumbers(totalPages, totalCount),
+                  PageButton(
+                    label: 'Next',
+                    enabled: _currentPage < totalPages,
+                    isRight: true,
+                    onTap: () => _goToPage(_currentPage + 1, totalCount),
                   ),
                 ],
               ),
-            ),
-          ];
-        }).toList(),
-      ),
+            ],
+          ),
+        ),
+      ],
     );
+  }
+
+  // ── Page number chips ───────────────────────
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
+
+    final List<Widget> widgets = [];
+
+    // Show at most 5 page buttons centered around current page
+    int start = (_currentPage - 2).clamp(1, totalPages);
+    int end = (start + 4).clamp(1, totalPages);
+    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
+
+    for (int page = start; page <= end; page++) {
+      final isActive = page == _currentPage;
+      widgets.add(
+        GestureDetector(
+          onTap: () => _goToPage(page, totalCount),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.primary : AppColors.white,
+              border: Border.all(color: AppColors.lightGrey),
+            ),
+            child: Text(
+              '$page',
+              style: AppTextStyle.small(
+                size: 11.sp,
+                color: isActive ? AppColors.white : AppColors.grey,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
   }
 
   // ─── Restore confirmation dialog ───────────────────────────────────────────

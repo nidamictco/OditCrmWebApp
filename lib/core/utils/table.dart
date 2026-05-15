@@ -118,12 +118,13 @@ class _CustomTableState extends State<CustomTable> {
       ),
       child: Row(
         children: [
-          // 🔹 Checkbox header placeholder (keeps alignment)
+          SizedBox(width: 1.5.w),
+          // Checkbox header placeholder (keeps alignment)
           if (widget.showCheckboxes)
             SizedBox(
               width: 5.w,
               child: Container(
-                alignment: Alignment.center,
+                alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 2.h),
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: AppColors.divider)),
@@ -137,21 +138,15 @@ class _CustomTableState extends State<CustomTable> {
               ),
             ),
 
-          // 🔹 Regular column headers
+          // Regular column headers
           ...List.generate(widget.columns.length, (index) {
             final col = widget.columns[index];
             return Expanded(
               flex: col.flex,
               child: Container(
-                alignment: Alignment.center,
+                alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(vertical: 2.h),
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: index == widget.columns.length - 1
-                        ? BorderSide.none
-                        : BorderSide(color: AppColors.divider),
-                  ),
-                ),
+                decoration: BoxDecoration(),
                 child: Text(
                   col.title,
                   style: AppTextStyle.medium(weight: FontWeight.w600),
@@ -164,7 +159,7 @@ class _CustomTableState extends State<CustomTable> {
     );
   }
 
-  /// 🔹 ROWS
+  /// ROWS
   List<Widget> _buildRows() {
     return List.generate(widget.rows.length, (rowIndex) {
       return Container(
@@ -174,15 +169,16 @@ class _CustomTableState extends State<CustomTable> {
         ),
         child: Row(
           children: [
+            SizedBox(width: 1.5.w),
             // 🔹 Checkbox cell
             if (widget.showCheckboxes)
               SizedBox(
                 width: 5.w,
                 child: Container(
-                  alignment: Alignment.center,
+                  alignment: Alignment.centerLeft,
                   padding: EdgeInsets.symmetric(vertical: 1.h),
                   decoration: BoxDecoration(
-                    border: Border(right: BorderSide(color: AppColors.divider)),
+                    // border: Border(right: BorderSide(color: AppColors.divider)),
                   ),
                   child: Checkbox(
                     value: _checkedStates[rowIndex],
@@ -200,13 +196,13 @@ class _CustomTableState extends State<CustomTable> {
               return Expanded(
                 flex: widget.columns[colIndex].flex,
                 child: Container(
-                  alignment: Alignment.center,
+                  alignment: Alignment.centerLeft,
                   padding: EdgeInsets.symmetric(vertical: 2.h),
                   decoration: BoxDecoration(
                     border: Border(
-                      right: colIndex == widget.columns.length - 1
-                          ? BorderSide.none
-                          : BorderSide(color: AppColors.divider),
+                      // right: colIndex == widget.columns.length - 1
+                      //     ? BorderSide.none
+                      //     : BorderSide(color: AppColors.divider),
                     ),
                   ),
                   child: widget.rows[rowIndex][colIndex],

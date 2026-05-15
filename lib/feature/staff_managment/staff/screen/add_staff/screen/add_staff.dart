@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/inputfield_for_psswrd.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
@@ -36,6 +37,7 @@ class _AddStaffState extends State<AddStaff> {
   final _openingBalDateCtrl = TextEditingController();
   final _joiningDateCtrl = TextEditingController();
 
+  final bool _hidePassword = true;
   // ─── State ────────────────────────────────────────────────────────────────
   bool _salaryAccount = true;
   bool _pettyCash = false;
@@ -250,16 +252,18 @@ class _AddStaffState extends State<AddStaff> {
               title: _isEditMode ? 'Edit Staff' : 'Add Staff',
               current: _isEditMode ? 'Edit Staff' : 'Add Staff',
               parent: 'Staff Management',
-              parent2: _isEditMode? 'View Staff' : '',
-              onPressed: _isEditMode? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MainScreen(selectedIndex: 16),
-                  ),
-                );
-              } : null,
-              parent2True: _isEditMode?true:false,
+              parent2: _isEditMode ? 'View Staff' : '',
+              onPressed: _isEditMode
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreen(selectedIndex: 16),
+                        ),
+                      );
+                    }
+                  : null,
+              parent2True: _isEditMode ? true : false,
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
@@ -317,12 +321,11 @@ class _AddStaffState extends State<AddStaff> {
           hint: 'Enter Full Name',
           controller: _nameCtrl,
         ),
-        InputField(
+        InputFieldForPsswrd(
           label: 'Password',
           showStar: true,
           hint: 'Password',
           controller: _passwordCtrl,
-          isPassword: true,
         ),
         Dropdown(
           label: 'Staff Type',

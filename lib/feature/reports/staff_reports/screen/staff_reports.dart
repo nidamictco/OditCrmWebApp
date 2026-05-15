@@ -283,28 +283,26 @@ final q = _searchQuery.trim().toLowerCase();
                                       Text(staff.name, style: AppTextStyle.medium()),
                                       Text(staff.phone, style: AppTextStyle.medium()),
                                       Text(staff.designation ?? '---', style: AppTextStyle.medium()),
-                                      Center(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MainScreen(selectedIndex: 29),
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(0.1.w),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.shade900,
-                                              borderRadius: BorderRadius.circular(6),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MainScreen(selectedIndex: 29),
                                             ),
-                                            child: Icon(
-                                              Icons.ads_click_outlined,
-                                              size: 14.sp,
-                                              color: Colors.white,
-                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(0.1.w),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.shade900,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Icon(
+                                            Icons.ads_click_outlined,
+                                            size: 14.sp,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),

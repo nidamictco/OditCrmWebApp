@@ -8,12 +8,14 @@ import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/auth_gate.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
+// import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await initializeDateFormatting('en_US', '');
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,

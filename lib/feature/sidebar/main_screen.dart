@@ -53,6 +53,7 @@ import 'package:oxdo/feature/staff_managment/designation/cubit/designation_cubit
 import 'package:oxdo/feature/staff_managment/designation/model/designation_model.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/designation_screen.dart';
+import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/psswrd.dart';
 import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/view_staff.dart';
 
 import '../dashboard/follow_up_details_screen.dart';
@@ -69,7 +70,7 @@ class MainScreen extends StatefulWidget {
     this.designation,
     this.staff,
     this.lead,
-    this.fromCard
+    this.fromCard,
   });
 
   @override
@@ -100,13 +101,20 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return DashboardScreen();
       case 1:
-        return BlocProvider(
-          create: (_) => AddLeadCubit(
-            leadRepository: AddLeadRepository(),
-            categoryRepository: LeadCategoryRepository(),
-            sourceRepository: LeadSourceRepository(),
-          ),
-          child: AddLeadPage(lead: widget.lead),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => AddLeadCubit(
+                leadRepository: AddLeadRepository(),
+                categoryRepository: LeadCategoryRepository(),
+                sourceRepository: LeadSourceRepository(),
+              ),
+            ),
+            BlocProvider(create: (context) => LeadCategoryCubit()),
+            BlocProvider(create: (context) => LeadSourceCubit()),
+            BlocProvider(create: (context) => LeadStageCubit()),
+          ],
+          child: AddLeadPage(lead: widget.lead), 
         );
       case 2:
         return BlocProvider(
@@ -165,7 +173,7 @@ class _MainScreenState extends State<MainScreen> {
       case 12:
         return BlocProvider(
           create: (context) => AddLeadCubit()..fetchLeads(),
-          child: NewLeadsPage(fromCard: widget.fromCard??"",),
+          child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
         );
 
       case 13:
@@ -240,7 +248,12 @@ class _MainScreenState extends State<MainScreen> {
       case 30:
         return TimeLine();
       case 31:
-        return FollowUpDetailsScreen();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: FollowUpDetailsScreen(),
+        );
+      case 32:
+        return ChangePasswordScreen();
       default:
         return const SizedBox();
     }
