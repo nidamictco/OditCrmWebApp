@@ -347,8 +347,10 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
-
-                                  SizedBox(width: 2.w),
+                                ],
+                              ),
+                              Row(
+                                children: [
                                   InkWell(
                                     onTap: () => _applyFilters(),
                                     child: Padding(
@@ -376,7 +378,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 2.w),
+                                  SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
                                       selectedStatus != null)

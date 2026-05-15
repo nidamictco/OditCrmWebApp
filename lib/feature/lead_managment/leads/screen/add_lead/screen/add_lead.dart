@@ -12,6 +12,7 @@ import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
@@ -699,6 +700,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
+        width: 35.w,
         title: 'Add Lead Category',
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -724,6 +726,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         onSubmit: () async {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
+          context.read<LeadCategoryCubit>().addCategory(name: name);
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -742,6 +745,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
+        width: 35.w,
         title: 'Add Lead Source',
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -61,8 +61,7 @@ class _LeadsReportState extends State<LeadsReport> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
 
-  
-// ── Snapshot fields (add alongside your existing selected* fields) ──────────
+  // ── Snapshot fields (add alongside your existing selected* fields) ──────────
   String? _appliedCategory;
   String? _appliedLeadStage;
   String? _appliedPriority;
@@ -515,7 +514,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
-
+                                ],
+                              ),
+                              Row(
+                                children: [
                                   /// 🔥 VIEW BUTTON
                                   InkWell(
                                     onTap: _applyFilters,
@@ -544,6 +546,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
                                       selectedPriority != null ||

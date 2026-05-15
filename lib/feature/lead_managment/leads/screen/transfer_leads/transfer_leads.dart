@@ -391,8 +391,13 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     ),
                                   ),
                                   SizedBox(width: 1.4.w),
-                                  _viewButton(),
-                                  SizedBox(width: 2.w),
+                                 
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                   _viewButton(),
+                                  SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
                                       selectedPriority != null ||
@@ -410,7 +415,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         });
                                       },
                                       child: Container(
-                                        // width: 7.w,
+                                        width: 7.w,
                                         height: 4.5.h,
                                         padding: EdgeInsets.all(1.h),
                                         margin: EdgeInsets.only(top: 2.h),
@@ -431,7 +436,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       ),
                                     ),
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         );
@@ -752,12 +757,12 @@ class _TransferLeadsState extends State<TransferLeads> {
       onTap: () {
         _applyFilters();
       },
-      child: SizedBox(
+      child: Container(
         width: 8.w,
         height: 4.5.h,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.green,
+        margin: EdgeInsets.only(top: 2.h),
+        decoration: BoxDecoration(
+          color: AppColors.green,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -767,8 +772,7 @@ class _TransferLeadsState extends State<TransferLeads> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _topButton(String text) {

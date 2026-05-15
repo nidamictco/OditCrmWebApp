@@ -44,7 +44,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     context.read<AddLeadCubit>().fetchDeletedLeads();
     context.read<AddLeadCubit>().fetchStaff();
     // context.read<AddLeadCubit>().fetchLeads();
-    context.read<AddLeadCubit>().initialize(); 
+    context.read<AddLeadCubit>().initialize();
 
     _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -294,7 +294,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                             //     .toList();
                             final staffItems = state.staffList
                                 .map((e) => e.name)
-                                .toList(); 
+                                .toList();
                             final deletedByItems = state.staffList
                                 .map((e) => e.name)
                                 .toList();
@@ -365,7 +365,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                     children: [
                                       SizedBox(
                                         width: 17.45.w,
-                                        child: Dropdown( 
+                                        child: Dropdown(
                                           label: "Assigned Staff",
                                           hint: 'Select Assigned Staff',
                                           items: staffItems,
@@ -395,6 +395,10 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                         ),
                                       ),
                                       SizedBox(width: 2.w),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
                                       InkWell(
                                         onTap: () => _applyFilters(),
                                         child: Padding(
@@ -421,42 +425,41 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 2.w,),
+                                      SizedBox(width: 1.w),
                                       if (selectedCategory != null ||
-                                      selectedSource != null ||
-                                      selectedAssignedStaff != null ||
-                                      selectedDeletedBy != null)
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedSource = null;
-                                          selectedAssignedStaff = null;
-                                          selectedDeletedBy = null;
-                                          _resetPage();
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 7.w,
-                                        height: 4.5.h,
-                                        padding: EdgeInsets.all(1.h),
-                                        margin: EdgeInsets.only(top: 2.h),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.orange,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
+                                          selectedSource != null ||
+                                          selectedAssignedStaff != null ||
+                                          selectedDeletedBy != null)
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedCategory = null;
+                                              selectedSource = null;
+                                              selectedAssignedStaff = null;
+                                              selectedDeletedBy = null;
+                                              _resetPage();
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 7.w,
+                                            height: 4.5.h,
+                                            padding: EdgeInsets.all(1.h),
+                                            margin: EdgeInsets.only(top: 2.h),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.orange,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              'Reset Filters',
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
                                         ),
-                                        child: Text(
-                                          'Reset Filters',
-                                          style: AppTextStyle.small(
-                                            size: 10.sp,
-                                            color: Colors.white,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
                                     ],
                                   ),
                                 ],

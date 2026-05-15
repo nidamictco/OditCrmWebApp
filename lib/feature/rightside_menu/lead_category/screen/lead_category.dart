@@ -71,6 +71,7 @@ class _LeadCategoryState extends State<LeadCategory> {
       builder: (ctx) {
         return AppDialog(
           title: 'Add Lead Category',
+          width: 50,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
