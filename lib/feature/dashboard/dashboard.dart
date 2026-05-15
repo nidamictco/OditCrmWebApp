@@ -227,42 +227,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardCard(
                             title: "NEW LEADS",
                             message:
-                                'The combined count of new\nleads and unattended leads.',
+                                'The combined count of new\nleads and unattended leads.', fromCard: 'NEW',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "FOLLOWUP LEADS",
-                            message: '_',
+                            message: '_', fromCard: 'FOLLOWUP',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "CLOSED LEADS",
-                            message: '.',
+                            message: '.', fromCard: 'CLOSED',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "TOTAL CALLED",
-                            message: '.',
+                            message: '.', fromCard: 'TOTAL',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "MISSED LEADS",
-                            message: '.',
+                            message: '.', fromCard: 'MISSED',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "TRANSFERRED LEADS",
-                            message: '.',
+                            message: '.', fromCard: 'TRANSFERRED',
                           ),
                         ),
                       ],

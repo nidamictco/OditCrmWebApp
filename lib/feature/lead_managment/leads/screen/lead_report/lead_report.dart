@@ -638,7 +638,7 @@ class _LeadsReportState extends State<LeadsReport> {
 
                         final List<AddLeadModel> rawList =
                             state.listStatus == LeadListStatus.loaded
-                            ? state.leads
+                            ? state.leads.toList()
                             : [];
 
                         final allFiltered = _filteredLeads(rawList);

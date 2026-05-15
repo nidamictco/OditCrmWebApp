@@ -71,49 +71,52 @@ class _LeadCategoryState extends State<LeadCategory> {
       builder: (ctx) {
         return AppDialog(
           title: 'Add Lead Category',
-          width: 50,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /// Lead Category
-              const Text("Lead Category"),
-              const SizedBox(height: 8),
-              TextField(
-                style: AppTextStyle.medium(weight: FontWeight.w400),
-                controller: categoryController,
-                decoration: InputDecoration(
-                  hintText: "Enter Category",
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              /// Cost
-              const Text("Cost"),
-              const SizedBox(height: 8),
-              TextField(
-                style: AppTextStyle.medium(weight: FontWeight.w400),
-                controller: costController,
-                decoration: InputDecoration(
-                  hintText: "Enter Cost",
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
+          width: 35.w,
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// Lead Category
+                const Text("Lead Category"),
+                const SizedBox(height: 8),
+                TextField(
+                  style: AppTextStyle.medium(weight: FontWeight.w400),
+                  controller: categoryController,
+                  decoration: InputDecoration(
+                    hintText: "Enter Category",
+                    hintStyle: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
-              ),
-            ],
+            
+                const SizedBox(height: 16),
+            
+                /// Cost
+                const Text("Cost"),
+                const SizedBox(height: 8),
+                TextField(
+                  style: AppTextStyle.medium(weight: FontWeight.w400),
+                  controller: costController,
+                  decoration: InputDecoration(
+                    hintText: "Enter Cost",
+                    hintStyle: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           onSubmit: () async {
             final name = categoryController.text.trim();

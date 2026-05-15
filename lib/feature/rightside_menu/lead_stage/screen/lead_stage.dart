@@ -66,7 +66,8 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Add Lead Category',
+          title: 'Add Lead Stage',
+          width: 35.w,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -113,27 +114,31 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
       builder: (ctx) {
         return AppDialog(
           title: 'Edit Lead Stages',
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text("Lead Stages"),
-              const SizedBox(height: 8),
-              TextField(
-                controller: stagesController,
-                decoration: InputDecoration(
-                  hintText: "Enter Stages",
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
+          width: 35.w,
+          body: Padding(
+            padding: EdgeInsets.all(1.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Lead Stages",style: AppTextStyle.medium(size: 12.sp),),
+                SizedBox(height: 0.5.h),
+                TextField(
+                  controller: stagesController,
+                  decoration: InputDecoration(
+                    hintText: "Enter Stages",
+                    hintStyle: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
           onSubmit: () async {
             // ✅ Capture value BEFORE pop
@@ -159,6 +164,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
       builder: (ctx) => AppDialog(
         title: 'Delete Lead Stages',
         submitText: 'Delete',
+        width: 35.w,
         body: Padding(
           padding: EdgeInsets.symmetric(vertical: 1.h),
           child: Text(

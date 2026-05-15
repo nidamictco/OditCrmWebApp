@@ -13,6 +13,7 @@ import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
@@ -702,26 +703,29 @@ class _AddLeadPageState extends State<AddLeadPage> {
       builder: (ctx) => AppDialog(
         width: 35.w,
         title: 'Add Lead Category',
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
-            SizedBox(height: 2.h),
-            TextField(
-              controller: _dialogNameCtrl,
-              decoration: InputDecoration(
-                hintText: 'Enter Category',
-                hintStyle: AppTextStyle.medium(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+              SizedBox(height: 2.h),
+              TextField(
+                controller: _dialogNameCtrl,
+                decoration: InputDecoration(
+                  hintText: 'Enter Category',
+                  hintStyle: AppTextStyle.medium(
+                    size: 11.sp,
+                    color: AppColors.grey,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         onSubmit: () async {
           final name = _dialogNameCtrl.text.trim();
@@ -747,30 +751,34 @@ class _AddLeadPageState extends State<AddLeadPage> {
       builder: (ctx) => AppDialog(
         width: 35.w,
         title: 'Add Lead Source',
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
-            SizedBox(height: 2.h),
-            TextField(
-              controller: _dialogNameCtrl,
-              decoration: InputDecoration(
-                hintText: 'Enter Source',
-                hintStyle: AppTextStyle.medium(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
+              SizedBox(height: 2.h),
+              TextField(
+                controller: _dialogNameCtrl,
+                decoration: InputDecoration(
+                  hintText: 'Enter Source',
+                  hintStyle: AppTextStyle.medium(
+                    size: 11.sp,
+                    color: AppColors.grey,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         onSubmit: () async {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
+          context.read<LeadSourceCubit>().addSource(name: name);
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

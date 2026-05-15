@@ -63,12 +63,14 @@ class MainScreen extends StatefulWidget {
   final DesignationModel? designation;
   final StaffModel? staff;
   final AddLeadModel? lead;
+  final String? fromCard;
   const MainScreen({
     super.key,
     this.selectedIndex = 0,
     this.designation,
     this.staff,
     this.lead,
+    this.fromCard,
   });
 
   @override
@@ -99,13 +101,20 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return DashboardScreen();
       case 1:
-        return BlocProvider(
-          create: (_) => AddLeadCubit(
-            leadRepository: AddLeadRepository(),
-            categoryRepository: LeadCategoryRepository(),
-            sourceRepository: LeadSourceRepository(),
-          ),
-          child: AddLeadPage(lead: widget.lead),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => AddLeadCubit(
+                leadRepository: AddLeadRepository(),
+                categoryRepository: LeadCategoryRepository(),
+                sourceRepository: LeadSourceRepository(),
+              ),
+            ),
+            BlocProvider(create: (context) => LeadCategoryCubit()),
+            BlocProvider(create: (context) => LeadSourceCubit()),
+            BlocProvider(create: (context) => LeadStageCubit()),
+          ],
+          child: AddLeadPage(lead: widget.lead), 
         );
       case 2:
         return BlocProvider(
@@ -162,7 +171,11 @@ class _MainScreenState extends State<MainScreen> {
       case 11:
         return LeadDistributionSettingsScreen();
       case 12:
-        return NewLeadsPage();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
+        );
+
       case 13:
         return BlocProvider(
           create: (context) => AddLeadCubit()..fetchLeads(),
@@ -236,8 +249,7 @@ class _MainScreenState extends State<MainScreen> {
         return TimeLine();
       case 31:
         return BlocProvider(
-          create: (context) => AddLeadCubit()
-          ..fetchLeads(),
+          create: (context) => AddLeadCubit()..fetchLeads(),
           child: FollowUpDetailsScreen(),
         );
       case 32:

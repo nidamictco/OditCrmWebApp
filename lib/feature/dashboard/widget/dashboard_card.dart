@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/theme/asset_resources.dart';
@@ -7,11 +8,14 @@ import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../lead_managment/leads/cubit/add_lead_cubit.dart';
+
 class DashboardCard extends StatefulWidget {
   final String title;
   final String message;
+  final String fromCard;
 
-  const DashboardCard({super.key, required this.title, required this.message});
+  const DashboardCard({super.key, required this.title, required this.message, required this.fromCard});
 
   @override
   State<DashboardCard> createState() => _DashboardCardState();
@@ -82,10 +86,11 @@ class _DashboardCardState extends State<DashboardCard> {
               children: [
                 GestureDetector(
                   onTap: () {
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MainScreen(selectedIndex: 12),
+                        builder: (context) => MainScreen(selectedIndex: 12, fromCard: widget.fromCard,),
                       ),
                     );
                   },
