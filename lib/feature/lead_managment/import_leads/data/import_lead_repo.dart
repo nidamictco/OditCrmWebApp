@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
@@ -58,6 +59,17 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       _firestore.collection('LEADS STAGE');
 
   // ── Fetch helpers ─────────────────────────────────────────────────────────
+
+       String _generateDateId(String prefix, {int? rowIndex}) {
+  final now = DateTime.now();
+  final datePart = DateFormat('yyyyMMdd').format(now);
+  final timePart = DateFormat('HHmmss').format(now);
+  final ms = now.millisecondsSinceEpoch % 1000;
+  final suffix = rowIndex != null ? '-$rowIndex' : '';
+  return '$prefix-$datePart-$timePart-$ms$suffix';
+}
+
+
 
   @override
   Future<List<LeadsModel>> fetchCategories() async {
@@ -158,49 +170,51 @@ class ImportLeadsRepository implements IImportLeadsRepository {
     log('[ImportLeadsRepo] CSV rows to process: ${rowsToProcess.length}');
 
     // ── 2. Batch write to Firestore (500 per batch — Firestore limit) ───────
-    int importedCount = 0;
-    WriteBatch batch = _firestore.batch();
-    int batchCount = 0;
-    const int batchLimit = 500;
+    // ── 2. Batch write to Firestore (500 per batch — Firestore limit) ───────
+int importedCount = 0;
+WriteBatch batch = _firestore.batch();
+int batchCount = 0;
+const int batchLimit = 500;
 
-    for (final rawRow in rowsToProcess) {
-      final row = rawRow.map((e) => e.toString()).toList();
+for (int i = 0; i < rowsToProcess.length; i++) {       // ✅ use index-based loop
+  final rawRow = rowsToProcess[i];
+  final row = rawRow.map((e) => e.toString()).toList();
 
-      // Skip completely empty rows
-      if (row.every((cell) => cell.trim().isEmpty)) continue;
+  if (row.every((cell) => cell.trim().isEmpty)) continue;
 
-      final lead = ImportLeadModel.fromCsvRow(
-        row: row,
-        positions: fieldPositions,
-        defaults: defaults,
-      );
+  final lead = ImportLeadModel.fromCsvRow(
+    row: row,
+    positions: fieldPositions,
+    defaults: defaults,
+  );
 
-      // Skip rows with no client name and no phone
-      if (lead.clientName.isEmpty && lead.contactNumber.isEmpty) {
-        log('[ImportLeadsRepo] Skipping row with no name/phone: $row');
-        continue;
-      }
+  if (lead.clientName.isEmpty && lead.contactNumber.isEmpty) {
+    log('[ImportLeadsRepo] Skipping row with no name/phone: $row');
+    continue;
+  }
 
-      final docRef = _leadsCollection.doc();
-      batch.set(docRef, lead.toFirestore());
-      batchCount++;
-      importedCount++;
+  // ✅ Generate datetime ID with row index suffix to prevent collisions
+  //    e.g. LEAD-20260513-143022-456-0, LEAD-20260513-143022-456-1 ...
+  final String docId = _generateDateId('LEAD', rowIndex: i);
+  final docRef = _leadsCollection.doc(docId);
 
-      // Commit when reaching batch limit and start a new batch
-      if (batchCount == batchLimit) {
-        await batch.commit();
-        log('[ImportLeadsRepo] Batch committed: $importedCount records so far');
-        batch = _firestore.batch();
-        batchCount = 0;
-      }
-    }
+  batch.set(docRef, lead.toFirestore());
+  batchCount++;
+  importedCount++;
 
-    // Commit remaining records
-    if (batchCount > 0) {
-      await batch.commit();
-      log('[ImportLeadsRepo] Final batch committed: $importedCount total');
-    }
+  if (batchCount == batchLimit) {
+    await batch.commit();
+    log('[ImportLeadsRepo] Batch committed: $importedCount records so far');
+    batch = _firestore.batch();
+    batchCount = 0;
+  }
+}
 
-    return importedCount;
+if (batchCount > 0) {
+  await batch.commit();
+  log('[ImportLeadsRepo] Final batch committed: $importedCount total');
+}
+
+return importedCount;
   }
 }

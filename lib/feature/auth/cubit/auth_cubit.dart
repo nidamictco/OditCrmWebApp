@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/auth/model/user_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 part 'auth_state.dart';
 
@@ -57,7 +57,7 @@ class AuthCubit extends Cubit<AuthState> {
         email: email.trim(),
         password: password,
       );
-      log('[AuthCubit] Login success: ${user.email} | role: ${user.role}');
+      log('[AuthCubit] Login success: ${user.email} | role: ${user.designation}');
       await _sessionService.saveSession(user);
       emit(Authenticated(user: user));
     } on AuthException catch (e) {

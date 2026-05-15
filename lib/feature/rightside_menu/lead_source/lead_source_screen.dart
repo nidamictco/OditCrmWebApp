@@ -433,7 +433,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                         )
                                       : Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.start,
                                           children: [
                                             // 🔹 Edit — opens edit dialog
                                             GestureDetector(
@@ -444,6 +444,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                                 color: Colors.blue,
                                               ),
                                             ),
+                                            SizedBox(width: 1.w,),
                                             // 🔹 Delete — opens confirm dialog
                                             GestureDetector(
                                               onTap: () => _confirmDelete(cat),

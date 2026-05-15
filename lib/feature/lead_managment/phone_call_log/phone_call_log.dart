@@ -259,12 +259,10 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                                 Text(row[5], style: AppTextStyle.medium()),
                                 Text(row[6], style: AppTextStyle.medium()),
                                 Text(row[7], style: AppTextStyle.medium()),
-                                Center(
-                                  child: Icon(
-                                    Icons.edit_outlined,
-                                    size: 14.sp,
-                                    color: Colors.blue,
-                                  ),
+                                Icon(
+                                  Icons.edit_outlined,
+                                  size: 14.sp,
+                                  color: Colors.blue,
                                 ),
                               ];
                             }).toList(),

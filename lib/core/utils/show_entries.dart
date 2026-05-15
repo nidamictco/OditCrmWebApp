@@ -200,8 +200,8 @@ class _ShowEntriesState extends State<ShowEntries> {
 
   @override
   void dispose() {
-    _closeDropdown();
-    _searchController.dispose();
+    // _closeDropdown();
+    // _searchController.dispose();
     super.dispose();
   }
 
@@ -285,7 +285,11 @@ class _ShowEntriesState extends State<ShowEntries> {
   void _closeDropdown() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    if (mounted) setState(() => _isOpen = false);
+    if (!mounted) {
+      return;
+    }
+    
+    setState(() => _isOpen = false);
   }
 
   // ── Build ──────────────────────────────────────────────────────────

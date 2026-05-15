@@ -976,7 +976,7 @@ class _LeadRowState extends State<_LeadRow> {
             : widget.isEven
             ? AppTheme.surface
             : const Color(0xFFFAFAFA),
-        height: 56,
+        // height: 56,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(

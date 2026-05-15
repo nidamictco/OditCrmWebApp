@@ -53,6 +53,7 @@ import 'package:oxdo/feature/staff_managment/designation/cubit/designation_cubit
 import 'package:oxdo/feature/staff_managment/designation/model/designation_model.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/add_designation_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/screen/designation_screen.dart';
+import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/psswrd.dart';
 import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/view_staff.dart';
 
 import '../dashboard/follow_up_details_screen.dart';
@@ -234,7 +235,13 @@ class _MainScreenState extends State<MainScreen> {
       case 30:
         return TimeLine();
       case 31:
-        return FollowUpDetailsScreen();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()
+          ..fetchLeads(),
+          child: FollowUpDetailsScreen(),
+        );
+      case 32:
+        return ChangePasswordScreen();
       default:
         return const SizedBox();
     }

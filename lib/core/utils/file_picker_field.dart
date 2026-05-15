@@ -1,5 +1,3 @@
-
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
@@ -22,14 +20,10 @@ import 'package:sizer/sizer.dart';
 // =============================================================================
 
 class FilePickerField extends StatefulWidget {
-  /// Called with the picked [File] (null if user cancels).
   final ValueChanged<PlatformFile?>? onFilePicked;
 
-  /// Allowed extensions, e.g. ['pdf', 'jpg', 'png'].
-  /// Leave null to allow any file type.
   final List<String>? allowedExtensions;
 
-  /// Placeholder shown before a file is chosen.
   final String placeholder;
 
   const FilePickerField({
@@ -46,14 +40,11 @@ class FilePickerField extends StatefulWidget {
 class _FilePickerFieldState extends State<FilePickerField> {
   String _fileName = '';
 
-   Future<void> _pickFile() async {
+  Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
-      type:
-          widget.allowedExtensions != null
-              ? FileType.custom
-              : FileType.any,
+      type: widget.allowedExtensions != null ? FileType.custom : FileType.any,
       allowedExtensions: widget.allowedExtensions,
-      withData: true, // IMPORTANT FOR WEB
+      withData: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -88,7 +79,7 @@ class _FilePickerFieldState extends State<FilePickerField> {
               alignment: Alignment.center,
               child: Text(
                 'Choose file',
-                style: AppTextStyle.body(color: AppColors.black, size: 9.5.sp),
+                style: AppTextStyle.body(color: AppColors.black, size: 10.sp),
               ),
             ),
 
@@ -100,7 +91,7 @@ class _FilePickerFieldState extends State<FilePickerField> {
                   _fileName.isEmpty ? widget.placeholder : _fileName,
                   style: AppTextStyle.body(
                     color: _fileName.isEmpty ? AppColors.grey : AppColors.black,
-                    size: 9.5.sp,
+                    size: 10.sp,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

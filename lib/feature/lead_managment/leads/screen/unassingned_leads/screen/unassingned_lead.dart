@@ -27,32 +27,6 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
   final TextEditingController _fromDateController = TextEditingController();
   final TextEditingController _toDateController = TextEditingController();
 
-  final List<String> leadCategory = [
-    "Select lead Type ",
-    "Need Further Followup",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-
-  final List<String> status = [
-    "Select Status",
-    "In Progress",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May Vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-
-  final List<String> leadSource = ["Direct Entry", "ADS", "Whatsapp"];
-
   String? selectedCategory;
   String? selectedStatus;
   String? selectedSource;
@@ -69,12 +43,97 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
     super.initState();
     context.read<AddLeadCubit>().fetchLeads();
     context.read<AddLeadCubit>().fetchStaff();
+    context.read<AddLeadCubit>().initialize();
+
+    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
+
+  String? _appliedCategory;
+  String? _appliedLeadStage;
+  String? _appliedSource;
+  DateTime? _appliedFromDate;
+  DateTime? _appliedToDate;
+
+  // ── Called ONLY when "View" is tapped ───────────────────────────────────────
+  void _applyFilters() {
+    setState(() {
+      _appliedCategory = selectedCategory;
+      _appliedLeadStage = selectedStatus;
+      _appliedSource = selectedSource;
+      _appliedFromDate = _parseDate(_fromDateController.text);
+      _appliedToDate = _parseDate(_toDateController.text);
+      _resetPage();
+    });
+  }
+
+  DateTime? _parseDate(String text) {
+    try {
+      return DateFormat('dd-MM-yyyy').parse(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Skip placeholder "Select …" values ──────────────────────────────────────
+  bool _isPlaceholder(String? val) =>
+      val == null ||
+      val.trim().isEmpty ||
+      val.toLowerCase().startsWith('select');
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
     result = result.where((lead) => lead.assignedStaffId.isEmpty).toList();
+
+    // ── Date range ─────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .toList();
+    }
+
+    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
+
+    // ── Lead Stage — stored UPPERCASE in Firestore ────────────────────────────
+    if (!_isPlaceholder(_appliedLeadStage)) {
+      final stage = _appliedLeadStage!.trim().toUpperCase();
+      result = result.where((l) => l.leadStage.toUpperCase() == stage).toList();
+    }
+
+    // ── Lead Source — stored UPPERCASE in Firestore ───────────────────────────
+    if (!_isPlaceholder(_appliedSource)) {
+      final source = _appliedSource!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadSource.toUpperCase() == source)
+          .toList();
+    }
 
     // Search filter
     final q = _searchQuery.trim().toLowerCase();
@@ -88,8 +147,6 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
           .toList();
     }
 
-    // Entries limit
-    // final limit = int.tryParse(_selectedEntries) ?? 10;
     return result;
   }
 
@@ -195,118 +252,170 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                     Divider(color: AppColors.divider),
 
                     ///FILTERS
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 2.w,
-                        right: 2.w,
-                        top: 2.w,
-                        bottom: 1.h,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: InputDate(
-                                  label: "From Date",
-                                  fromController: _fromDateController,
-                                  toController: _toDateController,
-                                  isFrom: true,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: InputDate(
-                                  label: "To Date",
-                                  fromController: _fromDateController,
-                                  toController: _toDateController,
-                                  isFrom: false,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  showHelp: true,
-                                  items: leadCategory,
-                                  selectedValue: selectedCategory,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedCategory = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                  label: "Lead Category",
-                                  hint: 'select category',
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Lead Status",
-                                  hint: 'select status',
-                                  showHelp: true,
-                                  items: status,
-                                  selectedValue: selectedStatus,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedStatus = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      builder: (context, state) {
+                        final categoryItems = state.categories
+                            .map((e) => e.name)
+                            .toList();
+                        final sourceItems = state.sources
+                            .map((e) => e.name)
+                            .toList();
+                        final stageItems = state.stages
+                            .map((e) => e.name)
+                            .toList();
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            left: 2.w,
+                            right: 2.w,
+                            top: 2.w,
+                            bottom: 1.h,
                           ),
-
-                          SizedBox(height: 1.h),
-
-                          Row(
+                          child: Column(
                             children: [
-                              SizedBox(
-                                width: 17.45.w,
-                                child: Dropdown(
-                                  label: "Lead Source",
-                                  hint: 'select source',
-                                  showHelp: true,
-                                  items: leadSource,
-                                  selectedValue: selectedSource,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedSource = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-
-                              SizedBox(width: 2.w),
-                              Padding(
-                                padding: EdgeInsets.only(top: 2.h),
-                                child: SizedBox(
-                                  width: 7.w,
-                                  height: 4.5.h,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xff1BAA90),
-                                      borderRadius: BorderRadius.circular(6),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: InputDate(
+                                      label: "From Date",
+                                      fromController: _fromDateController,
+                                      toController: _toDateController,
+                                      isFrom: true,
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        "View",
-                                        style: AppTextStyle.small(
-                                          size: 10.sp,
-                                          color: Colors.white,
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: InputDate(
+                                      label: "To Date",
+                                      fromController: _fromDateController,
+                                      toController: _toDateController,
+                                      isFrom: false,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      showHelp: true,
+                                      items: categoryItems,
+                                      selectedValue: selectedCategory,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCategory = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      label: "Lead Category",
+                                      hint: 'select category',
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Lead Status",
+                                      hint: 'select status',
+                                      showHelp: true,
+                                      items: stageItems,
+                                      selectedValue: selectedStatus,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedStatus = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 1.h),
+
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 17.45.w,
+                                    child: Dropdown(
+                                      label: "Lead Source",
+                                      hint: 'select source',
+                                      showHelp: true,
+                                      items: sourceItems,
+                                      selectedValue: selectedSource,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedSource = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+
+                                  SizedBox(width: 2.w),
+                                  InkWell(
+                                    onTap: () => _applyFilters(),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 2.h),
+                                      child: SizedBox(
+                                        width: 7.w,
+                                        height: 4.5.h,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff1BAA90),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "View",
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(width: 2.w),
+                                  if (selectedCategory != null ||
+                                      selectedSource != null ||
+                                      selectedStatus != null)
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCategory = null;
+                                          selectedSource = null;
+                                          selectedStatus = null;
+                                          _resetPage();
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 7.w,
+                                        height: 4.5.h,
+                                        padding: EdgeInsets.all(1.h),
+                                        margin: EdgeInsets.only(top: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.orange,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Reset Filters',
+                                          style: AppTextStyle.small(
+                                            size: 10.sp,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
 
                     Divider(color: AppColors.divider),
@@ -650,6 +759,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
 
                   return AppDialog(
                     title: 'Assign Staff',
+                    width: 34.w,
                     body: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,8 +804,9 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                       Navigator.pop(dialogContext);
                       setState(() {
                         _selectedIndices = [];
-                        _tableKey++;});
-                     },
+                        _tableKey++;
+                      });
+                    },
                   );
                 },
               );

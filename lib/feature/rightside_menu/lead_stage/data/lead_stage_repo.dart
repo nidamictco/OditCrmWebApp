@@ -2,8 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/auth/model/user_model.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 abstract class ILeadStageRepository {
   Stream<List<LeadsModel>> watchCategories();
@@ -45,7 +45,7 @@ Stream<List<LeadsModel>> watchCategories() {
     if (trimmedName.isEmpty) {
       throw ArgumentError('Category name cannot be empty.');
     }
-    final UserModel? user = await SessionService().getSavedUser();
+    final StaffModel? user = await SessionService().getSavedUser();
     await _collection.add({
       'name': trimmedName,
       'createdBy': user?.name, 

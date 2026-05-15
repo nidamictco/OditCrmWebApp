@@ -7,7 +7,7 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 
 class Authenticated extends AuthState {
-  final UserModel user;
+  final StaffModel user;
   Authenticated({required this.user});
 }
 

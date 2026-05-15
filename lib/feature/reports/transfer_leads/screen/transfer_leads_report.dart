@@ -245,17 +245,15 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                 Text(row[5], style: AppTextStyle.medium()),
 
                                 /// ACTION
-                                Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                    ],
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.edit_outlined,
+                                      size: 14.sp,
+                                      color: Colors.blue,
+                                    ),
+                                  ],
                                 ),
                               ];
                             }).toList(),

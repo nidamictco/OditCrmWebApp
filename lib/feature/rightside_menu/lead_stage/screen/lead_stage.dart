@@ -459,7 +459,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                         )
                                       : Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.start,
                                           children: [
                                             // 🔹 Edit — opens edit dialog
                                             GestureDetector(

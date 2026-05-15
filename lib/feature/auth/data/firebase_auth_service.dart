@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/auth/model/user_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class FirebaseAuthService {
   FirebaseAuthService({FirebaseFirestore? firestore})
@@ -12,7 +12,7 @@ class FirebaseAuthService {
   CollectionReference<Map<String, dynamic>> get _staff =>
       _firestore.collection('STAFF');
 
-  Future<UserModel> login({
+  Future<StaffModel> login({
     required String email,
     required String password,
   }) async {
@@ -20,9 +20,9 @@ class FirebaseAuthService {
       log('[FirebaseAuthService] Querying STAFF where EMAIL == $email');
 
       final query = await _staff
-          .where('EMAIL', isEqualTo: email.trim())
+          .where('email', isEqualTo: email.trim())
           .limit(1)
-          .get();
+          .get(); 
 
       log('[FirebaseAuthService] Docs found: ${query.docs.length}');
 
@@ -35,7 +35,7 @@ class FirebaseAuthService {
 
       log('[FirebaseAuthService] Raw doc data: $data');
 
-      final storedPassword = data['PASSWORD'] as String? ?? '';
+      final storedPassword = data['password'] as String? ?? '';
 
       if (storedPassword != password) {
         throw AuthException('Incorrect password.');
@@ -43,10 +43,10 @@ class FirebaseAuthService {
 
       // ✅ Wrap fromMap in its own try so parse errors surface clearly
       try {
-        final user = UserModel.fromMap(doc.id, data);
+        final user = StaffModel.fromFirestore(doc);
         log('[FirebaseAuthService] UserModel built: $user');
         return user;
-      } catch (e) {
+      } catch (e) { 
         log('[FirebaseAuthService] fromMap parse error: $e  |  raw data: $data');
         throw AuthException('Failed to parse user data: $e');
       }

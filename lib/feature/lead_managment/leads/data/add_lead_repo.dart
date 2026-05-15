@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 
 abstract class IAddLeadRepository {
@@ -14,6 +15,7 @@ abstract class IAddLeadRepository {
   Future<String> restoreLead(AddLeadModel lead);
   Future<void> permanentlyDeleteLead(String id);
   Future<void> assignStaff(String leadId, String staffId, String staffName);
+  Future<void> addFollowUp(String leadId, FollowUpModel followUp);
 }
  
 class AddLeadRepository implements IAddLeadRepository {
@@ -27,6 +29,15 @@ class AddLeadRepository implements IAddLeadRepository {
   CollectionReference<Map<String, dynamic>> get _deletedCollection =>
       _firestore.collection('DELETED_LEADS');
 
+
+       String _generateDateId(String prefix) {
+    final now = DateTime.now();
+    final datePart = DateFormat('yyyyMMdd').format(now);
+    final timePart = DateFormat('HHmmss').format(now);
+    final ms = now.millisecondsSinceEpoch % 1000; // last 3 digits for uniqueness
+    return '$prefix-$datePart-$timePart-$ms';
+  }
+
   @override
   Future<String> addLead(AddLeadModel lead) async {
     if (lead.clientName.trim().isEmpty) {
@@ -35,9 +46,12 @@ class AddLeadRepository implements IAddLeadRepository {
     if (lead.contactNumber.trim().isEmpty) {
       throw ArgumentError('Contact number cannot be empty.');
     }
-    final doc = await _collection.add(lead.toFirestore());
-    return doc.id;
-  }
+
+     final String id = _generateDateId('LEADS');
+    await _collection.doc(id).set(lead.toFirestore());
+    log('[AddLeadRepository] Lead added with ID: $id');
+    return id;
+  } 
 
   @override
   Future<List<AddLeadModel>> fetchLeads() async {
@@ -114,5 +128,25 @@ Future<void> assignStaff(String leadId, String staffId, String staffName) async 
     'assignedStaff': staffName,
   });
   log('[AddLeadRepository] Staff assigned to lead: $leadId → $staffId');
+}
+
+
+@override
+Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+   
+    final String followUpId = _generateDateId('FUP'); 
+  await _collection
+      .doc(leadId) 
+      .collection('FOLLOW_UPS')
+      .doc(followUpId).set(followUp.toFirestore());
+
+ await _collection.doc(leadId).update({
+    'leadStage': followUp.leadStage,
+    'priority': followUp.priority,
+    'leadCategory': followUp.leadCategory,
+  });
+
+  log('[AddLeadRepository] FollowUp added for lead: $leadId');
 }
 } 

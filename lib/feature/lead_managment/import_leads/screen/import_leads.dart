@@ -14,6 +14,7 @@ import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
+import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class ImportLeads extends StatefulWidget {
@@ -315,13 +316,7 @@ class _ImportLeadsState extends State<ImportLeads> {
           _label('CSV file '),
           FilePickerField(
             allowedExtensions: ['csv'],
-            // onFilePicked: (file) async {
-            //   if (file != null) {
-            //     final bytes = await file.readAsBytes();
-            //     setState(() => _pickedCsvBytes = bytes);
-            //     cubit.setCsvBytes(bytes);
-            //   }
-            // },
+
             onFilePicked: (file) async {
               if (file != null && file.bytes != null) {
                 final bytes = file.bytes!;
@@ -341,9 +336,9 @@ class _ImportLeadsState extends State<ImportLeads> {
           ),
           SizedBox(height: 3.h),
 
-          // ── Error banner ──────────────────────────────────────────────────
-          if (state.errorMessage != null && !state.isImporting)
-            _errorBanner(state.errorMessage!),
+          // // ── Error banner ──────────────────────────────────────────────────
+          // if (state.errorMessage != null && !state.isImporting)
+          //   _errorBanner(state.errorMessage!),
 
           // ── Submit ────────────────────────────────────────────────────────
           _submitButton(context, state, cubit),
@@ -439,7 +434,15 @@ class _ImportLeadsState extends State<ImportLeads> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
         onPressed: canSubmit
-            ? () => cubit.importLeads(csvBytes: _pickedCsvBytes!)
+            ? () {
+                cubit.importLeads(csvBytes: _pickedCsvBytes!);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainScreen(selectedIndex: 2),
+                  ),
+                );
+              }
             : null,
         child: state.isImporting
             ? const SizedBox(

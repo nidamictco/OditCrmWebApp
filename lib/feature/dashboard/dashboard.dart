@@ -113,23 +113,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                     ),
                                     child: Center(
-                                      child: TextField(
-                                        controller: _dateController,
-                                        readOnly: true,
-                                        style: AppTextStyle.small(
-                                          size: 11.sp,
-                                          color: AppColors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          // hintText: _dateController.text,
-                                          hintStyle: AppTextStyle.small(
+                                      child: IgnorePointer(
+                                        child: TextField(
+                                          controller: _dateController,
+                                          readOnly: true,
+                                          style: AppTextStyle.small(
                                             size: 11.sp,
                                             color: AppColors.grey,
                                           ),
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
+                                          textAlign: TextAlign.center,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            // hintText: _dateController.text,
+                                            hintStyle: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.grey,
+                                            ),
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
                                         ),
                                       ),
                                     ),

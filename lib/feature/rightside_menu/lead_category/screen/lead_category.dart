@@ -79,7 +79,7 @@ class _LeadCategoryState extends State<LeadCategory> {
               const Text("Lead Category"),
               const SizedBox(height: 8),
               TextField(
-                style:AppTextStyle.medium(weight: FontWeight.w400) ,
+                style: AppTextStyle.medium(weight: FontWeight.w400),
                 controller: categoryController,
                 decoration: InputDecoration(
                   hintText: "Enter Category",
@@ -99,7 +99,7 @@ class _LeadCategoryState extends State<LeadCategory> {
               const Text("Cost"),
               const SizedBox(height: 8),
               TextField(
-                style:AppTextStyle.medium(weight: FontWeight.w400) ,
+                style: AppTextStyle.medium(weight: FontWeight.w400),
                 controller: costController,
                 decoration: InputDecoration(
                   hintText: "Enter Cost",
@@ -311,7 +311,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                               builder: (context, state) {
                                 return Row(
                                   children: [
-                                    _actionBtn( 
+                                    _actionBtn(
                                       0,
                                       "Add New",
                                       AppColors.greenLight,
@@ -501,7 +501,10 @@ class _LeadCategoryState extends State<LeadCategory> {
                                   child: TextField(
                                     onChanged: (v) =>
                                         setState(() => _searchQuery = v),
-                                    style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
+                                    style: AppTextStyle.small(
+                                      size: 10.sp,
+                                      color: AppColors.black,
+                                    ),
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -570,7 +573,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                         )
                                       : Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.start,
                                           children: [
                                             // 🔹 Edit — opens edit dialog
                                             GestureDetector(
@@ -581,6 +584,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                 color: Colors.blue,
                                               ),
                                             ),
+                                            SizedBox(width: 1.w),
                                             // 🔹 Delete — opens confirm dialog
                                             GestureDetector(
                                               onTap: () => _confirmDelete(cat),

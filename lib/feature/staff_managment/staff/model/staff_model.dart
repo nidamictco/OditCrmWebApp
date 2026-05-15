@@ -16,9 +16,9 @@ class StaffModel {
   final bool accessCallLog;
   final bool hasSalaryAccount;
   final bool hasPettyCash;
-  final String? imageUrl;      // Firebase Storage URL after upload
+  final String? imageUrl;     
   final String? documentName;
-  final String? documentUrl;   // Firebase Storage URL after upload
+  final String? documentUrl; 
   final String? accessibleUsers;
   final DateTime? createdAt;
   final DateTime? deletedAt;
@@ -154,4 +154,29 @@ class StaffModel {
           : null,
     };
   }
+
+  Map<String, dynamic> toJson() {
+  return {
+    'name': name,
+    'password': password,
+    'phone': phone,
+    'email': email,
+    'designation': designation,
+    'staffType': staffType,
+    'joiningDate': joiningDate,
+    'salary': salary,
+    'openingBalance': openingBalance,
+    'openingBalanceDate': openingBalanceDate,
+    'accessWhatsapp': accessWhatsapp,
+    'accessCallLog': accessCallLog,
+    'hasSalaryAccount': hasSalaryAccount,
+    'hasPettyCash': hasPettyCash,
+    'imageUrl': imageUrl,
+    'documentName': documentName,
+    'documentUrl': documentUrl,
+    'accessibleUsers': accessibleUsers,
+    'createdAt': createdAt?.toIso8601String(), 
+    'deletedAt': deletedAt?.toIso8601String(), 
+  };
+}
 }

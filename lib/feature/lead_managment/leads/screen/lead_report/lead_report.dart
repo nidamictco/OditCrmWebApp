@@ -28,51 +28,7 @@ class _LeadsReportState extends State<LeadsReport> {
   final TextEditingController toDate = TextEditingController();
   String selectedValue = "10";
 
-  final List<String> dropdownItems = ["10", "100", "1200", "3000"];
-
-  final List<String> leadCategory = [
-    "Select lead Type ",
-    "Need Further Followup",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-
-  final List<String> status = [
-    "Select Status",
-    "In Progress",
-    "Not Contacted",
-    "Fake",
-    "Visited",
-    "May Vist",
-    "Not Interested",
-    "Converted",
-    "Lost",
-  ];
-
-  final List<String> staff = [
-    "Select Staff",
-    "John Doe",
-    "Jane Smith",
-    "Bob Johnson",
-    "Alice Williams",
-  ];
-
-  final List<String> createdBy = [
-    "Select Created By",
-    "John Doe",
-    "Jane Smith",
-    "Bob Johnson",
-    "Alice Williams",
-  ];
-
-  final List<String> leadSource = ["Direct Entry", "ADS", "Whatsapp"];
-  final List<String> priority = ["High", "Low", "Negative", "Normal"];
-  final List<String> leadStage = ["New", "Follow Up", "Closed", 'Rejected'];
+  // final List<String> dropdownItems = ["10", "100", "1200", "3000"];
 
   String? selectedCategory;
   String? selectedSource;
@@ -94,29 +50,176 @@ class _LeadsReportState extends State<LeadsReport> {
   @override
   void initState() {
     super.initState();
-    context.read<AddLeadCubit>().fetchLeads();
-    
+    final cubit = context.read<AddLeadCubit>();
+    cubit.initialize();
+    cubit.fetchLeads();
+    cubit.fetchStaff();
+
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
+
+  
+// ── Snapshot fields (add alongside your existing selected* fields) ──────────
+  String? _appliedCategory;
+  String? _appliedLeadStage;
+  String? _appliedPriority;
+  String? _appliedSource;
+  String? _appliedStaff;
+  String? _appliedCreatedBy;
+  String? _appliedState;
+  String? _appliedDistrict;
+  DateTime? _appliedFromDate;
+  DateTime? _appliedToDate;
+
+  // ── Called ONLY when "View" is tapped ───────────────────────────────────────
+  void _applyFilters() {
+    setState(() {
+      _appliedCategory = selectedCategory;
+      _appliedLeadStage = selectedLeadStage;
+      _appliedPriority = selectedPriority;
+      _appliedSource = selectedSource;
+      _appliedStaff = selectedStaff;
+      _appliedCreatedBy = selectedCreatedBy;
+      _appliedState = selectedState;
+      _appliedDistrict = selectedDistrict;
+      _appliedFromDate = _parseDate(fromDate.text);
+      _appliedToDate = _parseDate(toDate.text);
+      _resetPage();
+    });
+  }
+
+  DateTime? _parseDate(String text) {
+    try {
+      return DateFormat('dd-MM-yyyy').parse(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Skip placeholder "Select …" values ──────────────────────────────────────
+  bool _isPlaceholder(String? val) =>
+      val == null ||
+      val.trim().isEmpty ||
+      val.toLowerCase().startsWith('select');
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
-    // Search filter
-    final q = _searchQuery.trim().toLowerCase();
-    if (q.isNotEmpty) {
+    // ── Date range ─────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .toList();
+    }
+
+    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
+
+    // ── Lead Stage — stored UPPERCASE in Firestore ────────────────────────────
+    if (!_isPlaceholder(_appliedLeadStage)) {
+      final stage = _appliedLeadStage!.trim().toUpperCase();
+      result = result.where((l) => l.leadStage.toUpperCase() == stage).toList();
+    }
+
+    // ── Lead Source — stored UPPERCASE in Firestore ───────────────────────────
+    if (!_isPlaceholder(_appliedSource)) {
+      final source = _appliedSource!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadSource.toUpperCase() == source)
+          .toList();
+    }
+
+    // ── Priority — stored as-is (no .toUpperCase() in toFirestore) ───────────
+    if (!_isPlaceholder(_appliedPriority)) {
       result = result
           .where(
-            (lead) =>
-                (lead.clientName).toLowerCase().contains(q) ||
-                (lead.contactNumber).toLowerCase().contains(q),
+            (l) =>
+                l.priority.toLowerCase() ==
+                _appliedPriority!.trim().toLowerCase(),
           )
           .toList();
     }
 
-    // Entries limit
-    // final limit = int.tryParse(_selectedEntries) ?? 10;
+    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    if (!_isPlaceholder(_appliedStaff)) {
+      result = result
+          .where(
+            (l) =>
+                l.assignedStaff.toLowerCase() ==
+                _appliedStaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Created By — stored as-is ─────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedCreatedBy)) {
+      result = result
+          .where(
+            (l) =>
+                l.createdBy.toLowerCase() ==
+                _appliedCreatedBy!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── State — stored as-is ──────────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedState)) {
+      result = result
+          .where(
+            (l) => l.state.toLowerCase() == _appliedState!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── District — stored as-is ───────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedDistrict)) {
+      result = result
+          .where(
+            (l) =>
+                l.district.toLowerCase() ==
+                _appliedDistrict!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Search (live, no View button needed) ──────────────────────────────────
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      result = result
+          .where(
+            (l) =>
+                l.clientName.toLowerCase().contains(q) ||
+                l.contactNumber.toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
     return result;
   }
 
@@ -211,207 +314,283 @@ class _LeadsReportState extends State<LeadsReport> {
                     Divider(color: AppColors.divider),
 
                     /// 🔹 FILTERS
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 2.w,
-                        right: 2.w,
-                        top: 2.w,
-                        bottom: 1.h,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              _radio("Created Date", true),
-                              SizedBox(width: 3.w),
-                              _radio("Updated Date", false),
-                            ],
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      builder: (context, state) {
+                        // ── Build dynamic lists from Firestore streams ──
+                        final categoryItems = state.categories
+                            .map((e) => e.name)
+                            .toList();
+                        final sourceItems = state.sources
+                            .map((e) => e.name)
+                            .toList();
+                        final stageItems = state.stages
+                            .map((e) => e.name)
+                            .toList();
+                        final staffItems = state.staffList
+                            .map((e) => e.name)
+                            .toList();
+                        // createdBy uses staff list too (same people create leads)
+                        final createdByItems = state.staffList
+                            .map((e) => e.name)
+                            .toList();
+                        // Priority is still static (not stored in Firestore)
+                        const priorityItems = [
+                          "High",
+                          "Low",
+                          "Negative",
+                          "Normal",
+                        ];
+
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            left: 2.w,
+                            right: 2.w,
+                            top: 2.w,
+                            bottom: 1.h,
                           ),
-                          SizedBox(height: 1.h),
-
-                          Row(
+                          child: Column(
                             children: [
-                              Expanded(
-                                child: InputDate(
-                                  label: "From Date",
-                                  fromController: fromDate,
-                                  toController: toDate,
-                                  isFrom: true,
-                                ),
+                              Row(
+                                children: [
+                                  _radio("Created Date", true),
+                                  SizedBox(width: 3.w),
+                                  _radio("Updated Date", false),
+                                ],
                               ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: InputDate(
-                                  label: "To Date",
-                                  fromController: fromDate,
-                                  toController: toDate,
-                                  isFrom: false,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  hint: 'select category',
-                                  showHelp: true,
-                                  items: leadCategory,
-                                  selectedValue: selectedCategory,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedCategory = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                  label: "Lead Category",
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Lead Stage",
-                                  hint: 'select stage',
-                                  showHelp: true,
-                                  items: leadStage,
-                                  selectedValue: selectedLeadStage,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedLeadStage = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                              SizedBox(height: 1.h),
 
-                          SizedBox(height: 1.h),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Priority",
-                                  hint: 'select priority',
-                                  items: priority,
-                                  selectedValue: selectedPriority,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedPriority = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Lead Source",
-                                  hint: 'select source',
-                                  showHelp: true,
-                                  items: leadSource,
-                                  selectedValue: selectedSource,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedSource = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                  message: '.',
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Staff",
-                                  hint: 'select staff',
-                                  items: staff,
-                                  selectedValue: selectedStaff,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedStaff = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                  message: ".",
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Created By",
-                                  hint: 'select creator',
-                                  items: createdBy,
-                                  selectedValue: selectedCreatedBy,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedCreatedBy = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 1.h),
-
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 17.45.w,
-                                child: Dropdown(
-                                  label: "State",
-                                  hint: "select state",
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedState = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              SizedBox(
-                                width: 17.45.w,
-                                child: Dropdown(
-                                  label: "District",
-                                  hint: "select district",
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedDistrict = val;
-                                      _resetPage();
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-
-                              /// 🔥 VIEW BUTTON
-                              Padding(
-                                padding: EdgeInsets.only(top: 2.h),
-                                child: SizedBox(
-                                  width: 7.w,
-                                  height: 4.5.h,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xff1BAA90),
-                                      borderRadius: BorderRadius.circular(6),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: InputDate(
+                                      label: "From Date",
+                                      fromController: fromDate,
+                                      toController: toDate,
+                                      isFrom: true,
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        "View",
-                                        style: AppTextStyle.small(
-                                          size: 10.sp,
-                                          color: Colors.white,
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: InputDate(
+                                      label: "To Date",
+                                      fromController: fromDate,
+                                      toController: toDate,
+                                      isFrom: false,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      hint: 'select category',
+                                      showHelp: true,
+                                      items: categoryItems,
+                                      selectedValue: selectedCategory,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCategory = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      label: "Lead Category",
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Lead Stage",
+                                      hint: 'select stage',
+                                      showHelp: true,
+                                      items: stageItems,
+                                      selectedValue: selectedLeadStage,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedLeadStage = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 1.h),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Priority",
+                                      hint: 'select priority',
+                                      items: priorityItems,
+                                      selectedValue: selectedPriority,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedPriority = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Lead Source",
+                                      hint: 'select source',
+                                      showHelp: true,
+                                      items: sourceItems,
+                                      selectedValue: selectedSource,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedSource = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      message: '.',
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Staff",
+                                      hint: 'select staff',
+                                      items: staffItems,
+                                      selectedValue: selectedStaff,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedStaff = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      message: ".",
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Created By",
+                                      hint: 'select creator',
+                                      items: createdByItems,
+                                      selectedValue: selectedCreatedBy,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCreatedBy = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 1.h),
+
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 17.45.w,
+                                    child: Dropdown(
+                                      label: "State",
+                                      hint: "select state",
+
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedState = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  SizedBox(
+                                    width: 17.45.w,
+                                    child: Dropdown(
+                                      label: "District",
+                                      hint: "select district",
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedDistrict = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+
+                                  /// 🔥 VIEW BUTTON
+                                  InkWell(
+                                    onTap: _applyFilters,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 2.h),
+                                      child: SizedBox(
+                                        width: 7.w,
+                                        height: 4.5.h,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff1BAA90),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "View",
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  if (selectedCategory != null ||
+                                      selectedSource != null ||
+                                      selectedPriority != null ||
+                                      selectedLeadStage != null ||
+                                      selectedStaff != null ||
+                                      selectedState != null ||
+                                      selectedDistrict != null)
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCategory = null;
+                                          selectedSource = null;
+                                          selectedPriority = null;
+                                          selectedLeadStage = null;
+                                          selectedStaff = null;
+                                          selectedState = null;
+                                          selectedDistrict = null;
+                                          _resetPage();
+                                        });
+                                      },
+                                      child: Container(
+                                        // width: 7.w,
+                                        height: 4.5.h,
+                                        padding: EdgeInsets.all(1.h),
+                                        margin: EdgeInsets.only(top: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.orange,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Reset Filters',
+                                          style: AppTextStyle.small(
+                                            size: 10.sp,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
 
                     Divider(color: AppColors.divider),
@@ -539,7 +718,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                     ),
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.start,
                                       children: [
                                         GestureDetector(
                                           onTap: () {
@@ -784,7 +963,6 @@ class _LeadsReportState extends State<LeadsReport> {
     );
   }
 
-  
   // ─── Delete confirmation dialog ────────────────────────────────────────────
 
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
@@ -825,7 +1003,8 @@ class _LeadsReportState extends State<LeadsReport> {
   void _deleteSelectedLeads(List<AddLeadModel> selectedLeads) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(backgroundColor: AppColors.white,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.white,
         title: const Text("Delete Leads"),
         content: Text(
           "Are you sure you want to delete ${selectedLeads.length} lead(s)?",

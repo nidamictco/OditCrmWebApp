@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
@@ -45,13 +44,119 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   void initState() {
     super.initState();
     context.read<AddLeadCubit>().fetchLeads();
-    // context.read<AddLeadCubit>()._watchSources();
+    context.read<AddLeadCubit>().initialize();
+    context.read<AddLeadCubit>().fetchStaff();
+
+    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
+
+  String? _appliedCategory;
+  String? _appliedPriority;
+  String? _appliedSource;
+  String? _appliedStaff;
+  String? _rejectedReason;
+  String? _callStatus;
+  DateTime? _appliedFromDate;
+  DateTime? _appliedToDate;
+
+  void _applyFilters() {
+    setState(() {
+      _appliedCategory = selectedCategory;
+      _appliedPriority = selectedPriority;
+      _appliedSource = selectedSource;
+      _appliedStaff = selectedStaff;
+      _rejectedReason = selectedRejectedReason;
+      _callStatus = selectedCallStatus;
+      _appliedFromDate = _parseDate(_fromDateController.text);
+      _appliedToDate = _parseDate(_toDateController.text);
+      _resetPage();
+    });
+  }
+
+  DateTime? _parseDate(String text) {
+    try {
+      return DateFormat('dd-MM-yyyy').parse(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Skip placeholder "Select …" values ──────────────────────────────────────
+  bool _isPlaceholder(String? val) =>
+      val == null ||
+      val.trim().isEmpty ||
+      val.toLowerCase().startsWith('select');
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
     result = result.where((lead) => lead.leadStage == 'REJECTED').toList();
+
+    // ── Date range ─────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .toList();
+    }
+
+    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
+
+    // ── Lead Source — stored UPPERCASE in Firestore ───────────────────────────
+    if (!_isPlaceholder(_appliedSource)) {
+      final source = _appliedSource!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadSource.toUpperCase() == source)
+          .toList();
+    }
+
+    // ── Priority — stored as-is (no .toUpperCase() in toFirestore) ───────────
+    if (!_isPlaceholder(_appliedPriority)) {
+      result = result
+          .where(
+            (l) =>
+                l.priority.toLowerCase() ==
+                _appliedPriority!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    if (!_isPlaceholder(_appliedStaff)) {
+      result = result
+          .where(
+            (l) =>
+                l.assignedStaff.toLowerCase() ==
+                _appliedStaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
 
     // Search filter
     final q = _searchQuery.trim().toLowerCase();
@@ -65,8 +170,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           .toList();
     }
 
-    // Entries limit
-    // final limit = int.tryParse(_selectedEntries) ?? 10;
     return result;
   }
 
@@ -160,170 +263,246 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                     ),
 
                     Divider(color: AppColors.divider),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 2.w,
-                        right: 2.w,
-                        top: 2.w,
-                        bottom: 1.h,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              _radio("Created Date", true),
-                              SizedBox(width: 3.w),
-                              _radio("Updated Date", false),
-                            ],
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      builder: (context, state) {
+                        final categoryItems = state.categories
+                            .map((e) => e.name)
+                            .toList();
+                        final sourceItems = state.sources
+                            .map((e) => e.name)
+                            .toList();
+                        final stageItems = state.stages
+                            .map((e) => e.name)
+                            .toList();
+                        final staffItems = state.staffList
+                            .map((e) => e.name)
+                            .toList();
+                        final createdByItems = state.staffList
+                            .map((e) => e.name)
+                            .toList();
+                        const priorityItems = [
+                          "High",
+                          "Low",
+                          "Negative",
+                          "Normal",
+                        ];
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            left: 2.w,
+                            right: 2.w,
+                            top: 2.w,
+                            bottom: 1.h,
                           ),
-                          SizedBox(height: 1.h),
-
-                          Row(
+                          child: Column(
                             children: [
-                              Expanded(
-                                child: InputDate(
-                                  label: 'From Date',
-                                  fromController: _fromDateController,
-                                  toController: _toDateController,
-                                  isFrom: true,
-                                ),
+                              Row(
+                                children: [
+                                  _radio("Created Date", true),
+                                  SizedBox(width: 3.w),
+                                  _radio("Updated Date", false),
+                                ],
                               ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: InputDate(
-                                  label: 'To Date',
-                                  fromController: _fromDateController,
-                                  toController: _toDateController,
-                                  isFrom: false,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  hint: 'select category',
-                                  showHelp: true,
-                                  items: ['All'],
-                                  selectedValue: selectedCategory,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedCategory = val;
-                                    });
-                                  },
-                                  label: "Lead Category",
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Priority",
-                                  hint: 'select priority',
-                                  items: ['All'],
-                                  selectedValue: selectedPriority,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedPriority = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                              SizedBox(height: 1.h),
 
-                          SizedBox(height: 1.h),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Staff",
-                                  hint: 'select staff',
-                                  items: ['All'],
-                                  selectedValue: selectedStaff,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedStaff = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Rejected Reason",
-                                  hint: 'select reason',
-                                  showHelp: true,
-                                  items: [],
-                                  selectedValue: selectedRejectedReason,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedRejectedReason = val;
-                                    });
-                                  },
-                                  message: '.',
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Lead Source",
-                                  hint: 'select source',
-                                  items: [],
-                                  selectedValue: selectedLeadSource,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedLeadSource = val;
-                                    });
-                                  },
-                                  message: ".",
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Dropdown(
-                                  label: "Call Status",
-                                  hint: 'select status',
-                                  items: [],
-                                  selectedValue: selectedCallStatus,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedCallStatus = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 1.h),
-
-                          /// 🔥 VIEW BUTTON (perfect aligned)
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 2.h),
-                              child: SizedBox(
-                                width: 7.w,
-                                height: 4.5.h,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xff1BAA90),
-                                    borderRadius: BorderRadius.circular(6),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: InputDate(
+                                      label: 'From Date',
+                                      fromController: _fromDateController,
+                                      toController: _toDateController,
+                                      isFrom: true,
+                                    ),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      "View",
-                                      style: AppTextStyle.small(
-                                        size: 10.sp,
-                                        color: Colors.white,
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: InputDate(
+                                      label: 'To Date',
+                                      fromController: _fromDateController,
+                                      toController: _toDateController,
+                                      isFrom: false,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      hint: 'select category',
+                                      showHelp: true,
+                                      items: categoryItems,
+                                      selectedValue: selectedCategory,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCategory = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      label: "Lead Category",
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Priority",
+                                      hint: 'select priority',
+                                      items: priorityItems,
+                                      selectedValue: selectedPriority,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedPriority = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 1.h),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Staff",
+                                      hint: 'select staff',
+                                      items: staffItems,
+                                      selectedValue: selectedStaff,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedStaff = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Rejected Reason",
+                                      hint: 'select reason',
+                                      showHelp: true,
+                                      items: [],
+                                      selectedValue: selectedRejectedReason,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedRejectedReason = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      message: '.',
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Lead Source",
+                                      hint: 'select source',
+                                      items: sourceItems,
+                                      selectedValue: selectedLeadSource,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedLeadSource = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      message: ".",
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Call Status",
+                                      hint: 'select status',
+                                      items: [],
+                                      selectedValue: selectedCallStatus,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCallStatus = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 1.h),
+
+                              /// 🔥 VIEW BUTTON (perfect aligned)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  InkWell(
+                                    onTap: () => _applyFilters(),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 2.h),
+                                      child: SizedBox(
+                                        width: 7.w,
+                                        height: 4.5.h,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff1BAA90),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "View",
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(width: 2.w),
+                                  if (selectedCategory != null ||
+                                      selectedSource != null ||
+                                      selectedPriority != null ||
+                                      selectedStaff != null ||
+                                      selectedCallStatus != null ||
+                                      selectedRejectedReason != null)
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCategory = null;
+                                          selectedSource = null;
+                                          selectedPriority = null;
+                                          selectedStaff = null;
+                                          selectedRejectedReason = null;
+                                          selectedCallStatus = null;
+                                          _resetPage();
+                                        });
+                                      },
+                                      child: Container(
+                                        // width: 7.w,
+                                        height: 4.5.h,
+                                        padding: EdgeInsets.all(1.h),
+                                        margin: EdgeInsets.only(top: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.orange,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Reset Filters',
+                                          style: AppTextStyle.small(
+                                            size: 10.sp,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                     Divider(color: AppColors.divider),
                     SizedBox(height: 2.h),
@@ -482,24 +661,22 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                         style: AppTextStyle.medium(),
                                       ),
 
-                                      Center(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.edit_outlined,
-                                              size: 14.sp,
-                                              color: Colors.blue,
-                                            ),
-                                            SizedBox(width: 0.2.w),
-                                            Icon(
-                                              Icons.delete_outline,
-                                              size: 14.sp,
-                                              color: Colors.red,
-                                            ),
-                                          ],
-                                        ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.edit_outlined,
+                                            size: 14.sp,
+                                            color: Colors.blue,
+                                          ),
+                                          SizedBox(width: 0.2.w),
+                                          Icon(
+                                            Icons.delete_outline,
+                                            size: 14.sp,
+                                            color: Colors.red,
+                                          ),
+                                        ],
                                       ),
                                     ];
                                   }).toList(),

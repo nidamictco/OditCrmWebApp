@@ -1043,11 +1043,16 @@
 
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:oxdo/core/utils/custom_calender.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -1066,8 +1071,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
-
-
 
   final List<FollowupEntry> _followups = const [
     FollowupEntry(
@@ -1124,6 +1127,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
         setState(() => _selectedTab = _tabController.index);
       }
     });
+    context.read<AddLeadCubit>().initialize();
   }
 
   @override
@@ -1166,7 +1170,11 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   Widget _buildTabContent() {
     switch (_selectedTab) {
       case 0:
-        return _FollowupTabContent(followups: _followups);
+        return _FollowupTabContent(
+          followups: _followups,
+          leadId: 'LEADS-20260513-143356-326',
+          leadName: '',
+        );
       case 1:
         return _ActivitiesTabContent(activities: _activities);
       case 2:
@@ -1328,8 +1336,10 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   Widget _metaText(String text) =>
       Text(text, style: AppTextStyle.small(size: 12, color: Color(0xFF555555)));
 
-  Widget _divider() =>
-       Text('|', style: GoogleFonts.poppins(fontSize: 12, color: Color(0xFFBBBBBB)));
+  Widget _divider() => Text(
+    '|',
+    style: GoogleFonts.poppins(fontSize: 12, color: Color(0xFFBBBBBB)),
+  );
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1338,8 +1348,17 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
 class _FollowupTabContent extends StatefulWidget {
   final List<FollowupEntry> followups;
-  // final AddLeadModel lead;
-  const _FollowupTabContent({required this.followups /*required this.lead*/});
+  final String leadId;
+  final String leadName;
+  final String? leadWhatsappNo;
+  final String? leadWhatsappDialCode;
+  const _FollowupTabContent({
+    required this.followups,
+    required this.leadId,
+    required this.leadName,
+    this.leadWhatsappNo,
+    this.leadWhatsappDialCode,
+  });
 
   @override
   State<_FollowupTabContent> createState() => _FollowupTabContentState();
@@ -1348,7 +1367,7 @@ class _FollowupTabContent extends StatefulWidget {
 class _FollowupTabContentState extends State<_FollowupTabContent> {
   final TextEditingController _calledDateCtrl = TextEditingController();
   final TextEditingController _callStatusCtrl = TextEditingController();
-  final TextEditingController _leadStagetCtrl = TextEditingController();
+  // final TextEditingController _leadStagetCtrl = TextEditingController();
   final TextEditingController _productCtrl = TextEditingController();
   final TextEditingController _costCtrl = TextEditingController();
   final TextEditingController _WhtsppNoCtrl = TextEditingController();
@@ -1356,12 +1375,30 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   final TextEditingController _addressm = TextEditingController();
   final TextEditingController _remarksCtrl = TextEditingController();
 
-  final TextEditingController __dialogNameCtrl = TextEditingController();
+  final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
+  final List<String> _callStatuses = [
+    'Connected',
+    'Not Connected',
+    'Busy',
+    "No Status Updated",
+    "Not Attended",
+    "Out of coverge Area",
+    "Rejected",
+    "Switched Off",
+    "Number Changed",
+    "Not Switched On",
+  ];
 
   String? _leadStage;
-  String? _leadSource;
   String? _leadCategory;
   String? _leadPriority;
+
+  @override
+  void initState() {
+    super.initState();
+    _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  }
+
   @override
   Widget build(BuildContext context) {
     final Widget divider = SizedBox(width: 1.w);
@@ -1420,7 +1457,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    // _addFollowUpBottom(context, lead);
+                    _addFollowUpBottom(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -1459,175 +1496,834 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       ),
     );
   }
-  // void _addFollowUpBottom(BuildContext context, AddLeadModel lead){
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AppDialog(
-  //       title: 'Add Follow-Up',
-  //        body:  Column(
-  //         children: [
-  //           Row(
-  //             children: [
-  //                Expanded(
-  //                 child: Dropdown(
-  //                   showStar: true,
-  //                   items: [],
-  //                   selectedValue: ,
-  //                   onChanged: (v) {
 
-  //                   },
-  //                   label: 'Called Status',
-  //                   hint: 'Select',
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           Row(children: [
-  //              Expanded(
-  //                 child: Dropdown(
-  //                   showHelp: true,
-  //                   showStar: true,
-  //                   items: [],
-  //                   selectedValue: _leadStage,
-  //                   onChanged: (v) {
-  //                     // setState(() => _leadStage = v);
-  //                     // cubit.selectLeadStage(v);
-  //                   },
-  //                   label: 'Lead Stage',
-  //                   hint: 'Select Stages',
-  //                 ),
-  //               ),
-  //                Expanded(child: _field(
-  //                   'Product',
-  //                   true,
-  //                   Icons.person_outline,
-  //                   controller: _productCtrl,
-  //                 ),
-  //                )
-  //           ],),
-  //           Row(
-  //             children: [
-  //               Expanded(child: _field(
-  //                   'Cost',
-  //                   true,
-  //                   null,
-  //                   // Icons.person_outline,
-  //                   controller: ,
-  //                 ),
-  //                ),
-  //                 Expanded(child:DropdownWithAdd(
-  //                   label: 'Lead Category',
-  //                   icon: Icons.layers_outlined,
-  //                   items: [],
-  //                   selectedValue: _leadCategory,
-  //                   onChanged: (v) {
-  //                     // setState(() => _leadCategory = v);
-  //                     // cubit.selectCategory(v);
-  //                   },
-  //                   onTap: _showAddCategoryDialog,
-  //                 ),
-  //                ),
-  //             ],
-  //           ),
-  //          Row(
-  //           children: [
+  // void _addFollowUpBottom(BuildContext context) {
+  //   final cubit = context.read<AddLeadCubit>();
 
-  //           ],
-  //          )
-  //         ],
-  //       ),
+  // cubit.selectLeadStage(null);
+  // cubit.selectCategory(null);
+  // cubit.selectPriority(null);
 
-  //     ),
-  //   );
-  // }
-  // Widget _field(
-  //   String label,
-  //   bool required,
-  //   IconData? icons, {
-  //   TextEditingController? controller,
-  // }) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       _label(label, required, icons!),
-  //       SizedBox(height: 0.5.h),
-  //       Container(
-  //         height: 5.h,
-  //         decoration: BoxDecoration(
-  //     border: Border.all(color: AppColors.divider),
-  //     borderRadius: BorderRadius.circular(4),
-  //     color: AppColors.greyCard,
+  // final TextEditingController nextFollowUpCtrl = TextEditingController(
+  //   text: DateFormat('dd-MM-yyyy').format(
+  //     DateTime.now().add(const Duration(days: 1)),
   //   ),
-  //         child: TextField(
-  //           controller: controller,
-  //           style: AppTextStyle.body(size: 11.sp),
-  //           decoration: InputDecoration(
-  //             hintText: label,
-  //             hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-  //             border: InputBorder.none,
-  //             contentPadding: EdgeInsets.all(1.w),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-  //  Widget _label(String text, bool required, IconData icons) {
-  //   return Row(
-  //     children: [
-  //       Icon(icons, size: 12.sp, color: AppColors.green),
-  //       SizedBox(width: 0.5.w),
-  //       Text(text, style: AppTextStyle.medium()),
-  //       if (required)
-  //         Text(
-  //           '*',
-  //           style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
-  //         ),
-  //     ],
-  //   );
-  // }
-  // void _showAddCategoryDialog() {
-  //   _dialogNameCtrl.clear();
+  // );
+  // DateTime _nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
+  // DateTime _calledDateValue = DateTime.now();
   //   showDialog(
   //     context: context,
-  //     builder: (ctx) => AppDialog(
-  //       title: 'Add Lead Category',
-  //       body: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
-  //           SizedBox(height: 2.h),
-  //           TextField(
-  //             controller: _dialogNameCtrl,
-  //             decoration: InputDecoration(
-  //               hintText: 'Enter Category',
-  //               hintStyle: AppTextStyle.medium(
-  //                 size: 11.sp,
-  //                 color: AppColors.grey,
-  //               ),
-  //               border: OutlineInputBorder(
-  //                 borderRadius: BorderRadius.circular(4),
-  //               ),
-  //             ),
+  //     builder: (context) => BlocProvider.value(
+  //       value: cubit,
+  //       child: AppDialog(
+  //         title: 'Add Follow-Up',
+  //         width: 60.w,
+  //         body: Padding(
+  //           padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+  //           child: BlocBuilder<AddLeadCubit, AddLeadState>(
+  //             builder: (context, state) {
+  //               final categoryNames = state.categories
+  //                   .map((e) => e.name)
+  //                   .toList();
+  //               final stagesNames = state.stages.map((e) => e.name).toList();
+  //               final List<String> priority = [
+  //                 'High',
+  //                 'Low',
+  //                 'Negative',
+  //                 'Normal',
+  //               ];
+
+  //               return Column(
+  //                 children: [
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Row(
+  //                               children: [
+  //                                 Text(
+  //                                   'Called Date',
+  //                                   style: AppTextStyle.medium(),
+  //                                 ),
+  //                                 // SizedBox(width: 0.5.w),
+  //                                 Text(
+  //                                   '*',
+  //                                   style: AppTextStyle.medium(
+  //                                     size: 13,
+  //                                     color: Colors.red,
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                             GestureDetector(
+  //                               onTap: () {
+  //                                 showDialog(
+  //                                   context: context,
+  //                                   barrierColor: Colors.transparent,
+  //                                   builder: (context) {
+  //                                     return Stack(
+  //                                       children: [
+  //                                         Positioned(
+  //                                           top: 33.h,
+  //                                           left: 27.w,
+  //                                           child: CustomCalendar(
+  //                                             onDateSelected: (date) {
+  //                                               _calledDateCtrl.text =
+  //                                                   DateFormat(
+  //                                                     'dd-MM-yyyy',
+  //                                                   ).format(date);
+  //                                               Navigator.pop(context);
+  //                                             },
+  //                                           ),
+  //                                         ),
+  //                                       ],
+  //                                     );
+  //                                   },
+  //                                 );
+  //                               },
+  //                               child: Container(
+  //                                 // width: 15.w,
+  //                                 height: 5.2.h,
+  //                                 padding: EdgeInsets.symmetric(
+  //                                   horizontal: 10,
+  //                                   vertical: 5,
+  //                                 ),
+  //                                 decoration: BoxDecoration(
+  //                                   color: AppColors.greyCard,
+  //                                   border: Border.all(
+  //                                     color: AppColors.divider,
+  //                                     width: 1,
+  //                                   ),
+  //                                   borderRadius: BorderRadius.circular(4),
+  //                                 ),
+  //                                 child: IgnorePointer(
+  //                                   child: TextField(
+  //                                     textAlignVertical:
+  //                                         TextAlignVertical.center,
+  //                                     textAlign: TextAlign.start,
+  //                                     controller: _calledDateCtrl,
+  //                                     readOnly: true,
+  //                                     style: AppTextStyle.small(
+  //                                       size: 11.sp,
+  //                                       color: AppColors.black,
+  //                                     ),
+  //                                     decoration: InputDecoration(
+  //                                       border: InputBorder.none,
+  //                                       hintText: _calledDateCtrl.text,
+  //                                       hintStyle: AppTextStyle.small(
+  //                                         size: 11.sp,
+  //                                         color: AppColors.black,
+  //                                       ),
+  //                                       isCollapsed: true,
+  //                                       contentPadding: EdgeInsets.zero,
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: 1.w),
+  //                       Expanded(
+  //                         child: Dropdown(
+  //                           showStar: true,
+  //                           items: [
+  //                             'Connected',
+  //                             'Not Connected',
+  //                             'Busy',
+  //                             "No Status Updated",
+  //                             "Not Attended",
+  //                             "Out of coverge Area",
+  //                             "Rejected",
+  //                             "Switched Off",
+  //                             "Number Changed",
+  //                             "Not Switched On",
+  //                           ],
+  //                           selectedValue: _callStatusCtrl.text,
+  //                           onChanged: (v) {
+  //                             setState(() {
+  //                               _callStatusCtrl.text = v ?? '';
+  //                             });
+  //                           },
+  //                           label: 'Called Status',
+  //                           hint: 'Select Call Status',
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   SizedBox(height: 1.h),
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: Dropdown(
+  //                           showHelp: true,
+  //                           showStar: true,
+  //                           items: stagesNames,
+  //                           selectedValue: _leadStage,
+  //                           onChanged: (v) {
+  //                             setState(() => _leadStage = v);
+  //                             cubit.selectLeadStage(v);
+  //                           },
+  //                           label: 'Lead Stage',
+  //                           hint: 'Select',
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: 1.w),
+  //                       Expanded(
+  //                         child: DropdownWithAdd(
+  //                           label: 'Lead Category',
+  //                           icon: Icons.layers_outlined,
+  //                           items: categoryNames,
+  //                           selectedValue: _leadCategory,
+  //                           onChanged: (v) {
+  //                             setState(() => _leadCategory = v);
+  //                             cubit.selectCategory(v);
+  //                           },
+  //                           // onTap: _showAddCategoryDialog,
+  //                           onTap: () {},
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   SizedBox(height: 1.h),
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: Dropdown(
+  //                           icon: Icons.flag_outlined,
+  //                           showIcon: true,
+  //                           showHelp: true,
+  //                           items: priority,
+  //                           selectedValue: _leadPriority,
+  //                           onChanged: (v) {
+  //                             setState(() => _leadPriority = v);
+  //                             cubit.selectPriority(v);
+  //                           },
+  //                           label: 'Priority',
+  //                           hint: 'Select Priority',
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: 1.w),
+  //                       Expanded(
+  //                         child: _phoneField(
+  //                           'Whatsapp Number',
+  //                           false,
+  //                           Icons.call_outlined,
+  //                           controller: _WhtsppNoCtrl,
+  //                           onDialCodeChanged: (c) =>
+  //                               setState(() => _WhtsppNoCtrl.text = c),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   SizedBox(height: 1.h),
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: _field(
+  //                           'Email',
+  //                           true,
+  //                           null,
+  //                           // Icons.person_outline,
+  //                           controller: _emailCtrl,
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: 1.w),
+  //                       Expanded(
+  //                         child: _field(
+  //                           'Address',
+  //                           true,
+  //                           null,
+  //                           // Icons.person_outline,
+  //                           controller: _addressm,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   SizedBox(height: 1.h),
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: _field(
+  //                           'Remark',
+  //                           true,
+  //                           null,
+  //                           // Icons.person_outline,
+  //                           controller: _addressm,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               );
+  //             },
   //           ),
-  //         ],
+  //         ),
   //       ),
-  //       onSubmit: () async {
-  //         final name = _dialogNameCtrl.text.trim();
-  //         if (name.isEmpty) return;
-  //         Navigator.pop(ctx);
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text('Category "$name" added.'),
-  //             backgroundColor: AppColors.green,
-  //             behavior: SnackBarBehavior.floating,
-  //           ),
-  //         );
-  //       },
   //     ),
   //   );
   // }
+
+  void _addFollowUpBottom(BuildContext context) {
+    final cubit = context.read<AddLeadCubit>();
+
+    // Reset selections before opening dialog
+    cubit.selectLeadStage(null);
+    cubit.selectCategory(null);
+    cubit.selectPriority(null);
+
+    final TextEditingController nextFollowUpCtrl = TextEditingController(
+      text: DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateTime.now().add(const Duration(days: 1))),
+    );
+    DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
+    DateTime calledDateValue = DateTime.now();
+
+    // ✅ Reset called date to today each time dialog opens
+    _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _callStatusCtrl.text = '';
+    _remarksCtrl.text = '';
+    _emailCtrl.text = '';
+    _addressm.text = '';
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: cubit,
+        child: BlocConsumer<AddLeadCubit, AddLeadState>(
+          // ✅ BlocConsumer at the TOP — wraps everything so the
+          //    entire dialog rebuilds on every state change
+          listener: (ctx, state) {
+  if (state.status == AddLeadStatus.success &&
+      state.successMessage == 'Follow-up added successfully.') {
+    
+    // ✅ Capture messenger BEFORE popping — context is still alive here
+    final messenger = ScaffoldMessenger.of(context);
+    
+    Navigator.pop(dialogContext);
+    
+    // ✅ Now safe to use — messenger was captured before pop
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('Follow-up added successfully!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+  if (state.errorMessage != null) {
+    // ✅ Guard: only show if context is still mounted
+    if (ctx.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.errorMessage!),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+},
+          builder: (ctx, state) {
+            // ✅ Data comes from cubit state — guaranteed non-null if
+            //    initialize() was called before opening this screen
+            final categoryNames = state.categories.map((e) => e.name).toList();
+            final stagesNames = state.stages.map((e) => e.name).toList();
+            const priority = ['High', 'Low', 'Negative', 'Normal'];
+
+            return StatefulBuilder(
+              // ✅ StatefulBuilder is INSIDE BlocConsumer so local UI
+              //    state (date pickers etc.) still works
+              builder: (sbContext, sbSetState) {
+                return AppDialog(
+                  title: 'Add Follow-Up',
+                  width: 60.w,
+                  onSubmit: state.isSubmitting
+                      ? null
+                      : () {
+                          if (_callStatusCtrl.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select a call status.'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+                          cubit.submitFollowUp(
+                            leadId: widget.leadId,
+                            leadName: widget.leadName,
+                            leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
+                            leadWhatsappDialCode: '+91',
+                            calledDate: calledDateValue,
+                            nextFollowUpDate: nextFollowUpDate,
+                            calledStatus: _callStatusCtrl.text,
+                            remarks: _remarksCtrl.text.trim(),
+                          );
+                        },
+                  body: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 1.w,
+                      vertical: 1.h,
+                    ),
+                    child: Column(
+                      children: [
+                        // ── Row 1: Called Date + Call Status ──────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Called Date',
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        '*',
+                                        style: AppTextStyle.medium(
+                                          size: 13,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 0.5.h),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: sbContext,
+                                        barrierColor: Colors.transparent,
+                                        builder: (_) => Stack(
+                                          children: [
+                                            Positioned(
+                                              top: 33.h,
+                                              left: 26.w,
+                                              child: CustomCalendar(
+                                                onDateSelected: (date) {
+                                                  // ✅ sbSetState for local date
+                                                  sbSetState(() {
+                                                    calledDateValue = date;
+                                                    _calledDateCtrl.text =
+                                                        DateFormat(
+                                                          'dd-MM-yyyy',
+                                                        ).format(date);
+                                                  });
+                                                  Navigator.pop(sbContext);
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 5.2.h,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.greyCard,
+                                        border: Border.all(
+                                          color: AppColors.divider,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: IgnorePointer(
+                                        child: TextField(
+                                          controller: _calledDateCtrl,
+                                          readOnly: true,
+                                          style: AppTextStyle.small(
+                                            size: 11.sp,
+                                            color: AppColors.black,
+                                          ),
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: _calledDateCtrl.text,
+                                            hintStyle: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.black,
+                                            ),
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 1.w),
+                            Expanded(
+                              child: Dropdown(
+                                showStar: true,
+                                items: _callStatuses,
+                                // ✅ Use local controller text, not state
+                                selectedValue: _callStatusCtrl.text.isEmpty
+                                    ? null
+                                    : _callStatusCtrl.text,
+                                onChanged: (v) {
+                                  // ✅ sbSetState so the conditional
+                                  //    Next Follow-Up row shows/hides
+                                  sbSetState(
+                                    () => _callStatusCtrl.text = v ?? '',
+                                  );
+                                },
+                                label: 'Called Status',
+                                hint: 'Select Call Status',
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 1.h),
+
+                        // ── Row 2: Lead Stage + Lead Category ─────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Dropdown(
+                                showHelp: true,
+                                showStar: true,
+                                items: stagesNames,
+                                selectedValue: state.selectedLeadStage,
+                                onChanged: (v) => cubit.selectLeadStage(v),
+                                label: 'Lead Stage',
+                                hint: stagesNames.isEmpty
+                                    ? 'Loading...'
+                                    : 'Select',
+                              ),
+                            ),
+                            SizedBox(width: 1.w),
+                            Expanded(
+                              child: DropdownWithAdd(
+                                label: 'Lead Category',
+                                icon: Icons.layers_outlined,
+                                items: categoryNames,
+                                selectedValue: state.selectedCategory,
+                                onChanged: (v) => cubit.selectCategory(v),
+                                onTap: () {},
+                                //  categoryNames.isEmpty ? 'Loading...' : null,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // ── Conditional: Next Follow-Up Date ──────────────
+                        // ✅ Only shows when call status is 'Follow Up'
+                        if (state.selectedLeadStage == 'FOLLOWUP') ...[
+                          SizedBox(height: 1.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Next Follow-Up Date',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: sbContext,
+                                          barrierColor: Colors.transparent,
+                                          builder: (_) => Stack(
+                                            children: [
+                                              Positioned(
+                                                top: 38.h,
+                                                left: 27.w,
+                                                child: CustomCalendar(
+                                                  onDateSelected: (date) {
+                                                    sbSetState(() {
+                                                      nextFollowUpDate = date;
+                                                      nextFollowUpCtrl.text =
+                                                          DateFormat(
+                                                            'dd-MM-yyyy',
+                                                          ).format(date);
+                                                    });
+                                                    // ✅ pop sbContext not context
+                                                    Navigator.pop(sbContext);
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 5.2.h,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.greyCard,
+                                          border: Border.all(
+                                            color: AppColors.divider,
+                                            width: 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: IgnorePointer(
+                                          child: TextField(
+                                            controller: nextFollowUpCtrl,
+                                            readOnly: true,
+                                            style: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.black,
+                                            ),
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: nextFollowUpCtrl.text,
+                                              hintStyle: AppTextStyle.small(
+                                                size: 11.sp,
+                                                color: AppColors.black,
+                                              ),
+                                              isCollapsed: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 1.w),
+                              const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ],
+                        SizedBox(height: 1.h),
+
+                        // ── Row 4: Priority + WhatsApp ────────────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Dropdown(
+                                icon: Icons.flag_outlined,
+                                showIcon: true,
+                                showHelp: true,
+                                items: priority,
+                                selectedValue: state.selectedPriority,
+                                onChanged: (v) => cubit.selectPriority(v),
+                                label: 'Priority',
+                                hint: 'Select Priority',
+                              ),
+                            ),
+                            SizedBox(width: 1.w),
+                            Expanded(
+                              child: _phoneField(
+                                'Whatsapp Number',
+                                false,
+                                Icons.call_outlined,
+                                controller: _WhtsppNoCtrl,
+                                onDialCodeChanged: (c) =>
+                                    sbSetState(() => _WhtsppNoCtrl.text = c),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 1.h),
+
+                        // ── Row 5: Email + Address ────────────────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _field(
+                                'Email',
+                                false,
+                                null,
+                                controller: _emailCtrl,
+                              ),
+                            ),
+                            SizedBox(width: 1.w),
+                            Expanded(
+                              child: _field(
+                                'Address',
+                                false,
+                                null,
+                                controller: _addressm,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 1.h),
+
+                        // ── Row 6: Remarks ────────────────────────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _field(
+                                'Remark',
+                                false,
+                                null,
+                                controller: _remarksCtrl,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 1.h),
+
+                        // ── Loading indicator when submitting ─────────────
+                        if (state.isSubmitting)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: LinearProgressIndicator(),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _field(
+    String label,
+    bool required,
+    IconData? icons, {
+    TextEditingController? controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(label, required, icons),
+        SizedBox(height: 0.5.h),
+        Container(
+          height: 5.h,
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(4),
+            color: AppColors.greyCard,
+          ),
+          child: TextField(
+            controller: controller,
+            style: AppTextStyle.body(size: 11.sp),
+            decoration: InputDecoration(
+              hintText: label,
+              hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(1.w),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _label(String text, bool required, IconData? icons) {
+    return Row(
+      children: [
+        Icon(icons, size: 12.sp, color: AppColors.green),
+        SizedBox(width: 0.5.w),
+        Text(text, style: AppTextStyle.medium()),
+        if (required)
+          Text(
+            '*',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+          ),
+      ],
+    );
+  }
+
+  Widget _phoneField(
+    String label,
+    bool required,
+    IconData icons, {
+    TextEditingController? controller,
+    void Function(String)? onDialCodeChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(label, required, icons),
+        SizedBox(height: 0.5.h),
+        Row(
+          children: [
+            SizedBox(
+              height: 5.h,
+              width: 7.5.w,
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.divider),
+                  borderRadius: BorderRadius.circular(4),
+                  color: AppColors.grey.withValues(alpha: 0.2),
+                ),
+                child: CountryCodePicker(
+                  onChanged: (country) =>
+                      onDialCodeChanged?.call(country.dialCode ?? '+91'),
+                  initialSelection: 'IN',
+                  showCountryOnly: false,
+                  showOnlyCountryWhenClosed: false,
+                  alignLeft: true,
+                  padding: EdgeInsets.zero,
+                  textStyle: AppTextStyle.body(size: 11.sp),
+                  flagWidth: 16,
+                  dialogBackgroundColor: AppColors.white,
+                  dialogSize: Size(30.w, 80.h),
+                  dialogTextStyle: AppTextStyle.body(size: 11.sp),
+                  searchStyle: AppTextStyle.body(size: 11.sp),
+                  searchDecoration: InputDecoration(
+                    hintText: 'Search country',
+                    hintStyle: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.divider),
+                    ),
+                    contentPadding: EdgeInsets.all(1.w),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 0.25.w),
+            Expanded(
+              child: Container(
+                height: 5.h,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.divider),
+                  borderRadius: BorderRadius.circular(4),
+                  color: AppColors.greyCard,
+                ),
+                child: TextField(
+                  controller: controller,
+                  style: AppTextStyle.body(size: 11.sp),
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: 'Enter number',
+                    hintStyle: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.grey,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(1.w),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _DateGroup extends StatelessWidget {
@@ -1657,7 +2353,10 @@ class _DateGroup extends StatelessWidget {
                 Container(
                   width: 90,
                   height: 90,
-                  padding: const EdgeInsets.symmetric(vertical: 6,horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 20,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFc1c1c1),
                     // borderRadius: BorderRadius.circular(6),
@@ -1759,16 +2458,16 @@ class _FollowupCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 100,),
-              Text(
-                entry.time,
-                style: AppTextStyle.medium(color: Color(0xFF444444),size: 12)
-                // const TextStyle(
-                //     fontSize: 12,
-                //     fontWeight: FontWeight.w500,
-                //     color: Color(0xFF444444)),
-              ),
-          SizedBox(height: 25,),
+          SizedBox(height: 100),
+          Text(
+            entry.time,
+            style: AppTextStyle.medium(color: Color(0xFF444444), size: 12),
+            // const TextStyle(
+            //     fontSize: 12,
+            //     fontWeight: FontWeight.w500,
+            //     color: Color(0xFF444444)),
+          ),
+          SizedBox(height: 25),
           Container(
             width: 550,
             decoration: BoxDecoration(
@@ -1800,11 +2499,14 @@ class _FollowupCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(entry.agent,
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Color(0xFF222222))),
+                      Text(
+                        entry.agent,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF222222),
+                        ),
+                      ),
                       const Spacer(),
                       Icon(
                         Icons.edit_outlined,
@@ -1838,16 +2540,23 @@ class _FollowupCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                           SizedBox(
+                          SizedBox(
                             width: 90,
-                            child: Text('Status',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    color: Color(0xFF555555),
-                                    fontWeight: FontWeight.w500)),
+                            child: Text(
+                              'Status',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Color(0xFF555555),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                           Text(': ',
-                              style: GoogleFonts.poppins(color: Color(0xFF555555))),
+                          Text(
+                            ': ',
+                            style: GoogleFonts.poppins(
+                              color: Color(0xFF555555),
+                            ),
+                          ),
                           const SizedBox(width: 4),
                           _StatusChip(label: entry.status),
                         ],
@@ -1873,15 +2582,23 @@ class _FollowupCard extends StatelessWidget {
         children: [
           SizedBox(
             width: 90,
-            child: Text(label,
-                style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Color(0xFF555555),
-                    fontWeight: FontWeight.w500)),
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Color(0xFF555555),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           Expanded(
-            child: Text(':  $value',
-                style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF333333))),
+            child: Text(
+              ':  $value',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Color(0xFF333333),
+              ),
+            ),
           ),
         ],
       ),
@@ -1906,11 +2623,14 @@ class _ActivitiesTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-           Text('Activities',
-              style: GoogleFonts.poppins(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          Text(
+            'Activities',
+            style: GoogleFonts.poppins(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 16),
           // ✅ Spread entries as Column children — no ListView
           ...activities.map((a) => _ActivityItem(entry: a)),
@@ -1946,21 +2666,31 @@ class _ActivityItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entry.agent,
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Color(0xFF222222))),
+                Text(
+                  entry.agent,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Color(0xFF222222),
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(entry.description,
-                    style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Color(0xFF555555),
-                        height: 1.5)),
+                Text(
+                  entry.description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Color(0xFF555555),
+                    height: 1.5,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(entry.dateTime,
-                    style: GoogleFonts.poppins(
-                        fontSize: 12, color: Color(0xFF999999))),
+                Text(
+                  entry.dateTime,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Color(0xFF999999),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1980,8 +2710,14 @@ class _DetailsTabContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle labelStyle = GoogleFonts.poppins(
-        fontSize: 13, color: Color(0xFF888888), fontWeight: FontWeight.w500);
-    TextStyle valueStyle = GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222));
+      fontSize: 13,
+      color: Color(0xFF888888),
+      fontWeight: FontWeight.w500,
+    );
+    TextStyle valueStyle = GoogleFonts.poppins(
+      fontSize: 13,
+      color: Color(0xFF222222),
+    );
 
     return Container(
       color: Colors.white,
@@ -1990,11 +2726,14 @@ class _DetailsTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
         children: [
-           Text('Details',
-              style: GoogleFonts.poppins(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          Text(
+            'Details',
+            style: GoogleFonts.poppins(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
@@ -2028,11 +2767,14 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 12),
-           Text('Lead handled staffs',
-              style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF222222))),
+          Text(
+            'Lead handled staffs',
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -2140,14 +2882,19 @@ class _DetailCell extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label :',
-            style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Color(0xFF888888),
-                fontWeight: FontWeight.w500)),
+        Text(
+          '$label :',
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            color: Color(0xFF888888),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222))),
+        Text(
+          value,
+          style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222)),
+        ),
       ],
     );
   }
@@ -2188,19 +2935,30 @@ class _StaffCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF222222))),
+                Text(
+                  name,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF222222),
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(phone,
-                    style: GoogleFonts.poppins(
-                        fontSize: 12, color: Color(0xFF777777))),
+                Text(
+                  phone,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Color(0xFF777777),
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text('$activities Activities',
-                    style: GoogleFonts.poppins(
-                        fontSize: 12, color: Color(0xFF555555))),
+                Text(
+                  '$activities Activities',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Color(0xFF555555),
+                  ),
+                ),
               ],
             ),
           ),
@@ -2299,6 +3057,4 @@ class _StatusChip extends StatelessWidget {
       ),
     );
   }
-
-
 }

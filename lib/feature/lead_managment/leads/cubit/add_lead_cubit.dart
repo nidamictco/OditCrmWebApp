@@ -121,12 +121,12 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   void selectLeadStage(String? value) =>
       emit(state.copyWith(selectedLeadStage: value));
-
+      
   void selectState(String? value) =>
-      emit(state.copyWith(selectedState: value, clearDistrict: true));
+      emit(state.copyWith(selectedState: value, clearState: value == null, clearDistrict: true));
 
   void selectDistrict(String? value) =>
-      emit(state.copyWith(selectedDistrict: value));
+      emit(state.copyWith(selectedDistrict: value, clearDistrict: value == null));
 
   // ── Fetch list ────────────────────────────────────────────────────────────
 
@@ -366,5 +366,72 @@ Future<void> assignStaff({
       errorMessage: _friendlyError(e),
     ));
   }}
+
+  // --------------add follow up--------------------------------
+
+
+
+
+
+  
+  Future<void> submitFollowUp({
+  required String leadId,
+  required String leadName,
+  required String leadWhatsappNo,
+  required String leadWhatsappDialCode,
+  required DateTime calledDate,
+  required DateTime nextFollowUpDate,
+  required String calledStatus,
+  required String remarks,
+}) async {
+  if (state.isSubmitting) return;
+
+  if (calledStatus.trim().isEmpty) {
+    emit(state.copyWith(
+        errorMessage: 'Call status is required.', clearSuccess: true));
+    return;
+  }
+
+  emit(state.copyWith(isSubmitting: true, clearError: true));
+
+  try {
+    final user = await SessionService().getSavedUser();
+
+    final followUp = FollowUpModel(
+      leadId: leadId,
+      leadName: leadName,
+      leadWhatsappNo: leadWhatsappNo,
+      leadWhatsappDialCode: leadWhatsappDialCode,
+      calledDate: calledDate,
+      nextFollowUpDate: nextFollowUpDate,
+      calledStatus: calledStatus,
+      leadStage: state.selectedLeadStage ?? '',
+      leadCategory: state.selectedCategory ?? '',
+      priority: state.selectedPriority ?? '',
+      remarks: remarks,
+      createdById: user?.id ?? '',
+      createdAt: DateTime.now(),
+    );
+
+    await _leadRepository.addFollowUp(leadId, followUp);
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      status: AddLeadStatus.success,
+      successMessage: 'Follow-up added successfully.',
+      clearError: true,
+      clearCategory: true,
+      clearPriority: true,
+      clearLeadStage: true,
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      isSubmitting: false,
+      status: AddLeadStatus.failure,
+      errorMessage: _friendlyError(e),
+      clearSuccess: true,
+    ));
+  }
+}
 
 }

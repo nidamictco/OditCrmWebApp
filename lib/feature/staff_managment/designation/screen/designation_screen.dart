@@ -190,7 +190,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                               ),
                               Center(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     /// ✏️ Edit
                                     GestureDetector(
@@ -209,19 +209,10 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                           ),
                                         );
                                       },
-                                      child: Container(
-                                        padding: EdgeInsets.all(0.3.h),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                          color: Colors.blue.withOpacity(0.1),
-                                        ),
-                                        child: Icon(
-                                          Icons.edit_outlined,
-                                          size: 13.sp,
-                                          color: Colors.blue,
-                                        ),
+                                      child: Icon(
+                                        Icons.edit_outlined,
+                                        size: 13.sp,
+                                        color: Colors.blue,
                                       ),
                                     ),
 
@@ -268,19 +259,10 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                         }
                                       },
 
-                                      child: Container(
-                                        padding: EdgeInsets.all(0.3.h),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                          color: Colors.red.withOpacity(0.1),
-                                        ),
-                                        child: Icon(
-                                          Icons.delete_outline,
-                                          size: 13.sp,
-                                          color: Colors.red,
-                                        ),
+                                      child: Icon(
+                                        Icons.delete_outline,
+                                        size: 13.sp,
+                                        color: Colors.red,
                                       ),
                                     ),
                                   ],

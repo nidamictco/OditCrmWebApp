@@ -131,7 +131,7 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
     required VoidCallback onDelete,
   }) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         InkWell(
           onTap: onEdit,
