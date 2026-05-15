@@ -25,6 +25,9 @@ class AddLeadModel {
   final String createdById;
   final Map<String, String>? additionalFields;
   final DateTime? deletedAt;
+  // final List<FolloupModel>? followUps;
+  final DateTime? followUpDate;
+  final DateTime? calledDate;
 
 
   const AddLeadModel({
@@ -52,6 +55,9 @@ class AddLeadModel {
     required this.createdById,
     this.additionalFields,
     this.deletedAt,
+    this.followUpDate,
+    this.calledDate,
+
   });
 
   Map<String, dynamic> toFirestore() {
@@ -79,6 +85,8 @@ class AddLeadModel {
       'createdAt': FieldValue.serverTimestamp(),
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
+        'followUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
+        'calledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
     };
   }
 
@@ -113,6 +121,8 @@ class AddLeadModel {
           ? Map<String, String>.from(data['additionalFields'])
           : null,
       deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
+      followUpDate: (data['followUpDate'] as Timestamp?)?.toDate(),
+      calledDate: (data['calledDate'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -141,6 +151,8 @@ class AddLeadModel {
     String? createdById,
     Map<String, String>? additionalFields,
     DateTime? deletedAt,
+    DateTime? followUpDate,
+    DateTime? calledDate,
   }) {
     return AddLeadModel(
       id: id ?? this.id,
@@ -167,6 +179,8 @@ class AddLeadModel {
       createdById: createdById ?? this.createdById,
       additionalFields: additionalFields ?? this.additionalFields,
       deletedAt: deletedAt ?? this.deletedAt,
+      followUpDate: followUpDate ?? this.followUpDate,
+      calledDate: calledDate ?? this.calledDate,
     );
   }
 }

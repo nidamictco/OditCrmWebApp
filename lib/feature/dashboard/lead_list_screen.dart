@@ -1,144 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/feature/dashboard/widget/add_leads_button.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:sizer/sizer.dart';
 
+import '../lead_managment/leads/model/add_lead_model.dart';
 import '../sidebar/main_screen.dart';
-import 'follow_up_details_screen.dart';
 
-
-enum LeadStatus { followUp, visited, converted, lost }
-
-extension LeadStatusExt on LeadStatus {
-  String get label {
-    switch (this) {
-      case LeadStatus.followUp:
-        return 'Follow Up';
-      case LeadStatus.visited:
-        return 'Visited';
-      case LeadStatus.converted:
-        return 'Converted';
-      case LeadStatus.lost:
-        return 'Lost';
-    }
-  }
-
-  Color get color {
-    switch (this) {
-      case LeadStatus.followUp:
-        return const Color(0xFFF59E0B);
-      case LeadStatus.visited:
-        return const Color(0xFF10B981);
-      case LeadStatus.converted:
-        return const Color(0xFF3B82F6);
-      case LeadStatus.lost:
-        return const Color(0xFFEF4444);
-    }
+Color getLeadStatusColor(String status) {
+  switch (status) {
+    case 'FOLLOWUP':
+      return const Color(0xFFF59E0B);
+    case 'NEW':
+      return const Color(0xFF10B981);
+    case 'TRANSFERRED':
+      return const Color(0xFF3B82F6);
+    case 'MISSED':
+      return const Color(0xFFEF4444);
+    case 'CLOSED':
+      return const Color(0xFF0D31E8);
+    default:
+      return const Color(0xFF10B981);
   }
 }
-
-class Lead {
-  final int id;
-  final String name;
-  final String contactNumber;
-  final String leadCategory;
-  final String staff;
-  final LeadStatus status;
-  final DateTime followUpDate;
-  final DateTime calledDate;
-  bool isSelected;
-
-  Lead({
-    required this.id,
-    required this.name,
-    required this.contactNumber,
-    required this.leadCategory,
-    required this.staff,
-    required this.status,
-    required this.followUpDate,
-    required this.calledDate,
-    this.isSelected = false,
-  });
-
-  Lead copyWith({
-    bool? isSelected,
-    LeadStatus? status,
-  }) {
-    return Lead(
-      id: id,
-      name: name,
-      contactNumber: contactNumber,
-      leadCategory: leadCategory,
-      staff: staff,
-      status: status ?? this.status,
-      followUpDate: followUpDate,
-      calledDate: calledDate,
-      isSelected: isSelected ?? this.isSelected,
-    );
-  }
-}
-
-///sample data .......................................
-final List<Lead> sampleLeads = [
-  Lead(
-    id: 1,
-    name: 'Swalih',
-    contactNumber: '918589878078',
-    leadCategory: 'Need Further Followup',
-    staff: 'Shahid',
-    status: LeadStatus.followUp,
-    followUpDate: DateTime(2026, 4, 30, 16, 9),
-    calledDate: DateTime(2026, 4, 18, 7, 43),
-  ),
-  Lead(
-    id: 2,
-    name: 'Manshad',
-    contactNumber: '918129018860',
-    leadCategory: 'Visited',
-    staff: 'Shahid',
-    status: LeadStatus.followUp,
-    followUpDate: DateTime(2026, 4, 30, 15, 57),
-    calledDate: DateTime(2026, 4, 17, 8, 1),
-  ),
-  Lead(
-    id: 3,
-    name: 'ishtara',
-    contactNumber: '97338459767',
-    leadCategory: 'Need Further Followup',
-    staff: 'Shahid',
-    status: LeadStatus.followUp,
-    followUpDate: DateTime(2026, 4, 30, 4, 53),
-    calledDate: DateTime(2026, 4, 22, 16, 55),
-  ),
-  Lead(
-    id: 4,
-    name: 'Muhammed Jilfri',
-    contactNumber: '916282995990',
-    leadCategory: 'Online',
-    staff: 'Shahid',
-    status: LeadStatus.followUp,
-    followUpDate: DateTime(2026, 4, 30, 4, 36),
-    calledDate: DateTime(2026, 4, 18, 5, 32),
-  ),
-  Lead(
-    id: 5,
-    name: 'Rashad',
-    contactNumber: '918304960905',
-    leadCategory: 'Need Further Followup',
-    staff: 'Shahid',
-    status: LeadStatus.followUp,
-    followUpDate: DateTime(2026, 4, 30, 2, 53),
-    calledDate: DateTime(2026, 4, 18, 10, 42),
-  ),
-];
 
 class NewLeadsPage extends StatefulWidget {
-  const NewLeadsPage({super.key});
+  String fromCard;
+  NewLeadsPage({super.key, required this.fromCard});
 
   @override
   State<NewLeadsPage> createState() => _NewLeadsPageState();
@@ -149,64 +45,104 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   String selectedValue = '10';
   List<String> dropdownItems = ['10', '50', '100', '500', '1000'];
 
-
-
-  List<Lead> _leads = List.from(sampleLeads);
+  // List<Lead> _leads = List.from(sampleLeads);
   bool _selectAll = false;
   String _searchQuery = '';
+  String _selectedEntries = '10';
+  int _currentPage = 1;
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
   // Total fixed width of the table — must match sum of all column widths
-  static const double _tableWidth = 52 + 40 + 140 + 160 + 180 + 100 + 110 + 160 + 160 + 150;
+  static const double _tableWidth =
+      52 + 40 + 140 + 160 + 180 + 100 + 110 + 160 + 160 + 150;
 
-  List<Lead> get _filteredLeads {
-    if (_searchQuery.isEmpty) return _leads;
-    final q = _searchQuery.toLowerCase();
-    return _leads.where((l) {
-      return l.name.toLowerCase().contains(q) ||
-          l.contactNumber.contains(q) ||
-          l.leadCategory.toLowerCase().contains(q) ||
-          l.staff.toLowerCase().contains(q);
-    }).toList();
+  // List<Lead> get _filteredLeads {
+  //   if (_searchQuery.isEmpty) return _leads;
+  //   final q = _searchQuery.toLowerCase();
+  //   return _leads.where((l) {
+  //     return l.name.toLowerCase().contains(q) ||
+  //         l.contactNumber.contains(q) ||
+  //         l.leadCategory.toLowerCase().contains(q) ||
+  //         l.staff.toLowerCase().contains(q);
+  //   }).toList();
+  // }
+
+  List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
+    List<AddLeadModel> result = leads;
+
+    if (_searchQuery.isEmpty) return result;
+
+    // Search filter
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      result = result
+          .where(
+            (lead) =>
+                lead.clientName.toLowerCase().contains(q) ||
+                lead.contactNumber.contains(q) ||
+                lead.leadCategory.toLowerCase().contains(q) ||
+                lead.assignedStaff.toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
+    // Entries limit
+    // final limit = int.tryParse(_selectedEntries) ?? 10;
+    return result;
+  }
+
+  int _totalPages(int totalCount) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    if (totalCount == 0) return 1;
+    return (totalCount / limit).ceil();
+  }
+
+  List<AddLeadModel> _pagedLeads(List<AddLeadModel> allFiltered) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    final start = (_currentPage - 1) * limit;
+    final end = (start + limit).clamp(0, allFiltered.length);
+    if (start >= allFiltered.length) return [];
+    return allFiltered.sublist(start, end);
   }
 
   void _toggleSelectAll(bool? value) {
     setState(() {
       _selectAll = value ?? false;
-      _leads = _leads.map((l) => l.copyWith(isSelected: _selectAll)).toList();
+      // _leads = _leads.map((l) => l.copyWith(isSelected: _selectAll)).toList();
     });
   }
 
-  void _toggleSelect(int id, bool? value) {
-    setState(() {
-      _leads = _leads.map((l) {
-        if (l.id == id) return l.copyWith(isSelected: value ?? false);
-        return l;
-      }).toList();
-      _selectAll = _leads.every((l) => l.isSelected);
-    });
+  //
+  void _toggleSelect(String id, bool? value) {
+    // setState(() {
+    //   _leads = _leads.map((l) {
+    //     if (l.id == id) return l.copyWith(isSelected: value ?? false);
+    //     return l;
+    //   }).toList();
+    //   _selectAll = _leads.every((l) => l.isSelected);
+    // });
   }
 
-  void _onView(Lead lead) {
-    _showSnackBar('Viewing ${lead.name}', AppTheme.actionView);
+  void _onView(AddLeadModel lead) {
+    _showSnackBar('Viewing ${lead.clientName}', AppTheme.actionView);
   }
 
-  void _onEdit(Lead lead) {
-    _showSnackBar('Editing ${lead.name}', AppTheme.actionEdit);
+  void _onEdit(AddLeadModel lead) {
+    _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
   }
 
-  void _onHistory(Lead lead) {
-    _showSnackBar('History for ${lead.name}', AppTheme.actionHistory);
+  void _onHistory(AddLeadModel lead) {
+    _showSnackBar('History for ${lead.clientName}', AppTheme.actionHistory);
   }
 
-  void _onDelete(Lead lead) {
+  void _onDelete(AddLeadModel lead) {
     showDialog(
       context: context,
       builder: (_) => _DeleteConfirmDialog(
-        leadName: lead.name,
+        leadName: lead.clientName,
         onConfirm: () {
-          setState(() => _leads.removeWhere((l) => l.id == lead.id));
-          _showSnackBar('${lead.name} deleted', AppTheme.actionDelete);
+          // setState(() => _leads.removeWhere((l) => l.id == lead.id));
+          _showSnackBar('${lead.clientName} deleted', AppTheme.actionDelete);
         },
       ),
     );
@@ -233,266 +169,264 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<AddLeadCubit>().fetchLeads();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: ListView(
-        shrinkWrap: true,
-        children: [
-          TopBreadcrumbBar(title: 'Dashboard', subTitle: 'New Leads'),
-
-          Padding(
-            padding: EdgeInsets.all(2.w),
-            child: Container(
-              height: MediaQuery.of(context).size.height*1.5,
-              decoration: _cardBox(),
-              child: Column(
-                children: [
-                  /// 🔹 HEADER
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 2.w,
-                      vertical: 2.h,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "New Leads",
-                          style: AppTextStyle.medium(
-                            size: 13.6.sp,
-                            color: AppColors.black.withOpacity(0.77),
-                            weight: FontWeight.w600,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            AddLeadsButton(),
-                            SizedBox(width: 1.w),
-                            // Container(
-                            //   height: 4.5.h,
-                            //   width: 4.5.h,
-                            //   decoration: BoxDecoration(
-                            //     // border: Border.all(color: Colors.indigo.shade00),
-                            //     borderRadius: BorderRadius.circular(4),
-                            //     color: Colors.indigo.shade100,
-                            //   ),
-                            //   child: Icon(
-                            //     Icons.print,
-                            //     size: 18,
-                            //     color: Colors.indigo.shade900,
-                            //   ),
-                            // ),
-                            HoverExportButton(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Divider(color: AppColors.divider),
-
-                  /// 🔹 FILTER SECTION
-                  Padding(
-                    padding: EdgeInsets.all(2.w),
-                    child: Column(
-                      children: [
-                        /// FIRST ROW
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _input("From Date", '20-04-2026'),
-                            ),
-                            SizedBox(width: 2.w),
-                            Expanded(child: _input("To Date", '20-04-2026')),
-                            SizedBox(width: 2.w),
-                            Expanded(child: _dropdown("Lead Category")),
-                            SizedBox(width: 2.w),
-                            Expanded(child: _dropdown("Lead Stage")),
-                          ],
-                        ),
-
-                        SizedBox(height: 2.h),
-
-                        /// SECOND ROW
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: 17.6.w,
-                              child: _dropdown("Priority"),
-                            ),
-                            SizedBox(width: 2.w),
-                            SizedBox(
-                              width: 17.6.w,
-                              child: _dropdown("Staff"),
-                            ),
-                            SizedBox(width: 2.w),
-                            _viewButton(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Divider(color: AppColors.divider),
-
-                  /// 🔹 TABLE CONTROLS
-                  // Padding(
-                  //   padding: EdgeInsets.only(
-                  //     top: 1.h,
-                  //     left: 2.w,
-                  //     right: 2.w,
-                  //     bottom: 1.h,
-                  //   ),
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     children: [
-                  //       Row(
-                  //         children: [
-                  //           Text(
-                  //             "Show ",
-                  //             style: AppTextStyle.medium(size: 11.sp),
-                  //           ),
-                  //           _smallDropdown(),
-                  //           Text(
-                  //             " entries",
-                  //             style: AppTextStyle.medium(size: 11.sp),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       Row(
-                  //         children: [
-                  //           Text(
-                  //             "Search:",
-                  //             style: AppTextStyle.medium(size: 11.sp),
-                  //           ),
-                  //           SizedBox(width: 1.w),
-                  //           Container(
-                  //             width: 12.w,
-                  //             height: 4.h,
-                  //             decoration: _box(),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-
-                  ShowEntries(),
-
-                  /// 🔹 TABLE HEADER
-
-                  Expanded(child: _buildTable()),
-                  Divider(color: AppColors.divider),
-                  /// 🔹 FOOTER
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 2.w,
-                      vertical: 1.5.h,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Showing 0 to 0 of 0 entries",
-                          style: AppTextStyle.medium(
-                            size: 11.sp,
-                            weight: FontWeight.w400,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 2.w,
-                                vertical: 1.h,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  top: BorderSide(color: AppColors.lightGrey),
-                                  bottom: BorderSide(
-                                    color: AppColors.lightGrey,
-                                  ),
-                                  left: BorderSide(
-                                    color: AppColors.lightGrey,
-                                  ),
-                                ),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(4),
-                                  bottomLeft: Radius.circular(4),
-                                ),
-                              ),
-                              child: Text(
-                                'Previous',
-                                style: AppTextStyle.small(
-                                  size: 11.sp,
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                            ),
-
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 2.w,
-                                vertical: 1.h,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: AppColors.lightGrey,
-                                ),
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(4),
-                                  bottomRight: Radius.circular(4),
-                                ),
-                              ),
-                              child: Text(
-                                'Next',
-                                style: AppTextStyle.small(
-                                  size: 11.sp,
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  /// 🔹 BOTTOM TRANSFER BUTTON
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 2.h),
-                    child: Center(
+      body: SingleChildScrollView(
+        child: Column(
+          // shrinkWrap: true,
+          children: [
+            TopBreadcrumbBar(title: 'Dashboard', subTitle: 'New Leads'),
+        
+            Padding(
+              padding: EdgeInsets.all(2.w),
+              child: Container(
+                // height: MediaQuery.of(context).size.height*1.5,
+                decoration: _cardBox(),
+                child: Column(
+                  children: [
+                    /// 🔹 HEADER
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.w,
+                        vertical: 2.h,
+                      ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            width: 3.w,
-                            height: 5.h,
-                            decoration: BoxDecoration(
-                              color: AppColors.red.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.delete_forever_outlined,
-                                color: AppColors.red,
-                                size: 1.5.w,
-                              ),
+                          Text(
+                            "New Leads",
+                            style: AppTextStyle.medium(
+                              size: 13.6.sp,
+                              color: AppColors.black.withOpacity(0.77),
+                              weight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(width: 0.5.w),
-                          Center(child: _bottomButton("Transfer")),
+                          Row(
+                            children: [
+                              AddLeadsButton(),
+                              SizedBox(width: 1.w),
+                              // Container(
+                              //   height: 4.5.h,
+                              //   width: 4.5.h,
+                              //   decoration: BoxDecoration(
+                              //     // border: Border.all(color: Colors.indigo.shade00),
+                              //     borderRadius: BorderRadius.circular(4),
+                              //     color: Colors.indigo.shade100,
+                              //   ),
+                              //   child: Icon(
+                              //     Icons.print,
+                              //     size: 18,
+                              //     color: Colors.indigo.shade900,
+                              //   ),
+                              // ),
+                              HoverExportButton(),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+        
+                    Divider(color: AppColors.divider),
+        
+                    /// 🔹 FILTER SECTION
+                    Padding(
+                      padding: EdgeInsets.all(2.w),
+                      child: Column(
+                        children: [
+                          /// FIRST ROW
+                          Row(
+                            children: [
+                              Expanded(child: _input("From Date", '20-04-2026')),
+                              SizedBox(width: 2.w),
+                              Expanded(child: _input("To Date", '20-04-2026')),
+                              SizedBox(width: 2.w),
+                              Expanded(child: _dropdown("Lead Category")),
+                              SizedBox(width: 2.w),
+                              Expanded(child: _dropdown("Lead Stage")),
+                            ],
+                          ),
+        
+                          SizedBox(height: 2.h),
+        
+                          /// SECOND ROW
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 17.6.w,
+                                child: _dropdown("Priority"),
+                              ),
+                              SizedBox(width: 2.w),
+                              SizedBox(width: 17.6.w, child: _dropdown("Staff")),
+                              SizedBox(width: 2.w),
+                              _viewButton(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+        
+                    Divider(color: AppColors.divider),
+        
+                    /// 🔹 TABLE CONTROLS
+                    // Padding(
+                    //   padding: EdgeInsets.only(
+                    //     top: 1.h,
+                    //     left: 2.w,
+                    //     right: 2.w,
+                    //     bottom: 1.h,
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Row(
+                    //         children: [
+                    //           Text(
+                    //             "Show ",
+                    //             style: AppTextStyle.medium(size: 11.sp),
+                    //           ),
+                    //           _smallDropdown(),
+                    //           Text(
+                    //             " entries",
+                    //             style: AppTextStyle.medium(size: 11.sp),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       Row(
+                    //         children: [
+                    //           Text(
+                    //             "Search:",
+                    //             style: AppTextStyle.medium(size: 11.sp),
+                    //           ),
+                    //           SizedBox(width: 1.w),
+                    //           Container(
+                    //             width: 12.w,
+                    //             height: 4.h,
+                    //             decoration: _box(),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    ShowEntries(),
+        
+                    /// 🔹 TABLE HEADER
+                    Expanded(child: _buildTable()),
+                    Divider(color: AppColors.divider),
+        
+                    /// 🔹 FOOTER
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.w,
+                        vertical: 1.5.h,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Showing 0 to 0 of 0 entries",
+                            style: AppTextStyle.medium(
+                              size: 11.sp,
+                              weight: FontWeight.w400,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 2.w,
+                                  vertical: 1.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(color: AppColors.lightGrey),
+                                    bottom: BorderSide(
+                                      color: AppColors.lightGrey,
+                                    ),
+                                    left: BorderSide(color: AppColors.lightGrey),
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(4),
+                                    bottomLeft: Radius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Previous',
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: AppColors.grey,
+                                  ),
+                                ),
+                              ),
+        
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 2.w,
+                                  vertical: 1.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.lightGrey),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(4),
+                                    bottomRight: Radius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Next',
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: AppColors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+        
+                    /// 🔹 BOTTOM TRANSFER BUTTON
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 2.h),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 3.w,
+                              height: 5.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.red.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.delete_forever_outlined,
+                                  color: AppColors.red,
+                                  size: 1.5.w,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 0.5.w),
+                            Center(child: _bottomButton("Transfer")),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -618,71 +552,72 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     );
   }
 
-  Widget _buildTableBody() {
-    final leads = _filteredLeads;
-    if (leads.isEmpty) {
-      return _buildEmptyState();
-    }
-    return Scrollbar(
-      controller: _verticalScrollController,
-      thumbVisibility: true,
-      child: ListView.separated(
-        controller: _verticalScrollController,
-        itemCount: leads.length,
-        separatorBuilder: (_, __) =>
-            Container(height: 1, color: AppTheme.border),
-        itemBuilder: (context, index) {
-          final lead = leads[index];
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            // Share scroll offset with header
-            child: _LeadRow(
-              lead: lead,
-              isEven: index.isEven,
-              onToggleSelect: _toggleSelect,
-              onView: _onView,
-              onEdit: _onEdit,
-              onHistory: _onHistory,
-              onDelete: _onDelete,
-            ),
-          );
-        },
-      ),
-    );
-  }
+  // Widget _buildTableBody() {
+  //   final leads = _filteredLeads;
+  //   if (leads) {
+  //     return _buildEmptyState();
+  //   }
+  //   return Scrollbar(
+  //     controller: _verticalScrollController,
+  //     thumbVisibility: true,
+  //     child: ListView.separated(
+  //       controller: _verticalScrollController,
+  //       itemCount: leads.length,
+  //       separatorBuilder: (_, __) =>
+  //           Container(height: 1, color: AppTheme.border),
+  //       itemBuilder: (context, index) {
+  //         final lead = leads[index];
+  //         return SingleChildScrollView(
+  //           scrollDirection: Axis.horizontal,
+  //           // Share scroll offset with header
+  //           child: _LeadRow(
+  //             lead: lead,
+  //             isEven: index.isEven,
+  //             onToggleSelect: _toggleSelect,
+  //             onView: _onView,
+  //             onEdit: _onEdit,
+  //             onHistory: _onHistory,
+  //             onDelete: _onDelete,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off_rounded,
-              size: 56, color: AppTheme.textMuted.withOpacity(0.5)),
-          const SizedBox(height: 16),
-          const Text(
-            'No leads found',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.search_off_rounded,
+          size: 56,
+          color: AppTheme.textMuted.withOpacity(0.5),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'No leads found',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textSecondary,
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Try adjusting your search query',
-            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        // const Text(
+        //   'Try adjusting your search query',
+        //   style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+        // ),
+      ],
     );
   }
 
   Widget _buildTable() {
-    final leads = _filteredLeads;
-
-    if (leads.isEmpty) {
-      return _buildEmptyState();
-    }
+    // final leads = _filteredLeads(leadList);
+    //
+    // if (leads.isEmpty) {
+    //   return _buildEmptyState();
+    // }
 
     return Scrollbar(
       controller: _horizontalScrollController,
@@ -695,6 +630,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         child: SizedBox(
           width: _tableWidth,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Sticky header ──
@@ -712,39 +648,109 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 ),
               ),
               // ── Vertically scrollable body ──
-              Expanded(
+              // Expanded(
                 // child: Scrollbar(
                 //   controller: _verticalScrollController,
                 //   thumbVisibility: true,
                 //   notificationPredicate: (n) => n.depth == 0,
-                  child: ListView.separated(
-                    controller: _verticalScrollController,
-                    itemCount: leads.length,
-                    separatorBuilder: (_, __) =>
-                        Container(height: 1, color: AppTheme.border),
-                    itemBuilder: (context, index) {
-                      final lead = leads[index];
-                      return InkWell(
-                        onTap: (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainScreen(selectedIndex: 31),
-                            ),
-                          );
-                        },
-                        child: _LeadRow(
-                          lead: lead,
-                          isEven: index.isEven,
-                          onToggleSelect: _toggleSelect,
-                          onView: _onView,
-                          onEdit: _onEdit,
-                          onHistory: _onHistory,
-                          onDelete: _onDelete,
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: 56,          // at least one row height
+                  maxHeight: 56 * 10,     // cap at 10 rows max if you want a scroll limit
+                ),
+                child: BlocBuilder<AddLeadCubit, AddLeadState>(
+                  builder: (context, state) {
+                    // Loading
+                    if (state.listStatus == LeadListStatus.loading) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6.h),
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    // Error
+                    if (state.listStatus == LeadListStatus.failure) {
+                      return Padding(
+                        padding: EdgeInsets.all(4.w),
+                        child: Text(
+                          state.listError ?? 'Something went wrong.',
+                          style: AppTextStyle.medium(color: Colors.red),
                         ),
                       );
-                    },
-                  ),
+                    }
+
+                    final List<AddLeadModel> rawList =
+                        state.listStatus == LeadListStatus.loaded
+                        ? state.leads
+                        : [];
+
+                    final List<AddLeadModel> leads = rawList
+                        .where(
+                          (e) =>
+                              e.leadStage.toLowerCase() ==
+                              widget.fromCard.toLowerCase(),
+                        )
+                        .toList();
+
+                    final allFiltered = _filteredLeads(leads);
+                    final totalCount = allFiltered.length;
+                    final totalPages = _totalPages(totalCount);
+                    final limit = int.tryParse(_selectedEntries) ?? 10;
+                    if (_currentPage > totalPages) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        setState(() => _currentPage = totalPages);
+                      });
+                    }
+                    final pagedList = _pagedLeads(allFiltered);
+
+                    // "Showing X to Y of Z entries"
+                    final showFrom = totalCount == 0
+                        ? 0
+                        : (_currentPage - 1) * limit + 1;
+                    final showTo = (showFrom + pagedList.length - 1).clamp(
+                      0,
+                      totalCount,
+                    );
+
+                    print("ppppppppppppppppppp");
+
+                    if (pagedList.isEmpty) {
+                      return Center(child: _buildEmptyState());
+                    }
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      // controller: _verticalScrollController,
+                      itemCount: pagedList.length,
+                      separatorBuilder: (_, __) =>
+                          Container(height: 1, color: AppTheme.border),
+                      itemBuilder: (context, index) {
+                        final lead = pagedList[index];
+
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MainScreen(selectedIndex: 31),
+                              ),
+                            );
+                          },
+                          child: _LeadRow(
+                            lead: lead,
+                            isEven: index.isEven,
+                            onToggleSelect: _toggleSelect,
+                            onView: _onView,
+                            onEdit: _onEdit,
+                            onHistory: _onHistory,
+                            onDelete: _onDelete,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
                 // ),
               ),
             ],
@@ -753,7 +759,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       ),
     );
   }
-
 }
 
 class HoverExportButton extends StatefulWidget {
@@ -857,10 +862,6 @@ class _HoverExportButtonState extends State<HoverExportButton> {
       ),
     );
   }
-
-
-
-
 }
 
 ///...........................................
@@ -872,10 +873,7 @@ class _HeaderRow extends StatelessWidget {
   final bool selectAll;
   final ValueChanged<bool?> onSelectAll;
 
-  const _HeaderRow({
-    required this.selectAll,
-    required this.onSelectAll,
-  });
+  const _HeaderRow({required this.selectAll, required this.onSelectAll});
 
   static const _style = TextStyle(
     fontSize: 11,
@@ -933,13 +931,13 @@ class _HeaderRow extends StatelessWidget {
 // ─────────────────────────────────────────────
 
 class _LeadRow extends StatefulWidget {
-  final Lead lead;
+  final AddLeadModel lead;
   final bool isEven;
-  final void Function(int, bool?) onToggleSelect;
-  final void Function(Lead) onView;
-  final void Function(Lead) onEdit;
-  final void Function(Lead) onHistory;
-  final void Function(Lead) onDelete;
+  final void Function(String, bool?) onToggleSelect;
+  final void Function(AddLeadModel) onView;
+  final void Function(AddLeadModel) onEdit;
+  final void Function(AddLeadModel) onHistory;
+  final void Function(AddLeadModel) onDelete;
 
   const _LeadRow({
     required this.lead,
@@ -969,9 +967,9 @@ class _LeadRowState extends State<_LeadRow> {
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        color: lead.isSelected
-            ? AppTheme.primaryLight
-            : _hovered
+        color:
+            // lead.isSelected ? AppTheme.primaryLight :
+            _hovered
             ? const Color(0xFFF8FAFC)
             : widget.isEven
             ? AppTheme.surface
@@ -997,8 +995,8 @@ class _LeadRowState extends State<_LeadRow> {
                       ),
                     ),
                     Checkbox(
-                      value: lead.isSelected,
-                      onChanged: (v) => widget.onToggleSelect(lead.id, v),
+                      value: false, //lead.isSelected,
+                      onChanged: (v) => widget.onToggleSelect(lead.id!, v),
                       activeColor: AppTheme.primary,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
@@ -1006,19 +1004,25 @@ class _LeadRowState extends State<_LeadRow> {
                 ),
               ),
               // #
-              _textCell('${lead.id}', 40,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  )),
+              _textCell(
+                '${lead.id}',
+                40,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               // Name
-              _textCell(lead.name, 140,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.w600,
-                  )),
+              _textCell(
+                lead.clientName,
+                140,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               // Contact
               SizedBox(
                 width: 160,
@@ -1027,7 +1031,8 @@ class _LeadRowState extends State<_LeadRow> {
                   child: GestureDetector(
                     onTap: () {
                       Clipboard.setData(
-                          ClipboardData(text: lead.contactNumber));
+                        ClipboardData(text: lead.contactNumber),
+                      );
                     },
                     child: Text(
                       lead.contactNumber,
@@ -1042,11 +1047,14 @@ class _LeadRowState extends State<_LeadRow> {
                 ),
               ),
               // Category
-              _textCell(lead.leadCategory, 180,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                  )),
+              _textCell(
+                lead.leadCategory,
+                180,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
               // Staff
               SizedBox(
                 width: 100,
@@ -1057,13 +1065,16 @@ class _LeadRowState extends State<_LeadRow> {
                       CircleAvatar(
                         radius: 12,
                         backgroundColor: AppTheme.border,
-                        child: const Icon(Icons.person_rounded,
-                            size: 14, color: AppTheme.textSecondary),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          size: 14,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          lead.staff,
+                          lead.assignedStaff,
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppTheme.textPrimary,
@@ -1081,21 +1092,45 @@ class _LeadRowState extends State<_LeadRow> {
                 width: 110,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: _StatusBadge(status: lead.status),
+                  child: _StatusBadge(status: lead.leadStage),
                 ),
               ),
               // FollowUp Date
-              _textCell(_fmt.format(lead.followUpDate), 160,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  )),
+              lead.followUpDate == null
+                  ? _textCell(
+                      _fmt.format(DateTime.now()),
+                      160,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    )
+                  : _textCell(
+                      _fmt.format(lead.followUpDate!),
+                      160,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
               // Called Date
-              _textCell(_fmt.format(lead.calledDate), 160,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  )),
+              lead.calledDate == null
+                  ? _textCell(
+                      _fmt.format(DateTime.now()),
+                      160,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    )
+                  : _textCell(
+                      _fmt.format(lead.calledDate!),
+                      160,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
               // Actions
               SizedBox(
                 width: 130,
@@ -1154,7 +1189,8 @@ class _LeadRowState extends State<_LeadRow> {
 // ─────────────────────────────────────────────
 
 class _StatusBadge extends StatelessWidget {
-  final LeadStatus status;
+  // final LeadStatus status;
+  final String status;
 
   const _StatusBadge({required this.status});
 
@@ -1163,16 +1199,16 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: status.color.withOpacity(0.12),
+        color: getLeadStatusColor(status).withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: status.color.withOpacity(0.3)),
+        border: Border.all(color: getLeadStatusColor(status).withOpacity(0.3)),
       ),
       child: Text(
-        status.label,
+        status,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: status.color,
+          color: getLeadStatusColor(status),
           letterSpacing: 0.2,
         ),
         overflow: TextOverflow.ellipsis,
@@ -1242,10 +1278,7 @@ class _DeleteConfirmDialog extends StatelessWidget {
   final String leadName;
   final VoidCallback onConfirm;
 
-  const _DeleteConfirmDialog({
-    required this.leadName,
-    required this.onConfirm,
-  });
+  const _DeleteConfirmDialog({required this.leadName, required this.onConfirm});
 
   @override
   Widget build(BuildContext context) {
@@ -1261,10 +1294,7 @@ class _DeleteConfirmDialog extends StatelessWidget {
       ),
       content: Text(
         'Are you sure you want to delete "$leadName"? This action cannot be undone.',
-        style: const TextStyle(
-          fontSize: 14,
-          color: AppTheme.textSecondary,
-        ),
+        style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
       ),
       actions: [
         TextButton(
@@ -1281,8 +1311,9 @@ class _DeleteConfirmDialog extends StatelessWidget {
             backgroundColor: AppTheme.actionDelete,
             foregroundColor: Colors.white,
             elevation: 0,
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           child: const Text('Delete'),
         ),

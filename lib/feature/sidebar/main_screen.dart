@@ -62,12 +62,14 @@ class MainScreen extends StatefulWidget {
   final DesignationModel? designation;
   final StaffModel? staff;
   final AddLeadModel? lead;
+  final String? fromCard;
   const MainScreen({
     super.key,
     this.selectedIndex = 0,
     this.designation,
     this.staff,
     this.lead,
+    this.fromCard
   });
 
   @override
@@ -161,7 +163,11 @@ class _MainScreenState extends State<MainScreen> {
       case 11:
         return LeadDistributionSettingsScreen();
       case 12:
-        return NewLeadsPage();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: NewLeadsPage(fromCard: widget.fromCard??"",),
+        );
+
       case 13:
         return BlocProvider(
           create: (context) => AddLeadCubit()..fetchLeads(),
