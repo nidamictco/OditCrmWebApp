@@ -2,9 +2,11 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/custom_calender.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/menu_hover_bottun.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
@@ -36,11 +38,20 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final TextEditingController _postOfficeCtrl = TextEditingController();
   final TextEditingController _remarksCtrl = TextEditingController();
   final TextEditingController _dialogNameCtrl = TextEditingController();
+  final TextEditingController nextFollowUpCtrl = TextEditingController(
+      text: DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateTime.now().add(const Duration(days: 1))),
+    );
+    DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
+    DateTime calledDateValue = DateTime.now();
 
   String? _leadStage;
   String? _leadSource;
   String? _leadCategory;
   String? _leadPriority;
+  String? _callResult;
+  String? _leadTag;
 
   // ── Additional field controllers — keyed by AdditionalFieldModel.id ────────
   final Map<String, TextEditingController> _additionalCtrlMap = {};
@@ -234,6 +245,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     cubit.selectPriority(null);
     cubit.selectState(null);
     cubit.selectDistrict(null);
+    cubit.selectCallResult(null);
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
@@ -262,13 +274,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
         }
 
         if (state.successMessage != null) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: Text(state.successMessage!),
-          //     backgroundColor: AppColors.green,
-          //     behavior: SnackBarBehavior.floating,
-          //   ),
-          // );
           if (!_isEditMode) {
             _clearForm();
           } else {
@@ -342,7 +347,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       padding: EdgeInsets.symmetric(horizontal: 2.w),
                       child: _sectionCard(
                         'Lead Information',
-                        _buildLeadInformation(),
+                        _buildLeadInformation(context),
                         Symbols.info,
                       ),
                     ),
@@ -539,7 +544,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
   // ── Section: Lead Information ──────────────────────────────────────────────
 
-  Widget _buildLeadInformation() {
+   Widget _buildLeadInformation(BuildContext context) {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, state) {
         final cubit = context.read<AddLeadCubit>();
@@ -624,6 +629,145 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
               ],
             ),
+            Column(
+              children: [
+                SizedBox(height: 1.5.h),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 17.w,
+                      child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Next Follow-Up Date',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          barrierColor: Colors.transparent,
+                                          builder: (_) => AlertDialog(
+                                            title: Text(
+                                              'Select FollowUp Date',
+                                              style: AppTextStyle.medium(size: 12.sp),
+                                            ),
+                                            content:  CustomCalendarPickOne( 
+                                                  onDateSelected: (date) {
+                                                    setState(() { 
+                                                      nextFollowUpDate = date;
+                                                      nextFollowUpCtrl.text =
+                                                          DateFormat(
+                                                            'dd-MM-yyyy',
+                                                          ).format(date);
+                                                    });
+                                                    // ✅ pop sbContext not context
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                            
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 5.2.h,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.greyCard,
+                                          border: Border.all(
+                                            color: AppColors.divider,
+                                            width: 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: IgnorePointer(
+                                          child: TextField(
+                                            controller: nextFollowUpCtrl,
+                                            readOnly: true,
+                                            style: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.black,
+                                            ),
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: nextFollowUpCtrl.text,
+                                              hintStyle: AppTextStyle.small(
+                                                size: 11.sp,
+                                                color: AppColors.black,
+                                              ),
+                                              isCollapsed: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                    ),  
+                  ],
+                ),
+                Row(
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 17.w,
+                      child: Dropdown(
+                        label: 'Tags',
+                        hint: 'Select Tags',
+                        items: [
+                          'Costly',
+                          'Not intrested',
+                          'Not Responding',
+                          'No Budget',
+                          'Wrong Lead',
+                        ],
+                        selectedValue: _leadTag,
+                        onChanged: (v) {
+                          setState(() => _leadTag = v);
+                          cubit.selectLeadTag(v);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 1.w),
+                  ],
+                ),
+
+                SizedBox(
+                  width: 17.w,
+                  child: Dropdown(
+                    label: 'Call Result',
+                    hint: 'Select Call Result',
+                    icon: Icons.phone_enabled_outlined,
+                    showStar: true,
+                    items: [
+                      'Busy',
+                      'Connected',
+                      'Not Attended',
+                      'Out of Coverage Area',
+                      'Rejected',
+                      'Switched Off',
+                    ],
+                    selectedValue: _callResult,
+                    onChanged: (v) {
+                      setState(() => _callResult = v);
+                      cubit.selectCallResult(v);
+                    },
+                  ),
+                ),
+              ],
+            ),
+              ],
+            ),
+            
             SizedBox(height: 1.5.h),
             _multilineField(
               'Remarks',
@@ -1052,6 +1196,211 @@ class _AddLeadPageState extends State<AddLeadPage> {
               SizedBox(width: 1.w),
               MenuHoverButton(),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+class CustomCalendarPickOne extends StatefulWidget {
+  final Function(DateTime) onDateSelected;
+  final DateTime? initialDate;
+
+  const CustomCalendarPickOne({
+    super.key,
+    required this.onDateSelected,
+    this.initialDate,
+  });
+
+  @override
+  State<CustomCalendarPickOne> createState() => _CustomCalendarPickOneState();
+}
+
+class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
+  late DateTime _focusedMonth;
+  DateTime? _selectedDate;
+
+  final List<String> _weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  final List<String> _months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate;
+    _focusedMonth = widget.initialDate ?? DateTime.now();
+  }
+
+  void _prevMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+    });
+  }
+
+  void _nextMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+    });
+  }
+
+  /// All day cells for the current month view (including leading/trailing blanks)
+  List<DateTime?> _buildDayCells() {
+    final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final daysInMonth = DateUtils.getDaysInMonth(_focusedMonth.year, _focusedMonth.month);
+    final leadingBlanks = firstDay.weekday % 7; // Sunday = 0
+
+    final cells = <DateTime?>[];
+    for (int i = 0; i < leadingBlanks; i++) cells.add(null);
+    for (int d = 1; d <= daysInMonth; d++) {
+      cells.add(DateTime(_focusedMonth.year, _focusedMonth.month, d));
+    }
+    return cells;
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  bool _isSelected(DateTime date) {
+    return _selectedDate != null &&
+        date.year == _selectedDate!.year &&
+        date.month == _selectedDate!.month &&
+        date.day == _selectedDate!.day;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cells = _buildDayCells();
+
+    return Container(
+      padding: EdgeInsets.all(1.5.w),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Month / Year header ──────────────────────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: _prevMonth,
+                icon: Icon(Icons.chevron_left, size: 14.sp, color: AppColors.black),
+                splashRadius: 18,
+              ),
+              Text(
+                '${_months[_focusedMonth.month - 1]} ${_focusedMonth.year}',
+                style: AppTextStyle.medium(
+                  size: 12.sp,
+                  weight: FontWeight.w600,
+                  color: AppColors.black,
+                ),
+              ),
+              IconButton(
+                onPressed: _nextMonth,
+                icon: Icon(Icons.chevron_right, size: 14.sp, color: AppColors.black),
+                splashRadius: 18,
+              ),
+            ],
+          ),
+
+          SizedBox(height: 1.h),
+
+          // ── Weekday labels ───────────────────────────────────────────────
+          Row(
+            children: _weekDays.map((day) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    day,
+                    style: AppTextStyle.small(
+                      size: 9.sp,
+                      weight: FontWeight.w600,
+                      color: AppColors.grey,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          SizedBox(height: 1.h),
+
+          // ── Day grid ─────────────────────────────────────────────────────
+          GridView.count(
+            crossAxisCount: 7,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+            childAspectRatio: 1.2,
+            children: cells.map((date) {
+              if (date == null) return const SizedBox.shrink();
+
+              final selected = _isSelected(date);
+              final today = _isToday(date);
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() => _selectedDate = date);
+                  widget.onDateSelected(date);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.primary
+                        : today
+                            ? AppColors.primary.withOpacity(0.12)
+                            : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${date.day}',
+                      style: AppTextStyle.small(
+                        size: 9.5.sp,
+                        weight: selected ? FontWeight.w600 : FontWeight.w400,
+                        color: selected
+                            ? Colors.white
+                            : today
+                                ? AppColors.primary
+                                : AppColors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          SizedBox(height: 1.5.h),
+
+          // ── Today shortcut ───────────────────────────────────────────────
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                final today = DateTime.now();
+                setState(() {
+                  _selectedDate = today;
+                  _focusedMonth = today;
+                });
+                widget.onDateSelected(today);
+              },
+              child: Text(
+                'Today',
+                style: AppTextStyle.small(
+                  size: 10.sp,
+                  color: AppColors.primary,
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
         ],
       ),

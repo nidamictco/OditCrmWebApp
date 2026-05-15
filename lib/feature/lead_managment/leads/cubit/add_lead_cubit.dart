@@ -127,6 +127,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   void selectDistrict(String? value) =>
       emit(state.copyWith(selectedDistrict: value, clearDistrict: value == null));
+      
+  void selectCallResult(String? value) =>
+      emit(state.copyWith(selectedCallResult: value));
+
+      
+  void selectLeadTag(String? value) =>
+      emit(state.copyWith(selectedLeadTag: value));
 
   // ── Fetch list ────────────────────────────────────────────────────────────
 

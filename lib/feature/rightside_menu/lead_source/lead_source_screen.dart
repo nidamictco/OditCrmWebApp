@@ -25,7 +25,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
   final TextEditingController sourceController = TextEditingController();
 
   // String selectedValue = "10";
-  final List<String> dropdownItems = ["10", "25", "50", "100"];
+  // final List<String> dropdownItems = ["10", "25", "50", "100"];
 
   // ─── search query (wired to the search box) ───────────────────────────────
   String _searchQuery = '';
@@ -62,7 +62,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                     e.createdBy.toLowerCase().contains(q),
               )
               .toList();
-    return filtered.take(limit).toList();
+    return filtered;
   }
 
   
@@ -206,10 +206,13 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
         submitText: 'Delete',
         width: 35.w,
         body: Padding(
-          padding: EdgeInsets.symmetric(vertical: 1.h),
-          child: Text(
-            'Are you sure you want to delete "${category.name}"?\nThis action cannot be undone.',
-            style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
+          padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 1.w),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Are you sure you want to delete "${category.name}"?\nThis action cannot be undone.',
+              style: AppTextStyle.medium(size: 11.5.sp, color: AppColors.black),
+            ),
           ),
         ),
         onSubmit: () {
@@ -362,70 +365,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                       SizedBox(height: 3.h),
 
                       /// 🔹 FILTER
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Row(
-                      //         children: [
-                      //           Text(
-                      //             "Show ",
-                      //             style: AppTextStyle.medium(
-                      //               size: 11.sp,
-                      //               weight: FontWeight.w400,
-                      //             ),
-                      //           ),
-                      //           _smallDropdown(),
-                      //           Text(
-                      //             " entries",
-                      //             style: AppTextStyle.medium(
-                      //               size: 11.sp,
-                      //               weight: FontWeight.w400,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-
-                      //       Row(
-                      //         children: [
-                      //           Text(
-                      //             "Search:",
-                      //             style: AppTextStyle.medium(
-                      //               size: 11.sp,
-                      //               weight: FontWeight.w400,
-                      //             ),
-                      //           ),
-                      //           SizedBox(width: 1.w),
-                      //           Container(
-                      //             width: 12.w,
-                      //             height: 4.h,
-                      //             decoration: BoxDecoration(
-                      //               border: Border.all(
-                      //                 color: AppColors.lightGrey,
-                      //               ),
-                      //               borderRadius: BorderRadius.circular(4),
-                      //               color: AppColors.white,
-                      //             ),
-                      //             child:  TextField(
-                      //               onChanged: (v) =>
-                      //                   setState(() => _searchQuery = v),
-                      //               style: AppTextStyle.small(size: 10.sp,color: AppColors.black),
-                      //               decoration: const InputDecoration(
-                      //                 isDense: true,
-                      //                 contentPadding: EdgeInsets.symmetric(
-                      //                   horizontal: 8,
-                      //                   vertical: 10,
-                      //                 ),
-                      //                 border: InputBorder.none,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+                      
                       ShowEntries(
                          initialSearch: _searchQuery,
                       initialEntries: _selectedEntries,
@@ -646,102 +586,4 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
     return widgets;
   }
 
-  // Widget _smallDropdown() {
-  //   return Container(
-  //     width: 4.2.w,
-  //     height: 4.h,
-  //     padding: const EdgeInsets.symmetric(horizontal: 4),
-  //     decoration: BoxDecoration(
-  //       border: Border.all(color: AppColors.lightGrey),
-  //       borderRadius: BorderRadius.circular(4),
-  //       color: AppColors.white,
-  //     ),
-  //     alignment: Alignment.center,
-  //     child: DropdownButtonHideUnderline(
-  //       child: DropdownButton<String>(
-  //         value: selectedValue,
-  //         isExpanded: true,
-  //         icon: const Icon(Icons.arrow_drop_down, size: 16),
-  //         style: AppTextStyle.small(size: 11.sp),
-  //         onChanged: (String? newValue) {
-  //           setState(() {
-  //             selectedValue = newValue!;
-  //           });
-  //         },
-  //         items: dropdownItems.map((String value) {
-  //           return DropdownMenuItem<String>(
-  //             value: value,
-  //             child: Text(value, style: AppTextStyle.small(size: 11.sp)),
-  //           );
-  //         }).toList(),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  DataColumn _column(String title) {
-    return DataColumn(
-      label: Text(title, style: AppTextStyle.small(weight: FontWeight.w600)),
-    );
-  }
-
-  DataRow _row(int index) {
-    final item = _data[index];
-
-    return DataRow(
-      cells: [
-        DataCell(Text("${index + 1}")),
-        DataCell(Text(item['name'] ?? '—')),
-        DataCell(Text(item['createdBy'] ?? "-")),
-        DataCell(
-          item['createdBy'] == null
-              ? Text("-")
-              : Row(
-                  children: [
-                    Icon(Icons.edit, color: Colors.blue, size: 18),
-                    SizedBox(width: 1.w),
-                    Icon(Icons.delete, color: Colors.red, size: 18),
-                  ],
-                ),
-        ),
-      ],
-    );
-  }
-
-  Widget _paginationButton(String text, bool active) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-      decoration: BoxDecoration(
-        color: active ? AppColors.primary : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(text),
-    );
-  }
-
-  Widget _paginationNumber(String text, bool active) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-      decoration: BoxDecoration(
-        color: active ? AppColors.primary : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: active ? Colors.white : Colors.black),
-      ),
-    );
-  }
 }
-
-/// MOCK DATA
-final List<Map<String, String?>> _data = [
-  {"name": "Direct Entry", "createdBy": null},
-  {"name": "Lead From Facebook", "createdBy": null},
-  {"name": "Lead From CSV", "createdBy": null},
-  {"name": "Lead From IVR", "createdBy": null},
-  {"name": "Lead from Website", "createdBy": null},
-  {"name": "Lead From Official WhatsApp", "createdBy": null},
-  {"name": "Ads", "createdBy": "Boss"},
-  {"name": "WhatsApp", "createdBy": "Oxdo technologies pvt ltd"},
-];
