@@ -159,8 +159,8 @@ class _InputDateState extends State<InputDate> {
         initialToDate: _parse(widget.toController.text),
         onRangeSelected: (from, to) {
           // No setState needed here — listeners handle it
-          widget.fromController.text = DateFormat('dd MMM yyyy').format(from);
-          widget.toController.text = DateFormat('dd MMM yyyy').format(to);
+          widget.fromController.text = DateFormat('dd-MM-yyyy').format(from);
+          widget.toController.text = DateFormat('dd-MM-yyyy').format(to);
         },
       ),
     );

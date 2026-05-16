@@ -58,14 +58,17 @@ class _LeadsReportState extends State<LeadsReport> {
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
+   WidgetsBinding.instance.addPostFrameCallback((_) {
+    context.read<AddLeadCubit>().fetchLeads(); 
+    _applyFilters();
+  });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<AddLeadCubit>().fetchLeads();
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   context.read<AddLeadCubit>().fetchLeads();
+  // }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────
   String? _appliedCategory;

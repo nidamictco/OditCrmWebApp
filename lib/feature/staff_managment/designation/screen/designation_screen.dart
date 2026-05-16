@@ -211,7 +211,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                       },
                                       child: Icon(
                                         Icons.edit_outlined,
-                                        size: 13.sp,
+                                        size: 14.sp,
                                         color: Colors.blue,
                                       ),
                                     ),
@@ -261,7 +261,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
 
                                       child: Icon(
                                         Icons.delete_outline,
-                                        size: 13.sp,
+                                        size: 14.sp,
                                         color: Colors.red,
                                       ),
                                     ),

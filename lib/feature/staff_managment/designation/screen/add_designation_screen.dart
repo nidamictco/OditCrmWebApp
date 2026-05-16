@@ -375,24 +375,59 @@ class _DesignationPermissionsScreenState
 
   // ─── Toggle logic ─────────────────────────────────────────────────────────
 
+  // void _toggleGroupHeader(int groupIndex) {
+  //   setState(() {
+  //     final group = _groups[groupIndex];
+  //     group.selected = !group.selected;
+  //     for (final item in group.items) {
+  //       item.selected = group.selected;
+  //     }
+  //   });
+  // }
+
   void _toggleGroupHeader(int groupIndex) {
-    setState(() {
-      final group = _groups[groupIndex];
-      group.selected = !group.selected;
-      for (final item in group.items) {
-        item.selected = group.selected;
-      }
-    });
-  }
+  setState(() {
+    final group = _groups[groupIndex];
+    group.selected = !group.selected;
+
+    for (final item in group.items) {
+      item.selected = group.selected;
+
+      // Set each permission only if it's enabled for this item
+      if (item.createEnabled) item.canCreate = group.selected;
+      if (item.viewEnabled) item.canView = group.selected;
+      if (item.editEnabled) item.canEdit = group.selected;
+      if (item.deleteEnabled) item.canDelete = group.selected;
+      if (item.otherEnabled) item.canOther = group.selected;
+    }
+  });
+}
+
+  // void _toggleItemRow(int groupIndex, int itemIndex) {
+  //   setState(() {
+  //     final item = _groups[groupIndex].items[itemIndex];
+  //     item.selected = !item.selected;
+  //     _groups[groupIndex].selected =
+  //         _groups[groupIndex].items.every((i) => i.selected);
+  //   });
+  // }
 
   void _toggleItemRow(int groupIndex, int itemIndex) {
-    setState(() {
-      final item = _groups[groupIndex].items[itemIndex];
-      item.selected = !item.selected;
-      _groups[groupIndex].selected =
-          _groups[groupIndex].items.every((i) => i.selected);
-    });
-  }
+  setState(() {
+    final item = _groups[groupIndex].items[itemIndex];
+    item.selected = !item.selected;
+
+    // Set each permission only if it's enabled for this item
+    if (item.createEnabled) item.canCreate = item.selected;
+    if (item.viewEnabled) item.canView = item.selected;
+    if (item.editEnabled) item.canEdit = item.selected;
+    if (item.deleteEnabled) item.canDelete = item.selected;
+    if (item.otherEnabled) item.canOther = item.selected;
+
+    _groups[groupIndex].selected =
+        _groups[groupIndex].items.every((i) => i.selected);
+  });
+}
 
   void _togglePermission(int groupIndex, int itemIndex, String permType) {
     setState(() {
