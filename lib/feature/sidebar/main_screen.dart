@@ -99,7 +99,10 @@ class _MainScreenState extends State<MainScreen> {
     switch (selectedIndex) {
       // ✅ use local variable
       case 0:
-        return DashboardScreen();
+        return BlocProvider(
+          create: (context) => AddLeadCubit(),
+          child: DashboardScreen(),
+        );
       case 1:
         return MultiBlocProvider(
           providers: [
@@ -114,11 +117,14 @@ class _MainScreenState extends State<MainScreen> {
             BlocProvider(create: (context) => LeadSourceCubit()),
             BlocProvider(create: (context) => LeadStageCubit()),
           ],
-          child: AddLeadPage(lead: widget.lead), 
+          child: AddLeadPage(lead: widget.lead),
         );
       case 2:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads()..initialize()..fetchStaff(),
+          create: (context) => AddLeadCubit()
+            ..fetchLeads()
+            ..initialize()
+            ..fetchStaff(),
           child: LeadsReport(),
         );
       case 3:
@@ -220,7 +226,10 @@ class _MainScreenState extends State<MainScreen> {
           child: StaffReports(),
         );
       case 23:
-        return TransferLeadsReport();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: TransferLeadsReport(),
+        );
       case 24:
         return ScheduledLeads();
       case 25:

@@ -1798,34 +1798,33 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           // ✅ BlocConsumer at the TOP — wraps everything so the
           //    entire dialog rebuilds on every state change
           listener: (ctx, state) {
-  if (state.status == AddLeadStatus.success &&
-      state.successMessage == 'Follow-up added successfully.') {
-    
-    // ✅ Capture messenger BEFORE popping — context is still alive here
-    final messenger = ScaffoldMessenger.of(context);
-    
-    Navigator.pop(dialogContext);
-    
-    // ✅ Now safe to use — messenger was captured before pop
-    messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Follow-up added successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-  if (state.errorMessage != null) {
-    // ✅ Guard: only show if context is still mounted
-    if (ctx.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage!),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-},
+            if (state.status == AddLeadStatus.success &&
+                state.successMessage == 'Follow-up added successfully.') {
+              // ✅ Capture messenger BEFORE popping — context is still alive here
+              final messenger = ScaffoldMessenger.of(context);
+
+              Navigator.pop(dialogContext);
+
+              // ✅ Now safe to use — messenger was captured before pop
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Follow-up added successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+            if (state.errorMessage != null) {
+              // ✅ Guard: only show if context is still mounted
+              if (ctx.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage!),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          },
           builder: (ctx, state) {
             // ✅ Data comes from cubit state — guaranteed non-null if
             //    initialize() was called before opening this screen

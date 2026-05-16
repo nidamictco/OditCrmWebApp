@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -9,6 +10,8 @@ import 'package:oxdo/feature/dashboard/widget/dashboard_card.dart';
 import 'package:oxdo/feature/dashboard/widget/social_connect_card.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
+
+import '../lead_managment/leads/cubit/add_lead_cubit.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,7 +26,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    // _dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final today = DateTime.now();
+
+    _dateController.text = DateFormat('dd-MM-yyyy').format(today);
+
+    context.read<AddLeadCubit>().fetchDashboardCounts(today);
   }
 
   @override
@@ -84,9 +92,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           right: 5.w,
                                           child: CustomCalendar(
                                             onDateSelected: (date) {
-                                              _dateController.text = DateFormat(
-                                                'dd-MM-yyyy',
-                                              ).format(date);
+                                              _dateController.text = DateFormat('dd-MM-yyyy').format(date);
+
+                                              context.read<AddLeadCubit>().fetchDashboardCounts(date);
+
                                               Navigator.pop(context);
                                             },
                                           ),

@@ -30,6 +30,7 @@ class AddLeadModel {
   final DateTime? calledDate;
   final String? leadTag;
   final String? callResult;
+  final List<TransferDetails>? transferLeads;
 
 
   const AddLeadModel({
@@ -63,6 +64,7 @@ class AddLeadModel {
     this.followUp,
     this.leadTag='',
     this.callResult='',
+    this.transferLeads,
   });
 
   Map<String, dynamic> toFirestore() {
@@ -90,12 +92,13 @@ class AddLeadModel {
       'createdAt': FieldValue.serverTimestamp(),
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
-        'followUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
-        'calledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
-      'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
+        'nextfollowUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
+        'lastCalledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
+      // 'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
       'leadTag': leadTag,
       'callResult': callResult,
-    };
+      'transferLeads': transferLeads != null ? transferLeads!.map((e) => e.toFirestore()).toList() : [],
+    }; 
   }
 
   factory AddLeadModel.fromFirestore(
@@ -129,8 +132,8 @@ class AddLeadModel {
           ? Map<String, String>.from(data['additionalFields'])
           : null,
       deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
-      followUpDate: (data['followUpDate'] as Timestamp?)?.toDate(),
-      calledDate: (data['calledDate'] as Timestamp?)?.toDate(),
+      followUpDate: (data['nextFollowUpDate'] as Timestamp?)?.toDate(),
+      calledDate: (data['lastCalledDate'] as Timestamp?)?.toDate(),
       followUp: data['followUp'] != null
           ? (data['followUp'] as List<dynamic>)
               .map((e) => FollowUpModel.fromFirestore(e, ''))
@@ -138,6 +141,11 @@ class AddLeadModel {
           : null,
       leadTag: data['leadTag'] ?? '',
       callResult: data['callResult'] ?? '',
+      transferLeads: data['transferLeads'] != null
+          ? (data['transferLeads'] as List<dynamic>)
+              .map((e) => TransferDetails.fromFirestore(e, ''))
+              .toList()
+          : null,
     );
   }
 
@@ -171,6 +179,7 @@ class AddLeadModel {
     List<FollowUpModel>? followUp,
     String? leadTag,
     String? callResult,
+    List<TransferDetails>? transferLeads,
   }) {
     return AddLeadModel(
       id: id ?? this.id,
@@ -202,6 +211,7 @@ class AddLeadModel {
       followUp: followUp ?? this.followUp,
       leadTag: leadTag ?? this.leadTag,
       callResult: callResult ?? this.callResult,
+      transferLeads: transferLeads ?? this.transferLeads,
     );
   }
 }
@@ -307,6 +317,94 @@ class FollowUpModel {
       remarks: remarks ?? this.remarks,
       createdById: createdById ?? this.createdById,
       createdAt: createdAt ?? this.createdAt,
+    );
+  }
+}
+class TransferDetails {
+  final String? id;
+  final String leadId;
+  final String leadName;
+  final String contactNumber;
+  final String leadCategory;
+  final String leadStage;
+  final String fromStaffId; 
+  final String fromStaff;
+  final String toStaffId;
+  final String toStaff;
+  final DateTime? transferTime; 
+
+  const TransferDetails({
+    this.id,
+    required this.leadId,
+    required this.leadName,
+    required this.contactNumber,
+    required this.leadCategory,
+    required this.leadStage,
+    required this.fromStaffId,
+    required this.fromStaff,
+    required this.toStaffId,
+    required this.toStaff,
+    this.transferTime, 
+  });
+
+  factory TransferDetails.fromFirestore(Map<String, dynamic> data, String docId) {
+    return TransferDetails(
+      id: docId,
+      leadId: data['leadId'] ?? '',       
+      leadName: data['leadName'] ?? '',
+      contactNumber: data['contactNumber'] ?? '',
+      leadCategory: data['leadCategory'] ?? '',
+      leadStage: data['leadStage'] ?? '',
+      fromStaffId: data['fromStaffId'] ?? '',
+      fromStaff: data['fromStaff'] ?? '',
+      toStaffId: data['toStaffId'] ?? '',
+      toStaff: data['toStaff'] ?? '',
+      transferTime: (data['transferTime'] as Timestamp?)?.toDate(), // ✅ safely nullable
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'leadId': leadId,
+      'leadName': leadName,
+      'contactNumber': contactNumber,
+      'leadCategory': leadCategory,
+      'leadStage': leadStage,
+      'fromStaffId': fromStaffId,
+      'fromStaff': fromStaff,
+      'toStaffId': toStaffId,
+      'toStaff': toStaff,
+      'transferTime': transferTime != null  
+          ? Timestamp.fromDate(transferTime!)
+          : FieldValue.serverTimestamp(),
+    };
+  }
+
+   TransferDetails copyWith({
+    String? id,
+    String? leadId,
+    String? leadName,
+    String? contactNumber,
+    String? leadCategory,
+    String? leadStage,
+    String? fromStaffId,
+    String? fromStaff,
+    String? toStaffId,
+    String? toStaff,
+    DateTime? transferTime,
+  }) {
+    return TransferDetails(
+      id: id ?? this.id,
+      leadId: leadId ?? this.leadId,
+      leadName: leadName ?? this.leadName,
+      contactNumber: contactNumber ?? this.contactNumber,
+      leadCategory: leadCategory ?? this.leadCategory,
+      leadStage: leadStage ?? this.leadStage,
+      fromStaffId: fromStaffId ?? this.fromStaffId,
+      fromStaff: fromStaff ?? this.fromStaff,
+      toStaffId: toStaffId ?? this.toStaffId,
+      toStaff: toStaff ?? this.toStaff,
+      transferTime: transferTime ?? this.transferTime,
     );
   }
 }
