@@ -9,13 +9,19 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../lead_managment/leads/cubit/add_lead_cubit.dart';
+import '../../lead_managment/leads/cubit/add_lead_state.dart';
 
 class DashboardCard extends StatefulWidget {
   final String title;
   final String message;
   final String fromCard;
 
-  const DashboardCard({super.key, required this.title, required this.message, required this.fromCard});
+  const DashboardCard({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.fromCard,
+  });
 
   @override
   State<DashboardCard> createState() => _DashboardCardState();
@@ -65,18 +71,53 @@ class _DashboardCardState extends State<DashboardCard> {
               children: [
                 Text(
                   widget.title,
-                  style: AppTextStyle.medium(color: AppColors.grey,weight: FontWeight.w600),
+                  style: AppTextStyle.medium(
+                    color: AppColors.grey,
+                    weight: FontWeight.w600,
+                  ),
                 ),
-                
-                
-                ToolTipWidget(message: widget.message)
+
+                ToolTipWidget(message: widget.message),
               ],
             ),
 
             SizedBox(height: 1.5.h),
 
             /// NUMBER
-            Text("0", style: AppTextStyle.number(size: 14.sp)),
+            // Text("0", style: AppTextStyle.number(size: 14.sp)),
+            BlocBuilder<AddLeadCubit, AddLeadState>(
+              builder: (context, state) {
+                String count = "0";
+
+                switch (widget.fromCard) {
+                  case 'NEW':
+                    count = state.newLeadCount;
+                    break;
+
+                  case 'FOLLOWUP':
+                    count = state.followUpCount;
+                    break;
+
+                  case 'CLOSED':
+                    count = state.closedLeadCount;
+                    break;
+
+                  case 'TOTAL':
+                    count = state.totalCalledCount;
+                    break;
+
+                  case 'MISSED':
+                    count = state.missedLeadCount;
+                    break;
+
+                  case 'TRANSFERRED':
+                    count = state.transferredCount;
+                    break;
+                }
+
+                return Text(count, style: AppTextStyle.number(size: 14.sp));
+              },
+            ),
 
             SizedBox(height: 1.5.h),
 
@@ -86,38 +127,76 @@ class _DashboardCardState extends State<DashboardCard> {
               children: [
                 GestureDetector(
                   onTap: () {
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MainScreen(selectedIndex: 12, fromCard: widget.fromCard,),
+                        builder: (context) => MainScreen(
+                          selectedIndex: 12,
+                          fromCard: widget.fromCard,
+                        ),
                       ),
                     );
                   },
-                  child: Text("View Details",
-                      style: AppTextStyle.link(color: AppColors.grey,decorationColor: AppColors.grey)),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    showLeadsDialog(
-                      context: context,
-                      title: "FOLLOWUP LEADS",
-                      value: "0",
-                    );
-                  },
-                  child: Container(
-                    height: 5.h,
-                    width: 5.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Icon(
-                      Symbols.vital_signs,
-                      size: 14.sp,
-                      color: Colors.indigoAccent[400],
+                  child: Text(
+                    "View Details",
+                    style: AppTextStyle.link(
+                      color: AppColors.grey,
+                      decorationColor: AppColors.grey,
                     ),
                   ),
+                ),
+                BlocBuilder<AddLeadCubit, AddLeadState>(
+                  builder: (context, state) {
+                    String count = "0";
+
+                    switch (widget.fromCard) {
+                      case 'NEW':
+                        count = state.newLeadCount;
+                        break;
+
+                      case 'FOLLOWUP':
+                        count = state.followUpCount;
+                        break;
+
+                      case 'CLOSED':
+                        count = state.closedLeadCount;
+                        break;
+
+                      case 'TOTAL':
+                        count = state.totalCalledCount;
+                        break;
+
+                      case 'MISSED':
+                        count = state.missedLeadCount;
+                        break;
+
+                      case 'TRANSFERRED':
+                        count = state.transferredCount;
+                        break;
+                    }
+                    return GestureDetector(
+                      onTap: () {
+                        showLeadsDialog(
+                          context: context,
+                          title: "${widget.fromCard.toUpperCase()} LEADS",
+                          value: count,
+                        );
+                      },
+                      child: Container(
+                        height: 5.h,
+                        width: 5.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Icon(
+                          Symbols.vital_signs,
+                          size: 14.sp,
+                          color: Colors.indigoAccent[400],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

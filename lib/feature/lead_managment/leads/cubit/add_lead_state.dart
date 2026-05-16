@@ -39,6 +39,14 @@ class AddLeadState {
 
   final List<StaffModel> staffList;
 
+  // ── Dashboard lead counts ──────────────────────────────────────────────────────────
+  final String newLeadCount;
+  final String followUpCount;
+  final String closedLeadCount;
+  final String totalCalledCount;
+  final String missedLeadCount;
+  final String transferredCount;
+
   const AddLeadState({
     this.status = AddLeadStatus.initial,
     this.isSubmitting = false,
@@ -62,6 +70,12 @@ class AddLeadState {
     this.additionalFields = const [],
     this.isLoadingAdditionalFields = false,
     this.staffList = const [],
+    this.closedLeadCount = '0',
+    this.newLeadCount = '0',
+    this.followUpCount = '0',
+    this.totalCalledCount = '0',
+    this.missedLeadCount = '0',
+    this.transferredCount = '0',
   });
 
   bool get isLoading        => status == AddLeadStatus.loading;
@@ -90,6 +104,12 @@ class AddLeadState {
     List<AdditionalFieldModel>? additionalFields,
     List<StaffModel>? staffList,
     bool? isLoadingAdditionalFields,
+    String? newLeadCount,
+    String? followUpCount,
+    String? closedLeadCount,
+    String? totalCalledCount,
+    String? missedLeadCount,
+    String? transferredCount,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError         = false,
     bool clearSuccess       = false,
@@ -124,6 +144,12 @@ class AddLeadState {
       additionalFields:           additionalFields          ?? this.additionalFields,
       isLoadingAdditionalFields:  isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
       staffList: staffList ?? this.staffList,
+      newLeadCount: newLeadCount ?? this.newLeadCount,
+      followUpCount: followUpCount ?? this.followUpCount,
+      closedLeadCount: closedLeadCount ?? this.closedLeadCount,
+      totalCalledCount: totalCalledCount ?? this.totalCalledCount,
+      missedLeadCount: missedLeadCount ?? this.missedLeadCount,
+      transferredCount: transferredCount ?? this.transferredCount,
     );
   }
 }

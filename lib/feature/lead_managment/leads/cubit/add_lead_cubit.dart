@@ -434,4 +434,37 @@ Future<void> assignStaff({
   }
 }
 
+
+  // ── Fetch lead count ────────────────────────────────────────────────────────────
+
+  Future<void> fetchDashboardCounts(DateTime selectedDate) async {
+
+    try {
+
+      final user = await SessionService().getSavedUser();
+
+      if (user == null) return;
+
+      final counts = await _leadRepository.fetchLeadCounts(
+        staffId: user.id ?? '',
+        selectedDate: selectedDate,
+      );
+
+      emit(
+        state.copyWith(
+          newLeadCount: counts.newLeadCount.toString(),
+          followUpCount: counts.followUpCount.toString(),
+          closedLeadCount: counts.closedLeadCount.toString(),
+          totalCalledCount: counts.totalCalledCount.toString(),
+          missedLeadCount: counts.missedLeadCount.toString(),
+          transferredCount: counts.transferredCount.toString(),
+        ),
+      );
+
+    } catch (e) {
+
+      log("Dashboard Count Error : $e");
+    }
+  }
+
 }

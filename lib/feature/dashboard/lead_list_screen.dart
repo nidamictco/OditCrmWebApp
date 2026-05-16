@@ -171,7 +171,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AddLeadCubit>().fetchLeads();
+    // context.read<AddLeadCubit>().fetchLeads();
   }
 
   @override
@@ -185,7 +185,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             TopBreadcrumbBar(title: 'DASHBOARD', subTitle: widget.fromCard.toUpperCase()),
         
             Padding(
-              padding: EdgeInsets.all(2.w),
+              padding: EdgeInsets.all(1.w),
               child: Container(
                 // height: MediaQuery.of(context).size.height*1.5,
                 decoration: _cardBox(),
@@ -201,7 +201,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "New Leads",
+                            "${widget.fromCard.toUpperCase()} LEADS",
                             style: AppTextStyle.medium(
                               size: 13.6.sp,
                               color: AppColors.black.withOpacity(0.77),

@@ -99,7 +99,10 @@ class _MainScreenState extends State<MainScreen> {
     switch (selectedIndex) {
       // ✅ use local variable
       case 0:
-        return DashboardScreen();
+        return BlocProvider(
+          create: (context) => AddLeadCubit(),
+          child: DashboardScreen(),
+        );
       case 1:
         return MultiBlocProvider(
           providers: [
