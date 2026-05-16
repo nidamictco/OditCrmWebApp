@@ -10,7 +10,13 @@ import '../../../dashboard/models/dashboard_count_model.dart';
 abstract class IAddLeadRepository {
   Future<String> addLead(AddLeadModel lead);
   Future<List<AddLeadModel>> fetchLeads();
-  Future<List<AddLeadModel>> fetchStaffLeads(String staffId, String role);
+  Future<List<AddLeadModel>> fetchDashboardLeads(
+  {
+  required String staffId,
+  required String role,
+  required String fromCard,
+  required DateTime selectedDate
+  });
   Future<void> updateLead(String id, AddLeadModel lead);
   Future<void> deleteLead(String id);
   Future<void> moveToDeleted(AddLeadModel lead);
@@ -76,12 +82,14 @@ class AddLeadRepository implements IAddLeadRepository {
 
   }
 
+  @override
   Future<List<AddLeadModel>> fetchDashboardLeads({
     required String staffId,
     required String role,
     required String fromCard,
     required DateTime selectedDate,
   }) async {
+
 
     Query<Map<String, dynamic>> query = _collection;
 
@@ -96,9 +104,13 @@ class AddLeadRepository implements IAddLeadRepository {
       );
     }
 
-    final snap = await query
-        .orderBy('createdAt', descending: true)
-        .get();
+    log("ddddddddddddddddddd");
+
+    try {
+      final snap = await query
+          .orderBy('createdAt', descending: true)
+          .get();
+
 
     final allLeads = snap.docs
         .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
@@ -171,15 +183,15 @@ class AddLeadRepository implements IAddLeadRepository {
 
         return allLeads.where((lead) {
 
-          if (lead.transferred == null ||
-              lead.transferred!.isEmpty) {
+          if (lead.transferLeads == null ||
+              lead.transferLeads!.isEmpty) {
             return false;
           }
 
-          return lead.transferred!.any((item) {
+          return lead.transferLeads!.any((item) {
 
-            final transferredTime =
-            item['transferredTime'];
+            final transferredTime = item.transferTime;
+            // item['transferredTime'];
 
             if (transferredTime == null) {
               return false;
@@ -187,18 +199,13 @@ class AddLeadRepository implements IAddLeadRepository {
 
             DateTime transferDate;
 
-            if (transferredTime is Timestamp) {
+            // if (transferredTime is Timestamp) {
+            //
+            //   transferDate = transferredTime.toDate();
+            //
+            // } else
+            transferDate = transferredTime;
 
-              transferDate = transferredTime.toDate();
-
-            } else if (transferredTime is DateTime) {
-
-              transferDate = transferredTime;
-
-            } else {
-
-              return false;
-            }
 
             return isSameDay(transferDate);
 
@@ -210,6 +217,11 @@ class AddLeadRepository implements IAddLeadRepository {
 
         return allLeads;
     }
+    }catch(e){
+      log("error in fetchDashboardLeads ::: $e");
+
+    }
+    return [];
   }
 
   @override

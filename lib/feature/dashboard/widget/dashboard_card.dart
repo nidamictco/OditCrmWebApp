@@ -8,8 +8,10 @@ import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../core/shared_preference/session_service.dart';
 import '../../lead_managment/leads/cubit/add_lead_cubit.dart';
 import '../../lead_managment/leads/cubit/add_lead_state.dart';
+import '../../staff_managment/staff/model/staff_model.dart';
 
 class DashboardCard extends StatefulWidget {
   final String title;
@@ -29,6 +31,13 @@ class DashboardCard extends StatefulWidget {
 
 class _DashboardCardState extends State<DashboardCard> {
   bool isHovering = false;
+
+  StaffModel? staff;
+
+  Future<void> getCurrentUser() async {
+    final user = await SessionService().getSavedUser();
+    staff = user;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,13 +135,15 @@ class _DashboardCardState extends State<DashboardCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    final user = await SessionService().getSavedUser();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MainScreen(
                           selectedIndex: 12,
                           fromCard: widget.fromCard,
+                          staff: user,
                         ),
                       ),
                     );

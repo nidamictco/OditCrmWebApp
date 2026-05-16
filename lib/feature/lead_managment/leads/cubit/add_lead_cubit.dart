@@ -151,17 +151,49 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> fetchStaffLeads(String staffId, String role) async {
-    emit(state.copyWith(listStatus: LeadListStatus.loading, clearListError: true));
+  Future<void> fetchDashboardLeads({
+    required String staffId,
+    required String role,
+    required String fromCard,
+    required DateTime selectedDate,
+  }) async {
+
+    log("Staff ID : $staffId");
+    log("Role : $role");
+    log("From Card : $fromCard");
+    log("Selected Date : $selectedDate");
+
+    emit(
+      state.copyWith(
+        listStatus: LeadListStatus.loading,
+        clearListError: true,
+      ),
+    );
+
     try {
 
-      final leads = await _leadRepository.fetchStaffLeads(staffId, role);
-      emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
+      final leads = await _leadRepository.fetchDashboardLeads(
+        staffId: staffId,
+        role: role,
+        fromCard: fromCard,
+        selectedDate: selectedDate,
+      );
+
+      emit(
+        state.copyWith(
+          listStatus: LeadListStatus.loaded,
+          leads: leads,
+        ),
+      );
+
     } catch (e) {
-      emit(state.copyWith(
-        listStatus: LeadListStatus.failure,
-        listError:  _friendlyError(e),
-      ));
+
+      emit(
+        state.copyWith(
+          listStatus: LeadListStatus.failure,
+          listError: _friendlyError(e),
+        ),
+      );
     }
   }
 

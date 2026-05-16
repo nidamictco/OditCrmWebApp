@@ -100,7 +100,7 @@ class _MainScreenState extends State<MainScreen> {
       // ✅ use local variable
       case 0:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads(),
+          create: (context) => AddLeadCubit()..fetchDashboardCounts(DateTime.now()),
           child: DashboardScreen(),
         );
 
@@ -179,7 +179,8 @@ class _MainScreenState extends State<MainScreen> {
         return LeadDistributionSettingsScreen();
       case 12:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchDashboardLeads(widget.staff!.id!, widget.staff?.staffType ?? 'Admin', widget.fromCard ?? ""),
+          create: (context) => AddLeadCubit()..fetchDashboardLeads(
+      staffId: widget.staff!.id!, role: widget.staff?.staffType ?? 'Admin', fromCard: widget.fromCard ?? "", selectedDate: DateTime.now()),
           child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
         );
 
