@@ -26,9 +26,10 @@ class AddLeadModel {
   final Map<String, String>? additionalFields;
   final DateTime? deletedAt;
   final List<FollowUpModel>? followUp;
-  // final List<FolloupModel>? followUps;
   final DateTime? followUpDate;
   final DateTime? calledDate;
+  final String? leadTag;
+  final String? callResult;
 
 
   const AddLeadModel({
@@ -60,6 +61,8 @@ class AddLeadModel {
     this.calledDate,
 
     this.followUp,
+    this.leadTag='',
+    this.callResult='',
   });
 
   Map<String, dynamic> toFirestore() {
@@ -90,6 +93,8 @@ class AddLeadModel {
         'followUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
         'calledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
       'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
+      'leadTag': leadTag,
+      'callResult': callResult,
     };
   }
 
@@ -131,6 +136,8 @@ class AddLeadModel {
               .map((e) => FollowUpModel.fromFirestore(e, ''))
               .toList()
           : null,
+      leadTag: data['leadTag'] ?? '',
+      callResult: data['callResult'] ?? '',
     );
   }
 
@@ -162,6 +169,8 @@ class AddLeadModel {
     DateTime? followUpDate,
     DateTime? calledDate,
     List<FollowUpModel>? followUp,
+    String? leadTag,
+    String? callResult,
   }) {
     return AddLeadModel(
       id: id ?? this.id,
@@ -191,6 +200,8 @@ class AddLeadModel {
       followUpDate: followUpDate ?? this.followUpDate,
       calledDate: calledDate ?? this.calledDate,
       followUp: followUp ?? this.followUp,
+      leadTag: leadTag ?? this.leadTag,
+      callResult: callResult ?? this.callResult,
     );
   }
 }

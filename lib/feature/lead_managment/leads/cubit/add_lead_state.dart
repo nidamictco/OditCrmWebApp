@@ -28,6 +28,8 @@ class AddLeadState {
   final String? selectedCategory;
   final String? selectedSource;
   final String? selectedPriority;
+  final String? selectedCallResult;
+  final String? selectedLeadTag;
   final String? selectedLeadStage;
   final String? selectedState;
   final String? selectedDistrict;
@@ -63,6 +65,8 @@ class AddLeadState {
     this.selectedCategory,
     this.selectedSource,
     this.selectedPriority,
+    this.selectedCallResult,
+    this.selectedLeadTag,
     this.selectedLeadStage,
     this.selectedState,
     this.selectedDistrict,
@@ -97,6 +101,8 @@ class AddLeadState {
     String? selectedCategory,
     String? selectedSource,
     String? selectedPriority,
+    String? selectedCallResult,
+    String? selectedLeadTag,
     String? selectedLeadStage,
     String? selectedState,
     String? selectedDistrict,
@@ -120,6 +126,8 @@ class AddLeadState {
     bool clearSource        = false,
     bool clearPriority      = false,
     bool clearLeadStage     = false,
+    bool clearCallResult    = false,
+    bool clearLeadTag    = false,
   }) {
     return AddLeadState(
       status:               status           ?? this.status,
@@ -140,10 +148,12 @@ class AddLeadState {
       selectedLeadStage:    clearLeadStage   ? null : (selectedLeadStage ?? this.selectedLeadStage),
       selectedState:        clearState       ? null : (selectedState     ?? this.selectedState),
       selectedDistrict:     clearDistrict    ? null : (selectedDistrict  ?? this.selectedDistrict),
+      selectedCallResult:   clearCallResult  ? null : (selectedCallResult ?? this.selectedCallResult),
+      selectedLeadTag:      clearLeadTag     ? null : (selectedLeadTag     ?? this.selectedLeadTag),
       assignedStaffName:    assignedStaffName ?? this.assignedStaffName,
-      additionalFields:           additionalFields          ?? this.additionalFields,
+      additionalFields:     additionalFields  ?? this.additionalFields,
       isLoadingAdditionalFields:  isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
-      staffList: staffList ?? this.staffList,
+      staffList:            staffList        ?? this.staffList,
       newLeadCount: newLeadCount ?? this.newLeadCount,
       followUpCount: followUpCount ?? this.followUpCount,
       closedLeadCount: closedLeadCount ?? this.closedLeadCount,

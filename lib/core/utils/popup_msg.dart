@@ -48,7 +48,7 @@ class AppDialog extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: AppTextStyle.medium(size: 13.sp)),
+                    Text(title, style: AppTextStyle.medium(size: 12.sp)),
                     InkWell(
                       onTap: onClose ?? () => Navigator.pop(context),
                       child: Icon(Icons.close, color: AppColors.black),
