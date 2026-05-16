@@ -118,7 +118,7 @@ class _MainScreenState extends State<MainScreen> {
         );
       case 2:
         return BlocProvider(
-          create: (context) => AddLeadCubit(),
+          create: (context) => AddLeadCubit()..fetchLeads()..initialize()..fetchStaff(),
           child: LeadsReport(),
         );
       case 3:

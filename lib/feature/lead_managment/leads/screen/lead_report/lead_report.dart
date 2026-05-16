@@ -50,16 +50,22 @@ class _LeadsReportState extends State<LeadsReport> {
   @override
   void initState() { 
     super.initState();
-    context.read<AddLeadCubit>().fetchLeads();
-    final cubit = context.read<AddLeadCubit>();
-    cubit.initialize();
-    cubit.fetchLeads();
-    cubit.fetchStaff();
+    // context.read<AddLeadCubit>().fetchLeads();
+    // final cubit = context.read<AddLeadCubit>();
+    // cubit.initialize();
+    // cubit.fetchLeads();
+    // cubit.fetchStaff();
 
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<AddLeadCubit>().fetchLeads();
   }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────

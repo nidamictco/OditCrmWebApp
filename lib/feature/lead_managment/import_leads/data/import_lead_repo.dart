@@ -63,10 +63,11 @@ class ImportLeadsRepository implements IImportLeadsRepository {
        String _generateDateId(String prefix, {int? rowIndex}) {
   final now = DateTime.now();
   final datePart = DateFormat('yyyyMMdd').format(now);
-  final timePart = DateFormat('HHmmss').format(now);
-  final ms = now.millisecondsSinceEpoch % 1000;
-  final suffix = rowIndex != null ? '-$rowIndex' : '';
-  return '$prefix-$datePart-$timePart-$ms$suffix';
+  // final timePart = DateFormat('HHmmss').format(now);
+  // final ms = now.millisecondsSinceEpoch % 1000;
+  // final suffix = rowIndex != null ? '-$rowIndex' : '';
+  final String id=now.millisecondsSinceEpoch.toString();
+  return '$prefix-$datePart-$id';
 }
 
 

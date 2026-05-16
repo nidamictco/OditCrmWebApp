@@ -21,7 +21,7 @@ class AddLeadState {
 
   // ── Dropdown data ─────────────────────────────────────────────────────────
   final List<LeadsModel> categories;
-  final List<LeadsModel> sources;
+  final List<LeadsModel> sources; 
   final List<LeadsModel> stages;
 
   // ── Form selections ───────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
@@ -436,12 +437,14 @@ class _ImportLeadsState extends State<ImportLeads> {
         onPressed: canSubmit
             ? () {
                 cubit.importLeads(csvBytes: _pickedCsvBytes!);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MainScreen(selectedIndex: 2),
-                  ),
-                );
+                if (context.mounted) {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(
+                      builder: (context) => const MainScreen(selectedIndex: 2),
+                    ),
+                  );
+                }
               }
             : null,
         child: state.isImporting

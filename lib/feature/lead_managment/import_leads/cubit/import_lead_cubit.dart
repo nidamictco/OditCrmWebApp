@@ -7,6 +7,8 @@ import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
+import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;
@@ -36,10 +38,10 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
       emit(state.copyWith(
         status:    ImportLeadsStatus.ready,
-        categories: results[0] as dynamic,
-        sources:    results[1] as dynamic,
-        staffList:  results[2] as dynamic,
-        stages:     results[3] as dynamic,
+        categories: results[0] as List<LeadsModel>,
+sources:    results[1] as List<LeadsModel>,
+staffList:  results[2] as List<StaffModel>,
+stages:     results[3] as List<LeadsModel>,
       ));
 
       log('[ImportLeadsCubit] Initialized — '
@@ -134,13 +136,13 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
   Future<void> importLeads({required Uint8List csvBytes}) async {
     // ── Validation ─────────────────────────────────────────────────────────
-    if (state.selectedLeadStage == null || state.selectedLeadStage!.isEmpty) {
-      emit(state.copyWith(
-        errorMessage: 'Please select a Lead Stage before importing.',
-        clearSuccess: true,
-      ));
-      return;
-    }
+    // if (state.selectedLeadStage == null || state.selectedLeadStage!.isEmpty) {
+    //   emit(state.copyWith(
+    //     errorMessage: 'Please select a Lead Stage before importing.',
+    //     clearSuccess: true,
+    //   ));
+    //   return;
+    // }
 
     emit(state.copyWith(
       status:       ImportLeadsStatus.importing,

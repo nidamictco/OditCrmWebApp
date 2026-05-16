@@ -98,51 +98,51 @@ class _SidebarItemState extends State<SidebarItem> {
                   subMenuItem("Add Lead", 1),
                   subMenuItem("Leads Report", 2),
                   subMenuItem("Import Leads", 14),
-                  subMenuItem("Call History ", 3),
+                  // subMenuItem("Call History ", 3),
                   subMenuItem("Deleted Leads", 4),
                   subMenuItem("Transfer Leads", 5),
                   subMenuItem("Unassigned Leads", 13),
-                  subMenuItem("Phone Call Log ", 6),
+                  // subMenuItem("Phone Call Log ", 6),
                 ],
               ),
             ),
 
-            ///settings
-            Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                initiallyExpanded: isSettingsSelected,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-                childrenPadding: EdgeInsets.zero,
+            // ///settings
+            // Theme(
+            //   data: Theme.of(
+            //     context,
+            //   ).copyWith(dividerColor: Colors.transparent),
+            //   child: ExpansionTile(
+            //     expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            //     initiallyExpanded: isSettingsSelected,
+            //     tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            //     childrenPadding: EdgeInsets.zero,
 
-                visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                leading: Icon(
-                  Symbols.settings,
-                  color: isSettingsSelected
-                      ? AppColors.primary
-                      : AppColors.grey,
-                ),
+            //     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+            //     leading: Icon(
+            //       Symbols.settings,
+            //       color: isSettingsSelected
+            //           ? AppColors.primary
+            //           : AppColors.grey,
+            //     ),
 
-                title: Text(
-                  "Settings",
-                  style: AppTextStyle.medium(
-                    size: 14,
-                    color: isSettingsSelected
-                        ? AppColors.primary
-                        : AppColors.grey,
-                    weight: FontWeight.w500,
-                  ),
-                ),
+            //     title: Text(
+            //       "Settings",
+            //       style: AppTextStyle.medium(
+            //         size: 14,
+            //         color: isSettingsSelected
+            //             ? AppColors.primary
+            //             : AppColors.grey,
+            //         weight: FontWeight.w500,
+            //       ),
+            //     ),
 
-                children: [
-                  subMenuItem("Facebook Settings", 21),
-                  subMenuItem("General Settings", 20),
-                ],
-              ),
-            ),
+            //     children: [
+            //       subMenuItem("Facebook Settings", 21),
+            //       subMenuItem("General Settings", 20),
+            //     ],
+            //   ),
+            // ),
 
             ///staff managment
             Theme(
@@ -179,35 +179,35 @@ class _SidebarItemState extends State<SidebarItem> {
               ),
             ),
 
-            ///file manager
-            Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                initiallyExpanded: isFileSelected,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-                childrenPadding: EdgeInsets.zero,
+            // ///file manager
+            // Theme(
+            //   data: Theme.of(
+            //     context,
+            //   ).copyWith(dividerColor: Colors.transparent),
+            //   child: ExpansionTile(
+            //     expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            //     initiallyExpanded: isFileSelected,
+            //     tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            //     childrenPadding: EdgeInsets.zero,
 
-                visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                leading: Icon(
-                  Symbols.folder,
-                  color: isFileSelected ? AppColors.primary : AppColors.grey,
-                ),
+            //     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+            //     leading: Icon(
+            //       Symbols.folder,
+            //       color: isFileSelected ? AppColors.primary : AppColors.grey,
+            //     ),
 
-                title: Text(
-                  "File Manager",
-                  style: AppTextStyle.medium(
-                    size: 14,
-                    color: isFileSelected ? AppColors.primary : AppColors.grey,
-                    weight: FontWeight.w500,
-                  ),
-                ),
+            //     title: Text(
+            //       "File Manager",
+            //       style: AppTextStyle.medium(
+            //         size: 14,
+            //         color: isFileSelected ? AppColors.primary : AppColors.grey,
+            //         weight: FontWeight.w500,
+            //       ),
+            //     ),
 
-                children: [subMenuItem("View", 19)],
-              ),
-            ),
+            //     children: [subMenuItem("View", 19)],
+            //   ),
+            // ),
 
             /// Reports
             Theme(
@@ -240,8 +240,8 @@ class _SidebarItemState extends State<SidebarItem> {
                 children: [
                   subMenuItem("Staff Reports", 22),
                   subMenuItem("Transfer Leads Reports", 23),
-                  subMenuItem("Total Leads Reports", 2),
-                  subMenuItem('Scheduled Lead report', 24),
+                  subMenuItem("Total Leads Reports", 2), 
+                  // subMenuItem('Scheduled Lead report', 24),
                   subMenuItem("Rejected Leads Reports", 25),
                 ],
               ),
