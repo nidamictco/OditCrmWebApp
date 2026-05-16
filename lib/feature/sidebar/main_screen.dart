@@ -118,11 +118,14 @@ class _MainScreenState extends State<MainScreen> {
             BlocProvider(create: (context) => LeadSourceCubit()),
             BlocProvider(create: (context) => LeadStageCubit()),
           ],
-          child: AddLeadPage(lead: widget.lead), 
+          child: AddLeadPage(lead: widget.lead),
         );
       case 2:
         return BlocProvider(
-          create: (context) => AddLeadCubit(),
+          create: (context) => AddLeadCubit()
+            ..fetchLeads()
+            ..initialize()
+            ..fetchStaff(),
           child: LeadsReport(),
         );
       case 3:
@@ -224,7 +227,10 @@ class _MainScreenState extends State<MainScreen> {
           child: StaffReports(),
         );
       case 23:
-        return TransferLeadsReport();
+        return BlocProvider(
+          create: (context) => AddLeadCubit()..fetchLeads(),
+          child: TransferLeadsReport(),
+        );
       case 24:
         return ScheduledLeads();
       case 25:

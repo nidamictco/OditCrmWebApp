@@ -456,6 +456,60 @@ Future<void> assignStaff({
   }
 }
 
+// ______transfer______________________
+
+Future<void> transferLead({
+  required String leadId,
+  required String leadName,
+  required String contactNumber,
+  required String leadCategory,
+  required String leadStage,
+  required String fromStaffId,
+  required String fromStaff,
+  required String toStaffId,
+  required String toStaff,
+}) async {
+  if (state.isUpdating) return;
+  emit(state.copyWith(isUpdating: true, clearError: true));
+
+  try {
+    final transfer = TransferDetails(
+      leadId:       leadId,
+      leadName:     leadName,
+      contactNumber: contactNumber,
+      leadCategory: leadCategory,
+      leadStage: leadStage,
+      fromStaffId:  fromStaffId,
+      fromStaff:    fromStaff,
+      toStaffId:    toStaffId,
+      toStaff:      toStaff,
+      transferTime: DateTime.now(),
+    );
+
+    await _leadRepository.transferLead(leadId, transfer);
+
+    // ── Update local list so UI reflects immediately ───────────────────
+    final updatedLeads = state.leads.map((l) {
+      if (l.id != leadId) return l;
+      return l.copyWith(
+        assignedStaff:   toStaff,
+        assignedStaffId: toStaffId,
+        transferLeads:   [...(l.transferLeads ?? []), transfer],
+      );
+    }).toList();
+
+    emit(state.copyWith(
+      isUpdating:     false,
+      leads:          updatedLeads,
+      successMessage: 'Lead transferred successfully.',
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      isUpdating:   false,
+      errorMessage: _friendlyError(e),
+    ));
+  }
+}
 
   // ── Fetch lead count ────────────────────────────────────────────────────────────
 

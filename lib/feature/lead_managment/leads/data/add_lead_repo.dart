@@ -24,6 +24,7 @@ abstract class IAddLeadRepository {
     required DateTime selectedDate,
     required String role,
   });
+  Future<void> transferLead(String leadId, TransferDetails transfer);
 }
  
 class AddLeadRepository implements IAddLeadRepository {
@@ -294,13 +295,37 @@ Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
     'leadStage': followUp.leadStage,
     'priority': followUp.priority,
     'leadCategory': followUp.leadCategory,
+    'nextFollowUpDate': followUp.nextFollowUpDate,
+    'lastCalledDate': followUp.calledDate,
   });
 
   log('[AddLeadRepository] FollowUp added for lead: $leadId');
 }
 
+Future<void> transferLead(String leadId, TransferDetails transfer) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+
+  final String transferId = _generateDateId('TRF');
+
+  // ── Add to subcollection ──────────────────────────────────────────────
+  await _collection
+      .doc(leadId)
+      .collection('TRANSFER_LEADS')
+      .doc(transferId)
+      .set(transfer.toFirestore());
+
+  // ── Update the lead document ──────────────────────────────────────────
+  await _collection.doc(leadId).update({
+    'assignedStaff':   transfer.toStaff,
+    'assignedStaffId': transfer.toStaffId,
+    'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
+  });
+
+  log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
+}
+
   bool _isSameDay(DateTime d1, DateTime d2) {
-    return d1.year == d2.year &&
+    return d1.year == d2.year && 
         d1.month == d2.month &&
         d1.day == d2.day;
   }

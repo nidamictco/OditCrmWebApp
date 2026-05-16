@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/footer.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
@@ -34,7 +33,6 @@ class _TransferLeadsState extends State<TransferLeads> {
   String? selectedSource;
   String? selectedPriority;
   String? selectedLeadStage;
-  // String? selectedStatus;
   String? selectedStaff;
 
   String _searchQuery = '';
@@ -884,13 +882,26 @@ class _TransferLeadsState extends State<TransferLeads> {
                       if (selectedStaffId == null || selectedStaffName == null)
                         return;
 
+                      // for (final lead in selectedLeads) {
+                      //   await context.read<AddLeadCubit>().assignStaff(
+                      //     leadId: lead.id!,
+                      //     staffId: selectedStaffId!,
+                      //     staffName: selectedStaffName!,
+                      //   );
+                      // }
                       for (final lead in selectedLeads) {
-                        await context.read<AddLeadCubit>().assignStaff(
-                          leadId: lead.id!,
-                          staffId: selectedStaffId!,
-                          staffName: selectedStaffName!,
-                        );
-                      }
+    await context.read<AddLeadCubit>().transferLead(
+      leadId:        lead.id!,
+      leadName:      lead.clientName,
+      contactNumber: lead.contactNumber,
+      leadCategory:  lead.leadCategory,
+      leadStage:     lead.leadStage,
+      fromStaffId:   lead.assignedStaffId,
+      fromStaff:     lead.assignedStaff,
+      toStaffId:     selectedStaffId!,
+      toStaff:       selectedStaffName!,
+    );
+  }
 
                       Navigator.pop(dialogContext);
                       // 🔹 Clear selection — assigned leads auto-disappear
