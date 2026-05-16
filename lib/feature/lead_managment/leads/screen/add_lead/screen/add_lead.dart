@@ -39,12 +39,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final TextEditingController _remarksCtrl = TextEditingController();
   final TextEditingController _dialogNameCtrl = TextEditingController();
   final TextEditingController nextFollowUpCtrl = TextEditingController(
-      text: DateFormat(
-        'dd-MM-yyyy',
-      ).format(DateTime.now().add(const Duration(days: 1))),
-    );
-    DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
-    DateTime calledDateValue = DateTime.now();
+    text: DateFormat(
+      'dd-MM-yyyy',
+    ).format(DateTime.now().add(const Duration(days: 1))),
+  );
+  DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
+  DateTime calledDateValue = DateTime.now();
 
   String? _leadStage;
   String? _leadSource;
@@ -109,6 +109,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
     _leadPriority = lead.priority;
+    nextFollowUpDate = lead.followUpDate!;
 
     // Pre-select state and district in cubit
     if (lead.state.isNotEmpty) {
@@ -148,6 +149,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _postOfficeCtrl.dispose();
     _remarksCtrl.dispose();
     _dialogNameCtrl.dispose();
+    nextFollowUpCtrl.dispose();
     for (final c in _additionalCtrlMap.values) {
       c.dispose();
     }
@@ -190,6 +192,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
         additionalFields: additionalValues.isNotEmpty
             ? additionalValues
             : widget.lead!.additionalFields,
+        callResult: state.selectedCallResult ?? widget.lead!.callResult,
+        leadTag: state.selectedLeadTag ?? widget.lead!.leadTag, 
+        followUpDate: nextFollowUpDate ,
+        // calledDate: state.selectedCalledDate ?? widget.lead!.calledDate,
+        
       );
       cubit.updateLead(widget.lead!.id!, updated);
     } else {
@@ -207,10 +214,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
         additionalFieldValues: additionalValues,
       );
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 2)),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 2)),
+    // );
   }
 
   void _clearForm() {
@@ -274,11 +281,25 @@ class _AddLeadPageState extends State<AddLeadPage> {
         }
 
         if (state.successMessage != null) {
-          if (!_isEditMode) {
-            _clearForm();
-          } else {
-            Navigator.pop(context);
-          }
+      if (_isEditMode) {
+        // ✅ navigate after update confirmed
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(selectedIndex: 2),
+          ),
+        );
+      } else {
+        // ✅ navigate after add confirmed, then fetch fresh list
+        context.read<AddLeadCubit>().fetchLeads(); // refresh before navigating
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(selectedIndex: 2),
+          ),
+        );
+      }
+  
         }
       },
       child: Scaffold(
@@ -544,7 +565,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
   // ── Section: Lead Information ──────────────────────────────────────────────
 
-   Widget _buildLeadInformation(BuildContext context) {
+  Widget _buildLeadInformation(BuildContext context) {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, state) {
         final cubit = context.read<AddLeadCubit>();
@@ -629,145 +650,149 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
               ],
             ),
-            Column(
-              children: [
-                SizedBox(height: 1.5.h),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 17.w,
-                      child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Next Follow-Up Date',
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    SizedBox(height: 0.5.h),
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          barrierColor: Colors.transparent,
-                                          builder: (_) => AlertDialog(
-                                            title: Text(
-                                              'Select FollowUp Date',
-                                              style: AppTextStyle.medium(size: 12.sp),
-                                            ),
-                                            content:  CustomCalendarPickOne( 
-                                                  onDateSelected: (date) {
-                                                    setState(() { 
-                                                      nextFollowUpDate = date;
-                                                      nextFollowUpCtrl.text =
-                                                          DateFormat(
-                                                            'dd-MM-yyyy',
-                                                          ).format(date);
-                                                    });
-                                                    // ✅ pop sbContext not context
-                                                    Navigator.pop(context);
-                                                  },
-                                                ),
-                                            
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        height: 5.2.h,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.greyCard,
-                                          border: Border.all(
-                                            color: AppColors.divider,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: IgnorePointer(
-                                          child: TextField(
-                                            controller: nextFollowUpCtrl,
-                                            readOnly: true,
-                                            style: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.black,
-                                            ),
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText: nextFollowUpCtrl.text,
-                                              hintStyle: AppTextStyle.small(
-                                                size: 11.sp,
-                                                color: AppColors.black,
-                                              ),
-                                              isCollapsed: true,
-                                              contentPadding: EdgeInsets.zero,
-                                            ),
-                                          ),
+            if (_leadStage != "NEW" && _leadStage != null)
+              Column(
+                children: [
+                  SizedBox(height: 1.5.h),
+                  if (_leadStage == "FOLLOWUP")
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 24.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Next Follow-Up Date',
+                                style: AppTextStyle.medium(),
+                              ),
+                              SizedBox(height: 0.5.h),
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    barrierColor: Colors.black.withOpacity(0.4),
+                                    builder: (_) => Dialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: SizedBox(
+                                        width: 28.w, // ✅ compact width
+                                        child: CustomCalendarPickOne(
+                                          initialDate: nextFollowUpDate,
+                                          onDateSelected: (date) {
+                                            setState(() {
+                                              nextFollowUpDate = date;
+                                              nextFollowUpCtrl.text =
+                                                  DateFormat(
+                                                    'dd-MM-yyyy',
+                                                  ).format(date);
+                                            });
+                                            Navigator.pop(
+                                              context,
+                                            ); // ✅ use ctx not context
+                                          },
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  );
+                                },
+                                child: Container(
+                                  height: 5.2.h,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.greyCard,
+                                    border: Border.all(
+                                      color: AppColors.divider,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: IgnorePointer(
+                                    child: TextField(
+                                      controller: nextFollowUpCtrl,
+                                      readOnly: true,
+                                      style: AppTextStyle.small(
+                                        size: 11.sp,
+                                        color: AppColors.black,
+                                      ),
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: nextFollowUpCtrl.text,
+                                        hintStyle: AppTextStyle.small(
+                                          size: 11.sp,
+                                          color: AppColors.black,
+                                        ),
+                                        isCollapsed: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                    ),  
-                  ],
-                ),
-                Row(
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 17.w,
-                      child: Dropdown(
-                        label: 'Tags',
-                        hint: 'Select Tags',
-                        items: [
-                          'Costly',
-                          'Not intrested',
-                          'Not Responding',
-                          'No Budget',
-                          'Wrong Lead',
-                        ],
-                        selectedValue: _leadTag,
-                        onChanged: (v) {
-                          setState(() => _leadTag = v);
-                          cubit.selectLeadTag(v);
-                        },
-                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 1.w),
-                  ],
-                ),
+                  Row(
+                    children: [
+                      if (_leadStage == "REJECTED")
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 24.w,
+                              child: Dropdown(
+                                label: 'Tags',
+                                hint: 'Select Tags',
+                                items: [
+                                  'Costly',
+                                  'Not intrested',
+                                  'Not Responding',
+                                  'No Budget',
+                                  'Wrong Lead',
+                                ],
+                                selectedValue: _leadTag,
+                                onChanged: (v) {
+                                  setState(() => _leadTag = v);
+                                  cubit.selectLeadTag(v);
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 2.w),
+                          ],
+                        ),
 
-                SizedBox(
-                  width: 17.w,
-                  child: Dropdown(
-                    label: 'Call Result',
-                    hint: 'Select Call Result',
-                    icon: Icons.phone_enabled_outlined,
-                    showStar: true,
-                    items: [
-                      'Busy',
-                      'Connected',
-                      'Not Attended',
-                      'Out of Coverage Area',
-                      'Rejected',
-                      'Switched Off',
+                      SizedBox(
+                        width: 24.w,
+                        child: Dropdown(
+                          label: 'Call Result',
+                          hint: 'Select Call Result',
+                          icon: Icons.phone_enabled_outlined,
+                          showStar: true,
+                          items: [
+                            'Busy',
+                            'Connected',
+                            'Not Attended',
+                            'Out of Coverage Area',
+                            'Rejected',
+                            'Switched Off',
+                          ],
+                          selectedValue: _callResult,
+                          onChanged: (v) {
+                            setState(() => _callResult = v);
+                            cubit.selectCallResult(v);
+                          },
+                        ),
+                      ),
                     ],
-                    selectedValue: _callResult,
-                    onChanged: (v) {
-                      setState(() => _callResult = v);
-                      cubit.selectCallResult(v);
-                    },
                   ),
-                ),
-              ],
-            ),
-              ],
-            ),
-            
+                ],
+              ),
+
             SizedBox(height: 1.5.h),
             _multilineField(
               'Remarks',
@@ -1203,8 +1228,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
   }
 }
 
-
-
 class CustomCalendarPickOne extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final DateTime? initialDate;
@@ -1223,10 +1246,20 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
   late DateTime _focusedMonth;
   DateTime? _selectedDate;
 
-  final List<String> _weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  final List<String> _weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   final List<String> _months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   @override
@@ -1236,23 +1269,21 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
     _focusedMonth = widget.initialDate ?? DateTime.now();
   }
 
-  void _prevMonth() {
-    setState(() {
-      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
-    });
-  }
+  void _prevMonth() => setState(() {
+    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+  });
 
-  void _nextMonth() {
-    setState(() {
-      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
-    });
-  }
+  void _nextMonth() => setState(() {
+    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+  });
 
-  /// All day cells for the current month view (including leading/trailing blanks)
   List<DateTime?> _buildDayCells() {
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
-    final daysInMonth = DateUtils.getDaysInMonth(_focusedMonth.year, _focusedMonth.month);
-    final leadingBlanks = firstDay.weekday % 7; // Sunday = 0
+    final daysInMonth = DateUtils.getDaysInMonth(
+      _focusedMonth.year,
+      _focusedMonth.month,
+    );
+    final leadingBlanks = firstDay.weekday % 7;
 
     final cells = <DateTime?>[];
     for (int i = 0; i < leadingBlanks; i++) cells.add(null);
@@ -1264,142 +1295,195 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
-  bool _isSelected(DateTime date) {
-    return _selectedDate != null &&
-        date.year == _selectedDate!.year &&
-        date.month == _selectedDate!.month &&
-        date.day == _selectedDate!.day;
-  }
+  bool _isSelected(DateTime date) =>
+      _selectedDate != null &&
+      date.year == _selectedDate!.year &&
+      date.month == _selectedDate!.month &&
+      date.day == _selectedDate!.day;
 
   @override
   Widget build(BuildContext context) {
     final cells = _buildDayCells();
 
-    return Container(
-      padding: EdgeInsets.all(1.5.w),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Month / Year header ──────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: _prevMonth,
-                icon: Icon(Icons.chevron_left, size: 14.sp, color: AppColors.black),
-                splashRadius: 18,
+          // ── Colored header ─────────────────────────────────────────────
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.2.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary,
+                  AppColors.primary.withOpacity(0.75),
+                ],
               ),
-              Text(
-                '${_months[_focusedMonth.month - 1]} ${_focusedMonth.year}',
-                style: AppTextStyle.medium(
-                  size: 12.sp,
-                  weight: FontWeight.w600,
-                  color: AppColors.black,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: _prevMonth,
+                  icon: Icon(
+                    Icons.chevron_left,
+                    size: 12.sp,
+                    color: Colors.white,
+                  ),
+                  splashRadius: 16,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
-              ),
-              IconButton(
-                onPressed: _nextMonth,
-                icon: Icon(Icons.chevron_right, size: 14.sp, color: AppColors.black),
-                splashRadius: 18,
-              ),
-            ],
-          ),
-
-          SizedBox(height: 1.h),
-
-          // ── Weekday labels ───────────────────────────────────────────────
-          Row(
-            children: _weekDays.map((day) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    day,
-                    style: AppTextStyle.small(
-                      size: 9.sp,
-                      weight: FontWeight.w600,
-                      color: AppColors.grey,
+                Column(
+                  children: [
+                    Text(
+                      _months[_focusedMonth.month - 1],
+                      style: AppTextStyle.medium(
+                        size: 11.sp,
+                        weight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
+                    Text(
+                      '${_focusedMonth.year}',
+                      style: AppTextStyle.small(
+                        size: 9.sp,
+                        color: Colors.white.withOpacity(0.85),
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            }).toList(),
+                IconButton(
+                  onPressed: _nextMonth,
+                  icon: Icon(
+                    Icons.chevron_right,
+                    size: 12.sp,
+                    color: Colors.white,
+                  ),
+                  splashRadius: 16,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
           ),
 
-          SizedBox(height: 1.h),
+          // ── Body ───────────────────────────────────────────────────────
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.8.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Weekday row
+                Row(
+                  children: _weekDays.map((day) {
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          day,
+                          style: AppTextStyle.small(
+                            size: 8.5.sp,
+                            weight: FontWeight.w700,
+                            color: AppColors.primary.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
 
-          // ── Day grid ─────────────────────────────────────────────────────
-          GridView.count(
-            crossAxisCount: 7,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            childAspectRatio: 1.2,
-            children: cells.map((date) {
-              if (date == null) return const SizedBox.shrink();
+                SizedBox(height: 0.5.h),
 
-              final selected = _isSelected(date);
-              final today = _isToday(date);
+                // Day grid
+                GridView.count(
+                  crossAxisCount: 7,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 2,
+                  childAspectRatio: 1.3,
+                  children: cells.map((date) {
+                    if (date == null) return const SizedBox.shrink();
 
-              return GestureDetector(
-                onTap: () {
-                  setState(() => _selectedDate = date);
-                  widget.onDateSelected(date);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primary
-                        : today
-                            ? AppColors.primary.withOpacity(0.12)
-                            : Colors.transparent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
+                    final selected = _isSelected(date);
+                    final today = _isToday(date);
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() => _selectedDate = date);
+                        widget.onDateSelected(date);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppColors.primary
+                              : today
+                              ? AppColors.primary.withOpacity(0.12)
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${date.day}',
+                            style: AppTextStyle.small(
+                              size: 8.5.sp,
+                              weight: selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: selected
+                                  ? Colors.white
+                                  : today
+                                  ? AppColors.primary
+                                  : AppColors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+                SizedBox(height: 0.5.h),
+
+                // Today button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.w,
+                        vertical: 0.3.h,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () {
+                      final today = DateTime.now();
+                      setState(() {
+                        _selectedDate = today;
+                        _focusedMonth = today;
+                      });
+                      widget.onDateSelected(today);
+                    },
                     child: Text(
-                      '${date.day}',
+                      'Today',
                       style: AppTextStyle.small(
-                        size: 9.5.sp,
-                        weight: selected ? FontWeight.w600 : FontWeight.w400,
-                        color: selected
-                            ? Colors.white
-                            : today
-                                ? AppColors.primary
-                                : AppColors.black,
+                        size: 9.sp,
+                        color: AppColors.primary,
+                        weight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-              );
-            }).toList(),
-          ),
-
-          SizedBox(height: 1.5.h),
-
-          // ── Today shortcut ───────────────────────────────────────────────
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {
-                final today = DateTime.now();
-                setState(() {
-                  _selectedDate = today;
-                  _focusedMonth = today;
-                });
-                widget.onDateSelected(today);
-              },
-              child: Text(
-                'Today',
-                style: AppTextStyle.small(
-                  size: 10.sp,
-                  color: AppColors.primary,
-                  weight: FontWeight.w600,
-                ),
-              ),
+              ],
             ),
           ),
         ],

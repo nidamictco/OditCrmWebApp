@@ -50,6 +50,7 @@ class AddLeadRepository implements IAddLeadRepository {
      final String id = _generateDateId('LEADS');
     await _collection.doc(id).set(lead.toFirestore());
     log('[AddLeadRepository] Lead added with ID: $id');
+    
     return id;
   } 
 

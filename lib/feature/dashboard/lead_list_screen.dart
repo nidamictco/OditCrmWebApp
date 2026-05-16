@@ -182,7 +182,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         child: Column(
           // shrinkWrap: true,
           children: [
-            TopBreadcrumbBar(title: 'Dashboard', subTitle: 'New Leads'),
+            TopBreadcrumbBar(title: 'DASHBOARD', subTitle: widget.fromCard.toUpperCase()),
         
             Padding(
               padding: EdgeInsets.all(2.w),
@@ -319,7 +319,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     ShowEntries(),
         
                     /// 🔹 TABLE HEADER
-                    Expanded(child: _buildTable()),
+                    _buildTable(),
                     Divider(color: AppColors.divider),
         
                     /// 🔹 FOOTER
@@ -589,12 +589,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        const SizedBox(height: 20),
         Icon(
           Icons.search_off_rounded,
           size: 56,
           color: AppTheme.textMuted.withOpacity(0.5),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         const Text(
           'No leads found',
           style: TextStyle(
@@ -603,7 +604,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             color: AppTheme.textSecondary,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 20),
         // const Text(
         //   'Try adjusting your search query',
         //   style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
@@ -656,7 +657,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: 56,          // at least one row height
-                  maxHeight: 56 * 10,     // cap at 10 rows max if you want a scroll limit
+                  // maxHeight: 56 * 10,     // cap at 10 rows max if you want a scroll limit
                 ),
                 child: BlocBuilder<AddLeadCubit, AddLeadState>(
                   builder: (context, state) {

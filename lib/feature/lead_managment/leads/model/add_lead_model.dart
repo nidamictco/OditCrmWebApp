@@ -26,7 +26,6 @@ class AddLeadModel {
   final Map<String, String>? additionalFields;
   final DateTime? deletedAt;
   final List<FollowUpModel>? followUp;
-  // final List<FolloupModel>? followUps;
   final DateTime? followUpDate;
   final DateTime? calledDate;
   final String? leadTag;

@@ -48,8 +48,9 @@ class _LeadsReportState extends State<LeadsReport> {
   int _currentPage = 1;
 
   @override
-  void initState() {
+  void initState() { 
     super.initState();
+    context.read<AddLeadCubit>().fetchLeads();
     final cubit = context.read<AddLeadCubit>();
     cubit.initialize();
     cubit.fetchLeads();
