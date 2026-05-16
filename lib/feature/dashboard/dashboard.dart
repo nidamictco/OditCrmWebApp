@@ -31,7 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     _dateController.text = DateFormat('dd-MM-yyyy').format(today);
 
-    context.read<AddLeadCubit>().fetchDashboardCounts(today);
+    // context.read<AddLeadCubit>().fetchDashboardCounts(today);
   }
 
   @override
