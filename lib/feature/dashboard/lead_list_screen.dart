@@ -685,13 +685,24 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         ? state.leads
                         : [];
 
-                    final List<AddLeadModel> leads = rawList
-                        .where(
-                          (e) =>
-                              e.leadStage.toLowerCase() ==
-                              widget.fromCard.toLowerCase(),
-                        )
-                        .toList();
+                    final todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+                    final List<AddLeadModel> leads = rawList;
+                    //     .where((e)
+                    // {
+                    //       if(widget.fromCard.toLowerCase() == 'followup'){
+                    //         final followUpDate = DateFormat('dd-MM-yyyy').format(e.followUpDate!);
+                    //         return e.leadStage.toLowerCase() == 'followup' && followUpDate == todayDate;
+                    //       }
+                    //       if(widget.fromCard.toLowerCase() == 'new'){
+                    //         final createdDate = DateFormat('dd-MM-yyyy').format(e.createdAt!);
+                    //         return e.leadStage.toLowerCase() == 'new' && createdDate == todayDate;
+                    //       }
+                    //     },
+                    // // =>
+                    // //           e.leadStage.toLowerCase() ==
+                    // //           widget.fromCard.toLowerCase(),
+                    //     )
+                    //     .toList();
 
                     final allFiltered = _filteredLeads(leads);
                     final totalCount = allFiltered.length;

@@ -100,9 +100,10 @@ class _MainScreenState extends State<MainScreen> {
       // ✅ use local variable
       case 0:
         return BlocProvider(
-          create: (context) => AddLeadCubit(),
+          create: (context) => AddLeadCubit()..fetchLeads(),
           child: DashboardScreen(),
         );
+
       case 1:
         return MultiBlocProvider(
           providers: [
@@ -175,7 +176,7 @@ class _MainScreenState extends State<MainScreen> {
         return LeadDistributionSettingsScreen();
       case 12:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads(),
+          create: (context) => AddLeadCubit()..fetchDashboardLeads(widget.staff!.id!, widget.staff?.staffType ?? 'Admin', widget.fromCard ?? ""),
           child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
         );
 

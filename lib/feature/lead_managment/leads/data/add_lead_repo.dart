@@ -10,6 +10,7 @@ import '../../../dashboard/models/dashboard_count_model.dart';
 abstract class IAddLeadRepository {
   Future<String> addLead(AddLeadModel lead);
   Future<List<AddLeadModel>> fetchLeads();
+  Future<List<AddLeadModel>> fetchStaffLeads(String staffId, String role);
   Future<void> updateLead(String id, AddLeadModel lead);
   Future<void> deleteLead(String id);
   Future<void> moveToDeleted(AddLeadModel lead);
@@ -21,6 +22,7 @@ abstract class IAddLeadRepository {
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
     required DateTime selectedDate,
+    required String role,
   });
 }
  
@@ -63,12 +65,150 @@ class AddLeadRepository implements IAddLeadRepository {
 
   @override
   Future<List<AddLeadModel>> fetchLeads() async {
-    final snap = await _collection
+
+           final snap = await _collection
+               .orderBy('createdAt', descending: true)
+               .get();
+           return snap.docs
+               .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+               .toList();
+
+  }
+
+  Future<List<AddLeadModel>> fetchDashboardLeads({
+    required String staffId,
+    required String role,
+    required String fromCard,
+    required DateTime selectedDate,
+  }) async {
+
+    Query<Map<String, dynamic>> query = _collection;
+
+    /// ---------------- ROLE FILTER ----------------
+    /// Admin -> all leads
+    /// Staff -> only assigned leads
+
+    if (role.toLowerCase() != 'admin') {
+      query = query.where(
+        'assignedStaffId',
+        isEqualTo: staffId,
+      );
+    }
+
+    final snap = await query
         .orderBy('createdAt', descending: true)
         .get();
-    return snap.docs
+
+    final allLeads = snap.docs
         .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
         .toList();
+
+    /// ---------------- DATE FILTER HELPER ----------------
+
+    bool isSameDay(DateTime? date) {
+
+      if (date == null) return false;
+
+      return date.year == selectedDate.year &&
+          date.month == selectedDate.month &&
+          date.day == selectedDate.day;
+    }
+
+    /// ---------------- CARD FILTER ----------------
+
+    switch (fromCard.toUpperCase()) {
+
+    /// NEW LEADS
+      case 'NEW':
+
+        return allLeads.where((lead) {
+
+          return isSameDay(lead.createdAt);
+
+        }).toList();
+
+    /// FOLLOWUP LEADS
+      case 'FOLLOWUP':
+
+        return allLeads.where((lead) {
+
+          return isSameDay(lead.followUpDate);
+
+        }).toList();
+
+    /// CLOSED LEADS
+      case 'CLOSED':
+
+        return allLeads.where((lead) {
+
+          return lead.leadStage
+              .toUpperCase() == 'CLOSED';
+
+        }).toList();
+
+    /// TOTAL CALLED
+      case 'TOTAL':
+
+        return allLeads.where((lead) {
+
+          return isSameDay(lead.calledDate);
+
+        }).toList();
+
+    /// MISSED / REJECTED
+      case 'MISSED':
+
+        return allLeads.where((lead) {
+
+          return lead.leadStage
+              .toUpperCase() == 'REJECTED';
+
+        }).toList();
+
+    /// TRANSFERRED LEADS
+      case 'TRANSFERRED':
+
+        return allLeads.where((lead) {
+
+          if (lead.transferred == null ||
+              lead.transferred!.isEmpty) {
+            return false;
+          }
+
+          return lead.transferred!.any((item) {
+
+            final transferredTime =
+            item['transferredTime'];
+
+            if (transferredTime == null) {
+              return false;
+            }
+
+            DateTime transferDate;
+
+            if (transferredTime is Timestamp) {
+
+              transferDate = transferredTime.toDate();
+
+            } else if (transferredTime is DateTime) {
+
+              transferDate = transferredTime;
+
+            } else {
+
+              return false;
+            }
+
+            return isSameDay(transferDate);
+
+          });
+
+        }).toList();
+
+      default:
+
+        return allLeads;
+    }
   }
 
   @override
@@ -169,6 +309,7 @@ Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
     required DateTime selectedDate,
+    required String role,
   }) async {
 
     final startOfDay = DateTime(
@@ -186,7 +327,9 @@ Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
       59,
     );
 
-    final snap = await _collection
+    final snap = role.toLowerCase() == 'admin'?
+        await _collection.get() :
+    await _collection
         .where('assignedStaffId', isEqualTo: staffId)
         .get();
 
