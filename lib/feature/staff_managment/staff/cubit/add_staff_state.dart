@@ -1,5 +1,6 @@
 
 
+import 'package:oxdo/feature/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 
@@ -44,3 +45,13 @@ class StaffError extends StaffState {
   final String message;
   StaffError(this.message);
 }
+
+class NotesLoading extends StaffState {}
+
+class NotesLoaded extends StaffState {
+  final List<NoteModel> notes;
+  NotesLoaded(this.notes);
+}
+
+// in add_staff_state.dart
+class NoteSaved extends StaffState {}

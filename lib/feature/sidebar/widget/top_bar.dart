@@ -213,15 +213,19 @@
 // }
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/sidebar/widget/hover/hover_icon.dart';
+import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class TopBar extends StatefulWidget {
@@ -244,6 +248,16 @@ class _TopBarState extends State<TopBar> {
   OverlayEntry? _overlayEntry;
   Timer? _debounce;
 
+  AddLeadCubit? _searchCubit;
+
+
+  @override
+  void initState() {
+    super.initState();
+    // ← assign cubit here, not inside _showOverlay()
+    // _searchCubit = context.read<AddLeadCubit>();
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -265,9 +279,9 @@ class _TopBarState extends State<TopBar> {
     });
   }
 
-  void _showOverlay() {
+  void _showOverlay() { 
     _removeOverlay();
-    final cubit = context.read<AddLeadCubit>();
+    // final cubit = context.read<AddLeadCubit>();
 
     _overlayEntry = OverlayEntry(
       builder: (overlayContext) => Positioned(
@@ -281,7 +295,7 @@ class _TopBarState extends State<TopBar> {
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
             child: BlocProvider.value(
-              value: cubit,
+              value: context.read<AddLeadCubit>(),
               child: BlocBuilder<AddLeadCubit, AddLeadState>(
                 builder: (ctx, state) {
                   if (!state.isSearching) return const SizedBox.shrink();
@@ -301,9 +315,7 @@ class _TopBarState extends State<TopBar> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
+                              bottom: BorderSide(color: Colors.grey.shade200),
                             ),
                           ),
                           child: Row(
@@ -327,7 +339,7 @@ class _TopBarState extends State<TopBar> {
                                 onTap: () {
                                   _searchController.clear();
                                   _removeOverlay();
-                                  cubit.searchLeads('');
+                                  // cubit.searchLeads('');
                                 },
                                 child: Icon(
                                   Icons.cancel,
@@ -394,8 +406,10 @@ class _TopBarState extends State<TopBar> {
                                   child: ListView.separated(
                                     shrinkWrap: true,
                                     padding: EdgeInsets.zero,
-                                    itemCount:
-                                        state.searchResults.length.clamp(0, 8),
+                                    itemCount: state.searchResults.length.clamp(
+                                      0,
+                                      8,
+                                    ),
                                     separatorBuilder: (_, __) => Divider(
                                       height: 1,
                                       indent: 1.w,
@@ -405,14 +419,16 @@ class _TopBarState extends State<TopBar> {
                                     itemBuilder: (_, i) {
                                       final lead = state.searchResults[i];
                                       return InkWell(
+                                        
                                         onTap: () {
+                                          log('wwwwww');
                                           _removeOverlay();
                                           _searchController.clear();
-                                          cubit.searchLeads('');
+                                          // cubit.searchLeads('');
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
                                               builder: (_) => MainScreen(
-                                                selectedIndex: 2,
+                                                selectedIndex: 31,
                                                 lead: lead,
                                               ),
                                             ),
@@ -438,6 +454,7 @@ class _TopBarState extends State<TopBar> {
                                                 ),
                                               ),
                                               SizedBox(width: 0.8.w),
+
                                               /// Name + phone
                                               Expanded(
                                                 child: Column(
@@ -445,7 +462,7 @@ class _TopBarState extends State<TopBar> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      lead.clientName ?? '',
+                                                      lead.clientName,
                                                       style: AppTextStyle.small(
                                                         size: 11.sp,
                                                         color: AppColors.black,
@@ -454,7 +471,7 @@ class _TopBarState extends State<TopBar> {
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                     ),
-                                                    SizedBox(height: 0.2.h), 
+                                                    SizedBox(height: 0.2.h),
                                                     Text(
                                                       lead.contactNumber,
                                                       style: AppTextStyle.small(
@@ -495,19 +512,28 @@ class _TopBarState extends State<TopBar> {
 
   @override
   Widget build(BuildContext context) {
+    _searchCubit = context.read<AddLeadCubit>();
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthLoggedOut) {
-          Navigator.of(
-            context,
-          ).pushNamedAndRemoveUntil('/login', (route) => false);
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()), // ← FIXED
+            (route) => false,
+          );
         }
       },
       child: TapRegion(
+        // onTapOutside: (_) {
+        //   _removeOverlay();
+        //   _searchController.clear();
+        //   context.read<AddLeadCubit>().searchLeads('');
+        // },
         onTapOutside: (_) {
           _removeOverlay();
           _searchController.clear();
-          context.read<AddLeadCubit>().searchLeads('');
+          try {
+            context.read<AddLeadCubit>().searchLeads('');
+          } catch (_) {}
         },
         child: Container(
           height: 11.h,
@@ -575,6 +601,7 @@ class _TopBarState extends State<TopBar> {
                               ),
                             ),
                           ),
+
                           /// Clear button
                           ValueListenableBuilder<TextEditingValue>(
                             valueListenable: _searchController,
@@ -586,9 +613,7 @@ class _TopBarState extends State<TopBar> {
                                 onTap: () {
                                   _searchController.clear();
                                   _removeOverlay();
-                                  context
-                                      .read<AddLeadCubit>()
-                                      .searchLeads('');
+                                  context.read<AddLeadCubit>().searchLeads('');
                                 },
                                 child: Icon(
                                   Icons.cancel,
@@ -618,12 +643,12 @@ class _TopBarState extends State<TopBar> {
                   SizedBox(width: 0.3.w),
                   BlocBuilder<AuthCubit, AuthState>(
                     builder: (context, state) {
-                      final user =
-                          state is Authenticated ? state.user : null;
+                      final user = state is Authenticated ? state.user : null;
                       return _profileAvatar(
                         context,
                         user?.name ?? '',
                         user?.staffType ?? '',
+                        user!,
                       );
                     },
                   ),
@@ -636,7 +661,7 @@ class _TopBarState extends State<TopBar> {
     );
   }
 
-  Widget _profileAvatar(BuildContext context, String name, String role) {
+  Widget _profileAvatar(BuildContext context, String name, String role,StaffModel user,) {
     return GestureDetector(
       onTapDown: (details) async {
         final position = RelativeRect.fromLTRB(
@@ -663,22 +688,36 @@ class _TopBarState extends State<TopBar> {
         );
 
         if (selected == "Logout" && context.mounted) {
-          context.read<AuthCubit>().logout();
+          context.read<AuthCubit>().logout(
+            permissionCubit: context.read<PermissionCubit>(), // ← ADD
+          );
         }
         if (selected == "Settings" && context.mounted) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return MainScreen(selectedIndex: 20);
-          }));
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return MainScreen(selectedIndex: 20);
+              },
+            ),
+          );
         }
-        if (selected == "Profile" && context.mounted) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return MainScreen(selectedIndex: 29);
-          }));
+        if (selected == "Profile" && context.mounted) { 
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return MainScreen(selectedIndex: 29,staff: user,);
+              },
+            ),
+          );
         }
         if (selected == "Change Password" && context.mounted) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return MainScreen(selectedIndex: 32);
-          }));
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return MainScreen(selectedIndex: 32,staff: user,);
+              },
+            ),
+          );
         }
       },
       child: Container(
@@ -728,11 +767,7 @@ class _TopBarState extends State<TopBar> {
       value: text,
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: isLogout ? Colors.red : Colors.grey[700],
-          ),
+          Icon(icon, size: 16, color: isLogout ? Colors.red : Colors.grey[700]),
           const SizedBox(width: 10),
           Text(
             text,

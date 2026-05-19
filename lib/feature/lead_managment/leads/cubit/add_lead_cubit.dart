@@ -573,7 +573,7 @@ Future<void> transferLead({
 
   // ----------search----------
 
-   void searchLeads(String query) {
+Future<void> searchLeads(String query) async {
   if (query.trim().isEmpty) {
     emit(state.copyWith(
       isSearching: false,
@@ -582,12 +582,16 @@ Future<void> transferLead({
     return;
   }
 
+  if (state.leads.isEmpty) {
+    await fetchLeads();
+  }
+
   final q = query.toLowerCase();
   final results = state.leads.where((lead) =>
     lead.clientName?.toLowerCase().contains(q) == true ||
     lead.contactNumber?.contains(query) == true ||
     lead.email?.toLowerCase().contains(q) == true,
-  ).toList(); 
+  ).toList();
 
   emit(state.copyWith(
     isSearching: true,

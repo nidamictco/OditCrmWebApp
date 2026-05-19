@@ -31,12 +31,8 @@ class _ImportLeadsState extends State<ImportLeads> {
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _costController = TextEditingController();
 
-  // ── Picked CSV bytes held locally so we can pass on submit ───────────────
-  // ✅ FIX: store Uint8List (not File) to stay consistent with web + mobile
   Uint8List? _pickedCsvBytes;
 
-  // ── Static dropdown data (non-Firestore) ─────────────────────────────────
-  // final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
   final List<String> _priorities = ['High', 'Low', 'Negative', 'Normal'];
 
   final Map<String, List<String>> _stateDistrictMap = {
@@ -48,7 +44,12 @@ class _ImportLeadsState extends State<ImportLeads> {
   @override
   void initState() {
     super.initState();
+    // context.read<ImportLeadsCubit>().initialize();
+     final s = context.read<ImportLeadsCubit>().state;
+  // ✅ Only initialize if we haven't loaded yet
+  if (!s.isReady) {
     context.read<ImportLeadsCubit>().initialize();
+  }
   }
 
   @override
@@ -126,8 +127,17 @@ class _ImportLeadsState extends State<ImportLeads> {
       );
       // ✅ FIX: clear local bytes after a successful import
       setState(() => _pickedCsvBytes = null);
-    }
 
+      // ✅ Navigate only after actual success
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MainScreen(selectedIndex: 2),
+      ),
+    );
+    }
+ 
+  
     if (state.status == ImportLeadsStatus.failure &&
         state.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -423,7 +433,6 @@ class _ImportLeadsState extends State<ImportLeads> {
     ImportLeadsState state,
     ImportLeadsCubit cubit,
   ) {
-    // ✅ FIX: button is active only when not importing AND bytes are available
     final bool canSubmit = !state.isImporting && _pickedCsvBytes != null;
 
     return SizedBox(
@@ -437,14 +446,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         onPressed: canSubmit
             ? () {
                 cubit.importLeads(csvBytes: _pickedCsvBytes!);
-                if (context.mounted) {
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(
-                      builder: (context) => const MainScreen(selectedIndex: 2),
-                    ),
-                  );
-                }
+                
               }
             : null,
         child: state.isImporting

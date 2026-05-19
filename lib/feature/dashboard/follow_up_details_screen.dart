@@ -1053,6 +1053,7 @@ import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -1061,7 +1062,8 @@ import 'models/follow_up_details_models.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 
 class FollowUpDetailsScreen extends StatefulWidget {
-  const FollowUpDetailsScreen({super.key});
+  final AddLeadModel? lead;
+  const FollowUpDetailsScreen({super.key, this.lead});
 
   @override
   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
@@ -1172,8 +1174,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       case 0:
         return _FollowupTabContent(
           followups: _followups,
-          leadId: 'LEADS-20260513-143356-326',
-          leadName: '',
+          leadId: widget.lead?.id ?? '',
+          leadName: widget.lead?.clientName ?? '',
         );
       case 1:
         return _ActivitiesTabContent(activities: _activities);
@@ -1216,7 +1218,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                       child: Row(
                         children: [
                           Text(
-                            'Sanidha',
+                            // 'Sanidha',
+                            widget.lead?.clientName ?? '',
                             style: AppTextStyle.heading(
                               size: 20,
                               weight: FontWeight.w700,
@@ -1249,7 +1252,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          _metaItem(Icons.phone, '8086287726'),
+                          _metaItem(Icons.phone,
+                              // '8086287726'
+                              widget.lead?.contactNumber ?? '',),
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,

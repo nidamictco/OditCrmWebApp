@@ -24,7 +24,7 @@ class _StaffReportsState extends State<StaffReports> {
   bool isHovering = false;
   String _searchQuery = '';
   String _selectedEntries = '10';
-   List<int> _selectedIndices = [];
+  List<int> _selectedIndices = [];
   int _tableKey = 0;
   int _currentPage = 1;
 
@@ -34,11 +34,11 @@ class _StaffReportsState extends State<StaffReports> {
     context.read<StaffCubit>().fetchAll();
   }
 
-    // ─── Filtering────────────────────────────────────────────────────
+  // ─── Filtering────────────────────────────────────────────────────
 
   List<StaffModel> _filtered(List<StaffModel> all) {
     List<StaffModel> result = all;
-final q = _searchQuery.trim().toLowerCase();
+    final q = _searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
       result = result
           .where(
@@ -85,6 +85,7 @@ final q = _searchQuery.trim().toLowerCase();
     _selectedIndices = [];
     _tableKey++;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,181 +170,236 @@ final q = _searchQuery.trim().toLowerCase();
                     SizedBox(height: 2.h),
                     ShowEntries(
                       initialSearch: _searchQuery,
-                          initialEntries: _selectedEntries,
-                          onSearchChanged: (v) => setState(() {
-                            _searchQuery = v;
-                            _resetPage();
-                          }),
-                          onEntriesChanged: (v) => setState(() {
-                            _selectedEntries = v;
-                            _resetPage();
-                          }),
+                      initialEntries: _selectedEntries,
+                      onSearchChanged: (v) => setState(() {
+                        _searchQuery = v;
+                        _resetPage();
+                      }),
+                      onEntriesChanged: (v) => setState(() {
+                        _selectedEntries = v;
+                        _resetPage();
+                      }),
                     ),
                     BlocBuilder<StaffCubit, StaffState>(
                       builder: (context, state) {
                         if (state is StaffLoading) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h),
-        child: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.orange,
-            strokeWidth: 2,
-          ),
-        ),
-      );
-    }
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6.h),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.orange,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        }
 
-    // Error
-    if (state is StaffError) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline, color: Colors.red, size: 18.sp),
-              SizedBox(height: 1.h),
-              Text(
-                'Failed to load staff data.',
-                style: AppTextStyle.medium(color: Colors.red),
-              ),
-              SizedBox(height: 0.5.h),
-              Text(
-                state.message,
-                style: AppTextStyle.small(color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 1.5.h),
-              GestureDetector(
-                onTap: () => context.read<StaffCubit>().fetchAll(),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 0.8.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.orange.withOpacity(0.1),
-                    border: Border.all(color: AppColors.orange),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    'Retry',
-                    style: AppTextStyle.small(color: AppColors.orange),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    //  final List<StaffModel> rawList = state is StaffListLoaded
-    //       ? state.staffList
-    //       : [];
-
-    //   final List<StaffModel> staffList = _filtered(rawList);
-
-    final List<StaffModel> rawList = state is StaffListLoaded
-        ? state.staffList
-        : [];
-
-    final allFiltered = _filtered(rawList);
-    final totalCount = allFiltered.length;
-    final totalPages = _totalPages(totalCount);
-    final limit = int.tryParse(_selectedEntries) ?? 10;
-    if (_currentPage > totalPages) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => _currentPage = totalPages);
-      });
-    }
-    final pagedList = _pagedLeads(allFiltered);
-
-    // "Showing X to Y of Z entries"
-    final showFrom = totalCount == 0 ? 0 : (_currentPage - 1) * limit + 1;
-    final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
-
-                        return Column(
-                        children: [
-                          SizedBox(
-                            child: CustomTable(
-                              columns: [
-                                TableColumn(title: "#", flex: 1),
-                                TableColumn(title: "Name", flex: 4),
-                                TableColumn(title: "Phone Number", flex: 4),
-                                TableColumn(title: "Designation", flex: 4),
-                                TableColumn(title: "Action", flex: 2),
-                              ],
-                              rows:pagedList.asMap().entries.map((entry) {
-            final index = entry.key;
-            final staff = entry.value; 
-            final serial = (_currentPage - 1) * limit + index + 1;
-                                    return [
-                                      Text('$serial', style: AppTextStyle.medium()),
-                                      Text(staff.name, style: AppTextStyle.medium()),
-                                      Text(staff.phone, style: AppTextStyle.medium()),
-                                      Text(staff.designation ?? '---', style: AppTextStyle.medium()),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MainScreen(selectedIndex: 29),
-                                            ),
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(0.1.w),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.shade900,
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Icon(
-                                            Icons.ads_click_outlined,
-                                            size: 14.sp,
-                                            color: Colors.white,
-                                          ),
+                        // Error
+                        if (state is StaffError) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 6.h,
+                              horizontal: 2.w,
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.error_outline,
+                                    color: Colors.red,
+                                    size: 18.sp,
+                                  ),
+                                  SizedBox(height: 1.h),
+                                  Text(
+                                    'Failed to load staff data.',
+                                    style: AppTextStyle.medium(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  SizedBox(height: 0.5.h),
+                                  Text(
+                                    state.message,
+                                    style: AppTextStyle.small(
+                                      color: Colors.grey,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 1.5.h),
+                                  GestureDetector(
+                                    onTap: () =>
+                                        context.read<StaffCubit>().fetchAll(),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 2.w,
+                                        vertical: 0.8.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.orange.withOpacity(
+                                          0.1,
+                                        ),
+                                        border: Border.all(
+                                          color: AppColors.orange,
+                                        ),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        'Retry',
+                                        style: AppTextStyle.small(
+                                          color: AppColors.orange,
                                         ),
                                       ),
-                                    ];
-                                  }).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          /// 🔹 FOOTER
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Showing $showFrom to $showTo of $totalCount entries",
-                style: AppTextStyle.medium(weight: FontWeight.w400),
-              ),
-              Row(
-                children: [
-                  PageButton(
-                    label: 'Previous',
-                    enabled: _currentPage > 1,
-                    isLeft: true,
-                    onTap: () => _goToPage(_currentPage - 1, totalCount),
-                  ),
-                  ..._buildPageNumbers(totalPages, totalCount),
-                  PageButton(
-                    label: 'Next',
-                    enabled: _currentPage < totalPages,
-                    isRight: true,
-                    onTap: () => _goToPage(_currentPage + 1, totalCount),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-                        ],
-                      );
-                      }
-                    )   
+                          );
+                        }
+
+                        //  final List<StaffModel> rawList = state is StaffListLoaded
+                        //       ? state.staffList
+                        //       : [];
+
+                        //   final List<StaffModel> staffList = _filtered(rawList);
+
+                        final List<StaffModel> rawList =
+                            state is StaffListLoaded ? state.staffList : [];
+
+                        final allFiltered = _filtered(rawList);
+                        final totalCount = allFiltered.length;
+                        final totalPages = _totalPages(totalCount);
+                        final limit = int.tryParse(_selectedEntries) ?? 10;
+                        if (_currentPage > totalPages) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            setState(() => _currentPage = totalPages);
+                          });
+                        }
+                        final pagedList = _pagedLeads(allFiltered);
+
+                        // "Showing X to Y of Z entries"
+                        final showFrom = totalCount == 0
+                            ? 0
+                            : (_currentPage - 1) * limit + 1;
+                        final showTo = (showFrom + pagedList.length - 1).clamp(
+                          0,
+                          totalCount,
+                        );
+
+                        return Column(
+                          children: [
+                            SizedBox(
+                              child: CustomTable(
+                                columns: [
+                                  TableColumn(title: "#", flex: 1),
+                                  TableColumn(title: "Name", flex: 4),
+                                  TableColumn(title: "Phone Number", flex: 4),
+                                  TableColumn(title: "Designation", flex: 4),
+                                  TableColumn(title: "Action", flex: 2),
+                                ],
+                                rows: pagedList.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final staff = entry.value;
+                                  final serial =
+                                      (_currentPage - 1) * limit + index + 1;
+                                  return [
+                                    Text(
+                                      '$serial',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      staff.name,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      staff.phone,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      staff.designation ?? '---',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MainScreen(
+                                              selectedIndex: 29,
+                                              staff: staff,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(0.1.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade900,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.ads_click_outlined,
+                                          size: 12.sp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ];
+                                }).toList(),
+                              ),
+                            ),
+
+                            /// 🔹 FOOTER
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2.w,
+                                vertical: 1.5.h,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Showing $showFrom to $showTo of $totalCount entries",
+                                    style: AppTextStyle.medium(
+                                      weight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      PageButton(
+                                        label: 'Previous',
+                                        enabled: _currentPage > 1,
+                                        isLeft: true,
+                                        onTap: () => _goToPage(
+                                          _currentPage - 1,
+                                          totalCount,
+                                        ),
+                                      ),
+                                      ..._buildPageNumbers(
+                                        totalPages,
+                                        totalCount,
+                                      ),
+                                      PageButton(
+                                        label: 'Next',
+                                        enabled: _currentPage < totalPages,
+                                        isRight: true,
+                                        onTap: () => _goToPage(
+                                          _currentPage + 1,
+                                          totalCount,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -353,6 +409,7 @@ final q = _searchQuery.trim().toLowerCase();
       ),
     );
   }
+
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
