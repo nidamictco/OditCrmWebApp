@@ -17,6 +17,7 @@ import 'package:sizer/sizer.dart';
 
 import '../lead_managment/leads/model/add_lead_model.dart';
 import '../sidebar/main_screen.dart';
+import '../staff_managment/staff/model/staff_model.dart';
 
 Color getLeadStatusColor(String status) {
   switch (status) {
@@ -37,7 +38,9 @@ Color getLeadStatusColor(String status) {
 
 class NewLeadsPage extends StatefulWidget {
   String fromCard;
-  NewLeadsPage({super.key, required this.fromCard});
+  final selectedDate;
+  final StaffModel? staff;
+  NewLeadsPage({super.key, required this.fromCard, this.staff, required this.selectedDate});
 
   @override
   State<NewLeadsPage> createState() => _NewLeadsPageState();
@@ -294,9 +297,20 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   @override
   void initState() {
     super.initState();
-    fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final cubit = context.read<AddLeadCubit>();
 
+    fromDate.text =
+        DateFormat('dd-MM-yyyy').format(widget.selectedDate ?? DateTime.now());
+
+    toDate.text =
+        DateFormat('dd-MM-yyyy').format(widget.selectedDate ?? DateTime.now());
+
+    cubit.fetchDashboardLeads(
+      staffId: widget.staff!.id!,
+      role: widget.staff?.staffType ?? 'Admin',
+      fromCard: widget.fromCard ?? "",
+      selectedDate: widget.selectedDate ?? DateTime.now(),
+    );
     // context.read<AddLeadCubit>().fetchLeads();
   }
 

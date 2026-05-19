@@ -66,6 +66,7 @@ class MainScreen extends StatefulWidget {
   final StaffModel? staff;
   final AddLeadModel? lead;
   final String? fromCard;
+  final DateTime? selectedDate;
   const MainScreen({
     super.key,
     this.selectedIndex = 0,
@@ -73,6 +74,7 @@ class MainScreen extends StatefulWidget {
     this.staff,
     this.lead,
     this.fromCard,
+    this.selectedDate,
   });
 
   @override
@@ -216,15 +218,15 @@ class _MainScreenState extends State<MainScreen> {
       case 12:
         return BlocProvider(
           create: (_) => AddLeadCubit()
-            ..fetchDashboardLeads(
-              staffId: widget.staff!.id!,
-              role: widget.staff?.staffType ?? 'Admin',
-              fromCard: widget.fromCard ?? "",
-              selectedDate: DateTime.now(),
-            )
-            ..fetchStaff()
-            ..initialize(),
-          child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
+            ..initialize()
+            ..fetchStaff(),
+            // ..fetchDashboardLeads(
+            //   staffId: widget.staff!.id!,
+            //   role: widget.staff?.staffType ?? 'Admin',
+            //   fromCard: widget.fromCard ?? "",
+            //   selectedDate: context.read<AddLeadCubit>().state.selectedDashboardDate ?? DateTime.now(),
+            // ),
+          child: NewLeadsPage(fromCard: widget.fromCard ?? "", staff: widget.staff, selectedDate: widget.selectedDate,),
         );
       case 13:
         return PermissionGuard(
@@ -345,7 +347,7 @@ class _MainScreenState extends State<MainScreen> {
           create: (_) => AddLeadCubit()
             ..fetchLeads()
             ..initialize(),
-          child: FollowUpDetailsScreen(lead: widget.lead),
+          child: FollowUpDetailsScreen(currentLead: widget.lead!),
         );
       case 32:
        if (widget.staff == null) return const SizedBox();

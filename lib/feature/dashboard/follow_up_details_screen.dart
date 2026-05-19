@@ -1065,8 +1065,8 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
    FollowUpDetailsScreen({super.key, required this.currentLead});
-  final AddLeadModel? lead;
-  const FollowUpDetailsScreen({super.key, this.lead});
+  // final AddLeadModel? lead;
+  // const FollowUpDetailsScreen({super.key, this.lead});
 
   @override
   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
@@ -1076,31 +1076,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
-
-  // final List<FollowupEntry> _followups = const [
-  //   FollowupEntry(
-  //     date: '20-04-2026',
-  //     time: '04:41 AM',
-  //     agent: 'Shahid',
-  //     calledDate: '20-04-2026 04:41 AM',
-  //     callStatus: 'Connected',
-  //     tags: 'Costly',
-  //     remark: 'her husband not allowing to go to pmna to learn something',
-  //     status: 'Rejected',
-  //     products: '',
-  //   ),
-  //   FollowupEntry(
-  //     date: '19-04-2026',
-  //     time: '08:39 PM',
-  //     agent: 'Shahid',
-  //     calledDate: '19-04-2026 08:39 PM',
-  //     callStatus: 'Connected',
-  //     tags: 'Interested',
-  //     remark: 'Will call back tomorrow morning',
-  //     status: 'Follow Up',
-  //     products: '',
-  //   ),
-  // ];
 
   final List<ActivityEntry> _activities = const [
     ActivityEntry(
@@ -1177,8 +1152,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       case 0:
         return _FollowupTabContent(
           followups: widget.currentLead.followUp??[],
-          leadId: widget.lead?.id ?? '',
-          leadName: widget.lead?.clientName ?? '', lead: widget.currentLead,
+          leadId: widget.currentLead.id ?? '',
+          leadName: widget.currentLead.clientName ?? '',
+          lead: widget.currentLead,
         );
       case 1:
         return _ActivitiesTabContent(activities: _activities, lead: widget.currentLead,);
@@ -1222,7 +1198,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           Text(
                             // 'Sanidha',
-                            widget.lead?.clientName ?? '',
+                            widget.currentLead.clientName ?? '',
                             style: AppTextStyle.heading(
                               size: 20,
                               weight: FontWeight.w700,
@@ -1257,7 +1233,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           _metaItem(Icons.phone,
                               // '8086287726'
-                              widget.lead?.contactNumber ?? '',),
+                              widget.currentLead.contactNumber ?? '',),
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,

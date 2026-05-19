@@ -17,12 +17,14 @@ class DashboardCard extends StatefulWidget {
   final String title;
   final String message;
   final String fromCard;
+  // final DateTime selectedDate;
 
   const DashboardCard({
     super.key,
     required this.title,
     required this.message,
     required this.fromCard,
+    // required this.selectedDate,
   });
 
   @override
@@ -134,7 +136,9 @@ class _DashboardCardState extends State<DashboardCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
+                BlocBuilder<AddLeadCubit, AddLeadState>(
+  builder: (context, state) {
+    return GestureDetector(
                   onTap: () async {
                     final user = await SessionService().getSavedUser();
                     Navigator.push(
@@ -144,6 +148,7 @@ class _DashboardCardState extends State<DashboardCard> {
                           selectedIndex: 12,
                           fromCard: widget.fromCard,
                           staff: user,
+                          selectedDate: state.selectedDashboardDate,
                         ),
                       ),
                     );
@@ -155,7 +160,9 @@ class _DashboardCardState extends State<DashboardCard> {
                       decorationColor: AppColors.grey,
                     ),
                   ),
-                ),
+                );
+  },
+),
                 BlocBuilder<AddLeadCubit, AddLeadState>(
                   builder: (context, state) {
                     String count = "0";

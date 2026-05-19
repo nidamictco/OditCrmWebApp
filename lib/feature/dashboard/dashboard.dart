@@ -102,6 +102,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 DateFormat('dd-MM-yyyy').format(date);
                                             addLeadCubit.updateSelectedDashboardDate(date);
 
+                                            addLeadCubit.fetchDashboardCounts(date);
+
                                             /// CLOSE DIALOG ONLY
                                             Navigator.pop(dialogContext);
                                           },
@@ -165,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     final selectedDate = DateFormat('dd-MM-yyyy')
                                         .parse(_dateController.text);
 
-                                    /// CALL API
+                                    /// CALL count function
                                     addLeadCubit.fetchDashboardCounts(selectedDate);
                                   },
                                   child: Container(
