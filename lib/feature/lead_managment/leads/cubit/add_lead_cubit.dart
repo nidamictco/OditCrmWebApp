@@ -423,11 +423,6 @@ Future<void> assignStaff({
 
   // --------------add follow up--------------------------------
 
-
-
-
-
-  
   Future<void> submitFollowUp({
   required String leadId,
   required String leadName,
@@ -576,6 +571,33 @@ Future<void> transferLead({
     }
   }
 
+  // ----------search----------
+
+Future<void> searchLeads(String query) async {
+  if (query.trim().isEmpty) {
+    emit(state.copyWith(
+      isSearching: false,
+      searchResults: [],
+    ));
+    return;
+  }
+
+  if (state.leads.isEmpty) {
+    await fetchLeads();
+  }
+
+  final q = query.toLowerCase();
+  final results = state.leads.where((lead) =>
+    lead.clientName?.toLowerCase().contains(q) == true ||
+    lead.contactNumber?.contains(query) == true ||
+    lead.email?.toLowerCase().contains(q) == true,
+  ).toList();
+
+  emit(state.copyWith(
+    isSearching: true,
+    searchResults: results,
+  ));
+}
   void updateSelectedDashboardDate(DateTime date) {
     emit(
       state.copyWith(

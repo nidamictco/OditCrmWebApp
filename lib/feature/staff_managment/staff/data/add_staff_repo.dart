@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class StaffRepository {
@@ -22,6 +23,7 @@ class StaffRepository {
   
    CollectionReference<Map<String, dynamic>> get _deletedCollection =>
       _firestore.collection('DELETED_STAFF');
+
  
   // ─── Upload file to Firebase Storage ─────────────────────────────────────
 
@@ -125,6 +127,11 @@ class StaffRepository {
     await _collection.doc(staff.id).update(updatedStaff.toMap());
     log('[StaffRepository] Staff updated: ${staff.id}');
   }
+
+Future<void> updateStaffField(String id, Map<String, dynamic> fields) async {
+  await _collection.doc(id).update(fields);
+  log('[StaffRepository] Staff field updated: $id → $fields');
+}
 
   // ─── Delete ───────────────────────────────────────────────────────────────
 
@@ -238,4 +245,45 @@ Future<void> deleteStaffPermanently(String id) async {
     if (!doc.exists) return null;
     return StaffModel.fromFirestore(doc);
   }
+
+  // --------adding note to profile-------------
+  String _generateNoteId() {
+  final now = DateTime.now();
+  return 'NOTE'
+      '${now.year}'
+      '${now.month.toString().padLeft(2, '0')}'
+      '${now.day.toString().padLeft(2, '0')}'
+      '${now.hour.toString().padLeft(2, '0')}'
+      '${now.minute.toString().padLeft(2, '0')}'
+      '${now.second.toString().padLeft(2, '0')}';
+}
+
+Future<void> addNote(String staffId, NoteModel note) async {
+  if (staffId.trim().isEmpty) throw ArgumentError('Staff ID cannot be empty.');
+
+  final noteId = _generateNoteId();
+
+  await _collection
+      .doc(staffId)
+      .collection('NOTES')
+      .doc(noteId)
+      .set(note.toFirestore());
+
+  log('[StaffRepository] Note added for staff: $staffId → $noteId');
+}
+
+Future<List<NoteModel>> fetchNotes(String staffId) async {
+  final snap = await _collection
+      .doc(staffId)
+      .collection('NOTES')
+      .orderBy('createdAt', descending: true)
+      .get();
+  return snap.docs
+      .map((doc) => NoteModel.fromFirestore(doc))
+      .toList();
+}
+Future<void> deleteNote(String staffId, String noteId) async {
+  await _collection.doc(staffId).collection('NOTES').doc(noteId).delete();
+  log('[StaffRepository] Note deleted: $noteId');
+}
 }

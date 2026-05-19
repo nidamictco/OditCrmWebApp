@@ -5,6 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/input_date.dart';
+import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/feature/dashboard/widget/add_leads_button.dart';
@@ -49,7 +52,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   bool _selectAll = false;
   String _searchQuery = '';
   String _selectedEntries = '10';
+  List<int> _selectedIndices = [];
+  int _tableKey = 0;
   int _currentPage = 1;
+
+  final TextEditingController fromDate = TextEditingController();
+  final TextEditingController toDate = TextEditingController();
+
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
   // Total fixed width of the table — must match sum of all column widths
@@ -67,8 +76,106 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   //   }).toList();
   // }
 
+  String? selectedCategory;
+  String? selectedPriority;
+  String? selectedLeadStage;
+  String? selectedStaff;
+
+  String? _appliedCategory;
+  String? _appliedLeadStage;
+  String? _appliedPriority;
+  String? _appliedStaff;
+  DateTime? _appliedFromDate;
+  DateTime? _appliedToDate;
+
+  void _applyFilters() {
+    setState(() {
+      _appliedCategory = selectedCategory;
+      _appliedLeadStage = selectedLeadStage;
+      _appliedPriority = selectedPriority;
+      _appliedStaff = selectedStaff;
+      _appliedFromDate = _parseDate(fromDate.text);
+      _appliedToDate = _parseDate(toDate.text);
+      _resetPage();
+    });
+  }
+
+  DateTime? _parseDate(String text) {
+    try {
+      return DateFormat('dd-MM-yyyy').parse(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool _isPlaceholder(String? val) =>
+      val == null ||
+      val.trim().isEmpty ||
+      val.toLowerCase().startsWith('select');
+
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
+
+    // ── Date range ─────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .toList();
+    }
+
+    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((l) => l.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
+
+    // ── Lead Stage — stored UPPERCASE in Firestore ────────────────────────────
+    if (!_isPlaceholder(_appliedLeadStage)) {
+      final stage = _appliedLeadStage!.trim().toUpperCase();
+      result = result.where((l) => l.leadStage.toUpperCase() == stage).toList();
+    }
+
+    // ── Priority — stored as-is (no .toUpperCase() in toFirestore) ───────────
+    if (!_isPlaceholder(_appliedPriority)) {
+      result = result
+          .where(
+            (l) =>
+                l.priority.toLowerCase() ==
+                _appliedPriority!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    if (!_isPlaceholder(_appliedStaff)) {
+      result = result
+          .where(
+            (l) =>
+                l.assignedStaff.toLowerCase() ==
+                _appliedStaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
 
     if (_searchQuery.isEmpty) return result;
 
@@ -103,6 +210,22 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     final end = (start + limit).clamp(0, allFiltered.length);
     if (start >= allFiltered.length) return [];
     return allFiltered.sublist(start, end);
+  }
+
+  void _goToPage(int page, int total) {
+    final tp = _totalPages(total);
+    if (page < 1 || page > tp) return;
+    setState(() {
+      _currentPage = page;
+      _selectedIndices = [];
+      _tableKey++;
+    });
+  }
+
+  void _resetPage() {
+    _currentPage = 1;
+    _selectedIndices = [];
+    _tableKey++;
   }
 
   void _toggleSelectAll(bool? value) {
@@ -171,6 +294,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   @override
   void initState() {
     super.initState();
+    fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
     // context.read<AddLeadCubit>().fetchLeads();
   }
 
@@ -239,26 +365,81 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     Divider(color: AppColors.divider),
 
                     /// 🔹 FILTER SECTION
-                    Padding(
-                      padding: EdgeInsets.all(2.w),
-                      child: BlocBuilder<AddLeadCubit, AddLeadState>(
-                        builder: (context, state) {
-                          return Column(
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      builder: (context, state) {
+                        final categoryItems = state.categories
+                            .map((e) => e.name)
+                            .toList();
+                         final stageItems = state.stages
+                            .map((e) => e.name)
+                            .toList();
+                          final staffItems = state.staffList
+                            .map((e) => e.name)
+                            .toList();
+
+                           const priorityItems = [
+                          "High",
+                          "Low",
+                          "Negative",
+                          "Normal",
+                        ];
+
+                        return Padding(
+                          padding: EdgeInsets.all(2.w),
+                          child: Column(
                             children: [
                               /// FIRST ROW
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _input("From Date", '20-04-2026'),
+                                    child: InputDate(
+                                      label: "From Date",
+                                      fromController: fromDate,
+                                      toController: toDate,
+                                      isFrom: true,
+                                    ),
                                   ),
                                   SizedBox(width: 2.w),
                                   Expanded(
-                                    child: _input("To Date", '20-04-2026'),
+                                    child: InputDate(
+                                      label: "To Date",
+                                      fromController: fromDate,
+                                      toController: toDate,
+                                      isFrom: false,
+                                    ),
                                   ),
                                   SizedBox(width: 2.w),
-                                  Expanded(child: _dropdown("Lead Category")),
+                                  Expanded(
+                                    child: Dropdown(
+                                      hint: 'select category',
+                                      showHelp: true,
+                                      items: categoryItems,
+                                      selectedValue: selectedCategory,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCategory = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      label: "Lead Category",
+                                    ),
+                                  ),
                                   SizedBox(width: 2.w),
-                                  Expanded(child: _dropdown("Lead Stage")),
+                                  Expanded(
+                                    child: Dropdown(
+                                      label: "Lead Stage",
+                                      hint: 'select stage',
+                                      showHelp: true,
+                                      items: stageItems,
+                                      selectedValue: selectedLeadStage,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedLeadStage = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
+                                  ),
                                 ],
                               ),
 
@@ -270,21 +451,112 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                 children: [
                                   SizedBox(
                                     width: 17.6.w,
-                                    child: _dropdown("Priority"),
+                                    child:  Dropdown(
+                                      label: "Priority",
+                                      hint: 'select priority',
+                                      items: priorityItems,
+                                      selectedValue: selectedPriority,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedPriority = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                    ),
                                   ),
                                   SizedBox(width: 2.w),
                                   SizedBox(
                                     width: 17.6.w,
-                                    child: _dropdown("Staff"),
+                                    child: Dropdown(
+                                      label: "Staff",
+                                      hint: 'select staff',
+                                      items: staffItems,
+                                      selectedValue: selectedStaff,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedStaff = val;
+                                          _resetPage();
+                                        });
+                                      },
+                                      // message: ".",
+                                    ),
                                   ),
-                                  SizedBox(width: 2.w),
-                                  _viewButton(),
+                                  // SizedBox(width: 2.w),
+                                  // _viewButton(),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  /// 🔥 VIEW BUTTON
+                                  InkWell(
+                                    onTap: _applyFilters,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 2.h),
+                                      child: SizedBox(
+                                        width: 7.w,
+                                        height: 4.5.h,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff1BAA90),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "View",
+                                              style: AppTextStyle.small(
+                                                size: 10.sp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 1.w),
+                                  if (selectedCategory != null ||
+                                      selectedPriority != null ||
+                                      selectedLeadStage != null ||
+                                      selectedStaff != null )
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCategory = null;
+                                          selectedPriority = null;
+                                          selectedLeadStage = null;
+                                          selectedStaff = null;
+                                          _resetPage();
+                                        });
+                                      },
+                                      child: Container(
+                                        // width: 7.w,
+                                        height: 4.5.h,
+                                        padding: EdgeInsets.all(1.h),
+                                        margin: EdgeInsets.only(top: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.orange,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Reset Filters',
+                                          style: AppTextStyle.small(
+                                            size: 10.sp,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ],
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
 
                     Divider(color: AppColors.divider),
@@ -330,86 +602,21 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     //     ],
                     //   ),
                     // ),
-                    ShowEntries(),
-
+                    ShowEntries(
+initialSearch: _searchQuery,
+                      initialEntries: _selectedEntries,
+                      onSearchChanged: (v) => setState(() {
+                        _searchQuery = v;
+                        _resetPage();
+                      }),
+                      onEntriesChanged: (v) => setState(() {
+                        _selectedEntries = v;
+                        _resetPage();
+                      }),
+                    ),
                     /// 🔹 TABLE HEADER
                     _buildTable(),
-                    Divider(color: AppColors.divider),
 
-                    /// 🔹 FOOTER
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                        vertical: 1.5.h,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Showing 0 to 0 of 0 entries",
-                            style: AppTextStyle.medium(
-                              size: 11.sp,
-                              weight: FontWeight.w400,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(color: AppColors.lightGrey),
-                                    bottom: BorderSide(
-                                      color: AppColors.lightGrey,
-                                    ),
-                                    left: BorderSide(
-                                      color: AppColors.lightGrey,
-                                    ),
-                                  ),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(4),
-                                    bottomLeft: Radius.circular(4),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Previous',
-                                  style: AppTextStyle.small(
-                                    size: 11.sp,
-                                    color: AppColors.grey,
-                                  ),
-                                ),
-                              ),
-
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.lightGrey,
-                                  ),
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(4),
-                                    bottomRight: Radius.circular(4),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Next',
-                                  style: AppTextStyle.small(
-                                    size: 11.sp,
-                                    color: AppColors.grey,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
 
                     /// 🔹 BOTTOM TRANSFER BUTTON
                     Padding(
@@ -632,11 +839,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   }
 
   Widget _buildTable() {
-    // final leads = _filteredLeads(leadList);
-    //
-    // if (leads.isEmpty) {
-    //   return _buildEmptyState();
-    // }
+
 
     return Scrollbar(
       controller: _horizontalScrollController,
@@ -750,36 +953,86 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                       return Center(child: _buildEmptyState());
                     }
 
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      // controller: _verticalScrollController,
-                      itemCount: pagedList.length,
-                      separatorBuilder: (_, __) =>
-                          Container(height: 1, color: AppTheme.border),
-                      itemBuilder: (context, index) {
-                        final lead = pagedList[index];
+                    return Column(
+                      children: [
+                        ListView.separated(
+                          shrinkWrap: true,
+                          // controller: _verticalScrollController,
+                          itemCount: pagedList.length,
+                          separatorBuilder: (_, __) =>
+                              Container(height: 1, color: AppTheme.border),
+                          itemBuilder: (context, index) {
+                            final lead = pagedList[index];
 
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    MainScreen(selectedIndex: 31, lead: lead),
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        MainScreen(selectedIndex: 31, lead: lead),
+                                  ),
+                                );
+                              },
+                              child: _LeadRow(
+                                lead: lead,
+                                isEven: index.isEven,
+                                onToggleSelect: _toggleSelect,
+                                onView: _onView,
+                                onEdit: _onEdit,
+                                onHistory: _onHistory,
+                                onDelete: _onDelete,
                               ),
                             );
                           },
-                          child: _LeadRow(
-                            lead: lead,
-                            isEven: index.isEven,
-                            onToggleSelect: _toggleSelect,
-                            onView: _onView,
-                            onEdit: _onEdit,
-                            onHistory: _onHistory,
-                            onDelete: _onDelete,
-                          ),
-                        );
-                      },
+                        ),
+                        Divider(color: AppColors.divider),
+                         /// 🔹 FOOTER
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 2.w,
+                                  vertical: 1.5.h,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Showing $showFrom to $showTo of $totalCount entries",
+                                      style: AppTextStyle.medium(
+                                        weight: FontWeight.w400,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        PageButton(
+                                          label: 'Previous',
+                                          enabled: _currentPage > 1,
+                                          isLeft: true,
+                                          onTap: () => _goToPage(
+                                            _currentPage - 1,
+                                            totalCount,
+                                          ),
+                                        ),
+                                        ..._buildPageNumbers(
+                                          totalPages,
+                                          totalCount,
+                                        ),
+                                        PageButton(
+                                          label: 'Next',
+                                          enabled: _currentPage < totalPages,
+                                          isRight: true,
+                                          onTap: () => _goToPage(
+                                            _currentPage + 1,
+                                            totalCount,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ],
                     );
                   },
                 ),
@@ -791,7 +1044,44 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       ),
     );
   }
+  // ── Page number chips ───────────────────────
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
+
+    final List<Widget> widgets = [];
+
+    // Show at most 5 page buttons centered around current page
+    int start = (_currentPage - 2).clamp(1, totalPages);
+    int end = (start + 4).clamp(1, totalPages);
+    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
+
+    for (int page = start; page <= end; page++) {
+      final isActive = page == _currentPage;
+      widgets.add(
+        GestureDetector(
+          onTap: () => _goToPage(page, totalCount),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.primary : AppColors.white,
+              border: Border.all(color: AppColors.lightGrey),
+            ),
+            child: Text(
+              '$page',
+              style: AppTextStyle.small(
+                size: 11.sp,
+                color: isActive ? AppColors.white : AppColors.grey,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
 }
+
 
 class HoverExportButton extends StatefulWidget {
   const HoverExportButton({super.key});

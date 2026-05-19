@@ -46,8 +46,10 @@ class _AddStaffState extends State<AddStaff> {
 
   String? _selectedDocuments;
   String? _staffType;
-  String? _designation;
   String? _accessibleUsers;
+
+  String? _designation;
+  String? _designationId;
 
   File? _selectedImage;
   File? _selectedDocument;
@@ -87,6 +89,7 @@ class _AddStaffState extends State<AddStaff> {
     _joiningDateCtrl.text = s.joiningDate ?? '';
     _staffType = s.staffType;
     _designation = s.designation;
+    _designationId = s.designationId;
     _accessibleUsers = s.accessibleUsers;
     _whatsapp = s.accessWhatsapp;
     _callLog = s.accessCallLog;
@@ -137,11 +140,28 @@ class _AddStaffState extends State<AddStaff> {
   // ─── Validation ───────────────────────────────────────────────────────────
 
   String? _validate() {
-    if (_nameCtrl.text.trim().isEmpty) return 'Name is required';
-    if (_passwordCtrl.text.trim().isEmpty) return 'Password is required';
-    if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
-    return null;
-  }
+  if (_nameCtrl.text.trim().isEmpty) return 'Name is required';
+
+  if (_passwordCtrl.text.trim().isEmpty) return 'Password is required';
+  if (_passwordCtrl.text.trim().length < 6)
+    return 'Password must be at least 6 characters';
+
+  if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
+
+  // Email - required + format
+  final email = _emailCtrl.text.trim();
+  if (email.isEmpty) return 'Email is required';                          // ← added
+  final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+  if (!emailRegex.hasMatch(email)) return 'Enter a valid email address';
+
+  if (_staffType == null || _staffType!.isEmpty)
+    return 'Please select a staff type';
+
+  if (_designation == null || _designation!.isEmpty)
+    return 'Please select a designation';
+
+  return null;
+}
 
   // ─── Submit ───────────────────────────────────────────────────────────────
 
@@ -159,6 +179,7 @@ class _AddStaffState extends State<AddStaff> {
       phone: _phoneCtrl.text.trim(),
       email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
       designation: _designation,
+      designationId: _designationId,
       staffType: _staffType,
       joiningDate: _joiningDateCtrl.text.trim().isEmpty
           ? null
@@ -328,6 +349,7 @@ class _AddStaffState extends State<AddStaff> {
           controller: _passwordCtrl,
         ),
         Dropdown(
+          showStar: true,
           label: 'Staff Type',
           hint: 'Select staff type',
           items: const [
@@ -365,14 +387,28 @@ class _AddStaffState extends State<AddStaff> {
           builder: (context, state) {
             // Build the items list from loaded designations
             List<String> designationItems = [];
+            Map<String, String> designationMap = {};
 
+            // if (state is DesignationListLoaded) {
+            //   designationItems = state.designations
+            //       .map((d) => d.designationName)
+            //       .toList();
+            // }
             if (state is DesignationListLoaded) {
-              designationItems = state.designations
-                  .map((d) => d.designationName)
-                  .toList();
+              for (final d in state.designations) {
+                designationItems.add(d.designationName);
+                if (d.id != null) {
+                  designationMap[d.designationName] = d.id!; // ← name → id
+                }
+              }
             }
 
             // If the previously saved designation isn't in the list yet, keep it selectable
+            // if (_designation != null &&
+            //     _designation!.isNotEmpty &&
+            //     !designationItems.contains(_designation)) {
+            //   designationItems.insert(0, _designation!);
+            // }
             if (_designation != null &&
                 _designation!.isNotEmpty &&
                 !designationItems.contains(_designation)) {
@@ -387,11 +423,17 @@ class _AddStaffState extends State<AddStaff> {
               showStar: true,
               // ✅ FIX: Pass the cubit into the dialog so it doesn't throw
               onTap: _openDesignationDialog,
-              onChanged: (v) => setState(() => _designation = v),
+              //   onChanged: (v) => setState(() => _designation = v),
+              // );
+              onChanged: (v) => setState(() {
+                _designation = v;
+                _designationId = v != null ? designationMap[v] : null; // ← ADD
+              }),
             );
           },
         ),
         InputField(
+          showStar: true,
           label: 'Email Id',
           hint: 'Enter Your Email',
           controller: _emailCtrl,

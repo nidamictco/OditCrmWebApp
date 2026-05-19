@@ -12,6 +12,10 @@ class AddLeadState {
   final String? errorMessage;
   final String? successMessage;
 
+  // ── Search ────────────────────────────────────────────────────────────────
+final List<AddLeadModel> searchResults;
+final bool isSearching;
+
   // ── Lead list ─────────────────────────────────────────────────────────────
   final List<AddLeadModel> leads;
   final LeadListStatus listStatus;
@@ -56,6 +60,8 @@ class AddLeadState {
     this.isSubmitting = false,
     this.errorMessage,
     this.successMessage,
+    this.searchResults = const [],
+this.isSearching = false,
     this.leads = const [],
     this.listStatus = LeadListStatus.initial,
     this.listError,
@@ -93,6 +99,8 @@ class AddLeadState {
     bool? isSubmitting,
     String? errorMessage,
     String? successMessage,
+    List<AddLeadModel>? searchResults,
+bool? isSearching,
     List<AddLeadModel>? leads,
     LeadListStatus? listStatus,
     String? listError,
@@ -139,6 +147,8 @@ class AddLeadState {
       isSubmitting:         isSubmitting     ?? this.isSubmitting,
       errorMessage:         clearError       ? null : (errorMessage   ?? this.errorMessage),
       successMessage:       clearSuccess     ? null : (successMessage ?? this.successMessage),
+      searchResults:        searchResults    ?? this.searchResults,
+isSearching:        isSearching      ?? this.isSearching,
       leads:                leads            ?? this.leads,
       listStatus:           listStatus       ?? this.listStatus,
       listError:            clearListError   ? null : (listError      ?? this.listError),

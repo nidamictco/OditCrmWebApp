@@ -22,7 +22,7 @@ class ViewStaff extends StatefulWidget {
 
 class _ViewStaffState extends State<ViewStaff> {
   bool isHovering = false;
-  String _activeFilter = 'All'; // 'All' | 'Active' | 'Inactive'
+  String _activeFilter = 'Active'; // 'All' | 'Active' | 'Inactive'
   String _searchQuery = '';
   String _selectedEntries = '10';
 
@@ -44,11 +44,11 @@ class _ViewStaffState extends State<ViewStaff> {
     // 1. Active/Inactive filter
     if (_activeFilter == 'Active') {
       result = result
-          .where((s) => (s.staffType ?? '').toLowerCase() == 'active')
+          .where((s) => (s.status).toLowerCase() == 'active')
           .toList();
     } else if (_activeFilter == 'Inactive') {
       result = result
-          .where((s) => (s.staffType ?? '').toLowerCase() != 'active')
+          .where((s) => (s.status).toLowerCase() != 'active')
           .toList();
     }
 
@@ -285,24 +285,16 @@ class _ViewStaffState extends State<ViewStaff> {
                                 label: 'Active',
                                 color: AppColors.green,
                                 isSelected: _activeFilter == 'Active',
-                                onTap: () => setState(
-                                  () =>
-                                      _activeFilter = _activeFilter == 'Active'
-                                      ? 'All'
-                                      : 'Active',
-                                ),
+                                onTap: () =>
+                                    setState(() => _activeFilter = 'Active'),
                               ),
                               SizedBox(width: 0.6.w),
                               _filterButton(
                                 label: 'Inactive',
-                                color: AppColors.red,
+                                color: AppColors.red.withOpacity(0.9),
                                 isSelected: _activeFilter == 'Inactive',
-                                onTap: () => setState(
-                                  () => _activeFilter =
-                                      _activeFilter == 'Inactive'
-                                      ? 'All'
-                                      : 'Inactive',
-                                ),
+                                onTap: () =>
+                                    setState(() => _activeFilter = 'Inactive'),
                               ),
                             ],
                           ),
@@ -351,7 +343,7 @@ class _ViewStaffState extends State<ViewStaff> {
         height: 5.h,
         width: 6.w,
         decoration: BoxDecoration(
-          color: isSelected ? color : color.withOpacity(0.8),
+          color: isSelected ? color : color.withOpacity(0.65),
           border: Border.all(
             color: isSelected ? color : AppColors.divider,
             width: isSelected ? 2 : 1,
@@ -482,7 +474,7 @@ class _ViewStaffState extends State<ViewStaff> {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
-              _statusBadge(staff.staffType),
+              _statusBadge(staff.status),
               Text(staff.phone, style: AppTextStyle.medium()),
               Text(
                 staff.designation ?? '—',
@@ -507,7 +499,7 @@ class _ViewStaffState extends State<ViewStaff> {
                         message: 'Edit',
                         child: Icon(
                           Icons.edit_outlined,
-                          size: 14.sp,
+                          size: 13.sp,
                           color: Colors.blue,
                         ),
                       ),
@@ -520,7 +512,7 @@ class _ViewStaffState extends State<ViewStaff> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  MainScreen(selectedIndex: 29),
+                                  MainScreen(selectedIndex: 29, staff: staff),
                             ),
                           );
                         },
@@ -549,7 +541,7 @@ class _ViewStaffState extends State<ViewStaff> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  MainScreen(selectedIndex: 32),
+                                  MainScreen(selectedIndex: 32, staff: staff),
                             ),
                           );
                         },

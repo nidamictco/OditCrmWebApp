@@ -21,6 +21,8 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
   /// Call once from initState — loads all dropdown data in parallel.
   Future<void> initialize() async {
+    if (state.status == ImportLeadsStatus.ready ||
+      state.status == ImportLeadsStatus.success) return;
     emit(state.copyWith(status: ImportLeadsStatus.loading, clearError: true));
 
     try {

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -22,7 +21,7 @@ class InputFieldForPsswrd extends StatefulWidget {
 }
 
 class _InputFieldForPsswrdState extends State<InputFieldForPsswrd> {
-  bool _isPasswordVisible = true;
+  bool _isPasswordVisible = false;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -56,6 +55,7 @@ class _InputFieldForPsswrdState extends State<InputFieldForPsswrd> {
                         ? Icons.visibility_off
                         : Icons.visibility,
                     color: AppColors.grey,
+                    size: 12.6.sp,
                   ),
                   onPressed: () {
                     setState(() {

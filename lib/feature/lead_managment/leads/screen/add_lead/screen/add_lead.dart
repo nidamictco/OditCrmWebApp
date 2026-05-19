@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/custom_calender.dart';
@@ -17,6 +18,7 @@ import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class AddLeadPage extends StatefulWidget {
@@ -52,6 +54,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   String? _leadPriority;
   String? _callResult;
   String? _leadTag;
+  String? _selectStaff;
 
   // ── Additional field controllers — keyed by AdditionalFieldModel.id ────────
   final Map<String, TextEditingController> _additionalCtrlMap = {};
@@ -88,11 +91,19 @@ class _AddLeadPageState extends State<AddLeadPage> {
   bool get _isEditMode => widget.lead != null;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
+  StaffModel? _currentUser;
+
+  Future<void> _loadCurrentUser() async {
+    final user = await SessionService().getSavedUser();
+    setState(() => _currentUser = user);
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadCurrentUser();
     context.read<AddLeadCubit>().initialize();
+    context.read<AddLeadCubit>().fetchStaff(); 
     if (_isEditMode) _prefillIfEditing(widget.lead!);
   }
 
@@ -109,7 +120,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
     _leadPriority = lead.priority;
-    nextFollowUpDate = lead.followUpDate!;
+    nextFollowUpDate =
+        lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
+    nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
 
     // Pre-select state and district in cubit
     if (lead.state.isNotEmpty) {
@@ -193,10 +206,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
             ? additionalValues
             : widget.lead!.additionalFields,
         callResult: state.selectedCallResult ?? widget.lead!.callResult,
-        leadTag: state.selectedLeadTag ?? widget.lead!.leadTag, 
-        followUpDate: nextFollowUpDate ,
+        leadTag: state.selectedLeadTag ?? widget.lead!.leadTag,
+        followUpDate: nextFollowUpDate,
+
         // calledDate: state.selectedCalledDate ?? widget.lead!.calledDate,
-        
       );
       cubit.updateLead(widget.lead!.id!, updated);
     } else {
@@ -281,25 +294,26 @@ class _AddLeadPageState extends State<AddLeadPage> {
         }
 
         if (state.successMessage != null) {
-      if (_isEditMode) {
-        // ✅ navigate after update confirmed
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainScreen(selectedIndex: 2),
-          ),
-        );
-      } else {
-        // ✅ navigate after add confirmed, then fetch fresh list
-        context.read<AddLeadCubit>().fetchLeads(); // refresh before navigating
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainScreen(selectedIndex: 2),
-          ),
-        );
-      }
-  
+          if (_isEditMode) {
+            // ✅ navigate after update confirmed
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(selectedIndex: 2),
+              ),
+            );
+          } else {
+            // ✅ navigate after add confirmed, then fetch fresh list
+            context
+                .read<AddLeadCubit>()
+                .fetchLeads(); // refresh before navigating
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(selectedIndex: 2),
+              ),
+            );
+          }
         }
       },
       child: Scaffold(
@@ -572,18 +586,38 @@ class _AddLeadPageState extends State<AddLeadPage> {
         final categoryNames = state.categories.map((e) => e.name).toList();
         final sourceNames = state.sources.map((e) => e.name).toList();
         final stagesNames = state.stages.map((e) => e.name).toList();
+        final staffList = state.staffList;
+        final staffNames = staffList.map((s) => s.name).toList();
 
         return Column(
           children: [
             Row(
               children: [
-                Expanded(
-                  child: _readOnlyField(
-                    'Assign Staff',
-                    Icons.person_outline,
-                    state.assignedStaffName,
-                  ),
-                ),
+                if (_currentUser != null) ...[
+                  if (_currentUser!.staffType != 'Admin')
+                    Expanded(
+                      child: _readOnlyField(
+                        'Assign Staff',
+                        Icons.person_outline,
+                        state.assignedStaffName,
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: Dropdown(
+                        icon: Icons.person_outline,
+                        showIcon: true,
+                        showHelp: true,
+                        items: staffNames,
+                        selectedValue: _selectStaff,
+                        onChanged: (v) {
+                          setState(() => _selectStaff = v);
+                        },
+                        label: 'SelectStaff',
+                        hint: 'Select Staff',
+                      ),
+                    ),
+                ],
                 SizedBox(width: 2.w),
                 Expanded(
                   child: DropdownWithAdd(

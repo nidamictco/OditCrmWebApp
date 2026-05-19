@@ -6,12 +6,14 @@ class StaffModel {
   final String password;
   final String phone;
   final String? email;
+  final String? designationId;
   final String? designation;
   final String? staffType;
   final String? joiningDate;
   final String? salary;
   final String? openingBalance;
   final String? openingBalanceDate;
+  final String status;
   final bool accessWhatsapp;
   final bool accessCallLog;
   final bool hasSalaryAccount;
@@ -29,12 +31,14 @@ class StaffModel {
     required this.password,
     required this.phone,
     this.email,
+    this.designationId,
     this.designation,
     this.staffType,
     this.joiningDate,
     this.salary,
     this.openingBalance,
     this.openingBalanceDate,
+    this.status = 'Active',
     this.accessWhatsapp = false,
     this.accessCallLog = false,
     this.hasSalaryAccount = true,
@@ -55,12 +59,14 @@ class StaffModel {
     String? password,
     String? phone,
     String? email,
+    String? designationId,
     String? designation,
     String? staffType,
     String? joiningDate,
     String? salary,
     String? openingBalance,
     String? openingBalanceDate,
+    String? status,
     bool? accessWhatsapp,
     bool? accessCallLog,
     bool? hasSalaryAccount,
@@ -78,12 +84,14 @@ class StaffModel {
       password: password ?? this.password,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      designationId: designationId ?? this.designationId,
       designation: designation ?? this.designation,
       staffType: staffType ?? this.staffType,
       joiningDate: joiningDate ?? this.joiningDate,
       salary: salary ?? this.salary,
       openingBalance: openingBalance ?? this.openingBalance,
       openingBalanceDate: openingBalanceDate ?? this.openingBalanceDate,
+      status: status ?? this.status,
       accessWhatsapp: accessWhatsapp ?? this.accessWhatsapp,
       accessCallLog: accessCallLog ?? this.accessCallLog,
       hasSalaryAccount: hasSalaryAccount ?? this.hasSalaryAccount,
@@ -107,12 +115,14 @@ class StaffModel {
       password: map['password'] ?? '',
       phone: map['phone'] ?? '',
       email: map['email'],
+      designationId: map['designationId'],
       designation: map['designation'],
       staffType: map['staffType'],
       joiningDate: map['joiningDate'],
       salary: map['salary'],
       openingBalance: map['openingBalance'],
       openingBalanceDate: map['openingBalanceDate'],
+       status: map['status'] as String? ?? 'Active', 
       accessWhatsapp: map['accessWhatsapp'] ?? false,
       accessCallLog: map['accessCallLog'] ?? false,
       hasSalaryAccount: map['hasSalaryAccount'] ?? true,
@@ -132,12 +142,14 @@ class StaffModel {
       'password': password,
       'phone': phone,
       'email': email,
+      'designationId': designationId,
       'designation': designation,
       'staffType': staffType,
       'joiningDate': joiningDate,
       'salary': salary,
       'openingBalance': openingBalance,
       'openingBalanceDate': openingBalanceDate,
+      'status': status,
       'accessWhatsapp': accessWhatsapp,
       'accessCallLog': accessCallLog,
       'hasSalaryAccount': hasSalaryAccount,
@@ -161,12 +173,14 @@ class StaffModel {
     'password': password,
     'phone': phone,
     'email': email,
+    'designationId': designationId,
     'designation': designation,
     'staffType': staffType,
     'joiningDate': joiningDate,
     'salary': salary,
     'openingBalance': openingBalance,
     'openingBalanceDate': openingBalanceDate,
+    'status': status,
     'accessWhatsapp': accessWhatsapp,
     'accessCallLog': accessCallLog,
     'hasSalaryAccount': hasSalaryAccount,

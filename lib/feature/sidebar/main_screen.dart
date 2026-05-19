@@ -45,6 +45,8 @@ import 'package:oxdo/feature/lead_managment/call_history/call_history.dart';
 import 'package:oxdo/feature/lead_managment/phone_call_log/phone_call_log.dart';
 import 'package:oxdo/feature/lead_managment/leads/screen/transfer_leads/transfer_leads.dart';
 import 'package:oxdo/feature/sidebar/sidebar_item.dart';
+import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:oxdo/feature/staff_managment/designation/screen/permission_guard.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
@@ -96,153 +98,229 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget getPage() {
-    switch (selectedIndex) {
-      // ✅ use local variable
-      case 0:
-        return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchDashboardCounts(DateTime.now()),
-          child: DashboardScreen(),
-        );
+    final perm = context.read<PermissionCubit>(); // ← read once
 
+    switch (selectedIndex) {
+      case 0:
+        return PermissionGuard(
+          hasPermission: perm.canViewDashboard,
+          child: BlocProvider(
+            create: (context) =>
+                AddLeadCubit()..fetchDashboardCounts(DateTime.now()),
+            child: DashboardScreen(),
+          ),
+        );
       case 1:
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) => AddLeadCubit(
-                leadRepository: AddLeadRepository(),
-                categoryRepository: LeadCategoryRepository(),
-                sourceRepository: LeadSourceRepository(),
-              ),
-            ),
-            BlocProvider(create: (context) => LeadCategoryCubit()),
-            BlocProvider(create: (context) => LeadSourceCubit()),
-            BlocProvider(create: (context) => LeadStageCubit()),
-          ],
-          child: AddLeadPage(lead: widget.lead),
-        );
-      case 2:
-        return BlocProvider(
-          create: (context) => AddLeadCubit()
-            ..fetchLeads()
-            ..initialize()
-            ..fetchStaff(),
-          child: LeadsReport(),
-        );
-      case 3:
-        return CallHistoryPage();
-      case 4:
-        return BlocProvider(
-          create: (_) => AddLeadCubit(
-            leadRepository: AddLeadRepository(),
-            categoryRepository: LeadCategoryRepository(),
-            sourceRepository: LeadSourceRepository(),
-          )..fetchDeletedLeads(),
-          child: DeleteLeads(),
-        );
-      case 5:
-        return BlocProvider(
-          create: (_) =>
-              AddLeadCubit(
+        return PermissionGuard(
+          hasPermission: perm.canAddLead,
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => AddLeadCubit(
                   leadRepository: AddLeadRepository(),
                   categoryRepository: LeadCategoryRepository(),
                   sourceRepository: LeadSourceRepository(),
-                )
-                ..fetchLeads()
-                ..fetchStaff(),
-          child: TransferLeads(),
+                ),
+              ),
+              BlocProvider(create: (_) => LeadCategoryCubit()),
+              BlocProvider(create: (_) => LeadSourceCubit()),
+              BlocProvider(create: (_) => LeadStageCubit()),
+            ],
+            child: AddLeadPage(lead: widget.lead),
+          ),
+        );
+      case 2:
+        return PermissionGuard(
+          hasPermission: perm.canViewLeadsReport,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit()
+              ..fetchLeads()
+              ..initialize()
+              ..fetchStaff(),
+            child: LeadsReport(),
+          ),
+        );
+      case 3:
+        return PermissionGuard(
+          hasPermission: perm.canViewCallHistory,
+          child: CallHistoryPage(),
+        );
+      case 4:
+        return PermissionGuard(
+          hasPermission: perm.canViewDeletedLeads,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit(
+              leadRepository: AddLeadRepository(),
+              categoryRepository: LeadCategoryRepository(),
+              sourceRepository: LeadSourceRepository(),
+            )..fetchDeletedLeads(),
+            child: DeleteLeads(),
+          ),
+        );
+      case 5:
+        return PermissionGuard(
+          hasPermission: perm.canTransferLeads || perm.canViewTransferLeads,
+          child: BlocProvider(
+            create: (_) =>
+                AddLeadCubit(
+                    leadRepository: AddLeadRepository(),
+                    categoryRepository: LeadCategoryRepository(),
+                    sourceRepository: LeadSourceRepository(),
+                  )
+                  ..fetchLeads()
+                  ..fetchStaff(),
+            child: TransferLeads(),
+          ),
         );
       case 6:
-        return PhoneCallLog();
+        return PermissionGuard(
+          hasPermission: perm.canViewPhoneCallLog,
+          child: PhoneCallLog(),
+        );
       case 7:
-        return BlocProvider(
-          create: (_) => LeadCategoryCubit()..watchCategories(),
-          child: LeadCategory(),
+        return PermissionGuard(
+          hasPermission: perm.canViewLeadCategory,
+          child: BlocProvider(
+            create: (_) => LeadCategoryCubit()..watchCategories(),
+            child: LeadCategory(),
+          ),
         );
       case 8:
-        return BlocProvider(
-          create: (context) => AdditionalFieldsCubit(
-            repository: AdditionalFieldsRepositoryImpl(),
+        return PermissionGuard(
+          hasPermission: perm.canViewCustomFields,
+          child: BlocProvider(
+            create: (_) => AdditionalFieldsCubit(
+              repository: AdditionalFieldsRepositoryImpl(),
+            ),
+            child: AdditionalFieldsSection(),
           ),
-          child: AdditionalFieldsSection(),
         );
       case 9:
-        return BlocProvider(
-          create: (_) => LeadSourceCubit()..watchSources(),
-          child: LeadSourceScreen(),
+        return PermissionGuard(
+          hasPermission: perm.canViewLeadSource,
+          child: BlocProvider(
+            create: (_) => LeadSourceCubit()..watchSources(),
+            child: LeadSourceScreen(),
+          ),
         );
       case 10:
-        return BlocProvider(
-          create: (_) => LeadStageCubit(),
-          child: LeadStagesScreen(),
+        return PermissionGuard(
+          hasPermission: perm.canViewLeadStages,
+          child: BlocProvider(
+            create: (_) => LeadStageCubit(),
+            child: LeadStagesScreen(),
+          ),
         );
       case 11:
         return LeadDistributionSettingsScreen();
       case 12:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchDashboardLeads(
-      staffId: widget.staff!.id!, role: widget.staff?.staffType ?? 'Admin', fromCard: widget.fromCard ?? "", selectedDate: DateTime.now()),
+          create: (_) => AddLeadCubit()
+            ..fetchDashboardLeads(
+              staffId: widget.staff!.id!,
+              role: widget.staff?.staffType ?? 'Admin',
+              fromCard: widget.fromCard ?? "",
+              selectedDate: DateTime.now(),
+            )
+            ..fetchStaff()
+            ..initialize(),
           child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
         );
-
       case 13:
-        return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads(),
-          child: UnassingnedLead(),
+        return PermissionGuard(
+          hasPermission: perm.canViewUnassignedLeads,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit()..fetchLeads(),
+            child: UnassingnedLead(),
+          ),
         );
       case 14:
-        return BlocProvider(
-          create: (_) => ImportLeadsCubit(repository: ImportLeadsRepository()),
-          child: ImportLeads(),
+        return PermissionGuard(
+          hasPermission: perm.canImportLeads,
+          child: BlocProvider(
+            create: (_) =>
+                ImportLeadsCubit(repository: ImportLeadsRepository()),
+            child: ImportLeads(),
+          ),
         );
       case 15:
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => StaffCubit()),
-            BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
-          ],
-          child: AddStaff(staff: widget.staff),
+        return PermissionGuard(
+          hasPermission: perm.canAddStaff,
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => StaffCubit()),
+              BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
+            ],
+            child: AddStaff(staff: widget.staff),
+          ),
         );
       case 16:
-        return BlocProvider(create: (_) => StaffCubit(), child: ViewStaff());
-      // case 17:
-      //   return DesignationScreen();
+        return PermissionGuard(
+          hasPermission: perm.canViewStaff,
+          child: BlocProvider(create: (_) => StaffCubit(), child: ViewStaff()),
+        );
       case 17:
-        return BlocProvider(
-          create: (_) => DesignationCubit(),
-          child: const DesignationScreen(),
+        return PermissionGuard(
+          hasPermission: perm.canViewDesignation,
+          child: BlocProvider(
+            create: (_) => DesignationCubit(),
+            child: const DesignationScreen(),
+          ),
         );
       case 18:
-        return BlocProvider(
-          create: (_) => StaffCubit()..fetchDeletedStaff(),
-          child: DeletedStaffScreen(),
+        return PermissionGuard(
+          hasPermission: perm.canViewDeletedStaff,
+          child: BlocProvider(
+            create: (_) => StaffCubit()..fetchDeletedStaff(),
+            child: DeletedStaffScreen(),
+          ),
         );
       case 19:
-        return ViewPage();
+        return PermissionGuard(
+          hasPermission: perm.canViewFileManager,
+          child: ViewPage(),
+        );
       case 20:
-        return GeneralSettings();
+        return PermissionGuard(
+          hasPermission: perm.canViewGeneralSettings,
+          child: GeneralSettings(),
+        );
       case 21:
-        return FacebookSettings();
+        return PermissionGuard(
+          hasPermission: perm.canViewFacebookSettings,
+          child: FacebookSettings(),
+        );
       case 22:
-        return BlocProvider(
-          create: (context) => StaffCubit()..fetchAll(),
-          child: StaffReports(),
+        return PermissionGuard(
+          hasPermission: perm.canViewStaffReport,
+          child: BlocProvider(
+            create: (_) => StaffCubit()..fetchAll(),
+            child: StaffReports(),
+          ),
         );
       case 23:
-        return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads(),
-          child: TransferLeadsReport(),
+        return PermissionGuard(
+          hasPermission: perm.canViewTransferReport,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit()..fetchLeads(),
+            child: TransferLeadsReport(),
+          ),
         );
       case 24:
-        return ScheduledLeads();
+        return PermissionGuard(
+          hasPermission: perm.canViewScheduledReport,
+          child: ScheduledLeads(),
+        );
       case 25:
-        return BlocProvider(
-          create: (context) => AddLeadCubit(),
-          child: RejectedLeads(),
+        return PermissionGuard(
+          hasPermission: perm.canViewRejectedReport,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit(),
+            child: RejectedLeads(),
+          ),
         );
       case 26:
         return OutGoingCallhistory();
-      // case 27:
-      //   return DesignationPermissionsScreen();
       case 27:
         return BlocProvider(
           create: (_) => DesignationCubit(),
@@ -250,21 +328,31 @@ class _MainScreenState extends State<MainScreen> {
         );
       case 28:
         return BlocProvider(
-          create: (context) =>
+          create: (_) =>
               CallSettingsCubit(repository: CallSettingsRepository())..init(),
           child: CloudCallSettingsScreen(),
         );
       case 29:
-        return StaffProfileScreen();
+        if (widget.staff == null) return const SizedBox();
+        return BlocProvider(
+          create: (context) => StaffCubit(),
+          child: StaffProfileScreen(staff: widget.staff!),
+        );
       case 30:
         return TimeLine();
       case 31:
         return BlocProvider(
-          create: (context) => AddLeadCubit()..fetchLeads(),
-          child: FollowUpDetailsScreen(currentLead: widget.lead!,),
+          create: (_) => AddLeadCubit()
+            ..fetchLeads()
+            ..initialize(),
+          child: FollowUpDetailsScreen(lead: widget.lead),
         );
       case 32:
-        return ChangePasswordScreen();
+       if (widget.staff == null) return const SizedBox();
+        return BlocProvider(
+        create: (_) => StaffCubit(),
+        child: ChangePasswordScreen(staff: widget.staff!),
+  );
       default:
         return const SizedBox();
     }
@@ -284,7 +372,7 @@ class _MainScreenState extends State<MainScreen> {
                     selectedIndex: selectedIndex,
                     onItemSelected: (index) {
                       setState(() {
-                        selectedIndex = index; // ✅ FIXED
+                        selectedIndex = index;
                       });
                     },
                   )
@@ -292,7 +380,7 @@ class _MainScreenState extends State<MainScreen> {
                     selectedIndex: selectedIndex,
                     onItemSelected: (index) {
                       setState(() {
-                        selectedIndex = index; // ✅ FIXED
+                        selectedIndex = index;
                       });
                     },
                   ),
@@ -302,7 +390,17 @@ class _MainScreenState extends State<MainScreen> {
           Expanded(
             child: Column(
               children: [
-                TopBar(isSidebarOpen: isSidebarOpen, onMenuTap: toggleSidebar),
+                // TopBar(
+                //   isSidebarOpen: isSidebarOpen,
+                //   onMenuTap: toggleSidebar,
+                // ),
+                BlocProvider(
+                  create: (_) => AddLeadCubit()..fetchLeads(),
+                  child: TopBar(
+                    isSidebarOpen: isSidebarOpen,
+                    onMenuTap: toggleSidebar,
+                  ),
+                ),
 
                 Expanded(
                   child: Container(

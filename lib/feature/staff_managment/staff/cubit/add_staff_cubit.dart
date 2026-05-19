@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
+import 'package:oxdo/feature/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class StaffCubit extends Cubit<StaffState> {
@@ -56,6 +57,17 @@ class StaffCubit extends Cubit<StaffState> {
       emit(StaffError(e.toString()));
     }
   }
+
+ Future<void> updateStatus(String staffId, String newStatus) async {
+  try {
+    await _repository.updateStaffField(staffId, {'status': newStatus});
+    log('[StaffCubit] Status updated: $staffId → $newStatus');
+    await getStaff(staffId); // re-emits StaffLoaded with fresh data
+  } catch (e, st) {
+    log('[StaffCubit] UpdateStatus error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
+  }
+}
 
   // ─── Delete ───────────────────────────────────────────────────────────────
 
@@ -153,6 +165,56 @@ class StaffCubit extends Cubit<StaffState> {
     }
   }
 
+  // -----------add , fetch and delete notes in profile------------------
+  
+Future<void> addNotes(String staffId, List<NoteModel> notes) async {
+  try {
+    for (final note in notes) {
+      await _repository.addNote(staffId, note);
+    }
+    log('[StaffCubit] All notes saved: $staffId');
+    emit(NoteSaved()); 
+  } catch (e, st) {
+    log('[StaffCubit] AddNotes error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
+  }
+}
+Future<void> fetchNotes(String staffId) async {
+  emit(NotesLoading());
+  try {
+    final notes = await _repository.fetchNotes(staffId);
+    emit(NotesLoaded(notes));
+  } catch (e, st) {
+    log('[StaffCubit] FetchNotes error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
+  }
+}
+
+Future<void> deleteNote(String staffId, String noteId) async {
+  try {
+    await _repository.deleteNote(staffId, noteId);
+    log('[StaffCubit] Note deleted: $noteId');
+    await fetchNotes(staffId); // refresh list after delete
+  } catch (e, st) {
+    log('[StaffCubit] DeleteNote error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
+  }
+}
+
+// -----------change psswrd-----------
+Future<void> updateStaffField(
+  String staffId,
+  Map<String, dynamic> fields,
+) async {
+  try {
+    await _repository.updateStaffField(staffId, fields);
+    log('[StaffCubit] Field updated: $staffId → $fields');
+    await getStaff(staffId); // emits StaffLoaded on success
+  } catch (e, st) {
+    log('[StaffCubit] UpdateField error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
+  }
+}
 
   // ─── Reset ────────────────────────────────────────────────────────────────
 

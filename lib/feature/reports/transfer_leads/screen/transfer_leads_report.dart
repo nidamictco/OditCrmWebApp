@@ -95,83 +95,95 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
       val.toLowerCase().startsWith('select');
 
   List<TransferDetails> _filteredLeads(List<TransferDetails> transfers) {
-  List<TransferDetails> result = transfers;
+    List<TransferDetails> result = transfers;
 
-  // ── Date range ────────────────────────────────────────────────────────────
-  if (_appliedFromDate != null) {
-    final from = DateTime(
-      _appliedFromDate!.year,
-      _appliedFromDate!.month,
-      _appliedFromDate!.day,
-    );
-    result = result
-        .where((t) => t.transferTime != null && !t.transferTime!.isBefore(from))
-        .toList();
-  }
-  if (_appliedToDate != null) {
-    final to = DateTime(
-      _appliedToDate!.year,
-      _appliedToDate!.month,
-      _appliedToDate!.day,
-      23, 59, 59,
-    );
-    result = result
-        .where((t) => t.transferTime != null && !t.transferTime!.isAfter(to))
-        .toList();
-  }
+    // ── Date range ────────────────────────────────────────────────────────────
+    if (_appliedFromDate != null) {
+      final from = DateTime(
+        _appliedFromDate!.year,
+        _appliedFromDate!.month,
+        _appliedFromDate!.day,
+      );
+      result = result
+          .where(
+            (t) => t.transferTime != null && !t.transferTime!.isBefore(from),
+          )
+          .toList();
+    }
+    if (_appliedToDate != null) {
+      final to = DateTime(
+        _appliedToDate!.year,
+        _appliedToDate!.month,
+        _appliedToDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result
+          .where((t) => t.transferTime != null && !t.transferTime!.isAfter(to))
+          .toList();
+    }
 
-  // ── Lead Category ─────────────────────────────────────────────────────────
-  if (!_isPlaceholder(_appliedCategory)) {
-    final cat = _appliedCategory!.trim().toUpperCase();
-    result = result
-        .where((t) => t.leadCategory.toUpperCase() == cat)
-        .toList();
-  }
+    // ── Lead Category ─────────────────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedCategory)) {
+      final cat = _appliedCategory!.trim().toUpperCase();
+      result = result
+          .where((t) => t.leadCategory.toUpperCase() == cat)
+          .toList();
+    }
 
     // ── Lead Status ─────────────────────────────────────────────────────────
-  if (!_isPlaceholder(_appliedLeadStatus)) {
-    final status = _appliedLeadStatus!.trim().toUpperCase();
-    result = result
-        .where((t) => t.leadStage.toUpperCase() == status)
-        .toList();
+    if (!_isPlaceholder(_appliedLeadStatus)) {
+      final status = _appliedLeadStatus!.trim().toUpperCase();
+      result = result
+          .where((t) => t.leadStage.toUpperCase() == status)
+          .toList();
+    }
+
+    // ── From Staff ────────────────────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedfromstaff)) {
+      result = result
+          .where(
+            (t) =>
+                t.fromStaff.toLowerCase() ==
+                _appliedfromstaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── To Staff ──────────────────────────────────────────────────────────────
+    if (!_isPlaceholder(_appliedtostaff)) {
+      result = result
+          .where(
+            (t) =>
+                t.toStaff.toLowerCase() ==
+                _appliedtostaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+
+    // ── Search ────────────────────────────────────────────────────────────────
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      result = result
+          .where(
+            (t) =>
+                t.leadName.toLowerCase().contains(q) ||
+                t.contactNumber.toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
+    return result;
   }
 
-  // ── From Staff ────────────────────────────────────────────────────────────
-  if (!_isPlaceholder(_appliedfromstaff)) {
-    result = result
-        .where((t) =>
-            t.fromStaff.toLowerCase() == _appliedfromstaff!.trim().toLowerCase())
-        .toList();
+  List<TransferDetails> _pagedLeads(List<TransferDetails> allFiltered) {
+    final limit = int.tryParse(_selectedEntries) ?? 10;
+    final start = (_currentPage - 1) * limit;
+    final end = (start + limit).clamp(0, allFiltered.length);
+    if (start >= allFiltered.length) return [];
+    return allFiltered.sublist(start, end);
   }
-
-  // ── To Staff ──────────────────────────────────────────────────────────────
-  if (!_isPlaceholder(_appliedtostaff)) {
-    result = result
-        .where((t) =>
-            t.toStaff.toLowerCase() == _appliedtostaff!.trim().toLowerCase())
-        .toList();
-  }
-
-  // ── Search ────────────────────────────────────────────────────────────────
-  final q = _searchQuery.trim().toLowerCase();
-  if (q.isNotEmpty) {
-    result = result
-        .where((t) =>
-            t.leadName.toLowerCase().contains(q) ||
-            t.contactNumber.toLowerCase().contains(q))
-        .toList();
-  }
-
-  return result;
-}
-
-List<TransferDetails> _pagedLeads(List<TransferDetails> allFiltered) {
-  final limit = int.tryParse(_selectedEntries) ?? 10;
-  final start = (_currentPage - 1) * limit;
-  final end = (start + limit).clamp(0, allFiltered.length);
-  if (start >= allFiltered.length) return [];
-  return allFiltered.sublist(start, end);
-}
 
   int _totalPages(int totalCount) {
     final limit = int.tryParse(_selectedEntries) ?? 10;
@@ -410,165 +422,182 @@ List<TransferDetails> _pagedLeads(List<TransferDetails> allFiltered) {
                         ),
                         BlocBuilder<AddLeadCubit, AddLeadState>(
                           builder: (context, state) {
-                             // Loading
-                        if (state.listStatus == LeadListStatus.loading) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 6.h),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                         // Error
-                        if (state.listStatus == LeadListStatus.failure) {
-                          return Padding(
-                            padding: EdgeInsets.all(4.w),
-                            child: Text(
-                              state.listError ?? 'Something went wrong.',
-                              style: AppTextStyle.medium(color: Colors.red),
-                            ),
-                          );
-                        }
-                       final List<AddLeadModel> rawList =
-                            state.listStatus == LeadListStatus.loaded
-                            ? state.leads.toList()
-                            : [];
-                       final List<TransferDetails> allTransfers = rawList.where((l) => l.transferLeads != null && l.transferLeads!.isNotEmpty).expand((l) => l.transferLeads!).toList();
-                       final allFiltered = _filteredLeads(allTransfers);
-                       final totalCount = allFiltered.length;
-                       final totalPages = _totalPages(totalCount);
-                       final limit = int.tryParse(_selectedEntries) ?? 10;
-                        if (_currentPage > totalPages) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() => _currentPage = totalPages);
-                          });
-                        }
-                        final pagedList = _pagedLeads(allFiltered);
-
-                        // "Showing X to Y of Z entries"
-                        final showFrom = totalCount == 0
-                            ? 0
-                            : (_currentPage - 1) * limit + 1;
-                        final showTo = (showFrom + pagedList.length - 1).clamp(
-                          0,
-                          totalCount,
-                        );
-
-                        // Loaded with data
-                        if (state.listStatus == LeadListStatus.loaded) {
-                         
-                            return Column(
-                              children: [
-                                SizedBox(
-                                  child: CustomTable(
-                                    columns: [
-                                      TableColumn(title: "#", flex: 1),
-                                      TableColumn(title: "Name", flex: 4),
-                                      TableColumn(
-                                        title: "Contact Number",
-                                        flex: 4,
-                                      ),
-                                      TableColumn(title: "From Staff", flex: 4),
-                                      TableColumn(title: "To Staff", flex: 4),
-                                      TableColumn(
-                                        title: "Lead Category",
-                                        flex: 4,
-                                      ),
-                                      TableColumn(
-                                        title: "Transfer Date",
-                                        flex: 4,
-                                      ),
-                                    ],
-                                    rows:pagedList.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final transfer = entry.value;
-                                    final serial =
-                                      (_currentPage - 1) * limit + index + 1;
-                                  
-                                          return [
-                                            Text(
-                                              serial.toString(),
-                                              style: AppTextStyle.medium(),
-                                            ),
-                                            Text(
-                                              transfer.leadName,
-                                              style: AppTextStyle.medium(),
-                                            ),
-                                            Text(
-                                              transfer.contactNumber.toString(),
-                                              style: AppTextStyle.medium(),
-                                            ),
-                                            Text(
-                                              transfer.fromStaff,
-                                              style: AppTextStyle.medium(),
-                                            ),
-                                            Text(
-                                              transfer.toStaff,
-                                              style: AppTextStyle.medium(),
-                                            ),
-                                            Text(
-                                              transfer.leadCategory,
-                                              style: AppTextStyle.medium(),
-                                            ),
-
-                                            Text(
-                                              transfer.transferTime.toString(),
-                                              style: AppTextStyle.medium(), 
-                                            ),
-                                          ];
-                                        }).toList(),
-                                  ),
+                            // Loading
+                            if (state.listStatus == LeadListStatus.loading) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 6.h),
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                                Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
+                              );
+                            }
+                            // Error
+                            if (state.listStatus == LeadListStatus.failure) {
+                              return Padding(
+                                padding: EdgeInsets.all(4.w),
+                                child: Text(
+                                  state.listError ?? 'Something went wrong.',
+                                  style: AppTextStyle.medium(color: Colors.red),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Showing $showFrom to $showTo of $totalCount entries",
-                                      style: AppTextStyle.medium(
-                                        weight: FontWeight.w400,
-                                      ),
+                              );
+                            }
+                            final List<AddLeadModel> rawList =
+                                state.listStatus == LeadListStatus.loaded
+                                ? state.leads.toList()
+                                : [];
+                            final List<TransferDetails> allTransfers = rawList
+                                .where(
+                                  (l) =>
+                                      l.transferLeads != null &&
+                                      l.transferLeads!.isNotEmpty,
+                                )
+                                .expand((l) => l.transferLeads!)
+                                .toList();
+                            final allFiltered = _filteredLeads(allTransfers);
+                            final totalCount = allFiltered.length;
+                            final totalPages = _totalPages(totalCount);
+                            final limit = int.tryParse(_selectedEntries) ?? 10;
+                            if (_currentPage > totalPages) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                setState(() => _currentPage = totalPages);
+                              });
+                            }
+                            final pagedList = _pagedLeads(allFiltered);
+
+                            // "Showing X to Y of Z entries"
+                            final showFrom = totalCount == 0
+                                ? 0
+                                : (_currentPage - 1) * limit + 1;
+                            final showTo = (showFrom + pagedList.length - 1)
+                                .clamp(0, totalCount);
+
+                            // Loaded with data
+                            if (state.listStatus == LeadListStatus.loaded) {
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    child: CustomTable(
+                                      columns: [
+                                        TableColumn(title: "#", flex: 1),
+                                        TableColumn(title: "Name", flex: 4),
+                                        TableColumn(
+                                          title: "Contact Number",
+                                          flex: 4,
+                                        ),
+                                        TableColumn(
+                                          title: "From Staff",
+                                          flex: 4,
+                                        ),
+                                        TableColumn(title: "To Staff", flex: 4),
+                                        TableColumn(
+                                          title: "Lead Category",
+                                          flex: 4,
+                                        ),
+                                        TableColumn(
+                                          title: "Transfer Date",
+                                          flex: 4,
+                                        ),
+                                      ],
+                                      rows: pagedList.asMap().entries.map((
+                                        entry,
+                                      ) {
+                                        final index = entry.key;
+                                        final transfer = entry.value;
+                                        final serial =
+                                            (_currentPage - 1) * limit +
+                                            index +
+                                            1;
+
+                                        return [
+                                          Text(
+                                            serial.toString(),
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.leadName,
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.contactNumber.toString(),
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.fromStaff,
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.toStaff,
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.leadCategory,
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                          Text(
+                                            transfer.transferTime != null
+                                                ? DateFormat(
+                                                    'dd-MM-yyyy hh:mm a',
+                                                  ).format(
+                                                    transfer.transferTime!,
+                                                  )
+                                                : '-',
+                                            style: AppTextStyle.medium(),
+                                          ),
+                                        ];
+                                      }).toList(),
                                     ),
-                                    Row(
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 2.w,
+                                      vertical: 1.5.h,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
-                                            totalCount,
+                                        Text(
+                                          "Showing $showFrom to $showTo of $totalCount entries",
+                                          style: AppTextStyle.medium(
+                                            weight: FontWeight.w400,
                                           ),
                                         ),
-                                        ..._buildPageNumbers(
-                                          totalPages,
-                                          totalCount,
-                                        ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
-                                          ),
+                                        Row(
+                                          children: [
+                                            PageButton(
+                                              label: 'Previous',
+                                              enabled: _currentPage > 1,
+                                              isLeft: true,
+                                              onTap: () => _goToPage(
+                                                _currentPage - 1,
+                                                totalCount,
+                                              ),
+                                            ),
+                                            ..._buildPageNumbers(
+                                              totalPages,
+                                              totalCount,
+                                            ),
+                                            PageButton(
+                                              label: 'Next',
+                                              enabled:
+                                                  _currentPage < totalPages,
+                                              isRight: true,
+                                              onTap: () => _goToPage(
+                                                _currentPage + 1,
+                                                totalCount,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              ],
-                            );
-                          }
-                          return SizedBox.shrink();
-                        }),
-                       
+                                  ),
+                                ],
+                              );
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
                       ],
                     );
                   },
@@ -580,6 +609,7 @@ List<TransferDetails> _pagedLeads(List<TransferDetails> allFiltered) {
       ),
     );
   }
+
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];

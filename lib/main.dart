@@ -8,6 +8,7 @@ import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/auth_gate.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
+import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 // import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
 
@@ -27,16 +28,13 @@ void main() async {
   }
 }
 
+
 class ErrorApp extends StatelessWidget {
   final String error;
   const ErrorApp({super.key, required this.error});
-
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(body: Center(child: Text('Failed to start: $error'))),
-    );
-  }
+  Widget build(BuildContext context) =>
+      MaterialApp(home: Scaffold(body: Center(child: Text('Failed to start: $error'))));
 }
 
 class OxdoApp extends StatelessWidget {
@@ -45,11 +43,18 @@ class OxdoApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (context) => AuthCubit(
-        authService: FirebaseAuthService(),
-        sessionService: SessionService(),
-      )..checkSession(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(
+          create: (context) => AuthCubit(
+            authService: FirebaseAuthService(),
+            sessionService: SessionService(),
+          ),
+        ),
+        BlocProvider<PermissionCubit>(   // ← NEW
+          create: (_) => PermissionCubit(),
+        ),
+      ],
       child: Sizer(
         builder: (context, orientation, deviceType) {
           return MaterialApp(
