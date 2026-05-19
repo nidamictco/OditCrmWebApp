@@ -182,8 +182,11 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         child: Column(
           // shrinkWrap: true,
           children: [
-            TopBreadcrumbBar(title: 'DASHBOARD', subTitle: widget.fromCard.toUpperCase()),
-        
+            TopBreadcrumbBar(
+              title: 'DASHBOARD',
+              subTitle: widget.fromCard.toUpperCase(),
+            ),
+
             Padding(
               padding: EdgeInsets.all(1.w),
               child: Container(
@@ -232,49 +235,60 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         ],
                       ),
                     ),
-        
+
                     Divider(color: AppColors.divider),
-        
+
                     /// 🔹 FILTER SECTION
                     Padding(
                       padding: EdgeInsets.all(2.w),
-                      child: Column(
-                        children: [
-                          /// FIRST ROW
-                          Row(
+                      child: BlocBuilder<AddLeadCubit, AddLeadState>(
+                        builder: (context, state) {
+                          return Column(
                             children: [
-                              Expanded(child: _input("From Date", '20-04-2026')),
-                              SizedBox(width: 2.w),
-                              Expanded(child: _input("To Date", '20-04-2026')),
-                              SizedBox(width: 2.w),
-                              Expanded(child: _dropdown("Lead Category")),
-                              SizedBox(width: 2.w),
-                              Expanded(child: _dropdown("Lead Stage")),
-                            ],
-                          ),
-        
-                          SizedBox(height: 2.h),
-        
-                          /// SECOND ROW
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: 17.6.w,
-                                child: _dropdown("Priority"),
+                              /// FIRST ROW
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _input("From Date", '20-04-2026'),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(
+                                    child: _input("To Date", '20-04-2026'),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Expanded(child: _dropdown("Lead Category")),
+                                  SizedBox(width: 2.w),
+                                  Expanded(child: _dropdown("Lead Stage")),
+                                ],
                               ),
-                              SizedBox(width: 2.w),
-                              SizedBox(width: 17.6.w, child: _dropdown("Staff")),
-                              SizedBox(width: 2.w),
-                              _viewButton(),
+
+                              SizedBox(height: 2.h),
+
+                              /// SECOND ROW
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    width: 17.6.w,
+                                    child: _dropdown("Priority"),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  SizedBox(
+                                    width: 17.6.w,
+                                    child: _dropdown("Staff"),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  _viewButton(),
+                                ],
+                              ),
                             ],
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
-        
+
                     Divider(color: AppColors.divider),
-        
+
                     /// 🔹 TABLE CONTROLS
                     // Padding(
                     //   padding: EdgeInsets.only(
@@ -317,11 +331,11 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     //   ),
                     // ),
                     ShowEntries(),
-        
+
                     /// 🔹 TABLE HEADER
                     _buildTable(),
                     Divider(color: AppColors.divider),
-        
+
                     /// 🔹 FOOTER
                     Padding(
                       padding: EdgeInsets.symmetric(
@@ -351,7 +365,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                     bottom: BorderSide(
                                       color: AppColors.lightGrey,
                                     ),
-                                    left: BorderSide(color: AppColors.lightGrey),
+                                    left: BorderSide(
+                                      color: AppColors.lightGrey,
+                                    ),
                                   ),
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(4),
@@ -366,14 +382,16 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                   ),
                                 ),
                               ),
-        
+
                               Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 2.w,
                                   vertical: 1.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: AppColors.lightGrey),
+                                  border: Border.all(
+                                    color: AppColors.lightGrey,
+                                  ),
                                   borderRadius: BorderRadius.only(
                                     topRight: Radius.circular(4),
                                     bottomRight: Radius.circular(4),
@@ -392,7 +410,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         ],
                       ),
                     ),
-        
+
                     /// 🔹 BOTTOM TRANSFER BUTTON
                     Padding(
                       padding: EdgeInsets.only(bottom: 2.h),
@@ -650,13 +668,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               ),
               // ── Vertically scrollable body ──
               // Expanded(
-                // child: Scrollbar(
-                //   controller: _verticalScrollController,
-                //   thumbVisibility: true,
-                //   notificationPredicate: (n) => n.depth == 0,
+              // child: Scrollbar(
+              //   controller: _verticalScrollController,
+              //   thumbVisibility: true,
+              //   notificationPredicate: (n) => n.depth == 0,
               ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: 56,          // at least one row height
+                  minHeight: 56, // at least one row height
                   // maxHeight: 56 * 10,     // cap at 10 rows max if you want a scroll limit
                 ),
                 child: BlocBuilder<AddLeadCubit, AddLeadState>(
@@ -685,7 +703,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         ? state.leads
                         : [];
 
-                    final todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+                    final todayDate = DateFormat(
+                      'dd-MM-yyyy',
+                    ).format(DateTime.now());
                     final List<AddLeadModel> leads = rawList;
                     //     .where((e)
                     // {
@@ -745,7 +765,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    MainScreen(selectedIndex: 31),
+                                    MainScreen(selectedIndex: 31, lead: lead),
                               ),
                             );
                           },

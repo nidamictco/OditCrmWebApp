@@ -261,7 +261,7 @@ class _MainScreenState extends State<MainScreen> {
       case 31:
         return BlocProvider(
           create: (context) => AddLeadCubit()..fetchLeads(),
-          child: FollowUpDetailsScreen(),
+          child: FollowUpDetailsScreen(currentLead: widget.lead!,),
         );
       case 32:
         return ChangePasswordScreen();

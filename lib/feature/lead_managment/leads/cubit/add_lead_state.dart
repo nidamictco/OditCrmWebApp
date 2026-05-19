@@ -49,6 +49,8 @@ class AddLeadState {
   final String missedLeadCount;
   final String transferredCount;
 
+  final DateTime? selectedDashboardDate;
+
   const AddLeadState({
     this.status = AddLeadStatus.initial,
     this.isSubmitting = false,
@@ -80,6 +82,7 @@ class AddLeadState {
     this.totalCalledCount = '0',
     this.missedLeadCount = '0',
     this.transferredCount = '0',
+    this.selectedDashboardDate,
   });
 
   bool get isLoading        => status == AddLeadStatus.loading;
@@ -116,6 +119,8 @@ class AddLeadState {
     String? totalCalledCount,
     String? missedLeadCount,
     String? transferredCount,
+    DateTime? selectedDashboardDate,
+
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError         = false,
     bool clearSuccess       = false,
@@ -160,6 +165,7 @@ class AddLeadState {
       totalCalledCount: totalCalledCount ?? this.totalCalledCount,
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,
       transferredCount: transferredCount ?? this.transferredCount,
+      selectedDashboardDate: selectedDashboardDate ?? this.selectedDashboardDate,
     );
   }
 }

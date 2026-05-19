@@ -576,4 +576,12 @@ Future<void> transferLead({
     }
   }
 
+  void updateSelectedDashboardDate(DateTime date) {
+    emit(
+      state.copyWith(
+        selectedDashboardDate: date,
+      ),
+    );
+  }
+
 }
