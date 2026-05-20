@@ -54,12 +54,15 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     _watchSources();
     _watchLeadStages();
 
-    emit(state.copyWith(status: AddLeadStatus.initial));
+    emit(state.copyWith( selectedPriority: 'Normal',
+    selectedLeadStage: 'NEW',
+    status: AddLeadStatus.initial,
+  ));
   }
 
   Future<void> _loadStaffName() async {
     final user = await SessionService().getSavedUser();
-    emit(state.copyWith(assignedStaffName: user?.name ?? 'Unknown'));
+    emit(state.copyWith(assignedStaffName: user?.name ?? 'Unknown',));
   }
 
   Future<void> _fetchAdditionalFields() async {
@@ -140,8 +143,12 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   Future<void> fetchLeads() async {
     emit(state.copyWith(listStatus: LeadListStatus.loading, clearListError: true));
     try {
-
-      final leads = await _leadRepository.fetchLeads();
+      
+ final user = await SessionService().getSavedUser();
+      final leads = await _leadRepository.fetchLeads(
+        staffId: user?.id ?? '',
+        role: user?.staffType??'',
+      );
       emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
     } catch (e) {
       emit(state.copyWith(
@@ -253,6 +260,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required String pinCode,
     required String postOffice,
     required String remarks,
+    required DateTime nextFollowUpDate,
     // Additional custom field values collected from the UI
     Map<String, String> additionalFieldValues = const {},
   }) async {
@@ -296,6 +304,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         remarks:          remarks,
         createdBy:        user?.name ?? '',
         createdById:      user?.id   ?? '',
+        callResult:       state.selectedCallResult ?? '',
+        leadTag:          state.selectedLeadTag ?? '',
+        followUpDate:     nextFollowUpDate,
         // Store dynamic field values alongside the lead
         additionalFields: additionalFieldValues,
       );

@@ -639,17 +639,25 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
-                                        'Rejected Reason',
+                                        lead.leadTag!,
                                         style: AppTextStyle.medium(),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        'Follow Up Date',
+                                        lead.followUpDate != null
+                                            ? DateFormat(
+                                                'dd-MM-yyyy',
+                                              ).format(lead.followUpDate!)
+                                            : '--',
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
-                                        'Called Date',
+                                        lead.calledDate != null
+                                            ? DateFormat(
+                                                'dd-MM-yyyy',
+                                              ).format(lead.calledDate!)
+                                            : '--',
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(

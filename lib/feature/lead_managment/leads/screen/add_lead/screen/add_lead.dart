@@ -95,7 +95,15 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
   Future<void> _loadCurrentUser() async {
     final user = await SessionService().getSavedUser();
-    setState(() => _currentUser = user);
+    // setState(() => _currentUser = user);
+     setState(() {
+    _currentUser = user;
+    // ✅ Non-admin staff: their name is auto-assigned (read-only field shows it)
+    // Admin: set _selectStaff default to their own name
+    if (user != null && user.staffType == 'Admin') {
+      _selectStaff = user.name;
+    }
+  });
   }
 
   @override
@@ -103,8 +111,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
     super.initState();
     _loadCurrentUser();
     context.read<AddLeadCubit>().initialize();
-    context.read<AddLeadCubit>().fetchStaff(); 
-    if (_isEditMode) _prefillIfEditing(widget.lead!);
+    context.read<AddLeadCubit>().fetchStaff();
+    // if (_isEditMode) _prefillIfEditing(widget.lead!);
+     if (_isEditMode) {
+    _prefillIfEditing(widget.lead!);
+  } else {
+    _leadPriority = 'Normal';
+    _leadStage = 'NEW';
+  }
   }
 
   void _prefillIfEditing(AddLeadModel lead) {
@@ -124,13 +138,24 @@ class _AddLeadPageState extends State<AddLeadPage> {
         lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
     nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
 
-    // Pre-select state and district in cubit
-    if (lead.state.isNotEmpty) {
-      context.read<AddLeadCubit>().selectState(lead.state);
-    }
-    if (lead.district.isNotEmpty) {
-      context.read<AddLeadCubit>().selectDistrict(lead.district);
-    }
+    // // Pre-select state and district in cubit
+    // if (lead.state.isNotEmpty) {
+    //   context.read<AddLeadCubit>().selectState(lead.state);
+    // }
+    // if (lead.district.isNotEmpty) {
+    //   context.read<AddLeadCubit>().selectDistrict(lead.district);
+    // }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<AddLeadCubit>();
+
+      if (lead.state.isNotEmpty) cubit.selectState(lead.state);
+      if (lead.district.isNotEmpty) cubit.selectDistrict(lead.district);
+
+      // ✅ These three were missing — edit mode dropdowns read from cubit state
+      if (lead.leadCategory.isNotEmpty) cubit.selectCategory(lead.leadCategory);
+      if (lead.leadSource.isNotEmpty) cubit.selectSource(lead.leadSource);
+      if (lead.priority.isNotEmpty) cubit.selectPriority(lead.priority);
+    });
   }
 
   void _syncAdditionalControllers(List<dynamic> fields) {
@@ -196,9 +221,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
         pinCode: _pinCtrl.text,
         postOffice: _postOfficeCtrl.text,
         remarks: _remarksCtrl.text,
-        leadCategory: _leadCategory ?? widget.lead!.leadCategory,
-        leadSource: _leadSource ?? widget.lead!.leadSource,
-        priority: _leadPriority ?? widget.lead!.priority,
+        leadCategory: state.selectedCategory ?? widget.lead!.leadCategory,
+        leadSource: state.selectedSource ?? widget.lead!.leadSource,
+        priority: state.selectedPriority ?? widget.lead!.priority,
         leadStage: _leadStage ?? widget.lead!.leadStage,
         state: state.selectedState ?? widget.lead!.state,
         district: state.selectedDistrict ?? widget.lead!.district,
@@ -224,6 +249,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         pinCode: _pinCtrl.text,
         postOffice: _postOfficeCtrl.text,
         remarks: _remarksCtrl.text,
+        nextFollowUpDate: nextFollowUpDate,
         additionalFieldValues: additionalValues,
       );
     }
@@ -304,9 +330,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             );
           } else {
             // ✅ navigate after add confirmed, then fetch fresh list
-            context
-                .read<AddLeadCubit>()
-                .fetchLeads(); // refresh before navigating
+            context.read<AddLeadCubit>().fetchLeads();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -589,252 +613,308 @@ class _AddLeadPageState extends State<AddLeadPage> {
         final staffList = state.staffList;
         final staffNames = staffList.map((s) => s.name).toList();
 
-        return Column(
-          children: [
-            Row(
-              children: [
-                if (_currentUser != null) ...[
-                  if (_currentUser!.staffType != 'Admin')
-                    Expanded(
-                      child: _readOnlyField(
-                        'Assign Staff',
-                        Icons.person_outline,
-                        state.assignedStaffName,
-                      ),
-                    )
-                  else
-                    Expanded(
-                      child: Dropdown(
-                        icon: Icons.person_outline,
-                        showIcon: true,
-                        showHelp: true,
-                        items: staffNames,
-                        selectedValue: _selectStaff,
-                        onChanged: (v) {
-                          setState(() => _selectStaff = v);
-                        },
-                        label: 'SelectStaff',
-                        hint: 'Select Staff',
-                      ),
-                    ),
-                ],
-                SizedBox(width: 2.w),
-                Expanded(
-                  child: DropdownWithAdd(
-                    label: 'Lead Category',
-                    icon: Icons.layers_outlined,
-                    showIcon: true,
-                    items: categoryNames,
-                    selectedValue: _leadCategory,
-                    onChanged: (v) {
-                      setState(() => _leadCategory = v);
-                      cubit.selectCategory(v);
-                    },
-                    onTap: _showAddCategoryDialog,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 1.5.h),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownWithAdd(
-                    label: 'Lead Source',
-                    showIcon: true,
-                    icon: Icons.layers_rounded,
-                    items: sourceNames,
-                    selectedValue: _leadSource,
-                    onChanged: (v) {
-                      setState(() => _leadSource = v);
-                      cubit.selectSource(v);
-                    },
-                    onTap: _showAddSourceDialog,
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                Expanded(
-                  child: Dropdown(
-                    icon: Icons.flag_outlined,
-                    showIcon: true,
-                    showHelp: true,
-                    items: priority,
-                    selectedValue: _leadPriority,
-                    onChanged: (v) {
-                      setState(() => _leadPriority = v);
-                      cubit.selectPriority(v);
-                    },
-                    label: 'Priority',
-                    hint: 'Select Priority',
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                Expanded(
-                  child: Dropdown(
-                    showHelp: true,
-                    items: stagesNames,
-                    selectedValue: _leadStage,
-                    onChanged: (v) {
-                      setState(() => _leadStage = v);
-                      cubit.selectLeadStage(v);
-                    },
-                    label: 'Lead Stage',
-                    hint: 'Select Stages',
-                  ),
-                ),
-              ],
-            ),
-            if (_leadStage != "NEW" && _leadStage != null)
-              Column(
+        return _isEditMode
+            ? Column(
                 children: [
-                  SizedBox(height: 1.5.h),
-                  if (_leadStage == "FOLLOWUP")
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 24.w,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Next Follow-Up Date',
-                                style: AppTextStyle.medium(),
-                              ),
-                              SizedBox(height: 0.5.h),
-                              GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierColor: Colors.black.withOpacity(0.4),
-                                    builder: (_) => Dialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: SizedBox(
-                                        width: 28.w, // ✅ compact width
-                                        child: CustomCalendarPickOne(
-                                          initialDate: nextFollowUpDate,
-                                          onDateSelected: (date) {
-                                            setState(() {
-                                              nextFollowUpDate = date;
-                                              nextFollowUpCtrl.text =
-                                                  DateFormat(
-                                                    'dd-MM-yyyy',
-                                                  ).format(date);
-                                            });
-                                            Navigator.pop(
-                                              context,
-                                            ); // ✅ use ctx not context
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 5.2.h,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.greyCard,
-                                    border: Border.all(
-                                      color: AppColors.divider,
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: IgnorePointer(
-                                    child: TextField(
-                                      controller: nextFollowUpCtrl,
-                                      readOnly: true,
-                                      style: AppTextStyle.small(
-                                        size: 11.sp,
-                                        color: AppColors.black,
-                                      ),
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: nextFollowUpCtrl.text,
-                                        hintStyle: AppTextStyle.small(
-                                          size: 11.sp,
-                                          color: AppColors.black,
-                                        ),
-                                        isCollapsed: true,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
                   Row(
                     children: [
-                      if (_leadStage == "REJECTED")
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 24.w,
-                              child: Dropdown(
-                                label: 'Tags',
-                                hint: 'Select Tags',
-                                items: [
-                                  'Costly',
-                                  'Not intrested',
-                                  'Not Responding',
-                                  'No Budget',
-                                  'Wrong Lead',
-                                ],
-                                selectedValue: _leadTag,
-                                onChanged: (v) {
-                                  setState(() => _leadTag = v);
-                                  cubit.selectLeadTag(v);
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 2.w),
-                          ],
-                        ),
-
-                      SizedBox(
-                        width: 24.w,
+                      Expanded(
                         child: Dropdown(
-                          label: 'Call Result',
-                          hint: 'Select Call Result',
-                          icon: Icons.phone_enabled_outlined,
-                          showStar: true,
-                          items: [
-                            'Busy',
-                            'Connected',
-                            'Not Attended',
-                            'Out of Coverage Area',
-                            'Rejected',
-                            'Switched Off',
-                          ],
-                          selectedValue: _callResult,
-                          onChanged: (v) {
-                            setState(() => _callResult = v);
-                            cubit.selectCallResult(v);
-                          },
+                          label: 'lead Category',
+                          hint: 'Select lead Category',
+                          items: categoryNames,
+                          selectedValue: state.selectedCategory,
+                          onChanged: (v) =>
+                              context.read<AddLeadCubit>().selectCategory(v),
+                        ),
+                      ),
+                      SizedBox(width: 1.w),
+                      Expanded(
+                        child: Dropdown(
+                          label: 'lead Source',
+                          hint: 'Select lead Source',
+                          items: sourceNames,
+                          selectedValue: state.selectedSource,
+                          onChanged: (v) =>
+                              context.read<AddLeadCubit>().selectSource(v),
                         ),
                       ),
                     ],
                   ),
+                  Row(
+                    children: [
+                      Expanded(
+                        // width: 18.w,
+                        child: Dropdown(
+                          label: 'Priority',
+                          hint: 'Priority',
+                          items: priority,
+                          selectedValue: state.selectedPriority,
+                          onChanged: (v) =>
+                              context.read<AddLeadCubit>().selectPriority(v),
+                        ),
+                      ),
+                      SizedBox(width: 0.5.h),
+                      Expanded(child: SizedBox()),
+                    ],
+                  ),
+                  SizedBox(height: 0.5.h),
+                  _multilineField(
+                    'Remarks',
+                    Icons.description_outlined,
+                    controller: _remarksCtrl,
+                  ),
                 ],
-              ),
+              )
+            : Column(
+                children: [
+                  Row(
+                    children: [
+                      if (_currentUser != null) ...[
+                        if (_currentUser!.staffType != 'Admin')
+                          Expanded(
+                            child: _readOnlyField(
+                              'Assign Staff',
+                              Icons.person_outline,
+                              state.assignedStaffName,
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: Dropdown(
+                              icon: Icons.person_outline,
+                              showIcon: true,
+                              items: staffNames,
+                              selectedValue: _selectStaff,
+                              onChanged: (v) {
+                                setState(() => _selectStaff = v);
+                              },
+                              label: 'SelectStaff',
+                              hint: 'Select Staff',
+                            ),
+                          ),
+                      ],
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: DropdownWithAdd(
+                          label: 'Lead Category',
+                          icon: Icons.layers_outlined,
+                          showIcon: true,
+                          items: categoryNames,
+                          selectedValue: _leadCategory,
+                          onChanged: (v) {
+                            setState(() => _leadCategory = v);
+                            cubit.selectCategory(v);
+                          },
+                          onTap: _showAddCategoryDialog,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 1.5.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownWithAdd(
+                          label: 'Lead Source',
+                          showIcon: true,
+                          icon: Icons.layers_rounded,
+                          items: sourceNames,
+                          selectedValue: _leadSource,
+                          onChanged: (v) {
+                            setState(() => _leadSource = v);
+                            cubit.selectSource(v);
+                          },
+                          onTap: _showAddSourceDialog,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: Dropdown(
+                          icon: Icons.flag_outlined,
+                          showIcon: true,
+                          showHelp: true,
+                          items: priority,
+                          selectedValue: _leadPriority,
+                          onChanged: (v) {
+                            setState(() => _leadPriority = v);
+                            cubit.selectPriority(v);
+                          },
+                          label: 'Priority',
+                          hint: 'Select Priority',
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: Dropdown(
+                          showHelp: true,
+                          items: stagesNames,
+                          selectedValue: _leadStage,
+                          onChanged: (v) {
+                            setState(() => _leadStage = v);
+                            cubit.selectLeadStage(v);
+                          },
+                          label: 'Lead Stage',
+                          hint: 'Select Stages',
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_leadStage != "NEW" && _leadStage != null)
+                    Column(
+                      children: [
+                        SizedBox(height: 1.5.h),
+                        if (_leadStage == "FOLLOWUP")
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 24.w,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Next Follow-Up Date',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          barrierColor: Colors.black
+                                              .withOpacity(0.4),
+                                          builder: (_) => Dialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: SizedBox(
+                                              width: 28.w, // ✅ compact width
+                                              child: CustomCalendarPickOne(
+                                                initialDate: nextFollowUpDate,
+                                                onDateSelected: (date) {
+                                                  setState(() {
+                                                    nextFollowUpDate = date;
+                                                    nextFollowUpCtrl.text =
+                                                        DateFormat(
+                                                          'dd-MM-yyyy',
+                                                        ).format(date);
+                                                  });
+                                                  Navigator.pop(
+                                                    context,
+                                                  ); // ✅ use ctx not context
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 5.2.h,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.greyCard,
+                                          border: Border.all(
+                                            color: AppColors.divider,
+                                            width: 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: IgnorePointer(
+                                          child: TextField(
+                                            controller: nextFollowUpCtrl,
+                                            readOnly: true,
+                                            style: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.black,
+                                            ),
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: nextFollowUpCtrl.text,
+                                              hintStyle: AppTextStyle.small(
+                                                size: 11.sp,
+                                                color: AppColors.black,
+                                              ),
+                                              isCollapsed: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        Row(
+                          children: [
+                            if (_leadStage == "REJECTED")
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 24.w,
+                                    child: Dropdown(
+                                      label: 'Tags',
+                                      hint: 'Select Tags',
+                                      items: [
+                                        'Costly',
+                                        'Not intrested',
+                                        'Not Responding',
+                                        'No Budget',
+                                        'Wrong Lead',
+                                      ],
+                                      selectedValue: _leadTag,
+                                      onChanged: (v) {
+                                        setState(() => _leadTag = v);
+                                        cubit.selectLeadTag(v);
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                ],
+                              ),
 
-            SizedBox(height: 1.5.h),
-            _multilineField(
-              'Remarks',
-              Icons.note_alt_outlined,
-              controller: _remarksCtrl,
-            ),
-          ],
-        );
+                            SizedBox(
+                              width: 24.w,
+                              child: Dropdown(
+                                label: 'Call Result',
+                                hint: 'Select Call Result',
+                                icon: Icons.phone_enabled_outlined,
+                                showStar: true,
+                                items: [
+                                  'Busy',
+                                  'Connected',
+                                  'Not Attended',
+                                  'Out of Coverage Area',
+                                  'Rejected',
+                                  'Switched Off',
+                                ],
+                                selectedValue: _callResult,
+                                onChanged: (v) {
+                                  setState(() => _callResult = v);
+                                  cubit.selectCallResult(v);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  SizedBox(height: 1.5.h),
+                  _multilineField(
+                    'Remarks',
+                    Icons.note_alt_outlined,
+                    controller: _remarksCtrl,
+                  ),
+                ],
+              );
       },
     );
   }

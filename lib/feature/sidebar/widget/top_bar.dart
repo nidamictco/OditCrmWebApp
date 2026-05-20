@@ -250,7 +250,6 @@ class _TopBarState extends State<TopBar> {
 
   AddLeadCubit? _searchCubit;
 
-
   @override
   void initState() {
     super.initState();
@@ -279,7 +278,7 @@ class _TopBarState extends State<TopBar> {
     });
   }
 
-  void _showOverlay() { 
+  void _showOverlay() {
     _removeOverlay();
     // final cubit = context.read<AddLeadCubit>();
 
@@ -419,7 +418,6 @@ class _TopBarState extends State<TopBar> {
                                     itemBuilder: (_, i) {
                                       final lead = state.searchResults[i];
                                       return InkWell(
-                                        
                                         onTap: () {
                                           log('wwwwww');
                                           _removeOverlay();
@@ -643,12 +641,15 @@ class _TopBarState extends State<TopBar> {
                   SizedBox(width: 0.3.w),
                   BlocBuilder<AuthCubit, AuthState>(
                     builder: (context, state) {
-                      final user = state is Authenticated ? state.user : null;
+                      // final user = state is Authenticated ? state.user : null;
+                      if (state is! Authenticated)
+                        return const SizedBox.shrink(); // ← safe guard
+                      final user = state.user;
                       return _profileAvatar(
                         context,
-                        user?.name ?? '',
-                        user?.staffType ?? '',
-                        user!,
+                        user.name,
+                        user.staffType ?? '',
+                        user,
                       );
                     },
                   ),
@@ -661,7 +662,12 @@ class _TopBarState extends State<TopBar> {
     );
   }
 
-  Widget _profileAvatar(BuildContext context, String name, String role,StaffModel user,) {
+  Widget _profileAvatar(
+    BuildContext context,
+    String name,
+    String role,
+    StaffModel user,
+  ) {
     return GestureDetector(
       onTapDown: (details) async {
         final position = RelativeRect.fromLTRB(
@@ -688,9 +694,54 @@ class _TopBarState extends State<TopBar> {
         );
 
         if (selected == "Logout" && context.mounted) {
-          context.read<AuthCubit>().logout(
-            permissionCubit: context.read<PermissionCubit>(), // ← ADD
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              backgroundColor: AppColors.background,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: const Row(
+                children: [
+                  Icon(Icons.logout, color: Colors.red, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Confirm Logout',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              content: const Text('Are you sure you want to logout?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           );
+
+          if (confirmed == true && context.mounted) {
+            context.read<AuthCubit>().logout(
+              permissionCubit: context.read<PermissionCubit>(),
+            );
+          }
         }
         if (selected == "Settings" && context.mounted) {
           Navigator.of(context).push(
@@ -701,11 +752,11 @@ class _TopBarState extends State<TopBar> {
             ),
           );
         }
-        if (selected == "Profile" && context.mounted) { 
+        if (selected == "Profile" && context.mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return MainScreen(selectedIndex: 29,staff: user,);
+                return MainScreen(selectedIndex: 29, staff: user);
               },
             ),
           );
@@ -714,7 +765,7 @@ class _TopBarState extends State<TopBar> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return MainScreen(selectedIndex: 32,staff: user,);
+                return MainScreen(selectedIndex: 32, staff: user);
               },
             ),
           );

@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 
@@ -9,7 +10,7 @@ import '../../../dashboard/models/dashboard_count_model.dart';
 
 abstract class IAddLeadRepository {
   Future<String> addLead(AddLeadModel lead);
-  Future<List<AddLeadModel>> fetchLeads();
+  Future<List<AddLeadModel>> fetchLeads({required String staffId,required String role,});
   Future<List<AddLeadModel>> fetchDashboardLeads(
   {
   required String staffId,
@@ -71,16 +72,33 @@ class AddLeadRepository implements IAddLeadRepository {
   } 
 
   @override
-  Future<List<AddLeadModel>> fetchLeads() async {
+Future<List<AddLeadModel>> fetchLeads({
+  required String staffId,
+  required String role,
+}) async {
+  try {
+    Query<Map<String, dynamic>> query = _collection;
 
-           final snap = await _collection
-               .orderBy('createdAt', descending: true)
-               .get();
-           return snap.docs
-               .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
-               .toList();
+    if (role.toLowerCase() != 'admin') {
+      query = query.where('assignedStaffId', isEqualTo: staffId);
+    }
 
+    final snap = await query
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snap.docs
+        .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+        .toList();
+
+  } on FirebaseException catch (e) {
+    debugPrint('[fetchLeads] Firebase error: ${e.code} — ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    debugPrint('[fetchLeads] Unexpected error: $e\n$st');
+    rethrow;
   }
+}
 
   @override
   Future<List<AddLeadModel>> fetchDashboardLeads({

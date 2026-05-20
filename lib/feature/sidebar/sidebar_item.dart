@@ -392,6 +392,8 @@ class _SidebarItemState extends State<SidebarItem> {
         subMenuItem("Transfer Leads Reports", 23),
       if (perm.canViewTotalReport)
         subMenuItem("Total Leads Reports", 2),
+      if(perm.canViewLeadSource)
+        subMenuItem("Scheduled Leads Reports", 24),
       if (perm.canViewRejectedReport)
         subMenuItem("Rejected Leads Reports", 25),
     ];
@@ -445,7 +447,30 @@ class _SidebarItemState extends State<SidebarItem> {
                 children: staffChildren,
               ),
 
-            /// REPORTS — only show if any child is visible
+             /// SETTINGS
+            if (perm.canViewGeneralSettings || perm.canViewFacebookSettings)
+              _expansionSection(
+                icon: Symbols.settings,
+                title: "Settings",
+                isSelected: isSettingsSelected,
+                children: [
+                  // if (perm.canViewFacebookSettings)
+                  //   subMenuItem("Facebook Settings", 21),
+                  if (perm.canViewGeneralSettings)
+                    subMenuItem("General Settings", 20),
+                ],
+              ),
+
+            // /// FILE MANAGER
+            // if (perm.canViewFileManager)
+            //   _expansionSection(
+            //     icon: Symbols.folder,
+            //     title: "File Manager",
+            //     isSelected: isFileSelected,
+            //     children: [subMenuItem("View", 19)],
+            //   ),
+
+               /// REPORTS — only show if any child is visible
             if (reportChildren.isNotEmpty)
               _expansionSection(
                 icon: Symbols.news,
@@ -454,28 +479,7 @@ class _SidebarItemState extends State<SidebarItem> {
                 children: reportChildren,
               ),
 
-            /// FILE MANAGER
-            if (perm.canViewFileManager)
-              _expansionSection(
-                icon: Symbols.folder,
-                title: "File Manager",
-                isSelected: isFileSelected,
-                children: [subMenuItem("View", 19)],
-              ),
-
-            /// SETTINGS
-            if (perm.canViewGeneralSettings || perm.canViewFacebookSettings)
-              _expansionSection(
-                icon: Symbols.settings,
-                title: "Settings",
-                isSelected: isSettingsSelected,
-                children: [
-                  if (perm.canViewFacebookSettings)
-                    subMenuItem("Facebook Settings", 21),
-                  if (perm.canViewGeneralSettings)
-                    subMenuItem("General Settings", 20),
-                ],
-              ),
+           
           ],
         ),
       ),

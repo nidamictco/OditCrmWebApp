@@ -348,11 +348,11 @@ class _MainScreenState extends State<MainScreen> {
           child: FollowUpDetailsScreen(lead: widget.lead),
         );
       case 32:
-       if (widget.staff == null) return const SizedBox();
+        if (widget.staff == null) return const SizedBox();
         return BlocProvider(
-        create: (_) => StaffCubit(),
-        child: ChangePasswordScreen(staff: widget.staff!),
-  );
+          create: (_) => StaffCubit(),
+          child: ChangePasswordScreen(staff: widget.staff!),
+        );
       default:
         return const SizedBox();
     }

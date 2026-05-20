@@ -92,9 +92,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           right: 5.w,
                                           child: CustomCalendar(
                                             onDateSelected: (date) {
-                                              _dateController.text = DateFormat('dd-MM-yyyy').format(date);
+                                              _dateController.text = DateFormat(
+                                                'dd-MM-yyyy',
+                                              ).format(date);
 
-                                              context.read<AddLeadCubit>().fetchDashboardCounts(date);
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .fetchDashboardCounts(date);
 
                                               Navigator.pop(context);
                                             },
@@ -236,42 +240,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardCard(
                             title: "NEW LEADS",
                             message:
-                                'The combined count of new\nleads and unattended leads.', fromCard: 'NEW',
+                                'The combined count of new\nleads and unattended leads.',
+                            fromCard: 'NEW',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "FOLLOWUP LEADS",
-                            message: '_', fromCard: 'FOLLOWUP',
+                            message:
+                                'The current count of leads assigned \nfor today, including missed follow-up leads.',
+                            fromCard: 'FOLLOWUP',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "CLOSED LEADS",
-                            message: '.', fromCard: 'CLOSED',
+                            message:
+                                'Closed leads can be filtered using a specific \ndate range to determine the count of \nclosed leads within that period.',
+                            fromCard: 'CLOSED',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "TOTAL CALLED",
-                            message: '.', fromCard: 'TOTAL',
+                            message:
+                                'Total called can be filtered \nusing a specific date range to determine \nthe count of total leads within that period.',
+                            fromCard: 'TOTAL',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "MISSED LEADS",
-                            message: '.', fromCard: 'MISSED',
+                            message: 'Missed Leads',
+                            fromCard: 'MISSED',
                           ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: DashboardCard(
                             title: "TRANSFERRED LEADS",
-                            message: '.', fromCard: 'TRANSFERRED',
+                            message:
+                                'Count of total leads \ntransferred to you.',
+                            fromCard: 'TRANSFERRED',
                           ),
                         ),
                       ],
