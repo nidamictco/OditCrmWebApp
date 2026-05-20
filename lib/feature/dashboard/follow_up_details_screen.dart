@@ -1041,7 +1041,10 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -1382,6 +1385,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   @override
   void initState() {
     super.initState();
+    log("widget.followups.isEmpty");
     _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
@@ -1393,13 +1397,25 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     for (final f in widget.followups) {
       grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
     }
-    final dates = grouped.keys.toList();
+
 
     if(widget.followups.isEmpty) {
-      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(leadId: '', leadName: '', leadWhatsappNo: '', leadWhatsappDialCode: '', nextFollowUpDate: DateTime.now(), calledStatus: '', calledDate: DateTime.now(), leadStage: '', leadCategory: '', priority: '', remarks: '', createdById: ''
+
+      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
+          leadId: widget.leadId,
+          leadName: widget.leadName,
+          leadWhatsappNo: widget.leadWhatsappNo ?? "",
+          leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+          nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+          calledStatus: widget.lead.callResult ?? "",
+          calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+          leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+          priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
 
       ));
     }
+
+    final dates = grouped.keys.toList();
 
     return Container(
       color: Colors.white,
@@ -2341,6 +2357,7 @@ class _DateGroup extends StatelessWidget {
           children: [
             // Timeline column
             Column(
+              // mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(height: 8),
                 Container(
@@ -2369,7 +2386,7 @@ class _DateGroup extends StatelessWidget {
                 ),
                 Center(
                   child: Container(
-                    height: 43,
+                    height: 25,
                     width: 1,
                     color: const Color(0xFFDDDDDD),
                   ),
@@ -2384,6 +2401,7 @@ class _DateGroup extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Container(width: 1, height: 100, color: const Color(0xFFDDDDDD)),
                 Expanded(
                   child: Container(width: 1, color: const Color(0xFFDDDDDD)),
                 ),
@@ -2391,12 +2409,16 @@ class _DateGroup extends StatelessWidget {
             ),
             // Cards
 
-            Expanded(
+            Flexible(
+              fit: FlexFit.loose,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: lead.followUp!.isEmpty?
-                [_FirstFollowupCard(lead: lead,)]:
-                entries.map((e) => _FollowupCard(entry: e, lead: lead,)).toList(),
+                [_FirstFollowupCard(lead: lead,),
+                SizedBox(height: 20),]:
+                entries.map((e) => _FollowupCard(entry: e, lead: lead, entries : entries)).toList(),
+
               ),
             ),
           ],
@@ -2409,12 +2431,13 @@ class _DateGroup extends StatelessWidget {
 class _FollowupCard extends StatelessWidget {
   final FollowUpModel entry;
   final AddLeadModel lead;
-  const _FollowupCard({required this.entry, required this.lead});
+  final List<FollowUpModel> entries;
+  const _FollowupCard({required this.entry, required this.lead, required this.entries});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16, bottom: 20, top: 16),
+      padding: const EdgeInsets.only(right: 16, bottom: 0, top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2428,7 +2451,7 @@ class _FollowupCard extends StatelessWidget {
             //     fontWeight: FontWeight.w500,
             //     color: Color(0xFF444444)),
           ),
-          SizedBox(height: 25),
+          SizedBox(height: 10),
           Container(
             width: 550,
             decoration: BoxDecoration(
@@ -2489,6 +2512,9 @@ class _FollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      entries.indexOf(entry)==0 ?
+                      _cardRow('Created Date', DateFormat('dd-MM-yyyy hh:mm a').format(lead.createdAt!)):
+                      _cardRow('Scheduled Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.nextFollowUpDate)),
                       _cardRow('Called Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.calledDate)),
                       const SizedBox(height: 6),
                       _cardRow('Call Status', entry.calledStatus),
@@ -2531,6 +2557,7 @@ class _FollowupCard extends StatelessWidget {
               ],
             ),
           ),
+          // SizedBox(height: 10),
         ],
       ),
     );
@@ -2556,6 +2583,7 @@ class _FollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
+              maxLines: 4,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 color: Color(0xFF333333),
@@ -2679,6 +2707,175 @@ class _FirstFollowupCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           _StatusChip(label: lead.leadStage),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      // _cardRow('Products', entry.products),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cardRow(String label, String value) {
+    return SizedBox(
+      // width: 350,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Color(0xFF555555),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              ':  $value',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Color(0xFF333333),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LastFollowupCard extends StatelessWidget {
+
+  final AddLeadModel lead;
+  const _LastFollowupCard({required this.lead});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16, bottom: 20, top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 100),
+          Text(
+            // entry.time,
+            DateFormat('hh:mm a').format(lead.calledDate!),
+            style: AppTextStyle.medium(color: Color(0xFF444444), size: 12),
+            // const TextStyle(
+            //     fontSize: 12,
+            //     fontWeight: FontWeight.w500,
+            //     color: Color(0xFF444444)),
+          ),
+          SizedBox(height: 25),
+          Container(
+            width: 550,
+            decoration: BoxDecoration(
+              color: Color(0xFFFFF3E0),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFEEEEEE)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 12, 8),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 14,
+                        backgroundColor: Color(0xFFEEEEEE),
+                        child: Icon(
+                          Icons.person,
+                          size: 16,
+                          color: Color(0xFF888888),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        lead.assignedStaff,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF222222),
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: Colors.green.shade600,
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: Colors.red.shade400,
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _cardRow('Scheduled Date', DateFormat('dd-MM-yyyy hh:mm a').format(lead.followUpDate!)),
+                      const SizedBox(height: 6),
+                      _cardRow('Remark', '-${lead.remarks}'),
+
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 90,
+                            child: Text(
+                              'Status',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Color(0xFF555555),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            ': ',
+                            style: GoogleFonts.poppins(
+                              color: Color(0xFF555555),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Row(
+                            children: [
+                              _StatusChip(label: lead.leadStage),
+                              Text("(Pending)",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Color(0xFF555555),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )
+                            ],
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),

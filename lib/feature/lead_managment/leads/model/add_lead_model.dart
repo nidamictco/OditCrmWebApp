@@ -92,7 +92,7 @@ class AddLeadModel {
       'createdAt': FieldValue.serverTimestamp(),
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
-        'nextfollowUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
+        'nextFollowUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
         'lastCalledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
       // 'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
       'leadTag': leadTag,

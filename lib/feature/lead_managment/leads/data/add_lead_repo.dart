@@ -83,7 +83,7 @@ class AddLeadRepository implements IAddLeadRepository {
   }
 
   @override
-  Future<List<AddLeadModel>> fetchDashboardLeads({
+  Future<List<AddLeadModel>> fetchDashboardLeadsOld({
     required String staffId,
     required String role,
     required String fromCard,
@@ -222,6 +222,162 @@ class AddLeadRepository implements IAddLeadRepository {
 
     }
     return [];
+  }
+
+
+  @override
+  Future<List<AddLeadModel>> fetchDashboardLeads({
+    required String staffId,
+    required String role,
+    required String fromCard,
+    required DateTime selectedDate,
+  }) async {
+
+    Query<Map<String, dynamic>> query = _collection;
+
+    /// ROLE FILTER
+    if (role.toLowerCase() != 'admin') {
+      query = query.where(
+        'assignedStaffId',
+        isEqualTo: staffId,
+      );
+    }
+
+    try {
+
+      final snap = await query
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      /// FETCH LEADS + FOLLOWUPS
+      final List<AddLeadModel> allLeads = await Future.wait(
+
+        snap.docs.map((leadDoc) async {
+
+          /// MAIN LEAD
+          final lead = AddLeadModel.fromFirestore(
+            leadDoc.data(),
+            leadDoc.id,
+          );
+
+          /// FETCH FOLLOWUP SUBCOLLECTION
+          final followUpSnap = await _collection
+              .doc(leadDoc.id)
+              .collection('FOLLOW_UPS')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          /// CONVERT FOLLOWUPS
+          final followUps = followUpSnap.docs.map((fupDoc) {
+
+            return FollowUpModel.fromFirestore(
+              fupDoc.data(),
+              fupDoc.id,
+            );
+
+          }).toList();
+
+          /// RETURN LEAD WITH FOLLOWUPS
+          return lead.copyWith(
+            followUp: followUps,
+          );
+
+        }),
+      );
+
+      /// DATE FILTER HELPER
+      bool isSameDay(DateTime? date) {
+
+        if (date == null) return false;
+
+        return date.year == selectedDate.year &&
+            date.month == selectedDate.month &&
+            date.day == selectedDate.day;
+      }
+
+      /// CARD FILTER
+      switch (fromCard.toUpperCase()) {
+
+      /// NEW LEADS
+        case 'NEW':
+
+          return allLeads.where((lead) {
+
+            return isSameDay(lead.createdAt);
+
+          }).toList();
+
+      /// FOLLOWUP LEADS
+        case 'FOLLOWUP':
+
+          return allLeads.where((lead) {
+
+            return isSameDay(lead.followUpDate);
+
+          }).toList();
+
+      /// CLOSED LEADS
+        case 'CLOSED':
+
+          return allLeads.where((lead) {
+
+            return lead.leadStage.toUpperCase() == 'CLOSED';
+
+          }).toList();
+
+      /// TOTAL CALLED
+        case 'TOTAL':
+
+          return allLeads.where((lead) {
+
+            return isSameDay(lead.calledDate);
+
+          }).toList();
+
+      /// MISSED / REJECTED
+        case 'MISSED':
+
+          return allLeads.where((lead) {
+
+            return lead.leadStage.toUpperCase() == 'REJECTED';
+
+          }).toList();
+
+      /// TRANSFERRED
+        case 'TRANSFERRED':
+
+          return allLeads.where((lead) {
+
+            if (lead.transferLeads == null ||
+                lead.transferLeads!.isEmpty) {
+              return false;
+            }
+
+            return lead.transferLeads!.any((item) {
+
+              final transferredTime = item.transferTime;
+
+              if (transferredTime == null) {
+                return false;
+              }
+
+              return isSameDay(transferredTime);
+
+            });
+
+          }).toList();
+
+        default:
+
+          return allLeads;
+      }
+
+    } catch (e) {
+
+      log("error in fetchDashboardLeads ::: $e");
+
+      return [];
+    }
   }
 
   @override
