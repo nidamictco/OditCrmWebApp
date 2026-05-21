@@ -11,12 +11,13 @@ import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 // import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await initializeDateFormatting('en_US', '');
+  // await windowManager.ensureInitialized();
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,

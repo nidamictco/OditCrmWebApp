@@ -66,6 +66,7 @@ class MainScreen extends StatefulWidget {
   final StaffModel? staff;
   final AddLeadModel? lead;
   final String? fromCard;
+  final DateTime? selectedDate;
   const MainScreen({
     super.key,
     this.selectedIndex = 0,
@@ -73,6 +74,7 @@ class MainScreen extends StatefulWidget {
     this.staff,
     this.lead,
     this.fromCard,
+    this.selectedDate,
   });
 
   @override
@@ -80,20 +82,29 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  late int selectedIndex; // ✅ local state
+  late int selectedIndex;
   bool isSidebarOpen = true;
+  AddLeadModel? _editLead;
 
   // DesignationModel? designation;
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.selectedIndex; // initial value
+    selectedIndex = widget.selectedIndex;
+    _editLead = widget.lead;
   }
 
   void toggleSidebar() {
     setState(() {
       isSidebarOpen = !isSidebarOpen;
+    });
+  }
+
+  void _onItemSelected(int index) {
+    setState(() {
+      selectedIndex = index;
+      _editLead = null;
     });
   }
 
@@ -126,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
               BlocProvider(create: (_) => LeadSourceCubit()),
               BlocProvider(create: (_) => LeadStageCubit()),
             ],
-            child: AddLeadPage(lead: widget.lead),
+            child: AddLeadPage(lead: _editLead),
           ),
         );
       case 2:
@@ -216,15 +227,19 @@ class _MainScreenState extends State<MainScreen> {
       case 12:
         return BlocProvider(
           create: (_) => AddLeadCubit()
-            ..fetchDashboardLeads(
-              staffId: widget.staff!.id!,
-              role: widget.staff?.staffType ?? 'Admin',
-              fromCard: widget.fromCard ?? "",
-              selectedDate: DateTime.now(),
-            )
-            ..fetchStaff()
-            ..initialize(),
-          child: NewLeadsPage(fromCard: widget.fromCard ?? ""),
+            ..initialize()
+            ..fetchStaff(),
+          // ..fetchDashboardLeads(
+          //   staffId: widget.staff!.id!,
+          //   role: widget.staff?.staffType ?? 'Admin',
+          //   fromCard: widget.fromCard ?? "",
+          //   selectedDate: context.read<AddLeadCubit>().state.selectedDashboardDate ?? DateTime.now(),
+          // ),
+          child: NewLeadsPage(
+            fromCard: widget.fromCard ?? "",
+            staff: widget.staff,
+            selectedDate: widget.selectedDate,
+          ),
         );
       case 13:
         return PermissionGuard(
@@ -237,9 +252,23 @@ class _MainScreenState extends State<MainScreen> {
       case 14:
         return PermissionGuard(
           hasPermission: perm.canImportLeads,
-          child: BlocProvider(
-            create: (_) =>
-                ImportLeadsCubit(repository: ImportLeadsRepository()),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) =>
+                    ImportLeadsCubit(repository: ImportLeadsRepository()),
+              ),
+              BlocProvider(
+                create: (_) => AddLeadCubit(
+                  leadRepository: AddLeadRepository(),
+                  categoryRepository: LeadCategoryRepository(),
+                  sourceRepository: LeadSourceRepository(),
+                ),
+              ),
+              BlocProvider(create: (_) => LeadCategoryCubit()),
+              BlocProvider(create: (_) => LeadSourceCubit()),
+              BlocProvider(create: (_) => LeadStageCubit()),
+            ],
             child: ImportLeads(),
           ),
         );
@@ -263,7 +292,7 @@ class _MainScreenState extends State<MainScreen> {
         return PermissionGuard(
           hasPermission: perm.canViewDesignation,
           child: BlocProvider(
-            create: (_) => DesignationCubit(),
+            create: (_) => DesignationCubit()..fetchAll(),
             child: const DesignationScreen(),
           ),
         );
@@ -345,7 +374,7 @@ class _MainScreenState extends State<MainScreen> {
           create: (_) => AddLeadCubit()
             ..fetchLeads()
             ..initialize(),
-          child: FollowUpDetailsScreen(lead: widget.lead),
+          child: FollowUpDetailsScreen(currentLead: widget.lead!),
         );
       case 32:
         if (widget.staff == null) return const SizedBox();
@@ -364,36 +393,26 @@ class _MainScreenState extends State<MainScreen> {
       body: Row(
         children: [
           /// SIDEBAR
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+          SizedBox(
             width: isSidebarOpen ? 250 : 70,
-            child: isSidebarOpen
-                ? SidebarItem(
-                    selectedIndex: selectedIndex,
-                    onItemSelected: (index) {
-                      setState(() {
-                        selectedIndex = index;
-                      });
-                    },
-                  )
-                : MiniSidebar(
-                    selectedIndex: selectedIndex,
-                    onItemSelected: (index) {
-                      setState(() {
-                        selectedIndex = index;
-                      });
-                    },
-                  ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              child: isSidebarOpen
+                  ? SidebarItem(
+                      selectedIndex: selectedIndex,
+                      onItemSelected: _onItemSelected,
+                    )
+                  : MiniSidebar(
+                      selectedIndex: selectedIndex,
+                      onItemSelected: _onItemSelected,
+                    ),
+            ),
           ),
 
           /// MAIN CONTENT
           Expanded(
             child: Column(
               children: [
-                // TopBar(
-                //   isSidebarOpen: isSidebarOpen,
-                //   onMenuTap: toggleSidebar,
-                // ),
                 BlocProvider(
                   create: (_) => AddLeadCubit()..fetchLeads(),
                   child: TopBar(

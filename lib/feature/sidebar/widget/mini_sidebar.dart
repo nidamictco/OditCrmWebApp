@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/feature/sidebar/widget/hover/sidebar_hover.dart';
@@ -12,6 +13,9 @@ class MiniSidebar extends StatelessWidget {
     required this.selectedIndex,
     required this.onItemSelected,
   });
+
+ bool _isGroupSelected(List<int> indices) => indices.contains(selectedIndex);
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +46,13 @@ class MiniSidebar extends StatelessWidget {
           HoverSidebarItem(
             icon: Icons.dashboard,
             title: "Dashboard",
-            onTap: () => onItemSelected(0),
-          ),
+             isExpandable: true,
+             children: ["Dashboard"],
+             isSelected: selectedIndex == 0,
+            onItemTap: (Index) => onItemSelected(0),
+          ), 
 
-          /// LEAD MANAGEMENT
+          /// LEAD MANAGEMENT 
           HoverSidebarItem(
             icon: Icons.phone,
             title: "Lead Management",
@@ -53,23 +60,34 @@ class MiniSidebar extends StatelessWidget {
             children: [
               "Add Lead",
               "Leads Report",
-              "Call History",
+              'Import Leads',
+              'Deleted Leads',
+              // "Call History",
+              'Unassigned Leads',
               "Transfer Leads",
-              "Phone Call Log",
+              // "Phone Call Log",
             ],
-            onItemTap: (index) => onItemSelected(index + 1),
+            isSelected: _isGroupSelected([1, 2,14,4/*,3*/, 13,5, /*6*/]),
+            onItemTap:  (index) {
+              const map = [1, 2,14,4/*,3*/, 13,5, /*6*/];
+              onItemSelected(map[index]); 
+            },
           ),
 
-          /// LEAD MANAGEMENT
+          /// SETTINGS
           HoverSidebarItem(
             icon: Icons.settings,
             title: "Settings",
             isExpandable: true,
-            children: ["General Settings", "Facebook Settings"],
-            onItemTap: (index) => onItemSelected(index + 1),
+            children: ["General Settings", /*"Facebook Settings"*/],
+            isSelected: _isGroupSelected([20, /*21*/]),
+            onItemTap:  (index) {
+              const map = [20, /*21*/];
+              onItemSelected(map[index]);
+            },
           ),
 
-          /// LEAD MANAGEMENT
+          /// STAFF MANAGEMENT
           HoverSidebarItem(
             icon: Icons.person,
             title: "Staff Management",
@@ -80,19 +98,27 @@ class MiniSidebar extends StatelessWidget {
               "Designations",
               "Deleted Staff",
             ],
-            onItemTap: (index) => onItemSelected(index + 1),
+            isSelected: _isGroupSelected([15, 16, 17, 18]),
+            onItemTap:(index) {
+              const map = [15, 16, 17, 18];
+              onItemSelected(map[index]);
+            },
           ),
 
-          /// LEAD MANAGEMENT
-          HoverSidebarItem(
-            icon: Icons.folder,
-            title: "Files Manager",
-            isExpandable: true,
-            children: ["View"],
-            onItemTap: (index) => onItemSelected(index + 1),
-          ),
+          // /// FILES  MANAGEMENT
+          // HoverSidebarItem(
+          //   icon: Icons.folder,
+          //   title: "Files Manager",
+          //   isExpandable: true,
+          //   children: ["View"],
+          //   isSelected: _isGroupSelected([19]),
+          //   onItemTap: (index) {
+          //     const map = [19];
+          //     onItemSelected(map[index]);
+          //   },
+          // ),
 
-          /// LEAD MANAGEMENT
+          /// reports
           HoverSidebarItem(
             icon: Icons.file_copy,
             title: "Reports",
@@ -104,7 +130,11 @@ class MiniSidebar extends StatelessWidget {
               "Scheduled Leads Reports",
               "Rejected leads Reports",
             ],
-            onItemTap: (index) => onItemSelected(index + 1),
+            isSelected: _isGroupSelected([22, 23,2, 24, 25]),
+            onItemTap:(index) {
+              const map = [22, 23, 2,24, 25];
+              onItemSelected(map[index]);
+            },
           ),
         ],
       ),

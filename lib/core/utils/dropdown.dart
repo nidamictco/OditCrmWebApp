@@ -137,9 +137,9 @@ class _DropdownState extends State<Dropdown> {
                 ),
               ),
             ),
-
             /// 🔥 POPUP STYLE
             popupProps: PopupProps.menu(
+              // interceptCallBacks: true,
               showSearchBox: true,
               showSelectedItems: true,
               fit: FlexFit.loose,
@@ -153,6 +153,7 @@ class _DropdownState extends State<Dropdown> {
                   isSelected: isCurrentlySelected,
                 );
               },
+
 
               menuProps: MenuProps(
                 backgroundColor: Colors.white,
@@ -237,7 +238,6 @@ class _DropdownState extends State<Dropdown> {
                 ),
               ),
             ),
-
             onSelected: (value) => widget.onChanged?.call(value),
           ),
         ),
@@ -271,10 +271,27 @@ class _DropdownItemState extends State<_DropdownItem> {
       bgColor = Colors.white;
     }
 
-    return Listener(
-      onPointerDown: (_) =>
-          setState(() => _isHovered = true), // ✅ low-level, never blocked
-      onPointerUp: (_) => setState(() => _isHovered = false),
+    return MouseRegion(
+      onHover: (_) {
+        setState(() {
+          print("wwwwwww");
+          _isHovered = true;
+        });
+      },
+      onEnter: (_) {
+        setState(() {
+          _isHovered = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _isHovered = false;
+        });
+      },
+      // Listener(
+      // onPointerDown: (_) =>
+      //     setState(() => _isHovered = true), // ✅ low-level, never blocked
+      // onPointerUp: (_) => setState(() => _isHovered = false),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
         alignment: Alignment.centerLeft,

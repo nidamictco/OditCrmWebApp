@@ -662,7 +662,29 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                               GestureDetector(
                                 onTap: hasSelection
                                     ? () => _deleteSelectedLeads(selectedLeads)
-                                    : null,
+                                    : () => ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Please select atleast one lead to delete.',
+                                                style: AppTextStyle.medium(
+                                                  color: AppColors.white,
+                                                  weight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            ),
+                                          ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 1.w,

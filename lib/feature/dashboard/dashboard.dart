@@ -12,6 +12,7 @@ import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../lead_managment/leads/cubit/add_lead_cubit.dart';
+import '../lead_managment/leads/cubit/add_lead_state.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -48,7 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// TOP HEADER ROW
+              /// TOP HEADER ROW
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,82 +80,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Row(
                           children: [
                             /// SEARCH BOX
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  barrierColor: Colors.transparent,
-                                  builder: (context) {
-                                    return Stack(
-                                      children: [
-                                        Positioned(
-                                          top: 20.h,
-                                          right: 5.w,
-                                          child: CustomCalendar(
-                                            onDateSelected: (date) {
-                                              _dateController.text = DateFormat(
-                                                'dd-MM-yyyy',
-                                              ).format(date);
+                            BlocBuilder<AddLeadCubit, AddLeadState>(
+                        builder: (context, state) {
+                          final addLeadCubit = context.read<AddLeadCubit>();
 
-                                              context
-                                                  .read<AddLeadCubit>()
-                                                  .fetchDashboardCounts(date);
+                          return GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (dialogContext) {
+                                  return Stack(
+                                    children: [
+                                      Positioned(
+                                        top: 20.h,
+                                        right: 5.w,
+                                        child: CustomCalendar(
+                                          onDateSelected: (date) {
+                                            /// SET SELECTED DATE
+                                            _dateController.text =
+                                                DateFormat('dd-MM-yyyy').format(date);
+                                            addLeadCubit.updateSelectedDashboardDate(date);
 
-                                              Navigator.pop(context);
-                                            },
-                                          ),
+                                            addLeadCubit.fetchDashboardCounts(date);
+
+                                            /// CLOSE DIALOG ONLY
+                                            Navigator.pop(dialogContext);
+                                          },
                                         ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 15.w,
-                                    height: 6.h,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(4),
-                                        bottomLeft: Radius.circular(4),
                                       ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Row(
+                              children: [
+
+                                /// DATE FIELD
+                                Container(
+                                  width: 15.w,
+                                  height: 6.h,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(4),
+                                      bottomLeft: Radius.circular(4),
                                     ),
-                                    child: Center(
-                                      child: IgnorePointer(
-                                        child: TextField(
-                                          controller: _dateController,
-                                          readOnly: true,
-                                          style: AppTextStyle.small(
+                                  ),
+                                  child: Center(
+                                    child: IgnorePointer(
+                                      child: TextField(
+                                        controller: _dateController,
+                                        readOnly: true,
+                                        style: AppTextStyle.small(
+                                          size: 11.sp,
+                                          color: AppColors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintStyle: AppTextStyle.small(
                                             size: 11.sp,
                                             color: AppColors.grey,
                                           ),
-                                          textAlign: TextAlign.center,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            // hintText: _dateController.text,
-                                            hintStyle: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.grey,
-                                            ),
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.zero,
-                                          ),
+                                          isCollapsed: true,
+                                          contentPadding: EdgeInsets.zero,
                                         ),
                                       ),
                                     ),
                                   ),
+                                ),
 
-                                  /// CALENDAR BUTTON
-                                  Container(
+                                /// SEARCH BUTTON
+                                GestureDetector(
+                                  onTap: () {
+
+                                    /// CHECK EMPTY DATE
+                                    if (_dateController.text.isEmpty) return;
+
+                                    /// CONVERT STRING TO DATETIME
+                                    final selectedDate = DateFormat('dd-MM-yyyy')
+                                        .parse(_dateController.text);
+
+                                    /// CALL count function
+                                    addLeadCubit.fetchDashboardCounts(selectedDate);
+                                  },
+                                  child: Container(
                                     height: 6.h,
                                     width: 6.h,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.indigo,
                                       borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(4),
@@ -167,9 +186,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       size: 13.sp,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
+                          );
+                        },
+                        ),
+
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     showDialog(
+                            //       context: context,
+                            //       barrierColor: Colors.transparent,
+                            //       builder: (context) {
+                            //         return Stack(
+                            //           children: [
+                            //             Positioned(
+                            //               top: 20.h,
+                            //               right: 5.w,
+                            //               child: CustomCalendar(
+                            //                 onDateSelected: (date) {
+                            //                   _dateController.text = DateFormat('dd-MM-yyyy').format(date);
+                            //
+                            //                   context.read<AddLeadCubit>().fetchDashboardCounts(date);
+                            //
+                            //                   Navigator.pop(context);
+                            //                 },
+                            //               ),
+                            //             ),
+                            //           ],
+                            //         );
+                            //       },
+                            //     );
+                            //   },
+                            //   child: Row(
+                            //     children: [
+                            //       Container(
+                            //         width: 15.w,
+                            //         height: 6.h,
+                            //         padding: EdgeInsets.symmetric(
+                            //           horizontal: 10,
+                            //           vertical: 5,
+                            //         ),
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.white,
+                            //           borderRadius: BorderRadius.only(
+                            //             topLeft: Radius.circular(4),
+                            //             bottomLeft: Radius.circular(4),
+                            //           ),
+                            //         ),
+                            //         child: Center(
+                            //           child: IgnorePointer(
+                            //             child: TextField(
+                            //               controller: _dateController,
+                            //               readOnly: true,
+                            //               style: AppTextStyle.small(
+                            //                 size: 11.sp,
+                            //                 color: AppColors.grey,
+                            //               ),
+                            //               textAlign: TextAlign.center,
+                            //               decoration: InputDecoration(
+                            //                 border: InputBorder.none,
+                            //                 // hintText: _dateController.text,
+                            //                 hintStyle: AppTextStyle.small(
+                            //                   size: 11.sp,
+                            //                   color: AppColors.grey,
+                            //                 ),
+                            //                 isCollapsed: true,
+                            //                 contentPadding: EdgeInsets.zero,
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ),
+                            //       ),
+                            //
+                            //       /// CALENDAR BUTTON
+                            //       Container(
+                            //         height: 6.h,
+                            //         width: 6.h,
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.indigo,
+                            //           borderRadius: BorderRadius.only(
+                            //             topRight: Radius.circular(4),
+                            //             bottomRight: Radius.circular(4),
+                            //           ),
+                            //         ),
+                            //         child: Icon(
+                            //           Icons.search,
+                            //           color: Colors.white,
+                            //           size: 13.sp,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
 
                             SizedBox(width: 1.w),
 

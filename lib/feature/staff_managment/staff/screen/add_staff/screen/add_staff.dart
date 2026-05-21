@@ -140,28 +140,28 @@ class _AddStaffState extends State<AddStaff> {
   // ─── Validation ───────────────────────────────────────────────────────────
 
   String? _validate() {
-  if (_nameCtrl.text.trim().isEmpty) return 'Name is required';
+    if (_nameCtrl.text.trim().isEmpty) return 'Name is required';
 
-  if (_passwordCtrl.text.trim().isEmpty) return 'Password is required';
-  if (_passwordCtrl.text.trim().length < 6)
-    return 'Password must be at least 6 characters';
+    if (_passwordCtrl.text.trim().isEmpty) return 'Password is required';
+    if (_passwordCtrl.text.trim().length < 6)
+      return 'Password must be at least 6 characters';
 
-  if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
+    if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
 
-  // Email - required + format
-  final email = _emailCtrl.text.trim();
-  if (email.isEmpty) return 'Email is required';                          // ← added
-  final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
-  if (!emailRegex.hasMatch(email)) return 'Enter a valid email address';
+    // Email - required + format
+    final email = _emailCtrl.text.trim();
+    if (email.isEmpty) return 'Email is required'; // ← added
+    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+    if (!emailRegex.hasMatch(email)) return 'Enter a valid email address';
 
-  if (_staffType == null || _staffType!.isEmpty)
-    return 'Please select a staff type';
+    if (_staffType == null || _staffType!.isEmpty)
+      return 'Please select a staff type';
 
-  if (_designation == null || _designation!.isEmpty)
-    return 'Please select a designation';
+    if (_designation == null || _designation!.isEmpty)
+      return 'Please select a designation';
 
-  return null;
-}
+    return null;
+  }
 
   // ─── Submit ───────────────────────────────────────────────────────────────
 
@@ -240,9 +240,6 @@ class _AddStaffState extends State<AddStaff> {
 
   // ─── Open Designation Dialog ──────────────────────────────────────────────
 
-  /// ✅ FIX: Wrap the Dialog with BlocProvider.value so DesignationPermissionsScreen
-  /// can access the SAME DesignationCubit instance that already exists in the tree.
-  /// After dialog closes, re-fetch so the dropdown items are fresh.
   void _openDesignationDialog() async {
     final designationCubit = context.read<DesignationCubit>();
 
@@ -254,9 +251,10 @@ class _AddStaffState extends State<AddStaff> {
       ),
     );
 
-    // Re-fetch after dialog closes so newly added designation appears in list
+    // ✅ await fetchAll() so BlocBuilder gets DesignationListLoaded
+    //    before the dropdown tries to render
     if (mounted) {
-      designationCubit.fetchAll();
+      await designationCubit.fetchAll();
     }
   }
 
@@ -362,6 +360,7 @@ class _AddStaffState extends State<AddStaff> {
           selectedValue: _staffType,
           onChanged: (v) => setState(() => _staffType = v),
         ),
+        SizedBox(height: 0.8.h),
         InputField(
           label: 'Joining Date',
           hint: 'DD-MM-YYYY',
@@ -385,30 +384,18 @@ class _AddStaffState extends State<AddStaff> {
         ),
         BlocBuilder<DesignationCubit, DesignationState>(
           builder: (context, state) {
-            // Build the items list from loaded designations
             List<String> designationItems = [];
             Map<String, String> designationMap = {};
 
-            // if (state is DesignationListLoaded) {
-            //   designationItems = state.designations
-            //       .map((d) => d.designationName)
-            //       .toList();
-            // }
             if (state is DesignationListLoaded) {
               for (final d in state.designations) {
                 designationItems.add(d.designationName);
                 if (d.id != null) {
-                  designationMap[d.designationName] = d.id!; // ← name → id
+                  designationMap[d.designationName] = d.id!;
                 }
               }
             }
 
-            // If the previously saved designation isn't in the list yet, keep it selectable
-            // if (_designation != null &&
-            //     _designation!.isNotEmpty &&
-            //     !designationItems.contains(_designation)) {
-            //   designationItems.insert(0, _designation!);
-            // }
             if (_designation != null &&
                 _designation!.isNotEmpty &&
                 !designationItems.contains(_designation)) {
@@ -417,21 +404,19 @@ class _AddStaffState extends State<AddStaff> {
             log('designationItems = ${designationItems.toString()}');
             return DropdownWithAdd(
               label: 'Designation',
-              // ✅ Live list from Firestore via cubit
               items: designationItems,
               selectedValue: _designation,
               showStar: true,
-              // ✅ FIX: Pass the cubit into the dialog so it doesn't throw
               onTap: _openDesignationDialog,
-              //   onChanged: (v) => setState(() => _designation = v),
-              // );
+
               onChanged: (v) => setState(() {
                 _designation = v;
-                _designationId = v != null ? designationMap[v] : null; // ← ADD
+                _designationId = v != null ? designationMap[v] : null;
               }),
             );
           },
         ),
+        SizedBox(height: 0.8.h),
         InputField(
           showStar: true,
           label: 'Email Id',

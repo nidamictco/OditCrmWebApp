@@ -290,16 +290,17 @@ class _DesignationPermissionsScreenState
       if (shouldShow != _showScrollTop) {
         setState(() => _showScrollTop = shouldShow);
       }
-    } );
-     /// ✅ PREFILL DATA
-  if (isEditMode) {
-    final data = widget.designation!;
+    });
 
-    _designationController.text = data.designationName;
+    /// ✅ PREFILL DATA
+    if (isEditMode) {
+      final data = widget.designation!;
 
-    /// Map permissions → UI
-    _applyPermissions(data);
-  }
+      _designationController.text = data.designationName;
+
+      /// Map permissions → UI
+      _applyPermissions(data);
+    }
   }
 
   @override
@@ -360,9 +361,7 @@ class _DesignationPermissionsScreenState
         facebookSettings: _perm('Settings', 'Facebook Settings'),
         generalSettings: _perm('Settings', 'General Settings'),
       ),
-      fileManager: FileManagerPermissions(
-        view: _perm('File Manager', 'View'),
-      ),
+      fileManager: FileManagerPermissions(view: _perm('File Manager', 'View')),
       reports: ReportsPermissions(
         transferLeadReport: _perm('Reports', 'Transfer Lead Report'),
         totalLeadReport: _perm('Reports', 'Total Lead Report'),
@@ -386,22 +385,22 @@ class _DesignationPermissionsScreenState
   // }
 
   void _toggleGroupHeader(int groupIndex) {
-  setState(() {
-    final group = _groups[groupIndex];
-    group.selected = !group.selected;
+    setState(() {
+      final group = _groups[groupIndex];
+      group.selected = !group.selected;
 
-    for (final item in group.items) {
-      item.selected = group.selected;
+      for (final item in group.items) {
+        item.selected = group.selected;
 
-      // Set each permission only if it's enabled for this item
-      if (item.createEnabled) item.canCreate = group.selected;
-      if (item.viewEnabled) item.canView = group.selected;
-      if (item.editEnabled) item.canEdit = group.selected;
-      if (item.deleteEnabled) item.canDelete = group.selected;
-      if (item.otherEnabled) item.canOther = group.selected;
-    }
-  });
-}
+        // Set each permission only if it's enabled for this item
+        if (item.createEnabled) item.canCreate = group.selected;
+        if (item.viewEnabled) item.canView = group.selected;
+        if (item.editEnabled) item.canEdit = group.selected;
+        if (item.deleteEnabled) item.canDelete = group.selected;
+        if (item.otherEnabled) item.canOther = group.selected;
+      }
+    });
+  }
 
   // void _toggleItemRow(int groupIndex, int itemIndex) {
   //   setState(() {
@@ -413,21 +412,22 @@ class _DesignationPermissionsScreenState
   // }
 
   void _toggleItemRow(int groupIndex, int itemIndex) {
-  setState(() {
-    final item = _groups[groupIndex].items[itemIndex];
-    item.selected = !item.selected;
+    setState(() {
+      final item = _groups[groupIndex].items[itemIndex];
+      item.selected = !item.selected;
 
-    // Set each permission only if it's enabled for this item
-    if (item.createEnabled) item.canCreate = item.selected;
-    if (item.viewEnabled) item.canView = item.selected;
-    if (item.editEnabled) item.canEdit = item.selected;
-    if (item.deleteEnabled) item.canDelete = item.selected;
-    if (item.otherEnabled) item.canOther = item.selected;
+      // Set each permission only if it's enabled for this item
+      if (item.createEnabled) item.canCreate = item.selected;
+      if (item.viewEnabled) item.canView = item.selected;
+      if (item.editEnabled) item.canEdit = item.selected;
+      if (item.deleteEnabled) item.canDelete = item.selected;
+      if (item.otherEnabled) item.canOther = item.selected;
 
-    _groups[groupIndex].selected =
-        _groups[groupIndex].items.every((i) => i.selected);
-  });
-}
+      _groups[groupIndex].selected = _groups[groupIndex].items.every(
+        (i) => i.selected,
+      );
+    });
+  }
 
   void _togglePermission(int groupIndex, int itemIndex, String permType) {
     setState(() {
@@ -449,28 +449,46 @@ class _DesignationPermissionsScreenState
 
   // ─── Submit ───────────────────────────────────────────────────────────────
 
+  // void _handleSubmit() {
+  //   if (_designationController.text.trim().isEmpty) {
+  //     _showSnack('Please enter a designation name', isError: true);
+  //     return;
+  //   }
+
+  //   final model = _buildModel();
+
+  //   if (isEditMode) {
+  //     context.read<DesignationCubit>().updateDesignation(model);
+  //     //    Navigator.push(
+  //     //   context,
+  //     //   MaterialPageRoute(builder: (context) => const MainScreen(selectedIndex: 17,)),
+  //     // );
+  //     Navigator.pop(context);
+  //   } else {
+  //     context.read<DesignationCubit>().saveDesignation(model);
+  //     // Navigator.push(
+  //     //   context,
+  //     //   MaterialPageRoute(
+  //     //     builder: (context) => const MainScreen(selectedIndex: 17),
+  //     //   ),
+  //     // );
+  //      Navigator.pop(context);
+  //   }
+  // }
   void _handleSubmit() {
-    if (_designationController.text.trim().isEmpty) {
+  if (_designationController.text.trim().isEmpty) {
     _showSnack('Please enter a designation name', isError: true);
     return;
   }
-
+ 
   final model = _buildModel();
-
+ 
   if (isEditMode) {
-    context.read<DesignationCubit>().updateDesignation(model); 
-     Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const MainScreen(selectedIndex: 17,)),
-  );
+    context.read<DesignationCubit>().updateDesignation(model);
   } else {
-    context.read<DesignationCubit>().saveDesignation(model); 
-     Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const MainScreen(selectedIndex: 17,)),
-  );
+    context.read<DesignationCubit>().saveDesignation(model);
   }
-  }
+}
 
   void _showSnack(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -493,12 +511,10 @@ class _DesignationPermissionsScreenState
     return BlocListener<DesignationCubit, DesignationState>(
       listener: (context, state) {
         if (state is DesignationSaved) {
-          _showSnack(
-            'Designation "${_designationController.text}" saved!',
-          );
-          // Optionally pop or reset:
-          // Navigator.maybePop(context);
+          _showSnack('Designation "${_designationController.text}" saved!');
           context.read<DesignationCubit>().reset();
+    Navigator.pop(context);
+          // context.read<DesignationCubit>().reset();
         } else if (state is DesignationError) {
           _showSnack('Error: ${state.message}', isError: true);
           context.read<DesignationCubit>().reset();
@@ -531,9 +547,9 @@ class _DesignationPermissionsScreenState
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MainScreen(selectedIndex: 17,),
+                    builder: (context) => const MainScreen(selectedIndex: 17),
                   ),
-                ); 
+                );
               },
               current: isEditMode ? 'Edit Designation' : 'Add Designation',
             ),
@@ -554,12 +570,11 @@ class _DesignationPermissionsScreenState
                         _buildDesignationField(),
                         SizedBox(height: 1.5.h),
                         ..._groups.asMap().entries.map(
-                              (e) => Padding(
-                                padding: EdgeInsets.only(bottom: 3.h),
-                                child:
-                                    _buildPermissionGroup(e.key, e.value),
-                              ),
-                            ),
+                          (e) => Padding(
+                            padding: EdgeInsets.only(bottom: 3.h),
+                            child: _buildPermissionGroup(e.key, e.value),
+                          ),
+                        ),
                         SizedBox(height: 3.h),
                       ],
                     ),
@@ -646,8 +661,7 @@ class _DesignationPermissionsScreenState
           InkWell(
             borderRadius: BorderRadius.vertical(
               top: const Radius.circular(10),
-              bottom:
-                  group.expanded ? Radius.zero : const Radius.circular(10),
+              bottom: group.expanded ? Radius.zero : const Radius.circular(10),
             ),
             onTap: () => setState(() => group.expanded = !group.expanded),
             child: Container(
@@ -657,8 +671,7 @@ class _DesignationPermissionsScreenState
                     ? const BorderRadius.vertical(top: Radius.circular(10))
                     : BorderRadius.circular(10),
               ),
-              padding:
-                  EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.6.h),
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.6.h),
               child: Row(
                 children: [
                   _buildCheckbox(
@@ -718,12 +731,10 @@ class _DesignationPermissionsScreenState
                   ),
                   decoration: BoxDecoration(
                     border: e.key > 0
-                        ? Border(
-                            left: BorderSide(color: AppColors.divider))
+                        ? Border(left: BorderSide(color: AppColors.divider))
                         : null,
                   ),
-                  alignment:
-                      isMenu ? Alignment.centerLeft : Alignment.center,
+                  alignment: isMenu ? Alignment.centerLeft : Alignment.center,
                   child: Text(
                     e.value,
                     style: AppTextStyle.medium(weight: FontWeight.w600),
@@ -766,8 +777,7 @@ class _DesignationPermissionsScreenState
         children: [
           Container(
             width: menuColW,
-            padding:
-                EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
             child: Row(
               children: [
                 _buildCheckbox(
@@ -776,8 +786,7 @@ class _DesignationPermissionsScreenState
                   onChanged: (_) => _toggleItemRow(groupIndex, itemIndex),
                 ),
                 SizedBox(width: 2.w),
-                Flexible(
-                    child: Text(item.name, style: AppTextStyle.medium())),
+                Flexible(child: Text(item.name, style: AppTextStyle.medium())),
               ],
             ),
           ),
@@ -820,11 +829,7 @@ class _DesignationPermissionsScreenState
                 onChanged: (_) =>
                     _togglePermission(groupIndex, itemIndex, type),
               )
-            : Icon(
-                Icons.check_box,
-                size: 1.5.w,
-                color: AppColors.lightGrey,
-              ),
+            : Icon(Icons.check_box, size: 1.5.w, color: AppColors.lightGrey),
       );
     }).toList();
   }
@@ -869,11 +874,12 @@ class _DesignationPermissionsScreenState
               child: ElevatedButton(
                 onPressed: isSaving ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isSaving ? AppColors.grey : AppColors.green,
+                  backgroundColor: isSaving ? AppColors.grey : AppColors.green,
                   foregroundColor: AppColors.white,
                   padding: EdgeInsets.symmetric(
-                      horizontal: 0.5.w, vertical: 0.5.h),
+                    horizontal: 0.5.w,
+                    vertical: 0.5.h,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -889,7 +895,7 @@ class _DesignationPermissionsScreenState
                         ),
                       )
                     : Text(
-                          isEditMode ? 'Update' : 'Submit',
+                        isEditMode ? 'Update' : 'Submit',
                         style: AppTextStyle.body(
                           color: AppColors.white,
                           weight: FontWeight.w600,
@@ -903,86 +909,126 @@ class _DesignationPermissionsScreenState
     );
   }
 
-
-
   void _applyPermissions(DesignationModel data) {
-  void apply(MenuPermission item, Permission perm) {
-    item.canCreate = perm.create;
-    item.canView = perm.view;
-    item.canEdit = perm.edit;
-    item.canDelete = perm.delete;
-    item.canOther = perm.other;
-    item.selected = perm.create ||
-        perm.view ||
-        perm.edit ||
-        perm.delete ||
-        perm.other;
+    void apply(MenuPermission item, Permission perm) {
+      item.canCreate = perm.create;
+      item.canView = perm.view;
+      item.canEdit = perm.edit;
+      item.canDelete = perm.delete;
+      item.canOther = perm.other;
+      item.selected =
+          perm.create || perm.view || perm.edit || perm.delete || perm.other;
+    }
+
+    apply(
+      _groupItem('Staff management', 'Add Staff'),
+      data.staffManagement.addStaff,
+    );
+    apply(
+      _groupItem('Staff management', 'View Staff'),
+      data.staffManagement.viewStaff,
+    );
+    apply(
+      _groupItem('Staff management', 'Designation'),
+      data.staffManagement.designation,
+    );
+    apply(
+      _groupItem('Staff management', 'Deleted Staff'),
+      data.staffManagement.deletedStaff,
+    );
+    //  apply(_groupItem('Staff management', 'Deleted Staff'),
+    //     data.staffManagement.);
+
+    apply(
+      _groupItem('Lead Management', 'Dashboard'),
+      data.leadManagement.dashboard,
+    );
+    apply(
+      _groupItem('Lead Management', 'Add Lead'),
+      data.leadManagement.addLead,
+    );
+    apply(
+      _groupItem('Lead Management', 'Lead Category'),
+      data.leadManagement.leadCategory,
+    );
+    apply(
+      _groupItem('Lead Management', 'Import Leads'),
+      data.leadManagement.importLeads,
+    );
+    apply(
+      _groupItem('Lead Management', 'Lead Source'),
+      data.leadManagement.leadSource,
+    );
+    apply(
+      _groupItem('Lead Management', 'Call History'),
+      data.leadManagement.callHistory,
+    );
+    apply(
+      _groupItem('Lead Management', 'Call Settings'),
+      data.leadManagement.callSettings,
+    );
+    apply(
+      _groupItem('Lead Management', 'Leads Report'),
+      data.leadManagement.leadsReport,
+    );
+    apply(
+      _groupItem('Lead Management', 'Phone Call Log'),
+      data.leadManagement.phoneCallLog,
+    );
+    apply(
+      _groupItem('Lead Management', 'Lead Stages'),
+      data.leadManagement.leadStages,
+    );
+    apply(
+      _groupItem('Lead Management', 'Transfer Leads'),
+      data.leadManagement.transferLeads,
+    );
+    apply(
+      _groupItem('Lead Management', 'Deleted Leads'),
+      data.leadManagement.deletedLeads,
+    );
+    apply(
+      _groupItem('Lead Management', 'Unassigned Leads'),
+      data.leadManagement.unassignedLeads,
+    );
+    apply(
+      _groupItem('Lead Management', 'Custom Field Settings'),
+      data.leadManagement.customFieldSettings,
+    );
+    apply(
+      _groupItem('Lead Management', 'File Manager'),
+      data.leadManagement.fileManager,
+    );
+
+    apply(
+      _groupItem('Settings', 'Facebook Settings'),
+      data.settings.facebookSettings,
+    );
+    apply(
+      _groupItem('Settings', 'General Settings'),
+      data.settings.generalSettings,
+    );
+
+    apply(_groupItem('File Manager', 'View'), data.fileManager.view);
+
+    apply(
+      _groupItem('Reports', 'Rejected Lead Report'),
+      data.reports.rejectedLeadReport,
+    );
+    apply(
+      _groupItem('Reports', 'Scheduled Lead Report'),
+      data.reports.scheduledLeadReport,
+    );
+    apply(_groupItem('Reports', 'Staff Report'), data.reports.staffReport);
+    apply(
+      _groupItem('Reports', 'Total Lead Report'),
+      data.reports.totalLeadReport,
+    );
+    apply(
+      _groupItem('Reports', 'Transfer Lead Report'),
+      data.reports.transferLeadReport,
+    );
+
+    setState(() {});
   }
-
-  apply(_groupItem('Staff management', 'Add Staff'),
-      data.staffManagement.addStaff);
-  apply(_groupItem('Staff management', 'View Staff'),
-      data.staffManagement.viewStaff);
-  apply(_groupItem('Staff management', 'Designation'),
-      data.staffManagement.designation);
-  apply(_groupItem('Staff management', 'Deleted Staff'),
-      data.staffManagement.deletedStaff);
-  //  apply(_groupItem('Staff management', 'Deleted Staff'),
-  //     data.staffManagement.);
-
-  apply(_groupItem('Lead Management', 'Dashboard'),
-      data.leadManagement.dashboard);
-  apply(_groupItem('Lead Management', 'Add Lead'),
-      data.leadManagement.addLead);
-  apply(_groupItem('Lead Management', 'Lead Category'),
-      data.leadManagement.leadCategory);
-   apply(_groupItem('Lead Management', 'Import Leads'),
-      data.leadManagement.importLeads);
-  apply(_groupItem('Lead Management', 'Lead Source'), 
-      data.leadManagement.leadSource);
-  apply(_groupItem('Lead Management', 'Call History'),
-      data.leadManagement.callHistory);
-  apply(_groupItem('Lead Management', 'Call Settings'),
-      data.leadManagement.callSettings);
-  apply(_groupItem('Lead Management', 'Leads Report'),
-      data.leadManagement.leadsReport);
-  apply(_groupItem('Lead Management', 'Phone Call Log'),
-      data.leadManagement.phoneCallLog);
-  apply(_groupItem('Lead Management', 'Lead Stages'),
-      data.leadManagement.leadStages);
-  apply(_groupItem('Lead Management', 'Transfer Leads'),
-      data.leadManagement.transferLeads); 
-  apply(_groupItem('Lead Management', 'Deleted Leads'),
-      data.leadManagement.deletedLeads);
-  apply(_groupItem('Lead Management', 'Unassigned Leads'),
-      data.leadManagement.unassignedLeads);
-  apply(_groupItem('Lead Management', 'Custom Field Settings'),
-      data.leadManagement.customFieldSettings); 
-  apply(_groupItem('Lead Management', 'File Manager'),
-      data.leadManagement.fileManager); 
-  
-
-  apply(_groupItem('Settings', 'Facebook Settings'),
-      data.settings.facebookSettings);
-  apply(_groupItem('Settings', 'General Settings'),
-      data.settings.generalSettings);  
-
-  apply(_groupItem('File Manager', 'View'),
-      data.fileManager.view);   
-
-
-  apply(_groupItem('Reports', 'Rejected Lead Report'),
-      data.reports.rejectedLeadReport);   
-  apply(_groupItem('Reports', 'Scheduled Lead Report'),
-      data.reports.scheduledLeadReport);  
-  apply(_groupItem('Reports', 'Staff Report'),
-      data.reports.staffReport);     
-  apply(_groupItem('Reports', 'Total Lead Report'),
-      data.reports.totalLeadReport);       
-  apply(_groupItem('Reports', 'Transfer Lead Report'),
-      data.reports.transferLeadReport);     
-  
-
-  setState(() {}); 
-}
 }

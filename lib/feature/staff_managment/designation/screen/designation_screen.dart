@@ -116,14 +116,17 @@ class _DesignationScreenState extends State<DesignationScreen> {
                             onEnter: (_) => setState(() => isHovering = true),
                             onExit: (_) => setState(() => isHovering = false),
                             child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         MainScreen(selectedIndex: 27),
                                   ),
                                 );
+                                if (context.mounted) {
+    context.read<DesignationCubit>().fetchAll();
+  }
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -184,6 +187,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                             ),
                           );
                         }
+                        
                       },
                       builder: (context, state) {
                         /// 🔄 Loading
@@ -245,8 +249,8 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                   children: [
                                     /// ✏️ Edit
                                     GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
+                                      onTap: () async {
+                                        await Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) => BlocProvider.value(
@@ -259,6 +263,9 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                             ),
                                           ),
                                         );
+                                        if (context.mounted) {
+    context.read<DesignationCubit>().fetchAll();
+  }
                                       },
                                       child: Icon(
                                         Icons.edit_outlined,

@@ -584,29 +584,87 @@ Future<void> transferLead({
 
   // ----------search----------
 
+// Future<void> searchLeads(String query) async {
+//   if (query.trim().isEmpty) {
+//     emit(state.copyWith(
+//       isSearching: false,
+//       searchResults: [],
+//     ));
+//     return;
+//   }
+
+//   if (state.leads.isEmpty) {
+//     await fetchLeads();
+//   }
+
+//   final q = query.toLowerCase();
+//   final results = state.leads.where((lead) =>
+//     lead.clientName?.toLowerCase().contains(q) == true ||
+//     lead.contactNumber?.contains(query) == true ||
+//     lead.email?.toLowerCase().contains(q) == true,
+//   ).toList();
+
+//   emit(state.copyWith(
+//     isSearching: true,
+//     searchResults: results,
+//   ));
+// }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REPLACE the searchLeads() method in add_lead_cubit.dart with this
+// ─────────────────────────────────────────────────────────────────────────────
+
 Future<void> searchLeads(String query) async {
   if (query.trim().isEmpty) {
-    emit(state.copyWith(
-      isSearching: false,
-      searchResults: [],
-    ));
+    emit(state.copyWith(isSearching: false, searchResults: []));
     return;
   }
 
-  if (state.leads.isEmpty) {
-    await fetchLeads();
+  // Show dropdown immediately with loading state
+  emit(state.copyWith(isSearching: true, searchResults: []));
+
+  try {
+    // Use cached leads if already loaded — avoids Firestore call on every keystroke
+    List<AddLeadModel> allLeads = state.leads;
+
+    if (allLeads.isEmpty) {
+      final user = await SessionService().getSavedUser();
+      // Fetch directly into local variable — do NOT call fetchLeads() here
+      // because fetchLeads() emits intermediate states that make state.leads
+      // unreliable to read afterward
+      allLeads = await _leadRepository.fetchLeads(
+        staffId: user?.id ?? '',
+        role: user?.staffType ?? '',
+      );
+      // Cache in state for future keystrokes (instant filter after first load)
+      emit(state.copyWith(
+        listStatus: LeadListStatus.loaded,
+        leads: allLeads,
+        isSearching: true,
+      ));
+    }
+
+    final q = query.toLowerCase();
+    final results = allLeads.where((lead) =>
+      lead.clientName?.toLowerCase().contains(q) == true ||
+      lead.contactNumber?.contains(query) == true ||
+      lead.email?.toLowerCase().contains(q) == true,
+    ).toList();
+
+    emit(state.copyWith(isSearching: true, searchResults: results));
+
+  } catch (e) {
+    emit(state.copyWith(isSearching: false, searchResults: []));
+  }
+}
+
+
+  void updateSelectedDashboardDate(DateTime date) {
+    emit(
+      state.copyWith(
+        selectedDashboardDate: date,
+      ),
+    );
   }
 
-  final q = query.toLowerCase();
-  final results = state.leads.where((lead) =>
-    lead.clientName?.toLowerCase().contains(q) == true ||
-    lead.contactNumber?.contains(query) == true ||
-    lead.email?.toLowerCase().contains(q) == true,
-  ).toList();
-
-  emit(state.copyWith(
-    isSearching: true,
-    searchResults: results,
-  ));
-}
 }
