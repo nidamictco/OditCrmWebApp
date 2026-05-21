@@ -1,8 +1,5 @@
-
-
 import 'package:oxdo/feature/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
-
 
 abstract class StaffState {}
 
@@ -27,14 +24,14 @@ class StaffLoaded extends StaffState {
   StaffLoaded(this.staff);
 }
 
-// ─── Successfully saved/updated ───────────────────────────────────────────────
+// ─── Successfully saved/updated ──────────────────────────────────────────────
 class StaffSaved extends StaffState {
   final String docId;
   final bool isUpdate;
   StaffSaved(this.docId, {this.isUpdate = false});
 }
 
-// ─── Successfully deleted ────────────────────────────────────────────────────
+// ─── Successfully deleted ─────────────────────────────────────────────────────
 class StaffDeleted extends StaffState {
   final String deletedId;
   StaffDeleted(this.deletedId);
@@ -46,6 +43,7 @@ class StaffError extends StaffState {
   StaffError(this.message);
 }
 
+// ─── Notes ───────────────────────────────────────────────────────────────────
 class NotesLoading extends StaffState {}
 
 class NotesLoaded extends StaffState {
@@ -53,5 +51,10 @@ class NotesLoaded extends StaffState {
   NotesLoaded(this.notes);
 }
 
-// in add_staff_state.dart
 class NoteSaved extends StaffState {}
+
+// ─── Profile refresh ──────────────────────────────────────────────────────────
+class StaffProfileRefreshed extends StaffState {
+  final StaffModel staff;
+  StaffProfileRefreshed(this.staff);
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
@@ -35,9 +36,12 @@ import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_cubit.da
 import 'package:oxdo/feature/rightside_menu/lead_stage/screen/lead_stage.dart';
 import 'package:oxdo/feature/rightside_menu/unassigned_settings/lead_distribution_settings.dart';
 import 'package:oxdo/feature/settings/fb_settings/screen/facebook_settings.dart';
+import 'package:oxdo/feature/settings/general_settings/cubit/general_settings_cubit.dart';
+import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/settings/general_settings/screen/general_settings.dart';
 import 'package:oxdo/feature/sidebar/widget/bottom_bar.dart';
 import 'package:oxdo/feature/sidebar/widget/mini_sidebar.dart';
+import 'package:oxdo/feature/sidebar/widget/profile.dart';
 import 'package:oxdo/feature/sidebar/widget/top_bar.dart';
 import 'package:oxdo/feature/lead_managment/leads/screen/add_lead/screen/add_lead.dart';
 import 'package:oxdo/feature/lead_managment/leads/screen/lead_report/lead_report.dart';
@@ -286,7 +290,10 @@ class _MainScreenState extends State<MainScreen> {
       case 16:
         return PermissionGuard(
           hasPermission: perm.canViewStaff,
-          child: BlocProvider(create: (_) => StaffCubit(), child: ViewStaff()),
+          child: BlocProvider(
+            create: (_) => StaffCubit()..fetchAll(),
+            child: ViewStaff(),
+          ),
         );
       case 17:
         return PermissionGuard(
@@ -310,9 +317,22 @@ class _MainScreenState extends State<MainScreen> {
           child: ViewPage(),
         );
       case 20:
-        return PermissionGuard(
+        return PermissionGuard( 
           hasPermission: perm.canViewGeneralSettings,
-          child: GeneralSettings(),
+          child: BlocProvider(
+      create: (context) {
+        // ✅ Get the actual logged-in staff ID from AuthCubit
+        final authState = context.read<AuthCubit>().state;
+        final staffId = authState is Authenticated 
+            ? authState.user.id ?? '' 
+            : '';
+        
+        return GeneralSettingsCubit(
+          GeneralSettingsRepository(staffId: staffId),
+        )..loadSettings();
+      },
+      child: const GeneralSettings(),
+    ),
         );
       case 21:
         return PermissionGuard(
@@ -381,6 +401,11 @@ class _MainScreenState extends State<MainScreen> {
         return BlocProvider(
           create: (_) => StaffCubit(),
           child: ChangePasswordScreen(staff: widget.staff!),
+        );
+      case 33:
+        return BlocProvider(
+          create: (context) => StaffCubit(),
+          child: PersonalProfile(),
         );
       default:
         return const SizedBox();

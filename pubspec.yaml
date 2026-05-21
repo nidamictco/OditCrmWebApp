@@ -57,6 +57,7 @@ dependencies:
   csv: ^6.0.0  
   syncfusion_flutter_datepicker: ^32.2.7
   window_manager: ^0.4.3
+  cloudinary_public: ^0.23.1
 
 dev_dependencies: 
   flutter_test:

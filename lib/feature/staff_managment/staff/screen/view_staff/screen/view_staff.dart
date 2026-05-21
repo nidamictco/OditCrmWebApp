@@ -191,6 +191,9 @@ class _ViewStaffState extends State<ViewStaff> {
               ),
             );
           }
+           if (state is StaffSaved) {
+    context.read<StaffCubit>().fetchAll();
+  }
         },
         builder: (context, state) {
           return SingleChildScrollView(

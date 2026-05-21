@@ -1,162 +1,196 @@
-import 'dart:developer';
 import 'dart:io';
+import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:flutter/foundation.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class StaffRepository {
   final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
 
   StaffRepository({
     FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+  }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // ─── Collection reference ─────────────────────────────────────────────────
+  final cloudinary = CloudinaryPublic('dqwde64fn', 'profile_image');
+
+  // ─── Collection references ────────────────────────────────────────────────
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('STAFF');
-  
-   CollectionReference<Map<String, dynamic>> get _deletedCollection =>
+
+  CollectionReference<Map<String, dynamic>> get _deletedCollection =>
       _firestore.collection('DELETED_STAFF');
 
- 
-  // ─── Upload file to Firebase Storage ─────────────────────────────────────
+  // ─── Upload file to Cloudinary ────────────────────────────────────────────
 
-  /// Uploads [file] to Storage under [folder]/[fileName].
-  /// Returns the public download URL.
-  Future<String> _uploadFile({ 
+  Future<String> uploadFile({
     required File file,
     required String folder,
-    required String fileName,
   }) async {
-    final ref = _storage.ref().child('$folder/$fileName');
-    final task = await ref.putFile(file);
-    return await task.ref.getDownloadURL();
+    try {
+      final CloudinaryResponse res = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          file.path,
+          folder: folder,
+        ),
+      );
+      return res.secureUrl;
+    } catch (e) {
+      throw Exception('Upload failed: $e');
+    }
   }
+
+  /// Upload from bytes — used on Flutter Web where dart:io File is unavailable.
+Future<String> uploadFileBytes({
+  required Uint8List bytes,
+  required String folder,
+  required String fileName,
+}) async {
+  try {
+    final CloudinaryResponse res = await cloudinary.uploadFile(
+      CloudinaryFile.fromBytesData(
+        bytes,
+        identifier: fileName,
+        folder: folder,
+      ),
+    );
+    return res.secureUrl;
+  } catch (e) {
+    throw Exception('Upload failed: $e');
+  }
+}
 
   // ─── Add ──────────────────────────────────────────────────────────────────
 
-  /// Saves a new staff member. Optionally uploads [imageFile] and [documentFile].
-  /// Returns the new Firestore document ID.
   Future<String> addStaff(
-    StaffModel staff, {
-    File? imageFile,
-    File? documentFile,
-  }) async {
-    String? imageUrl;
-    String? documentUrl;
+  StaffModel staff, {
+  File? imageFile,
+  Uint8List? imageBytes,   // ← add
+  String? imageFileName,  // ← add
+  File? documentFile,
+  Uint8List? documentBytes,   // ← add
+  String? documentFileName,   // ← add
+}) async {
+  String? imageUrl = staff.imageUrl;
+  String? documentUrl = staff.documentUrl;
 
-    // Upload image if provided
-    if (imageFile != null) {
-      final ext = imageFile.path.split('.').last;
-      final fileName = 'staff_${DateTime.now().millisecondsSinceEpoch}.$ext';
-      imageUrl = await _uploadFile(
-        file: imageFile,
+  if (kIsWeb) {
+    if (imageBytes != null && imageFileName != null) {
+      imageUrl = await uploadFileBytes(
+        bytes: imageBytes,
         folder: 'staff_images',
-        fileName: fileName,
+        fileName: imageFileName,
       );
-      log('[StaffRepository] Image uploaded: $imageUrl');
     }
-
-    // Upload document if provided
+    if (documentBytes != null && documentFileName != null) {
+      documentUrl = await uploadFileBytes(
+        bytes: documentBytes,
+        folder: 'staff_docs',
+        fileName: documentFileName,
+      );
+    }
+  } else {
+    if (imageFile != null) {
+      imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
+    }
     if (documentFile != null) {
-      final ext = documentFile.path.split('.').last;
-      final fileName = 'doc_${DateTime.now().millisecondsSinceEpoch}.$ext';
-      documentUrl = await _uploadFile(
-        file: documentFile,
-        folder: 'staff_documents',
-        fileName: fileName,
-      );
-      log('[StaffRepository] Document uploaded: $documentUrl');
+      documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
     }
-
-    final finalStaff = staff.copyWith(
-      imageUrl: imageUrl,
-      documentUrl: documentUrl,
-      createdAt: DateTime.now(),
-    );
-
-    final doc = await _collection.add(finalStaff.toMap());
-    log('[StaffRepository] Staff added: ${doc.id}');
-    return doc.id;
   }
 
+  final data = staff.copyWith(
+    imageUrl: imageUrl,
+    documentUrl: documentUrl,
+    createdAt: DateTime.now(),
+  );
+
+  final doc = await _collection.add(data.toMap());
+  log('[StaffRepository] Staff added: ${doc.id}');
+  return doc.id;
+}
   // ─── Update ───────────────────────────────────────────────────────────────
 
-  /// Updates an existing staff document. Optionally re-uploads files.
-  Future<void> updateStaff(
-    StaffModel staff, {
-    File? imageFile,
-    File? documentFile,
-  }) async {
-    assert(staff.id != null, 'ID must not be null for update');
+ Future<void> updateStaff(
+  StaffModel staff, {
+  File? imageFile,
+  Uint8List? imageBytes,
+  String? imageFileName,
+  File? documentFile,
+  Uint8List? documentBytes,
+  String? documentFileName,
+}) async {
+  assert(staff.id != null, 'ID must not be null for update');
 
-    String? imageUrl = staff.imageUrl;
-    String? documentUrl = staff.documentUrl;
+  String? imageUrl = staff.imageUrl;
+  String? documentUrl = staff.documentUrl;
 
-    if (imageFile != null) {
-      final ext = imageFile.path.split('.').last;
-      final fileName = 'staff_${staff.id}.$ext';
-      imageUrl = await _uploadFile(
-        file: imageFile,
+  if (kIsWeb) {
+    if (imageBytes != null && imageFileName != null) {
+      imageUrl = await uploadFileBytes(
+        bytes: imageBytes,
         folder: 'staff_images',
-        fileName: fileName,
+        fileName: imageFileName,
       );
+      log('[StaffRepository] Image uploaded (web): $imageUrl');
     }
-
+    if (documentBytes != null && documentFileName != null) {
+      documentUrl = await uploadFileBytes(
+        bytes: documentBytes,
+        folder: 'staff_docs',
+        fileName: documentFileName,
+      );
+      log('[StaffRepository] Document uploaded (web): $documentUrl');
+    }
+  } else {
+    if (imageFile != null) {
+      imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
+      log('[StaffRepository] Image uploaded: $imageUrl');
+    }
     if (documentFile != null) {
-      final ext = documentFile.path.split('.').last;
-      final fileName = 'doc_${staff.id}.$ext';
-      documentUrl = await _uploadFile(
-        file: documentFile,
-        folder: 'staff_documents',
-        fileName: fileName,
-      );
+      documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
+      log('[StaffRepository] Document uploaded: $documentUrl');
     }
-
-    final updatedStaff = staff.copyWith(
-      imageUrl: imageUrl,
-      documentUrl: documentUrl,
-    );
-
-    await _collection.doc(staff.id).update(updatedStaff.toMap());
-    log('[StaffRepository] Staff updated: ${staff.id}');
   }
 
-Future<void> updateStaffField(String id, Map<String, dynamic> fields) async {
-  await _collection.doc(id).update(fields);
-  log('[StaffRepository] Staff field updated: $id → $fields');
+  await _collection.doc(staff.id).update(
+        staff
+            .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
+            .toMap(),
+      );
+  log('[StaffRepository] Staff updated: ${staff.id}');
 }
 
-  // ─── Delete ───────────────────────────────────────────────────────────────
+  // ─── Update single field ──────────────────────────────────────────────────
+
+  Future<void> updateStaffField(
+      String id, Map<String, dynamic> fields) async {
+    await _collection.doc(id).update(fields);
+    log('[StaffRepository] Staff field updated: $id → $fields');
+  }
+
+  // ─── Soft delete (move to DELETED_STAFF) ─────────────────────────────────
+
+  Future<void> moveToDeleted(StaffModel staff) async {
+    assert(staff.id != null, 'ID must not be null');
+
+    final deletedStaff = staff.copyWith(deletedAt: DateTime.now());
+
+    await _deletedCollection.add(deletedStaff.toMap());
+    await _collection.doc(staff.id).delete();
+
+    log('[StaffRepository] Staff moved to DELETED_STAFF: ${staff.id}');
+  }
+
+  // ─── Hard delete ──────────────────────────────────────────────────────────
 
   Future<void> deleteStaff(String id) async {
     await _collection.doc(id).delete();
     log('[StaffRepository] Staff deleted: $id');
   }
-
-
-Future<void> moveToDeleted(StaffModel staff) async {
-  assert(staff.id != null, 'ID must not be null');
-  
-  final deletedStaff = staff.copyWith(
-    deletedAt: DateTime.now(), 
-  );
-
-  
-  await _deletedCollection.add(deletedStaff.toMap());
-  await _collection.doc(staff.id).delete();
-  
-  log('[StaffRepository] Staff moved to DELETED_STAFF: ${staff.id}');
-}
-
-
-
 
   // ─── Fetch all ────────────────────────────────────────────────────────────
 
@@ -175,69 +209,6 @@ Future<void> moveToDeleted(StaffModel staff) async {
         .map((snap) => snap.docs.map(StaffModel.fromFirestore).toList());
   }
 
-
-
-
-  ///-------------deleted staff-----------
-  Future<String> restoreStaff(
-    StaffModel staff, {
-    File? imageFile,
-    File? documentFile,
-  }) async {
-    String? imageUrl;
-    String? documentUrl;
-
-    // Upload image if provided
-    if (imageFile != null) {
-      final ext = imageFile.path.split('.').last;
-      final fileName = 'staff_${DateTime.now().millisecondsSinceEpoch}.$ext';
-      imageUrl = await _uploadFile(
-        file: imageFile,
-        folder: 'staff_images',
-        fileName: fileName,
-      );
-      log('[StaffRepository] Image uploaded: $imageUrl');
-    }
-
-    // Upload document if provided
-    if (documentFile != null) {
-      final ext = documentFile.path.split('.').last;
-      final fileName = 'doc_${DateTime.now().millisecondsSinceEpoch}.$ext';
-      documentUrl = await _uploadFile(
-        file: documentFile,
-        folder: 'staff_documents',
-        fileName: fileName,
-      );
-      log('[StaffRepository] Document uploaded: $documentUrl');
-    }
-
-    final finalStaff = staff.copyWith(
-      imageUrl: imageUrl,
-      documentUrl: documentUrl,
-      createdAt: DateTime.now(), 
-    );
-
-    final docRef = await _collection.add(finalStaff.toMap());
-    await _deletedCollection.doc(staff.id).delete(); 
-    return docRef.id;
-  }
-
-// ________________fectch deleted staff________________
-
-Future<List<StaffModel>> fetchDeletedStaff() async {
-    final snap =
-        await _deletedCollection.orderBy('createdAt', descending: true).get();
-    return snap.docs.map(StaffModel.fromFirestore).toList();
-  }
-
- //__________deleting deleted staff permanently_______________
-
-Future<void> deleteStaffPermanently(String id) async {
-  await _deletedCollection.doc(id).delete();
-  log('[StaffRepository] Staff deleted permanently: $id');
-}
-
-
   // ─── Fetch single ─────────────────────────────────────────────────────────
 
   Future<StaffModel?> getStaff(String id) async {
@@ -246,44 +217,100 @@ Future<void> deleteStaffPermanently(String id) async {
     return StaffModel.fromFirestore(doc);
   }
 
-  // --------adding note to profile-------------
+  // ─── Restore from deleted ─────────────────────────────────────────────────
+
+  Future<String> restoreStaff(
+    StaffModel staff, {
+    File? imageFile,
+    File? documentFile,
+  }) async {
+    String? imageUrl = staff.imageUrl;
+    String? documentUrl = staff.documentUrl;
+
+    if (imageFile != null) {
+      imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
+      log('[StaffRepository] Image uploaded: $imageUrl');
+    }
+
+    if (documentFile != null) {
+      documentUrl =
+          await uploadFile(file: documentFile, folder: 'staff_docs');
+      log('[StaffRepository] Document uploaded: $documentUrl');
+    }
+
+    final finalStaff = staff.copyWith(
+      imageUrl: imageUrl,
+      documentUrl: documentUrl,
+      createdAt: DateTime.now(),
+    );
+
+    final docRef = await _collection.add(finalStaff.toMap());
+    await _deletedCollection.doc(staff.id).delete();
+
+    log('[StaffRepository] Staff restored: ${docRef.id}');
+    return docRef.id;
+  }
+
+  // ─── Fetch deleted staff ──────────────────────────────────────────────────
+
+  Future<List<StaffModel>> fetchDeletedStaff() async {
+    final snap = await _deletedCollection
+        .orderBy('createdAt', descending: true)
+        .get();
+    return snap.docs.map(StaffModel.fromFirestore).toList();
+  }
+
+  // ─── Permanently delete ───────────────────────────────────────────────────
+
+  Future<void> deleteStaffPermanently(String id) async {
+    await _deletedCollection.doc(id).delete();
+    log('[StaffRepository] Staff deleted permanently: $id');
+  }
+
+  // ─── Notes ────────────────────────────────────────────────────────────────
+
   String _generateNoteId() {
-  final now = DateTime.now();
-  return 'NOTE'
-      '${now.year}'
-      '${now.month.toString().padLeft(2, '0')}'
-      '${now.day.toString().padLeft(2, '0')}'
-      '${now.hour.toString().padLeft(2, '0')}'
-      '${now.minute.toString().padLeft(2, '0')}'
-      '${now.second.toString().padLeft(2, '0')}';
-}
+    final now = DateTime.now();
+    return 'NOTE'
+        '${now.year}'
+        '${now.month.toString().padLeft(2, '0')}'
+        '${now.day.toString().padLeft(2, '0')}'
+        '${now.hour.toString().padLeft(2, '0')}'
+        '${now.minute.toString().padLeft(2, '0')}'
+        '${now.second.toString().padLeft(2, '0')}';
+  }
 
-Future<void> addNote(String staffId, NoteModel note) async {
-  if (staffId.trim().isEmpty) throw ArgumentError('Staff ID cannot be empty.');
+  Future<void> addNote(String staffId, NoteModel note) async {
+    if (staffId.trim().isEmpty) {
+      throw ArgumentError('Staff ID cannot be empty.');
+    }
 
-  final noteId = _generateNoteId();
+    final noteId = _generateNoteId();
 
-  await _collection
-      .doc(staffId)
-      .collection('NOTES')
-      .doc(noteId)
-      .set(note.toFirestore());
+    await _collection
+        .doc(staffId)
+        .collection('NOTES')
+        .doc(noteId)
+        .set(note.toFirestore());
 
-  log('[StaffRepository] Note added for staff: $staffId → $noteId');
-}
+    log('[StaffRepository] Note added for staff: $staffId → $noteId');
+  }
 
-Future<List<NoteModel>> fetchNotes(String staffId) async {
-  final snap = await _collection
-      .doc(staffId)
-      .collection('NOTES')
-      .orderBy('createdAt', descending: true)
-      .get();
-  return snap.docs
-      .map((doc) => NoteModel.fromFirestore(doc))
-      .toList();
-}
-Future<void> deleteNote(String staffId, String noteId) async {
-  await _collection.doc(staffId).collection('NOTES').doc(noteId).delete();
-  log('[StaffRepository] Note deleted: $noteId');
-}
+  Future<List<NoteModel>> fetchNotes(String staffId) async {
+    final snap = await _collection
+        .doc(staffId)
+        .collection('NOTES')
+        .orderBy('createdAt', descending: true)
+        .get();
+    return snap.docs.map((doc) => NoteModel.fromFirestore(doc)).toList();
+  }
+
+  Future<void> deleteNote(String staffId, String noteId) async {
+    await _collection
+        .doc(staffId)
+        .collection('NOTES')
+        .doc(noteId)
+        .delete();
+    log('[StaffRepository] Note deleted: $noteId');
+  }
 }
