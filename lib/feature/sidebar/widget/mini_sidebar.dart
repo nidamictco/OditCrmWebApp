@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/feature/sidebar/widget/hover/sidebar_hover.dart';
 import 'package:sizer/sizer.dart';
 
@@ -14,8 +15,7 @@ class MiniSidebar extends StatelessWidget {
     required this.onItemSelected,
   });
 
- bool _isGroupSelected(List<int> indices) => indices.contains(selectedIndex);
-
+  bool _isGroupSelected(List<int> indices) => indices.contains(selectedIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -29,30 +29,22 @@ class MiniSidebar extends StatelessWidget {
           /// LOGO
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.sp),
-            child: Center(
-              child: Text(
-                "Oxdo Leads",
-                style: AppTextStyle.heading(
-                  size: 11.sp,
-                  weight: FontWeight.w700,
-                ),
-              ),
-            ),
+            child: Center(child: Image.asset(AssetResources.logo, width: 50.w)),
           ),
 
-          SizedBox(height: 5.h),
+          // SizedBox(height: 5.h),
 
           /// DASHBOARD
           HoverSidebarItem(
             icon: Icons.dashboard,
             title: "Dashboard",
-             isExpandable: true,
-             children: ["Dashboard"],
-             isSelected: selectedIndex == 0,
+            isExpandable: true,
+            children: ["Dashboard"],
+            isSelected: selectedIndex == 0,
             onItemTap: (Index) => onItemSelected(0),
-          ), 
+          ),
 
-          /// LEAD MANAGEMENT 
+          /// LEAD MANAGEMENT
           HoverSidebarItem(
             icon: Icons.phone,
             title: "Lead Management",
@@ -67,10 +59,10 @@ class MiniSidebar extends StatelessWidget {
               "Transfer Leads",
               // "Phone Call Log",
             ],
-            isSelected: _isGroupSelected([1, 2,14,4/*,3*/, 13,5, /*6*/]),
-            onItemTap:  (index) {
-              const map = [1, 2,14,4/*,3*/, 13,5, /*6*/];
-              onItemSelected(map[index]); 
+            isSelected: _isGroupSelected([1, 2, 14, 4 /*,3*/, 13, 5 /*6*/]),
+            onItemTap: (index) {
+              const map = [1, 2, 14, 4 /*,3*/, 13, 5 /*6*/];
+              onItemSelected(map[index]);
             },
           ),
 
@@ -79,10 +71,10 @@ class MiniSidebar extends StatelessWidget {
             icon: Icons.settings,
             title: "Settings",
             isExpandable: true,
-            children: ["General Settings", /*"Facebook Settings"*/],
-            isSelected: _isGroupSelected([20, /*21*/]),
-            onItemTap:  (index) {
-              const map = [20, /*21*/];
+            children: ["General Settings" /*"Facebook Settings"*/],
+            isSelected: _isGroupSelected([20 /*21*/]),
+            onItemTap: (index) {
+              const map = [20 /*21*/];
               onItemSelected(map[index]);
             },
           ),
@@ -99,7 +91,7 @@ class MiniSidebar extends StatelessWidget {
               "Deleted Staff",
             ],
             isSelected: _isGroupSelected([15, 16, 17, 18]),
-            onItemTap:(index) {
+            onItemTap: (index) {
               const map = [15, 16, 17, 18];
               onItemSelected(map[index]);
             },
@@ -130,9 +122,9 @@ class MiniSidebar extends StatelessWidget {
               "Scheduled Leads Reports",
               "Rejected leads Reports",
             ],
-            isSelected: _isGroupSelected([22, 23,2, 24, 25]),
-            onItemTap:(index) {
-              const map = [22, 23, 2,24, 25];
+            isSelected: _isGroupSelected([22, 23, 2, 24, 25]),
+            onItemTap: (index) {
+              const map = [22, 23, 2, 24, 25];
               onItemSelected(map[index]);
             },
           ),

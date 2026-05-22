@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
@@ -41,18 +42,13 @@ class _SidebarItemState extends State<SidebarItem> {
 
     // ─── Which lead sub-items are visible ─────────────────────────────────
     final leadChildren = [
-      if (perm.canAddLead)
-        subMenuItem("Add Lead", 1),
-      if (perm.canViewLeadsReport)
-        subMenuItem("Leads Report", 2),
-      if (perm.canImportLeads)
-        subMenuItem("Import Leads", 14),
+      if (perm.canAddLead) subMenuItem("Add Lead", 1),
+      if (perm.canViewLeadsReport) subMenuItem("Leads Report", 2),
+      if (perm.canImportLeads) subMenuItem("Import Leads", 14),
       // if(perm.canViewCallHistory)
       //   subMenuItem("Call History", 3),
-      if (perm.canViewDeletedLeads)
-        subMenuItem("Deleted Leads", 4),
-       if (perm.canViewUnassignedLeads)
-        subMenuItem("Unassigned Leads", 13),
+      if (perm.canViewDeletedLeads) subMenuItem("Deleted Leads", 4),
+      if (perm.canViewUnassignedLeads) subMenuItem("Unassigned Leads", 13),
       if (perm.canTransferLeads || perm.canViewTransferLeads)
         subMenuItem("Transfer Leads", 5),
       // if(perm.canViewPhoneCallLog)
@@ -61,32 +57,23 @@ class _SidebarItemState extends State<SidebarItem> {
 
     // ─── Which staff sub-items are visible ────────────────────────────────
     final staffChildren = [
-      if (perm.canAddStaff)
-        subMenuItem("Add Staff", 15),
-      if (perm.canViewStaff)
-        subMenuItem("View Staff", 16),
-      if (perm.canViewDesignation)
-        subMenuItem("Designation", 17),
-      if (perm.canViewDeletedStaff)
-        subMenuItem("Deleted Staff", 18),
+      if (perm.canAddStaff) subMenuItem("Add Staff", 15),
+      if (perm.canViewStaff) subMenuItem("View Staff", 16),
+      if (perm.canViewDesignation) subMenuItem("Designation", 17),
+      if (perm.canViewDeletedStaff) subMenuItem("Deleted Staff", 18),
     ];
 
     // ─── Which report sub-items are visible ───────────────────────────────
     final reportChildren = [
-      if (perm.canViewStaffReport)
-        subMenuItem("Staff Reports", 22),
-      if (perm.canViewTransferReport)
-        subMenuItem("Transfer Leads Reports", 23),
-      if (perm.canViewTotalReport)
-        subMenuItem("Total Leads Reports", 2),
-      if(perm.canViewLeadSource)
-        subMenuItem("Scheduled Leads Reports", 24),
-      if (perm.canViewRejectedReport)
-        subMenuItem("Rejected Leads Reports", 25),
+      if (perm.canViewStaffReport) subMenuItem("Staff Reports", 22),
+      if (perm.canViewTransferReport) subMenuItem("Transfer Leads Reports", 23),
+      if (perm.canViewTotalReport) subMenuItem("Total Leads Reports", 2),
+      if (perm.canViewLeadSource) subMenuItem("Scheduled Leads Reports", 24),
+      if (perm.canViewRejectedReport) subMenuItem("Rejected Leads Reports", 25),
     ];
 
     return Container(
-      width: 250,
+      width: 240,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -103,15 +90,19 @@ class _SidebarItemState extends State<SidebarItem> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "Oxdo Leads",
-                style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
+            SizedBox(height: 2.h),
+            Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                // child: Text(
+                //   "Oxdo Leads",
+                //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
+                // ),
+                child: Image.asset(AssetResources.logo, width: 8.w),
               ),
             ),
-            const SizedBox(height: 30),
+            //  SizedBox(height: 2.h),
 
             /// DASHBOARD — always visible
             sidebarItem(Icons.dashboard, "Dashboard", 0),
@@ -134,7 +125,7 @@ class _SidebarItemState extends State<SidebarItem> {
                 children: staffChildren,
               ),
 
-             /// SETTINGS
+            /// SETTINGS
             if (perm.canViewGeneralSettings || perm.canViewFacebookSettings)
               _expansionSection(
                 icon: Symbols.settings,
@@ -157,7 +148,7 @@ class _SidebarItemState extends State<SidebarItem> {
             //     children: [subMenuItem("View", 19)],
             //   ),
 
-               /// REPORTS — only show if any child is visible
+            /// REPORTS — only show if any child is visible
             if (reportChildren.isNotEmpty)
               _expansionSection(
                 icon: Symbols.news,
@@ -165,8 +156,6 @@ class _SidebarItemState extends State<SidebarItem> {
                 isSelected: isReportsSelected,
                 children: reportChildren,
               ),
-
-           
           ],
         ),
       ),
@@ -186,7 +175,7 @@ class _SidebarItemState extends State<SidebarItem> {
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         initiallyExpanded: isSelected,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-        childrenPadding: EdgeInsets.zero,
+        childrenPadding: EdgeInsets.only(left: 20),
         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
         leading: Icon(
           icon,
@@ -194,8 +183,8 @@ class _SidebarItemState extends State<SidebarItem> {
         ),
         title: Text(
           title,
-          overflow: TextOverflow.ellipsis, 
-        maxLines: 1, 
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
           style: AppTextStyle.medium(
             size: 14,
             color: isSelected ? AppColors.primary : AppColors.grey,
@@ -212,11 +201,11 @@ class _SidebarItemState extends State<SidebarItem> {
     return InkWell(
       onTap: () => widget.onItemSelected(index),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
             Icon(icon, color: isSelected ? AppColors.primary : AppColors.grey),
-            const SizedBox(width: 10),
+            SizedBox(width: 0.6.w),
             Expanded(
               child: Text(
                 title,
@@ -244,20 +233,17 @@ class _SidebarItemState extends State<SidebarItem> {
           children: [
             Expanded(
               child: Text(
-                '- $title',
+                '-   $title',
                 style: AppTextStyle.small(
                   size: 11.sp,
                   weight: FontWeight.w500,
                   color: isSelected ? AppColors.primary : AppColors.grey,
                 ),
                 textAlign: TextAlign.start,
-                overflow: TextOverflow.ellipsis, // ← add this
+                overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
             ),
-            // if (index == 5 || index == 3) ...[
-            //   Icon(Symbols.crown_sharp, color: AppColors.orange, size: 16, fill: 1),
-            // ],
           ],
         ),
       ),

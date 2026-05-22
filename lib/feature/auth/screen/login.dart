@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
@@ -32,10 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     context.read<AuthCubit>().login(
-          email: _emailController.text,
-          password: _passwordController.text,
-           permissionCubit: context.read<PermissionCubit>(),
-        );
+      email: _emailController.text,
+      password: _passwordController.text,
+      permissionCubit: context.read<PermissionCubit>(),
+    );
   }
 
   @override
@@ -144,24 +145,25 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             // Logo
             Center(
-              child: Column(
-                children: [
-                  Text(
-                    'OXDO',
-                    style: AppTextStyle.heading(
-                      weight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Text(
-                    'Technology Pvt Ltd.',
-                    style: AppTextStyle.heading(color: Colors.grey, size: 14),
-                  ),
-                ],
-              ),
+              // child: Column(
+              //   children: [
+              //     Text(
+              //       'OXDO',
+              //       style: AppTextStyle.heading(
+              //         weight: FontWeight.bold,
+              //         color: Colors.blue,
+              //       ),
+              //     ),
+              //     Text(
+              //       'Technology Pvt Ltd.',
+              //       style: AppTextStyle.heading(color: Colors.grey, size: 14),
+              //     ),
+              //   ],
+              // ),
+              child: Image.asset(AssetResources.logo, width: 10.w),
             ),
 
-            const SizedBox(height: 30),
+            // const SizedBox(height: 30),
 
             // Username
             Text('Email', style: AppTextStyle.medium()),
@@ -204,8 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   backgroundColor: const Color(0xFF1ABC9C),
-                  disabledBackgroundColor:
-                      const Color(0xFF1ABC9C).withOpacity(0.6),
+                  disabledBackgroundColor: const Color(
+                    0xFF1ABC9C,
+                  ).withOpacity(0.6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -285,8 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 : Icons.visibility_off_outlined,
             color: Colors.grey,
           ),
-          onPressed: () =>
-              setState(() => _obscurePassword = !_obscurePassword),
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
         errorBorder: OutlineInputBorder(

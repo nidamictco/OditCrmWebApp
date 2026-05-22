@@ -50,9 +50,6 @@ class _StaffReportsState extends State<StaffReports> {
           .toList();
     }
 
-    // 3. Entries limit
-    // final limit = int.tryParse(_selectedEntries) ?? 10;
-    // return result.take(limit).toList();
     return result;
   }
 
