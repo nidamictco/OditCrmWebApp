@@ -1211,7 +1211,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             ),
                           ),
                           const SizedBox(width: 10),
-                          const _PriorityBadge(label: 'Lead priority: High'),
+                           _PriorityBadge(label: 'Lead priority: ${widget.currentLead.priority}'),
                           const Spacer(),
                           _headerIcon(Icons.edit_outlined, onTap: () {}),
                           const SizedBox(width: 10),
@@ -1242,19 +1242,19 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,
-                            'Karuvarkund, Malappuram',
+                            widget.currentLead.address,
                           ),
                           _divider(),
-                          _metaText('Create Date : 18 Apr, 2026'),
+                          _metaText('Create Date : ${DateFormat("dd MMM, yyyy").format(widget.currentLead.createdAt??DateTime.now())}'),
                           _divider(),
-                          _metaText('category :'),
+                          _metaText('category : ${widget.currentLead.leadCategory}'),
                           _divider(),
-                          _metaText('Staff : Shahid'),
+                          _metaText('Staff : ${widget.currentLead.assignedStaff}'),
                           _divider(),
-                          _metaText('Cost : 0'),
-                          _divider(),
-                          const _StatusBadge(
-                            label: 'Rejected',
+                          // _metaText('Cost : 0'),
+                          // _divider(),
+                           _StatusBadge(
+                            label: widget.currentLead.leadStage,
                             color: Color(0xFF2196F3),
                           ),
                         ],
@@ -1264,7 +1264,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                     const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _metaText('Lead Source : Ads'),
+                      child: _metaText('Lead Source : ${widget.currentLead.leadSource}'),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -3175,7 +3175,7 @@ class _ActivityItem extends StatelessWidget {
               ),
               Container(
                 width: 1.5,
-                height: 40,
+                height: 50,
                 color: const Color(0xFFE0E0E0),
               ),
             ],
@@ -3204,30 +3204,30 @@ class _ActivityItem extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                // Show value change pill if present
-                if (activity.previousValue != null &&
-                    activity.newValue != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _ValueChip(
-                        label: activity.previousValue!,
-                        color: const Color(0xFFEEEEEE),
-                        textColor: const Color(0xFF888888),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        child: Icon(Icons.arrow_forward,
-                            size: 14, color: Color(0xFF888888)),
-                      ),
-                      _ValueChip(
-                        label: activity.newValue!,
-                        color: const Color(0xFFE3F2FD),
-                        textColor: const Color(0xFF1565C0),
-                      ),
-                    ],
-                  ),
-                ],
+                /// Show value change pill if present
+                // if (activity.previousValue != null &&
+                //     activity.newValue != null) ...[
+                //   const SizedBox(height: 6),
+                //   Row(
+                //     children: [
+                //       _ValueChip(
+                //         label: activity.previousValue!,
+                //         color: const Color(0xFFEEEEEE),
+                //         textColor: const Color(0xFF888888),
+                //       ),
+                //       const Padding(
+                //         padding: EdgeInsets.symmetric(horizontal: 6),
+                //         child: Icon(Icons.arrow_forward,
+                //             size: 14, color: Color(0xFF888888)),
+                //       ),
+                //       _ValueChip(
+                //         label: activity.newValue!,
+                //         color: const Color(0xFFE3F2FD),
+                //         textColor: const Color(0xFF1565C0),
+                //       ),
+                //     ],
+                //   ),
+                // ],
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd-MM-yyyy hh:mm a').format(activity.changedAt),
@@ -3363,6 +3363,7 @@ class _ValueChip extends StatelessWidget {
 //   }
 // }
 
+///
 // ─────────────────────────────────────────────────────────
 // Tab 3 – Details content (shrink-wraps inside ScrollView)
 // ─────────────────────────────────────────────────────────
@@ -3401,21 +3402,22 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
-          const _DetailGrid(
+           _DetailGrid(
             rows: [
-              ['Phone', '+917902207315', 'Address', 'Cheruplasheri'],
-              ['State', '', 'District', ''],
-              ['Post office', '', 'Pincode', ''],
-              ['Whatsapp_number', '+917902207315', 'Email', ''],
+              ['Phone', (lead.contactNumber), 'Address', (lead.address)],
+              ['State', (lead.state), 'District', (lead.district)],
+              ['Post office', lead.postOffice, 'Pincode', lead.pinCode],
+              ['Whatsapp_number', (lead.whatsappNumber), 'Email', lead.email],
               [
                 'Created Date',
-                '25 Apr, 2026',
+                DateFormat('dd-MM-yyyy hh:mm').format(lead.createdAt!),
                 'Created By',
-                'Oxdo technologies pvt ltd',
+                lead.createdBy,
               ],
-              ['Lead Category', 'May Visit', 'Assigned Staff', 'Shahid'],
-              ['Cost', '0', 'Call Status', 'Follow Up'],
-              ['Products', '', '', ''],
+              ['Lead Category', lead.leadCategory, 'Assigned Staff', lead.assignedStaff],
+              // ['Cost', '0',
+                ['Call Status', lead.callResult??"-", 'Lead Stage', lead.leadStage,],
+              // ['Products', '', '', ''],
             ],
           ),
           const SizedBox(height: 8),
@@ -3423,10 +3425,10 @@ class _DetailsTabContent extends StatelessWidget {
             labelStyle: labelStyle,
             valueStyle: valueStyle,
             left: 'Lead Method',
-            leftVal: 'Direct Entry',
+            leftVal: lead.leadSource,
             right: 'Remarks',
             rightVal:
-                'planning to visit on 4th may with friends, some friends are in different places. will try to visit before 4th otherwise will come on 4th',
+                lead.remarks.isEmpty ? '-' : '-${lead.remarks}',
           ),
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
