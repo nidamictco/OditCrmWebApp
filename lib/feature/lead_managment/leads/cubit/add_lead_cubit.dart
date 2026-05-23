@@ -14,6 +14,8 @@ import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart
 import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
 
+import '../../follow_up/data/activity_repo.dart';
+
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
   final ILeadCategoryRepository _categoryRepository;
@@ -240,28 +242,69 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (state.isUpdating) return;
     emit(state.copyWith(isUpdating: true, clearError: true));
     try {
+      // ✅ Capture previous state before overwriting
+      final previous = state.leads.firstWhere(
+            (l) => l.id == id,
+        orElse: () => updated, // fallback: no diff will be logged
+      );
+
       await _leadRepository.updateLead(id, updated);
+
+      // ✅ Log what changed
+      final user = await SessionService().getSavedUser();
+      await _leadRepository.logLeadUpdated(
+        leadId: id,
+        changedByName: user?.name ?? '',
+        changedById: user?.id ?? '',
+        previous: previous,
+        updated: updated,
+      );
+
       final updatedList = state.leads.map((l) {
         return l.id == id ? updated.copyWith(id: id) : l;
       }).toList();
-      emit(
-        state.copyWith(
-          isUpdating: false,
-          leads: updatedList,
-          successMessage: 'Lead updated successfully.',
-          status: AddLeadStatus.success,
-        ),
-      );
+
+      emit(state.copyWith(
+        isUpdating: false,
+        leads: updatedList,
+        successMessage: 'Lead updated successfully.',
+        status: AddLeadStatus.success,
+      ));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isUpdating: false,
-          status: AddLeadStatus.failure,
-          errorMessage: _friendlyError(e),
-        ),
-      );
+      emit(state.copyWith(
+        isUpdating: false,
+        status: AddLeadStatus.failure,
+        errorMessage: _friendlyError(e),
+      ));
     }
   }
+
+  // Future<void> updateLead(String id, AddLeadModel updated) async {
+  //   if (state.isUpdating) return;
+  //   emit(state.copyWith(isUpdating: true, clearError: true));
+  //   try {
+  //     await _leadRepository.updateLead(id, updated);
+  //     final updatedList = state.leads.map((l) {
+  //       return l.id == id ? updated.copyWith(id: id) : l;
+  //     }).toList();
+  //     emit(
+  //       state.copyWith(
+  //         isUpdating: false,
+  //         leads: updatedList,
+  //         successMessage: 'Lead updated successfully.',
+  //         status: AddLeadStatus.success,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     emit(
+  //       state.copyWith(
+  //         isUpdating: false,
+  //         status: AddLeadStatus.failure,
+  //         errorMessage: _friendlyError(e),
+  //       ),
+  //     );
+  //   }
+  // }
 
 
  // ── Submit (add) ──────────────────────────────────────────────────────────
@@ -335,6 +378,18 @@ Future<void> submitLead({
 
 
     final newId = await _leadRepository.addLead(lead);
+
+    // ✅ Log lead creation activity
+    await _leadRepository.logLeadCreated(
+      leadId: newId,
+      createdByName: user?.name ?? '',
+      createdById: user?.id ?? '',
+      assignedTo: resolvedStaffName,
+      leadStage: lead.leadStage,
+      priority: lead.priority,
+      leadCategory: lead.leadCategory,
+    );
+
     if (isClosed) return;
     final newLead = lead.copyWith(id: newId);
 

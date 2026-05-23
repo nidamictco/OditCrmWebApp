@@ -39,6 +39,23 @@ abstract class IAddLeadRepository {
     required String role,
   });
   Future<void> transferLead(String leadId, TransferDetails transfer);
+  Future<void> _logActivity(String leadId, ActivityModel activity);
+  Future<void> logLeadCreated({
+    required String leadId,
+    required String createdByName,
+    required String createdById,
+    required String assignedTo,
+    required String leadStage,
+    required String priority,
+    required String leadCategory,
+  });
+  Future<void> logLeadUpdated({
+    required String leadId,
+    required String changedByName,
+    required String changedById,
+    required AddLeadModel previous,
+    required AddLeadModel updated,
+  });
 }
  
 class AddLeadRepository implements IAddLeadRepository {
@@ -760,6 +777,77 @@ Future<void> transferLead(String leadId, TransferDetails transfer) async {
     );
   }
 
+  @override
+  Future<void> _logActivity(String leadId, ActivityModel activity) async {
+    await _collection
+        .doc(leadId)
+        .collection('ACTIVITIES')
+        .doc()
+        .set(activity.toFirestore());
+  }
 
+  Future<void> logLeadCreated({
+    required String leadId,
+    required String createdByName,
+    required String createdById,
+    required String assignedTo,
+    required String leadStage,
+    required String priority,
+    required String leadCategory,
+  }) async {
+    await _logActivity(
+      leadId,
+      ActivityModel(
+        id: '',
+        type: ActivityType.leadCreated,
+        changedBy: createdByName,
+        changedById: createdById,
+        changedAt: DateTime.now(),
+        previousValue: null,
+        newValue: leadStage,
+        description: 'Lead created. Assigned to $assignedTo.'
+            '${leadStage.isNotEmpty ? ' Stage: $leadStage.' : ''}'
+            '${priority.isNotEmpty ? ' Priority: $priority.' : ''}'
+            '${leadCategory.isNotEmpty ? ' Category: $leadCategory.' : ''}',
+      ),
+    );
+  }
+
+  Future<void> logLeadUpdated({
+    required String leadId,
+    required String changedByName,
+    required String changedById,
+    required AddLeadModel previous,
+    required AddLeadModel updated,
+  }) async {
+    final now = DateTime.now();
+    final batch = FirebaseFirestore.instance.batch();
+    final activityRef = _collection.doc(leadId).collection('ACTIVITIES');
+
+    void log(ActivityType type, String field, String prev, String next, String desc) {
+      if (prev == next || next.isEmpty) return;
+      batch.set(activityRef.doc(), ActivityModel(
+        id: '',
+        type: type,
+        changedBy: changedByName,
+        changedById: changedById,
+        changedAt: now,
+        previousValue: prev,
+        newValue: next,
+        description: desc,
+      ).toFirestore());
+    }
+
+    log(ActivityType.statusChanged,   'stage',    previous.leadStage,    updated.leadStage,    'Status changed from ${previous.leadStage} to ${updated.leadStage}.');
+    log(ActivityType.categoryChanged, 'category', previous.leadCategory, updated.leadCategory, 'Category updated from ${previous.leadCategory} to ${updated.leadCategory}.');
+    log(ActivityType.priorityChanged, 'priority', previous.priority,     updated.priority,     'Priority updated from ${previous.priority} to ${updated.priority}.');
+    log(ActivityType.staffAssigned,   'staff',    previous.assignedStaff,updated.assignedStaff,'Assigned staff changed from ${previous.assignedStaff} to ${updated.assignedStaff}.');
+    // log(ActivityType.costUpdated,     'cost',     previous.cost ?? '',   updated.cost ?? '',   'Cost updated from ${previous.cost} to ${updated.cost}.');
+    log(ActivityType.remarkUpdated,   'remarks',  previous.remarks ?? '', updated.remarks ?? '', 'Remark updated.');
+
+    // Only commit if there's at least one change
+    final ops = batch; // batch will be a no-op if nothing was added
+    await ops.commit();
+  }
 
 } 
