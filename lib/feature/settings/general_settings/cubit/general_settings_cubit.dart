@@ -1,19 +1,33 @@
 import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oxdo/core/shared_preference/session_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:oxdo/feature/settings/general_settings/cubit/general_settings_state.dart';
 import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
-import 'general_settings_state.dart';
 
 class GeneralSettingsCubit extends Cubit<GeneralSettingsState> {
-  final GeneralSettingsRepository _repo;
+  GeneralSettingsRepository? _repo;
 
-  GeneralSettingsCubit(this._repo) : super(const GeneralSettingsInitial());
+  GeneralSettingsCubit() : super(const GeneralSettingsInitial());
 
-  // ─── Called once when screen opens ────────────────────────
-  Future<void> loadSettings() async {
+  // ── Called from screen — resolves staffId at runtime ──────────────────────
+  Future<void> loadForCurrentUser() async {
     emit(const GeneralSettingsLoading());
     try {
-      final settings = await _repo.fetchSettings();
+      final user = await SessionService().getSavedUser();
+      final staffId = user?.id ?? '';
+
+      log('[GeneralSettingsCubit] staffId = "$staffId"');
+
+      if (staffId.isEmpty) {
+        emit(GeneralSettingsError('User not found. Please log in again.'));
+        return;
+      }
+
+      _repo = GeneralSettingsRepository(staffId: staffId);
+      final settings = await _repo!.fetchSettings();
       log('[GeneralSettingsCubit] Loaded: ${settings.toMap()}');
       emit(GeneralSettingsLoaded(settings));
     } catch (e) {
@@ -22,36 +36,31 @@ class GeneralSettingsCubit extends Cubit<GeneralSettingsState> {
     }
   }
 
-  // ─── Called on every switch toggle ────────────────────────
   Future<void> toggleField(String field, bool value) async {
-    // Get current settings from whichever live state we're in
-    final current = _currentSettings();
-    if (current == null) {
-      log('[GeneralSettingsCubit] toggleField called but no settings loaded yet');
+     log('[GeneralSettingsCubit] toggleField called: $field = $value'); // ← ADD
+  log('[GeneralSettingsCubit] _repo = $_repo');                       // ← ADD
+  
+    if (_repo == null) {
+      log('[GeneralSettingsCubit] _repo is null — loadForCurrentUser not called yet');
       return;
     }
 
-    // 1️⃣ Apply toggle locally
-    final updated = _applyToggle(current, field, value);
-    log('[GeneralSettingsCubit] Toggling $field → $value');
+    final current = _currentSettings();
+    if (current == null) return;
 
-    // 2️⃣ Update UI instantly (optimistic)
-    emit(GeneralSettingsUpdating(updated));
+    final updated = _applyToggle(current, field, value);
+    emit(GeneralSettingsLoaded(updated));
 
     try {
-      // 3️⃣ Save to Firebase
-      await _repo.updateField(field, value);
-      log('[GeneralSettingsCubit] Saved $field = $value to Firestore ✅');
-      emit(GeneralSettingsLoaded(updated));
+      await _repo!.updateField(field, value);
+      log('[GeneralSettingsCubit] Saved $field = $value ✅');
     } catch (e) {
-      // 4️⃣ Rollback if Firebase fails
       log('[GeneralSettingsCubit] Save failed, rolling back: $e');
       emit(GeneralSettingsLoaded(current));
       emit(GeneralSettingsError('Failed to save: $e'));
     }
   }
 
-  // ─── Helpers ───────────────────────────────────────────────
   GeneralSettingsModel? _currentSettings() {
     final s = state;
     if (s is GeneralSettingsLoaded) return s.settings;
@@ -59,8 +68,7 @@ class GeneralSettingsCubit extends Cubit<GeneralSettingsState> {
     return null;
   }
 
-  GeneralSettingsModel _applyToggle(
-      GeneralSettingsModel m, String field, bool value) {
+  GeneralSettingsModel _applyToggle(GeneralSettingsModel m, String field, bool value) {
     return m.copyWith(
       newLead:      field == 'newLead'      ? value : null,
       facebookLead: field == 'facebookLead' ? value : null,
