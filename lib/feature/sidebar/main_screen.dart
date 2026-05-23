@@ -62,7 +62,7 @@ import 'package:oxdo/feature/staff_managment/designation/screen/designation_scre
 import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/psswrd.dart';
 import 'package:oxdo/feature/staff_managment/staff/screen/view_staff/screen/view_staff.dart';
 
-import '../dashboard/follow_up_details_screen.dart';
+import '../lead_managment/follow_up/screens/follow_up_details_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int selectedIndex;

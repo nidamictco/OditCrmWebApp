@@ -434,7 +434,7 @@ Future<void> assignStaff({
 
   // --------------add follow up--------------------------------
 
-  Future<void> submitFollowUp({
+  Future<void> submitFollowUpOld({
   required String leadId,
   required String leadName,
   required String leadWhatsappNo,
@@ -493,6 +493,78 @@ Future<void> assignStaff({
     ));
   }
 }
+
+  Future<void> submitFollowUp({
+    required String leadId,
+    required String leadName,
+    required String leadWhatsappNo,
+    required String leadWhatsappDialCode,
+    required DateTime calledDate,
+    required DateTime nextFollowUpDate,
+    required String calledStatus,
+    required String remarks,
+    // Add these three — pass current lead values so repo can diff
+    String previousStage = '',
+    String previousCategory = '',
+    String previousPriority = '',
+  }) async {
+    if (state.isSubmitting) return;
+
+    if (calledStatus.trim().isEmpty) {
+      emit(state.copyWith(
+          errorMessage: 'Call status is required.', clearSuccess: true));
+      return;
+    }
+
+    emit(state.copyWith(isSubmitting: true, clearError: true));
+
+    try {
+      final user = await SessionService().getSavedUser();
+
+      final followUp = FollowUpModel(
+        leadId: leadId,
+        leadName: leadName,
+        leadWhatsappNo: leadWhatsappNo,
+        leadWhatsappDialCode: leadWhatsappDialCode,
+        calledDate: calledDate,
+        nextFollowUpDate: nextFollowUpDate,
+        calledStatus: calledStatus,
+        leadStage: state.selectedLeadStage ?? '',
+        leadCategory: state.selectedCategory ?? '',
+        priority: state.selectedPriority ?? '',
+        remarks: remarks,
+        createdById: user?.id ?? '',
+        createdAt: DateTime.now(),
+      );
+
+      await _leadRepository.addFollowUp(
+        leadId,
+        followUp,
+        previousStage: previousStage,
+        previousCategory: previousCategory,
+        previousPriority: previousPriority,
+        changedByName: user?.name ?? '',
+        changedById: user?.id ?? '',
+      );
+
+      emit(state.copyWith(
+        isSubmitting: false,
+        status: AddLeadStatus.success,
+        successMessage: 'Follow-up added successfully.',
+        clearError: true,
+        clearCategory: true,
+        clearPriority: true,
+        clearLeadStage: true,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        status: AddLeadStatus.failure,
+        errorMessage: _friendlyError(e),
+        clearSuccess: true,
+      ));
+    }
+  }
 
 // ______transfer______________________
 
