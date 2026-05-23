@@ -58,6 +58,8 @@ dependencies:
   syncfusion_flutter_datepicker: ^32.2.7
   window_manager: ^0.4.3
   cloudinary_public: ^0.23.1
+  firebase_messaging: ^16.2.2
+  universal_html: ^2.3.0
 
 dev_dependencies: 
   flutter_test:

@@ -7,11 +7,11 @@ import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 enum ImportLeadsStatus {
   initial,
-  loading,   // fetching dropdown data
-  ready,     // dropdowns loaded, form usable
-  importing, // CSV import in progress
-  success,   // import finished successfully
-  failure,   // import or load failed
+  loading,  
+  ready,    
+  importing, 
+  success,  
+  failure, 
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────

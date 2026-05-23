@@ -18,19 +18,31 @@ class GeneralSettingsLoading extends GeneralSettingsState {
 
 class GeneralSettingsLoaded extends GeneralSettingsState {
   final GeneralSettingsModel settings;
-  const GeneralSettingsLoaded(this.settings);
+  final DateTime _ts; // ← forces inequality on every emit
+
+  GeneralSettingsLoaded(this.settings) : _ts = DateTime.now();
 
   @override
-  List<Object?> get props => [settings];
+  List<Object?> get props => [settings, _ts]; // ← _ts always differs
 }
 
 class GeneralSettingsUpdating extends GeneralSettingsState {
   final GeneralSettingsModel settings;
-  const GeneralSettingsUpdating(this.settings);
+  final DateTime _ts;
+
+  GeneralSettingsUpdating(this.settings) : _ts = DateTime.now();
 
   @override
-  List<Object?> get props => [settings];
+  List<Object?> get props => [settings, _ts];
 }
+
+// class GeneralSettingsUpdating extends GeneralSettingsState {
+//   final GeneralSettingsModel settings;
+//   const GeneralSettingsUpdating(this.settings);
+
+//   @override
+//   List<Object?> get props => [settings];
+// }
 
 class GeneralSettingsError extends GeneralSettingsState {
   final String message;

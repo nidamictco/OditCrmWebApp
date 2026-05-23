@@ -1,5 +1,6 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
@@ -22,6 +23,16 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    
+  // await FirebaseMessaging.instance.requestPermission(  alert: true,
+  //     badge: true,
+  //     sound: true,);
+  final settings =
+    await FirebaseMessaging.instance.requestPermission();
+
+print(
+  'Notification permission: ${settings.authorizationStatus}',
+);
     runApp(const OxdoApp());
   } catch (e) {
     // Fallback UI or log error
@@ -63,9 +74,11 @@ class OxdoApp extends StatelessWidget {
             localizationsDelegates: const [CountryLocalizations.delegate],
             debugShowCheckedModeBanner: false,
             title: 'Oxdo',
-            theme: ThemeData(
-              colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-            ),
+           theme: ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: Colors.deepPurple,
+  ),
+),
             home: AuthGate(),
           );
         },

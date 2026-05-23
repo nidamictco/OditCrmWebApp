@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
+import 'package:oxdo/feature/notification/cubit/notification_cubit.dart';
+import 'package:oxdo/feature/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/time_line.dart';
 import 'package:oxdo/feature/rightside_menu/call_settings.dart/cubit/call_settings_cubit.dart';
@@ -39,6 +42,7 @@ import 'package:oxdo/feature/settings/fb_settings/screen/facebook_settings.dart'
 import 'package:oxdo/feature/settings/general_settings/cubit/general_settings_cubit.dart';
 import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/settings/general_settings/screen/general_settings.dart';
+import 'package:oxdo/feature/notification/screen/notification.dart';
 import 'package:oxdo/feature/sidebar/widget/bottom_bar.dart';
 import 'package:oxdo/feature/sidebar/widget/mini_sidebar.dart';
 import 'package:oxdo/feature/sidebar/widget/profile.dart';
@@ -90,6 +94,8 @@ class _MainScreenState extends State<MainScreen> {
   bool isSidebarOpen = true;
   AddLeadModel? _editLead;
 
+  late final NotificationCubit _notificationCubit;
+
   // DesignationModel? designation;
 
   @override
@@ -97,6 +103,19 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     selectedIndex = widget.selectedIndex;
     _editLead = widget.lead;
+
+     _notificationCubit = NotificationCubit(NotificationRepo());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final user = await SessionService().getSavedUser();
+      if (!mounted) return;
+      _notificationCubit.load(user?.id ?? '');
+    });
+  }
+
+   @override
+  void dispose() {
+    _notificationCubit.close(); 
+    super.dispose();
   }
 
   void toggleSidebar() {
@@ -317,22 +336,22 @@ class _MainScreenState extends State<MainScreen> {
           child: ViewPage(),
         );
       case 20:
-        return PermissionGuard( 
+        return PermissionGuard(
           hasPermission: perm.canViewGeneralSettings,
           child: BlocProvider(
-      create: (context) {
-        // ✅ Get the actual logged-in staff ID from AuthCubit
-        final authState = context.read<AuthCubit>().state;
-        final staffId = authState is Authenticated 
-            ? authState.user.id ?? '' 
-            : '';
-        
-        return GeneralSettingsCubit(
-          GeneralSettingsRepository(staffId: staffId),
-        )..loadSettings();
-      },
-      child: const GeneralSettings(),
-    ),
+            create: (context) {
+              // ✅ Get the actual logged-in staff ID from AuthCubit
+              final authState = context.read<AuthCubit>().state;
+              final staffId = authState is Authenticated
+                  ? authState.user.id ?? ''
+                  : '';
+
+              return GeneralSettingsCubit(
+                GeneralSettingsRepository(staffId: staffId),
+              )..loadSettings();
+            },
+            child: const GeneralSettings(),
+          ),
         );
       case 21:
         return PermissionGuard(
@@ -407,6 +426,11 @@ class _MainScreenState extends State<MainScreen> {
           create: (context) => StaffCubit(),
           child: PersonalProfile(),
         );
+      case 34:
+        return  BlocProvider.value(        // ← .value, not create
+    value: _notificationCubit,
+    child: NotificationScreen(),
+  );
       default:
         return const SizedBox();
     }
@@ -438,8 +462,11 @@ class _MainScreenState extends State<MainScreen> {
           Expanded(
             child: Column(
               children: [
-                BlocProvider(
-                  create: (_) => AddLeadCubit()..fetchLeads(),
+                MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => AddLeadCubit()..fetchLeads()),
+                    BlocProvider.value(value: _notificationCubit),
+                  ],
                   child: TopBar(
                     isSidebarOpen: isSidebarOpen,
                     onMenuTap: toggleSidebar,

@@ -548,7 +548,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     final lead = entry.value;
                                     final serial =
                                         (_currentPage - 1) * limit + index + 1;
-                                    return [
+                                    return [ 
                                       Text(
                                         '${serial}',
                                         style: AppTextStyle.medium(),
