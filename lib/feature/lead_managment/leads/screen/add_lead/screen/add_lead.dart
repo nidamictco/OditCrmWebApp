@@ -91,18 +91,31 @@ class _AddLeadPageState extends State<AddLeadPage> {
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   StaffModel? _currentUser;
 
-  Future<void> _loadCurrentUser() async {
-    final user = await SessionService().getSavedUser();
-    // setState(() => _currentUser = user);
-     setState(() {
+ Future<void> _loadCurrentUser() async {
+  final user = await SessionService().getSavedUser();
+  setState(() {
     _currentUser = user;
-    // ✅ Non-admin staff: their name is auto-assigned (read-only field shows it)
-    // Admin: set _selectStaff default to their own name
     if (user != null && user.staffType == 'Admin') {
       _selectStaff = user.name;
     }
   });
+
+
+  if (user != null && user.staffType != 'Admin') {
+    context.read<AddLeadCubit>().selectAssignedStaff(
+      name: user.name ?? '',
+      id: user.id ?? '',
+    );
   }
+
+  // ✅ FIX: admin default — also seed their own id as default selection
+  if (user != null && user.staffType == 'Admin') {
+    context.read<AddLeadCubit>().selectAssignedStaff(
+      name: user.name ?? '',
+      id: user.id ?? '',
+    );
+  }
+}
 
   @override
   void initState() {
@@ -111,12 +124,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
     context.read<AddLeadCubit>().initialize();
     context.read<AddLeadCubit>().fetchStaff();
     // if (_isEditMode) _prefillIfEditing(widget.lead!);
-     if (_isEditMode) {
-    _prefillIfEditing(widget.lead!);
-  } else {
-    _leadPriority = 'Normal';
-    _leadStage = 'NEW';
-  }
+    if (_isEditMode) {
+      _prefillIfEditing(widget.lead!);
+    } else {
+      _leadPriority = 'Normal';
+      _leadStage = 'NEW';
+    }
   }
 
   void _prefillIfEditing(AddLeadModel lead) {
@@ -251,6 +264,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         additionalFieldValues: additionalValues,
       );
     }
+
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 2)),
@@ -684,8 +698,23 @@ class _AddLeadPageState extends State<AddLeadPage> {
                               showIcon: true,
                               items: staffNames,
                               selectedValue: _selectStaff,
+                              // onChanged: (v) {
+                              //   setState(() => _selectStaff = v);
+                              // },
                               onChanged: (v) {
-                                setState(() => _selectStaff = v);
+                                setState(() {
+                                  _selectStaff = v;
+                                });
+
+                                final selected = staffList.firstWhere(
+                                  (e) => e.name == v,
+                                );
+
+                                cubit.selectAssignedStaff(
+                                  name: selected.name,
+
+                                  id: selected.id ?? '',
+                                );
                               },
                               label: 'SelectStaff',
                               hint: 'Select Staff',

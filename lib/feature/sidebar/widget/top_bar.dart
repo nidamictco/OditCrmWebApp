@@ -9,6 +9,8 @@ import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/notification/cubit/notification_cubit.dart';
+import 'package:oxdo/feature/notification/cubit/notification_state.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/sidebar/widget/hover/hover_icon.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
@@ -128,8 +130,11 @@ class _TopBarState extends State<TopBar> {
                             color: const Color(0xfff3f3f9),
                             child: Row(
                               children: [
-                                Icon(Icons.search,
-                                    size: 14.sp, color: AppColors.grey),
+                                Icon(
+                                  Icons.search,
+                                  size: 14.sp,
+                                  color: AppColors.grey,
+                                ),
                                 SizedBox(width: 0.5.w),
                                 Text(
                                   'LEADS',
@@ -149,20 +154,27 @@ class _TopBarState extends State<TopBar> {
                               state.listStatus == LeadListStatus.loading)
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 1.w, vertical: 2.h),
+                                horizontal: 1.w,
+                                vertical: 2.h,
+                              ),
                               child: Row(
                                 children: [
                                   SizedBox(
                                     width: 14,
                                     height: 14,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColors.grey),
+                                      strokeWidth: 2,
+                                      color: AppColors.grey,
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text('Searching...',
-                                      style: AppTextStyle.small(
-                                          size: 11.sp, color: AppColors.grey)),
+                                  Text(
+                                    'Searching...',
+                                    style: AppTextStyle.small(
+                                      size: 11.sp,
+                                      color: AppColors.grey,
+                                    ),
+                                  ),
                                 ],
                               ),
                             )
@@ -170,15 +182,24 @@ class _TopBarState extends State<TopBar> {
                           else if (state.searchResults.isEmpty)
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 1.w, vertical: 2.h),
+                                horizontal: 1.w,
+                                vertical: 2.h,
+                              ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.search_off,
-                                      color: AppColors.grey, size: 16),
+                                  Icon(
+                                    Icons.search_off,
+                                    color: AppColors.grey,
+                                    size: 16,
+                                  ),
                                   const SizedBox(width: 8),
-                                  Text('No leads found',
-                                      style: AppTextStyle.small(
-                                          size: 11.sp, color: AppColors.grey)),
+                                  Text(
+                                    'No leads found',
+                                    style: AppTextStyle.small(
+                                      size: 11.sp,
+                                      color: AppColors.grey,
+                                    ),
+                                  ),
                                 ],
                               ),
                             )
@@ -189,8 +210,10 @@ class _TopBarState extends State<TopBar> {
                               child: ListView.separated(
                                 shrinkWrap: true,
                                 padding: EdgeInsets.zero,
-                                itemCount:
-                                    state.searchResults.length.clamp(0, 8),
+                                itemCount: state.searchResults.length.clamp(
+                                  0,
+                                  8,
+                                ),
                                 separatorBuilder: (_, __) => Divider(
                                   height: 1,
                                   indent: 1.w,
@@ -217,16 +240,20 @@ class _TopBarState extends State<TopBar> {
                                     hoverColor: Colors.grey.shade50,
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: 1.w, vertical: 0.8.h),
+                                        horizontal: 1.w,
+                                        vertical: 0.8.h,
+                                      ),
                                       child: Row(
                                         children: [
                                           CircleAvatar(
                                             radius: 2.2.h,
                                             backgroundColor:
                                                 Colors.grey.shade200,
-                                            child: Icon(Icons.person,
-                                                size: 11.sp,
-                                                color: Colors.grey.shade500),
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 11.sp,
+                                              color: Colors.grey.shade500,
+                                            ),
                                           ),
                                           SizedBox(width: 0.8.w),
                                           Expanded(
@@ -235,7 +262,7 @@ class _TopBarState extends State<TopBar> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  lead.clientName ?? '',
+                                                  lead.clientName,
                                                   style: AppTextStyle.small(
                                                     size: 11.sp,
                                                     color: AppColors.black,
@@ -246,7 +273,7 @@ class _TopBarState extends State<TopBar> {
                                                 ),
                                                 SizedBox(height: 0.2.h),
                                                 Text(
-                                                  lead.contactNumber ?? '',
+                                                  lead.contactNumber,
                                                   style: AppTextStyle.small(
                                                     size: 10.sp,
                                                     color: AppColors.grey,
@@ -306,9 +333,7 @@ class _TopBarState extends State<TopBar> {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
-            bottom: BorderSide(
-              color: AppColors.divider.withValues(alpha: 0.5),
-            ),
+            bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
           ),
         ),
         child: Row(
@@ -346,15 +371,75 @@ class _TopBarState extends State<TopBar> {
                   ),
                 ),
                 SizedBox(width: 0.5.w),
-                HoverIcon(icon: Icons.notifications_none_outlined),
+
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //           builder: (_) => MainScreen(selectedIndex: 34)),
+                //     );
+                //   },
+                //   child: HoverIcon(icon: Icons.notifications_none_outlined)),
+                // in your RIGHT SIDE Row, replace the notification GestureDetector:
+                BlocBuilder<NotificationCubit, NotificationState>(
+                  builder: (context, state) {
+                    final unread = state is NotificationLoaded
+                        ? state.unreadCount
+                        : 0;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => MainScreen(selectedIndex: 34),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          HoverIcon(icon: Icons.notifications_none_outlined),
+                          if (unread > 0)
+                            Positioned(
+                              top: 3,
+                              right: 5.5,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                child: Text(
+                                  unread > 99 ? '99+' : '$unread',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(width: 0.3.w),
                 BlocBuilder<AuthCubit, AuthState>(
                   builder: (context, state) {
-                    if (state is! Authenticated)
-                      return const SizedBox.shrink();
+                    if (state is! Authenticated) return const SizedBox.shrink();
                     final user = state.user;
                     return _profileAvatar(
-                        context, user.name, user.staffType ?? '', user);
+                      context,
+                      user.name,
+                      user.staffType ?? '',
+                      user,
+                    );
                   },
                 ),
               ],
@@ -389,11 +474,15 @@ class _TopBarState extends State<TopBar> {
                 focusNode: _searchFocusNode,
                 onChanged: (query) => _onSearchChanged(query, cubit),
                 style: AppTextStyle.small(
-                    size: 11.5.sp, color: AppColors.black),
+                  size: 11.5.sp,
+                  color: AppColors.black,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   hintStyle: AppTextStyle.small(
-                      size: 11.5.sp, color: AppColors.grey),
+                    size: 11.5.sp,
+                    color: AppColors.grey,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -410,8 +499,7 @@ class _TopBarState extends State<TopBar> {
                     cubit.searchLeads('');
                     _hideDropdown();
                   },
-                  child:
-                      Icon(Icons.cancel, size: 12.sp, color: AppColors.grey),
+                  child: Icon(Icons.cancel, size: 12.sp, color: AppColors.grey),
                 );
               },
             ),
@@ -424,9 +512,12 @@ class _TopBarState extends State<TopBar> {
   // ── Profile avatar ────────────────────────────────────────────────────────
 
   Widget _profileAvatar(
-      BuildContext context, String name, String role, StaffModel user) {
-    final hasImage =
-        user.imageUrl != null && user.imageUrl!.trim().isNotEmpty;
+    BuildContext context,
+    String name,
+    String role,
+    StaffModel user,
+  ) {
+    final hasImage = user.imageUrl != null && user.imageUrl!.trim().isNotEmpty;
 
     return GestureDetector(
       onTapDown: (details) async {
@@ -442,7 +533,8 @@ class _TopBarState extends State<TopBar> {
           context: context,
           position: position,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)),
+            borderRadius: BorderRadius.circular(10),
+          ),
           items: [
             _buildMenuItem(Icons.person_outline, "Profile"),
             _buildMenuItem(Icons.lock_outline, "Change Password"),
@@ -458,60 +550,66 @@ class _TopBarState extends State<TopBar> {
             builder: (ctx) => AlertDialog(
               backgroundColor: AppColors.background,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               title: const Row(
                 children: [
                   Icon(Icons.logout, color: Colors.red, size: 20),
                   SizedBox(width: 8),
-                  Text('Confirm Logout',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text(
+                    'Confirm Logout',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
               content: const Text('Are you sure you want to logout?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.grey)),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('Logout',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
           );
           if (confirmed == true && context.mounted) {
             context.read<AuthCubit>().logout(
-                  permissionCubit: context.read<PermissionCubit>(),
-                );
+              permissionCubit: context.read<PermissionCubit>(),
+            );
           }
         }
         if (selected == "Settings" && context.mounted) {
           Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (_) => MainScreen(selectedIndex: 20)),
+            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 20)),
           );
         }
         if (selected == "Profile" && context.mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
-                builder: (_) =>
-                    MainScreen(selectedIndex: 33, staff: user)),
+              builder: (_) => MainScreen(selectedIndex: 33, staff: user),
+            ),
           );
         }
         if (selected == "Change Password" && context.mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
-                builder: (_) =>
-                    MainScreen(selectedIndex: 32, staff: user)),
+              builder: (_) => MainScreen(selectedIndex: 32, staff: user),
+            ),
           );
         }
       },
@@ -527,16 +625,22 @@ class _TopBarState extends State<TopBar> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(name,
-                    style: AppTextStyle.small(
-                        size: 11.sp,
-                        color: AppColors.black,
-                        weight: FontWeight.w500)),
-                Text(role,
-                    style: AppTextStyle.small(
-                        size: 11.sp,
-                        color: AppColors.black,
-                        weight: FontWeight.w500)),
+                Text(
+                  name,
+                  style: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.black,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  role,
+                  style: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.black,
+                    weight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ],
@@ -588,20 +692,24 @@ class _TopBarState extends State<TopBar> {
     );
   }
 
-  PopupMenuItem<String> _buildMenuItem(IconData icon, String text,
-      {bool isLogout = false}) {
+  PopupMenuItem<String> _buildMenuItem(
+    IconData icon,
+    String text, {
+    bool isLogout = false,
+  }) {
     return PopupMenuItem<String>(
       value: text,
       child: Row(
         children: [
-          Icon(icon,
-              size: 16,
-              color: isLogout ? Colors.red : Colors.grey[700]),
+          Icon(icon, size: 16, color: isLogout ? Colors.red : Colors.grey[700]),
           const SizedBox(width: 10),
-          Text(text,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: isLogout ? Colors.red : Colors.black87)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: isLogout ? Colors.red : Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -624,20 +732,23 @@ class _TopBarState extends State<TopBar> {
           position: position,
           color: AppColors.white,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)),
+            borderRadius: BorderRadius.circular(10),
+          ),
           items: [
             PopupMenuItem<String>(
               enabled: false,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
+              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Quick Links',
-                      style: AppTextStyle.small(
-                          size: 12.sp,
-                          color: AppColors.black,
-                          weight: FontWeight.w600)),
+                  Text(
+                    'Quick Links',
+                    style: AppTextStyle.small(
+                      size: 12.sp,
+                      color: AppColors.black,
+                      weight: FontWeight.w600,
+                    ),
+                  ),
                   Divider(color: Colors.grey.shade200, height: 1.5.h),
                 ],
               ),
@@ -655,8 +766,7 @@ class _TopBarState extends State<TopBar> {
         if (!context.mounted) return;
         if (selected == 'new_lead') {
           Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (_) => MainScreen(selectedIndex: 1)),
+            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 1)),
           );
         }
       },
@@ -679,14 +789,16 @@ class _TopBarState extends State<TopBar> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(8)),
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(width: 10),
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 13, color: Colors.black87)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ),
         ],
       ),
     );

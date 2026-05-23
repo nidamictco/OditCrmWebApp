@@ -24,15 +24,21 @@ class MiniSidebar extends StatelessWidget {
       color: Colors.white,
       child: Column(
         children: [
-          SizedBox(height: 02.h),
+          SizedBox(height: 3.h),
 
           /// LOGO
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.sp),
-            child: Center(child: Image.asset(AssetResources.logo, width: 50.w)),
+            child: Center(
+              child: SizedBox(
+                height: 5.h,
+                width: 5.h,
+                child: Image.asset(AssetResources.iconLogo),
+              ),
+            ),
           ),
 
-          // SizedBox(height: 5.h),
+          SizedBox(height: 5.h),
 
           /// DASHBOARD
           HoverSidebarItem(

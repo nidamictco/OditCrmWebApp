@@ -7,14 +7,18 @@ import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
+import 'package:oxdo/feature/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;
+   final NotificationRepo _notificationRepo;
 
-  ImportLeadsCubit({IImportLeadsRepository? repository})
+  ImportLeadsCubit({IImportLeadsRepository? repository,NotificationRepo? notificationRepo,})
       : _repository = repository ?? ImportLeadsRepository(),
+      _notificationRepo = notificationRepo ?? NotificationRepo(),
         super(const ImportLeadsState());
 
   // ── Initialization ────────────────────────────────────────────────────────
@@ -137,15 +141,7 @@ stages:     results[3] as List<LeadsModel>,
   // ── CSV Import ────────────────────────────────────────────────────────────
 
   Future<void> importLeads({required Uint8List csvBytes}) async {
-    // ── Validation ─────────────────────────────────────────────────────────
-    // if (state.selectedLeadStage == null || state.selectedLeadStage!.isEmpty) {
-    //   emit(state.copyWith(
-    //     errorMessage: 'Please select a Lead Stage before importing.',
-    //     clearSuccess: true,
-    //   ));
-    //   return;
-    // }
-
+  
     emit(state.copyWith(
       status:       ImportLeadsStatus.importing,
       clearError:   true,
@@ -175,6 +171,72 @@ stages:     results[3] as List<LeadsModel>,
         defaults:       defaults,
         hasCountryCode: state.selectedTab == 0,
       );
+
+//       // ── Notify assigned staff ──────────────────────────────────────────────
+// final assignedStaffId = _staffIdFromName(state.selectedStaff);
+// if (assignedStaffId.isNotEmpty) {
+//   await _notificationRepo.create(
+//     staffId: assignedStaffId,
+//     title: 'Leads Imported',
+//     message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
+//   );
+// }
+
+// // ── Notify the admin/creator ───────────────────────────────────────────
+// if (user?.id != null && user!.id!.isNotEmpty && user.id != assignedStaffId) {
+//   await _notificationRepo.create(
+//     staffId: user.id!,
+//     title: 'Import Complete',
+//     message: '$count lead${count == 1 ? '' : 's'} imported successfully${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
+//   );
+// }
+
+// ── Notify assigned staff (check newLead setting) ────────────────────────
+final assignedStaffId = _staffIdFromName(state.selectedStaff);
+if (assignedStaffId.isNotEmpty) {
+  bool shouldNotify = true;
+  try {
+    final settings = await GeneralSettingsRepository(
+      staffId: assignedStaffId,
+    ).fetchSettings();
+    shouldNotify = settings.newLead;
+  } catch (_) {
+    shouldNotify = true;
+  }
+
+  if (shouldNotify) {
+    await _notificationRepo.create(
+      staffId: assignedStaffId,
+      title: 'Leads Imported',
+      message:
+          '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
+    );
+  }
+}
+
+// ── Notify admin/creator (check newLead setting) ─────────────────────────
+final creatorId = user?.id ?? '';
+if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
+  bool shouldNotify = true;
+  try {
+    final settings = await GeneralSettingsRepository(
+      staffId: creatorId,
+    ).fetchSettings();
+    shouldNotify = settings.newLead;
+  } catch (_) {
+    shouldNotify = true;
+  }
+
+  if (shouldNotify) {
+    await _notificationRepo.create(
+      staffId: creatorId,
+      title: 'Import Complete',
+      message:
+          '$count lead${count == 1 ? '' : 's'} imported successfully'
+          '${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
+    );
+  }
+}
 
       emit(state.copyWith(
         status:         ImportLeadsStatus.success,

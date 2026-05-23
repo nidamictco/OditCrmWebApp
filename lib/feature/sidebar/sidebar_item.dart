@@ -90,11 +90,11 @@ class _SidebarItemState extends State<SidebarItem> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 2.h),
             Align(
-              alignment: Alignment.center,
+              alignment: Alignment.topLeft,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                padding: EdgeInsets.symmetric(horizontal: 1.w),
+                // padding: EdgeInsets.zero,
                 // child: Text(
                 //   "Oxdo Leads",
                 //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),

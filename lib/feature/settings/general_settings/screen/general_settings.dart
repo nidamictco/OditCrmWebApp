@@ -405,7 +405,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           title: "New lead assigned",
           subtitle:
               "Send a push notification to the staff when a new lead is assigned.",
-          value: settings?.newLead ?? true,
+          value: settings?.newLead ?? false,
         ),
         _switchTile(
           context: context,
@@ -413,7 +413,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           title: "Facebook Leads",
           subtitle:
               "Send a push notification to the assigned staff member whenever a new lead is generated from Facebook.",
-          value: settings?.facebookLead ?? true,
+          value: settings?.facebookLead ?? false,
         ),
         _switchTile(
           context: context,
@@ -421,7 +421,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           title: "Transfer Leads",
           subtitle:
               "Send a push notification to the staff member to whom the lead is transferred.",
-          value: settings?.transferLead ?? true,
+          value: settings?.transferLead ?? false,
         ),
       ],
     );

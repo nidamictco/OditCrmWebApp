@@ -4,6 +4,7 @@ import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_f
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
+
 enum LeadListStatus { initial, loading, loaded, failure }
 
 class AddLeadState {
@@ -13,8 +14,8 @@ class AddLeadState {
   final String? successMessage;
 
   // ── Search ────────────────────────────────────────────────────────────────
-final List<AddLeadModel> searchResults;
-final bool isSearching;
+  final List<AddLeadModel> searchResults;
+  final bool isSearching;
 
   // ── Lead list ─────────────────────────────────────────────────────────────
   final List<AddLeadModel> leads;
@@ -25,7 +26,7 @@ final bool isSearching;
 
   // ── Dropdown data ─────────────────────────────────────────────────────────
   final List<LeadsModel> categories;
-  final List<LeadsModel> sources; 
+  final List<LeadsModel> sources;
   final List<LeadsModel> stages;
 
   // ── Form selections ───────────────────────────────────────────────────────
@@ -38,6 +39,7 @@ final bool isSearching;
   final String? selectedState;
   final String? selectedDistrict;
   final String assignedStaffName;
+  final String? assignedStaffId;
 
   // ── Additional / custom fields ────────────────────────────────────────────
   final List<AdditionalFieldModel> additionalFields;
@@ -61,7 +63,7 @@ final bool isSearching;
     this.errorMessage,
     this.successMessage,
     this.searchResults = const [],
-this.isSearching = false,
+    this.isSearching = false,
     this.leads = const [],
     this.listStatus = LeadListStatus.initial,
     this.listError,
@@ -79,6 +81,7 @@ this.isSearching = false,
     this.selectedState,
     this.selectedDistrict,
     this.assignedStaffName = '',
+    this.assignedStaffId,
     this.additionalFields = const [],
     this.isLoadingAdditionalFields = false,
     this.staffList = const [],
@@ -91,8 +94,8 @@ this.isSearching = false,
     this.selectedDashboardDate,
   });
 
-  bool get isLoading        => status == AddLeadStatus.loading;
-  bool get isListLoading    => listStatus == LeadListStatus.loading;
+  bool get isLoading => status == AddLeadStatus.loading;
+  bool get isListLoading => listStatus == LeadListStatus.loading;
 
   AddLeadState copyWith({
     AddLeadStatus? status,
@@ -100,7 +103,7 @@ this.isSearching = false,
     String? errorMessage,
     String? successMessage,
     List<AddLeadModel>? searchResults,
-bool? isSearching,
+    bool? isSearching,
     List<AddLeadModel>? leads,
     LeadListStatus? listStatus,
     String? listError,
@@ -118,6 +121,7 @@ bool? isSearching,
     String? selectedState,
     String? selectedDistrict,
     String? assignedStaffName,
+    String? assignedStaffId,
     List<AdditionalFieldModel>? additionalFields,
     List<StaffModel>? staffList,
     bool? isLoadingAdditionalFields,
@@ -130,52 +134,71 @@ bool? isSearching,
     DateTime? selectedDashboardDate,
 
     // ── clear flags ──────────────────────────────────────────────────────────
-    bool clearError         = false,
-    bool clearSuccess       = false,
-    bool clearListError     = false,
-    bool clearState         = false,
-    bool clearDistrict      = false,
-    bool clearCategory      = false,
-    bool clearSource        = false,
-    bool clearPriority      = false,
-    bool clearLeadStage     = false,
-    bool clearCallResult    = false,
-    bool clearLeadTag    = false,
+    bool clearError = false,
+    bool clearSuccess = false,
+    bool clearListError = false,
+    bool clearState = false,
+    bool clearDistrict = false,
+    bool clearCategory = false,
+    bool clearSource = false,
+    bool clearPriority = false,
+    bool clearLeadStage = false,
+    bool clearCallResult = false,
+    bool clearLeadTag = false,
   }) {
     return AddLeadState(
-      status:               status           ?? this.status,
-      isSubmitting:         isSubmitting     ?? this.isSubmitting,
-      errorMessage:         clearError       ? null : (errorMessage   ?? this.errorMessage),
-      successMessage:       clearSuccess     ? null : (successMessage ?? this.successMessage),
-      searchResults:        searchResults    ?? this.searchResults,
-isSearching:        isSearching      ?? this.isSearching,
-      leads:                leads            ?? this.leads,
-      listStatus:           listStatus       ?? this.listStatus,
-      listError:            clearListError   ? null : (listError      ?? this.listError),
-      isDeleting:           isDeleting       ?? this.isDeleting,
-      isUpdating:           isUpdating       ?? this.isUpdating,
-      categories:           categories       ?? this.categories,
-      sources:              sources          ?? this.sources,
-      stages:               stages           ?? this.stages,
-      selectedCategory:     clearCategory    ? null : (selectedCategory  ?? this.selectedCategory),
-      selectedSource:       clearSource      ? null : (selectedSource    ?? this.selectedSource),
-      selectedPriority:     clearPriority    ? null : (selectedPriority  ?? this.selectedPriority),
-      selectedLeadStage:    clearLeadStage   ? null : (selectedLeadStage ?? this.selectedLeadStage),
-      selectedState:        clearState       ? null : (selectedState     ?? this.selectedState),
-      selectedDistrict:     clearDistrict    ? null : (selectedDistrict  ?? this.selectedDistrict),
-      selectedCallResult:   clearCallResult  ? null : (selectedCallResult ?? this.selectedCallResult),
-      selectedLeadTag:      clearLeadTag     ? null : (selectedLeadTag     ?? this.selectedLeadTag),
-      assignedStaffName:    assignedStaffName ?? this.assignedStaffName,
-      additionalFields:     additionalFields  ?? this.additionalFields,
-      isLoadingAdditionalFields:  isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
-      staffList:            staffList        ?? this.staffList,
+      status: status ?? this.status,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
+      searchResults: searchResults ?? this.searchResults,
+      isSearching: isSearching ?? this.isSearching,
+      leads: leads ?? this.leads,
+      listStatus: listStatus ?? this.listStatus,
+      listError: clearListError ? null : (listError ?? this.listError),
+      isDeleting: isDeleting ?? this.isDeleting,
+      isUpdating: isUpdating ?? this.isUpdating,
+      categories: categories ?? this.categories,
+      sources: sources ?? this.sources,
+      stages: stages ?? this.stages,
+      selectedCategory: clearCategory
+          ? null
+          : (selectedCategory ?? this.selectedCategory),
+      selectedSource: clearSource
+          ? null
+          : (selectedSource ?? this.selectedSource),
+      selectedPriority: clearPriority
+          ? null
+          : (selectedPriority ?? this.selectedPriority),
+      selectedLeadStage: clearLeadStage
+          ? null
+          : (selectedLeadStage ?? this.selectedLeadStage),
+      selectedState: clearState ? null : (selectedState ?? this.selectedState),
+      selectedDistrict: clearDistrict
+          ? null
+          : (selectedDistrict ?? this.selectedDistrict),
+      selectedCallResult: clearCallResult
+          ? null
+          : (selectedCallResult ?? this.selectedCallResult),
+      selectedLeadTag: clearLeadTag
+          ? null
+          : (selectedLeadTag ?? this.selectedLeadTag),
+      assignedStaffName: assignedStaffName ?? this.assignedStaffName,
+      assignedStaffId: assignedStaffId ?? this.assignedStaffId,
+      additionalFields: additionalFields ?? this.additionalFields,
+      isLoadingAdditionalFields:
+          isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
+      staffList: staffList ?? this.staffList,
       newLeadCount: newLeadCount ?? this.newLeadCount,
       followUpCount: followUpCount ?? this.followUpCount,
       closedLeadCount: closedLeadCount ?? this.closedLeadCount,
       totalCalledCount: totalCalledCount ?? this.totalCalledCount,
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,
       transferredCount: transferredCount ?? this.transferredCount,
-      selectedDashboardDate: selectedDashboardDate ?? this.selectedDashboardDate,
+      selectedDashboardDate:
+          selectedDashboardDate ?? this.selectedDashboardDate,
     );
   }
 }
