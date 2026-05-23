@@ -16,10 +16,11 @@ class CustomTable extends StatefulWidget {
   final List<TableColumn> columns;
   final List<List<Widget>> rows;
   final String emptyMessage;
-  final bool showCheckboxes; // 🔹 NEW: toggle checkbox column
-  final List<bool>? initialCheckedStates; // 🔹 NEW: optional initial states
+  final bool showCheckboxes; 
+  final List<bool>? initialCheckedStates;
+  final VoidCallback? onTap; 
   final void Function(int rowIndex, bool checked)?
-  onCheckChanged; // 🔹 NEW: callback
+  onCheckChanged; 
 
   const CustomTable({
     super.key,
@@ -27,6 +28,7 @@ class CustomTable extends StatefulWidget {
     required this.rows,
     this.emptyMessage = "No data available in table",
     this.showCheckboxes = false,
+    this.onTap,
     this.initialCheckedStates,
     this.onCheckChanged,
   });
@@ -162,54 +164,61 @@ class _CustomTableState extends State<CustomTable> {
   /// ROWS
   List<Widget> _buildRows() {
     return List.generate(widget.rows.length, (rowIndex) {
-      return Container(
-        decoration: BoxDecoration(
-          color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
-          border: Border(bottom: BorderSide(color: AppColors.divider)),
-        ),
-        child: Row(
-          children: [
-            SizedBox(width: 1.5.w),
-            // 🔹 Checkbox cell
-            if (widget.showCheckboxes)
-              SizedBox(
-                width: 5.w,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 1.h),
-                  decoration: BoxDecoration(
-                    // border: Border(right: BorderSide(color: AppColors.divider)),
-                  ),
-                  child: Checkbox(
-                    value: _checkedStates[rowIndex],
-                    activeColor: AppColors.primary, // use your brand color
-                    onChanged: (val) {
-                      setState(() => _checkedStates[rowIndex] = val ?? false);
-                      widget.onCheckChanged?.call(rowIndex, val ?? false);
-                    },
-                  ),
-                ),
-              ),
-
-            // 🔹 Regular data cells
-            ...List.generate(widget.rows[rowIndex].length, (colIndex) {
-              return Expanded(
-                flex: widget.columns[colIndex].flex,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 2.h),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      // right: colIndex == widget.columns.length - 1
-                      //     ? BorderSide.none
-                      //     : BorderSide(color: AppColors.divider),
+      return GestureDetector(
+        // onTap: () {
+        //   print('Row $rowIndex tapped');
+        // },
+        onTap: widget.onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
+            border: Border(bottom: BorderSide(color: AppColors.divider)),
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: 1.5.w),
+              // 🔹 Checkbox cell
+              if (widget.showCheckboxes)
+                SizedBox(
+                  width: 5.w,
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.symmetric(vertical: 1.h),
+                    decoration: BoxDecoration(
+                      // border: Border(right: BorderSide(color: AppColors.divider)),
+                    ),
+                    child: Checkbox(
+                      value: _checkedStates[rowIndex],
+                      activeColor: AppColors.primary, // use your brand color
+                      onChanged: (val) {
+                        setState(() => _checkedStates[rowIndex] = val ?? false);
+                        widget.onCheckChanged?.call(rowIndex, val ?? false);
+                      },
                     ),
                   ),
-                  child: widget.rows[rowIndex][colIndex],
                 ),
-              );
-            }),
-          ],
+        
+              // 🔹 Regular data cells
+              ...List.generate(widget.rows[rowIndex].length, (colIndex) {
+                return Expanded(
+                  flex: widget.columns[colIndex].flex,
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    decoration: BoxDecoration(
+                      
+                      border: Border(
+                        // right: colIndex == widget.columns.length - 1
+                        //     ? BorderSide.none
+                        //     : BorderSide(color: AppColors.divider),
+                      ),
+                    ),
+                    child: widget.rows[rowIndex][colIndex],
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       );
     });

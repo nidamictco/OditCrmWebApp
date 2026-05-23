@@ -675,6 +675,18 @@ class _LeadsReportState extends State<LeadsReport> {
                           return Column(
                             children: [
                               CustomTable(
+                                onTap: () {
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => MainScreen(
+                                  //       selectedIndex: 31,
+                                  //       lead: , 
+                                  //     ),
+                                  //   ),
+                                  // );
+                                  print('Row tapped ');
+                                },
                                 columns: [
                                   TableColumn(title: "#", flex: 1),
                                   TableColumn(title: "Name", flex: 4),

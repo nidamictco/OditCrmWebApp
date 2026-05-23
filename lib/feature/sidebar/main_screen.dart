@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
@@ -336,23 +338,13 @@ class _MainScreenState extends State<MainScreen> {
           child: ViewPage(),
         );
       case 20:
-        return PermissionGuard(
-          hasPermission: perm.canViewGeneralSettings,
-          child: BlocProvider(
-            create: (context) {
-              // ✅ Get the actual logged-in staff ID from AuthCubit
-              final authState = context.read<AuthCubit>().state;
-              final staffId = authState is Authenticated
-                  ? authState.user.id ?? ''
-                  : '';
-
-              return GeneralSettingsCubit(
-                GeneralSettingsRepository(staffId: staffId),
-              )..loadSettings();
-            },
-            child: const GeneralSettings(),
-          ),
-        );
+  return PermissionGuard(
+    hasPermission: perm.canViewGeneralSettings,
+    child: BlocProvider(
+      create: (_) => GeneralSettingsCubit()..loadForCurrentUser(),
+      child: const GeneralSettings(),
+    ),
+  );
       case 21:
         return PermissionGuard(
           hasPermission: perm.canViewFacebookSettings,

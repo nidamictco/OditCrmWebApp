@@ -1,11 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
 
-abstract class GeneralSettingsState extends Equatable {
+abstract class GeneralSettingsState {
   const GeneralSettingsState();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class GeneralSettingsInitial extends GeneralSettingsState {
@@ -18,12 +14,10 @@ class GeneralSettingsLoading extends GeneralSettingsState {
 
 class GeneralSettingsLoaded extends GeneralSettingsState {
   final GeneralSettingsModel settings;
-  final DateTime _ts; // ← forces inequality on every emit
+  final DateTime _ts;
 
   GeneralSettingsLoaded(this.settings) : _ts = DateTime.now();
-
-  @override
-  List<Object?> get props => [settings, _ts]; // ← _ts always differs
+  // No Equatable — DateTime.now() ensures every emit is unique
 }
 
 class GeneralSettingsUpdating extends GeneralSettingsState {
@@ -31,23 +25,9 @@ class GeneralSettingsUpdating extends GeneralSettingsState {
   final DateTime _ts;
 
   GeneralSettingsUpdating(this.settings) : _ts = DateTime.now();
-
-  @override
-  List<Object?> get props => [settings, _ts];
 }
-
-// class GeneralSettingsUpdating extends GeneralSettingsState {
-//   final GeneralSettingsModel settings;
-//   const GeneralSettingsUpdating(this.settings);
-
-//   @override
-//   List<Object?> get props => [settings];
-// }
 
 class GeneralSettingsError extends GeneralSettingsState {
   final String message;
   const GeneralSettingsError(this.message);
-
-  @override
-  List<Object?> get props => [message];
 }
