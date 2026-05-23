@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 
 import '../../../dashboard/models/dashboard_count_model.dart';
+import '../../follow_up/models/follow_up_activities_model.dart';
 
 abstract class IAddLeadRepository {
   Future<String> addLead(AddLeadModel lead);
@@ -25,13 +26,36 @@ abstract class IAddLeadRepository {
   Future<String> restoreLead(AddLeadModel lead);
   Future<void> permanentlyDeleteLead(String id);
   Future<void> assignStaff(String leadId, String staffId, String staffName);
-  Future<void> addFollowUp(String leadId, FollowUpModel followUp);
+  Future<void> addFollowUp(String leadId, FollowUpModel followUp,{
+    String? previousStage,      // pass current lead's stage before update
+    String? previousCategory,
+    String? previousPriority,
+    String changedByName = '',
+    String changedById = '',
+  });
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
     required DateTime selectedDate,
     required String role,
   });
   Future<void> transferLead(String leadId, TransferDetails transfer);
+  Future<void> _logActivity(String leadId, ActivityModel activity);
+  Future<void> logLeadCreated({
+    required String leadId,
+    required String createdByName,
+    required String createdById,
+    required String assignedTo,
+    required String leadStage,
+    required String priority,
+    required String leadCategory,
+  });
+  Future<void> logLeadUpdated({
+    required String leadId,
+    required String changedByName,
+    required String changedById,
+    required AddLeadModel previous,
+    required AddLeadModel updated,
+  });
 }
  
 class AddLeadRepository implements IAddLeadRepository {
@@ -468,7 +492,7 @@ Future<void> assignStaff(String leadId, String staffId, String staffName) async 
 
 
 @override
-Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
+Future<void> addFollowUpOld(String leadId, FollowUpModel followUp) async {
   if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
    
     final String followUpId = _generateDateId('FUP'); 
@@ -486,6 +510,118 @@ Future<void> addFollowUp(String leadId, FollowUpModel followUp) async {
   });
 
   log('[AddLeadRepository] FollowUp added for lead: $leadId');
+}
+
+@override
+Future<void> addFollowUp(
+    String leadId,
+    FollowUpModel followUp, {
+      String? previousStage,      // pass current lead's stage before update
+      String? previousCategory,
+      String? previousPriority,
+      String changedByName = '',
+      String changedById = '',
+    }) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+
+  final batch = FirebaseFirestore.instance.batch();
+  final activityRef = _collection.doc(leadId).collection('ACTIVITIES');
+
+  // 1. Write the follow-up document
+  final String followUpId = _generateDateId('FUP');
+  final fupRef = _collection
+      .doc(leadId)
+      .collection('FOLLOW_UPS')
+      .doc(followUpId);
+  batch.set(fupRef, followUp.toFirestore());
+
+  // 2. Update lead document
+  final leadRef = _collection.doc(leadId);
+  batch.update(leadRef, {
+    'leadStage': followUp.leadStage,
+    'priority': followUp.priority,
+    'leadCategory': followUp.leadCategory,
+    'nextFollowUpDate': followUp.nextFollowUpDate,
+    'lastCalledDate': followUp.calledDate,
+  });
+
+  final now = DateTime.now();
+
+  // Helper to add an activity doc in the batch
+  void logActivity(ActivityModel activity) {
+    batch.set(activityRef.doc(), activity.toFirestore());
+  }
+
+  // 3. Always log the follow-up added activity
+  logActivity(ActivityModel(
+    id: '',
+    type: ActivityType.followupAdded,
+    changedBy: changedByName,
+    changedById: changedById,
+    changedAt: now,
+    previousValue: followUp.calledStatus,
+    newValue: DateFormat('dd-MM-yyyy HH:mm').format(followUp.nextFollowUpDate),
+    description:
+    'Follow-up added. Call status: ${followUp.calledStatus}. '
+        'Next follow-up scheduled to '
+        '${DateFormat('dd-MM-yyyy HH:mm').format(followUp.nextFollowUpDate)}.',
+  ));
+
+  // 4. Log status change only if it actually changed
+  if (previousStage != null &&
+      previousStage.isNotEmpty &&
+      previousStage != followUp.leadStage) {
+    logActivity(ActivityModel(
+      id: '',
+      type: ActivityType.statusChanged,
+      changedBy: changedByName,
+      changedById: changedById,
+      changedAt: now,
+      previousValue: previousStage,
+      newValue: followUp.leadStage,
+      description:
+      'Status changed from $previousStage to ${followUp.leadStage}.',
+    ));
+  }
+
+  // 5. Log category change only if it changed
+  if (previousCategory != null &&
+      previousCategory.isNotEmpty &&
+      previousCategory != followUp.leadCategory &&
+      followUp.leadCategory.isNotEmpty) {
+    logActivity(ActivityModel(
+      id: '',
+      type: ActivityType.categoryChanged,
+      changedBy: changedByName,
+      changedById: changedById,
+      changedAt: now,
+      previousValue: previousCategory,
+      newValue: followUp.leadCategory,
+      description:
+      'Lead category updated from $previousCategory to ${followUp.leadCategory}.',
+    ));
+  }
+
+  // 6. Log priority change only if it changed
+  if (previousPriority != null &&
+      previousPriority.isNotEmpty &&
+      previousPriority != followUp.priority &&
+      followUp.priority.isNotEmpty) {
+    logActivity(ActivityModel(
+      id: '',
+      type: ActivityType.priorityChanged,
+      changedBy: changedByName,
+      changedById: changedById,
+      changedAt: now,
+      previousValue: previousPriority,
+      newValue: followUp.priority,
+      description:
+      'Priority updated from $previousPriority to ${followUp.priority}.',
+    ));
+  }
+
+  await batch.commit();
+  log('[AddLeadRepository] FollowUp + activities written for lead: $leadId');
 }
 
 Future<void> transferLead(String leadId, TransferDetails transfer) async {
@@ -641,6 +777,77 @@ Future<void> transferLead(String leadId, TransferDetails transfer) async {
     );
   }
 
+  @override
+  Future<void> _logActivity(String leadId, ActivityModel activity) async {
+    await _collection
+        .doc(leadId)
+        .collection('ACTIVITIES')
+        .doc()
+        .set(activity.toFirestore());
+  }
 
+  Future<void> logLeadCreated({
+    required String leadId,
+    required String createdByName,
+    required String createdById,
+    required String assignedTo,
+    required String leadStage,
+    required String priority,
+    required String leadCategory,
+  }) async {
+    await _logActivity(
+      leadId,
+      ActivityModel(
+        id: '',
+        type: ActivityType.leadCreated,
+        changedBy: createdByName,
+        changedById: createdById,
+        changedAt: DateTime.now(),
+        previousValue: null,
+        newValue: leadStage,
+        description: 'Lead created. Assigned to $assignedTo.'
+            '${leadStage.isNotEmpty ? ' Stage: $leadStage.' : ''}'
+            '${priority.isNotEmpty ? ' Priority: $priority.' : ''}'
+            '${leadCategory.isNotEmpty ? ' Category: $leadCategory.' : ''}',
+      ),
+    );
+  }
+
+  Future<void> logLeadUpdated({
+    required String leadId,
+    required String changedByName,
+    required String changedById,
+    required AddLeadModel previous,
+    required AddLeadModel updated,
+  }) async {
+    final now = DateTime.now();
+    final batch = FirebaseFirestore.instance.batch();
+    final activityRef = _collection.doc(leadId).collection('ACTIVITIES');
+
+    void log(ActivityType type, String field, String prev, String next, String desc) {
+      if (prev == next || next.isEmpty) return;
+      batch.set(activityRef.doc(), ActivityModel(
+        id: '',
+        type: type,
+        changedBy: changedByName,
+        changedById: changedById,
+        changedAt: now,
+        previousValue: prev,
+        newValue: next,
+        description: desc,
+      ).toFirestore());
+    }
+
+    log(ActivityType.statusChanged,   'stage',    previous.leadStage,    updated.leadStage,    'Status changed from ${previous.leadStage} to ${updated.leadStage}.');
+    log(ActivityType.categoryChanged, 'category', previous.leadCategory, updated.leadCategory, 'Category updated from ${previous.leadCategory} to ${updated.leadCategory}.');
+    log(ActivityType.priorityChanged, 'priority', previous.priority,     updated.priority,     'Priority updated from ${previous.priority} to ${updated.priority}.');
+    log(ActivityType.staffAssigned,   'staff',    previous.assignedStaff,updated.assignedStaff,'Assigned staff changed from ${previous.assignedStaff} to ${updated.assignedStaff}.');
+    // log(ActivityType.costUpdated,     'cost',     previous.cost ?? '',   updated.cost ?? '',   'Cost updated from ${previous.cost} to ${updated.cost}.');
+    log(ActivityType.remarkUpdated,   'remarks',  previous.remarks ?? '', updated.remarks ?? '', 'Remark updated.');
+
+    // Only commit if there's at least one change
+    final ops = batch; // batch will be a no-op if nothing was added
+    await ops.commit();
+  }
 
 } 

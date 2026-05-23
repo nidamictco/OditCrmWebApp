@@ -14,6 +14,8 @@ import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart
 import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
 
+import '../../follow_up/data/activity_repo.dart';
+
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
   final ILeadCategoryRepository _categoryRepository;
@@ -240,30 +242,71 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (state.isUpdating) return;
     emit(state.copyWith(isUpdating: true, clearError: true));
     try {
+      // ✅ Capture previous state before overwriting
+      final previous = state.leads.firstWhere(
+            (l) => l.id == id,
+        orElse: () => updated, // fallback: no diff will be logged
+      );
+
       await _leadRepository.updateLead(id, updated);
+
+      // ✅ Log what changed
+      final user = await SessionService().getSavedUser();
+      await _leadRepository.logLeadUpdated(
+        leadId: id,
+        changedByName: user?.name ?? '',
+        changedById: user?.id ?? '',
+        previous: previous,
+        updated: updated,
+      );
+
       final updatedList = state.leads.map((l) {
         return l.id == id ? updated.copyWith(id: id) : l;
       }).toList();
-      emit(
-        state.copyWith(
-          isUpdating: false,
-          leads: updatedList,
-          successMessage: 'Lead updated successfully.',
-          status: AddLeadStatus.success,
-        ),
-      );
+
+      emit(state.copyWith(
+        isUpdating: false,
+        leads: updatedList,
+        successMessage: 'Lead updated successfully.',
+        status: AddLeadStatus.success,
+      ));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isUpdating: false,
-          status: AddLeadStatus.failure,
-          errorMessage: _friendlyError(e),
-        ),
-      );
+      emit(state.copyWith(
+        isUpdating: false,
+        status: AddLeadStatus.failure,
+        errorMessage: _friendlyError(e),
+      ));
     }
   }
 
- 
+  // Future<void> updateLead(String id, AddLeadModel updated) async {
+  //   if (state.isUpdating) return;
+  //   emit(state.copyWith(isUpdating: true, clearError: true));
+  //   try {
+  //     await _leadRepository.updateLead(id, updated);
+  //     final updatedList = state.leads.map((l) {
+  //       return l.id == id ? updated.copyWith(id: id) : l;
+  //     }).toList();
+  //     emit(
+  //       state.copyWith(
+  //         isUpdating: false,
+  //         leads: updatedList,
+  //         successMessage: 'Lead updated successfully.',
+  //         status: AddLeadStatus.success,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     emit(
+  //       state.copyWith(
+  //         isUpdating: false,
+  //         status: AddLeadStatus.failure,
+  //         errorMessage: _friendlyError(e),
+  //       ),
+  //     );
+  //   }
+  // }
+
+
  // ── Submit (add) ──────────────────────────────────────────────────────────
 
 Future<void> submitLead({
@@ -297,7 +340,7 @@ Future<void> submitLead({
     final user = await SessionService().getSavedUser();
 
     if (isClosed) return;
-    
+
      final resolvedStaffId = (state.assignedStaffId?.isNotEmpty == true)
         ? state.assignedStaffId!
         : user?.id ?? '';
@@ -318,8 +361,8 @@ Future<void> submitLead({
       postOffice: postOffice,
       state: state.selectedState ?? '',
       district: state.selectedDistrict ?? '',
-      assignedStaff: resolvedStaffName,      
-      assignedStaffId: resolvedStaffId,       
+      assignedStaff: resolvedStaffName,
+      assignedStaffId: resolvedStaffId,
       leadCategory: state.selectedCategory ?? '',
       leadSource: state.selectedSource ?? '',
       priority: state.selectedPriority ?? '',
@@ -332,9 +375,21 @@ Future<void> submitLead({
       followUpDate: nextFollowUpDate,
       additionalFields: additionalFieldValues,
     );
- 
+
 
     final newId = await _leadRepository.addLead(lead);
+
+    // ✅ Log lead creation activity
+    await _leadRepository.logLeadCreated(
+      leadId: newId,
+      createdByName: user?.name ?? '',
+      createdById: user?.id ?? '',
+      assignedTo: resolvedStaffName,
+      leadStage: lead.leadStage,
+      priority: lead.priority,
+      leadCategory: lead.leadCategory,
+    );
+
     if (isClosed) return;
     final newLead = lead.copyWith(id: newId);
 
@@ -502,6 +557,66 @@ Future<void> submitLead({
 
   // --------------add follow up--------------------------------
 
+  Future<void> submitFollowUpOld({
+  required String leadId,
+  required String leadName,
+  required String leadWhatsappNo,
+  required String leadWhatsappDialCode,
+  required DateTime calledDate,
+  required DateTime nextFollowUpDate,
+  required String calledStatus,
+  required String remarks,
+}) async {
+  if (state.isSubmitting) return;
+
+  if (calledStatus.trim().isEmpty) {
+    emit(state.copyWith(
+        errorMessage: 'Call status is required.', clearSuccess: true));
+    return;
+  }
+
+  emit(state.copyWith(isSubmitting: true, clearError: true));
+
+  try {
+    final user = await SessionService().getSavedUser();
+
+    final followUp = FollowUpModel(
+      leadId: leadId,
+      leadName: leadName,
+      leadWhatsappNo: leadWhatsappNo,
+      leadWhatsappDialCode: leadWhatsappDialCode,
+      calledDate: calledDate,
+      nextFollowUpDate: nextFollowUpDate,
+      calledStatus: calledStatus,
+      leadStage: state.selectedLeadStage ?? '',
+      leadCategory: state.selectedCategory ?? '',
+      priority: state.selectedPriority ?? '',
+      remarks: remarks,
+      createdById: user?.id ?? '',
+      createdAt: DateTime.now(),
+    );
+
+    await _leadRepository.addFollowUp(leadId, followUp);
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      status: AddLeadStatus.success,
+      successMessage: 'Follow-up added successfully.',
+      clearError: true,
+      clearCategory: true,
+      clearPriority: true,
+      clearLeadStage: true,
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      isSubmitting: false,
+      status: AddLeadStatus.failure,
+      errorMessage: _friendlyError(e),
+      clearSuccess: true,
+    ));
+  }
+}
+
   Future<void> submitFollowUp({
     required String leadId,
     required String leadName,
@@ -511,6 +626,10 @@ Future<void> submitLead({
     required DateTime nextFollowUpDate,
     required String calledStatus,
     required String remarks,
+    // Add these three — pass current lead values so repo can diff
+    String previousStage = '',
+    String previousCategory = '',
+    String previousPriority = '',
   }) async {
     if (state.isSubmitting) return;
 
@@ -545,30 +664,34 @@ Future<void> submitLead({
         createdAt: DateTime.now(),
       );
 
-      await _leadRepository.addFollowUp(leadId, followUp);
+      await _leadRepository.addFollowUp(
+        leadId,
+        followUp,
+        previousStage: previousStage,
+        previousCategory: previousCategory,
+        previousPriority: previousPriority,
+        changedByName: user?.name ?? '',
+        changedById: user?.id ?? '',
+      );
 
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          status: AddLeadStatus.success,
-          successMessage: 'Follow-up added successfully.',
-          clearError: true,
-          clearCategory: true,
-          clearPriority: true,
-          clearLeadStage: true,
-        ),
+      emit(state.copyWith(
+        isSubmitting: false,
+        status: AddLeadStatus.success,
+        successMessage: 'Follow-up added successfully.',
+        clearError: true,
+        clearCategory: true,
+        clearPriority: true,
+        clearLeadStage: true,),
       );
     } catch (e) {
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          status: AddLeadStatus.failure,
-          errorMessage: _friendlyError(e),
-          clearSuccess: true,
-        ),
-      );
-    }
-  }
+      emit(state.copyWith(
+        isSubmitting: false,
+        status: AddLeadStatus.failure,
+        errorMessage: _friendlyError(e),
+        clearSuccess: true,
+      ),
+    );
+  }}
 
   // ______transfer______________________
 
@@ -602,7 +725,7 @@ Future<void> submitLead({
 
     await _leadRepository.transferLead(leadId, transfer);
 
-    
+
 
      // ── Notify receiving staff (check transferLead setting) ──────────────
     if (toStaffId.isNotEmpty) {
@@ -645,9 +768,9 @@ Future<void> submitLead({
         );
       }
     }
-    
-    
-    
+
+
+
     // // ── Notify the receiving staff ─────────────────────────────────────
     // if (toStaffId.isNotEmpty) {
     //   await notificationRepo.create(
