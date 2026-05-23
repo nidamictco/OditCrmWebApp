@@ -66,7 +66,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   final ScrollController _verticalScrollController = ScrollController();
   // Total fixed width of the table — must match sum of all column widths
   static const double _tableWidth =
-      52 + 40 + 140 + 160 + 180 + 100 + 110 + 160 + 160 + 150;
+      52 + 40 + 140 + 160 + 160 + 100 + 110 + 140 + 140 + 150;
 
   // List<Lead> get _filteredLeads {
   //   if (_searchQuery.isEmpty) return _leads;
@@ -617,7 +617,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     //   ),
                     // ),
                     ShowEntries(
-initialSearch: _searchQuery,
+                      initialSearch: _searchQuery,
                       initialEntries: _selectedEntries,
                       onSearchChanged: (v) => setState(() {
                         _searchQuery = v;
@@ -996,6 +996,7 @@ initialSearch: _searchQuery,
                                 onEdit: _onEdit,
                                 onHistory: _onHistory,
                                 onDelete: _onDelete,
+                                index: index,
                               ),
                             );
                           },
@@ -1239,12 +1240,12 @@ class _HeaderRow extends StatelessWidget {
           ),
           _cell('#', 40),
           _cell('NAME', 140),
-          _cell('CONTACT NUMBER', 160),
-          _cell('LEAD CATEGORY', 180),
+          _cell('CONTACT NUMBER', 140),
+          _cell('LEAD CATEGORY', 160),
           _cell('STAFF', 100),
           _cell('STATUS', 110),
-          _cell('FOLLOWUP DATE', 160),
-          _cell('CALLED DATE', 160),
+          _cell('FOLLOWUP DATE', 140),
+          _cell('CALLED DATE', 140),
           _cell('ACTION', 130),
         ],
       ),
@@ -1255,7 +1256,7 @@ class _HeaderRow extends StatelessWidget {
     return SizedBox(
       width: width,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(label, style: _style),
       ),
     );
@@ -1269,6 +1270,7 @@ class _HeaderRow extends StatelessWidget {
 class _LeadRow extends StatefulWidget {
   final AddLeadModel lead;
   final bool isEven;
+  final int index;
   final void Function(String, bool?) onToggleSelect;
   final void Function(AddLeadModel) onView;
   final void Function(AddLeadModel) onEdit;
@@ -1283,6 +1285,7 @@ class _LeadRow extends StatefulWidget {
     required this.onEdit,
     required this.onHistory,
     required this.onDelete,
+    required this.index,
   });
 
   @override
@@ -1341,7 +1344,7 @@ class _LeadRowState extends State<_LeadRow> {
               ),
               // #
               _textCell(
-                '${lead.id}',
+                '${widget.index + 1}',   // '${lead.id}',
                 40,
                 style: const TextStyle(
                   fontSize: 13,
@@ -1361,7 +1364,7 @@ class _LeadRowState extends State<_LeadRow> {
               ),
               // Contact
               SizedBox(
-                width: 160,
+                width: 140,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: GestureDetector(
@@ -1385,7 +1388,7 @@ class _LeadRowState extends State<_LeadRow> {
               // Category
               _textCell(
                 lead.leadCategory,
-                180,
+                160,
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppTheme.textSecondary,
@@ -1435,7 +1438,7 @@ class _LeadRowState extends State<_LeadRow> {
               lead.followUpDate == null
                   ? _textCell(
                       _fmt.format(DateTime.now()),
-                      160,
+                      140,
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppTheme.textSecondary,
@@ -1443,7 +1446,7 @@ class _LeadRowState extends State<_LeadRow> {
                     )
                   : _textCell(
                       _fmt.format(lead.followUpDate!),
-                      160,
+                      140,
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppTheme.textSecondary,
@@ -1453,7 +1456,7 @@ class _LeadRowState extends State<_LeadRow> {
               lead.calledDate == null
                   ? _textCell(
                       _fmt.format(DateTime.now()),
-                      160,
+                      140,
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppTheme.textSecondary,
@@ -1461,7 +1464,7 @@ class _LeadRowState extends State<_LeadRow> {
                     )
                   : _textCell(
                       _fmt.format(lead.calledDate!),
-                      160,
+                      140,
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppTheme.textSecondary,
@@ -1513,8 +1516,8 @@ class _LeadRowState extends State<_LeadRow> {
     return SizedBox(
       width: width,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Text(text, style: style, overflow: TextOverflow.ellipsis),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Text(text, style: style, ),
       ),
     );
   }
@@ -1534,6 +1537,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: getLeadStatusColor(status).withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),

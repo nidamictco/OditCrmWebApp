@@ -1392,15 +1392,58 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   @override
   Widget build(BuildContext context) {
     final Widget divider = SizedBox(width: 1.w);
+
+    FollowUpModel createLeadFollowup() {
+      return FollowUpModel(
+        leadId: widget.leadId,
+        leadName: widget.leadName,
+        leadWhatsappNo: widget.leadWhatsappNo ?? "",
+        leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+        nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+        calledStatus: widget.lead.callResult ?? "",
+        calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+        leadStage: widget.lead.leadStage,
+        leadCategory: widget.lead.leadCategory,
+        priority: widget.lead.priority,
+        remarks: widget.lead.remarks,
+        createdById: widget.lead.createdById,
+      );
+    }
     // Group entries by date
     final Map<String, List<FollowUpModel>> grouped = {};
+
+    final Map<String, FollowUpModel> followupGroup = {};
+
+    followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+
+    for (final f in widget.followups) {
+      followupGroup[DateFormat('dd-MM-yyyy').format(f.calledDate)] = f;
+    }
+
+    if(widget.followups.isEmpty) {
+      followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!)] = createLeadFollowup();
+    }
+
+    ///---------------------------------------------------------------
+    grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
+        leadId: widget.leadId,
+        leadName: widget.leadName,
+        leadWhatsappNo: widget.leadWhatsappNo ?? "",
+        leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+        nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+        calledStatus: widget.lead.callResult ?? "",
+        calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+        leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+        priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
+
+    ));
+
     for (final f in widget.followups) {
       grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
     }
 
 
     if(widget.followups.isEmpty) {
-
       grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
           leadId: widget.leadId,
           leadName: widget.leadName,
@@ -1415,7 +1458,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       ));
     }
 
-    final dates = grouped.keys.toList();
+    // final dates = grouped.keys.toList();
+
+    ///--------------------------------------------------------------------------
+
+    final dates = followupGroup.keys.toList();
+    // log(dates.length.toString());
 
     return Container(
       color: Colors.white,
@@ -1491,13 +1539,24 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
           // ✅ Rendered as plain Column children — no ListView required
           ...dates.map(
-            (date) => _DateGroup(
+                (date) => _DateGroup(
               date: date,
-              entries: grouped[date]!,
-              time: DateFormat('hh:mm a').format(grouped[date]![0].calledDate),
-              entry: grouped[date]![0], lead: widget.lead,
+              entry: followupGroup[date]!,
+              time: DateFormat('hh:mm a').format(followupGroup[date]!.calledDate),
+              lead: widget.lead,
+                  index: dates.indexOf(date)
             ),
           ),
+
+          // ...dates.map(
+          //   (date) => _DateGroup(
+          //     date: date,
+          //     entries: grouped[date]!,
+          //     time: DateFormat('hh:mm a').format(grouped[date]![0].calledDate),
+          //     // entry: grouped[date]![0],
+          //     lead: widget.lead,
+          //   ),
+          // ),
 
           const SizedBox(height: 20),
         ],
@@ -2334,17 +2393,19 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 }
 
 class _DateGroup extends StatelessWidget {
+  final int index;
   final String date;
   final String time;
-  final List<FollowUpModel> entries;
+  // final List<FollowUpModel> entries;
   final FollowUpModel entry;
   final AddLeadModel lead;
   const _DateGroup({
     required this.date,
-    required this.entries,
+    // required this.entries,
     required this.time,
     required this.entry,
     required this.lead,
+    required this.index,
   });
 
   @override
@@ -2374,7 +2435,7 @@ class _DateGroup extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      date,
+                      "$date",
                       textAlign: TextAlign.center,
                       style: AppTextStyle.heading(
                         size: 13,
@@ -2414,10 +2475,20 @@ class _DateGroup extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: lead.followUp!.isEmpty?
-                [_FirstFollowupCard(lead: lead,),
-                SizedBox(height: 20),]:
-                entries.map((e) => _FollowupCard(entry: e, lead: lead, entries : entries)).toList(),
+                children:
+                [
+                  // Text("count of entries are ${entries.length}"),
+                  index == 0 ?
+                  _LastFollowupCard(lead: lead,) :
+                  lead.followUp!.isEmpty?
+                  _FirstFollowupCard(lead: lead,) :
+                  _FollowupCard(entry: entry, lead: lead, index: index,),
+
+                // SizedBox(height: 20),
+                //   _LastFollowupCard(lead: lead,),
+                // ...entries.map((e) =>
+                //     _FollowupCard(entry: e, lead: lead, entries : entries)),
+                    ],
 
               ),
             ),
@@ -2428,11 +2499,13 @@ class _DateGroup extends StatelessWidget {
   }
 }
 
+
 class _FollowupCard extends StatelessWidget {
   final FollowUpModel entry;
   final AddLeadModel lead;
-  final List<FollowUpModel> entries;
-  const _FollowupCard({required this.entry, required this.lead, required this.entries});
+  final int index;
+  // final List<FollowUpModel> entries;
+  const _FollowupCard({required this.entry, required this.lead, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -2457,7 +2530,7 @@ class _FollowupCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFEEEEEE)),
+              border: Border.all(color: const Color(0xFFDCDCDC)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04),
@@ -2492,10 +2565,15 @@ class _FollowupCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: Colors.green.shade600,
+                      if(index == 1)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: Colors.green.shade600,
+                          ),
+                        ],
                       ),
                       const SizedBox(width: 8),
                       Icon(
@@ -2512,18 +2590,18 @@ class _FollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      entries.indexOf(entry)==0 ?
-                      _cardRow('Created Date', DateFormat('dd-MM-yyyy hh:mm a').format(lead.createdAt!)):
                       _cardRow('Scheduled Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.nextFollowUpDate)),
+                      const SizedBox(height: 4),
                       _cardRow('Called Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.calledDate)),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       _cardRow('Call Status', entry.calledStatus),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       if(entry.leadStage.toLowerCase() == 'rejected')
                       _cardRow('Tags', lead.leadTag!),
-                      const SizedBox(height: 6),
+                      if(entry.leadStage.toLowerCase() == 'rejected')
+                      const SizedBox(height: 4),
                       _cardRow('Remark', '-${entry.remarks}'),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2570,7 +2648,7 @@ class _FollowupCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 90,
+            width: 100,
             child: Text(
               label,
               style: GoogleFonts.poppins(
@@ -2729,7 +2807,7 @@ class _FirstFollowupCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 90,
+            width: 100,
             child: Text(
               label,
               style: GoogleFonts.poppins(
@@ -2769,12 +2847,8 @@ class _LastFollowupCard extends StatelessWidget {
           SizedBox(height: 100),
           Text(
             // entry.time,
-            DateFormat('hh:mm a').format(lead.calledDate!),
+            DateFormat('hh:mm a').format(lead.calledDate?? lead.createdAt!),
             style: AppTextStyle.medium(color: Color(0xFF444444), size: 12),
-            // const TextStyle(
-            //     fontSize: 12,
-            //     fontWeight: FontWeight.w500,
-            //     color: Color(0xFF444444)),
           ),
           SizedBox(height: 25),
           Container(
@@ -2816,18 +2890,18 @@ class _LastFollowupCard extends StatelessWidget {
                           color: Color(0xFF222222),
                         ),
                       ),
-                      const Spacer(),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: Colors.green.shade600,
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: Colors.red.shade400,
-                      ),
+                      // const Spacer(),
+                      // Icon(
+                      //   Icons.edit_outlined,
+                      //   size: 18,
+                      //   color: Colors.green.shade600,
+                      // ),
+                      // const SizedBox(width: 8),
+                      // Icon(
+                      //   Icons.delete_outline,
+                      //   size: 18,
+                      //   color: Colors.red.shade400,
+                      // ),
                     ],
                   ),
                 ),
@@ -3350,11 +3424,17 @@ class _StatusChip extends StatelessWidget {
       case 'rejected':
         return const Color(0xFFFF5722);
       case 'follow up':
-        return const Color(0xFF2196F3);
+        return const Color(0xFFF59E0B);
+      case 'followup':
+        return const Color(0xFFF59E0B);
       case 'connected':
         return const Color(0xFF4CAF50);
       case 'new':
-        return const Color(0xFF0C3777);
+        return const Color(0xFF10B981);
+      case 'transferred':
+        return const Color(0xFF3B82F6);
+      case 'missed':
+        return const Color(0xFFEF4444);
       default:
         return const Color(0xFF9E9E9E);
     }
@@ -3368,13 +3448,14 @@ class _StatusChip extends StatelessWidget {
           Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
-            color: _color,
+            color: _color.withOpacity(0.12),
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: _color.withOpacity(0.3)),
           ),
           child: Text(
             label,
             style: AppTextStyle.medium(
-              color: Colors.white,
+              color: _color,
               size: 12,
               weight: FontWeight.w500,
             ),
@@ -3382,9 +3463,9 @@ class _StatusChip extends StatelessWidget {
               ),
           if(label == "new")
           Text(
-            ("Pending"),
+            "(Pending)",
             style: AppTextStyle.medium(
-              color: Colors.white,
+              color: Colors.red,
               size: 12,
               weight: FontWeight.w500,
             ),
