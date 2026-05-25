@@ -16,6 +16,8 @@ import 'package:sizer/sizer.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 
+import '../../../../../core/utils/transfer_lead_alert.dart';
+
 class TransferLeads extends StatefulWidget {
   const TransferLeads({super.key});
 
@@ -696,7 +698,45 @@ class _TransferLeadsState extends State<TransferLeads> {
                           child: Center(
                             child: GestureDetector(
                               onTap: hasSelection
-                                  ? () => _showAssignStaffDialog(selectedLeads)
+                                  ? () => showAssignStaffDialog(
+                                  selectedLeads, context,
+                                  onSubmit: (
+                                      String? selectedStaffId,
+                                      String? selectedStaffName,
+                                      ) async {
+                                    if (selectedStaffId == null || selectedStaffName == null)
+                                      return;
+
+                                    // for (final lead in selectedLeads) {
+                                    //   await context.read<AddLeadCubit>().assignStaff(
+                                    //     leadId: lead.id!,
+                                    //     staffId: selectedStaffId!,
+                                    //     staffName: selectedStaffName!,
+                                    //   );
+                                    // }
+                                    for (final lead in selectedLeads) {
+                                      await context.read<AddLeadCubit>().transferLead(
+                                        leadId:        lead.id!,
+                                        leadName:      lead.clientName,
+                                        contactNumber: lead.contactNumber,
+                                        leadCategory:  lead.leadCategory,
+                                        leadStage:     lead.leadStage,
+                                        fromStaffId:   lead.assignedStaffId,
+                                        fromStaff:     lead.assignedStaff,
+                                        toStaffId:     selectedStaffId,
+                                        toStaff:       selectedStaffName,
+                                      );
+                                    }
+
+                                    Navigator.pop(context);
+                                    // 🔹 Clear selection — assigned leads auto-disappear
+                                    // because _filteredLeads filters out assignedStaffId != ''
+                                    setState(() {
+                                      _selectedIndices = [];
+                                      _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
+                                    });
+                                    // context.read<AddLeadCubit>().fetchLeads();
+                                  })
                                   : () => ScaffoldMessenger.of(context)
                                         .showSnackBar(
                                           SnackBar(
@@ -826,101 +866,7 @@ class _TransferLeadsState extends State<TransferLeads> {
     );
   }
 
-  void _showAssignStaffDialog(List<AddLeadModel> selectedLeads) {
-    String? selectedStaffId;
-    String? selectedStaffName;
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return BlocProvider.value(
-          value: context.read<AddLeadCubit>(),
-          child: StatefulBuilder(
-            builder: (context, setDialogState) {
-              return BlocBuilder<AddLeadCubit, AddLeadState>(
-                builder: (context, state) {
-                  // 🔹 Use staffList directly from AddLeadState
-                  final staffList = state.staffList;
-                  final staffNames = staffList.map((s) => s.name).toList();
-
-                  return AppDialog(
-                    title: 'Assign Staff',
-                    width: 40.w,
-                    body: Padding(
-                      padding: EdgeInsets.all(1.w),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${selectedLeads.length} lead(s) selected",
-                            style: AppTextStyle.medium(
-                              color: AppColors.black,
-                              weight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 1.5.h),
-                          Dropdown(
-                            label: 'Staff',
-                            hint: 'Select Staff',
-                            items: staffNames,
-                            selectedValue: selectedStaffName,
-                            onChanged: (val) {
-                              setDialogState(() {
-                                selectedStaffName = val;
-                                selectedStaffId = staffList
-                                    .firstWhere((s) => s.name == val)
-                                    .id;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    onClose: () => Navigator.pop(dialogContext),
-                    onSubmit: () async {
-                      if (selectedStaffId == null || selectedStaffName == null)
-                        return;
-
-                      // for (final lead in selectedLeads) {
-                      //   await context.read<AddLeadCubit>().assignStaff(
-                      //     leadId: lead.id!,
-                      //     staffId: selectedStaffId!,
-                      //     staffName: selectedStaffName!,
-                      //   );
-                      // }
-                      for (final lead in selectedLeads) {
-    await context.read<AddLeadCubit>().transferLead(
-      leadId:        lead.id!,
-      leadName:      lead.clientName,
-      contactNumber: lead.contactNumber,
-      leadCategory:  lead.leadCategory,
-      leadStage:     lead.leadStage,
-      fromStaffId:   lead.assignedStaffId,
-      fromStaff:     lead.assignedStaff,
-      toStaffId:     selectedStaffId!,
-      toStaff:       selectedStaffName!,
-    );
-  }
-
-                      Navigator.pop(dialogContext);
-                      // 🔹 Clear selection — assigned leads auto-disappear
-                      // because _filteredLeads filters out assignedStaffId != ''
-                      setState(() {
-                        _selectedIndices = [];
-                        _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
-                      });
-                      // context.read<AddLeadCubit>().fetchLeads();
-                    },
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
 
   void _deleteSelectedLeads(List<AddLeadModel> selectedLeads) {
     showDialog(

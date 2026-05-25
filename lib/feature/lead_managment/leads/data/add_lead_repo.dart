@@ -7,6 +7,7 @@ import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 
 import '../../../dashboard/models/dashboard_count_model.dart';
 import '../../follow_up/models/follow_up_activities_model.dart';
+import '../../follow_up/models/staff_handler_model.dart';
 
 abstract class IAddLeadRepository {
   Future<String> addLead(AddLeadModel lead);
@@ -41,7 +42,10 @@ abstract class IAddLeadRepository {
     required DateTime selectedDate,
     required String role,
   });
-  Future<void> transferLead(String leadId, TransferDetails transfer);
+  Future<void> transferLead(String leadId, TransferDetails transfer,{
+    required String changedByName,
+    required String changedById,
+  });
   Future<void> _logActivity(String leadId, ActivityModel activity);
   Future<void> logLeadCreated({
     required String leadId,
@@ -59,6 +63,7 @@ abstract class IAddLeadRepository {
     required AddLeadModel previous,
     required AddLeadModel updated,
   });
+  Future<List<LeadStaffHandler>> getLeadHandledStaffs(AddLeadModel lead);
 
   Future<Map<String, int>> fetchLeadCountsByCategory({
     required String staffId,
@@ -130,7 +135,6 @@ class AddLeadRepository implements IAddLeadRepository {
     }
   }
 
-  @override
   Future<List<AddLeadModel>> fetchDashboardLeadsOld({
     required String staffId,
     required String role,
@@ -556,27 +560,73 @@ class AddLeadRepository implements IAddLeadRepository {
     log('[AddLeadRepository] FollowUp + activities written for lead: $leadId');
   }
 
-  Future<void> transferLead(String leadId, TransferDetails transfer) async {
+@override
+  Future<void> transferLead(String leadId, TransferDetails transfer, {
+    required String changedByName,
+    required String changedById,
+  }) async {
     if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
+    final batch = FirebaseFirestore.instance.batch();
     final String transferId = _generateDateId('TRF');
 
-    // ── Add to subcollection ──────────────────────────────────────────────
-    await _collection
+    // 1. Add to TRANSFER_LEADS subcollection
+    final transferRef = _collection
         .doc(leadId)
         .collection('TRANSFER_LEADS')
-        .doc(transferId)
-        .set(transfer.toFirestore());
+        .doc(transferId);
+    batch.set(transferRef, transfer.toFirestore());
 
-    // ── Update the lead document ──────────────────────────────────────────
-    await _collection.doc(leadId).update({
-      'assignedStaff': transfer.toStaff,
+    // 2. Update the lead document
+    final leadRef = _collection.doc(leadId);
+    batch.update(leadRef, {
+      'assignedStaff':   transfer.toStaff,
       'assignedStaffId': transfer.toStaffId,
       'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
     });
 
+    // 3. Log the transfer activity
+    final activityRef = _collection
+        .doc(leadId)
+        .collection('ACTIVITIES')
+        .doc();
+    batch.set(activityRef, ActivityModel(
+      id: '',
+      type: ActivityType.staffAssigned,
+      changedBy: changedByName,
+      changedById: changedById,
+      changedAt: DateTime.now(),
+      previousValue: transfer.fromStaff,
+      newValue: transfer.toStaff,
+      description:
+      'Lead transferred from ${transfer.fromStaff} to ${transfer.toStaff}.',
+    ).toFirestore());
+
+    await batch.commit();
     log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
   }
+
+// Future<void> transferLead(String leadId, TransferDetails transfer) async {
+//   if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+//
+//   final String transferId = _generateDateId('TRF');
+//
+//   // ── Add to subcollection ──────────────────────────────────────────────
+//   await _collection
+//       .doc(leadId)
+//       .collection('TRANSFER_LEADS')
+//       .doc(transferId)
+//       .set(transfer.toFirestore());
+//
+//   // ── Update the lead document ──────────────────────────────────────────
+//   await _collection.doc(leadId).update({
+//     'assignedStaff':   transfer.toStaff,
+//     'assignedStaffId': transfer.toStaffId,
+//     'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
+//   });
+//
+//   log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
+// }
 
   bool _isSameDay(DateTime d1, DateTime d2) {
     return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
@@ -808,6 +858,84 @@ class AddLeadRepository implements IAddLeadRepository {
     // Only commit if there's at least one change
     final ops = batch; // batch will be a no-op if nothing was added
     await ops.commit();
+  }
+
+
+  Future<List<LeadStaffHandler>> getLeadHandledStaffs(
+      AddLeadModel lead) async {
+    // Collect raw staff entries: {staffId -> staffName}
+    // Order matters — insertion order = chronological
+    final Map<String, String> staffMap = {};
+
+    // 1. Lead creator is always first
+    if (lead.createdById.isNotEmpty) {
+      staffMap[lead.createdById] = lead.createdBy ?? '';
+    }
+
+    // 2. Assigned staff (may be same as creator — dedup handled by map key)
+    if (lead.assignedStaffId.isNotEmpty) {
+      staffMap[lead.assignedStaffId] = lead.assignedStaff;
+    }
+
+    // 3. All transfer participants (fromStaff and toStaff)
+    final transferSnap = await _collection
+        .doc(lead.id)
+        .collection('TRANSFER_LEADS')
+        .orderBy('transferTime')
+        .get();
+
+    for (final doc in transferSnap.docs) {
+      final data = doc.data();
+      final fromId   = data['fromStaffId'] as String? ?? '';
+      final fromName = data['fromStaff']   as String? ?? '';
+      final toId     = data['toStaffId']   as String? ?? '';
+      final toName   = data['toStaff']     as String? ?? '';
+      if (fromId.isNotEmpty) staffMap.putIfAbsent(fromId, () => fromName);
+      if (toId.isNotEmpty)   staffMap.putIfAbsent(toId,   () => toName);
+    }
+
+    // 4. Count follow-ups per staff (activity count)
+    final fupSnap = await _collection
+        .doc(lead.id)
+        .collection('FOLLOW_UPS')
+        .get();
+
+    final Map<String, int> fupCount = {};
+    for (final doc in fupSnap.docs) {
+      final creatorId = doc.data()['createdById'] as String? ?? '';
+      if (creatorId.isNotEmpty) {
+        fupCount[creatorId] = (fupCount[creatorId] ?? 0) + 1;
+      }
+    }
+
+    // 5. Fetch phone numbers from STAFF collection in parallel
+    final staffIds = staffMap.keys.toList();
+    final phoneMap = <String, String>{};
+
+    await Future.wait(staffIds.map((id) async {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('STAFF')
+            .doc(id)
+            .get();
+        phoneMap[id] = doc.data()?['phone'] as String? ?? '';
+      } catch (_) {
+        phoneMap[id] = '';
+      }
+    }));
+
+    // 6. Build result list — same order as staffMap insertion
+    return staffIds.map((id) {
+      return LeadStaffHandler(
+        staffId: id,
+        staffName: staffMap[id] ?? '',
+        phone: phoneMap[id] ?? '',
+        // +1 for the lead creation itself by the creator
+        activityCount: (fupCount[id] ?? 0) +
+            (id == lead.createdById ? 1 : 0),
+        isCurrentAssignee: id == lead.assignedStaffId,
+      );
+    }).toList();
   }
 
   Future<Map<String, int>> fetchLeadCountsByCategory({

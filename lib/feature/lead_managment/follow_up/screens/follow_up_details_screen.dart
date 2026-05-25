@@ -9,8 +9,7 @@
 // class FollowUpDetailsScreen extends StatefulWidget {
 //   const FollowUpDetailsScreen({super.key});
 //
-//   @override
-//   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
+//   @over/   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
 // }
 //
 // class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>  with SingleTickerProviderStateMixin{
@@ -1043,6 +1042,7 @@
 
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1059,13 +1059,19 @@ import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/shared_preference/session_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../../core/utils/transfer_lead_alert.dart';
+import '../../../sidebar/main_screen.dart';
+import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
 import '../models/follow_up_activities_model.dart';
 import '../models/follow_up_details_models.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+
+import '../models/staff_handler_model.dart';
 
 class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
@@ -1081,6 +1087,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
+
+  late AddLeadModel _currentLead;
 
   final List<ActivityEntry> _activities = const [
     ActivityEntry(
@@ -1105,6 +1113,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   @override
   void initState() {
     super.initState();
+    _currentLead = widget.currentLead;
     _tabController = TabController(length: 3, vsync: this);
     // Keep _selectedTab in sync when user swipes (if you ever re-add TabBarView)
     _tabController.addListener(() {
@@ -1119,6 +1128,67 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _reloadFollowUps() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('LEADS')
+          .doc(_currentLead.id)
+          .collection('FOLLOW_UPS')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final followUps = snap.docs
+          .map((d) => FollowUpModel.fromFirestore(d.data(), d.id))
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          _currentLead = _currentLead.copyWith(followUp: followUps);
+        });
+      }
+    } catch (e) {
+      debugPrint('[FollowUpDetailsScreen] Failed to reload follow-ups: $e');
+    }
+  }
+
+  void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
+        content: Text(
+          'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
+          style: AppTextStyle.medium(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: AppTextStyle.medium(color: AppColors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              final user = await SessionService().getSavedUser();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 12,staff: user, fromCard: 'NEW',)),
+              );
+            },
+            child: Text(
+              'Delete',
+              style: AppTextStyle.medium(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1156,15 +1226,26 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     switch (_selectedTab) {
       case 0:
         return _FollowupTabContent(
-          followups: widget.currentLead.followUp??[],
-          leadId: widget.currentLead.id ?? '',
-          leadName: widget.currentLead.clientName ?? '',
-          lead: widget.currentLead,
+          followups: _currentLead.followUp ?? [],      // ← use _currentLead
+          leadId: _currentLead.id ?? '',
+          leadName: _currentLead.clientName ?? '',
+          lead: _currentLead,
+          onFollowUpAdded: _reloadFollowUps,           // ✅ pass callback
         );
       case 1:
-        return _ActivitiesTabContent(lead: widget.currentLead,);
+        return _ActivitiesTabContent(lead: _currentLead);
       case 2:
-        return _DetailsTabContent(lead: widget.currentLead,);
+        return _DetailsTabContent(lead: _currentLead);
+        // return _FollowupTabContent(
+        //   followups: widget.currentLead.followUp??[],
+        //   leadId: widget.currentLead.id ?? '',
+        //   leadName: widget.currentLead.clientName ?? '',
+        //   lead: widget.currentLead,
+        // );
+      // case 1:
+      //   return _ActivitiesTabContent(lead: widget.currentLead,);
+      // case 2:
+      //   return _DetailsTabContent(lead: widget.currentLead,);
       default:
         return const SizedBox();
     }
@@ -1203,7 +1284,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           Text(
                             // 'Sanidha',
-                            widget.currentLead.clientName ?? '',
+                            _currentLead.clientName ?? '',
                             style: AppTextStyle.heading(
                               size: 20,
                               weight: FontWeight.w700,
@@ -1211,18 +1292,92 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             ),
                           ),
                           const SizedBox(width: 10),
-                          const _PriorityBadge(label: 'Lead priority: High'),
+                           _PriorityBadge(label: 'Lead priority: ${_currentLead.priority}'),
                           const Spacer(),
-                          _headerIcon(Icons.edit_outlined, onTap: () {}),
+                          _headerIcon(Icons.edit_outlined,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MainScreen(
+                                      selectedIndex: 1,
+                                      lead: _currentLead,
+                                    ),
+                                  ),
+                                );
+                          }),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.swap_horiz, onTap: () {}),
+                          _headerIcon(Icons.swap_horiz,
+                              onTap: () {
+                                showAssignStaffDialog(
+                                    [_currentLead], context,
+                                    onSubmit: (
+                                        String? selectedStaffId,
+                                        String? selectedStaffName,
+                                        ) async {
+
+                                      print("pppppppp");
+                                      if (selectedStaffId == null || selectedStaffName == null)
+                                        return;
+
+                                      // for (final lead in selectedLeads) {
+                                      //   await context.read<AddLeadCubit>().assignStaff(
+                                      //     leadId: lead.id!,
+                                      //     staffId: selectedStaffId!,
+                                      //     staffName: selectedStaffName!,
+                                      //   );
+                                      // }
+                                      // for (final lead in selectedLeads) {
+
+                                        await context.read<AddLeadCubit>().transferLead(
+                                          leadId:        _currentLead.id!,
+                                          leadName:      _currentLead.clientName,
+                                          contactNumber: _currentLead.contactNumber,
+                                          leadCategory:  _currentLead.leadCategory,
+                                          leadStage:     _currentLead.leadStage,
+                                          fromStaffId:   _currentLead.assignedStaffId,
+                                          fromStaff:     _currentLead.assignedStaff,
+                                          toStaffId:     selectedStaffId,
+                                          toStaff:       selectedStaffName,
+                                        );
+                                      // }
+
+                                      print("oooooooooooooo");
+                                      await _reloadFollowUps();
+                                      setState(() {
+                                        _currentLead = _currentLead.copyWith(
+                                          assignedStaffId: selectedStaffId,
+                                          assignedStaff: selectedStaffName,
+                                        );
+                                      });
+                                      Navigator.pop(context);
+                                      // 🔹 Clear selection — assigned leads auto-disappear
+                                      // because _filteredLeads filters out assignedStaffId != ''
+                                      // setState(() {
+                                      //   _selectedIndices = [];
+                                      //   _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
+                                      // });
+                                      // context.read<AddLeadCubit>().fetchLeads();
+                                    });
+                              }),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.add_box_outlined, onTap: () {}),
+                          _headerIcon(Icons.add_box_outlined, onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(
+                                  selectedIndex: 1,
+                                ),
+                              ),
+                            );
+                          }),
                           const SizedBox(width: 10),
                           _headerIcon(
                             Icons.delete_outline,
                             color: Colors.red.shade300,
-                            onTap: () {},
+                            onTap: () {
+                              _confirmDelete(context, _currentLead);
+                            },
                           ),
                         ],
                       ),
@@ -1238,23 +1393,23 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           _metaItem(Icons.phone,
                               // '8086287726'
-                              widget.currentLead.contactNumber ?? '',),
+                            _currentLead.contactNumber ?? '',),
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,
-                            'Karuvarkund, Malappuram',
+                            _currentLead.address,
                           ),
                           _divider(),
-                          _metaText('Create Date : 18 Apr, 2026'),
+                          _metaText('Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt??DateTime.now())}'),
                           _divider(),
-                          _metaText('category :'),
+                          _metaText('category : ${_currentLead.leadCategory}'),
                           _divider(),
-                          _metaText('Staff : Shahid'),
+                          _metaText('Staff : ${_currentLead.assignedStaff}'),
                           _divider(),
-                          _metaText('Cost : 0'),
-                          _divider(),
-                          const _StatusBadge(
-                            label: 'Rejected',
+                          // _metaText('Cost : 0'),
+                          // _divider(),
+                           _StatusBadge(
+                            label: _currentLead.leadStage,
                             color: Color(0xFF2196F3),
                           ),
                         ],
@@ -1264,7 +1419,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                     const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _metaText('Lead Source : Ads'),
+                      child: _metaText('Lead Source : ${_currentLead.leadSource}'),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -1342,6 +1497,8 @@ class _FollowupTabContent extends StatefulWidget {
   final String? leadWhatsappNo;
   final String? leadWhatsappDialCode;
   final AddLeadModel lead;
+  final VoidCallback onFollowUpAdded;
+
   const _FollowupTabContent({
     required this.followups,
     required this.leadId,
@@ -1349,6 +1506,7 @@ class _FollowupTabContent extends StatefulWidget {
     this.leadWhatsappNo,
     this.leadWhatsappDialCode,
     required this.lead,
+    required this.onFollowUpAdded,
   });
 
   @override
@@ -1416,7 +1574,11 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     final Map<String, FollowUpModel> followupGroup = {};
 
-    followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+    log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
+
+    if(widget.lead.followUpDate != null) {
+      followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+    }
 
     for (final f in widget.followups) {
       followupGroup[DateFormat('dd-MM-yyyy').format(f.calledDate)] = f;
@@ -1427,38 +1589,38 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     // }
 
     ///---------------------------------------------------------------
-    grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
-        leadId: widget.leadId,
-        leadName: widget.leadName,
-        leadWhatsappNo: widget.leadWhatsappNo ?? "",
-        leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-        nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-        calledStatus: widget.lead.callResult ?? "",
-        calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-        leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-        priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-
-    ));
-
-    for (final f in widget.followups) {
-      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
-    }
-
-
-    if(widget.followups.isEmpty) {
-      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
-          leadId: widget.leadId,
-          leadName: widget.leadName,
-          leadWhatsappNo: widget.leadWhatsappNo ?? "",
-          leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-          nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-          calledStatus: widget.lead.callResult ?? "",
-          calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-          leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-          priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-
-      ));
-    }
+    // grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
+    //     leadId: widget.leadId,
+    //     leadName: widget.leadName,
+    //     leadWhatsappNo: widget.leadWhatsappNo ?? "",
+    //     leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+    //     nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+    //     calledStatus: widget.lead.callResult ?? "",
+    //     calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+    //     leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+    //     priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
+    //
+    // ));
+    //
+    // for (final f in widget.followups) {
+    //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
+    // }
+    //
+    //
+    // if(widget.followups.isEmpty) {
+    //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
+    //       leadId: widget.leadId,
+    //       leadName: widget.leadName,
+    //       leadWhatsappNo: widget.leadWhatsappNo ?? "",
+    //       leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+    //       nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+    //       calledStatus: widget.lead.callResult ?? "",
+    //       calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+    //       leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+    //       priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
+    //
+    //   ));
+    // }
 
     // final dates = grouped.keys.toList();
 
@@ -1882,6 +2044,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   backgroundColor: Colors.green,
                 ),
               );
+              widget.onFollowUpAdded();
             }
             if (state.errorMessage != null) {
               // ✅ Guard: only show if context is still mounted
@@ -2510,7 +2673,7 @@ class _DateGroup extends StatelessWidget {
                 children:
                 [
                   // Text("count of entries are $index $dateCount"),
-                  index == 0 ?
+                  index == 0 && dateCount > 1 ?
                   _LastFollowupCard(lead: lead,) :
                   lead.followUp!.isNotEmpty && index < dateCount - 1 ?
                   _FollowupCard(entry: entry, lead: lead, index: index,):
@@ -2764,7 +2927,7 @@ class _FirstFollowupCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        lead.assignedStaff,
+                        lead.createdBy,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -3175,7 +3338,7 @@ class _ActivityItem extends StatelessWidget {
               ),
               Container(
                 width: 1.5,
-                height: 40,
+                height: 50,
                 color: const Color(0xFFE0E0E0),
               ),
             ],
@@ -3204,30 +3367,30 @@ class _ActivityItem extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                // Show value change pill if present
-                if (activity.previousValue != null &&
-                    activity.newValue != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _ValueChip(
-                        label: activity.previousValue!,
-                        color: const Color(0xFFEEEEEE),
-                        textColor: const Color(0xFF888888),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        child: Icon(Icons.arrow_forward,
-                            size: 14, color: Color(0xFF888888)),
-                      ),
-                      _ValueChip(
-                        label: activity.newValue!,
-                        color: const Color(0xFFE3F2FD),
-                        textColor: const Color(0xFF1565C0),
-                      ),
-                    ],
-                  ),
-                ],
+                /// Show value change pill if present
+                // if (activity.previousValue != null &&
+                //     activity.newValue != null) ...[
+                //   const SizedBox(height: 6),
+                //   Row(
+                //     children: [
+                //       _ValueChip(
+                //         label: activity.previousValue!,
+                //         color: const Color(0xFFEEEEEE),
+                //         textColor: const Color(0xFF888888),
+                //       ),
+                //       const Padding(
+                //         padding: EdgeInsets.symmetric(horizontal: 6),
+                //         child: Icon(Icons.arrow_forward,
+                //             size: 14, color: Color(0xFF888888)),
+                //       ),
+                //       _ValueChip(
+                //         label: activity.newValue!,
+                //         color: const Color(0xFFE3F2FD),
+                //         textColor: const Color(0xFF1565C0),
+                //       ),
+                //     ],
+                //   ),
+                // ],
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd-MM-yyyy hh:mm a').format(activity.changedAt),
@@ -3363,13 +3526,29 @@ class _ValueChip extends StatelessWidget {
 //   }
 // }
 
+///
 // ─────────────────────────────────────────────────────────
 // Tab 3 – Details content (shrink-wraps inside ScrollView)
 // ─────────────────────────────────────────────────────────
 
-class _DetailsTabContent extends StatelessWidget {
+class _DetailsTabContent extends StatefulWidget {
   final AddLeadModel lead;
   const _DetailsTabContent({required this.lead});
+
+  @override
+  State<_DetailsTabContent> createState() => _DetailsTabContentState();
+}
+
+class _DetailsTabContentState extends State<_DetailsTabContent> {
+
+  late final Future<List<LeadStaffHandler>> _handlersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _handlersFuture =
+        AddLeadRepository().getLeadHandledStaffs(widget.lead);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -3401,21 +3580,22 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
-          const _DetailGrid(
+           _DetailGrid(
             rows: [
-              ['Phone', '+917902207315', 'Address', 'Cheruplasheri'],
-              ['State', '', 'District', ''],
-              ['Post office', '', 'Pincode', ''],
-              ['Whatsapp_number', '+917902207315', 'Email', ''],
+              ['Phone', (widget.lead.contactNumber), 'Address', (widget.lead.address)],
+              ['State', (widget.lead.state), 'District', (widget.lead.district)],
+              ['Post office', widget.lead.postOffice, 'Pincode', widget.lead.pinCode],
+              ['Whatsapp_number', (widget.lead.whatsappNumber), 'Email', widget.lead.email],
               [
                 'Created Date',
-                '25 Apr, 2026',
+                DateFormat('dd-MM-yyyy hh:mm').format(widget.lead.createdAt!),
                 'Created By',
-                'Oxdo technologies pvt ltd',
+                widget.lead.createdBy,
               ],
-              ['Lead Category', 'May Visit', 'Assigned Staff', 'Shahid'],
-              ['Cost', '0', 'Call Status', 'Follow Up'],
-              ['Products', '', '', ''],
+              ['Lead Category', widget.lead.leadCategory, 'Assigned Staff', widget.lead.assignedStaff],
+              // ['Cost', '0',
+                ['Call Status', widget.lead.callResult??"-", 'Lead Stage', widget.lead.leadStage,],
+              // ['Products', '', '', ''],
             ],
           ),
           const SizedBox(height: 8),
@@ -3423,10 +3603,10 @@ class _DetailsTabContent extends StatelessWidget {
             labelStyle: labelStyle,
             valueStyle: valueStyle,
             left: 'Lead Method',
-            leftVal: 'Direct Entry',
+            leftVal: widget.lead.leadSource,
             right: 'Remarks',
             rightVal:
-                'planning to visit on 4th may with friends, some friends are in different places. will try to visit before 4th otherwise will come on 4th',
+                widget.lead.remarks.isEmpty ? '-' : '-${widget.lead.remarks}',
           ),
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
@@ -3440,27 +3620,75 @@ class _DetailsTabContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _StaffCard(
-                  name: 'Oxdo technologies pvt ltd',
-                  phone: '9207554433',
-                  activities: 1,
-                  isStarred: false,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StaffCard(
-                  name: 'Shahid',
-                  phone: '918089131915',
-                  activities: 2,
-                  isStarred: true,
-                ),
-              ),
-            ],
+          // ✅ Dynamic staff list
+          FutureBuilder<List<LeadStaffHandler>>(
+            future: _handlersFuture,
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snap.hasError) {
+                return Text('Error: ${snap.error}');
+              }
+              final handlers = snap.data ?? [];
+              if (handlers.isEmpty) {
+                return const Text('No staff records found.');
+              }
+
+              // Render in rows of 2 — matches your existing layout
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (int i = 0; i < handlers.length; i += 2)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _StaffCard(
+                              handler: handlers[i],
+                            ),
+                          ),
+                          if (i + 1 < handlers.length) ...[
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _StaffCard(
+                                handler: handlers[i + 1],
+                              ),
+                            ),
+                          ] else
+                            const Expanded(child: SizedBox()),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: _StaffCard(
+          //         name: 'Oxdo technologies pvt ltd',
+          //         phone: '9207554433',
+          //         activities: 1,
+          //         isStarred: false,
+          //       ),
+          //     ),
+          //     const SizedBox(width: 12),
+          //     Expanded(
+          //       child: _StaffCard(
+          //         name: 'Shahid',
+          //         phone: '918089131915',
+          //         activities: 2,
+          //         isStarred: true,
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 20),
         ],
       ),
@@ -3565,32 +3793,23 @@ class _DetailCell extends StatelessWidget {
 }
 
 class _StaffCard extends StatelessWidget {
-  final String name;
-  final String phone;
-  final int activities;
-  final bool isStarred;
-
-  const _StaffCard({
-    required this.name,
-    required this.phone,
-    required this.activities,
-    required this.isStarred,
-  });
+  final LeadStaffHandler handler;
+  const _StaffCard({required this.handler});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFDE7),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFEEEECC)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const CircleAvatar(
-            radius: 18,
+            radius: 20,
             backgroundColor: Color(0xFFE0E0E0),
             child: Icon(Icons.person, size: 20, color: Color(0xFF888888)),
           ),
@@ -3600,39 +3819,127 @@ class _StaffCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  handler.staffName,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF222222),
+                    color: const Color(0xFF222222),
+                  ),
+                ),
+                if (handler.phone.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    handler.phone,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: const Color(0xFF777777),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${handler.activityCount}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: const Color(0xFF555555),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  phone,
+                      handler.activityCount == 1 ? 'Activity' : 'Activities',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: Color(0xFF777777),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '$activities Activities',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Color(0xFF555555),
+                    color: const Color(0xFF555555),
                   ),
                 ),
               ],
             ),
           ),
-          if (isStarred)
+          // Star marks current assignee
+          if (handler.isCurrentAssignee)
             const Icon(Icons.star, color: Color(0xFFFFA000), size: 20),
         ],
       ),
     );
   }
 }
+
+// class _StaffCard extends StatelessWidget {
+//   final String name;
+//   final String phone;
+//   final int activities;
+//   final bool isStarred;
+//
+//   const _StaffCard({
+//     required this.name,
+//     required this.phone,
+//     required this.activities,
+//     required this.isStarred,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(14),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFFFFFDE7),
+//         borderRadius: BorderRadius.circular(10),
+//         border: Border.all(color: const Color(0xFFEEEECC)),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const CircleAvatar(
+//             radius: 18,
+//             backgroundColor: Color(0xFFE0E0E0),
+//             child: Icon(Icons.person, size: 20, color: Color(0xFF888888)),
+//           ),
+//           const SizedBox(width: 10),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   name,
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 13,
+//                     fontWeight: FontWeight.w600,
+//                     color: Color(0xFF222222),
+//                   ),
+//                 ),
+//                 const SizedBox(height: 2),
+//                 Text(
+//                   phone,
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 12,
+//                     color: Color(0xFF777777),
+//                   ),
+//                 ),
+//                 const SizedBox(height: 6),
+//                 Text(
+//                   '$activities Activities',
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 12,
+//                     color: Color(0xFF555555),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           if (isStarred)
+//             const Icon(Icons.star, color: Color(0xFFFFA000), size: 20),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // ─────────────────────────────────────────────────────────
 // Shared Widgets

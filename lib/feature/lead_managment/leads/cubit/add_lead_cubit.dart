@@ -714,23 +714,30 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (state.isUpdating) return;
     emit(state.copyWith(isUpdating: true, clearError: true));
 
-    try {
-      final transfer = TransferDetails(
-        leadId: leadId,
-        leadName: leadName,
-        contactNumber: contactNumber,
-        leadCategory: leadCategory,
-        leadStage: leadStage,
-        fromStaffId: fromStaffId,
-        fromStaff: fromStaff,
-        toStaffId: toStaffId,
-        toStaff: toStaff,
-        transferTime: DateTime.now(),
-      );
+  try {
 
-      await _leadRepository.transferLead(leadId, transfer);
-      if (isClosed) return;
-      //  // ── Notify receiving staff (check transferLead setting) ──────────────
+    final user = await SessionService().getSavedUser();
+
+    final transfer = TransferDetails(
+      leadId: leadId,
+      leadName: leadName,
+      contactNumber: contactNumber,
+      leadCategory: leadCategory,
+      leadStage: leadStage,
+      fromStaffId: fromStaffId,
+      fromStaff: fromStaff,
+      toStaffId: toStaffId,
+      toStaff: toStaff,
+      transferTime: DateTime.now(),
+    );
+
+    await _leadRepository.transferLead(
+      leadId,
+      transfer,
+      changedByName: user?.name ?? '',
+      changedById: user?.id ?? '',
+    );
+    // await _leadRepository.transferLead(leadId, transfer);
 
       if (toStaffId.isNotEmpty) {
         await notificationRepo.create(
