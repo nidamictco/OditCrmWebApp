@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/auth_gate.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
@@ -79,7 +79,7 @@ class OxdoApp extends StatelessWidget {
     seedColor: Colors.deepPurple,
   ),
 ),
-            home: AuthGate(),
+            home: LoginScreen(),
           );
         },
       ),

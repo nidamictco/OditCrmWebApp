@@ -13,28 +13,28 @@ class FirebaseAuthService {
       _firestore.collection('STAFF');
 
   Future<StaffModel> login({
-    required String email,
+    required String phoneNo,
     required String password,
   }) async {
     try {
-      log('[FirebaseAuthService] Querying STAFF where EMAIL == $email');
+      log('[FirebaseAuthService] Querying STAFF where PHONE == $phoneNo');
 
       final query = await _staff
-          .where('email', isEqualTo: email.trim())
+          .where('phone', isEqualTo: phoneNo.trim())
           .limit(1)
           .get(); 
 
       log('[FirebaseAuthService] Docs found: ${query.docs.length}');
 
       if (query.docs.isEmpty) {
-        throw AuthException('No account found for "$email".');
+        throw AuthException('No account found for "$phoneNo".');
       }
 
       final doc = query.docs.first;
-      final data = doc.data();
+      final data = doc.data(); 
 
       log('[FirebaseAuthService] Raw doc data: $data');
-
+ 
       final storedPassword = data['password'] as String? ?? '';
 
       if (storedPassword != password) {

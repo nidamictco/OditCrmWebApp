@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';

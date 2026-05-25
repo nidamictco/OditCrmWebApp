@@ -92,21 +92,21 @@ class AuthCubit extends Cubit<AuthState> {
   // }
 
    Future<void> login({
-    required String email,
+    required String phoneNo,
     required String password,
     required PermissionCubit permissionCubit,  // ← NEW
   }) async {
-    if (email.trim().isEmpty || password.isEmpty) {
-      emit(AuthError(message: 'Email and password are required.'));
+    if (phoneNo.trim().isEmpty || password.isEmpty) {
+      emit(AuthError(message: 'Phone number and password are required.'));
       return;
     }
     emit(AuthLoading());
     try {
       final user = await _authService.login(
-        email: email.trim(),
+        phoneNo: phoneNo.trim(),
         password: password,
       );
-      log('[AuthCubit] Login success: ${user.email} | designation: ${user.designation}');
+      log('[AuthCubit] Login success: ${user.phone} | designation: ${user.designation}');
       await _sessionService.saveSession(user);
 
       // ✅ Load permissions immediately after login
@@ -131,3 +131,4 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoggedOut());
   }
 }
+
