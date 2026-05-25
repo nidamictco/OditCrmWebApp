@@ -9,8 +9,7 @@
 // class FollowUpDetailsScreen extends StatefulWidget {
 //   const FollowUpDetailsScreen({super.key});
 //
-//   @override
-//   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
+//   @over/   State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
 // }
 //
 // class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>  with SingleTickerProviderStateMixin{
@@ -1043,6 +1042,7 @@
 
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1059,8 +1059,11 @@ import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/shared_preference/session_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../../core/utils/transfer_lead_alert.dart';
+import '../../../sidebar/main_screen.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
@@ -1085,6 +1088,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   late TabController _tabController;
   int _selectedTab = 0;
 
+  late AddLeadModel _currentLead;
+
   final List<ActivityEntry> _activities = const [
     ActivityEntry(
       agent: 'Shahid',
@@ -1108,6 +1113,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   @override
   void initState() {
     super.initState();
+    _currentLead = widget.currentLead;
     _tabController = TabController(length: 3, vsync: this);
     // Keep _selectedTab in sync when user swipes (if you ever re-add TabBarView)
     _tabController.addListener(() {
@@ -1122,6 +1128,67 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _reloadFollowUps() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('LEADS')
+          .doc(_currentLead.id)
+          .collection('FOLLOW_UPS')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final followUps = snap.docs
+          .map((d) => FollowUpModel.fromFirestore(d.data(), d.id))
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          _currentLead = _currentLead.copyWith(followUp: followUps);
+        });
+      }
+    } catch (e) {
+      debugPrint('[FollowUpDetailsScreen] Failed to reload follow-ups: $e');
+    }
+  }
+
+  void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
+        content: Text(
+          'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
+          style: AppTextStyle.medium(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: AppTextStyle.medium(color: AppColors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              final user = await SessionService().getSavedUser();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 12,staff: user, fromCard: 'NEW',)),
+              );
+            },
+            child: Text(
+              'Delete',
+              style: AppTextStyle.medium(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1159,15 +1226,26 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     switch (_selectedTab) {
       case 0:
         return _FollowupTabContent(
-          followups: widget.currentLead.followUp??[],
-          leadId: widget.currentLead.id ?? '',
-          leadName: widget.currentLead.clientName ?? '',
-          lead: widget.currentLead,
+          followups: _currentLead.followUp ?? [],      // ← use _currentLead
+          leadId: _currentLead.id ?? '',
+          leadName: _currentLead.clientName ?? '',
+          lead: _currentLead,
+          onFollowUpAdded: _reloadFollowUps,           // ✅ pass callback
         );
       case 1:
-        return _ActivitiesTabContent(lead: widget.currentLead,);
+        return _ActivitiesTabContent(lead: _currentLead);
       case 2:
-        return _DetailsTabContent(lead: widget.currentLead,);
+        return _DetailsTabContent(lead: _currentLead);
+        // return _FollowupTabContent(
+        //   followups: widget.currentLead.followUp??[],
+        //   leadId: widget.currentLead.id ?? '',
+        //   leadName: widget.currentLead.clientName ?? '',
+        //   lead: widget.currentLead,
+        // );
+      // case 1:
+      //   return _ActivitiesTabContent(lead: widget.currentLead,);
+      // case 2:
+      //   return _DetailsTabContent(lead: widget.currentLead,);
       default:
         return const SizedBox();
     }
@@ -1206,7 +1284,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           Text(
                             // 'Sanidha',
-                            widget.currentLead.clientName ?? '',
+                            _currentLead.clientName ?? '',
                             style: AppTextStyle.heading(
                               size: 20,
                               weight: FontWeight.w700,
@@ -1214,18 +1292,92 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             ),
                           ),
                           const SizedBox(width: 10),
-                           _PriorityBadge(label: 'Lead priority: ${widget.currentLead.priority}'),
+                           _PriorityBadge(label: 'Lead priority: ${_currentLead.priority}'),
                           const Spacer(),
-                          _headerIcon(Icons.edit_outlined, onTap: () {}),
+                          _headerIcon(Icons.edit_outlined,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MainScreen(
+                                      selectedIndex: 1,
+                                      lead: _currentLead,
+                                    ),
+                                  ),
+                                );
+                          }),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.swap_horiz, onTap: () {}),
+                          _headerIcon(Icons.swap_horiz,
+                              onTap: () {
+                                showAssignStaffDialog(
+                                    [_currentLead], context,
+                                    onSubmit: (
+                                        String? selectedStaffId,
+                                        String? selectedStaffName,
+                                        ) async {
+
+                                      print("pppppppp");
+                                      if (selectedStaffId == null || selectedStaffName == null)
+                                        return;
+
+                                      // for (final lead in selectedLeads) {
+                                      //   await context.read<AddLeadCubit>().assignStaff(
+                                      //     leadId: lead.id!,
+                                      //     staffId: selectedStaffId!,
+                                      //     staffName: selectedStaffName!,
+                                      //   );
+                                      // }
+                                      // for (final lead in selectedLeads) {
+
+                                        await context.read<AddLeadCubit>().transferLead(
+                                          leadId:        _currentLead.id!,
+                                          leadName:      _currentLead.clientName,
+                                          contactNumber: _currentLead.contactNumber,
+                                          leadCategory:  _currentLead.leadCategory,
+                                          leadStage:     _currentLead.leadStage,
+                                          fromStaffId:   _currentLead.assignedStaffId,
+                                          fromStaff:     _currentLead.assignedStaff,
+                                          toStaffId:     selectedStaffId,
+                                          toStaff:       selectedStaffName,
+                                        );
+                                      // }
+
+                                      print("oooooooooooooo");
+                                      await _reloadFollowUps();
+                                      setState(() {
+                                        _currentLead = _currentLead.copyWith(
+                                          assignedStaffId: selectedStaffId,
+                                          assignedStaff: selectedStaffName,
+                                        );
+                                      });
+                                      Navigator.pop(context);
+                                      // 🔹 Clear selection — assigned leads auto-disappear
+                                      // because _filteredLeads filters out assignedStaffId != ''
+                                      // setState(() {
+                                      //   _selectedIndices = [];
+                                      //   _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
+                                      // });
+                                      // context.read<AddLeadCubit>().fetchLeads();
+                                    });
+                              }),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.add_box_outlined, onTap: () {}),
+                          _headerIcon(Icons.add_box_outlined, onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(
+                                  selectedIndex: 1,
+                                ),
+                              ),
+                            );
+                          }),
                           const SizedBox(width: 10),
                           _headerIcon(
                             Icons.delete_outline,
                             color: Colors.red.shade300,
-                            onTap: () {},
+                            onTap: () {
+                              _confirmDelete(context, _currentLead);
+                            },
                           ),
                         ],
                       ),
@@ -1241,23 +1393,23 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         children: [
                           _metaItem(Icons.phone,
                               // '8086287726'
-                              widget.currentLead.contactNumber ?? '',),
+                            _currentLead.contactNumber ?? '',),
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,
-                            widget.currentLead.address,
+                            _currentLead.address,
                           ),
                           _divider(),
-                          _metaText('Create Date : ${DateFormat("dd MMM, yyyy").format(widget.currentLead.createdAt??DateTime.now())}'),
+                          _metaText('Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt??DateTime.now())}'),
                           _divider(),
-                          _metaText('category : ${widget.currentLead.leadCategory}'),
+                          _metaText('category : ${_currentLead.leadCategory}'),
                           _divider(),
-                          _metaText('Staff : ${widget.currentLead.assignedStaff}'),
+                          _metaText('Staff : ${_currentLead.assignedStaff}'),
                           _divider(),
                           // _metaText('Cost : 0'),
                           // _divider(),
                            _StatusBadge(
-                            label: widget.currentLead.leadStage,
+                            label: _currentLead.leadStage,
                             color: Color(0xFF2196F3),
                           ),
                         ],
@@ -1267,7 +1419,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                     const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _metaText('Lead Source : ${widget.currentLead.leadSource}'),
+                      child: _metaText('Lead Source : ${_currentLead.leadSource}'),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -1345,6 +1497,8 @@ class _FollowupTabContent extends StatefulWidget {
   final String? leadWhatsappNo;
   final String? leadWhatsappDialCode;
   final AddLeadModel lead;
+  final VoidCallback onFollowUpAdded;
+
   const _FollowupTabContent({
     required this.followups,
     required this.leadId,
@@ -1352,6 +1506,7 @@ class _FollowupTabContent extends StatefulWidget {
     this.leadWhatsappNo,
     this.leadWhatsappDialCode,
     required this.lead,
+    required this.onFollowUpAdded,
   });
 
   @override
@@ -1419,7 +1574,11 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     final Map<String, FollowUpModel> followupGroup = {};
 
-    followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+    log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
+
+    if(widget.lead.followUpDate != null) {
+      followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+    }
 
     for (final f in widget.followups) {
       followupGroup[DateFormat('dd-MM-yyyy').format(f.calledDate)] = f;
@@ -1430,38 +1589,38 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     // }
 
     ///---------------------------------------------------------------
-    grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
-        leadId: widget.leadId,
-        leadName: widget.leadName,
-        leadWhatsappNo: widget.leadWhatsappNo ?? "",
-        leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-        nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-        calledStatus: widget.lead.callResult ?? "",
-        calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-        leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-        priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-
-    ));
-
-    for (final f in widget.followups) {
-      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
-    }
-
-
-    if(widget.followups.isEmpty) {
-      grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
-          leadId: widget.leadId,
-          leadName: widget.leadName,
-          leadWhatsappNo: widget.leadWhatsappNo ?? "",
-          leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-          nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-          calledStatus: widget.lead.callResult ?? "",
-          calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-          leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-          priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-
-      ));
-    }
+    // grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
+    //     leadId: widget.leadId,
+    //     leadName: widget.leadName,
+    //     leadWhatsappNo: widget.leadWhatsappNo ?? "",
+    //     leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+    //     nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+    //     calledStatus: widget.lead.callResult ?? "",
+    //     calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+    //     leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+    //     priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
+    //
+    // ));
+    //
+    // for (final f in widget.followups) {
+    //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
+    // }
+    //
+    //
+    // if(widget.followups.isEmpty) {
+    //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
+    //       leadId: widget.leadId,
+    //       leadName: widget.leadName,
+    //       leadWhatsappNo: widget.leadWhatsappNo ?? "",
+    //       leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
+    //       nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+    //       calledStatus: widget.lead.callResult ?? "",
+    //       calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+    //       leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
+    //       priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
+    //
+    //   ));
+    // }
 
     // final dates = grouped.keys.toList();
 
@@ -1885,6 +2044,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   backgroundColor: Colors.green,
                 ),
               );
+              widget.onFollowUpAdded();
             }
             if (state.errorMessage != null) {
               // ✅ Guard: only show if context is still mounted
@@ -2513,7 +2673,7 @@ class _DateGroup extends StatelessWidget {
                 children:
                 [
                   // Text("count of entries are $index $dateCount"),
-                  index == 0 ?
+                  index == 0 && dateCount > 1 ?
                   _LastFollowupCard(lead: lead,) :
                   lead.followUp!.isNotEmpty && index < dateCount - 1 ?
                   _FollowupCard(entry: entry, lead: lead, index: index,):
@@ -2767,7 +2927,7 @@ class _FirstFollowupCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        lead.assignedStaff,
+                        lead.createdBy,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,

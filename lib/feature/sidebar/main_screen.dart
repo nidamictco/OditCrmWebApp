@@ -404,7 +404,8 @@ class _MainScreenState extends State<MainScreen> {
         return BlocProvider(
           create: (_) => AddLeadCubit()
             // ..fetchDashboardLeads(staffId: '', role: '', fromCard: '', selectedDate: )
-            ..initialize(),
+            ..initialize()
+            ..fetchStaff(),
           child: FollowUpDetailsScreen(currentLead: widget.lead!),
         );
       case 32:
