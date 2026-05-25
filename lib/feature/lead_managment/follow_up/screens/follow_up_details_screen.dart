@@ -1061,11 +1061,14 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
 import '../models/follow_up_activities_model.dart';
 import '../models/follow_up_details_models.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+
+import '../models/staff_handler_model.dart';
 
 class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
@@ -3368,9 +3371,24 @@ class _ValueChip extends StatelessWidget {
 // Tab 3 – Details content (shrink-wraps inside ScrollView)
 // ─────────────────────────────────────────────────────────
 
-class _DetailsTabContent extends StatelessWidget {
+class _DetailsTabContent extends StatefulWidget {
   final AddLeadModel lead;
   const _DetailsTabContent({required this.lead});
+
+  @override
+  State<_DetailsTabContent> createState() => _DetailsTabContentState();
+}
+
+class _DetailsTabContentState extends State<_DetailsTabContent> {
+
+  late final Future<List<LeadStaffHandler>> _handlersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _handlersFuture =
+        AddLeadRepository().getLeadHandledStaffs(widget.lead);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -3404,19 +3422,19 @@ class _DetailsTabContent extends StatelessWidget {
           const SizedBox(height: 8),
            _DetailGrid(
             rows: [
-              ['Phone', (lead.contactNumber), 'Address', (lead.address)],
-              ['State', (lead.state), 'District', (lead.district)],
-              ['Post office', lead.postOffice, 'Pincode', lead.pinCode],
-              ['Whatsapp_number', (lead.whatsappNumber), 'Email', lead.email],
+              ['Phone', (widget.lead.contactNumber), 'Address', (widget.lead.address)],
+              ['State', (widget.lead.state), 'District', (widget.lead.district)],
+              ['Post office', widget.lead.postOffice, 'Pincode', widget.lead.pinCode],
+              ['Whatsapp_number', (widget.lead.whatsappNumber), 'Email', widget.lead.email],
               [
                 'Created Date',
-                DateFormat('dd-MM-yyyy hh:mm').format(lead.createdAt!),
+                DateFormat('dd-MM-yyyy hh:mm').format(widget.lead.createdAt!),
                 'Created By',
-                lead.createdBy,
+                widget.lead.createdBy,
               ],
-              ['Lead Category', lead.leadCategory, 'Assigned Staff', lead.assignedStaff],
+              ['Lead Category', widget.lead.leadCategory, 'Assigned Staff', widget.lead.assignedStaff],
               // ['Cost', '0',
-                ['Call Status', lead.callResult??"-", 'Lead Stage', lead.leadStage,],
+                ['Call Status', widget.lead.callResult??"-", 'Lead Stage', widget.lead.leadStage,],
               // ['Products', '', '', ''],
             ],
           ),
@@ -3425,10 +3443,10 @@ class _DetailsTabContent extends StatelessWidget {
             labelStyle: labelStyle,
             valueStyle: valueStyle,
             left: 'Lead Method',
-            leftVal: lead.leadSource,
+            leftVal: widget.lead.leadSource,
             right: 'Remarks',
             rightVal:
-                lead.remarks.isEmpty ? '-' : '-${lead.remarks}',
+                widget.lead.remarks.isEmpty ? '-' : '-${widget.lead.remarks}',
           ),
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
@@ -3442,27 +3460,75 @@ class _DetailsTabContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _StaffCard(
-                  name: 'Oxdo technologies pvt ltd',
-                  phone: '9207554433',
-                  activities: 1,
-                  isStarred: false,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StaffCard(
-                  name: 'Shahid',
-                  phone: '918089131915',
-                  activities: 2,
-                  isStarred: true,
-                ),
-              ),
-            ],
+          // ✅ Dynamic staff list
+          FutureBuilder<List<LeadStaffHandler>>(
+            future: _handlersFuture,
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snap.hasError) {
+                return Text('Error: ${snap.error}');
+              }
+              final handlers = snap.data ?? [];
+              if (handlers.isEmpty) {
+                return const Text('No staff records found.');
+              }
+
+              // Render in rows of 2 — matches your existing layout
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (int i = 0; i < handlers.length; i += 2)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _StaffCard(
+                              handler: handlers[i],
+                            ),
+                          ),
+                          if (i + 1 < handlers.length) ...[
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _StaffCard(
+                                handler: handlers[i + 1],
+                              ),
+                            ),
+                          ] else
+                            const Expanded(child: SizedBox()),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: _StaffCard(
+          //         name: 'Oxdo technologies pvt ltd',
+          //         phone: '9207554433',
+          //         activities: 1,
+          //         isStarred: false,
+          //       ),
+          //     ),
+          //     const SizedBox(width: 12),
+          //     Expanded(
+          //       child: _StaffCard(
+          //         name: 'Shahid',
+          //         phone: '918089131915',
+          //         activities: 2,
+          //         isStarred: true,
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 20),
         ],
       ),
@@ -3567,32 +3633,23 @@ class _DetailCell extends StatelessWidget {
 }
 
 class _StaffCard extends StatelessWidget {
-  final String name;
-  final String phone;
-  final int activities;
-  final bool isStarred;
-
-  const _StaffCard({
-    required this.name,
-    required this.phone,
-    required this.activities,
-    required this.isStarred,
-  });
+  final LeadStaffHandler handler;
+  const _StaffCard({required this.handler});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFDE7),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFEEEECC)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const CircleAvatar(
-            radius: 18,
+            radius: 20,
             backgroundColor: Color(0xFFE0E0E0),
             child: Icon(Icons.person, size: 20, color: Color(0xFF888888)),
           ),
@@ -3602,39 +3659,127 @@ class _StaffCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  handler.staffName,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF222222),
+                    color: const Color(0xFF222222),
+                  ),
+                ),
+                if (handler.phone.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    handler.phone,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: const Color(0xFF777777),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${handler.activityCount}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: const Color(0xFF555555),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  phone,
+                      handler.activityCount == 1 ? 'Activity' : 'Activities',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: Color(0xFF777777),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '$activities Activities',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Color(0xFF555555),
+                    color: const Color(0xFF555555),
                   ),
                 ),
               ],
             ),
           ),
-          if (isStarred)
+          // Star marks current assignee
+          if (handler.isCurrentAssignee)
             const Icon(Icons.star, color: Color(0xFFFFA000), size: 20),
         ],
       ),
     );
   }
 }
+
+// class _StaffCard extends StatelessWidget {
+//   final String name;
+//   final String phone;
+//   final int activities;
+//   final bool isStarred;
+//
+//   const _StaffCard({
+//     required this.name,
+//     required this.phone,
+//     required this.activities,
+//     required this.isStarred,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(14),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFFFFFDE7),
+//         borderRadius: BorderRadius.circular(10),
+//         border: Border.all(color: const Color(0xFFEEEECC)),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const CircleAvatar(
+//             radius: 18,
+//             backgroundColor: Color(0xFFE0E0E0),
+//             child: Icon(Icons.person, size: 20, color: Color(0xFF888888)),
+//           ),
+//           const SizedBox(width: 10),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   name,
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 13,
+//                     fontWeight: FontWeight.w600,
+//                     color: Color(0xFF222222),
+//                   ),
+//                 ),
+//                 const SizedBox(height: 2),
+//                 Text(
+//                   phone,
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 12,
+//                     color: Color(0xFF777777),
+//                   ),
+//                 ),
+//                 const SizedBox(height: 6),
+//                 Text(
+//                   '$activities Activities',
+//                   style: GoogleFonts.poppins(
+//                     fontSize: 12,
+//                     color: Color(0xFF555555),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           if (isStarred)
+//             const Icon(Icons.star, color: Color(0xFFFFA000), size: 20),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // ─────────────────────────────────────────────────────────
 // Shared Widgets

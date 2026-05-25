@@ -710,6 +710,9 @@ Future<void> submitLead({
   emit(state.copyWith(isUpdating: true, clearError: true));
 
   try {
+
+    final user = await SessionService().getSavedUser();
+
     final transfer = TransferDetails(
       leadId: leadId,
       leadName: leadName,
@@ -723,7 +726,13 @@ Future<void> submitLead({
       transferTime: DateTime.now(),
     );
 
-    await _leadRepository.transferLead(leadId, transfer);
+    await _leadRepository.transferLead(
+      leadId,
+      transfer,
+      changedByName: user?.name ?? '',
+      changedById: user?.id ?? '',
+    );
+    // await _leadRepository.transferLead(leadId, transfer);
 
 
 
