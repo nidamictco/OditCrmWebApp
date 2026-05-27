@@ -102,10 +102,10 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Deleted Staff',
           createEnabled: false,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
-          otherEnabled: false,
+          otherEnabled: true,
         ),
       ],
     ),
@@ -123,8 +123,8 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Add Lead',
           createEnabled: true,
-          viewEnabled: false,
-          editEnabled: false,
+          viewEnabled: true,
+          editEnabled: true,
           deleteEnabled: false,
           otherEnabled: false,
         ),
@@ -163,7 +163,7 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Deleted Leads',
           createEnabled: false,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
           otherEnabled: true,
@@ -171,10 +171,10 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Unassigned Leads',
           createEnabled: false,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
-          otherEnabled: false,
+          otherEnabled: true,
         ),
         MenuPermission(
           name: 'Transfer Leads',
@@ -186,8 +186,8 @@ class _DesignationPermissionsScreenState
         ),
         MenuPermission(
           name: 'Custom Field Settings',
-          createEnabled: false,
-          viewEnabled: false,
+          createEnabled: true,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
           otherEnabled: false,
@@ -211,7 +211,7 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Phone Call Log',
           createEnabled: false,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
           otherEnabled: true,
@@ -219,7 +219,7 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Lead Source',
           createEnabled: true,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: true,
           deleteEnabled: true,
           otherEnabled: false,
@@ -227,7 +227,7 @@ class _DesignationPermissionsScreenState
         MenuPermission(
           name: 'Lead Stages',
           createEnabled: false,
-          viewEnabled: false,
+          viewEnabled: true,
           editEnabled: false,
           deleteEnabled: false,
           otherEnabled: false,

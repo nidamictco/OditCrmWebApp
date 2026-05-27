@@ -41,7 +41,6 @@ class FirebaseAuthService {
         throw AuthException('Incorrect password.');
       }
 
-      // ✅ Wrap fromMap in its own try so parse errors surface clearly
       try {
         final user = StaffModel.fromFirestore(doc);
         log('[FirebaseAuthService] UserModel built: $user');

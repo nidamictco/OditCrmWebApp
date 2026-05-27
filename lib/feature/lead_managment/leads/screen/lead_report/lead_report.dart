@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/export_excel.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
@@ -47,28 +48,17 @@ class _LeadsReportState extends State<LeadsReport> {
   int _currentPage = 1;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
-    // context.read<AddLeadCubit>().fetchLeads();
-    // final cubit = context.read<AddLeadCubit>();
-    // cubit.initialize();
-    // cubit.fetchLeads();
-    // cubit.fetchStaff();
 
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-   WidgetsBinding.instance.addPostFrameCallback((_) {
-    context.read<AddLeadCubit>().fetchLeads(); 
-    _applyFilters();
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AddLeadCubit>().fetchLeads();
+      _applyFilters();
+    });
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   context.read<AddLeadCubit>().fetchLeads();
-  // }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────
   String? _appliedCategory;
@@ -299,20 +289,32 @@ class _LeadsReportState extends State<LeadsReport> {
                               weight: FontWeight.w600,
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 1.4.w,
-                              vertical: 1.2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xffE5E7EB),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              "Export",
-                              style: AppTextStyle.medium(
-                                color: Colors.indigo[900],
-                                weight: FontWeight.w400,
+                          GestureDetector(
+                            onTap: () {
+                              final leads = context
+                                  .read<AddLeadCubit>()
+                                  .state
+                                  .leads;
+                              final filtered = _filteredLeads(
+                                leads,
+                              ); // exports only filtered data
+                              exportLeadsToExcel(filtered);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 1.4.w,
+                                vertical: 1.2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffE5E7EB),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                "Export",
+                                style: AppTextStyle.medium(
+                                  color: Colors.indigo[900],
+                                  weight: FontWeight.w400,
+                                ),
                               ),
                             ),
                           ),
@@ -494,8 +496,8 @@ class _LeadsReportState extends State<LeadsReport> {
 
                               Row(
                                 children: [
-                                  SizedBox(
-                                    width: 17.45.w,
+                                  Expanded(
+                                    // width: 17.45.w,
                                     child: Dropdown(
                                       label: "State",
                                       hint: "select state",
@@ -509,8 +511,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
-                                  SizedBox(
-                                    width: 17.45.w,
+                                  Expanded(
+                                    // width: 17.45.w,
                                     child: Dropdown(
                                       label: "District",
                                       hint: "select district",
@@ -523,13 +525,18 @@ class _LeadsReportState extends State<LeadsReport> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
+                                  Expanded(child: SizedBox()),
+                                  SizedBox(width: 2.w),
+                                  Expanded(child: SizedBox()),
                                 ],
                               ),
                               Row(
                                 children: [
                                   /// 🔥 VIEW BUTTON
                                   InkWell(
-                                    onTap: _applyFilters,
+                                    onTap: () {
+                                      _applyFilters();
+                                    },
                                     child: Padding(
                                       padding: EdgeInsets.only(top: 2.h),
                                       child: SizedBox(
@@ -555,6 +562,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                       ),
                                     ),
                                   ),
+                                  
+                                    
                                   SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
@@ -681,7 +690,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                   //   MaterialPageRoute(
                                   //     builder: (context) => MainScreen(
                                   //       selectedIndex: 31,
-                                  //       lead: , 
+                                  //       lead: ,
                                   //     ),
                                   //   ),
                                   // );

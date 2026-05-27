@@ -2119,7 +2119,8 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                       // Pass current lead's values so the repo can diff them
                       previousStage: widget.lead.leadStage ?? '',
                       previousCategory: widget.lead.leadCategory ?? '',
-                      previousPriority: widget.lead.priority ?? '',
+                      previousPriority: widget.lead.priority ?? '', 
+                      leadPhone: widget.lead.contactNumber ?? '', 
                     );
                   },
                   body: Padding(

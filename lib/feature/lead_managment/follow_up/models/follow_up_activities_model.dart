@@ -17,12 +17,16 @@ enum ActivityType {
 class ActivityModel {
   final String id;
   final ActivityType type;
-  final String changedBy;       // staff name, not ID
+  final String changedBy;      
   final String changedById;
   final DateTime changedAt;
   final String? previousValue;
   final String? newValue;
-  final String description;     // human-readable sentence
+  final String description; 
+  final String? leadId;
+  final String? leadName; // ← new field
+  final String? leadPhone; // ← new field
+    
 
   const ActivityModel({
     required this.id,
@@ -33,6 +37,9 @@ class ActivityModel {
     this.previousValue,
     this.newValue,
     required this.description,
+    this.leadId,
+    this.leadName,
+    this.leadPhone,
   });
 
   factory ActivityModel.fromFirestore(Map<String, dynamic> data, String id) {
@@ -45,6 +52,9 @@ class ActivityModel {
       previousValue: data['previousValue'] as String?,
       newValue: data['newValue'] as String?,
       description: data['description'] as String? ?? '',
+      leadId: data['leadId'] as String?,
+      leadName: data['leadName'] as String?,
+      leadPhone: data['leadPhone'] as String?,
     );
   }
 
@@ -56,6 +66,9 @@ class ActivityModel {
     'previousValue': previousValue,
     'newValue': newValue,
     'description': description,
+    'leadId':leadId,
+    'leadName': leadName,
+    'leadPhone': leadPhone,
   };
 
   static ActivityType _parseType(String raw) {

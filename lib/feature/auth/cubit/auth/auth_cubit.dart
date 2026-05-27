@@ -109,7 +109,6 @@ class AuthCubit extends Cubit<AuthState> {
       log('[AuthCubit] Login success: ${user.phone} | designation: ${user.designation}');
       await _sessionService.saveSession(user);
 
-      // ✅ Load permissions immediately after login
       await permissionCubit.loadPermissions(user.designationId);
 
       emit(Authenticated(user: user));

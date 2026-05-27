@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/notification/data/notification_repo.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/data/lead_category_repository.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/data/lead_source_repo.dart';
@@ -14,7 +16,6 @@ import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart
 import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
 
-import '../../follow_up/data/activity_repo.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
@@ -621,6 +622,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   Future<void> submitFollowUp({
     required String leadId,
     required String leadName,
+    required String leadPhone, 
     required String leadWhatsappNo,
     required String leadWhatsappDialCode,
     required DateTime calledDate,
@@ -673,6 +675,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         previousPriority: previousPriority,
         changedByName: user?.name ?? '',
         changedById: user?.id ?? '',
+         leadName: leadName,
+    leadPhone: leadPhone, 
       );
 
       emit(
@@ -781,33 +785,61 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // ── Fetch lead count ────────────────────────────────────────────────────────────
 
-  Future<void> fetchDashboardCounts(DateTime selectedDate) async {
-    try {
-      final user = await SessionService().getSavedUser();
+  // Future<void> fetchDashboardCounts(DateTime selectedDate) async {
+  //   try {
+  //     final user = await SessionService().getSavedUser();
 
-      if (user == null) return;
+  //     if (user == null) return;
 
-      final counts = await _leadRepository.fetchLeadCounts(
-        staffId: user.id ?? '',
-        selectedDate: selectedDate,
-        role: user.staffType ?? '',
-      );
+  //     final counts = await _leadRepository.fetchLeadCounts(
+  //       staffId: user.id ?? '',
+  //       selectedDate: selectedDate,
+  //       role: user.staffType ?? '',
+  //     );
 
-      emit(
-        state.copyWith(
-          newLeadCount: counts.newLeadCount.toString(),
-          followUpCount: counts.followUpCount.toString(),
-          closedLeadCount: counts.closedLeadCount.toString(),
-          totalCalledCount: counts.totalCalledCount.toString(),
-          missedLeadCount: counts.missedLeadCount.toString(),
-          transferredCount: counts.transferredCount.toString(),
-        ),
-      );
-    } catch (e) {
-      log("Dashboard Count Error : $e");
-    }
+  //     emit(
+  //       state.copyWith(
+  //         newLeadCount: counts.newLeadCount.toString(),
+  //         followUpCount: counts.followUpCount.toString(),
+  //         closedLeadCount: counts.closedLeadCount.toString(),
+  //         totalCalledCount: counts.totalCalledCount.toString(),
+  //         missedLeadCount: counts.missedLeadCount.toString(),
+  //         transferredCount: counts.transferredCount.toString(),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     log("Dashboard Count Error : $e");
+  //   }
+  // }
+Future<void> fetchDashboardCounts(
+  DateTime selectedDate, {
+  String? staffId,  // ← add these
+  String? role,
+}) async {
+  try {
+    final user = await SessionService().getSavedUser();
+    if (user == null) return;
+
+    final counts = await _leadRepository.fetchLeadCounts(
+      staffId: staffId ?? user.id ?? '',       // ← use passed staffId
+      selectedDate: selectedDate,
+      role: role ?? user.staffType ?? '',      // ← use passed role
+    );
+
+    emit(
+      state.copyWith(
+        newLeadCount: counts.newLeadCount.toString(),
+        followUpCount: counts.followUpCount.toString(),
+        closedLeadCount: counts.closedLeadCount.toString(),
+        totalCalledCount: counts.totalCalledCount.toString(),
+        missedLeadCount: counts.missedLeadCount.toString(),
+        transferredCount: counts.transferredCount.toString(),
+      ),
+    );
+  } catch (e) {
+    log("Dashboard Count Error : $e");
   }
-
+}
   // ----------search----------
 
   Future<void> searchLeads(String query) async {
@@ -862,20 +894,104 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     emit(state.copyWith(selectedDashboardDate: date));
   }
 
+  // Future<void> fetchLeadChartCounts({
+  //   required String staffId,
+  //   required String role,
+  //   required DateTime selectedDate,
+  // }) async {
+  //   try {
+  //     final counts = await _leadRepository.fetchLeadCountsByCategory(
+  //       staffId: staffId,
+  //       role: role,
+  //       selectedDate: selectedDate,
+  //     );
+  //     emit(state.copyWith(leadChartCounts: counts));
+  //   } catch (e) {
+  //     log('[AddLeadCubit] fetchLeadChartCounts error: $e');
+  //   }
+  // }
   Future<void> fetchLeadChartCounts({
-    required String staffId,
-    required String role,
-    required DateTime selectedDate,
-  }) async {
-    try {
-      final counts = await _leadRepository.fetchLeadCountsByCategory(
-        staffId: staffId,
-        role: role,
-        selectedDate: selectedDate,
-      );
-      emit(state.copyWith(leadChartCounts: counts));
-    } catch (e) {
-      log('[AddLeadCubit] fetchLeadChartCounts error: $e');
-    }
+  required String staffId,
+  required String role,
+  required DateTime selectedDate,
+}) async {
+  try {
+    // fetch both in parallel
+    final results = await Future.wait([
+      _leadRepository.fetchLeadCountsByCategory(
+        staffId: staffId, role: role, selectedDate: selectedDate,
+      ),
+      _leadRepository.fetchLeadCategoryTableRows(
+        staffId: staffId, role: role, selectedDate: selectedDate,
+      ),
+    ]);
+
+    emit(state.copyWith(
+      leadChartCounts: results[0] as Map<String, int>,
+      leadCategoryTableRows: results[1] as List<LeadCategoryTableRow>,
+    ));
+  } catch (e) {
+    log('[AddLeadCubit] fetchLeadChartCounts error: $e');
   }
+}
+
+
+Future<void> fetchCallStatusCounts({
+  required String staffId,
+  required String role,
+}) async {
+  try {
+    final counts = await _leadRepository.fetchCallStatusCounts(
+      staffId: staffId,
+      role: role,
+    );
+    emit(state.copyWith(
+      totalCalledCount: counts['totalCalled'].toString(),
+      connectedCount: counts['connected'].toString(),  
+      notConnectedCount: counts['notConnected'].toString(), 
+    ));
+  } catch (e) {
+    log('[AddLeadCubit] fetchCallStatusCounts error: $e');
+  }
+}
+}
+
+
+
+Future<void> migrateCallResults() async {
+  final db = FirebaseFirestore.instance;
+  final leadsSnap = await db.collection('LEADS').get();
+
+  for (final leadDoc in leadsSnap.docs) {
+    // Get the latest follow-up for this lead
+    final followUpsSnap = await db
+        .collection('LEADS')
+        .doc(leadDoc.id)
+        .collection('FOLLOW_UPS')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (followUpsSnap.docs.isEmpty) continue;
+
+    final latestCalledStatus =
+        followUpsSnap.docs.first.data()['calledStatus'] as String? ?? '';
+
+    if (latestCalledStatus.isEmpty) continue;
+
+    // Update the lead's callResult
+    await db.collection('LEADS').doc(leadDoc.id).update({
+      'callResult': latestCalledStatus,
+    });
+
+    print('Updated lead ${leadDoc.id} → callResult: $latestCalledStatus');
+  }
+
+  print('Migration complete.');
+
+  //////////called butten migrate////////////
+  ///ElevatedButton(
+ /// onPressed: () => migrateCallResults(),
+ /// child: const Text('Run Migration'),
+///),
 }

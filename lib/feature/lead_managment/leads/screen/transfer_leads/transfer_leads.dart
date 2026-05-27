@@ -340,8 +340,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  SizedBox(
-                                    width: 17.65.w,
+                                  Expanded(
                                     child: Dropdown(
                                       label: "Lead Source",
                                       hint: 'select source',
@@ -357,8 +356,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
-                                  SizedBox(
-                                    width: 17.65.w,
+                                  Expanded(
                                     child: Dropdown(
                                       label: "Priority",
                                       hint: 'select priority',
@@ -374,8 +372,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
-                                  SizedBox(
-                                    width: 17.65.w,
+                                  Expanded(
                                     child: Dropdown(
                                       label: "Staff",
                                       hint: 'select staff',
@@ -391,7 +388,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     ),
                                   ),
                                   SizedBox(width: 1.4.w),
-                                 
+                                  Expanded(child: SizedBox()),
                                 ],
                               ),
                               Row(

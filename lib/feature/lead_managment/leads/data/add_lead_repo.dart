@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 
 import '../../../dashboard/models/dashboard_count_model.dart';
 import '../../follow_up/models/follow_up_activities_model.dart';
@@ -36,6 +37,8 @@ abstract class IAddLeadRepository {
     String? previousPriority,
     String changedByName = '',
     String changedById = '',
+    String leadName = '',
+    String leadPhone = '',
   });
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
@@ -69,6 +72,15 @@ abstract class IAddLeadRepository {
     required String staffId,
     required String role,
     required DateTime selectedDate,
+  });
+  Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
+    required String staffId,
+    required String role,
+    required DateTime selectedDate,
+  });
+  Future<Map<String, int>> fetchCallStatusCounts({
+    required String staffId,
+    required String role,
   });
 }
 
@@ -447,6 +459,8 @@ class AddLeadRepository implements IAddLeadRepository {
     String? previousPriority,
     String changedByName = '',
     String changedById = '',
+    String leadName = '',   
+  String leadPhone = '', 
   }) async {
     if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
@@ -469,6 +483,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'leadCategory': followUp.leadCategory,
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
+      'callResult': followUp.calledStatus,
     });
 
     final now = DateTime.now();
@@ -487,6 +502,9 @@ class AddLeadRepository implements IAddLeadRepository {
         changedById: changedById,
         changedAt: now,
         previousValue: followUp.calledStatus,
+         leadId: leadId,       // ← add
+    leadName: leadName,   // ← add
+    leadPhone: leadPhone, // ← add
         newValue: DateFormat(
           'dd-MM-yyyy HH:mm',
         ).format(followUp.nextFollowUpDate),
@@ -985,4 +1003,89 @@ class AddLeadRepository implements IAddLeadRepository {
 
     return counts;
   }
+  // In your AddLeadRepository
+Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
+  required String staffId,
+  required String role,
+  required DateTime selectedDate,
+}) async {
+  final start = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+  final end = start.add(const Duration(days: 1));
+
+  // Fetch all follow-ups for this staff on the selected date
+  Query query = _firestore
+      .collection('LEADS')
+      .where('followUpDate', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+      .where('followUpDate', isLessThan: Timestamp.fromDate(end));
+
+  if (role != 'Admin' && role != 'Manager') {
+    query = query.where('assignedStaffId', isEqualTo: staffId);
+  }
+
+  final snapshot = await query.get();
+
+  // Group by leadCategory → then count by leadStage
+  final Map<String, Map<String, int>> grouped = {};
+
+  for (final doc in snapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    final category = (data['leadCategory'] as String? ?? 'Uncategorized').trim();
+    final stage = (data['leadStage'] as String? ?? '').trim().toUpperCase();
+
+    grouped.putIfAbsent(category, () => {
+      'NEW': 0, 'FOLLOW UP': 0, 'REJECTED': 0, 'CLOSED': 0,
+    });
+
+    if (stage == 'NEW') grouped[category]!['NEW'] = (grouped[category]!['NEW'] ?? 0) + 1;
+    else if (stage == 'FOLLOW UP') grouped[category]!['FOLLOW UP'] = (grouped[category]!['FOLLOW UP'] ?? 0) + 1;
+    else if (stage == 'REJECTED') grouped[category]!['REJECTED'] = (grouped[category]!['REJECTED'] ?? 0) + 1;
+    else if (stage == 'CLOSED') grouped[category]!['CLOSED'] = (grouped[category]!['CLOSED'] ?? 0) + 1;
+  }
+
+  return grouped.entries.map((e) => LeadCategoryTableRow(
+    category: e.key,
+    newCount: e.value['NEW'] ?? 0,
+    followUpCount: e.value['FOLLOW UP'] ?? 0,
+    rejectedCount: e.value['REJECTED'] ?? 0,
+    closedCount: e.value['CLOSED'] ?? 0,
+  )).toList();
+}
+
+Future<Map<String, int>> fetchCallStatusCounts({
+  required String staffId,
+  required String role,
+}) async {
+  Query<Map<String, dynamic>> query = _collection;
+
+  if (role.toLowerCase() != 'admin') {
+    query = query.where('assignedStaffId', isEqualTo: staffId);
+  }
+
+  final snap = await query.get();
+
+  int totalCalled = 0;
+  int connected = 0;
+  int notConnected = 0;
+
+  for (final doc in snap.docs) {
+    final data = doc.data();
+    final callResult = (data['callResult'] as String? ?? '').toLowerCase().trim();
+
+    if (callResult.isNotEmpty) {
+      totalCalled++;
+
+      if (callResult == 'connected') {
+        connected++;
+      } else if (callResult == 'not connected' || callResult == 'notconnected') {
+        notConnected++;
+      }
+    }
+  }
+
+  return {
+    'totalCalled': totalCalled,
+    'connected': connected,
+    'notConnected': notConnected,
+  };
+}
 }

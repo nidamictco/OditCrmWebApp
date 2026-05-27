@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
@@ -5,8 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/feature/lead_managment/follow_up/models/follow_up_activities_model.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_cubit.dart';
+import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_state.dart';
 import 'package:oxdo/feature/reports/staff_reports/widget/note_dialog.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
@@ -45,6 +50,8 @@ class CallStatusData {
   final int costAmount;
   final int totalCalled;
   final Map<String, int> leadsByCategory;
+  final int connectedCount;
+  final int notConnectedCount;
 
   const CallStatusData({
     required this.cloudCallDuration,
@@ -53,6 +60,8 @@ class CallStatusData {
     required this.costAmount,
     required this.totalCalled,
     required this.leadsByCategory,
+    this.connectedCount = 0,
+    this.notConnectedCount = 0,
   });
 }
 
@@ -130,6 +139,20 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
       staffId: widget.staff.id ?? '',
       role: widget.staff.staffType ?? '',
       selectedDate: DateTime.now(),
+    );
+    context.read<AddLeadCubit>().fetchDashboardCounts(
+      DateTime.now(),
+      staffId: widget.staff.id,
+      role: widget.staff.staffType,
+    );
+
+    if (widget.staff.id != null) {
+      context.read<StaffActivityCubit>().load(widget.staff.id!);
+    }
+
+    context.read<AddLeadCubit>().fetchCallStatusCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
     );
   }
 
@@ -374,6 +397,16 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, leadState) {
         // Use live counts if available, fall back to zeros
+        // final liveCallData = CallStatusData(
+        //   cloudCallDuration: _callData.cloudCallDuration,
+        //   phoneCallDuration: _callData.phoneCallDuration,
+        //   closedCount: int.tryParse(leadState.closedLeadCount) ?? 0,
+        //   costAmount: _callData.costAmount,
+        //   totalCalled: int.tryParse(leadState.totalCalledCount) ?? 0,
+        //   leadsByCategory: leadState.leadChartCounts.isNotEmpty
+        //       ? leadState.leadChartCounts
+        //       : _callData.leadsByCategory,
+        // );
         final liveCallData = CallStatusData(
           cloudCallDuration: _callData.cloudCallDuration,
           phoneCallDuration: _callData.phoneCallDuration,
@@ -383,6 +416,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
           leadsByCategory: leadState.leadChartCounts.isNotEmpty
               ? leadState.leadChartCounts
               : _callData.leadsByCategory,
+          connectedCount: int.tryParse(leadState.connectedCount) ?? 0,
+          notConnectedCount: int.tryParse(leadState.notConnectedCount) ?? 0,
         );
 
         return SingleChildScrollView(
@@ -401,6 +436,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                         _CallStatusCard(
                           data: liveCallData, // ← now uses live data
                           selectedDate: _selectedDate,
+                          categoryRows: leadState.leadCategoryTableRows,
                           onDateChanged: (d) {
                             setState(() => _selectedDate = d);
                             // Re-fetch when date changes
@@ -412,7 +448,23 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                           },
                         ),
                         SizedBox(height: 3.w),
-                        const RecentActivityCard(),
+                        // const RecentActivityCard(),
+                        BlocBuilder<StaffActivityCubit, StaffActivityState>(
+                          builder: (context, state) {
+                            if (state is StaffActivityError) {
+                              return Text(
+                                'Error: ${state.message}',
+                              ); // ← add this
+                            }
+                            final items = state is StaffActivityLoaded
+                                ? state.activities
+                                : <ActivityModel>[];
+                            return RecentActivityCard(
+                              activities: items,
+                              isLoading: state is StaffActivityLoading,
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -895,11 +947,13 @@ class _DateBadge extends StatelessWidget {
 class _CallStatusCard extends StatefulWidget {
   final CallStatusData data;
   final String selectedDate;
+  final List<LeadCategoryTableRow> categoryRows;
   final ValueChanged<String> onDateChanged;
 
   const _CallStatusCard({
     required this.data,
     required this.selectedDate,
+    required this.categoryRows,
     required this.onDateChanged,
   });
 
@@ -980,9 +1034,22 @@ class __CallStatusCardState extends State<_CallStatusCard> {
           ),
         ),
         SizedBox(height: 1.w),
-        _progress('TOTAL CALLED', 156, 1),
-        _progress('CONNECTED', 41, 0.3),
-        _progress('NOT ATTENDED', 86, 0.7),
+        // _progress('TOTAL CALLED', 0, 1),
+        _progress('TOTAL CALLED', widget.data.totalCalled, 1.0),
+        _progress(
+          'CONNECTED',
+          widget.data.connectedCount,
+          widget.data.totalCalled > 0
+              ? widget.data.connectedCount / widget.data.totalCalled
+              : 0,
+        ),
+        _progress(
+          'NOT CONNECTED',
+          widget.data.notConnectedCount,
+          widget.data.totalCalled > 0
+              ? widget.data.notConnectedCount / widget.data.totalCalled
+              : 0,
+        ),
         SizedBox(height: 1.w),
       ],
     );
@@ -1114,6 +1181,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   }
 
   Widget _rightChart() {
+    log('Lead categories for chart: ${widget.data.leadsByCategory}');
     return Column(
       children: [
         SizedBox(height: 2.h),
@@ -1140,6 +1208,25 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     );
   }
 
+  // Widget _categoryTable() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       border: Border.all(color: Colors.grey.shade300),
+  //       borderRadius: BorderRadius.circular(10),
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         _row(true, 'Category', 'New', 'Follow Up', 'Rejected', 'Closed'),
+  //         _row(false, 'Uncategorized', '0', '1', '0', '0'),
+  //         _row(false, 'Need Followup', '0', '57', '2', '0'),
+  //         _row(false, 'Not Contacted', '0', '67', '19', '0'),
+  //         _row(false, 'Fake', '0', '5', '2', '0'),
+  //         _row(false, 'Visited', '0', '3', '0', '0'),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _categoryTable() {
     return Container(
       decoration: BoxDecoration(
@@ -1149,11 +1236,27 @@ class __CallStatusCardState extends State<_CallStatusCard> {
       child: Column(
         children: [
           _row(true, 'Category', 'New', 'Follow Up', 'Rejected', 'Closed'),
-          _row(false, 'Uncategorized', '0', '1', '0', '0'),
-          _row(false, 'Need Followup', '0', '57', '2', '0'),
-          _row(false, 'Not Contacted', '0', '67', '19', '0'),
-          _row(false, 'Fake', '0', '5', '2', '0'),
-          _row(false, 'Visited', '0', '3', '0', '0'),
+          if (widget.categoryRows.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Center(
+                child: Text(
+                  'No data',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                ),
+              ),
+            )
+          else
+            ...widget.categoryRows.map(
+              (r) => _row(
+                false,
+                r.category,
+                '${r.newCount}',
+                '${r.followUpCount}',
+                '${r.rejectedCount}',
+                '${r.closedCount}',
+              ),
+            ),
         ],
       ),
     );
@@ -1201,24 +1304,111 @@ class __CallStatusCardState extends State<_CallStatusCard> {
 // DONUT CHART
 // ─────────────────────────────────────────────
 
+// class _DonutChart extends StatelessWidget {
+//   final Map<String, int> leadsByCategory;
+
+//   const _DonutChart({required this.leadsByCategory});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final total = leadsByCategory.values.fold<int>(0, (sum, val) => sum + val);
+
+//     const colors = [
+//       Color(0xFF4F6BED),
+//       Color(0xFF7BC96F),
+//       Color(0xFFF87171),
+//       Color(0xFF38B2AC),
+//       Color(0xFFECC94B),
+//     ];
+
+//     final entries = leadsByCategory.entries.toList();
+
+//     return Stack(
+//       alignment: Alignment.center,
+//       children: [
+//         PieChart(
+//           PieChartData(
+//             startDegreeOffset: -90,
+//             sectionsSpace: 2,
+//             centerSpaceRadius: 45, // hollow center size
+//             sections: [
+//               PieChartSectionData(
+//                 value: 70,
+//                 color: Color(0xFF4F6BED),
+//                 radius: 22, // thickness of the ring
+//                 showTitle: false,
+//               ),
+//               PieChartSectionData(
+//                 value: 30,
+//                 color: Color(0xFF7BC96F),
+//                 radius: 22,
+//                 showTitle: false,
+//               ),
+//             ],
+//           ),
+//         ),
+//         Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Text(
+//               '$total',
+//               style: const TextStyle(
+//                 fontSize: 22,
+//                 fontWeight: FontWeight.w800,
+//                 color: Color(0xFF1A202C),
+//               ),
+//             ),
+//             const SizedBox(height: 2),
+//             const Text(
+//               'Total\nLeads',
+//               textAlign: TextAlign.center,
+//               style: TextStyle(
+//                 fontSize: 10,
+//                 height: 1.2,
+//                 color: Color(0xFF718096),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+// }
+
 class _DonutChart extends StatelessWidget {
   final Map<String, int> leadsByCategory;
 
   const _DonutChart({required this.leadsByCategory});
 
+  static const _colors = [
+    Color(0xFF4F6BED), // New
+    Color(0xFF7BC96F), // Follow Up
+    Color(0xFFF87171), // Rejected
+    Color(0xFF38B2AC), // Closed
+    Color(0xFFECC94B), // Pending
+    Color(0xFF9F7AEA), // fallback
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final total = leadsByCategory.values.fold<int>(0, (sum, val) => sum + val);
-
-    const colors = [
-      Color(0xFF4F6BED),
-      Color(0xFF7BC96F),
-      Color(0xFFF87171),
-      Color(0xFF38B2AC),
-      Color(0xFFECC94B),
-    ];
-
     final entries = leadsByCategory.entries.toList();
+    final total = entries.fold<int>(0, (sum, e) => sum + e.value);
+
+    // Build sections dynamically from leadsByCategory
+    final sections = entries.asMap().entries.map((mapEntry) {
+      final index = mapEntry.key;
+      final entry = mapEntry.value;
+      final isNoData = entry.key == 'No Data';
+
+      return PieChartSectionData(
+        value: entry.value.toDouble(),
+        color: isNoData
+            ? Colors.grey.shade300
+            : _colors[index % _colors.length],
+        radius: 22,
+        showTitle: false,
+      );
+    }).toList();
 
     return Stack(
       alignment: Alignment.center,
@@ -1227,21 +1417,8 @@ class _DonutChart extends StatelessWidget {
           PieChartData(
             startDegreeOffset: -90,
             sectionsSpace: 2,
-            centerSpaceRadius: 45, // hollow center size
-            sections: [
-              PieChartSectionData(
-                value: 70,
-                color: Color(0xFF4F6BED),
-                radius: 22, // thickness of the ring
-                showTitle: false,
-              ),
-              PieChartSectionData(
-                value: 30,
-                color: Color(0xFF7BC96F),
-                radius: 22,
-                showTitle: false,
-              ),
-            ],
+            centerSpaceRadius: 45,
+            sections: sections, // ← now dynamic
           ),
         ),
         Column(
@@ -1276,16 +1453,85 @@ class _DonutChart extends StatelessWidget {
 // LEAD LEGEND
 // ─────────────────────────────────────────────
 
+// class _LeadLegend extends StatelessWidget {
+//   final Map<String, int> leadsByCategory;
+//   const _LeadLegend({required this.leadsByCategory});
+
+//   static const _colors = [
+//     Color(0xFF4299E1),
+//     Color(0xFF48BB78),
+//     Color(0xFFFC8181),
+//     Color(0xFF38B2AC),
+//     Color(0xFFECC94B),
+//   ];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final entries = leadsByCategory.entries.toList();
+//     return Container(
+//       padding: const EdgeInsets.all(10),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFFF7FAFC),
+//         borderRadius: BorderRadius.circular(10),
+//         border: Border.all(color: const Color(0xFFE2E8F0)),
+//       ),
+//       child: Column(
+//         children: List.generate(entries.length, (i) {
+//           final e = entries[i];
+//           return Padding(
+//             padding: const EdgeInsets.symmetric(vertical: 3),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Row(
+//                   children: [
+//                     Container(
+//                       width: 10,
+//                       height: 10,
+//                       decoration: BoxDecoration(
+//                         color: _colors[i % _colors.length],
+//                         borderRadius: BorderRadius.circular(3),
+//                       ),
+//                     ),
+//                     const SizedBox(width: 6),
+//                     Text(
+//                       e.key,
+//                       style: const TextStyle(
+//                         fontSize: 11,
+//                         color: Color(0xFF4A5568),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 Text(
+//                   '${e.value}',
+//                   style: const TextStyle(
+//                     fontSize: 11,
+//                     fontWeight: FontWeight.w700,
+//                     color: Color(0xFF2D3748),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         }),
+//       ),
+//     );
+//   }
+// }
+
 class _LeadLegend extends StatelessWidget {
   final Map<String, int> leadsByCategory;
   const _LeadLegend({required this.leadsByCategory});
 
+  // ← must match _DonutChart._colors exactly
   static const _colors = [
-    Color(0xFF4299E1),
-    Color(0xFF48BB78),
-    Color(0xFFFC8181),
-    Color(0xFF38B2AC),
-    Color(0xFFECC94B),
+    Color(0xFF4F6BED), // New
+    Color(0xFF7BC96F), // Follow Up
+    Color(0xFFF87171), // Rejected
+    Color(0xFF38B2AC), // Closed
+    Color(0xFFECC94B), // Pending
+    Color(0xFF9F7AEA), // fallback
   ];
 
   @override
@@ -1312,7 +1558,7 @@ class _LeadLegend extends StatelessWidget {
                       width: 10,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: _colors[i % _colors.length],
+                        color: _colors[i % _colors.length], // ← same index
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -1351,47 +1597,110 @@ class RecentActivityItem {
   final String name;
   final String phone;
   final String description;
-  final String subText;
+  // final String subText;
   final String date;
 
   const RecentActivityItem({
     required this.name,
     required this.phone,
     required this.description,
-    required this.subText,
+    // required this.subText,
     required this.date,
   });
 }
 
 class RecentActivityCard extends StatelessWidget {
-  const RecentActivityCard({super.key});
+  final List<ActivityModel> activities;
+  final bool isLoading;
+
+  const RecentActivityCard({
+    super.key,
+    required this.activities,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final data = _dummyData();
-
     return Container(
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _header(),
-          const Divider(height: 20),
-          ListView.builder(
-            itemCount: data.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-            itemBuilder: (context, index) {
-              return _TimelineItem(
-                item: data[index],
-                isLast: index == data.length - 1,
-              );
-            },
-          ),
+          const Divider(height: 1),
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            )
+          else if (activities.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.history_outlined,
+                      size: 36,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No recent activity',
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ListView.builder(
+              itemCount: activities.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+              itemBuilder: (context, index) => _TimelineItem(
+                item: _toDisplayItem(activities[index]),
+                isLast: index == activities.length - 1,
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  /// Maps an ActivityModel to the existing RecentActivityItem display object.
+  RecentActivityItem _toDisplayItem(ActivityModel m) {
+    return RecentActivityItem(
+      name: m.leadName ?? m.changedBy,
+      phone: m.leadPhone ?? '',
+      description: m.description,
+      date: _formatActivityDate(m.changedAt),
+    );
+  }
+
+  String _formatActivityDate(DateTime dt) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final m = dt.minute.toString().padLeft(2, '0');
+    final ap = dt.hour < 12 ? 'AM' : 'PM';
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year} $h:$m $ap';
   }
 
   Widget _header() {
@@ -1411,7 +1720,7 @@ class RecentActivityCard extends StatelessWidget {
               border: Border.all(color: const Color(0xFF4F6BED)),
             ),
             child: const Text(
-              'Today',
+              'Latest',
               style: TextStyle(
                 fontSize: 12,
                 color: Color(0xFF4F6BED),
@@ -1424,52 +1733,13 @@ class RecentActivityCard extends StatelessWidget {
     );
   }
 
-  BoxDecoration _cardDecoration() {
-    return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(blurRadius: 12, color: Colors.black.withOpacity(.05)),
-      ],
-    );
-  }
-
-  List<RecentActivityItem> _dummyData() {
-    return const [
-      RecentActivityItem(
-        name: 'Mhd Midlaj',
-        phone: '919946093476',
-        description:
-            'Status changed to Follow Up. Next followup scheduled to 05-05-2026 12:00',
-        subText: 'Cost Updated from to 0',
-        date: '30 Apr 2026 10:04 AM',
-      ),
-      RecentActivityItem(
-        name: 'ANSAR',
-        phone: '919048260868',
-        description:
-            'Status changed to Follow Up. Next followup scheduled to 04-05-2026 12:00',
-        subText: 'Cost Updated from to 0',
-        date: '30 Apr 2026 09:58 AM',
-      ),
-      RecentActivityItem(
-        name: 'Ashil Ahammed',
-        phone: '919207479701',
-        description:
-            'Status changed to Follow Up. Next followup scheduled to 02-05-2026 12:00',
-        subText: 'Cost Updated from to 0',
-        date: '30 Apr 2026 09:52 AM',
-      ),
-      RecentActivityItem(
-        name: 'MUSTHAFA',
-        phone: '919567530979',
-        description:
-            'Status changed to Follow Up. Next followup scheduled to 30-04-2026 12:00',
-        subText: 'Cost Updated from to 0',
-        date: '28 Apr 2026 10:43 AM',
-      ),
-    ];
-  }
+  BoxDecoration _cardDecoration() => BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: [
+      BoxShadow(blurRadius: 12, color: Colors.black.withOpacity(.05)),
+    ],
+  );
 }
 
 class _TimelineItem extends StatelessWidget {
@@ -1523,14 +1793,14 @@ class _TimelineItem extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.subText,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF2D3748),
-                    ),
-                  ),
+                  // const SizedBox(height: 4),
+                  // Text(
+                  //   item.subText,
+                  //   style: const TextStyle(
+                  //     fontSize: 13,
+                  //     color: Color(0xFF2D3748),
+                  //   ),
+                  // ),
                   const SizedBox(height: 6),
                   Text(
                     item.date,
@@ -1610,4 +1880,20 @@ class _DottedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class LeadCategoryTableRow {
+  final String category;
+  final int newCount;
+  final int followUpCount;
+  final int rejectedCount;
+  final int closedCount;
+
+  const LeadCategoryTableRow({
+    required this.category,
+    this.newCount = 0,
+    this.followUpCount = 0,
+    this.rejectedCount = 0,
+    this.closedCount = 0,
+  });
 }

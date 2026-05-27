@@ -1,4 +1,5 @@
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
@@ -49,12 +50,15 @@ class AddLeadState {
 
   // -------pichart count___________
   final Map<String, int> leadChartCounts;
+  final List<LeadCategoryTableRow> leadCategoryTableRows;
 
   // ── Dashboard lead counts ──────────────────────────────────────────────────────────
   final String newLeadCount;
   final String followUpCount;
   final String closedLeadCount;
   final String totalCalledCount;
+  final String connectedCount;
+  final String notConnectedCount;
   final String missedLeadCount;
   final String transferredCount;
 
@@ -92,10 +96,13 @@ class AddLeadState {
     this.newLeadCount = '0',
     this.followUpCount = '0',
     this.totalCalledCount = '0',
+    this.connectedCount = '0',
+    this.notConnectedCount = '0',
     this.missedLeadCount = '0',
     this.transferredCount = '0',
     this.selectedDashboardDate,
     this.leadChartCounts = const {},
+    this.leadCategoryTableRows = const [],
   });
 
   bool get isLoading => status == AddLeadStatus.loading;
@@ -133,10 +140,13 @@ class AddLeadState {
     String? followUpCount,
     String? closedLeadCount,
     String? totalCalledCount,
+    String? connectedCount,
+    String? notConnectedCount,
     String? missedLeadCount,
     String? transferredCount,
     DateTime? selectedDashboardDate,
     Map<String, int>? leadChartCounts,
+    List<LeadCategoryTableRow>? leadCategoryTableRows,
 
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
@@ -200,13 +210,18 @@ class AddLeadState {
       followUpCount: followUpCount ?? this.followUpCount,
       closedLeadCount: closedLeadCount ?? this.closedLeadCount,
       totalCalledCount: totalCalledCount ?? this.totalCalledCount,
+      connectedCount: connectedCount ?? this.connectedCount,
+      notConnectedCount: notConnectedCount ?? this.notConnectedCount,
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,
       transferredCount: transferredCount ?? this.transferredCount,
       selectedDashboardDate:
           selectedDashboardDate ?? this.selectedDashboardDate,
       leadChartCounts: leadChartCounts ?? this.leadChartCounts,
+      leadCategoryTableRows: leadCategoryTableRows ?? this.leadCategoryTableRows,
     );
   }
 
   
 }
+
+

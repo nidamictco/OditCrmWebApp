@@ -40,7 +40,7 @@ class NotificationRepo {
             .map((doc) => NotificationModel.fromMap(doc.id, doc.data()))
             .toList(),
       )
-      .handleError((error) { // ✅ catches stream errors like missing index
+      .handleError((error) { 
         log('[NotificationRepo] streamByStaff error: $error');
       });
 }

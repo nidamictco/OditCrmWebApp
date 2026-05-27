@@ -330,8 +330,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
 
                               Row(
                                 children: [
-                                  SizedBox(
-                                    width: 17.45.w,
+                                  Expanded(
                                     child: Dropdown(
                                       label: "Lead Source",
                                       hint: 'select source',
@@ -347,6 +346,11 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
+                                  Expanded(child: SizedBox()),
+                                  SizedBox(width: 2.w),
+                                  Expanded(child: SizedBox()),
+                                  SizedBox(width: 2.w),
+                                  Expanded(child: SizedBox()),
                                 ],
                               ),
                               Row(

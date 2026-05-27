@@ -13,11 +13,13 @@ import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_
 // import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
   // await windowManager.ensureInitialized();
   try {
     await Firebase.initializeApp(
@@ -79,7 +81,7 @@ class OxdoApp extends StatelessWidget {
     seedColor: Colors.deepPurple,
   ),
 ),
-            home: LoginScreen(),
+            home: AuthGate(),
           );
         },
       ),

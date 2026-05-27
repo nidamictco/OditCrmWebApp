@@ -61,6 +61,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
   String _contactDialCode = '+91';
   String _whatsappDialCode = '+91';
 
+  final _formKey = GlobalKey<FormState>();
+
   final List<String> priority = ['High', 'Low', 'Negative', 'Normal'];
 
   final Map<String, List<String>> stateDistrictMap = {
@@ -91,31 +93,30 @@ class _AddLeadPageState extends State<AddLeadPage> {
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   StaffModel? _currentUser;
 
- Future<void> _loadCurrentUser() async {
-  final user = await SessionService().getSavedUser();
-  setState(() {
-    _currentUser = user;
-    if (user != null && user.staffType == 'Admin') {
-      _selectStaff = user.name;
+  Future<void> _loadCurrentUser() async {
+    final user = await SessionService().getSavedUser();
+    setState(() {
+      _currentUser = user;
+      if (user != null && user.staffType == 'Admin') {
+        _selectStaff = user.name;
+      }
+    });
+
+    if (user != null && user.staffType != 'Admin') {
+      context.read<AddLeadCubit>().selectAssignedStaff(
+        name: user.name ?? '',
+        id: user.id ?? '',
+      );
     }
-  });
 
-
-  if (user != null && user.staffType != 'Admin') {
-    context.read<AddLeadCubit>().selectAssignedStaff(
-      name: user.name ?? '',
-      id: user.id ?? '',
-    );
+    // ✅ FIX: admin default — also seed their own id as default selection
+    if (user != null && user.staffType == 'Admin') {
+      context.read<AddLeadCubit>().selectAssignedStaff(
+        name: user.name ?? '',
+        id: user.id ?? '',
+      );
+    }
   }
-
-  // ✅ FIX: admin default — also seed their own id as default selection
-  if (user != null && user.staffType == 'Admin') {
-    context.read<AddLeadCubit>().selectAssignedStaff(
-      name: user.name ?? '',
-      id: user.id ?? '',
-    );
-  }
-}
 
   @override
   void initState() {
@@ -208,6 +209,55 @@ class _AddLeadPageState extends State<AddLeadPage> {
   // ── Submit ─────────────────────────────────────────────────────────────────
 
   void _submit() {
+    if (!_formKey.currentState!.validate()) return; 
+    final email = _emailCtrl.text.trim();
+  final contact = _contactCtrl.text.trim();
+  final whatsapp = _whatsappCtrl.text.trim();
+
+  // Email validation
+  if (email.isNotEmpty) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter a valid email address.'),
+          backgroundColor: AppColors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+  }
+
+  // Contact number validation
+  if (contact.isNotEmpty) {
+    final phoneRegex = RegExp(r'^[0-9]{6,15}$');
+    if (!phoneRegex.hasMatch(contact)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter a valid contact number.'),
+          backgroundColor: AppColors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+  }
+
+  // Whatsapp number validation
+  if (whatsapp.isNotEmpty) {
+    final phoneRegex = RegExp(r'^[0-9]{6,15}$');
+    if (!phoneRegex.hasMatch(whatsapp)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter a valid WhatsApp number.'),
+          backgroundColor: AppColors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+  }
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;
 
@@ -368,7 +418,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       padding: EdgeInsets.symmetric(horizontal: 2.w),
                       child: _sectionCard(
                         'Customer Details',
-                        _buildCustomerDetails(),
+                        Form(key: _formKey, child: _buildCustomerDetails()),
                         Symbols.person,
                       ),
                     ),
@@ -546,6 +596,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     false,
                     Icons.email_outlined,
                     controller: _emailCtrl,
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return null; // Not required
+                    //   }
+                    //   final emailRegex = RegExp(
+                    //     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    //   );
+                    //   if (!emailRegex.hasMatch(value)) {
+                    //     return 'Enter a valid email';
+                    //   }
+                    //   return null;
+                    // },
                   ),
                 ),
               ],
@@ -1148,6 +1210,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     bool required,
     IconData icons, {
     TextEditingController? controller,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1157,8 +1220,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
         Container(
           height: 5.h,
           decoration: _box(),
-          child: TextField(
+          child: TextFormField(
             controller: controller,
+            validator: validator,
             style: AppTextStyle.body(size: 11.sp),
             decoration: InputDecoration(
               hintText: label,
@@ -1254,8 +1318,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
               child: Container(
                 height: 5.h,
                 decoration: _box(),
-                child: TextField(
+                child: TextFormField(
                   controller: controller,
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return null; // Not required
+                  //   }
+                  //   final phoneRegex = RegExp(r'^[0-9]{6,15}$');
+                  //   if (!phoneRegex.hasMatch(value)) {
+                  //     return 'Enter a valid phone number';
+                  //   }
+                  //   return null;
+                  // },
                   style: AppTextStyle.body(size: 11.sp),
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(

@@ -193,4 +193,32 @@ class StaffModel {
     'deletedAt': deletedAt?.toIso8601String(), 
   };
 }
+
+factory StaffModel.fromJson(Map<String, dynamic> map) {
+  return StaffModel(
+    id: map['id'],
+    name: map['name'] ?? '',
+    password: map['password'] ?? '',
+    phone: map['phone'] ?? '',
+    email: map['email'],
+    designationId: map['designationId'],
+    designation: map['designation'],
+    staffType: map['staffType'],
+    joiningDate: map['joiningDate'],
+    salary: map['salary'],
+    openingBalance: map['openingBalance'],
+    openingBalanceDate: map['openingBalanceDate'],
+    status: map['status'] as String? ?? 'Active',
+    accessWhatsapp: map['accessWhatsapp'] ?? false,
+    accessCallLog: map['accessCallLog'] ?? false,
+    hasSalaryAccount: map['hasSalaryAccount'] ?? true,
+    hasPettyCash: map['hasPettyCash'] ?? false,
+    imageUrl: map['imageUrl'],
+    documentName: map['documentName'],
+    documentUrl: map['documentUrl'],
+    accessibleUsers: map['accessibleUsers'],
+    createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt']) : null,
+    deletedAt: map['deletedAt'] != null ? DateTime.tryParse(map['deletedAt']) : null,
+  );
+}
 }

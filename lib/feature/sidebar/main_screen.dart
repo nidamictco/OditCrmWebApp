@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
+import 'package:oxdo/feature/lead_managment/follow_up/data/activity_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
@@ -11,6 +12,7 @@ import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit
 import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
 import 'package:oxdo/feature/notification/cubit/notification_cubit.dart';
 import 'package:oxdo/feature/notification/data/notification_repo.dart';
+import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_cubit.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/staff_profile_screen.dart';
 import 'package:oxdo/feature/reports/staff_reports/screen/time_line.dart';
 import 'package:oxdo/feature/rightside_menu/call_settings.dart/cubit/call_settings_cubit.dart';
@@ -320,9 +322,12 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       case 13:
-        return BlocProvider(
-          create: (_) => AddLeadCubit()..fetchLeads(),
-          child: UnassingnedLead(),
+        return PermissionGuard(
+          hasPermission: perm.canViewUnassignedLeads,
+          child: BlocProvider(
+            create: (_) => AddLeadCubit()..fetchLeads(),
+            child: UnassingnedLead(),
+          ),
         );
       case 14:
         return PermissionGuard(
@@ -467,6 +472,7 @@ class _MainScreenState extends State<MainScreen> {
           providers: [
             BlocProvider(create: (context) => StaffCubit()),
             BlocProvider(create: (context) => AddLeadCubit()),
+            BlocProvider(create: (context) => StaffActivityCubit(ActivityRepository())),
           ],
           child: StaffProfileScreen(staff: widget.staff!),
         );
