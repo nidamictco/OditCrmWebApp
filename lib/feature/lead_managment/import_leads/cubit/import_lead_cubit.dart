@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -14,19 +13,22 @@ import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;
-   final NotificationRepo _notificationRepo;
+  final NotificationRepo _notificationRepo;
 
-  ImportLeadsCubit({IImportLeadsRepository? repository,NotificationRepo? notificationRepo,})
-      : _repository = repository ?? ImportLeadsRepository(),
-      _notificationRepo = notificationRepo ?? NotificationRepo(),
-        super(const ImportLeadsState());
+  ImportLeadsCubit({
+    IImportLeadsRepository? repository,
+    NotificationRepo? notificationRepo,
+  }) : _repository = repository ?? ImportLeadsRepository(),
+       _notificationRepo = notificationRepo ?? NotificationRepo(),
+       super(const ImportLeadsState());
 
   // ── Initialization ────────────────────────────────────────────────────────
 
   /// Call once from initState — loads all dropdown data in parallel.
   Future<void> initialize() async {
     if (state.status == ImportLeadsStatus.ready ||
-      state.status == ImportLeadsStatus.success) return;
+        state.status == ImportLeadsStatus.success)
+      return;
     emit(state.copyWith(status: ImportLeadsStatus.loading, clearError: true));
 
     try {
@@ -35,33 +37,46 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         _repository.fetchSources(),
         _repository.fetchStaff(),
         _repository.fetchLeadStages(),
-        
       ]);
       log("categories length: ${results[0].length}");
       log("sources length: ${results[1].length}");
       log("staff length: ${results[2].length}");
       log("stages length: ${results[3].length}");
 
-      emit(state.copyWith(
-        status:    ImportLeadsStatus.ready,
-        categories: results[0] as List<LeadsModel>,
-sources:    results[1] as List<LeadsModel>,
-staffList:  results[2] as List<StaffModel>,
-stages:     results[3] as List<LeadsModel>,
-      ));
+      final fetchedStages = results[3] as List<LeadsModel>;
 
-      log('[ImportLeadsCubit] Initialized — '
-          'categories: ${state.categories.length}, '
-          'sources: ${state.sources.length}, '
-          'staff: ${state.staffList.length}'
-          'stages ${state.stages.length}',
-          );
+      final defaultStage = fetchedStages
+          .firstWhere(
+            (s) => s.name?.toLowerCase() == 'new',
+            orElse: () => fetchedStages.first,
+          )
+          .name;
+      emit(
+        state.copyWith(
+          status: ImportLeadsStatus.ready,
+          categories: results[0] as List<LeadsModel>,
+          sources: results[1] as List<LeadsModel>,
+          staffList: results[2] as List<StaffModel>,
+         stages:            fetchedStages,
+  selectedLeadStage: state.selectedLeadStage ?? defaultStage,
+        ),
+      );
+
+      log(
+        '[ImportLeadsCubit] Initialized — '
+        'categories: ${state.categories.length}, '
+        'sources: ${state.sources.length}, '
+        'staff: ${state.staffList.length}'
+        'stages ${state.stages.length}',
+      );
     } catch (e, st) {
       log('[ImportLeadsCubit] initialize error: $e', stackTrace: st);
-      emit(state.copyWith(
-        status:       ImportLeadsStatus.failure,
-        errorMessage: _friendlyError(e),
-      ));
+      emit(
+        state.copyWith(
+          status: ImportLeadsStatus.failure,
+          errorMessage: _friendlyError(e),
+        ),
+      );
     }
   }
 
@@ -81,23 +96,21 @@ stages:     results[3] as List<LeadsModel>,
   void selectPriority(String? value) =>
       emit(state.copyWith(selectedPriority: value));
 
-  void selectStaff(String? value) =>
-      emit(state.copyWith(selectedStaff: value));
+  void selectStaff(String? value) => emit(state.copyWith(selectedStaff: value));
 
   void selectState(String? value) => emit(
-        state.copyWith(
-          selectedState: value,
-          clearDistrict: true, // reset district when state changes
-        ),
-      );
+    state.copyWith(
+      selectedState: value,
+      clearDistrict: true, // reset district when state changes
+    ),
+  );
 
   void selectDistrict(String? value) =>
       emit(state.copyWith(selectedDistrict: value));
 
   void setDialCode(String code) => emit(state.copyWith(dialCode: code));
 
-  void setCsvBytes(Uint8List? bytes) =>
-      emit(state.copyWith(csvBytes: bytes));
+  void setCsvBytes(Uint8List? bytes) => emit(state.copyWith(csvBytes: bytes));
 
   /// Update a single field-position entry, e.g. updateFieldPosition('phone', 2)
   void updateFieldPosition(String fieldName, int position) {
@@ -128,8 +141,7 @@ stages:     results[3] as List<LeadsModel>,
     }
   }
 
-
-   Future<void> refreshStages() async {
+  Future<void> refreshStages() async {
     try {
       final stgs = await _repository.fetchLeadStages();
       emit(state.copyWith(stages: stgs));
@@ -141,127 +153,117 @@ stages:     results[3] as List<LeadsModel>,
   // ── CSV Import ────────────────────────────────────────────────────────────
 
   Future<void> importLeads({required Uint8List csvBytes}) async {
-  
-    emit(state.copyWith(
-      status:       ImportLeadsStatus.importing,
-      clearError:   true,
-      clearSuccess: true,
-    ));
+    emit(
+      state.copyWith(
+        status: ImportLeadsStatus.importing,
+        clearError: true,
+        clearSuccess: true,
+      ),
+    );
 
     try {
       final user = await SessionService().getSavedUser();
 
       // Build the default values that will fill non-CSV columns
       final defaults = ImportLeadModel(
-        contactDialCode:  state.selectedTab == 0 ? state.dialCode : '',
+        contactDialCode: state.selectedTab == 0 ? state.dialCode : '',
         whatsappDialCode: state.selectedTab == 0 ? state.dialCode : '',
-        assignedStaff:    state.selectedStaff    ?? '',
-        assignedStaffId:  _staffIdFromName(state.selectedStaff),
-        leadCategory:     state.selectedCategory ?? '',
-        leadSource:       state.selectedSource   ?? '',
-        priority:         state.selectedPriority ?? '',
-        leadStage:        state.selectedLeadStage ?? '',
-        createdBy:        user?.name             ?? '',
-        createdById:      user?.id               ?? '',
+        assignedStaff: state.selectedStaff ?? '',
+        assignedStaffId: _staffIdFromName(state.selectedStaff),
+        leadCategory: state.selectedCategory ?? '',
+        leadSource: state.selectedSource ?? '',
+        priority: state.selectedPriority ?? '',
+        leadStage: state.selectedLeadStage ?? '',
+        createdBy: user?.name ?? '',
+        createdById: user?.id ?? '',
       );
 
       final count = await _repository.importFromCsv(
-        csvBytes:       csvBytes,
+        csvBytes: csvBytes,
         fieldPositions: state.fieldPositions,
-        defaults:       defaults,
+        defaults: defaults,
         hasCountryCode: state.selectedTab == 0,
       );
+      if (isClosed) return;
 
-//       // ── Notify assigned staff ──────────────────────────────────────────────
-// final assignedStaffId = _staffIdFromName(state.selectedStaff);
-// if (assignedStaffId.isNotEmpty) {
-//   await _notificationRepo.create(
-//     staffId: assignedStaffId,
-//     title: 'Leads Imported',
-//     message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
-//   );
-// }
+      //       // ── Notify assigned staff ──────────────────────────────────────────────
+      // final assignedStaffId = _staffIdFromName(state.selectedStaff);
+      // if (assignedStaffId.isNotEmpty) {
+      //   await _notificationRepo.create(
+      //     staffId: assignedStaffId,
+      //     title: 'Leads Imported',
+      //     message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
+      //   );
+      // }
 
-// // ── Notify the admin/creator ───────────────────────────────────────────
-// if (user?.id != null && user!.id!.isNotEmpty && user.id != assignedStaffId) {
-//   await _notificationRepo.create(
-//     staffId: user.id!,
-//     title: 'Import Complete',
-//     message: '$count lead${count == 1 ? '' : 's'} imported successfully${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
-//   );
-// }
+      // // ── Notify the admin/creator ───────────────────────────────────────────
+      // if (user?.id != null && user!.id!.isNotEmpty && user.id != assignedStaffId) {
+      //   await _notificationRepo.create(
+      //     staffId: user.id!,
+      //     title: 'Import Complete',
+      //     message: '$count lead${count == 1 ? '' : 's'} imported successfully${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
+      //   );
+      // }
 
-// ── Notify assigned staff (check newLead setting) ────────────────────────
+     // ── Always notify assigned staff ─────────────────────────────────────────
 final assignedStaffId = _staffIdFromName(state.selectedStaff);
 if (assignedStaffId.isNotEmpty) {
-  bool shouldNotify = true;
-  try {
-    final settings = await GeneralSettingsRepository(
-      staffId: assignedStaffId,
-    ).fetchSettings();
-    shouldNotify = settings.newLead;
-  } catch (_) {
-    shouldNotify = true;
-  }
-
-  if (shouldNotify) {
-    await _notificationRepo.create(
-      staffId: assignedStaffId,
-      title: 'Leads Imported',
-      message:
-          '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
-    );
-  }
+  await _notificationRepo.create(
+    staffId: assignedStaffId,
+    title: 'Leads Imported',
+    message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
+  );
+  if (isClosed) return;
 }
 
-// ── Notify admin/creator (check newLead setting) ─────────────────────────
+// ── Always notify admin/creator ───────────────────────────────────────────
 final creatorId = user?.id ?? '';
 if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
-  bool shouldNotify = true;
-  try {
-    final settings = await GeneralSettingsRepository(
-      staffId: creatorId,
-    ).fetchSettings();
-    shouldNotify = settings.newLead;
-  } catch (_) {
-    shouldNotify = true;
-  }
-
-  if (shouldNotify) {
-    await _notificationRepo.create(
-      staffId: creatorId,
-      title: 'Import Complete',
-      message:
-          '$count lead${count == 1 ? '' : 's'} imported successfully'
-          '${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
-    );
-  }
+  await _notificationRepo.create(
+    staffId: creatorId,
+    title: 'Import Complete',
+    message: '$count lead${count == 1 ? '' : 's'} imported successfully'
+        '${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
+  );
+  if (isClosed) return;
 }
 
-      emit(state.copyWith(
-        status:         ImportLeadsStatus.success,
-        importedCount:  count,
-        successMessage: '$count lead${count == 1 ? '' : 's'} imported successfully.',
-        clearError:     true,
-        // ✅ FIX: use clearCsvBytes (not clearCsvFile) to properly clear Uint8List
-        clearCsvBytes:  true,
-        clearCategory:  true,
-        clearSource:    true,
-        clearLeadStage: true,
-        clearPriority:  true,
-        clearStaff:     true,
-        clearState:     true,
-        clearDistrict:  true,
-      ));
+     final defaultStage = state.stages
+    .firstWhere(
+      (s) => s.name?.toLowerCase() == 'new',
+      orElse: () => state.stages.first,
+    )
+    .name;
+
+      emit(
+        state.copyWith(
+          status: ImportLeadsStatus.success,
+          importedCount: count,
+          successMessage:
+              '$count lead${count == 1 ? '' : 's'} imported successfully.',
+          clearError: true,
+          clearCsvBytes: true,
+          clearCategory: true,
+          clearSource: true,
+          // clearLeadStage: true,
+           selectedLeadStage: defaultStage,
+          clearPriority: true,
+          clearStaff: true,
+          clearState: true,
+          clearDistrict: true,
+        ),
+      );
 
       log('[ImportLeadsCubit] Import complete: $count records');
     } catch (e, st) {
       log('[ImportLeadsCubit] importLeads error: $e', stackTrace: st);
-      emit(state.copyWith(
-        status:       ImportLeadsStatus.failure,
-        errorMessage: _friendlyError(e),
-        clearSuccess: true,
-      ));
+      emit(
+        state.copyWith(
+          status: ImportLeadsStatus.failure,
+          errorMessage: _friendlyError(e),
+          clearSuccess: true,
+        ),
+      );
     }
   }
 

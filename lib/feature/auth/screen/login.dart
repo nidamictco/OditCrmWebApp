@@ -4,11 +4,12 @@ import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/core/utils/notification_service.dart';
+import 'package:oxdo/feature/auth/screen/forget_psswrd.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
-import '../cubit/auth_cubit.dart';
+import '../cubit/auth/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,14 +19,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _phoneNoController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneNoController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -34,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     context.read<AuthCubit>().login(
-      email: _emailController.text,
+      phoneNo: _phoneNoController.text,
       password: _passwordController.text,
       permissionCubit: context.read<PermissionCubit>(),
     );
@@ -167,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // const SizedBox(height: 30),
 
             // Username
-            Text('Email', style: AppTextStyle.medium()),
+            Text('Phone Number', style: AppTextStyle.medium()),
             const SizedBox(height: 8),
             _buildUsernameField(),
 
@@ -184,7 +185,10 @@ class _LoginScreenState extends State<LoginScreen> {
               alignment: Alignment.centerRight,
               child: GestureDetector(
                 onTap: () {
-                  // TODO: implement forgot password
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                  );
                 },
                 child: Text(
                   'Forgot password?',
@@ -242,18 +246,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildUsernameField() {
     return TextFormField(
-      controller: _emailController,
+      controller: _phoneNoController,
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.next,
       autocorrect: false,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter your email';
+          return 'Please enter your phone number';
         }
         return null;
       },
       decoration: InputDecoration(
-        hintText: 'Enter email',
+        hintText: 'Enter phone number',
         hintStyle: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
         errorBorder: OutlineInputBorder(

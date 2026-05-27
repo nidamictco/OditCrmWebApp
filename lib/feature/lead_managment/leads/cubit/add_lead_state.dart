@@ -47,6 +47,9 @@ class AddLeadState {
 
   final List<StaffModel> staffList;
 
+  // -------pichart count___________
+  final Map<String, int> leadChartCounts;
+
   // ── Dashboard lead counts ──────────────────────────────────────────────────────────
   final String newLeadCount;
   final String followUpCount;
@@ -92,6 +95,7 @@ class AddLeadState {
     this.missedLeadCount = '0',
     this.transferredCount = '0',
     this.selectedDashboardDate,
+    this.leadChartCounts = const {},
   });
 
   bool get isLoading => status == AddLeadStatus.loading;
@@ -132,6 +136,7 @@ class AddLeadState {
     String? missedLeadCount,
     String? transferredCount,
     DateTime? selectedDashboardDate,
+    Map<String, int>? leadChartCounts,
 
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
@@ -199,6 +204,9 @@ class AddLeadState {
       transferredCount: transferredCount ?? this.transferredCount,
       selectedDashboardDate:
           selectedDashboardDate ?? this.selectedDashboardDate,
+      leadChartCounts: leadChartCounts ?? this.leadChartCounts,
     );
   }
+
+  
 }

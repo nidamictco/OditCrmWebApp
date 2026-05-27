@@ -1,6 +1,6 @@
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 
 class ServiceLocator {
   ServiceLocator._();

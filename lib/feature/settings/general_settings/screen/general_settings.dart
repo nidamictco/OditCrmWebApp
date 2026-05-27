@@ -1,258 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:oxdo/core/theme/app_colors.dart';
-// import 'package:oxdo/core/theme/app_text_style.dart';
-// import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
-// import 'package:sizer/sizer.dart';
-
-// class GeneralSettings extends StatefulWidget {
-//   const GeneralSettings({super.key});
-
-//   @override
-//   State<GeneralSettings> createState() => _GeneralSettingsState();
-// }
-
-// class _GeneralSettingsState extends State<GeneralSettings> {
-//   int selectedTab = 0;
-
-//   // Switch states
-//   bool newLead = true;
-//   bool facebookLead = true;
-//   bool transferLead = true;
-
-//   bool whatsapp = false;
-//   bool cloudCall = true;
-//   bool phoneCall = false;
-//   bool autoAssign = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppColors.background,
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Stack(
-//               clipBehavior: Clip.none,
-//               children: [
-//                 // ── Blue gradient header ──
-//                 _header(),
-//                 // ── Card overlapping the header ──
-//                 Positioned(
-//                   top: 10.h, // starts 10h from top of header (overlaps bottom)
-//                   left: 4.w,
-//                   right: 4.w,
-//                   child: _cardContainer(),
-//                 ),
-//               ],
-//             ),
-
-//             // _header(),
-//             // SizedBox(height: 2.h),
-//             // _cardContainer(),
-//             SizedBox(height: 8.h),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   /// 🔷 TOP HEADER
-//   Widget _header() {
-//     return Container(
-//       height: 18.h,
-//       width: double.infinity,
-//       decoration: BoxDecoration(gradient: AppColors.gradientBlue),
-//     );
-//   }
-
-//   /// 🔷 MAIN CARD
-//   Widget _cardContainer() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 4.w),
-//       child: Container(
-//         width: double.infinity,
-//         padding: EdgeInsets.all(3.w),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(5),
-//           boxShadow: [
-//             BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.05)),
-//           ],
-//         ),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             _tabs(),
-//             SizedBox(height: 1.h),
-//             selectedTab == 0 ? _pushNotifications() : _otherSettings(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   /// 🔷 TAB BAR
-//   Widget _tabs() {
-//     return Column(
-//       children: [
-//         Row(
-//           children: [
-//             _tabItem("Push Notifications", 0),
-//             SizedBox(width: 6.w),
-//             _tabItem("Other Settings", 1),
-//           ],
-//         ),
-
-//         Divider(height: 1, thickness: 1, color: AppColors.divider),
-//       ],
-//     );
-//   }
-
-//   Widget _tabItem(String title, int index) {
-//     final isSelected = selectedTab == index;
-
-//     return GestureDetector(
-//       onTap: () => setState(() => selectedTab = index),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Text(
-//             title,
-//             style: AppTextStyle.medium(
-//               color: isSelected ? AppColors.primary : AppColors.grey,
-//               weight: FontWeight.w500,
-//             ),
-//           ),
-//           SizedBox(height: 0.7.h),
-//           Container(
-//             height: 2,
-//             width: 15.w,
-//             // ✅ active tab line drawn ON TOP of the divider
-//             color: isSelected ? AppColors.primary : Colors.transparent,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   /// 🔷 PUSH NOTIFICATIONS
-//   Widget _pushNotifications() {
-//     return Column(
-//       children: [
-//         _switchTile(
-//           title: "New lead assigned",
-//           subtitle:
-//               "Send a push notification to the staff when a new lead is assigned.",
-//           value: newLead,
-//           onChanged: (v) => setState(() => newLead = v),
-//         ),
-//         _switchTile(
-//           title: "Facebook Leads",
-//           subtitle:
-//               "Send a push notification to the assigned staff member whenever a new lead is generated from Facebook.",
-//           value: facebookLead,
-//           onChanged: (v) => setState(() => facebookLead = v),
-//         ),
-//         _switchTile(
-//           title: "Transfer Leads",
-//           subtitle:
-//               "Send a push notification to the staff member to whom the lead is transferred.",
-//           value: transferLead,
-//           onChanged: (v) => setState(() => transferLead = v),
-//         ),
-//       ],
-//     );
-//   }
-
-//   /// 🔷 OTHER SETTINGS
-//   Widget _otherSettings() {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         _sectionTitle("Official WhatsApp:"),
-//         _switchTile(
-//           title: "Auto Convert Official WhatsApp chat to lead",
-//           subtitle: "Immediately create lead from Official WhatsApp chat",
-//           value: whatsapp,
-//           onChanged: (v) => setState(() => whatsapp = v),
-//         ),
-
-//         _sectionTitle("Cloud Call:"),
-//         _switchTile(
-//           title: "Auto Convert Cloud call to lead",
-//           subtitle: "Immediately create lead from incoming call",
-//           value: cloudCall,
-//           onChanged: (v) => setState(() => cloudCall = v),
-//         ),
-
-//         _sectionTitle("Phone Call:"),
-//         _switchTile(
-//           title: "Auto Convert Phone call to lead",
-//           subtitle: "Immediately create a lead from incoming call",
-//           value: phoneCall,
-//           onChanged: (v) => setState(() => phoneCall = v),
-//         ),
-
-//         _sectionTitle("Unassigned Lead:"),
-//         _switchTile(
-//           title: "Auto assign lead to selected staff",
-//           subtitle: "Unassigned lead automatic assign to selected staff",
-//           value: autoAssign,
-//           onChanged: (v) => setState(() => autoAssign = v),
-//         ),
-//       ],
-//     );
-//   }
-
-//   /// 🔷 SECTION TITLE
-//   Widget _sectionTitle(String text) {
-//     return Padding(
-//       padding: EdgeInsets.only(top: 1.h, bottom: 0.5.h),
-//       child: Text(text, style: AppTextStyle.link(color: AppColors.black)),
-//     );
-//   }
-
-//   /// 🔷 REUSABLE SWITCH TILE
-//   Widget _switchTile({
-//     required String title,
-//     required String subtitle,
-//     required bool value,
-//     required Function(bool) onChanged,
-//   }) {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(vertical: 1.2.h),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           /// TEXT
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(title, style: AppTextStyle.medium()),
-//                 SizedBox(height: 0.5.h),
-//                 Text(
-//                   subtitle,
-//                   style: AppTextStyle.medium(color: AppColors.grey),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           /// SWITCH
-//           Transform.scale(
-//             scale: 0.8,
-//             child: Switch(
-//               value: value,
-//               activeColor: AppColors.primary,
-//               onChanged: onChanged,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -285,18 +30,19 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       //   }
       // },
       listenWhen: (prev, next) => next is GeneralSettingsError,
-  listener: (context, state) {
-    if (state is GeneralSettingsError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.message)),
-      );
-    }
-  },
-  builder: (context, state) {
-    GeneralSettingsModel? settings;
-    if (state is GeneralSettingsLoaded) settings = state.settings;
-    else if (state is GeneralSettingsUpdating) settings = state.settings;
-   
+      listener: (context, state) {
+        if (state is GeneralSettingsError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        GeneralSettingsModel? settings;
+        if (state is GeneralSettingsLoaded)
+          settings = state.settings;
+        else if (state is GeneralSettingsUpdating)
+          settings = state.settings;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -305,19 +51,23 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          _header(),
-                          Positioned(
-                            top: 10.h,
-                            left: 4.w,
-                            right: 4.w,
-                            child: _cardContainer(context, settings),
-                          ),
-                        ],
+                      // Header
+                      Container(
+                        height: 24.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.gradientBlue,
+                        ),
                       ),
-                      SizedBox(height: 8.h),
+                      // Card (no Stack, no Positioned — just normal flow)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        child: Transform.translate(
+                          offset: Offset(1, -9.h), // pulls card up over header
+                          child: _cardContainer(context, settings),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
                     ],
                   ),
                 ),
@@ -339,7 +89,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.only(left: 3.w, right: 3.w,bottom: 3.w, top: 2.w),
+        padding: EdgeInsets.only(left: 3.w, right: 3.w, bottom: 3.w, top: 2.w),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(5),
@@ -352,9 +102,10 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           children: [
             _tabs(),
             SizedBox(height: 1.h),
-            selectedTab == 0
-                ? _pushNotifications(context, settings)
-                : _otherSettings(context, settings),
+            // selectedTab == 0
+            //     ? _pushNotifications(context, settings)
+            //     : _otherSettings(context, settings),
+          _pushNotifications(context, settings),
           ],
         ),
       ),
@@ -368,7 +119,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           children: [
             _tabItem("Push Notifications", 0),
             SizedBox(width: 6.w),
-            _tabItem("Other Settings", 1),
+            // _tabItem("Other Settings", 1),
           ],
         ),
         Divider(height: 1, thickness: 1, color: AppColors.divider),
@@ -475,79 +226,79 @@ class _GeneralSettingsState extends State<GeneralSettings> {
   //   );
   // }
 
-  Widget _pushNotifications(BuildContext context, GeneralSettingsModel? settings) {
-  final cubit = context.read<GeneralSettingsCubit>();
-  return Column(
-    children: [
-      _SwitchTile( 
-         key: ValueKey('newLead'), 
-        field: 'newLead',
-        title: "New lead assigned",
-        subtitle: "Send a push notification to the staff when a new lead is assigned.",
-        initialValue: settings?.newLead ?? false,
-        cubit: cubit,
-      ),
+  Widget _pushNotifications(
+    BuildContext context,
+    GeneralSettingsModel? settings,
+  ) {
+    return Column(
+      children: [
+        _SwitchTile(
+          key: const ValueKey('newLead'),
+          field: 'newLead',
+          title: "New lead assigned",
+          subtitle:
+              "Send a push notification to the staff when a new lead is assigned.",
+          initialValue: settings?.newLead ?? false,
+        ),
+        // _SwitchTile(
+        //   key: const ValueKey('facebookLead'),
+        //   field: 'facebookLead',
+        //   title: "Facebook Leads",
+        //   subtitle:
+        //       "Send a push notification to the assigned staff member whenever a new lead is generated from Facebook.",
+        //   initialValue: settings?.facebookLead ?? false,
+        // ),
+        _SwitchTile(
+          key: const ValueKey('transferLead'),
+          field: 'transferLead',
+          title: "Transfer Leads",
+          subtitle:
+              "Send a push notification to the staff member to whom the lead is transferred.",
+          initialValue: settings?.transferLead ?? false,
+        ),
+      ],
+    );
+  }
 
-      _SwitchTile(
-        key: ValueKey('facebookLead'),
-        field: 'facebookLead',
-        title: "Facebook Leads",
-        subtitle: "Send a push notification to the assigned staff member whenever a new lead is generated from Facebook.",
-        initialValue: settings?.facebookLead ?? false,
-        cubit: cubit,
-      ),
-      _SwitchTile(
-        key: ValueKey('transferLead'),
-        field: 'transferLead',
-        title: "Transfer Leads",
-        subtitle: "Send a push notification to the staff member to whom the lead is transferred.",
-        initialValue: settings?.transferLead ?? false,
-        cubit: cubit,
-      ),
-    ],
-  );
-}
-
-Widget _otherSettings(BuildContext context, GeneralSettingsModel? settings) {
-  final cubit = context.read<GeneralSettingsCubit>();
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _sectionTitle("Official WhatsApp:"),
-      _SwitchTile(
-        field: 'whatsapp',
-        title: "Auto Convert Official WhatsApp chat to lead",
-        subtitle: "Immediately create lead from Official WhatsApp chat",
-        initialValue: settings?.whatsapp ?? false,
-        cubit: cubit,
-      ),
-      _sectionTitle("Cloud Call:"),
-      _SwitchTile(
-        field: 'cloudCall',
-        title: "Auto Convert Cloud call to lead",
-        subtitle: "Immediately create lead from incoming call",
-        initialValue: settings?.cloudCall ?? true,
-        cubit: cubit,
-      ),
-      _sectionTitle("Phone Call:"),
-      _SwitchTile(
-        field: 'phoneCall',
-        title: "Auto Convert Phone call to lead",
-        subtitle: "Immediately create a lead from incoming call",
-        initialValue: settings?.phoneCall ?? false,
-        cubit: cubit,
-      ),
-      _sectionTitle("Unassigned Lead:"),
-      _SwitchTile(
-        field: 'autoAssign',
-        title: "Auto assign lead to selected staff",
-        subtitle: "Unassigned lead automatic assign to selected staff",
-        initialValue: settings?.autoAssign ?? false,
-        cubit: cubit,
-      ),
-    ],
-  );
-}
+  Widget _otherSettings(BuildContext context, GeneralSettingsModel? settings) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("Official WhatsApp:"),
+        _SwitchTile(
+          key: const ValueKey('whatsapp'),
+          field: 'whatsapp',
+          title: "Auto Convert Official WhatsApp chat to lead",
+          subtitle: "Immediately create lead from Official WhatsApp chat",
+          initialValue: settings?.whatsapp ?? false,
+        ),
+        _sectionTitle("Cloud Call:"),
+        _SwitchTile(
+          key: const ValueKey('cloudCall'),
+          field: 'cloudCall',
+          title: "Auto Convert Cloud call to lead",
+          subtitle: "Immediately create lead from incoming call",
+          initialValue: settings?.cloudCall ?? true,
+        ),
+        _sectionTitle("Phone Call:"),
+        _SwitchTile(
+          key: const ValueKey('phoneCall'),
+          field: 'phoneCall',
+          title: "Auto Convert Phone call to lead",
+          subtitle: "Immediately create a lead from incoming call",
+          initialValue: settings?.phoneCall ?? false,
+        ),
+        _sectionTitle("Unassigned Lead:"),
+        _SwitchTile(
+          key: const ValueKey('autoAssign'),
+          field: 'autoAssign',
+          title: "Auto assign lead to selected staff",
+          subtitle: "Unassigned lead automatic assign to selected staff",
+          initialValue: settings?.autoAssign ?? false,
+        ),
+      ],
+    );
+  }
 
   Widget _sectionTitle(String text) {
     return Padding(
@@ -596,23 +347,19 @@ Widget _otherSettings(BuildContext context, GeneralSettingsModel? settings) {
   }
 }
 
-
 // Add this class at the bottom of general_settings.dart
-
 class _SwitchTile extends StatefulWidget {
   final String field;
   final String title;
   final String subtitle;
   final bool initialValue;
-  final GeneralSettingsCubit cubit;
 
   const _SwitchTile({
-     super.key, 
+    super.key,
     required this.field,
     required this.title,
     required this.subtitle,
     required this.initialValue,
-    required this.cubit,
   });
 
   @override
@@ -621,7 +368,7 @@ class _SwitchTile extends StatefulWidget {
 
 class _SwitchTileState extends State<_SwitchTile> {
   late bool _value;
-  bool _isSaving = false; // ← ADD
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -632,7 +379,6 @@ class _SwitchTileState extends State<_SwitchTile> {
   @override
   void didUpdateWidget(_SwitchTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // ── only sync from parent when NOT currently saving ──────────────────
     if (!_isSaving && oldWidget.initialValue != widget.initialValue) {
       setState(() => _value = widget.initialValue);
     }
@@ -658,21 +404,51 @@ class _SwitchTileState extends State<_SwitchTile> {
               ],
             ),
           ),
-          Transform.scale(
-            scale: 0.8,
-            child: Switch(
-              value: _value,
-              activeColor: AppColors.primary,
-              onChanged: (v) async {
-                setState(() {
-                  _value = v;
-                  _isSaving = true; // ← block didUpdateWidget sync
-                });
-                await widget.cubit.toggleField(widget.field, v);
-                if (mounted) {
-                  setState(() => _isSaving = false); // ← unblock after save
-                }
-              },
+          // Transform.scale(
+          //   scale: 0.8,
+          //   child: Switch(
+          //     value: _value,
+          //     activeColor: AppColors.primary,
+          //     onChanged: (v) async {
+          //       log(
+          //         'Switch tapped: ${widget.field} = $v',
+          //       ); // ← does this print?
+          //       try {
+          //         final cubit = context.read<GeneralSettingsCubit>();
+          //         log('Cubit found: $cubit'); // ← does this print?
+          //         setState(() {
+          //           _value = v;
+          //           _isSaving = true;
+          //         });
+          //         await cubit.toggleField(widget.field, v);
+          //       } catch (e) {
+          //         log('ERROR reading cubit: $e'); // ← probably prints this
+          //       }
+          //       if (mounted) setState(() => _isSaving = false);
+          //     },
+          //   ),
+          // ),
+          SizedBox(
+            width: 45,
+            height: 28,
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: Switch(
+                value: _value,
+                activeColor: AppColors.primary,
+                onChanged: (v) async {
+                  log('Switch tapped: ${widget.field} = $v');
+                  setState(() {
+                    _value = v;
+                    _isSaving = true;
+                  });
+                  await context.read<GeneralSettingsCubit>().toggleField(
+                    widget.field,
+                    v,
+                  );
+                  if (mounted) setState(() => _isSaving = false);
+                },
+              ),
             ),
           ),
         ],

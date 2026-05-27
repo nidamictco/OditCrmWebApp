@@ -5,20 +5,35 @@ import 'package:oxdo/core/utils/notification_service.dart';
 import 'package:oxdo/feature/notification/cubit/notification_state.dart';
 import 'package:oxdo/feature/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/notification/model/notification_model.dart';
+import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
+import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {
   final NotificationRepo _repo;
+  final GeneralSettingsRepository _settingsRepo;
+
   StreamSubscription? _subscription;
   final Set<String> _seenIds = {};
 
   // keeps last known list so delete states can still show the UI
   List<NotificationModel> _currentList = [];
 
-  NotificationCubit(this._repo) : super(NotificationInitial());
+   GeneralSettingsModel _settings = const GeneralSettingsModel();
+
+  NotificationCubit(this._repo, this._settingsRepo) : super(NotificationInitial());
 
   void load(String staffId) {
     emit(NotificationLoading());
     _subscription?.cancel();
+
+      // Load settings once up-front; refresh in the background silently.
+    _settingsRepo.fetchSettings().then((s) {
+      _settings = s;
+      log('[NotificationCubit] settings loaded: ${s.toMap()}');
+    }).catchError((e) {
+      log('[NotificationCubit] settings fetch failed: $e');
+      // keep default (all false) — safe fallback
+    });
 
     _subscription = _repo.streamByStaff(staffId).listen(
       (notifications) async {
@@ -58,21 +73,21 @@ class NotificationCubit extends Cubit<NotificationState> {
     }
   }
 
-  Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
-    final isFirstLoad = _seenIds.isEmpty;
+  // Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
+  //   final isFirstLoad = _seenIds.isEmpty;
 
-    for (final n in notifications) {
-      if (!_seenIds.contains(n.id)) {
-        _seenIds.add(n.id);
-        if (!isFirstLoad) {
-          await NotificationService.show(
-            title: n.title,
-            body: n.message,
-          );
-        }
-      }
-    }
-  }
+  //   for (final n in notifications) {
+  //     if (!_seenIds.contains(n.id)) {
+  //       _seenIds.add(n.id);
+  //       if (!isFirstLoad) {
+  //         await NotificationService.show(
+  //           title: n.title,
+  //           body: n.message,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   // in notification_cubit.dart
 Future<void> markAllRead(String staffId) async {
@@ -82,6 +97,87 @@ Future<void> markAllRead(String staffId) async {
   } catch (e) {
     log('[NotificationCubit] markAllRead error: $e');
   }
+}
+
+ // ── Gated local push ────────────────────────────────────────────────────────
+  // Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
+  //   final isFirstLoad = _seenIds.isEmpty;
+
+  //   for (final n in notifications) {
+  //     if (!_seenIds.contains(n.id)) {
+  //       _seenIds.add(n.id);
+
+  //       if (!isFirstLoad && _isAllowed(n)) {
+  //         await NotificationService.show(
+  //           title: n.title,
+  //           body: n.message,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
+  Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
+  final isFirstLoad = _seenIds.isEmpty;
+
+  // Collect new notifications first
+  final newOnes = <NotificationModel>[];
+  for (final n in notifications) {
+    if (!_seenIds.contains(n.id)) {
+      _seenIds.add(n.id);
+      newOnes.add(n);
+    }
+  }
+
+  if (isFirstLoad || newOnes.isEmpty) return;
+
+  // Re-fetch settings fresh before showing any banner
+  try {
+    final fresh = await _settingsRepo.fetchSettings();
+    _settings = fresh;
+    log('[NotificationCubit] settings refreshed on new notification: ${fresh.toMap()}');
+  } catch (e) {
+    log('[NotificationCubit] settings re-fetch failed, using cached: $e');
+    // fall through — use whatever _settings was last set to
+  }
+
+  for (final n in newOnes) {
+    if (_isAllowed(n)) {
+      await NotificationService.show(
+        title: n.title,
+        body: n.message,
+      );
+    }
+  }
+}
+
+  void refreshSettings(GeneralSettingsModel updated) {
+  _settings = updated;
+  log('[NotificationCubit] settings refreshed: ${updated.toMap()}');
+}
+
+  /// Maps a notification to the settings toggle that gates it.
+  // bool _isAllowed(NotificationModel n) {
+  //   final t = n.title.toLowerCase();
+
+  //   if (t.contains('new lead')) return _settings.newLead;
+  //   if (t.contains('transfer') || t.contains('transferred')) {
+  //     return _settings.transferLead;
+  //   }
+  //   if (t.contains('facebook')) return _settings.facebookLead;
+
+  //   // Unknown/unrecognised type — allow by default.
+  //   return true;
+  // }
+  bool _isAllowed(NotificationModel n) {
+  final t = n.title.toLowerCase();
+
+  if (t.contains('new lead')) return _settings.newLead;
+  if (t.contains('transfer') || t.contains('transferred')) {
+    return _settings.transferLead;
+  }
+  if (t.contains('facebook')) return _settings.facebookLead;
+
+  return true;
 }
 
   @override

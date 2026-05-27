@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/reports/staff_reports/widget/note_dialog.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
@@ -124,6 +126,11 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     if (widget.staff.id != null) {
       context.read<StaffCubit>().getStaff(widget.staff.id!);
     }
+    context.read<AddLeadCubit>().fetchLeadChartCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
+      selectedDate: DateTime.now(),
+    );
   }
 
   @override
@@ -330,36 +337,91 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
 
   // ─── OVERVIEW TAB ────────────────────────────────────────
 
+  // Widget _buildOverviewTab(StaffInfo staffInfo) {
+  //   return SingleChildScrollView(
+  //     padding: EdgeInsets.all(2.h),
+  //     child: Column(
+  //       children: [
+  //         Row(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             // Left: Information Card
+  //             Expanded(flex: 4, child: _InformationCard(staff: staffInfo)),
+  //             SizedBox(width: 1.7.w),
+  //             // Right: Call Status + Recent Activity
+  //             Expanded(
+  //               flex: 6,
+  //               child: Column(
+  //                 children: [
+  //                   _CallStatusCard(
+  //                     data: _callData,
+  //                     selectedDate: _selectedDate,
+  //                     onDateChanged: (d) => setState(() => _selectedDate = d),
+  //                   ),
+  //                   SizedBox(height: 3.w),
+  //                   const RecentActivityCard(),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildOverviewTab(StaffInfo staffInfo) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(2.h),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocBuilder<AddLeadCubit, AddLeadState>(
+      builder: (context, leadState) {
+        // Use live counts if available, fall back to zeros
+        final liveCallData = CallStatusData(
+          cloudCallDuration: _callData.cloudCallDuration,
+          phoneCallDuration: _callData.phoneCallDuration,
+          closedCount: int.tryParse(leadState.closedLeadCount) ?? 0,
+          costAmount: _callData.costAmount,
+          totalCalled: int.tryParse(leadState.totalCalledCount) ?? 0,
+          leadsByCategory: leadState.leadChartCounts.isNotEmpty
+              ? leadState.leadChartCounts
+              : _callData.leadsByCategory,
+        );
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(2.h),
+          child: Column(
             children: [
-              // Left: Information Card
-              Expanded(flex: 4, child: _InformationCard(staff: staffInfo)),
-              SizedBox(width: 1.7.w),
-              // Right: Call Status + Recent Activity
-              Expanded(
-                flex: 6,
-                child: Column(
-                  children: [
-                    _CallStatusCard(
-                      data: _callData,
-                      selectedDate: _selectedDate,
-                      onDateChanged: (d) => setState(() => _selectedDate = d),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 4, child: _InformationCard(staff: staffInfo)),
+                  SizedBox(width: 1.7.w),
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      children: [
+                        _CallStatusCard(
+                          data: liveCallData, // ← now uses live data
+                          selectedDate: _selectedDate,
+                          onDateChanged: (d) {
+                            setState(() => _selectedDate = d);
+                            // Re-fetch when date changes
+                            context.read<AddLeadCubit>().fetchLeadChartCounts(
+                              staffId: widget.staff.id ?? '',
+                              role: widget.staff.staffType ?? '',
+                              selectedDate: DateTime.now(),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 3.w),
+                        const RecentActivityCard(),
+                      ],
                     ),
-                    SizedBox(height: 3.w),
-                    const RecentActivityCard(),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -898,33 +960,28 @@ class __CallStatusCardState extends State<_CallStatusCard> {
           ),
           child: Column(
             children: [
-              _timeCard(),
-              SizedBox(height: 1.w),
+              // _timeCard(),
+              // SizedBox(height: 1.w),
               _miniStat(
                 'Closed',
                 widget.data.closedCount,
                 Colors.green,
                 const Color(0xFFbbdbb2),
               ),
-              SizedBox(height: 1.w),
-              _miniStat(
-                'Cost',
-                widget.data.costAmount,
-                Colors.purple,
-                const Color(0xFFf3d5fd),
-              ),
+              // SizedBox(height: 1.w),
+              // _miniStat(
+              //   'Cost',
+              //   widget.data.costAmount,
+              //   Colors.purple,
+              //   const Color(0xFFf3d5fd),
+              // ),
               SizedBox(height: 1.w),
             ],
           ),
         ),
         SizedBox(height: 1.w),
         _progress('TOTAL CALLED', 156, 1),
-        _progress('NO STATUS UPDATED', 3, 0.02),
         _progress('CONNECTED', 41, 0.3),
-        _progress('BUSY', 4, 0.03),
-        _progress('REJECTED', 7, 0.05),
-        _progress('SWITCHED OFF', 11, 0.08),
-        _progress('OUT OF COVERAGE AREA', 4, 0.03),
         _progress('NOT ATTENDED', 86, 0.7),
         SizedBox(height: 1.w),
       ],
@@ -1031,7 +1088,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
                 child: Text(
                   label,
                   style: AppTextStyle.medium(
-                    size: 12.sp,
+                    // size: 1.sp,
                     weight: FontWeight.w400,
                   ),
                 ),
@@ -1063,9 +1120,15 @@ class __CallStatusCardState extends State<_CallStatusCard> {
         SizedBox(
           height: 10.w,
           width: 10.w,
+          // child: _DonutChart(
+          //   leadsByCategory: widget.data.leadsByCategory.isEmpty
+          //       ? const {'Follow Up': 85, 'Rejected': 15}
+          //       : widget.data.leadsByCategory,
+          // ),
           child: _DonutChart(
-            leadsByCategory: widget.data.leadsByCategory.isEmpty
-                ? const {'Follow Up': 85, 'Rejected': 15}
+            leadsByCategory:
+                widget.data.leadsByCategory.values.every((v) => v == 0)
+                ? const {'No Data': 1} // shows a grey slice when all zeros
                 : widget.data.leadsByCategory,
           ),
         ),
@@ -1164,19 +1227,21 @@ class _DonutChart extends StatelessWidget {
           PieChartData(
             startDegreeOffset: -90,
             sectionsSpace: 2,
-            centerSpaceRadius: 45,
-            sections: List.generate(entries.length, (i) {
-              final value = entries[i].value.toDouble();
-              if (value == 0) {
-                return PieChartSectionData(value: 0, color: Colors.transparent);
-              }
-              return PieChartSectionData(
-                value: value,
-                color: colors[i % colors.length],
+            centerSpaceRadius: 45, // hollow center size
+            sections: [
+              PieChartSectionData(
+                value: 70,
+                color: Color(0xFF4F6BED),
+                radius: 22, // thickness of the ring
+                showTitle: false,
+              ),
+              PieChartSectionData(
+                value: 30,
+                color: Color(0xFF7BC96F),
                 radius: 22,
                 showTitle: false,
-              );
-            }),
+              ),
+            ],
           ),
         ),
         Column(

@@ -290,7 +290,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';

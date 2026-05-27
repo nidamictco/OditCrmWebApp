@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
@@ -96,9 +96,38 @@ class _MainScreenState extends State<MainScreen> {
   bool isSidebarOpen = true;
   AddLeadModel? _editLead;
 
-  late final NotificationCubit _notificationCubit;
+  // late final NotificationCubit _notificationCubit;
 
-  // DesignationModel? designation;
+  // // DesignationModel? designation;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   selectedIndex = widget.selectedIndex;
+  //   _editLead = widget.lead;
+
+  //    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //   final user = await SessionService().getSavedUser();
+  //   if (!mounted) return;
+  //   final staffId = user?.id ?? '';
+  //   // Re-create with the real staffId now that we have it
+  //   _notificationCubit.close();
+  //   _notificationCubit = NotificationCubit(
+  //     NotificationRepo(),
+  //     GeneralSettingsRepository(staffId: staffId),
+  //   );
+  //   _notificationCubit.load(staffId);
+  // });
+  // }
+
+  // @override
+  // void dispose() {
+  //   _notificationCubit.close();
+  //   super.dispose();
+  // }
+
+  late NotificationCubit _notificationCubit;
+  bool _notificationCubitReady = false;
 
   @override
   void initState() {
@@ -106,17 +135,29 @@ class _MainScreenState extends State<MainScreen> {
     selectedIndex = widget.selectedIndex;
     _editLead = widget.lead;
 
-     _notificationCubit = NotificationCubit(NotificationRepo());
+    _notificationCubit = NotificationCubit(
+      NotificationRepo(),
+      GeneralSettingsRepository(staffId: ''),
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final user = await SessionService().getSavedUser();
       if (!mounted) return;
-      _notificationCubit.load(user?.id ?? '');
+      final staffId = user?.id ?? '';
+
+      _notificationCubit = NotificationCubit(
+        NotificationRepo(),
+        GeneralSettingsRepository(staffId: staffId),
+      );
+      _notificationCubit.load(staffId);
+
+      setState(() => _notificationCubitReady = true);
     });
   }
 
-   @override
+  @override
   void dispose() {
-    _notificationCubit.close(); 
+    if (_notificationCubitReady) _notificationCubit.close();
     super.dispose();
   }
 
@@ -126,12 +167,24 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // void _onItemSelected(int index) {
+  //   setState(() {
+  //     selectedIndex = index;
+  //     _editLead = null;
+  //   });
+  // }
+
   void _onItemSelected(int index) {
     setState(() {
+      if (selectedIndex == 20 && index != 20) {
+        _generalSettingsPage = null; // ← clear when navigating away
+      }
       selectedIndex = index;
       _editLead = null;
     });
   }
+
+  Widget? _generalSettingsPage;
 
   Widget getPage() {
     final perm = context.read<PermissionCubit>(); // ← read once
@@ -267,12 +320,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       case 13:
-        return PermissionGuard(
-          hasPermission: perm.canViewUnassignedLeads,
-          child: BlocProvider(
-            create: (_) => AddLeadCubit()..fetchLeads(),
-            child: UnassingnedLead(),
-          ),
+        return BlocProvider(
+          create: (_) => AddLeadCubit()..fetchLeads(),
+          child: UnassingnedLead(),
         );
       case 14:
         return PermissionGuard(
@@ -337,14 +387,33 @@ class _MainScreenState extends State<MainScreen> {
           hasPermission: perm.canViewFileManager,
           child: ViewPage(),
         );
+      // case 20:
+      //   _generalSettingsPage ??= PermissionGuard(
+      //     hasPermission: perm.canViewGeneralSettings,
+      //     child: BlocProvider(
+      //       create: (_) => GeneralSettingsCubit()..loadForCurrentUser(),
+      //       child: const GeneralSettings(),
+      //     ),
+      //   );
+      //   return _generalSettingsPage!;
       case 20:
-  return PermissionGuard(
-    hasPermission: perm.canViewGeneralSettings,
-    child: BlocProvider(
-      create: (_) => GeneralSettingsCubit()..loadForCurrentUser(),
-      child: const GeneralSettings(),
-    ),
-  );
+        _generalSettingsPage ??= PermissionGuard(
+          hasPermission: perm.canViewGeneralSettings,
+          child: BlocProvider(
+            create: (_) {
+              final cubit = GeneralSettingsCubit()..loadForCurrentUser();
+              // ← wire the callback so toggle updates NotificationCubit immediately
+              cubit.onSettingsChanged = (updated) {
+                if (_notificationCubitReady) {
+                  _notificationCubit.refreshSettings(updated);
+                }
+              };
+              return cubit;
+            },
+            child: const GeneralSettings(),
+          ),
+        );
+        return _generalSettingsPage!;
       case 21:
         return PermissionGuard(
           hasPermission: perm.canViewFacebookSettings,
@@ -394,8 +463,11 @@ class _MainScreenState extends State<MainScreen> {
         );
       case 29:
         if (widget.staff == null) return const SizedBox();
-        return BlocProvider(
-          create: (context) => StaffCubit(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => StaffCubit()),
+            BlocProvider(create: (context) => AddLeadCubit()),
+          ],
           child: StaffProfileScreen(staff: widget.staff!),
         );
       case 30:
@@ -420,10 +492,10 @@ class _MainScreenState extends State<MainScreen> {
           child: PersonalProfile(),
         );
       case 34:
-        return  BlocProvider.value(        // ← .value, not create
-    value: _notificationCubit,
-    child: NotificationScreen(),
-  );
+        return BlocProvider.value(
+          value: _notificationCubit,
+          child: NotificationScreen(),
+        );
       default:
         return const SizedBox();
     }
@@ -458,6 +530,7 @@ class _MainScreenState extends State<MainScreen> {
                 MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (_) => AddLeadCubit()..fetchLeads()),
+
                     BlocProvider.value(value: _notificationCubit),
                   ],
                   child: TopBar(
