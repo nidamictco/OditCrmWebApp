@@ -15,6 +15,7 @@ import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../core/shared_preference/session_service.dart';
 import '../lead_managment/leads/model/add_lead_model.dart';
 import '../sidebar/main_screen.dart';
 import '../staff_managment/staff/model/staff_model.dart';
@@ -266,9 +267,16 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       context: context,
       builder: (_) => _DeleteConfirmDialog(
         leadName: lead.clientName,
-        onConfirm: () {
+        onConfirm: () async {
+          await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+          
+          // final user = await SessionService().getSavedUser();
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 12,staff: user, fromCard: widget.fromCard,)),
+          // );
           // setState(() => _leads.removeWhere((l) => l.id == lead.id));
-          _showSnackBar('${lead.clientName} deleted', AppTheme.actionDelete);
+          // _showSnackBar('${lead.clientName} deleted', AppTheme.actionDelete);
         },
       ),
     );
@@ -1489,12 +1497,12 @@ class _LeadRowState extends State<_LeadRow> {
                         tooltip: 'Edit',
                         onTap: () => widget.onEdit(lead),
                       ),
-                      _ActionButton(
-                        icon: Icons.history_rounded,
-                        color: AppTheme.actionHistory,
-                        tooltip: 'History',
-                        onTap: () => widget.onHistory(lead),
-                      ),
+                      // _ActionButton(
+                      //   icon: Icons.history_rounded,
+                      //   color: AppTheme.actionHistory,
+                      //   tooltip: 'History',
+                      //   onTap: () => widget.onHistory(lead),
+                      // ),
                       _ActionButton(
                         icon: Icons.delete_rounded,
                         color: AppTheme.actionDelete,

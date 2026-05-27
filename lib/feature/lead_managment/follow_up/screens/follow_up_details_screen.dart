@@ -1174,7 +1174,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
           ),
           TextButton(
             onPressed: () async {
-              ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
               final user = await SessionService().getSavedUser();
               Navigator.push(
                 context,
