@@ -195,10 +195,7 @@ if (isClosed) return;
     required String fromCard,
     required DateTime selectedDate,
   }) async {
-    log("Staff ID : $staffId");
-    log("Role : $role");
-    log("From Card : $fromCard");
-    log("Selected Date : $selectedDate");
+
 
     emit(
       state.copyWith(listStatus: LeadListStatus.loading, clearListError: true),
@@ -635,6 +632,8 @@ if (isClosed) return;
     required DateTime nextFollowUpDate,
     required String calledStatus,
     required String remarks,
+    required String fromPage,
+    required String editId,
     // Add these three — pass current lead values so repo can diff
     String previousStage = '',
     String previousCategory = '',
@@ -657,7 +656,19 @@ if (isClosed) return;
     try {
       final user = await SessionService().getSavedUser();
 
+      log("fromPage : $fromPage");
+      log("editId : $editId");
+
+      String id = "";
+      if(fromPage == "EDIT" && editId.isNotEmpty){
+        id = editId;
+      }
+      else {
+        id = DateTime.now().millisecondsSinceEpoch.toString();
+      }
+
       final followUp = FollowUpModel(
+        id: id,
         leadId: leadId,
         leadName: leadName,
         leadWhatsappNo: leadWhatsappNo,
@@ -968,6 +979,73 @@ Future<void> fetchCallStatusCounts({
     log('[AddLeadCubit] fetchCallStatusCounts error: $e');
   }
 }
+
+  Future<AddLeadModel?> getLeadById(String leadId) async {
+    try {
+      emit(state.copyWith(
+        status: AddLeadStatus.loading,
+        clearError: true,
+      ));
+
+      final lead = await _leadRepository.getLeadById(leadId);
+
+      emit(state.copyWith(
+        status: AddLeadStatus.success,
+      ));
+
+      return lead;
+    } catch (e) {
+      emit(state.copyWith(
+        status: AddLeadStatus.failure,
+        errorMessage: e.toString(),
+      ));
+      return null;
+    }
+  }
+
+
+  Future<void> deleteFollowUp({
+    required String leadId,
+    required String followUpId,
+    required String changedByName,
+    required String changedById,
+    required String leadName,
+    required String leadPhone,
+  }) async {
+    try {
+      emit(
+        state.copyWith(
+          status: AddLeadStatus.loading,
+          clearError: true,
+        ),
+      );
+
+      await _leadRepository.deleteFollowUp(
+        leadId: leadId,
+        followUpId: followUpId,
+        changedByName: changedByName,
+        changedById: changedById,
+        leadName: leadName,
+        leadPhone: leadPhone,
+      );
+
+      emit(
+        state.copyWith(
+          status: AddLeadStatus.success,
+          successMessage: 'Follow-up deleted successfully.',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AddLeadStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+
 }
 
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -312,6 +314,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
     toDate.text =
         DateFormat('dd-MM-yyyy').format(widget.selectedDate ?? DateTime.now());
+
+    log("Staff ID : ${widget.staff!.id!}");
+    log("Staff name : ${widget.staff!.name}");
+    log("Role : ${widget.staff?.staffType}");
+    log("From Card : ${widget.fromCard}");
+    log("Selected Date : ${widget.selectedDate}");
+
 
     cubit.fetchDashboardLeads(
       staffId: widget.staff!.id!,
