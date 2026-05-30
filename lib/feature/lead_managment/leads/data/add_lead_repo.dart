@@ -148,9 +148,33 @@ class AddLeadRepository implements IAddLeadRepository {
 
       final snap = await query.orderBy('createdAt', descending: true).get();
 
-      return snap.docs
-          .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
-          .toList();
+      // return snap.docs
+      //     .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+      //     .toList();
+      /// FETCH LEADS + FOLLOWUPS
+      final List<AddLeadModel> allLeads = await Future.wait(
+        snap.docs.map((leadDoc) async {
+          /// MAIN LEAD
+          final lead = AddLeadModel.fromFirestore(leadDoc.data(), leadDoc.id);
+
+          /// FETCH FOLLOWUP SUBCOLLECTION
+          final followUpSnap = await _collection
+              .doc(leadDoc.id)
+              .collection('FOLLOW_UPS')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          /// CONVERT FOLLOWUPS
+          final followUps = followUpSnap.docs.map((fupDoc) {
+            return FollowUpModel.fromFirestore(fupDoc.data(), fupDoc.id);
+          }).toList();
+
+          /// RETURN LEAD WITH FOLLOWUPS
+          return lead.copyWith(followUp: followUps);
+        }),
+      );
+      return allLeads;
+
     } on FirebaseException catch (e) {
       debugPrint('[fetchLeads] Firebase error: ${e.code} — ${e.message}');
       rethrow;

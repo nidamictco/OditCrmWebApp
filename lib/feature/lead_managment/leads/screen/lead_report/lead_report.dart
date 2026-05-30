@@ -784,7 +784,7 @@ bool _isCreatedDate = true;
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     MainScreen(
-                                                      selectedIndex: 31,
+                                                      selectedIndex: 31,lead: lead,
                                                     ),
                                               ),
                                             );

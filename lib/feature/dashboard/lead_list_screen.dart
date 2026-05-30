@@ -265,6 +265,15 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onEdit(AddLeadModel lead) {
     _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainScreen(
+          selectedIndex: 1,
+          lead: lead,
+        ),
+      ),
+    );
   }
 
   void _onHistory(AddLeadModel lead) {

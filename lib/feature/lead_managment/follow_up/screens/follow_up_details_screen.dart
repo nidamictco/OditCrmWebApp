@@ -713,7 +713,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                 // const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    _addFollowUpBottom(context, null, "NEW");
+                    _addFollowUpBottom(context, null, "NEW", widget.lead);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -748,7 +748,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
               index: dates.indexOf(date),
               dateCount: dates.length,
               onEdit: (followup) {
-                _addFollowUpBottom(context, followup, "EDIT");
+                _addFollowUpBottom(context, followup, "EDIT", widget.lead);
               },
               onDelete: (followup) {
                 _confirmDeleteFollowUp(context, followup);
@@ -1042,7 +1042,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   //   );
   // }
 
-  void _addFollowUpBottom(BuildContext context, FollowUpModel? leadFollowup, String from) {
+  void _addFollowUpBottom(BuildContext context, FollowUpModel? leadFollowup, String from, AddLeadModel lead) {
     final cubit = context.read<AddLeadCubit>();
 
     // Reset selections before opening dialog
@@ -1066,8 +1066,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(leadFollowup.calledDate);
       _callStatusCtrl.text = leadFollowup.calledStatus;
       _remarksCtrl.text = leadFollowup.remarks;
-      _emailCtrl.text = '';
-      _addressm.text = '';
+      _emailCtrl.text = lead.email;
+      _addressm.text = lead.address;
+      _WhtsppNoCtrl.text = lead.whatsappNumber;
       nextFollowUpDate = leadFollowup.nextFollowUpDate;
       calledDateValue = leadFollowup.calledDate;
     }
