@@ -388,6 +388,10 @@ class _ImportLeadsState extends State<ImportLeads> {
           // Step 2: ✅ re-fetch into ImportLeadsCubit so dropdown updates NOW
           await importCubit.refreshCategories();
 
+          // ✅ Auto-select the newly added category
+  importCubit.selectCategory(name);
+
+
           Navigator.pop(ctx);
 
           if (mounted) {
@@ -450,6 +454,10 @@ class _ImportLeadsState extends State<ImportLeads> {
 
           // Step 2: ✅ re-fetch into ImportLeadsCubit so dropdown updates NOW
           await importCubit.refreshSources();
+
+          // ✅ Auto-select the newly added source
+  importCubit.selectSource(name);
+
 
           Navigator.pop(ctx);
 

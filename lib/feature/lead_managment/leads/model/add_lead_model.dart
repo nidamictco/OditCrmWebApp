@@ -21,6 +21,7 @@ class AddLeadModel {
   final String leadStage;
   final String remarks;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
   final String createdBy;
   final String createdById;
   final Map<String, String>? additionalFields;
@@ -54,6 +55,7 @@ class AddLeadModel {
     this.leadStage = '',
     this.remarks = '',
     this.createdAt,
+    this.updatedAt,
     required this.createdBy,
     required this.createdById,
     this.additionalFields,
@@ -90,6 +92,8 @@ class AddLeadModel {
       'createdBy': createdBy,
       'createdById': createdById,
       'createdAt': FieldValue.serverTimestamp(),
+      // 'updatedAt': FieldValue.serverTimestamp(),
+       'updatedAt': null, 
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
         'nextFollowUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
@@ -128,6 +132,7 @@ class AddLeadModel {
       createdBy: data['createdBy'] ?? '',
       createdById: data['createdById'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       additionalFields: data['additionalFields'] != null
           ? Map<String, String>.from(data['additionalFields'])
           : null,
@@ -170,6 +175,7 @@ class AddLeadModel {
     String? leadStage,
     String? remarks,
     DateTime? createdAt,
+     DateTime? updatedAt,
     String? createdBy,
     String? createdById,
     Map<String, String>? additionalFields,
@@ -202,6 +208,7 @@ class AddLeadModel {
       leadStage: leadStage ?? this.leadStage,
       remarks: remarks ?? this.remarks,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       createdBy: createdBy ?? this.createdBy,
       createdById: createdById ?? this.createdById,
       additionalFields: additionalFields ?? this.additionalFields,
@@ -214,6 +221,17 @@ class AddLeadModel {
       transferLeads: transferLeads ?? this.transferLeads,
     );
   }
+
+ 
+Map<String, dynamic> toUpdateMap() {
+  final map = toFirestore();
+  map.remove('createdAt');     
+  map.remove('createdById');    
+  map.remove('createdBy');
+  map['updatedAt'] = FieldValue.serverTimestamp();
+  return map;
+}
+
 }
 
 class FollowUpModel {
@@ -407,4 +425,6 @@ class TransferDetails {
       transferTime: transferTime ?? this.transferTime,
     );
   }
+
+ 
 }

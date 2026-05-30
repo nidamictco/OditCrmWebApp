@@ -230,34 +230,63 @@ class _AddLeadPageState extends State<AddLeadPage> {
   }
 
   // Contact number validation
-  if (contact.isNotEmpty) {
-    final phoneRegex = RegExp(r'^[0-9]{6,15}$');
-    if (!phoneRegex.hasMatch(contact)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Enter a valid contact number.'),
-          backgroundColor: AppColors.red,
-          behavior: SnackBarBehavior.floating,
+if (contact.isNotEmpty) {
+  final phoneRegex = _contactDialCode == '+91'
+      ? RegExp(r'^[0-9]{10}$')        // India: exactly 10 digits
+      : RegExp(r'^[0-9]{6,15}$');     // Others: 6–15 digits
+  if (!phoneRegex.hasMatch(contact)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _contactDialCode == '+91'
+              ? 'Indian contact number must be exactly 10 digits.'
+              : 'Enter a valid contact number.',
         ),
-      );
-      return;
-    }
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
   }
+}
 
-  // Whatsapp number validation
-  if (whatsapp.isNotEmpty) {
-    final phoneRegex = RegExp(r'^[0-9]{6,15}$');
-    if (!phoneRegex.hasMatch(whatsapp)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Enter a valid WhatsApp number.'),
-          backgroundColor: AppColors.red,
-          behavior: SnackBarBehavior.floating,
+// WhatsApp number validation
+if (whatsapp.isNotEmpty) {
+  final phoneRegex = _whatsappDialCode == '+91'
+      ? RegExp(r'^[0-9]{10}$')
+      : RegExp(r'^[0-9]{6,15}$');
+  if (!phoneRegex.hasMatch(whatsapp)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _whatsappDialCode == '+91'
+              ? 'Indian WhatsApp number must be exactly 10 digits.'
+              : 'Enter a valid WhatsApp number.',
         ),
-      );
-      return;
-    }
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
   }
+}
+
+  final pinCode = _pinCtrl.text.trim();
+if (pinCode.isNotEmpty) {
+  final pinRegex = RegExp(r'^[0-9]{6}$');
+  if (!pinRegex.hasMatch(pinCode)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Pin code must be a 6-digit number.'),
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+}
+
+
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;
 
@@ -624,6 +653,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 Expanded(
                   child: _field(
                     'Pin Code',
+                  keyboardtype: TextInputType.number,
                     false,
                     Icons.pin_drop_outlined,
                     controller: _pinCtrl,
@@ -1103,6 +1133,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
           context.read<LeadCategoryCubit>().addCategory(name: name);
+          setState(() => _leadCategory = name);
+        context.read<AddLeadCubit>().selectCategory(name);
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1151,6 +1183,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
           context.read<LeadSourceCubit>().addSource(name: name);
+           setState(() => _leadSource = name);
+  context.read<AddLeadCubit>().selectSource(name);
+
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1209,6 +1244,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     String label,
     bool required,
     IconData icons, {
+    TextInputType? keyboardtype,
     TextEditingController? controller,
     String? Function(String?)? validator,
   }) {
@@ -1223,6 +1259,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           child: TextFormField(
             controller: controller,
             validator: validator,
+            keyboardType:keyboardtype ?? TextInputType.text,
             style: AppTextStyle.body(size: 11.sp),
             decoration: InputDecoration(
               hintText: label,
