@@ -368,7 +368,12 @@ class AddLeadRepository implements IAddLeadRepository {
   @override
   Future<void> updateLead(String id, AddLeadModel lead) async {
     if (id.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
-    await _collection.doc(id).update(lead.toFirestore());
+    
+  //    final data = lead.toFirestore();
+  // data.remove('createdAt'); // ✅ prevent createdAt from being overwritten
+  // data['updatedAt'] = FieldValue.serverTimestamp();
+    
+    await _collection.doc(id).update(lead.toUpdateMap());
   }
 
   @override

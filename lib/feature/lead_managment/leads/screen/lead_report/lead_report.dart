@@ -7,6 +7,7 @@ import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
+import 'package:oxdo/core/utils/tool_tips.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
@@ -26,6 +27,9 @@ class LeadsReport extends StatefulWidget {
 class _LeadsReportState extends State<LeadsReport> {
   final TextEditingController fromDate = TextEditingController();
   final TextEditingController toDate = TextEditingController();
+
+bool _isCreatedDate = true; 
+
   String selectedValue = "10";
 
   // final List<String> dropdownItems = ["10", "100", "1200", "3000"];
@@ -54,6 +58,9 @@ class _LeadsReportState extends State<LeadsReport> {
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
+   _appliedFromDate = DateTime.now();
+  _appliedToDate = DateTime.now();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AddLeadCubit>().fetchLeads();
       _applyFilters();
@@ -71,10 +78,12 @@ class _LeadsReportState extends State<LeadsReport> {
   String? _appliedDistrict;
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
+  bool _appliedIsCreatedDate = true;
 
   // ── Called ONLY when "View" is tapped ───────────────────────────────────────
   void _applyFilters() {
     setState(() {
+      _appliedIsCreatedDate = _isCreatedDate;
       _appliedCategory = selectedCategory;
       _appliedLeadStage = selectedLeadStage;
       _appliedPriority = selectedPriority;
@@ -83,8 +92,15 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedCreatedBy = selectedCreatedBy;
       _appliedState = selectedState;
       _appliedDistrict = selectedDistrict;
-      _appliedFromDate = _parseDate(fromDate.text);
-      _appliedToDate = _parseDate(toDate.text);
+      // _appliedFromDate = _parseDate(fromDate.text);
+      // _appliedToDate = _parseDate(toDate.text);
+      _appliedFromDate = fromDate.text.trim().isEmpty
+        ? null
+        : _parseDate(fromDate.text);
+    _appliedToDate = toDate.text.trim().isEmpty
+        ? null
+        : _parseDate(toDate.text);
+
       _resetPage();
     });
   }
@@ -113,9 +129,13 @@ class _LeadsReportState extends State<LeadsReport> {
         _appliedFromDate!.month,
         _appliedFromDate!.day,
       );
-      result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
-          .toList();
+      // result = result
+      //     .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+      //     .toList();
+      result = result.where((l) {
+      final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
+      return date != null && !date.isBefore(from);
+    }).toList();
     }
     if (_appliedToDate != null) {
       final to = DateTime(
@@ -126,9 +146,13 @@ class _LeadsReportState extends State<LeadsReport> {
         59,
         59,
       );
-      result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
-          .toList();
+      // result = result
+      //     .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+      //     .toList();
+      result = result.where((l) {
+      final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
+      return date != null && !date.isAfter(to);
+    }).toList();
     }
 
     // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
@@ -362,9 +386,9 @@ class _LeadsReportState extends State<LeadsReport> {
                             children: [
                               Row(
                                 children: [
-                                  _radio("Created Date", true),
+                                  _radio("Created Date", _isCreatedDate,'Created Date allows you to \nfilter leads based on when they \nwere added to the system.'),
                                   SizedBox(width: 3.w),
-                                  _radio("Updated Date", false),
+                                  _radio("Updated Date", !_isCreatedDate,'Updated Date allows you to \nfilter leads based on the most \nrecent changes made to them.'),
                                 ],
                               ),
                               SizedBox(height: 1.h),
@@ -960,39 +984,35 @@ class _LeadsReportState extends State<LeadsReport> {
 
   /// ---------------- WIDGETS ----------------
 
-  Widget _radio(String text, bool selected) {
-    return Row(
-      children: [
-        Icon(
-          selected ? Icons.radio_button_checked : Icons.radio_button_off,
-          size: 13.sp,
-          color: AppColors.green,
-        ),
-        SizedBox(width: 0.5.w),
-        Text(
-          text,
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.black,
-            weight: FontWeight.w500,
+  Widget _radio(String text, bool selected,String message) {
+    return GestureDetector(
+      onTap: () {
+      setState(() {
+        _isCreatedDate = (text == 'Created Date');
+        _appliedIsCreatedDate = _isCreatedDate; // ✅ sync immediately
+      });
+      // ✅ re-apply filters so table updates right away
+      _applyFilters();
+    },
+      child: Row(
+        children: [
+          Icon(
+            selected ? Icons.radio_button_checked : Icons.radio_button_off,
+            size: 13.sp,
+            color: AppColors.green,
           ),
-        ),
-        SizedBox(width: 0.5.w),
-        Container(
-          height: 1.8.h,
-          width: 1.8.h,
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.green),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              "?",
-              style: TextStyle(fontSize: 9.sp, color: AppColors.green),
+          SizedBox(width: 0.5.w),
+          Text(
+            text,
+            style: AppTextStyle.small(
+              size: 11.sp,
+              color: AppColors.black,
+              weight: FontWeight.w500,
             ),
           ),
-        ),
-      ],
+           ToolTipWidget(message: message),
+        ],
+      ),
     );
   }
 

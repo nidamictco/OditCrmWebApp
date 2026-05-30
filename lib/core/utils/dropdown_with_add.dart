@@ -39,20 +39,47 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
   late List<String> localItems;
 
   @override
-  void initState() {
-    super.initState();
-    localItems = List.from(widget.items);
+  void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final itemsChanged = oldWidget.items != widget.items;
+    final selectedChanged = oldWidget.selectedValue != widget.selectedValue;
+
+    if (itemsChanged || selectedChanged) {
+      if (oldWidget.items != widget.items) {
+        setState(() {
+          localItems = List.from(widget.items);
+
+          // ✅ If selectedValue isn't in the new list, add it temporarily
+          if (widget.selectedValue != null &&
+              !localItems.contains(widget.selectedValue)) {
+            localItems.add(widget.selectedValue!);
+          }
+        });
+      }
+    }
   }
 
   @override
-  void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.items != widget.items) {
-      setState(() {
-        localItems = List.from(widget.items);
-      });
+  void initState() {
+    super.initState();
+    localItems = List.from(widget.items);
+
+    if (widget.selectedValue != null &&
+        !localItems.contains(widget.selectedValue)) {
+      localItems.add(widget.selectedValue!);
     }
   }
+
+  // @override
+  // void didUpdateWidget(covariant DropdownWithAdd oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.items != widget.items) {
+  //     setState(() {
+  //       localItems = List.from(widget.items);
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -111,118 +138,150 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
 
               /// 🔽 DROPDOWN
               Expanded(
-                child: DropdownSearch<String>(
-                  // ✅ v7: items is now a callback function
-                  items: (filter, infiniteScrollProps) => localItems
-                      .where(
-                        (item) =>
-                            filter.isEmpty ||
-                            item.toLowerCase().contains(filter.toLowerCase()),
-                      )
-                      .toList(),
-
-                  selectedItem: widget.selectedValue,
-                  itemAsString: (item) => item,
-            dropdownBuilder: (context, selectedItem) {
-              if (selectedItem == null) {
-                return Text(
-                  widget.label,
-                  style: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-                );
-              }
-              return Text(
-                selectedItem,
-                style: AppTextStyle.medium(
-                  size: 11.sp,
-                  weight: FontWeight.w400,
-                  color: AppColors.black,
-                ),
-                overflow: TextOverflow.ellipsis,
-              );
-            },
-
-                  suffixProps: DropdownSuffixProps(
-                    dropdownButtonProps: DropdownButtonProps(
-                      iconClosed: Padding(
-                        padding: EdgeInsets.only(right: 1.w),
-                        child: const Icon(Icons.keyboard_arrow_down),
-                      ),
-                      iconOpened: Padding(
-                        padding: EdgeInsets.only(right: 1.w),
-                        child: const Icon(Icons.keyboard_arrow_up),
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 POPUP STYLE
-                  popupProps: PopupProps.menu(
-                    showSearchBox: true,
-                    showSelectedItems: true,
-                    fit: FlexFit.loose,
-                    itemBuilder: (context, item, isDisabled, isSelected) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 1.w,
-                          vertical: 1.h,
-                        ),
-                        alignment: Alignment.centerLeft,
-                        color: isSelected
-                            ? const Color(0xff4A5D9E)
-                            : Colors.white,
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Text(
-                            item,
-                            style: AppTextStyle.medium(
-                              weight: FontWeight.w400,
-                              color: isSelected ? Colors.white : Colors.black87,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    DropdownSearch<String>(
+                      items: (filter, infiniteScrollProps) => localItems
+                          .where(
+                            (item) =>
+                                filter.isEmpty ||
+                                item.toLowerCase().contains(
+                                  filter.toLowerCase(),
+                                ),
+                          )
+                          .toList(),
+                      selectedItem: widget.selectedValue,
+                      itemAsString: (item) => item,
+                      dropdownBuilder: (context, selectedItem) {
+                        if (selectedItem == null) {
+                          return Text(
+                            widget.label,
+                            style: AppTextStyle.small(
                               size: 11.sp,
+                              color: AppColors.grey,
+                            ),
+                          );
+                        }
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: 3.w,
+                          ), // space for clear button
+                          child: Text(
+                            selectedItem,
+                            style: AppTextStyle.medium(
+                              size: 11.sp,
+                              weight: FontWeight.w400,
+                              color: AppColors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      },
+                      suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                          // Hide the default arrow when a value is selected
+                          iconClosed: widget.selectedValue != null
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1.w),
+                                  child: const Icon(Icons.keyboard_arrow_down),
+                                ),
+                          iconOpened: widget.selectedValue != null
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1.w),
+                                  child: const Icon(Icons.keyboard_arrow_up),
+                                ),
+                        ),
+                      ),
+                      popupProps: PopupProps.menu(
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        fit: FlexFit.loose,
+                        itemBuilder: (context, item, isDisabled, isSelected) {
+                          return Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 1.w,
+                              vertical: 1.h,
+                            ),
+                            alignment: Alignment.centerLeft,
+                            color: isSelected
+                                ? const Color(0xff4A5D9E)
+                                : Colors.white,
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Text(
+                                item,
+                                style: AppTextStyle.medium(
+                                  weight: FontWeight.w400,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        menuProps: MenuProps(
+                          backgroundColor: Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          margin: const EdgeInsets.only(top: 4),
+                        ),
+
+                        searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                            hintText: "Search...",
+                            hintStyle: AppTextStyle.small(
+                              size: 11.sp,
+                              color: AppColors.grey,
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            visualDensity: VisualDensity.comfortable,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
                         ),
-                      );
-                    },
-
-                    menuProps: MenuProps(
-                      backgroundColor: Colors.white,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
                       ),
-                      margin: const EdgeInsets.only(top: 4),
-                    ),
 
-                    searchFieldProps: TextFieldProps(
-                      decoration: InputDecoration(
-                        hintText: "Search...",
-                        hintStyle: AppTextStyle.small(
-                          size: 11.sp,
-                          color: AppColors.grey,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        visualDensity: VisualDensity.comfortable,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
+                      decoratorProps: DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 1.w,
+                            vertical: 1.h,
+                          ),
                         ),
                       ),
+                      onSelected: (value) => widget.onChanged(value),
                     ),
-                  ),
 
-                  /// 🔹 FIELD STYLE
-                  decoratorProps: DropDownDecoratorProps(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                        vertical: 1.h,
+                    // ✅ Clear button overlay — only shown when a value is selected
+                    if (widget.selectedValue != null)
+                      Positioned(
+                        right: 0.5.w,
+                        child: GestureDetector(
+                          onTap: () => widget.onChanged(null),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            child: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  onSelected: (value) => widget.onChanged(value),
+                  ],
                 ),
               ),
             ],

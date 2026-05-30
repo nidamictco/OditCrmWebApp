@@ -54,11 +54,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     // Load staff name + additional fields in parallel; streams fire independently
     await Future.wait([_loadStaffName(), _fetchAdditionalFields()]);
-
+if (isClosed) return;
     _watchCategories();
     _watchSources();
     _watchLeadStages();
-
+if (isClosed) return;
     emit(
       state.copyWith(
         selectedPriority: 'Normal',
@@ -74,6 +74,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   Future<void> _loadStaffName() async {
     final user = await SessionService().getSavedUser();
+    if (isClosed) return;
     emit(state.copyWith(assignedStaffName: user?.name ?? 'Unknown'));
   }
 
@@ -81,6 +82,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     emit(state.copyWith(isLoadingAdditionalFields: true));
     try {
       final fields = await _additionalFieldsRepo.fetchFields();
+      if (isClosed) return;
       emit(
         state.copyWith(
           additionalFields: fields,
@@ -88,6 +90,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         ),
       );
     } catch (_) {
+      if (isClosed) return;
       // Non-fatal — form works fine without custom fields
       emit(state.copyWith(isLoadingAdditionalFields: false));
     }
@@ -168,12 +171,15 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     );
     try {
       final user = await SessionService().getSavedUser();
+      if (isClosed) return;
       final leads = await _leadRepository.fetchLeads(
         staffId: user?.id ?? '',
         role: user?.staffType ?? '',
       );
+      if (isClosed) return;
       emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           listStatus: LeadListStatus.failure,
@@ -818,6 +824,7 @@ Future<void> fetchDashboardCounts(
 }) async {
   try {
     final user = await SessionService().getSavedUser();
+    if (isClosed) return;
     if (user == null) return;
 
     final counts = await _leadRepository.fetchLeadCounts(
@@ -825,7 +832,7 @@ Future<void> fetchDashboardCounts(
       selectedDate: selectedDate,
       role: role ?? user.staffType ?? '',      // ← use passed role
     );
-
+if (isClosed) return;
     emit(
       state.copyWith(
         newLeadCount: counts.newLeadCount.toString(),
