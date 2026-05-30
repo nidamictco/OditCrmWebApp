@@ -1,15 +1,12 @@
-
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 class OtpScreen {
-  OtpScreen({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  OtpScreen({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -22,7 +19,7 @@ class OtpScreen {
 
   // ─── Step 1: Send OTP (Web) ───────────────────────────────────────────────
   // Firebase will show reCAPTCHA popup automatically on web
-  
+
   Future<void> sendOtp({required String phoneNo}) async {
     // Must be E.164 format: +91XXXXXXXXXX
     final formatted = phoneNo.startsWith('+') ? phoneNo : '+91$phoneNo';
@@ -62,7 +59,10 @@ class OtpScreen {
 
       // Fetch staff record from Firestore using phone number
       final query = await _staff
-          .where('phone', isEqualTo: phone) // must be +91XXXXXXXXXX in Firestore
+          .where(
+            'phone',
+            isEqualTo: phone,
+          ) // must be +91XXXXXXXXXX in Firestore
           .limit(1)
           .get();
 
@@ -78,7 +78,6 @@ class OtpScreen {
       } catch (e) {
         throw AuthException('Failed to parse user data: $e');
       }
-
     } on FirebaseAuthException catch (e) {
       log('[OtpScreen] Confirm OTP error: ${e.code}');
       throw AuthException(_mapFirebaseError(e.code));
@@ -100,12 +99,18 @@ class OtpScreen {
 
   String _mapFirebaseError(String code) {
     switch (code) {
-      case 'invalid-verification-code': return 'Wrong OTP. Please try again.';
-      case 'session-expired':           return 'OTP expired. Please resend.';
-      case 'too-many-requests':         return 'Too many attempts. Try later.';
-      case 'invalid-phone-number':      return 'Invalid phone number.';
-      case 'captcha-check-failed':      return 'reCAPTCHA failed. Refresh and retry.';
-      default:                          return 'Auth failed ($code). Try again.';
+      case 'invalid-verification-code':
+        return 'Wrong OTP. Please try again.';
+      case 'session-expired':
+        return 'OTP expired. Please resend.';
+      case 'too-many-requests':
+        return 'Too many attempts. Try later.';
+      case 'invalid-phone-number':
+        return 'Invalid phone number.';
+      case 'captcha-check-failed':
+        return 'reCAPTCHA failed. Refresh and retry.';
+      default:
+        return 'Auth failed ($code). Try again.';
     }
   }
 }

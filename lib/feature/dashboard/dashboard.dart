@@ -193,94 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                         ),
 
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     showDialog(
-                            //       context: context,
-                            //       barrierColor: Colors.transparent,
-                            //       builder: (context) {
-                            //         return Stack(
-                            //           children: [
-                            //             Positioned(
-                            //               top: 20.h,
-                            //               right: 5.w,
-                            //               child: CustomCalendar(
-                            //                 onDateSelected: (date) {
-                            //                   _dateController.text = DateFormat('dd-MM-yyyy').format(date);
-                            //
-                            //                   context.read<AddLeadCubit>().fetchDashboardCounts(date);
-                            //
-                            //                   Navigator.pop(context);
-                            //                 },
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         );
-                            //       },
-                            //     );
-                            //   },
-                            //   child: Row(
-                            //     children: [
-                            //       Container(
-                            //         width: 15.w,
-                            //         height: 6.h,
-                            //         padding: EdgeInsets.symmetric(
-                            //           horizontal: 10,
-                            //           vertical: 5,
-                            //         ),
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.white,
-                            //           borderRadius: BorderRadius.only(
-                            //             topLeft: Radius.circular(4),
-                            //             bottomLeft: Radius.circular(4),
-                            //           ),
-                            //         ),
-                            //         child: Center(
-                            //           child: IgnorePointer(
-                            //             child: TextField(
-                            //               controller: _dateController,
-                            //               readOnly: true,
-                            //               style: AppTextStyle.small(
-                            //                 size: 11.sp,
-                            //                 color: AppColors.grey,
-                            //               ),
-                            //               textAlign: TextAlign.center,
-                            //               decoration: InputDecoration(
-                            //                 border: InputBorder.none,
-                            //                 // hintText: _dateController.text,
-                            //                 hintStyle: AppTextStyle.small(
-                            //                   size: 11.sp,
-                            //                   color: AppColors.grey,
-                            //                 ),
-                            //                 isCollapsed: true,
-                            //                 contentPadding: EdgeInsets.zero,
-                            //               ),
-                            //             ),
-                            //           ),
-                            //         ),
-                            //       ),
-                            //
-                            //       /// CALENDAR BUTTON
-                            //       Container(
-                            //         height: 6.h,
-                            //         width: 6.h,
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.indigo,
-                            //           borderRadius: BorderRadius.only(
-                            //             topRight: Radius.circular(4),
-                            //             bottomRight: Radius.circular(4),
-                            //           ),
-                            //         ),
-                            //         child: Icon(
-                            //           Icons.search,
-                            //           color: Colors.white,
-                            //           size: 13.sp,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-
+                           
                             SizedBox(width: 1.w),
 
                             /// ADD LEADS BUTTON
@@ -296,47 +209,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     SizedBox(height: 2.h),
 
-                    /// 🔥 SOCIAL CONNECT SECTION
-                    Wrap(
-                      spacing: 2.w,
-                      runSpacing: 2.h,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width > 800
-                              ? 38.w
-                              : 200.w,
-                          child: SocialConnectCard(
-                            title: "Connect facebook",
-                            buttonText: "Facebook Settings",
-                            buttonColor: AppColors.primary,
-                            icon: Icons.facebook,
-                            iconColor: AppColors.primary,
-                            ontap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      MainScreen(selectedIndex: 21),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        // SizedBox(width: 2.w),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width > 600
-                              ? 38.w
-                              : 200.w,
-                          child: SocialConnectCard(
-                            title: "Connect WhatsApp",
-                            buttonText: "Whatsapp Settings",
-                            buttonColor: AppColors.green,
-                            icon: Icons.chat,
-                            iconColor: AppColors.green,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // /// 🔥 SOCIAL CONNECT SECTION_____________don't delete_________________
+                    // Wrap(
+                    //   spacing: 2.w,
+                    //   runSpacing: 2.h,
+                    //   children: [
+                    //     SizedBox(
+                    //       width: MediaQuery.of(context).size.width > 800
+                    //           ? 38.w
+                    //           : 200.w,
+                    //       child: SocialConnectCard(
+                    //         title: "Connect facebook",
+                    //         buttonText: "Facebook Settings",
+                    //         buttonColor: AppColors.primary,
+                    //         icon: Icons.facebook,
+                    //         iconColor: AppColors.primary,
+                    //         ontap: () {
+                    //           Navigator.push(
+                    //             context,
+                    //             MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   MainScreen(selectedIndex: 21),
+                    //             ),
+                    //           );
+                    //         },
+                    //       ),
+                    //     ),
+                    //     // SizedBox(width: 2.w),
+                    //     SizedBox(
+                    //       width: MediaQuery.of(context).size.width > 600
+                    //           ? 38.w
+                    //           : 200.w,
+                    //       child: SocialConnectCard(
+                    //         title: "Connect WhatsApp",
+                    //         buttonText: "Whatsapp Settings",
+                    //         buttonColor: AppColors.green,
+                    //         icon: Icons.chat,
+                    //         iconColor: AppColors.green,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
 
                     SizedBox(height: 2.h),
 

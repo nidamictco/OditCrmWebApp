@@ -81,15 +81,19 @@ abstract class IAddLeadRepository {
     required String staffId,
     required String role,
     required DateTime selectedDate,
+    DateTime? toDate,
   });
   Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
     required String staffId,
     required String role,
     required DateTime selectedDate,
+    DateTime? toDate,
   });
   Future<Map<String, int>> fetchCallStatusCounts({
     required String staffId,
     required String role,
+    DateTime? selectedDate,
+    DateTime? toDate,
   });
 }
 
@@ -969,12 +973,25 @@ class AddLeadRepository implements IAddLeadRepository {
     required String staffId,
     required String role,
     required DateTime selectedDate,
+    DateTime? toDate,
   }) async {
     Query<Map<String, dynamic>> query = _collection;
 
-    if (role.toLowerCase() != 'admin') {
-      query = query.where('assignedStaffId', isEqualTo: staffId);
-    }
+     if (staffId.isNotEmpty) {
+    query = query.where('assignedStaffId', isEqualTo: staffId); // ← always filter
+  }
+
+   // ── Date filter ──────────────────────────────────────────────────────
+  final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+  final to = toDate != null
+      ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
+      : DateTime(from.year, from.month, from.day, 23, 59, 59);
+
+  query = query
+      .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
+      .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
+  // ─────────────────────────────────────────────────────────────────────
+
 
     final snap = await query.get();
 
@@ -1017,19 +1034,27 @@ Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
   required String staffId,
   required String role,
   required DateTime selectedDate,
+   DateTime? toDate,
 }) async {
-  final start = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-  final end = start.add(const Duration(days: 1));
+  // ← Remove the date filter, fetch all leads for this staff
+  Query<Map<String, dynamic>> query = _collection;
 
-  // Fetch all follow-ups for this staff on the selected date
-  Query query = _firestore
-      .collection('LEADS')
-      .where('followUpDate', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-      .where('followUpDate', isLessThan: Timestamp.fromDate(end));
-
-  if (role != 'Admin' && role != 'Manager') {
+  // Always filter by staffId for staff profile view
+  if (staffId.isNotEmpty) {
     query = query.where('assignedStaffId', isEqualTo: staffId);
   }
+
+  // ── Date filter ──────────────────────────────────────────────────────
+  final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+  final to = toDate != null
+      ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
+      : DateTime(from.year, from.month, from.day, 23, 59, 59);
+
+  query = query
+      .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
+      .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
+  // ─────────────────────────────────────────────────────────────────────
+
 
   final snapshot = await query.get();
 
@@ -1037,37 +1062,82 @@ Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
   final Map<String, Map<String, int>> grouped = {};
 
   for (final doc in snapshot.docs) {
-    final data = doc.data() as Map<String, dynamic>;
-    final category = (data['leadCategory'] as String? ?? 'Uncategorized').trim();
+    final data = doc.data();
+    final category = (data['leadCategory'] as String? ?? 'Uncategorized')
+        .trim()
+        .toUpperCase();
     final stage = (data['leadStage'] as String? ?? '').trim().toUpperCase();
 
-    grouped.putIfAbsent(category, () => {
-      'NEW': 0, 'FOLLOW UP': 0, 'REJECTED': 0, 'CLOSED': 0,
+    // Use display-friendly category name
+    final displayCategory = category.isEmpty ? 'Uncategorized' : category;
+
+    grouped.putIfAbsent(displayCategory, () => {
+      'NEW': 0,
+      'FOLLOW UP': 0,
+      'REJECTED': 0,
+      'CLOSED': 0,
     });
 
-    if (stage == 'NEW') grouped[category]!['NEW'] = (grouped[category]!['NEW'] ?? 0) + 1;
-    else if (stage == 'FOLLOW UP') grouped[category]!['FOLLOW UP'] = (grouped[category]!['FOLLOW UP'] ?? 0) + 1;
-    else if (stage == 'REJECTED') grouped[category]!['REJECTED'] = (grouped[category]!['REJECTED'] ?? 0) + 1;
-    else if (stage == 'CLOSED') grouped[category]!['CLOSED'] = (grouped[category]!['CLOSED'] ?? 0) + 1;
+    if (stage == 'NEW') {
+      grouped[displayCategory]!['NEW'] = (grouped[displayCategory]!['NEW'] ?? 0) + 1;
+    } else if (stage == 'FOLLOW UP' || stage == 'FOLLOWUP') {
+      grouped[displayCategory]!['FOLLOW UP'] = (grouped[displayCategory]!['FOLLOW UP'] ?? 0) + 1;
+    } else if (stage == 'REJECTED') {
+      grouped[displayCategory]!['REJECTED'] = (grouped[displayCategory]!['REJECTED'] ?? 0) + 1;
+    } else if (stage == 'CLOSED') {
+      grouped[displayCategory]!['CLOSED'] = (grouped[displayCategory]!['CLOSED'] ?? 0) + 1;
+    }
   }
 
-  return grouped.entries.map((e) => LeadCategoryTableRow(
+  // Sort by total count descending so most active categories appear first
+  final rows = grouped.entries.map((e) => LeadCategoryTableRow(
     category: e.key,
     newCount: e.value['NEW'] ?? 0,
     followUpCount: e.value['FOLLOW UP'] ?? 0,
     rejectedCount: e.value['REJECTED'] ?? 0,
     closedCount: e.value['CLOSED'] ?? 0,
   )).toList();
-}
 
+  rows.sort((a, b) {
+    final totalA = a.newCount + a.followUpCount + a.rejectedCount + a.closedCount;
+    final totalB = b.newCount + b.followUpCount + b.rejectedCount + b.closedCount;
+    return totalB.compareTo(totalA);
+  });
+
+  return rows;
+}
 Future<Map<String, int>> fetchCallStatusCounts({
   required String staffId,
   required String role,
+   DateTime? selectedDate,
+  DateTime? toDate,
 }) async {
-  Query<Map<String, dynamic>> query = _collection;
+  // Query<Map<String, dynamic>> query = _collection;
 
-  if (role.toLowerCase() != 'admin') {
-    query = query.where('assignedStaffId', isEqualTo: staffId);
+  // if (staffId.isNotEmpty) {
+  //   query = query.where('assignedStaffId', isEqualTo: staffId);
+  // }
+
+    Timestamp? fromTs;
+  Timestamp? toTs;
+  if (selectedDate != null) {
+    final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final to = toDate != null
+        ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
+        : DateTime(from.year, from.month, from.day, 23, 59, 59);
+    fromTs = Timestamp.fromDate(from);
+    toTs   = Timestamp.fromDate(to);
+  }
+
+  // Query FOLLOW_UPS subcollection across all leads for this staff
+  Query<Map<String, dynamic>> query = _firestore
+      .collectionGroup('FOLLOW_UPS')
+      .where('createdById', isEqualTo: staffId);
+
+  if (fromTs != null && toTs != null) {
+    query = query
+        .where('createdAt', isGreaterThanOrEqualTo: fromTs)
+        .where('createdAt', isLessThanOrEqualTo: toTs);
   }
 
   final snap = await query.get();
