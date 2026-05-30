@@ -688,28 +688,29 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   //     color: Color(0xFF222222)),
                 ),
                 const Spacer(),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.green,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 7,
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.chat, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
+                // Container(
+                //   decoration: BoxDecoration(
+                //     color: AppColors.green,
+                //     borderRadius: BorderRadius.circular(6),
+                //   ),
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: 12,
+                //     vertical: 7,
+                //   ),
+                //   child: Row(
+                //     children: [
+                //       // Icon(Icons.chat, color: Colors.white, size: 16),
+                //       Image.asset("assets/icon/whatsapp.png", scale: 2,),
+                //       const SizedBox(width: 4),
+                //       const Icon(
+                //         Icons.keyboard_arrow_down,
+                //         color: Colors.white,
+                //         size: 16,
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
                     _addFollowUpBottom(context, null, "NEW");

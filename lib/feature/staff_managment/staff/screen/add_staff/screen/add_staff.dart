@@ -735,6 +735,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
@@ -897,6 +898,35 @@ class _AddStaffState extends State<AddStaff> {
 
     if (_designation == null || _designation!.isEmpty)
       return 'Please select a designation';
+
+    if (_joiningDateCtrl.text.trim().isNotEmpty) {
+      final dateText = _joiningDateCtrl.text.trim();
+
+      final regex = RegExp(
+        r'^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(19|20)\d{2}$',
+      );
+
+      if (!regex.hasMatch(dateText)) {
+        return 'Joining Date must be in DD-MM-YYYY format';
+      }
+
+      try {
+        final parts = dateText.split('-');
+        final day = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final year = int.parse(parts[2]);
+
+        final date = DateTime(year, month, day);
+
+        if (date.day != day ||
+            date.month != month ||
+            date.year != year) {
+          return 'Please enter a valid date';
+        }
+      } catch (_) {
+        return 'Please enter a valid date';
+      }
+    }
 
     return null;
   }
@@ -1451,6 +1481,12 @@ class InputField extends StatelessWidget {
               controller: controller,
               style: AppTextStyle.body(size: 11.sp),
               obscureText: isPassword,
+              inputFormatters: [
+                if(label == 'Phone Number')
+                  FilteringTextInputFormatter.digitsOnly,
+                if(label == 'Phone Number')
+                  LengthLimitingTextInputFormatter(10)
+              ],
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: AppTextStyle.small(
