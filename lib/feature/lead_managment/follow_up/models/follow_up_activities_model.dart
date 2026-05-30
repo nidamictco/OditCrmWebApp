@@ -12,6 +12,7 @@ enum ActivityType {
   remarkUpdated,
   leadDeleted,
   unknown,
+  followupDeleted,
 }
 
 class ActivityModel {

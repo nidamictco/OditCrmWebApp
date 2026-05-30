@@ -29,6 +29,15 @@ abstract class IAddLeadRepository {
   Future<String> restoreLead(AddLeadModel lead);
   Future<void> permanentlyDeleteLead(String id);
   Future<void> assignStaff(String leadId, String staffId, String staffName);
+  Future<AddLeadModel> getLeadById(String leadId);
+  Future<void> deleteFollowUp({
+    required String leadId,
+    required String followUpId,
+    required String changedByName,
+    required String changedById,
+    required String leadName,
+    required String leadPhone,
+  });
   Future<void> addFollowUp(
     String leadId,
     FollowUpModel followUp, {
@@ -468,12 +477,12 @@ class AddLeadRepository implements IAddLeadRepository {
     final activityRef = _collection.doc(leadId).collection('ACTIVITIES');
 
     // 1. Write the follow-up document
-    final String followUpId = _generateDateId('FUP');
+    final String followUpId = followUp.id ?? _generateDateId('FUP');
     final fupRef = _collection
         .doc(leadId)
         .collection('FOLLOW_UPS')
         .doc(followUpId);
-    batch.set(fupRef, followUp.toFirestore());
+    batch.set(fupRef, followUp.toFirestore(), SetOptions(merge: true));
 
     // 2. Update lead document
     final leadRef = _collection.doc(leadId);
@@ -1088,4 +1097,133 @@ Future<Map<String, int>> fetchCallStatusCounts({
     'notConnected': notConnected,
   };
 }
+
+  Future<AddLeadModel> getLeadById(String leadId) async {
+    try {
+      final leadDoc = await FirebaseFirestore.instance
+          .collection('LEADS')
+          .doc(leadId)
+          .get();
+
+      if (!leadDoc.exists) {
+        throw Exception('Lead not found');
+      }
+
+      final followUpSnap = await FirebaseFirestore.instance
+          .collection('LEADS')
+          .doc(leadId)
+          .collection('FOLLOW_UPS')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final followUps = followUpSnap.docs
+          .map((e) => FollowUpModel.fromFirestore(e.data(), e.id))
+          .toList();
+
+      final lead = AddLeadModel.fromFirestore(
+        leadDoc.data()!,
+        leadDoc.id,
+      );
+
+      return lead.copyWith(
+        followUp: followUps,
+      );
+    } catch (e) {
+      throw Exception('Failed to fetch lead: $e');
+    }
+  }
+
+  // Future<void> deleteFollowUp({
+  //   required String leadId,
+  //   required String followUpId,
+  // }) async {
+  //   try {
+  //     await FirebaseFirestore.instance
+  //         .collection('LEADS')
+  //         .doc(leadId)
+  //         .collection('FOLLOW_UPS')
+  //         .doc(followUpId)
+  //         .delete();
+  //   } catch (e) {
+  //     throw Exception('Failed to delete follow-up: $e');
+  //   }
+  // }
+
+  Future<void> deleteFollowUp({
+    required String leadId,
+    required String followUpId,
+    required String changedByName,
+    required String changedById,
+    required String leadName,
+    required String leadPhone,
+  }) async {
+    final leadRef = FirebaseFirestore.instance
+        .collection('LEADS')
+        .doc(leadId);
+
+    final activityRef = leadRef.collection('ACTIVITIES');
+
+    // Read followup BEFORE deleting
+    final deletedDoc = await leadRef
+        .collection('FOLLOW_UPS')
+        .doc(followUpId)
+        .get();
+
+    if (!deletedDoc.exists) {
+      throw Exception('Follow-up not found');
+    }
+
+    final deletedFollowup = FollowUpModel.fromFirestore(
+      deletedDoc.data()!,
+      deletedDoc.id,
+    );
+
+    // Delete followup
+    await deletedDoc.reference.delete();
+
+    // Find the next latest followup
+    final remaining = await leadRef
+        .collection('FOLLOW_UPS')
+        .orderBy('calledDate', descending: true)
+        .limit(1)
+        .get();
+
+    if (remaining.docs.isNotEmpty) {
+      final latest = FollowUpModel.fromFirestore(
+        remaining.docs.first.data(),
+        remaining.docs.first.id,
+      );
+
+      await leadRef.update({
+        'leadStage': latest.leadStage,
+        'priority': latest.priority,
+        'leadCategory': latest.leadCategory,
+        'followUpDate': latest.nextFollowUpDate,
+        'calledDate': latest.calledDate,
+        'callResult': latest.calledStatus,
+        'remarks': latest.remarks,
+      });
+    }
+
+    // Log activity
+    await activityRef.add(
+      ActivityModel(
+        id: '',
+        type: ActivityType.followupDeleted,
+        changedBy: changedByName,
+        changedById: changedById,
+        changedAt: DateTime.now(),
+        leadId: leadId,
+        leadName: leadName,
+        leadPhone: leadPhone,
+        previousValue: deletedFollowup.calledStatus,
+        newValue: '',
+        description:
+        'Deleted follow-up. Status: ${deletedFollowup.leadStage}, '
+            'Call Result: ${deletedFollowup.calledStatus}, '
+            'Scheduled Date: ${DateFormat('dd-MM-yyyy HH:mm').format(deletedFollowup.nextFollowUpDate)}',
+      ).toFirestore(),
+    );
+  }
+
 }
