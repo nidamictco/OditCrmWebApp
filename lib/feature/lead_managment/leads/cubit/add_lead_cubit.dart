@@ -914,15 +914,18 @@ Future<void> fetchDashboardCounts(
   required String staffId,
   required String role,
   required DateTime selectedDate,
+  DateTime? toDate,
 }) async {
   try {
     // fetch both in parallel
     final results = await Future.wait([
       _leadRepository.fetchLeadCountsByCategory(
         staffId: staffId, role: role, selectedDate: selectedDate,
+        toDate: toDate,   
       ),
       _leadRepository.fetchLeadCategoryTableRows(
-        staffId: staffId, role: role, selectedDate: selectedDate,
+        staffId: staffId, role: role, selectedDate: selectedDate, 
+        toDate: toDate,  
       ),
     ]);
 
@@ -939,11 +942,15 @@ Future<void> fetchDashboardCounts(
 Future<void> fetchCallStatusCounts({
   required String staffId,
   required String role,
+  DateTime? selectedDate,        
+  DateTime? toDate, 
 }) async {
   try {
     final counts = await _leadRepository.fetchCallStatusCounts(
       staffId: staffId,
       role: role,
+      selectedDate: selectedDate,  
+      toDate: toDate,    
     );
     emit(state.copyWith(
       totalCalledCount: counts['totalCalled'].toString(),

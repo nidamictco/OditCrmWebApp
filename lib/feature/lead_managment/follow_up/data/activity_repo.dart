@@ -51,12 +51,25 @@ class ActivityRepository {
     String staffId, {
     int limit = 20,
   }) async {
-    final snap = await _db
-        .collectionGroup('ACTIVITIES')
-        .where('changedById', isEqualTo: staffId)
-        .orderBy('changedAt', descending: true)
-        .limit(limit)
-        .get();
+    // final snap = await _db
+    //     .collectionGroup('ACTIVITIES')
+    //     .where('changedById', isEqualTo: staffId)
+    //     .orderBy('changedAt', descending: true)
+    //     .limit(limit)
+    //     .get();
+
+    final now = DateTime.now();
+  final todayStart = DateTime(now.year, now.month, now.day);
+  final todayEnd = todayStart.add(const Duration(days: 1));
+
+  final snap = await _db
+      .collectionGroup('ACTIVITIES')
+      .where('changedById', isEqualTo: staffId)
+      .where('changedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))  // ← add
+      .where('changedAt', isLessThan: Timestamp.fromDate(todayEnd))                // ← add
+      .orderBy('changedAt', descending: true)
+      .limit(limit)
+      .get();
 
     final activities = await Future.wait(
       snap.docs.map((d) async {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/export_excel.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
@@ -255,20 +256,32 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                   weight: FontWeight.w600,
                                 ),
                               ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 1.4.w,
-                                  vertical: 1.2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffE5E7EB),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  "Export",
-                                  style: AppTextStyle.medium(
-                                    color: Colors.indigo[900],
-                                    weight: FontWeight.w400,
+                              GestureDetector(
+                                 onTap: () {
+                              final leads = context
+                                  .read<AddLeadCubit>()
+                                  .state
+                                  .leads;
+                              final filtered = _filteredLeads(
+                                leads,
+                              ); // exports only filtered data
+                              exportLeadsToExcel(filtered);
+                            },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 1.4.w,
+                                    vertical: 1.2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffE5E7EB),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    "Export",
+                                    style: AppTextStyle.medium(
+                                      color: Colors.indigo[900],
+                                      weight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                               ),

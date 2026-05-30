@@ -4,15 +4,20 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/core/utils/custom_date_range_picker.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/feature/lead_managment/follow_up/models/follow_up_activities_model.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_cubit.dart';
 import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_state.dart';
+import 'package:oxdo/feature/reports/staff_reports/widget/calender.dart';
+import 'package:oxdo/feature/reports/staff_reports/widget/donut_chart.dart';
 import 'package:oxdo/feature/reports/staff_reports/widget/note_dialog.dart';
+import 'package:oxdo/feature/reports/staff_reports/widget/recent_activity_items.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
@@ -312,7 +317,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        background: _ProfileHeader(staff: staffInfo),
+        background: _ProfileHeader(staff: staffInfo, user: liveModel),
       ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(48),
@@ -434,18 +439,44 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                     child: Column(
                       children: [
                         _CallStatusCard(
-                          data: liveCallData, // ← now uses live data
+                          data: liveCallData, 
                           selectedDate: _selectedDate,
                           categoryRows: leadState.leadCategoryTableRows,
-                          onDateChanged: (d) {
-                            setState(() => _selectedDate = d);
-                            // Re-fetch when date changes
-                            context.read<AddLeadCubit>().fetchLeadChartCounts(
-                              staffId: widget.staff.id ?? '',
-                              role: widget.staff.staffType ?? '',
-                              selectedDate: DateTime.now(),
-                            );
-                          },
+                          onDateChanged: (date) {                          // date is now DateTime
+    setState(() => _selectedDate = _formatDate(date));
+    
+    // fetch chart counts for the selected single date
+    context.read<AddLeadCubit>().fetchLeadChartCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
+      selectedDate: date,                          // ← actual selected date
+    );
+    
+    // fetch call status for the selected single date
+    context.read<AddLeadCubit>().fetchCallStatusCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
+      selectedDate: date,                          // ← pass if your repo supports it
+    );
+  },
+                        onRangeChanged: (from, to) {
+    setState(() => _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}');
+    
+    // fetch chart counts for the date range
+    context.read<AddLeadCubit>().fetchLeadChartCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
+      selectedDate: from,        // pass from; add a `toDate` param if your repo supports range
+      toDate: to,             // uncomment when repo supports range
+    );
+    
+    context.read<AddLeadCubit>().fetchCallStatusCounts(
+      staffId: widget.staff.id ?? '',
+      role: widget.staff.staffType ?? '',
+      selectedDate: from,
+      toDate: to,
+    );
+  },
                         ),
                         SizedBox(height: 3.w),
                         // const RecentActivityCard(),
@@ -604,10 +635,13 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
 
 class _ProfileHeader extends StatelessWidget {
   final StaffInfo staff;
-  const _ProfileHeader({required this.staff});
+  final StaffModel user;
+  const _ProfileHeader({required this.staff, required this.user});
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = user.imageUrl != null && user.imageUrl!.trim().isNotEmpty;
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -626,27 +660,8 @@ class _ProfileHeader extends StatelessWidget {
             child: Row(
               children: [
                 // Avatar
-                Container(
-                  width: 7.5.w,
-                  height: 7.5.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFF2D5F8A),
-                    border: Border.all(color: Colors.white24, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white54,
-                    size: 44,
-                  ),
-                ),
+                
+                _buildProfileImage(hasImage, user),
                 SizedBox(width: 1.5.h),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -708,6 +723,47 @@ class _ProfileHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImage(bool hasImage, StaffModel user) {
+    if (!hasImage) {
+      return CircleAvatar(
+        radius: 7.h,
+        backgroundColor: const Color(0xFF2D5F8A),
+        child: Icon(Icons.person, size: 24.sp, color: Colors.white54),
+      );
+    }
+
+    return CircleAvatar(
+      radius: 7.5.h,
+      // backgroundColor: Colors.grey.shade200,
+      child: ClipOval(
+        child: Image.network(
+          user.imageUrl!,
+          width: 17.h,
+          height: 17.h,
+          fit: BoxFit.cover,
+          // Shows a subtle shimmer/spinner while loading on web
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return Center(
+              child: SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+            );
+          },
+          // Falls back to person icon if URL is broken or CORS fails
+          errorBuilder: (context, error, stack) {
+            return Icon(Icons.person, size: 12.sp, color: Colors.grey);
+          },
+        ),
       ),
     );
   }
@@ -910,31 +966,48 @@ class _DateBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        borderRadius: BorderRadius.circular(8),
-        color: const Color(0xFFF7FAFC),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.calendar_today_outlined,
-            size: 14,
-            color: Color(0xFF718096),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            date,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF4A5568),
-              fontWeight: FontWeight.w500,
+    return InkWell(
+      onTap: () {
+    //      showDialog(
+    //   context: context,
+    //   barrierColor: Colors.black.withOpacity(0.25),
+    //   builder: (_) => CustomDateRangePicker(
+    //     initialFromDate: _parse(widget.fromController.text),
+    //     initialToDate: _parse(widget.toController.text),
+    //     onRangeSelected: (from, to) {
+    //       // No setState needed here — listeners handle it
+    //       widget.fromController.text = DateFormat('dd-MM-yyyy').format(from);
+    //       widget.toController.text = DateFormat('dd-MM-yyyy').format(to);
+    //     },
+    //   ),
+    // );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(8),
+          color: const Color(0xFFF7FAFC),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 14,
+              color: Color(0xFF718096),
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            Text(
+              date,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF4A5568),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -948,13 +1021,15 @@ class _CallStatusCard extends StatefulWidget {
   final CallStatusData data;
   final String selectedDate;
   final List<LeadCategoryTableRow> categoryRows;
-  final ValueChanged<String> onDateChanged;
+  final ValueChanged<DateTime> onDateChanged;
+  final void Function(DateTime from, DateTime to)? onRangeChanged; 
 
   const _CallStatusCard({
     required this.data,
     required this.selectedDate,
     required this.categoryRows,
     required this.onDateChanged,
+    this.onRangeChanged,
   });
 
   @override
@@ -962,6 +1037,13 @@ class _CallStatusCard extends StatefulWidget {
 }
 
 class __CallStatusCardState extends State<_CallStatusCard> {
+   late String _displayLabel; // ← add this
+
+  @override
+  void initState() {
+    super.initState();
+    _displayLabel = widget.selectedDate; // ← initialize from prop
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -987,21 +1069,83 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     );
   }
 
+  // Widget _header() {
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         const Text(
+  //           'Call Status Details',
+  //           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+  //         ),
+  //         _DateBadge(date: widget.selectedDate),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _header() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Call Status Details',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          _DateBadge(date: widget.selectedDate),
-        ],
-      ),
-    );
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Call Status Details',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        // ← replace _DateBadge with this
+        InkWell(
+          onTap: () async {
+           final result = await showCalendarDialog(context);
+  if (result == null) return;
+
+  final label = result.isRange
+      ? '${_formatDate(result.from)} - ${_formatDate(result.to)}'
+      : _formatDate(result.from);
+
+  setState(() => _displayLabel = label);
+
+  if (result.isRange) {
+    widget.onRangeChanged?.call(result.from, result.to);
+  } else {
+     widget.onDateChanged(result.from);
   }
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFF7FAFC),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14,
+                  color: Color(0xFF718096),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  // widget.selectedDate,
+                  _displayLabel,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF4A5568),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _leftStats() {
     return Column(
@@ -1193,7 +1337,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
           //       ? const {'Follow Up': 85, 'Rejected': 15}
           //       : widget.data.leadsByCategory,
           // ),
-          child: _DonutChart(
+          child: DonutChart(
             leadsByCategory:
                 widget.data.leadsByCategory.values.every((v) => v == 0)
                 ? const {'No Data': 1} // shows a grey slice when all zeros
@@ -1300,226 +1444,6 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   }
 }
 
-// ─────────────────────────────────────────────
-// DONUT CHART
-// ─────────────────────────────────────────────
-
-// class _DonutChart extends StatelessWidget {
-//   final Map<String, int> leadsByCategory;
-
-//   const _DonutChart({required this.leadsByCategory});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final total = leadsByCategory.values.fold<int>(0, (sum, val) => sum + val);
-
-//     const colors = [
-//       Color(0xFF4F6BED),
-//       Color(0xFF7BC96F),
-//       Color(0xFFF87171),
-//       Color(0xFF38B2AC),
-//       Color(0xFFECC94B),
-//     ];
-
-//     final entries = leadsByCategory.entries.toList();
-
-//     return Stack(
-//       alignment: Alignment.center,
-//       children: [
-//         PieChart(
-//           PieChartData(
-//             startDegreeOffset: -90,
-//             sectionsSpace: 2,
-//             centerSpaceRadius: 45, // hollow center size
-//             sections: [
-//               PieChartSectionData(
-//                 value: 70,
-//                 color: Color(0xFF4F6BED),
-//                 radius: 22, // thickness of the ring
-//                 showTitle: false,
-//               ),
-//               PieChartSectionData(
-//                 value: 30,
-//                 color: Color(0xFF7BC96F),
-//                 radius: 22,
-//                 showTitle: false,
-//               ),
-//             ],
-//           ),
-//         ),
-//         Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Text(
-//               '$total',
-//               style: const TextStyle(
-//                 fontSize: 22,
-//                 fontWeight: FontWeight.w800,
-//                 color: Color(0xFF1A202C),
-//               ),
-//             ),
-//             const SizedBox(height: 2),
-//             const Text(
-//               'Total\nLeads',
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 fontSize: 10,
-//                 height: 1.2,
-//                 color: Color(0xFF718096),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-class _DonutChart extends StatelessWidget {
-  final Map<String, int> leadsByCategory;
-
-  const _DonutChart({required this.leadsByCategory});
-
-  static const _colors = [
-    Color(0xFF4F6BED), // New
-    Color(0xFF7BC96F), // Follow Up
-    Color(0xFFF87171), // Rejected
-    Color(0xFF38B2AC), // Closed
-    Color(0xFFECC94B), // Pending
-    Color(0xFF9F7AEA), // fallback
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final entries = leadsByCategory.entries.toList();
-    final total = entries.fold<int>(0, (sum, e) => sum + e.value);
-
-    // Build sections dynamically from leadsByCategory
-    final sections = entries.asMap().entries.map((mapEntry) {
-      final index = mapEntry.key;
-      final entry = mapEntry.value;
-      final isNoData = entry.key == 'No Data';
-
-      return PieChartSectionData(
-        value: entry.value.toDouble(),
-        color: isNoData
-            ? Colors.grey.shade300
-            : _colors[index % _colors.length],
-        radius: 22,
-        showTitle: false,
-      );
-    }).toList();
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        PieChart(
-          PieChartData(
-            startDegreeOffset: -90,
-            sectionsSpace: 2,
-            centerSpaceRadius: 45,
-            sections: sections, // ← now dynamic
-          ),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '$total',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1A202C),
-              ),
-            ),
-            const SizedBox(height: 2),
-            const Text(
-              'Total\nLeads',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10,
-                height: 1.2,
-                color: Color(0xFF718096),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// LEAD LEGEND
-// ─────────────────────────────────────────────
-
-// class _LeadLegend extends StatelessWidget {
-//   final Map<String, int> leadsByCategory;
-//   const _LeadLegend({required this.leadsByCategory});
-
-//   static const _colors = [
-//     Color(0xFF4299E1),
-//     Color(0xFF48BB78),
-//     Color(0xFFFC8181),
-//     Color(0xFF38B2AC),
-//     Color(0xFFECC94B),
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final entries = leadsByCategory.entries.toList();
-//     return Container(
-//       padding: const EdgeInsets.all(10),
-//       decoration: BoxDecoration(
-//         color: const Color(0xFFF7FAFC),
-//         borderRadius: BorderRadius.circular(10),
-//         border: Border.all(color: const Color(0xFFE2E8F0)),
-//       ),
-//       child: Column(
-//         children: List.generate(entries.length, (i) {
-//           final e = entries[i];
-//           return Padding(
-//             padding: const EdgeInsets.symmetric(vertical: 3),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Row(
-//                   children: [
-//                     Container(
-//                       width: 10,
-//                       height: 10,
-//                       decoration: BoxDecoration(
-//                         color: _colors[i % _colors.length],
-//                         borderRadius: BorderRadius.circular(3),
-//                       ),
-//                     ),
-//                     const SizedBox(width: 6),
-//                     Text(
-//                       e.key,
-//                       style: const TextStyle(
-//                         fontSize: 11,
-//                         color: Color(0xFF4A5568),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 Text(
-//                   '${e.value}',
-//                   style: const TextStyle(
-//                     fontSize: 11,
-//                     fontWeight: FontWeight.w700,
-//                     color: Color(0xFF2D3748),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           );
-//         }),
-//       ),
-//     );
-//   }
-// }
-
 class _LeadLegend extends StatelessWidget {
   final Map<String, int> leadsByCategory;
   const _LeadLegend({required this.leadsByCategory});
@@ -1590,257 +1514,6 @@ class _LeadLegend extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// RECENT ACTIVITY
-// ─────────────────────────────────────────────
-
-class RecentActivityItem {
-  final String name;
-  final String phone;
-  final String description;
-  // final String subText;
-  final String date;
-
-  const RecentActivityItem({
-    required this.name,
-    required this.phone,
-    required this.description,
-    // required this.subText,
-    required this.date,
-  });
-}
-
-class RecentActivityCard extends StatelessWidget {
-  final List<ActivityModel> activities;
-  final bool isLoading;
-
-  const RecentActivityCard({
-    super.key,
-    required this.activities,
-    this.isLoading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: _cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _header(),
-          const Divider(height: 1),
-          if (isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32),
-              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else if (activities.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.history_outlined,
-                      size: 36,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'No recent activity',
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            ListView.builder(
-              itemCount: activities.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-              itemBuilder: (context, index) => _TimelineItem(
-                item: _toDisplayItem(activities[index]),
-                isLast: index == activities.length - 1,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// Maps an ActivityModel to the existing RecentActivityItem display object.
-  RecentActivityItem _toDisplayItem(ActivityModel m) {
-    return RecentActivityItem(
-      name: m.leadName ?? m.changedBy,
-      phone: m.leadPhone ?? '',
-      description: m.description,
-      date: _formatActivityDate(m.changedAt),
-    );
-  }
-
-  String _formatActivityDate(DateTime dt) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final m = dt.minute.toString().padLeft(2, '0');
-    final ap = dt.hour < 12 ? 'AM' : 'PM';
-    return '${dt.day} ${months[dt.month - 1]} ${dt.year} $h:$m $ap';
-  }
-
-  Widget _header() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Recent Activity',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF4F6BED)),
-            ),
-            child: const Text(
-              'Latest',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF4F6BED),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration _cardDecoration() => BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-      BoxShadow(blurRadius: 12, color: Colors.black.withOpacity(.05)),
-    ],
-  );
-}
-
-class _TimelineItem extends StatelessWidget {
-  final RecentActivityItem item;
-  final bool isLast;
-
-  const _TimelineItem({required this.item, required this.isLast});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Timeline column
-          Column(
-            children: [
-              _circle(),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 1.5,
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: CustomPaint(painter: _DottedLinePainter()),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 12),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${item.name} - ${item.phone}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A202C),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item.description,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF2D3748),
-                      height: 1.4,
-                    ),
-                  ),
-                  // const SizedBox(height: 4),
-                  // Text(
-                  //   item.subText,
-                  //   style: const TextStyle(
-                  //     fontSize: 13,
-                  //     color: Color(0xFF2D3748),
-                  //   ),
-                  // ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item.date,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF718096),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _circle() {
-    // Use first letter of name as avatar
-    final initial = item.name.isNotEmpty ? item.name[0].toUpperCase() : '?';
-    return Container(
-      width: 32,
-      height: 32,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFFE6F4F1),
-      ),
-      child: Text(
-        initial,
-        style: const TextStyle(
-          color: Color(0xFF38B2AC),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
 // PAINTERS
 // ─────────────────────────────────────────────
 
@@ -1863,24 +1536,6 @@ class _GridPatternPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _DottedLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    const dashHeight = 4.0;
-    const dashSpace = 3.0;
-    double startY = 0;
-    final paint = Paint()
-      ..color = const Color(0xFFCBD5E0)
-      ..strokeWidth = 1.5;
-    while (startY < size.height) {
-      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
-      startY += dashHeight + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
 
 class LeadCategoryTableRow {
   final String category;
@@ -1897,3 +1552,4 @@ class LeadCategoryTableRow {
     this.closedCount = 0,
   });
 }
+
