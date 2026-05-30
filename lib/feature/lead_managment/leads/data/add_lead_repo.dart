@@ -463,6 +463,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'leadCategory': followUp.leadCategory,
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
     log('[AddLeadRepository] FollowUp added for lead: $leadId');
@@ -502,6 +503,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
       'callResult': followUp.calledStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
     final now = DateTime.now();

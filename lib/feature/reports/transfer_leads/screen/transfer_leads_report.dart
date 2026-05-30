@@ -445,14 +445,33 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                 state.listStatus == LeadListStatus.loaded
                                 ? state.leads.toList()
                                 : [];
-                            final List<TransferDetails> allTransfers = rawList
-                                .where(
-                                  (l) =>
-                                      l.transferLeads != null &&
-                                      l.transferLeads!.isNotEmpty,
-                                )
-                                .expand((l) => l.transferLeads!)
-                                .toList();
+                            final List<TransferDetails> allTransfers =
+                                rawList
+                                    .where(
+                                      (l) =>
+                                          l.transferLeads != null &&
+                                          l.transferLeads!.isNotEmpty,
+                                    )
+                                    .expand((l) => l.transferLeads!)
+                                    .where(
+      (t) =>
+          t.fromStaff.trim().toLowerCase() !=
+          t.toStaff.trim().toLowerCase(),
+    )
+                                    .toList()
+                                  ..sort((a, b) {
+                                    // nulls go to the end
+                                    if (a.transferTime == null &&
+                                        b.transferTime == null)
+                                      return 0;
+                                    if (a.transferTime == null) return 1;
+                                    if (b.transferTime == null) return -1;
+                                    // latest first
+                                    return b.transferTime!.compareTo(
+                                      a.transferTime!,
+                                    );
+                                  });
+
                             final allFiltered = _filteredLeads(allTransfers);
                             final totalCount = allFiltered.length;
                             final totalPages = _totalPages(totalCount);
