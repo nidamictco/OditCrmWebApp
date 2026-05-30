@@ -711,6 +711,35 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     //     staffName: selectedStaffName!,
                                     //   );
                                     // }
+                                     // ── Only transfer leads not already assigned to the selected staff ──
+  final leadsToTransfer = selectedLeads
+      .where((l) => l.assignedStaff != selectedStaffName)
+      .toList();
+
+  if (leadsToTransfer.isEmpty) {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'All selected leads are already assigned to $selectedStaffName.',
+          style: AppTextStyle.medium(
+            color: AppColors.white,
+            weight: FontWeight.w400,
+          ),
+        ),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    return;
+  }
+
+  // ── Transfer only the leads that are actually different ──
+
                                     for (final lead in selectedLeads) {
                                       await context.read<AddLeadCubit>().transferLead(
                                         leadId:        lead.id!,
@@ -726,8 +755,30 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     }
 
                                     Navigator.pop(context);
-                                    // 🔹 Clear selection — assigned leads auto-disappear
-                                    // because _filteredLeads filters out assignedStaffId != ''
+
+                                    // ── Show how many were transferred vs skipped ──
+  final skippedCount = selectedLeads.length - leadsToTransfer.length;
+  final message = skippedCount > 0
+      ? '${leadsToTransfer.length} lead(s) transferred. $skippedCount already assigned to $selectedStaffName (skipped).'
+      : '${leadsToTransfer.length} lead(s) transferred successfully.';
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: AppTextStyle.medium(
+          color: AppColors.white,
+          weight: FontWeight.w400,
+        ),
+      ),
+      backgroundColor: AppColors.primary,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      duration: const Duration(seconds: 3),
+    ),
+  );
                                     setState(() {
                                       _selectedIndices = [];
                                       _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
