@@ -254,6 +254,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onView(AddLeadModel lead) {
     _showSnackBar('Viewing ${lead.clientName}', AppTheme.actionView);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            MainScreen(selectedIndex: 31, lead: lead),
+      ),
+    );
   }
 
   void _onEdit(AddLeadModel lead) {
