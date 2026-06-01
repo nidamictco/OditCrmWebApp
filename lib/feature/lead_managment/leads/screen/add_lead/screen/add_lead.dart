@@ -1755,6 +1755,7 @@ import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
+import 'package:oxdo/core/utils/indian_location_service.dart';
 import 'package:oxdo/core/utils/menu_hover_bottun.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
@@ -1856,16 +1857,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
   final List<String> priority = ['High', 'Low', 'Negative', 'Normal'];
 
-  final Map<String, List<String>> stateDistrictMap = {
-    'Kerala': [
-      'Ernakulam', 'Kottayam', 'Kozhikode', 'Thiruvananthapuram', 'Thrissur',
-      'Malappuram', 'Palakkad', 'Kollam', 'Alappuzha', 'Kannur', 'Kasaragod',
-      'Wayanad', 'Idukki', 'Pathanamthitta',
-    ],
-    'Tamil Nadu': ['Chennai', 'Madurai', 'Coimbatore', 'Salem'],
-    'Arunachal Pradesh': ['Tawang', 'Papum Pare', 'West Kameng'],
-    'Karnataka': ['Bengaluru', 'Mysuru', 'Hubballi'],
-    'Maharashtra': ['Mumbai', 'Pune', 'Nagpur'],
+   Map<String, List<String>> stateDistrictMap = {
   };
 
   bool get _isEditMode => widget.lead != null;
@@ -1904,6 +1896,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _loadCurrentUser();
     context.read<AddLeadCubit>().initialize();
     context.read<AddLeadCubit>().fetchStaff();
+    _loadLocations();
+    // if (_isEditMode) _prefillIfEditing(widget.lead!);
     if (_isEditMode) {
       _prefillIfEditing(widget.lead!);
     } else {
@@ -1953,6 +1947,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
     setState(() => _orderedNodes = nodes);
   }
+
+  Future<void> _loadLocations() async {
+  final map = await IndiaLocationService.loadStateDistricts();
+  if (mounted) setState(() => stateDistrictMap = map);
+}
 
   void _prefillIfEditing(AddLeadModel lead) {
     _clientNameCtrl.text = lead.clientName;
@@ -2383,9 +2382,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
   Widget _buildCustomerDetails() {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
-      buildWhen: (p, c) =>
-      p.selectedState != c.selectedState ||
-          p.selectedDistrict != c.selectedDistrict,
+      //buildWhen: (p, c) =>
+      //     p.selectedState != c.selectedState ||
+      //     p.selectedDistrict != c.selectedDistrict,
       builder: (context, state) {
         return Column(
           children: [
@@ -2478,20 +2477,48 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ),
                 ),
                 SizedBox(width: 1.w),
-                Expanded(
-                  child: Dropdown(
-                    showIcon: true,
-                    icon: Icons.location_on_outlined,
-                    items: stateDistrictMap.keys.toList(),
-                    selectedValue: state.selectedState,
-                    focusNode: _stateFocus,
-                    nextFocusNode: _districtFocus,
-                    onChanged: (v) =>
-                        context.read<AddLeadCubit>().selectState(v),
-                    label: 'State',
-                    hint: 'Select State',
-                  ),
-                ),
+                // Expanded(
+                //   child: Dropdown(
+                //     showIcon: true,
+                //     icon: Icons.location_on_outlined,
+                //     items: stateDistrictMap.keys.toList(),
+                //     selectedValue: state.selectedState,
+                //     onChanged: (v) =>
+                //         context.read<AddLeadCubit>().selectState(v),
+                //     label: 'State',
+                //     hint: 'Select State',
+                //   ),
+                // ),
+                // In AddLeadPage — wrap state dropdown to show loading state
+Expanded(
+  child: stateDistrictMap.isEmpty
+      ? Container(
+          height: 5.h,
+          decoration: _box(),
+          child: Center(
+            child: SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.green,
+              ),
+            ),
+          ),
+        )
+      : Dropdown(
+          showIcon: true,
+          icon: Icons.location_on_outlined,
+          items: stateDistrictMap.keys.toList(),
+          selectedValue: state.selectedState,
+    focusNode: _stateFocus,
+    nextFocusNode: _districtFocus,
+          onChanged: (v) =>
+              context.read<AddLeadCubit>().selectState(v),
+          label: 'State',
+          hint: 'Select State',
+        ),
+),
                 SizedBox(width: 1.w),
                 Expanded(
                   child: Dropdown(
@@ -2733,7 +2760,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: Dropdown(
                     icon: Icons.flag_outlined,
                     showIcon: true,
-                    showHelp: true,
+
                     items: priority,
                     selectedValue: _leadPriority,
                     focusNode: _priorityFocus,
@@ -2749,7 +2776,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 SizedBox(width: 2.w),
                 Expanded(
                   child: Dropdown(
-                    showHelp: true,
+                    icon: Icons.check_box_outlined,
+                          showIcon: true,
                     items: stagesNames,
                     selectedValue: _leadStage,
                     focusNode: _stageFocus,

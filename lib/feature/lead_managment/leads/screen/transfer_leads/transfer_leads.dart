@@ -393,7 +393,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                               ),
                               Row(
                                 children: [
-                                   _viewButton(),
+                                  _viewButton(),
                                   SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
@@ -433,7 +433,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       ),
                                     ),
                                 ],
-                              )
+                              ),
                             ],
                           ),
                         );
@@ -547,7 +547,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                     final lead = entry.value;
                                     final serial =
                                         (_currentPage - 1) * limit + index + 1;
-                                    return [ 
+                                    return [
                                       Text(
                                         '${serial}',
                                         style: AppTextStyle.medium(),
@@ -696,95 +696,128 @@ class _TransferLeadsState extends State<TransferLeads> {
                             child: GestureDetector(
                               onTap: hasSelection
                                   ? () => showAssignStaffDialog(
-                                  selectedLeads, context,
-                                  onSubmit: (
-                                      String? selectedStaffId,
-                                      String? selectedStaffName,
-                                      ) async {
-                                    if (selectedStaffId == null || selectedStaffName == null)
-                                      return;
+                                      selectedLeads,
+                                      context,
+                                      onSubmit:
+                                          (
+                                            String? selectedStaffId,
+                                            String? selectedStaffName,
+                                          ) async {
+                                            if (selectedStaffId == null ||
+                                                selectedStaffName == null)
+                                              return;
 
-                                    // for (final lead in selectedLeads) {
-                                    //   await context.read<AddLeadCubit>().assignStaff(
-                                    //     leadId: lead.id!,
-                                    //     staffId: selectedStaffId!,
-                                    //     staffName: selectedStaffName!,
-                                    //   );
-                                    // }
-                                     // ── Only transfer leads not already assigned to the selected staff ──
-  final leadsToTransfer = selectedLeads
-      .where((l) => l.assignedStaff != selectedStaffName)
-      .toList();
+                                            // for (final lead in selectedLeads) {
+                                            //   await context.read<AddLeadCubit>().assignStaff(
+                                            //     leadId: lead.id!,
+                                            //     staffId: selectedStaffId!,
+                                            //     staffName: selectedStaffName!,
+                                            //   );
+                                            // }
+                                            // ── Only transfer leads not already assigned to the selected staff ──
+                                            final leadsToTransfer =
+                                                selectedLeads
+                                                    .where(
+                                                      (l) =>
+                                                          l.assignedStaff !=
+                                                          selectedStaffName,
+                                                    )
+                                                    .toList();
 
-  if (leadsToTransfer.isEmpty) {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'All selected leads are already assigned to $selectedStaffName.',
-          style: AppTextStyle.medium(
-            color: AppColors.white,
-            weight: FontWeight.w400,
-          ),
-        ),
-        backgroundColor: Colors.orange,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-    return;
-  }
+                                            if (leadsToTransfer.isEmpty) {
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'All selected leads are already assigned to $selectedStaffName.',
+                                                    style: AppTextStyle.medium(
+                                                      color: AppColors.white,
+                                                      weight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.orange,
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  duration: const Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                ),
+                                              );
+                                              return;
+                                            }
 
-  // ── Transfer only the leads that are actually different ──
+                                            // ── Transfer only the leads that are actually different ──
 
-                                    for (final lead in selectedLeads) {
-                                      await context.read<AddLeadCubit>().transferLead(
-                                        leadId:        lead.id!,
-                                        leadName:      lead.clientName,
-                                        contactNumber: lead.contactNumber,
-                                        leadCategory:  lead.leadCategory,
-                                        leadStage:     lead.leadStage,
-                                        fromStaffId:   lead.assignedStaffId,
-                                        fromStaff:     lead.assignedStaff,
-                                        toStaffId:     selectedStaffId,
-                                        toStaff:       selectedStaffName,
-                                      );
-                                    }
+                                            for (final lead in selectedLeads) {
+                                              await context
+                                                  .read<AddLeadCubit>()
+                                                  .transferLead(
+                                                    leadId: lead.id!,
+                                                    leadName: lead.clientName,
+                                                    contactNumber:
+                                                        lead.contactNumber,
+                                                    leadCategory:
+                                                        lead.leadCategory,
+                                                    leadStage: lead.leadStage,
+                                                    fromStaffId:
+                                                        lead.assignedStaffId,
+                                                    fromStaff:
+                                                        lead.assignedStaff,
+                                                    toStaffId: selectedStaffId,
+                                                    toStaff: selectedStaffName,
+                                                  );
+                                            }
 
-                                    Navigator.pop(context);
+                                            Navigator.pop(context);
 
-                                    // ── Show how many were transferred vs skipped ──
-  final skippedCount = selectedLeads.length - leadsToTransfer.length;
-  final message = skippedCount > 0
-      ? '${leadsToTransfer.length} lead(s) transferred. $skippedCount already assigned to $selectedStaffName (skipped).'
-      : '${leadsToTransfer.length} lead(s) transferred successfully.';
+                                            // ── Show how many were transferred vs skipped ──
+                                            final skippedCount =
+                                                selectedLeads.length -
+                                                leadsToTransfer.length;
+                                            final message = skippedCount > 0
+                                                ? '${leadsToTransfer.length} lead(s) transferred. $skippedCount already assigned to $selectedStaffName (skipped).'
+                                                : '${leadsToTransfer.length} lead(s) transferred successfully.';
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        message,
-        style: AppTextStyle.medium(
-          color: AppColors.white,
-          weight: FontWeight.w400,
-        ),
-      ),
-      backgroundColor: AppColors.primary,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      duration: const Duration(seconds: 3),
-    ),
-  );
-                                    setState(() {
-                                      _selectedIndices = [];
-                                      _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
-                                    });
-                                    // context.read<AddLeadCubit>().fetchLeads();
-                                  })
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  message,
+                                                  style: AppTextStyle.medium(
+                                                    color: AppColors.white,
+                                                    weight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.primary,
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                duration: const Duration(
+                                                  seconds: 3,
+                                                ),
+                                              ),
+                                            );
+                                            setState(() {
+                                              _selectedIndices = [];
+                                              _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
+                                            });
+                                            // context.read<AddLeadCubit>().fetchLeads();
+                                          },
+                                    )
                                   : () => ScaffoldMessenger.of(context)
                                         .showSnackBar(
                                           SnackBar(
@@ -849,16 +882,16 @@ class _TransferLeadsState extends State<TransferLeads> {
         margin: EdgeInsets.only(top: 2.h),
         decoration: BoxDecoration(
           color: AppColors.green,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Center(
-            child: Text(
-              "View",
-              style: AppTextStyle.small(size: 10.sp, color: Colors.white),
-            ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(
+          child: Text(
+            "View",
+            style: AppTextStyle.small(size: 10.sp, color: Colors.white),
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _topButton(String text) {
@@ -913,8 +946,6 @@ class _TransferLeadsState extends State<TransferLeads> {
       ),
     );
   }
-
-
 
   void _deleteSelectedLeads(List<AddLeadModel> selectedLeads) {
     showDialog(
