@@ -773,6 +773,66 @@ class _ProfileHeader extends StatelessWidget {
 // STATUS DROPDOWN
 // ─────────────────────────────────────────────
 
+// class _StatusDropdown extends StatefulWidget {
+//   final String status;
+//   final String? staffId;
+//   const _StatusDropdown({required this.status, required this.staffId});
+
+//   @override
+//   State<_StatusDropdown> createState() => _StatusDropdownState();
+// }
+
+// class _StatusDropdownState extends State<_StatusDropdown> {
+//   late String _current;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _current = widget.status;
+//   }
+
+//   @override
+//   void didUpdateWidget(_StatusDropdown oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (oldWidget.status != widget.status) {
+//       setState(() => _current = widget.status);
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       child: DropdownButtonHideUnderline(
+//         child: DropdownButton<String>(
+//           value: _current,
+//           isDense: true,
+//           style: const TextStyle(
+//             color: Color(0xFF1E3A5F),
+//             fontWeight: FontWeight.w600,
+//             fontSize: 13,
+//           ),
+//           items: [
+//             'Active',
+//             'Inactive',
+//           ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+//           onChanged: (v) {
+//             if (v == null || widget.staffId == null) return;
+//             setState(() => _current = v);
+//             context.read<StaffCubit>().updateStatus(
+//               widget.staffId!,
+//               v,
+//             ); // ← save to Firestore
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 class _StatusDropdown extends StatefulWidget {
   final String status;
   final String? staffId;
@@ -784,6 +844,7 @@ class _StatusDropdown extends StatefulWidget {
 
 class _StatusDropdownState extends State<_StatusDropdown> {
   late String _current;
+  final GlobalKey _key = GlobalKey(); // 👈 to find widget position
 
   @override
   void initState() {
@@ -799,35 +860,81 @@ class _StatusDropdownState extends State<_StatusDropdown> {
     }
   }
 
+  void _showDropdown() async {
+    final RenderBox renderBox =
+        _key.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final Size size = renderBox.size;
+
+    // 👇 position menu exactly below the widget
+    final RelativeRect position = RelativeRect.fromLTRB(
+      offset.dx,
+      offset.dy + size.height, // below the widget
+      offset.dx + size.width,
+      0,
+    );
+
+    final selected = await showMenu<String>(
+      context: context,
+      position: position,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      items: ['Active', 'Inactive']
+          .map(
+            (s) => PopupMenuItem<String>(
+              value: s,
+              child: Text(
+                s,
+                style: TextStyle(
+                  color: s == 'Active' ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+
+    if (selected != null && selected != _current) {
+      setState(() => _current = selected);
+      if (widget.staffId != null) {
+        context.read<StaffCubit>().updateStatus(widget.staffId!, selected);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _current,
-          isDense: true,
-          style: const TextStyle(
-            color: Color(0xFF1E3A5F),
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-          items: [
-            'Active',
-            'Inactive',
-          ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-          onChanged: (v) {
-            if (v == null || widget.staffId == null) return;
-            setState(() => _current = v);
-            context.read<StaffCubit>().updateStatus(
-              widget.staffId!,
-              v,
-            ); // ← save to Firestore
-          },
+    final isActive = _current.toLowerCase() == 'active';
+
+    return GestureDetector(
+      key: _key, // 👈 attach key here
+      onTap: _showDropdown,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _current,
+              style: TextStyle(
+                color: isActive ? Colors.green : Colors.red,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: 16,
+              color: isActive ? Colors.green : Colors.red,
+            ),
+          ],
         ),
       ),
     );

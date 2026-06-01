@@ -191,9 +191,9 @@ class _ViewStaffState extends State<ViewStaff> {
               ),
             );
           }
-           if (state is StaffSaved) {
-    context.read<StaffCubit>().fetchAll();
-  }
+          if (state is StaffSaved) {
+            context.read<StaffCubit>().fetchAll();
+          }
         },
         builder: (context, state) {
           return SingleChildScrollView(
@@ -234,11 +234,13 @@ class _ViewStaffState extends State<ViewStaff> {
                                 onExit: (_) =>
                                     setState(() => isHovering = false),
                                 child: GestureDetector(
-                                  onTap: () => Navigator.push(
+                                  onTap: () => Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) =>
-                                          MainScreen(selectedIndex: 15),
+                                      builder: (_) => MainScreen(
+                                        selectedIndex: 15,
+                                        staff: null, // pass staff for edit
+                                      ),
                                     ),
                                   ),
                                   child: AnimatedContainer(
@@ -282,24 +284,48 @@ class _ViewStaffState extends State<ViewStaff> {
                             horizontal: 2.w,
                             vertical: 1.h,
                           ),
-                          child: Row(
-                            children: [
-                              _filterButton(
-                                label: 'Active',
-                                color: AppColors.green,
-                                isSelected: _activeFilter == 'Active',
-                                onTap: () =>
-                                    setState(() => _activeFilter = 'Active'),
-                              ),
-                              SizedBox(width: 0.6.w),
-                              _filterButton(
-                                label: 'Inactive',
-                                color: AppColors.red.withOpacity(0.9),
-                                isSelected: _activeFilter == 'Inactive',
-                                onTap: () =>
-                                    setState(() => _activeFilter = 'Inactive'),
-                              ),
-                            ],
+                          child: BlocBuilder<StaffCubit, StaffState>(
+                            builder: (context, state) {
+                              final List<StaffModel> rawList =
+                                  state is StaffListLoaded
+                                  ? state.staffList
+                                  : [];
+
+                              final activeCount = rawList
+                                  .where(
+                                    (s) => s.status.toLowerCase() == 'active',
+                                  )
+                                  .length;
+                              final inactiveCount = rawList
+                                  .where(
+                                    (s) => s.status.toLowerCase() != 'active',
+                                  )
+                                  .length;
+
+                              return Row(
+                                children: [
+                                  _filterButton(
+                                    label: 'Active',
+                                    color: AppColors.green,
+                                    isSelected: _activeFilter == 'Active',
+                                    onTap: () => setState(
+                                      () => _activeFilter = 'Active',
+                                    ),
+                                    count: activeCount, // 👈 pass count
+                                  ),
+                                  SizedBox(width: 0.6.w),
+                                  _filterButton(
+                                    label: 'Inactive',
+                                    color: AppColors.red.withOpacity(0.9),
+                                    isSelected: _activeFilter == 'Inactive',
+                                    onTap: () => setState(
+                                      () => _activeFilter = 'Inactive',
+                                    ),
+                                    count: inactiveCount, // 👈 pass count
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
 
@@ -333,32 +359,92 @@ class _ViewStaffState extends State<ViewStaff> {
 
   // ─── Filter toggle button ──────────────────────────────────────────────────
 
+  // Widget _filterButton({
+  //   required String label,
+  //   required Color color,
+  //   required bool isSelected,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return GestureDetector(
+  //     onTap: onTap,
+  //     child: AnimatedContainer(
+  //       duration: const Duration(milliseconds: 150),
+  //       height: 5.h,
+  //       width: 6.w,
+  //       decoration: BoxDecoration(
+  //         color: isSelected ? color : color.withOpacity(0.65),
+  //         border: Border.all(
+  //           color: isSelected ? color : AppColors.divider,
+  //           width: isSelected ? 2 : 1,
+  //         ),
+  //         borderRadius: BorderRadius.circular(6),
+  //       ),
+  //       child: Center(
+  //         child: Text(
+  //           label,
+  //           style: AppTextStyle.small(color: Colors.white, size: 11.sp),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _filterButton({
     required String label,
     required Color color,
     required bool isSelected,
     required VoidCallback onTap,
+    required int count, // 👈 add this
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        height: 5.h,
-        width: 6.w,
-        decoration: BoxDecoration(
-          color: isSelected ? color : color.withOpacity(0.65),
-          border: Border.all(
-            color: isSelected ? color : AppColors.divider,
-            width: isSelected ? 2 : 1,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 5.h,
+            width: 6.w,
+            decoration: BoxDecoration(
+              color: isSelected ? color : color.withOpacity(0.65),
+              border: Border.all(
+                color: isSelected ? color : AppColors.divider,
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: AppTextStyle.small(color: Colors.white, size: 11.sp),
+              ),
+            ),
           ),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyle.small(color: Colors.white, size: 11.sp),
+
+          // 👇 Count badge at top-left
+          Positioned(
+            top: -6,
+            right: -6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: color, width: 1.5),
+              ),
+              child: Center(
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -491,7 +577,7 @@ class _ViewStaffState extends State<ViewStaff> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.push(
+                      onTap: () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) =>

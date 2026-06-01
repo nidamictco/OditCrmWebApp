@@ -295,6 +295,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                   Expanded(
                                     child: Dropdown(
                                       showHelp: true,
+                                       message: 'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
@@ -313,7 +314,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       label: "Lead Status",
                                       hint: 'select status',
                                       showHelp: true,
-                                      items: stageItems,
+                                       message: 'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                     items: stageItems,
                                       selectedValue: selectedStatus,
                                       onChanged: (val) {
                                         setState(() {
@@ -335,7 +337,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       label: "Lead Source",
                                       hint: 'select source',
                                       showHelp: true,
-                                      items: sourceItems,
+                                       message:'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                     items: sourceItems,
                                       selectedValue: selectedSource,
                                       onChanged: (val) {
                                         setState(() {

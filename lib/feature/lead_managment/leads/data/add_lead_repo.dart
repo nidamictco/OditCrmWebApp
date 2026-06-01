@@ -527,6 +527,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
       'callResult': followUp.calledStatus,
+      'leadTag': followUp.leadTag,
       'updatedAt': FieldValue.serverTimestamp(),
     });
 

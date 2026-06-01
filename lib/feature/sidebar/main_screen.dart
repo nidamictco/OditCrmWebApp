@@ -97,6 +97,7 @@ class _MainScreenState extends State<MainScreen> {
   late int selectedIndex;
   bool isSidebarOpen = true;
   AddLeadModel? _editLead;
+   StaffModel? _currentStaff;
 
   // late final NotificationCubit _notificationCubit;
 
@@ -136,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     selectedIndex = widget.selectedIndex;
     _editLead = widget.lead;
-
+    _currentStaff = widget.staff;
     _notificationCubit = NotificationCubit(
       NotificationRepo(),
       GeneralSettingsRepository(staffId: ''),
@@ -169,13 +170,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  // void _onItemSelected(int index) {
-  //   setState(() {
-  //     selectedIndex = index;
-  //     _editLead = null;
-  //   });
-  // }
-
+  
   void _onItemSelected(int index) {
     setState(() {
       if (selectedIndex == 20 && index != 20) {
@@ -183,6 +178,7 @@ class _MainScreenState extends State<MainScreen> {
       }
       selectedIndex = index;
       _editLead = null;
+      _currentStaff = null;
     });
   }
 
@@ -360,7 +356,11 @@ class _MainScreenState extends State<MainScreen> {
               BlocProvider(create: (_) => StaffCubit()),
               BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
             ],
-            child: AddStaff(staff: widget.staff),
+            // child: AddStaff(staff: widget.staff,),
+             child: AddStaff(
+        key: ValueKey(_currentStaff?.id ?? 'add_staff'), 
+        staff: _currentStaff, 
+      ),
           ),
         );
       case 16:

@@ -364,10 +364,13 @@ class _TopBarState extends State<TopBar> {
                 SizedBox(width: 0.5.w),
                 GestureDetector(
                   onTap: _toggleFullscreen,
-                  child: HoverIcon(
-                    icon: _isFullscreen
-                        ? Icons.fullscreen_exit
-                        : Icons.fullscreen,
+                  child: Tooltip(
+                    message: 'Toggle Fullscreen',
+                    child: HoverIcon(
+                      icon: _isFullscreen
+                          ? Icons.fullscreen_exit
+                          : Icons.fullscreen,
+                    ),
                   ),
                 ),
                 SizedBox(width: 0.5.w),
@@ -397,7 +400,10 @@ class _TopBarState extends State<TopBar> {
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          HoverIcon(icon: Icons.notifications_none_outlined),
+                          Tooltip(
+                            message: 'Notifications',
+                            child: HoverIcon(icon: Icons.notifications_none_outlined),
+                          ),
                           if (unread > 0)
                             Positioned(
                               top: 3,
@@ -770,7 +776,7 @@ class _TopBarState extends State<TopBar> {
           );
         }
       },
-      child: HoverIcon(icon: Icons.grid_view),
+      child: Tooltip(message: 'Quick Links',child: HoverIcon(icon: Icons.grid_view),),
     );
   }
 
