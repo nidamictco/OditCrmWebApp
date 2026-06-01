@@ -46,6 +46,7 @@ class ImportLeadsState {
   final String? errorMessage;
   final String? successMessage;
   final int importedCount;
+  final int skippedCount;
 
   const ImportLeadsState({
     this.status = ImportLeadsStatus.initial,
@@ -71,6 +72,7 @@ class ImportLeadsState {
     this.errorMessage,
     this.successMessage,
     this.importedCount = 0,
+    this.skippedCount = 0,
   });
 
   bool get isLoading   => status == ImportLeadsStatus.loading;
@@ -101,6 +103,7 @@ class ImportLeadsState {
     String? errorMessage,
     String? successMessage,
     int? importedCount,
+    int? skippedCount,
     // ── clear flags ───────────────────────────────────────────────────────
     bool clearError     = false,
     bool clearSuccess   = false,
@@ -139,6 +142,7 @@ class ImportLeadsState {
       errorMessage:      clearError       ? null : (errorMessage      ?? this.errorMessage),
       successMessage:    clearSuccess     ? null : (successMessage    ?? this.successMessage),
       importedCount:     importedCount    ?? this.importedCount,
+      skippedCount:  skippedCount  ?? this.skippedCount,
     );
   }
 }

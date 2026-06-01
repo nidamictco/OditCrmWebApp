@@ -178,34 +178,26 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         createdById: user?.id ?? '',
       );
 
-      final count = await _repository.importFromCsv(
-        csvBytes: csvBytes,
-        fieldPositions: state.fieldPositions,
-        defaults: defaults,
-        hasCountryCode: state.selectedTab == 0,
-      );
-      if (isClosed) return;
+      // final count = await _repository.importFromCsv(
+      //   csvBytes: csvBytes,
+      //   fieldPositions: state.fieldPositions,
+      //   defaults: defaults,
+      //   hasCountryCode: state.selectedTab == 0,
+      // );
+      // if (isClosed) return;
+      final result = await _repository.importFromCsv(
+  csvBytes: csvBytes,
+  fieldPositions: state.fieldPositions,
+  defaults: defaults,
+  hasCountryCode: state.selectedTab == 0,
+);
+if (isClosed) return;
+
+final count   = result['imported']!;
+final skipped = result['skipped']!;
 
       //       // ── Notify assigned staff ──────────────────────────────────────────────
-      // final assignedStaffId = _staffIdFromName(state.selectedStaff);
-      // if (assignedStaffId.isNotEmpty) {
-      //   await _notificationRepo.create(
-      //     staffId: assignedStaffId,
-      //     title: 'Leads Imported',
-      //     message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
-      //   );
-      // }
-
-      // // ── Notify the admin/creator ───────────────────────────────────────────
-      // if (user?.id != null && user!.id!.isNotEmpty && user.id != assignedStaffId) {
-      //   await _notificationRepo.create(
-      //     staffId: user.id!,
-      //     title: 'Import Complete',
-      //     message: '$count lead${count == 1 ? '' : 's'} imported successfully${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
-      //   );
-      // }
-
-     // ── Always notify assigned staff ─────────────────────────────────────────
+     
 final assignedStaffId = _staffIdFromName(state.selectedStaff);
 if (assignedStaffId.isNotEmpty) {
   await _notificationRepo.create(
@@ -236,23 +228,25 @@ if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
     .name;
 
       emit(
-        state.copyWith(
-          status: ImportLeadsStatus.success,
-          importedCount: count,
-          successMessage:
-              '$count lead${count == 1 ? '' : 's'} imported successfully.',
-          clearError: true,
-          clearCsvBytes: true,
-          clearCategory: true,
-          clearSource: true,
-          // clearLeadStage: true,
-           selectedLeadStage: defaultStage,
-          clearPriority: true,
-          clearStaff: true,
-          clearState: true,
-          clearDistrict: true,
-        ),
-      );
+  state.copyWith(
+    status: ImportLeadsStatus.success,
+    importedCount: count,
+    skippedCount: skipped,   // ✅ make sure this is added to state too
+    successMessage: skipped > 0
+        ? '$count lead${count == 1 ? '' : 's'} imported. '
+          '$skipped duplicate${skipped == 1 ? '' : 's'} skipped.'
+        : '$count lead${count == 1 ? '' : 's'} imported successfully.',
+    clearError: true,
+    clearCsvBytes: true,
+    clearCategory: true,
+    clearSource: true,
+    selectedLeadStage: defaultStage,
+    clearPriority: true,
+    clearStaff: true,
+    clearState: true,
+    clearDistrict: true,
+  ),
+);
 
       log('[ImportLeadsCubit] Import complete: $count records');
     } catch (e, st) {
@@ -297,4 +291,16 @@ if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
     if (msg.contains('no data')) return msg;
     return 'Something went wrong. Please try again.';
   }
+
+  Future<int> checkDuplicates({required Uint8List csvBytes}) async {
+  try {
+    return await _repository.countDuplicates(
+      csvBytes: csvBytes,
+      fieldPositions: state.fieldPositions,
+    );
+  } catch (e) {
+    log('[ImportLeadsCubit] checkDuplicates error: $e');
+    return 0;
+  }
+}
 }

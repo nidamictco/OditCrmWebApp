@@ -1743,7 +1743,7 @@ Color getLeadStatusColor(String status) {
       return const Color(0xFF10B981);
     case 'TRANSFERRED':
       return const Color(0xFF3B82F6);
-    case 'MISSED':
+    case 'REJECTED':
       return const Color(0xFFEF4444);
     case 'CLOSED':
       return const Color(0xFF0D31E8);
@@ -2161,7 +2161,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                   Expanded(
                                     child: Dropdown(
                                       hint: 'select category',
-                                      showHelp: true,
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
@@ -2178,7 +2177,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                     child: Dropdown(
                                       label: "Lead Stage",
                                       hint: 'select stage',
-                                      showHelp: true,
                                       items: stageItems,
                                       selectedValue: selectedLeadStage,
                                       onChanged: (val) {
@@ -3120,27 +3118,49 @@ class _HoverExportButtonState extends State<HoverExportButton> {
     }
   }
 
+  // Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
+  //   return InkWell(
+  //     onTap: () {
+  //       _overlayEntry?.remove();
+  //       _overlayEntry = null;
+  //     },
+  //     child: Padding(
+  //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //       child: GestureDetector(
+  //         onTap: onTap,
+  //         child: Row(
+  //           children: [
+  //             Icon(icon, size: 18),
+  //             const SizedBox(width: 10),
+  //             Text(text),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
-    return InkWell(
-      onTap: () {
-        _overlayEntry?.remove();
-        _overlayEntry = null;
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Row(
-            children: [
-              Icon(icon, size: 18),
-              const SizedBox(width: 10),
-              Text(text),
-            ],
-          ),
-        ),
+  return InkWell(
+    onTap: () {
+      // Close overlay first
+      _isHovering = false;
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+      // Then run the action
+      onTap?.call();
+    },
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 10),
+          Text(text),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -3502,7 +3522,7 @@ class _StatusBadge extends StatelessWidget {
         color: getLeadStatusColor(status).withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: getLeadStatusColor(status).withOpacity(0.3)),
-      ),
+      ), 
       child: Text(
         status,
         style: TextStyle(
