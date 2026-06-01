@@ -183,6 +183,9 @@ for (int i = 0; i < rowsToProcess.length; i++) {       // ✅ use index-based lo
 
   if (row.every((cell) => cell.trim().isEmpty)) continue;
 
+  log('[ImportLeadsRepo] Processing row: $row');
+  log('[ImportLeadsRepo] Field positions: $fieldPositions');
+
   final lead = ImportLeadModel.fromCsvRow(
     row: row,
     positions: fieldPositions,

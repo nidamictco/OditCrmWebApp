@@ -206,6 +206,8 @@
 
 // lib/feature/lead_managment/import_leads/model/import_leads_model.dart
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ImportLeadModel {
@@ -394,6 +396,7 @@ class ImportLeadModel {
 String _csvCell(String field, List<String> row, Map<String, int> positions) {
   final idx = positions[field];
   if (idx == null || idx < 0 || idx >= row.length) return '';
+  log('[ImportLeadsRepo] CSV cell: $field → ${row[idx].trim()}');
   return row[idx].trim();
 }
 
