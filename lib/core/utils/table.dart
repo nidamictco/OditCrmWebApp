@@ -18,7 +18,7 @@ class CustomTable extends StatefulWidget {
   final String emptyMessage;
   final bool showCheckboxes; 
   final List<bool>? initialCheckedStates;
-  final VoidCallback? onTap; 
+  final void Function(int rowIndex)? onRowTap;
   final void Function(int rowIndex, bool checked)?
   onCheckChanged; 
 
@@ -28,7 +28,7 @@ class CustomTable extends StatefulWidget {
     required this.rows,
     this.emptyMessage = "No data available in table",
     this.showCheckboxes = false,
-    this.onTap,
+    this.onRowTap,
     this.initialCheckedStates,
     this.onCheckChanged,
   });
@@ -168,7 +168,7 @@ class _CustomTableState extends State<CustomTable> {
         // onTap: () {
         //   print('Row $rowIndex tapped');
         // },
-        onTap: widget.onTap,
+        onTap: () => widget.onRowTap?.call(rowIndex),
         child: Container(
           decoration: BoxDecoration(
             color: rowIndex.isEven ? AppColors.greyCard : Colors.white,

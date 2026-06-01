@@ -867,7 +867,6 @@ Expanded(
                         child: Dropdown(
                           icon: Icons.flag_outlined,
                           showIcon: true,
-                          showHelp: true,
                           items: priority,
                           selectedValue: _leadPriority,
                           onChanged: (v) {
@@ -881,7 +880,8 @@ Expanded(
                       SizedBox(width: 2.w),
                       Expanded(
                         child: Dropdown(
-                          showHelp: true,
+                          icon: Icons.check_box_outlined,
+                          showIcon: true,
                           items: stagesNames,
                           selectedValue: _leadStage,
                           onChanged: (v) {

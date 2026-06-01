@@ -28,7 +28,7 @@ class _LeadsReportState extends State<LeadsReport> {
   final TextEditingController fromDate = TextEditingController();
   final TextEditingController toDate = TextEditingController();
 
-bool _isCreatedDate = true; 
+  bool _isCreatedDate = true;
 
   String selectedValue = "10";
 
@@ -58,8 +58,8 @@ bool _isCreatedDate = true;
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-   _appliedFromDate = DateTime.now();
-  _appliedToDate = DateTime.now();
+    _appliedFromDate = DateTime.now();
+    _appliedToDate = DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AddLeadCubit>().fetchLeads();
@@ -95,11 +95,11 @@ bool _isCreatedDate = true;
       // _appliedFromDate = _parseDate(fromDate.text);
       // _appliedToDate = _parseDate(toDate.text);
       _appliedFromDate = fromDate.text.trim().isEmpty
-        ? null
-        : _parseDate(fromDate.text);
-    _appliedToDate = toDate.text.trim().isEmpty
-        ? null
-        : _parseDate(toDate.text);
+          ? null
+          : _parseDate(fromDate.text);
+      _appliedToDate = toDate.text.trim().isEmpty
+          ? null
+          : _parseDate(toDate.text);
 
       _resetPage();
     });
@@ -133,9 +133,9 @@ bool _isCreatedDate = true;
       //     .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
       //     .toList();
       result = result.where((l) {
-      final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
-      return date != null && !date.isBefore(from);
-    }).toList();
+        final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
+        return date != null && !date.isBefore(from);
+      }).toList();
     }
     if (_appliedToDate != null) {
       final to = DateTime(
@@ -150,9 +150,9 @@ bool _isCreatedDate = true;
       //     .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
       //     .toList();
       result = result.where((l) {
-      final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
-      return date != null && !date.isAfter(to);
-    }).toList();
+        final date = _appliedIsCreatedDate ? l.createdAt : l.updatedAt;
+        return date != null && !date.isAfter(to);
+      }).toList();
     }
 
     // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
@@ -322,7 +322,7 @@ bool _isCreatedDate = true;
                               final filtered = _filteredLeads(
                                 leads,
                               ); // exports only filtered data
-                              exportLeadsToExcel(filtered);
+                              exportLeadsToExcel(filtered, 'leads_report_');
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -386,9 +386,17 @@ bool _isCreatedDate = true;
                             children: [
                               Row(
                                 children: [
-                                  _radio("Created Date", _isCreatedDate,'Created Date allows you to \nfilter leads based on when they \nwere added to the system.'),
+                                  _radio(
+                                    "Created Date",
+                                    _isCreatedDate,
+                                    'Created Date allows you to \nfilter leads based on when they \nwere added to the system.',
+                                  ),
                                   SizedBox(width: 3.w),
-                                  _radio("Updated Date", !_isCreatedDate,'Updated Date allows you to \nfilter leads based on the most \nrecent changes made to them.'),
+                                  _radio(
+                                    "Updated Date",
+                                    !_isCreatedDate,
+                                    'Updated Date allows you to \nfilter leads based on the most \nrecent changes made to them.',
+                                  ),
                                 ],
                               ),
                               SizedBox(height: 1.h),
@@ -417,10 +425,11 @@ bool _isCreatedDate = true;
                                     child: Dropdown(
                                       hint: 'select category',
                                       showHelp: true,
+                                      message: 'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
-                                        setState(() {
+                                        setState(() { 
                                           selectedCategory = val;
                                           _resetPage();
                                         });
@@ -432,8 +441,9 @@ bool _isCreatedDate = true;
                                   Expanded(
                                     child: Dropdown(
                                       label: "Lead Stage",
-                                      hint: 'select stage',
-                                      showHelp: true,
+                                      hint: 'select stage', 
+                                      showHelp: true, 
+                                      message: 'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
                                       items: stageItems,
                                       selectedValue: selectedLeadStage,
                                       onChanged: (val) {
@@ -470,7 +480,8 @@ bool _isCreatedDate = true;
                                     child: Dropdown(
                                       label: "Lead Source",
                                       hint: 'select source',
-                                      showHelp: true,
+                                      showHelp: true, 
+                                      message:'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
                                       items: sourceItems,
                                       selectedValue: selectedSource,
                                       onChanged: (val) {
@@ -479,7 +490,6 @@ bool _isCreatedDate = true;
                                           _resetPage();
                                         });
                                       },
-                                      message: '.',
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
@@ -586,8 +596,7 @@ bool _isCreatedDate = true;
                                       ),
                                     ),
                                   ),
-                                  
-                                    
+
                                   SizedBox(width: 1.w),
                                   if (selectedCategory != null ||
                                       selectedSource != null ||
@@ -708,8 +717,18 @@ bool _isCreatedDate = true;
                             children: [
                               CustomTable(
                                 key: ValueKey(_tableKey),
-                                onTap: () {
-                                  print('Row tapped ');
+                                onRowTap: (rowIndex) {
+                                  final lead = pagedList[rowIndex];
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MainScreen(
+                                        selectedIndex: 31,
+                                        lead: lead,
+                                      ),
+                                    ),
+                                  );
+                                  print('Row $rowIndex tapped');
                                 },
                                 columns: [
                                   TableColumn(title: "#", flex: 1),
@@ -775,7 +794,8 @@ bool _isCreatedDate = true;
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     MainScreen(
-                                                      selectedIndex: 31,lead: lead,
+                                                      selectedIndex: 31,
+                                                      lead: lead,
                                                     ),
                                               ),
                                             );
@@ -812,7 +832,8 @@ bool _isCreatedDate = true;
                                         ),
                                         // ── DELETE ──
                                         GestureDetector(
-                                          onTap: () =>_confirmDelete(context, lead),
+                                          onTap: () =>
+                                              _confirmDelete(context, lead),
                                           child: Icon(
                                             Icons.delete_outline,
                                             size: 14.sp,
@@ -974,16 +995,16 @@ bool _isCreatedDate = true;
 
   /// ---------------- WIDGETS ----------------
 
-  Widget _radio(String text, bool selected,String message) {
+  Widget _radio(String text, bool selected, String message) {
     return GestureDetector(
       onTap: () {
-      setState(() {
-        _isCreatedDate = (text == 'Created Date');
-        _appliedIsCreatedDate = _isCreatedDate; // ✅ sync immediately
-      });
-      // ✅ re-apply filters so table updates right away
-      _applyFilters();
-    },
+        setState(() {
+          _isCreatedDate = (text == 'Created Date');
+          _appliedIsCreatedDate = _isCreatedDate; // ✅ sync immediately
+        });
+        // ✅ re-apply filters so table updates right away
+        _applyFilters();
+      },
       child: Row(
         children: [
           Icon(
@@ -1000,7 +1021,7 @@ bool _isCreatedDate = true;
               weight: FontWeight.w500,
             ),
           ),
-           ToolTipWidget(message: message),
+          ToolTipWidget(message: message),
         ],
       ),
     );
@@ -1030,13 +1051,13 @@ bool _isCreatedDate = true;
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-             await  context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
-            if (mounted) {                                       
-              setState(() {
-                _selectedIndices.clear();                         
-                _tableKey++;                                       
-              });
-            }
+              await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              if (mounted) {
+                setState(() {
+                  _selectedIndices.clear();
+                  _tableKey++;
+                });
+              }
             },
             child: Text(
               'Delete',
@@ -1115,5 +1136,39 @@ bool _isCreatedDate = true;
       );
     }
     return widgets;
+  }
+
+  // --------------export to excel----------------
+  void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
+    exportToExcel<AddLeadModel>(
+      fileName: fileName,
+      rows: leads,
+      columns: [
+        ExcelColumn(header: '#', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
+        ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
+        ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),
+        ExcelColumn(header: 'Email', value: (l) => l.email),
+        ExcelColumn(header: 'Address', value: (l) => l.address),
+        ExcelColumn(header: 'Pin Code', value: (l) => l.pinCode),
+        ExcelColumn(header: 'Post Office', value: (l) => l.postOffice),
+        ExcelColumn(header: 'State', value: (l) => l.state),
+        ExcelColumn(header: 'District', value: (l) => l.district),
+        ExcelColumn(header: 'Lead Category', value: (l) => l.leadCategory),
+        ExcelColumn(header: 'Lead Source', value: (l) => l.leadSource),
+        ExcelColumn(header: 'Lead Stage', value: (l) => l.leadStage),
+        ExcelColumn(header: 'Priority', value: (l) => l.priority),
+        ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
+        ExcelColumn(header: 'Created By', value: (l) => l.createdBy),
+        ExcelColumn(header: 'Call Result', value: (l) => l.callResult),
+        ExcelColumn(header: 'Remarks', value: (l) => l.remarks),
+        ExcelColumn(
+          header: 'Created Date',
+          value: (l) => l.createdAt != null
+              ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
+              : '-',
+        ),
+      ],
+    );
   }
 }

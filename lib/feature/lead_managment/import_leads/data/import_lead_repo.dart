@@ -60,17 +60,15 @@ class ImportLeadsRepository implements IImportLeadsRepository {
 
   // ── Fetch helpers ─────────────────────────────────────────────────────────
 
-       String _generateDateId(String prefix, {int? rowIndex}) {
-  final now = DateTime.now();
-  final datePart = DateFormat('yyyyMMdd').format(now);
-  // final timePart = DateFormat('HHmmss').format(now);
-  // final ms = now.millisecondsSinceEpoch % 1000;
-  // final suffix = rowIndex != null ? '-$rowIndex' : '';
-  final String id=now.millisecondsSinceEpoch.toString();
-  return '$prefix-$datePart-$id';
-}
-
-
+  String _generateDateId(String prefix, {int? rowIndex}) {
+    final now = DateTime.now();
+    final datePart = DateFormat('yyyyMMdd').format(now);
+    // final timePart = DateFormat('HHmmss').format(now);
+    // final ms = now.millisecondsSinceEpoch % 1000;
+    // final suffix = rowIndex != null ? '-$rowIndex' : '';
+    final String id = now.millisecondsSinceEpoch.toString();
+    return '$prefix-$datePart-$id';
+  }
 
   @override
   Future<List<LeadsModel>> fetchCategories() async {
@@ -109,7 +107,7 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       final snap = await _leadStagesCollection
           .orderBy('createdAt', descending: false)
           .get();
-          log("lead stages ${snap.docs.length}");
+      log("lead stages ${snap.docs.length}");
       return snap.docs
           .map((d) => LeadsModel.fromFirestore(d.data(), d.id))
           .toList();
@@ -170,55 +168,65 @@ class ImportLeadsRepository implements IImportLeadsRepository {
 
     log('[ImportLeadsRepo] CSV rows to process: ${rowsToProcess.length}');
 
-    // ── 2. Batch write to Firestore (500 per batch — Firestore limit) ───────
-    // ── 2. Batch write to Firestore (500 per batch — Firestore limit) ───────
-int importedCount = 0;
-WriteBatch batch = _firestore.batch();
-int batchCount = 0;
-const int batchLimit = 500;
+     // ── 2. Fetch ALL existing contact numbers from Firestore once ──────────
+  final existingSnap = await _leadsCollection
+      .get(const GetOptions(source: Source.server));
 
-for (int i = 0; i < rowsToProcess.length; i++) {       // ✅ use index-based loop
-  final rawRow = rowsToProcess[i];
-  final row = rawRow.map((e) => e.toString()).toList();
+  final existingNumbers = existingSnap.docs
+      .map((d) => (d.data()['contactNumber'] ?? '').toString().trim())
+      .where((n) => n.isNotEmpty)
+      .toSet(); // Set for O(1) lookup
 
-  if (row.every((cell) => cell.trim().isEmpty)) continue;
+  log('[ImportLeadsRepo] Existing leads count: ${existingNumbers.length}');
 
-  log('[ImportLeadsRepo] Processing row: $row');
-  log('[ImportLeadsRepo] Field positions: $fieldPositions');
+  // ── 3. Batch write — skip duplicates ───────────────────────────────────
+   int importedCount = 0;
+  int skippedCount = 0;
+  WriteBatch batch = _firestore.batch();
+  int batchCount = 0;
+  const int batchLimit = 500;
 
-  final lead = ImportLeadModel.fromCsvRow(
-    row: row,
-    positions: fieldPositions,
-    defaults: defaults,
-  );
+  for (int i = 0; i < rowsToProcess.length; i++) {
+    final rawRow = rowsToProcess[i];
+    final row = rawRow.map((e) => e.toString()).toList();
 
-  if (lead.clientName.isEmpty && lead.contactNumber.isEmpty) {
-    log('[ImportLeadsRepo] Skipping row with no name/phone: $row');
-    continue;
+    if (row.every((cell) => cell.trim().isEmpty)) continue;
+
+    final lead = ImportLeadModel.fromCsvRow(
+      row: row,
+      positions: fieldPositions,
+      defaults: defaults,
+    );
+
+    if (lead.clientName.isEmpty && lead.contactNumber.isEmpty) continue;
+
+    // ✅ Skip if contact number already exists
+    if (lead.contactNumber.isNotEmpty &&
+        existingNumbers.contains(lead.contactNumber.trim())) {
+      log('[ImportLeadsRepo] Duplicate skipped: ${lead.contactNumber}');
+      skippedCount++;
+      continue;
+    }
+
+    final String docId = _generateDateId('LEAD', rowIndex: i);
+    final docRef = _leadsCollection.doc(docId);
+
+    batch.set(docRef, lead.toFirestore());
+    batchCount++;
+    importedCount++;
+
+    if (batchCount == batchLimit) {
+      await batch.commit();
+      batch = _firestore.batch();
+      batchCount = 0;
+    }
   }
 
-  // ✅ Generate datetime ID with row index suffix to prevent collisions
-  //    e.g. LEAD-20260513-143022-456-0, LEAD-20260513-143022-456-1 ...
-  final String docId = _generateDateId('LEAD', rowIndex: i);
-  final docRef = _leadsCollection.doc(docId);
-
-  batch.set(docRef, lead.toFirestore());
-  batchCount++;
-  importedCount++;
-
-  if (batchCount == batchLimit) {
+  if (batchCount > 0) {
     await batch.commit();
-    log('[ImportLeadsRepo] Batch committed: $importedCount records so far');
-    batch = _firestore.batch();
-    batchCount = 0;
   }
-}
 
-if (batchCount > 0) {
-  await batch.commit();
-  log('[ImportLeadsRepo] Final batch committed: $importedCount total');
-}
-
-return importedCount;
+  log('[ImportLeadsRepo] Imported: $importedCount, Skipped duplicates: $skippedCount');
+  return importedCount;
   }
 }

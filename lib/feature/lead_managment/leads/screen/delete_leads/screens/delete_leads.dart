@@ -265,7 +265,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                               final filtered = _filteredLeads(
                                 leads,
                               ); // exports only filtered data
-                              exportLeadsToExcel(filtered);
+                              exportLeadsToExcel(filtered,'deleted_leads_');
                             },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -789,4 +789,38 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       ),
     );
   }
+
+  // -------------export to excel function (filtered)-------------
+  void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
+  exportToExcel<AddLeadModel>(
+    fileName: fileName,
+    rows: leads,
+    columns: [
+      ExcelColumn(header: '#',              value: (l) => '${leads.indexOf(l) + 1}'),
+      ExcelColumn(header: 'Client Name',    value: (l) => l.clientName),
+      ExcelColumn(header: 'Phone No',       value: (l) => l.contactNumber),
+      ExcelColumn(header: 'WhatsApp No',    value: (l) => l.whatsappNumber),
+      ExcelColumn(header: 'Email',          value: (l) => l.email),
+      ExcelColumn(header: 'Address',        value: (l) => l.address),
+      ExcelColumn(header: 'Pin Code',       value: (l) => l.pinCode),
+      ExcelColumn(header: 'Post Office',    value: (l) => l.postOffice),
+      ExcelColumn(header: 'State',          value: (l) => l.state),
+      ExcelColumn(header: 'District',       value: (l) => l.district),
+      ExcelColumn(header: 'Lead Category',  value: (l) => l.leadCategory),
+      ExcelColumn(header: 'Lead Source',    value: (l) => l.leadSource),
+      ExcelColumn(header: 'Lead Stage',     value: (l) => l.leadStage),
+      ExcelColumn(header: 'Priority',       value: (l) => l.priority),
+      ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
+      ExcelColumn(header: 'Created By',     value: (l) => l.createdBy),
+      ExcelColumn(header: 'Call Result',    value: (l) => l.callResult),
+      ExcelColumn(header: 'Remarks',        value: (l) => l.remarks),
+      ExcelColumn(
+        header: 'Created Date',
+        value: (l) => l.createdAt != null
+            ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
+            : '-',
+      ),
+    ],
+  );
+}
 }
