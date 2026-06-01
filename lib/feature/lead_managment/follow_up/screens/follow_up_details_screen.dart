@@ -1077,8 +1077,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
       _callStatusCtrl.text = '';
       _remarksCtrl.text = '';
-      _emailCtrl.text = '';
-      _addressm.text = '';
+      _emailCtrl.text = lead.email;
+      _addressm.text = lead.address;
+      _WhtsppNoCtrl.text = lead.whatsappNumber;
     }
 
     showDialog(
