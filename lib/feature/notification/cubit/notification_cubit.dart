@@ -22,32 +22,60 @@ class NotificationCubit extends Cubit<NotificationState> {
 
   NotificationCubit(this._repo, this._settingsRepo) : super(NotificationInitial());
 
+  // void load(String staffId) {
+  //   emit(NotificationLoading());
+  //   _subscription?.cancel();
+
+  //     // Load settings once up-front; refresh in the background silently.
+  //   _settingsRepo.fetchSettings().then((s) {
+  //     _settings = s;
+  //     log('[NotificationCubit] settings loaded: ${s.toMap()}');
+  //   }).catchError((e) {
+  //     log('[NotificationCubit] settings fetch failed: $e');
+  //     // keep default (all false) — safe fallback
+  //   });
+
+  //   _subscription = _repo.streamByStaff(staffId).listen(
+  //     (notifications) async {
+  //       _currentList = notifications;
+  //       await _triggerLocalForNew(notifications);
+  //       emit(NotificationLoaded(notifications));
+  //     },
+  //     onError: (e) {
+  //     log('[NotificationCubit] load error: $e'); 
+  //     if (isClosed) return;
+  //     emit(NotificationError(e.toString()));
+  //   },
+  //   );
+  // }
   void load(String staffId) {
-    emit(NotificationLoading());
-    _subscription?.cancel();
+  if (isClosed) return;  // ← ADD THIS GUARD
+  emit(NotificationLoading());
+  _subscription?.cancel();
 
-      // Load settings once up-front; refresh in the background silently.
-    _settingsRepo.fetchSettings().then((s) {
-      _settings = s;
-      log('[NotificationCubit] settings loaded: ${s.toMap()}');
-    }).catchError((e) {
-      log('[NotificationCubit] settings fetch failed: $e');
-      // keep default (all false) — safe fallback
-    });
+  _settingsRepo.fetchSettings().then((s) {
+    if (isClosed) return;  // ← AND HERE
+    _settings = s;
+    log('[NotificationCubit] settings loaded: ${s.toMap()}');
+  }).catchError((e) {
+    log('[NotificationCubit] settings fetch failed: $e');
+  });
 
-    _subscription = _repo.streamByStaff(staffId).listen(
-      (notifications) async {
-        _currentList = notifications;
-        await _triggerLocalForNew(notifications);
-        emit(NotificationLoaded(notifications));
-      },
-      onError: (e) {
-      log('[NotificationCubit] load error: $e'); 
+  _subscription = _repo.streamByStaff(staffId).listen(
+    (notifications) async {
+      if (isClosed) return;  // ← AND HERE
+      _currentList = notifications;
+      await _triggerLocalForNew(notifications);
+      if (isClosed) return;  // ← AND AFTER THE AWAIT
+      emit(NotificationLoaded(notifications));
+    },
+    onError: (e) {
+      log('[NotificationCubit] load error: $e');
       if (isClosed) return;
       emit(NotificationError(e.toString()));
     },
-    );
-  }
+  );
+}
 
   // delete a single notification
   Future<void> deleteOne(String notificationId) async {
@@ -100,26 +128,44 @@ Future<void> markAllRead(String staffId) async {
 }
 
  // ── Gated local push ────────────────────────────────────────────────────────
-  // Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
-  //   final isFirstLoad = _seenIds.isEmpty;
+ 
+//   Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
+//   final isFirstLoad = _seenIds.isEmpty;
 
-  //   for (final n in notifications) {
-  //     if (!_seenIds.contains(n.id)) {
-  //       _seenIds.add(n.id);
+//   // Collect new notifications first
+//   final newOnes = <NotificationModel>[];
+//   for (final n in notifications) {
+//     if (!_seenIds.contains(n.id)) {
+//       _seenIds.add(n.id);
+//       newOnes.add(n);
+//     }
+//   }
 
-  //       if (!isFirstLoad && _isAllowed(n)) {
-  //         await NotificationService.show(
-  //           title: n.title,
-  //           body: n.message,
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-  Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
+//   if (isFirstLoad || newOnes.isEmpty) return;
+
+//   // Re-fetch settings fresh before showing any banner
+//   try {
+//     final fresh = await _settingsRepo.fetchSettings();
+//     _settings = fresh;
+//     log('[NotificationCubit] settings refreshed on new notification: ${fresh.toMap()}');
+//   } catch (e) {
+//     log('[NotificationCubit] settings re-fetch failed, using cached: $e');
+//     // fall through — use whatever _settings was last set to
+//   }
+
+//   for (final n in newOnes) {
+//     if (_isAllowed(n)) {
+//       await NotificationService.show(
+//         title: n.title,
+//         body: n.message,
+//       );
+//     }
+//   }
+// }
+
+Future<void> _triggerLocalForNew(List<NotificationModel> notifications) async {
   final isFirstLoad = _seenIds.isEmpty;
 
-  // Collect new notifications first
   final newOnes = <NotificationModel>[];
   for (final n in notifications) {
     if (!_seenIds.contains(n.id)) {
@@ -130,17 +176,19 @@ Future<void> markAllRead(String staffId) async {
 
   if (isFirstLoad || newOnes.isEmpty) return;
 
-  // Re-fetch settings fresh before showing any banner
   try {
-    final fresh = await _settingsRepo.fetchSettings();
+    // Force through Dart's scheduler instead of direct JS Promise await
+    final fresh = await Future.value(_settingsRepo.fetchSettings());
+    if (isClosed) return;
     _settings = fresh;
-    log('[NotificationCubit] settings refreshed on new notification: ${fresh.toMap()}');
+    log('[NotificationCubit] settings refreshed: ${fresh.toMap()}');
   } catch (e) {
     log('[NotificationCubit] settings re-fetch failed, using cached: $e');
-    // fall through — use whatever _settings was last set to
   }
 
   for (final n in newOnes) {
+    if (isClosed) return;
+    log('[NotificationCubit] _isAllowed("${n.title}") = ${_isAllowed(n)}');
     if (_isAllowed(n)) {
       await NotificationService.show(
         title: n.title,
@@ -149,7 +197,6 @@ Future<void> markAllRead(String staffId) async {
     }
   }
 }
-
   void refreshSettings(GeneralSettingsModel updated) {
   _settings = updated;
   log('[NotificationCubit] settings refreshed: ${updated.toMap()}');
@@ -172,6 +219,10 @@ Future<void> markAllRead(String staffId) async {
   final t = n.title.toLowerCase();
 
   if (t.contains('new lead')) return _settings.newLead;
+   // ── Import leads — gate under the same newLead toggle ───────────────────
+  if (t.contains('leads imported') || t.contains('import complete')) {
+    return _settings.newLead;
+  }
   if (t.contains('transfer') || t.contains('transferred')) {
     return _settings.transferLead;
   }

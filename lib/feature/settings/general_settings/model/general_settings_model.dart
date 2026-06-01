@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class GeneralSettingsModel extends Equatable {
   const GeneralSettingsModel({
-    this.newLead = true,
+    this.newLead = false,
     this.facebookLead = true,
     this.transferLead = true,
     this.whatsapp = false,

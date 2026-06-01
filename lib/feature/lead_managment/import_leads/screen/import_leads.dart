@@ -7,6 +7,7 @@ import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/file_picker_field.dart';
+import 'package:oxdo/core/utils/indian_location_service.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/tool_tips.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
@@ -36,11 +37,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
   final List<String> _priorities = ['High', 'Low', 'Negative', 'Normal'];
 
-  final Map<String, List<String>> _stateDistrictMap = {
-    'Kerala': ['Ernakulam', 'Kottayam', 'Kozhikode'],
-    'Tamil Nadu': ['Chennai', 'Madurai'],
-    'Arunachal Pradesh': ['Tawang', 'Papum Pare', 'West Kameng'],
-  };
+   Map<String, List<String>> _stateDistrictMap = {};
 
   @override
   void initState() {
@@ -49,6 +46,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     if (!s.isReady) {
       context.read<ImportLeadsCubit>().initialize();
     }
+     _loadLocations();
   }
 
   @override
@@ -59,6 +57,12 @@ class _ImportLeadsState extends State<ImportLeads> {
     _dialogNameCtrl.dispose();
     super.dispose();
   }
+
+
+  Future<void> _loadLocations() async {
+  final map = await IndiaLocationService.loadStateDistricts();
+  if (mounted) setState(() => _stateDistrictMap = map);
+}
 
   // ─────────────────────────────────────────────────────────────────────────
   // BUILD
@@ -233,7 +237,6 @@ class _ImportLeadsState extends State<ImportLeads> {
           ],
 
           Dropdown(
-            showHelp: true,
             items: stagesNames,
             selectedValue: state.selectedLeadStage,
             onChanged: cubit.selectLeadStage,
@@ -244,6 +247,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
           DropdownWithAdd(
             showHelp: true,
+            message: 'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better follow-up.',
             label: 'Lead Category',
             icon: Icons.layers_outlined,
             items: categoryNames,
@@ -266,6 +270,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
           DropdownWithAdd(
             showHelp: true,
+            message: 'Lead Source refers to \nhow the potential customer discovered \nor engaged with the business, \nsuch as through marketing campaigns,\n social media, referrals, events,\n or website inquiries.',
             label: 'Lead Source',
             icon: Icons.layers_rounded,
             items: sourceNames,
@@ -288,7 +293,6 @@ class _ImportLeadsState extends State<ImportLeads> {
             showIcon: true,
             label: 'State',
             hint: 'Select State',
-            showHelp: true,
             items: _stateDistrictMap.keys.toList(),
             selectedValue: state.selectedState,
             onChanged: cubit.selectState,

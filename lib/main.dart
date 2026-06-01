@@ -26,9 +26,6 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     
-  // await FirebaseMessaging.instance.requestPermission(  alert: true,
-  //     badge: true,
-  //     sound: true,);
   final settings =
     await FirebaseMessaging.instance.requestPermission();
 

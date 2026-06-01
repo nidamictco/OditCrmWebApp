@@ -702,22 +702,13 @@ bool _isCreatedDate = true;
                           0,
                           totalCount,
                         );
-
                         // Loaded with data
                         if (state.listStatus == LeadListStatus.loaded) {
                           return Column(
                             children: [
                               CustomTable(
+                                key: ValueKey(_tableKey),
                                 onTap: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => MainScreen(
-                                  //       selectedIndex: 31,
-                                  //       lead: ,
-                                  //     ),
-                                  //   ),
-                                  // );
                                   print('Row tapped ');
                                 },
                                 columns: [
@@ -821,8 +812,7 @@ bool _isCreatedDate = true;
                                         ),
                                         // ── DELETE ──
                                         GestureDetector(
-                                          onTap: () =>
-                                              _confirmDelete(context, lead),
+                                          onTap: () =>_confirmDelete(context, lead),
                                           child: Icon(
                                             Icons.delete_outline,
                                             size: 14.sp,
@@ -944,28 +934,28 @@ bool _isCreatedDate = true;
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 0.5.w),
-                              GestureDetector(
-                                // onTap: hasSelection
-                                //     ? () =>
-                                //           _showAssignStaffDialog(selectedLeads)
-                                //     : null,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 1.w,
-                                    vertical: 1.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 14.sp,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ),
+                              // SizedBox(width: 0.5.w),
+                              // GestureDetector(
+                              //   // onTap: hasSelection
+                              //   //     ? () =>
+                              //   //           _showAssignStaffDialog(selectedLeads)
+                              //   //     : null,
+                              //   child: Container(
+                              //     padding: EdgeInsets.symmetric(
+                              //       horizontal: 1.w,
+                              //       vertical: 1.h,
+                              //     ),
+                              //     decoration: BoxDecoration(
+                              //       color: AppColors.primary.withOpacity(0.3),
+                              //       borderRadius: BorderRadius.circular(4),
+                              //     ),
+                              //     child: Icon(
+                              //       Icons.edit,
+                              //       size: 14.sp,
+                              //       color: AppColors.primary,
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           ),
                         );
@@ -1038,9 +1028,15 @@ bool _isCreatedDate = true;
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+             await  context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+            if (mounted) {                                       
+              setState(() {
+                _selectedIndices.clear();                         
+                _tableKey++;                                       
+              });
+            }
             },
             child: Text(
               'Delete',
