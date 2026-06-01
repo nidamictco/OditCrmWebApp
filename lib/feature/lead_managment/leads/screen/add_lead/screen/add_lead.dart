@@ -1372,6 +1372,7 @@ Expanded(
                 decoration: _box(),
                 child: TextFormField(
                   controller: controller,
+
                   // validator: (value) {
                   //   if (value == null || value.isEmpty) {
                   //     return null; // Not required

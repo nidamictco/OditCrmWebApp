@@ -1976,10 +1976,20 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onEdit(AddLeadModel lead) {
     _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
+<<<<<<< HEAD
  Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MainScreen(selectedIndex: 1, lead: lead),
+=======
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainScreen(
+          selectedIndex: 1,
+          lead: lead,
+        ),
+>>>>>>> e703b38e3d4f2fc42bef93a91fcf6efd3ba0af00
       ),
     );
   }

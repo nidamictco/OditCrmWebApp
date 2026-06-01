@@ -146,6 +146,8 @@
 
 // lib/feature/lead_managment/import_leads/widget/field_position_dialog.dart
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -216,6 +218,7 @@ class _FieldPositionDialogState extends State<FieldPositionDialog> {
       if (pos != null && pos >= 0) {
         cubit.updateFieldPosition(field.key, pos);
       }
+      log(cubit.state.fieldPositions.toString());
     }
     Navigator.pop(context);
   }
