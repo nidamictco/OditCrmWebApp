@@ -32,7 +32,7 @@ import '../models/staff_handler_model.dart';
 
 class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
-   FollowUpDetailsScreen({super.key, required this.currentLead});
+  FollowUpDetailsScreen({super.key, required this.currentLead});
   // final AddLeadModel? lead;
   // const FollowUpDetailsScreen({super.key, this.lead});
 
@@ -81,7 +81,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     context.read<AddLeadCubit>().initialize();
 
     // log("widget.currentLead.followUpDate njutrdgghj ${_currentLead.followUp?.first.calledStatus}");
-
   }
 
   @override
@@ -91,7 +90,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
   }
 
   Future<void> _reloadFollowUps() async {
-
     log("_reloadFollowUps called");
     try {
       final snap = await FirebaseFirestore.instance
@@ -118,9 +116,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
   Future<void> _reloadLead() async {
     try {
-      final lead = await context
-          .read<AddLeadCubit>()
-          .getLeadById(_currentLead.id!);
+      final lead = await context.read<AddLeadCubit>().getLeadById(
+        _currentLead.id!,
+      );
 
       if (!mounted) return;
 
@@ -157,7 +155,13 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
               final user = await SessionService().getSavedUser();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 12,staff: user, fromCard: 'NEW',)),
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                    selectedIndex: 12,
+                    staff: user,
+                    fromCard: 'NEW',
+                  ),
+                ),
               );
             },
             child: Text(
@@ -205,23 +209,23 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     switch (_selectedTab) {
       case 0:
         return _FollowupTabContent(
-          followups: _currentLead.followUp ?? [],      // ← use _currentLead
+          followups: _currentLead.followUp ?? [], // ← use _currentLead
           leadId: _currentLead.id ?? '',
           leadName: _currentLead.clientName ?? '',
           lead: _currentLead,
           // onFollowUpAdded: _reloadFollowUps,           // ✅ pass callback
-          onFollowUpAdded: _reloadLead,           // ✅ pass callback
+          onFollowUpAdded: _reloadLead, // ✅ pass callback
         );
       case 1:
         return _ActivitiesTabContent(lead: _currentLead);
       case 2:
         return _DetailsTabContent(lead: _currentLead);
-        // return _FollowupTabContent(
-        //   followups: widget.currentLead.followUp??[],
-        //   leadId: widget.currentLead.id ?? '',
-        //   leadName: widget.currentLead.clientName ?? '',
-        //   lead: widget.currentLead,
-        // );
+      // return _FollowupTabContent(
+      //   followups: widget.currentLead.followUp??[],
+      //   leadId: widget.currentLead.id ?? '',
+      //   leadName: widget.currentLead.clientName ?? '',
+      //   lead: widget.currentLead,
+      // );
       // case 1:
       //   return _ActivitiesTabContent(lead: widget.currentLead,);
       // case 2:
@@ -272,32 +276,39 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             ),
                           ),
                           const SizedBox(width: 10),
-                           _PriorityBadge(label: 'Lead priority: ${_currentLead.priority}'),
+                          _PriorityBadge(
+                            label: 'Lead priority: ${_currentLead.priority}',
+                          ),
                           const Spacer(),
-                          _headerIcon(Icons.edit_outlined,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MainScreen(
-                                      selectedIndex: 1,
-                                      lead: _currentLead,
-                                    ),
+                          _headerIcon(
+                            Icons.edit_outlined,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainScreen(
+                                    selectedIndex: 1,
+                                    lead: _currentLead,
                                   ),
-                                );
-                          }),
+                                ),
+                              );
+                            },
+                          ),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.swap_horiz,
-                              onTap: () {
-                                showAssignStaffDialog(
-                                    [_currentLead], context,
-                                    onSubmit: (
-                                        String? selectedStaffId,
-                                        String? selectedStaffName,
-                                        ) async {
-
+                          _headerIcon(
+                            Icons.swap_horiz,
+                            onTap: () {
+                              showAssignStaffDialog(
+                                [_currentLead],
+                                context,
+                                onSubmit:
+                                    (
+                                      String? selectedStaffId,
+                                      String? selectedStaffName,
+                                    ) async {
                                       print("pppppppp");
-                                      if (selectedStaffId == null || selectedStaffName == null)
+                                      if (selectedStaffId == null ||
+                                          selectedStaffName == null)
                                         return;
 
                                       // for (final lead in selectedLeads) {
@@ -309,17 +320,23 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                       // }
                                       // for (final lead in selectedLeads) {
 
-                                        await context.read<AddLeadCubit>().transferLead(
-                                          leadId:        _currentLead.id!,
-                                          leadName:      _currentLead.clientName,
-                                          contactNumber: _currentLead.contactNumber,
-                                          leadCategory:  _currentLead.leadCategory,
-                                          leadStage:     _currentLead.leadStage,
-                                          fromStaffId:   _currentLead.assignedStaffId,
-                                          fromStaff:     _currentLead.assignedStaff,
-                                          toStaffId:     selectedStaffId,
-                                          toStaff:       selectedStaffName,
-                                        );
+                                      await context
+                                          .read<AddLeadCubit>()
+                                          .transferLead(
+                                            leadId: _currentLead.id!,
+                                            leadName: _currentLead.clientName,
+                                            contactNumber:
+                                                _currentLead.contactNumber,
+                                            leadCategory:
+                                                _currentLead.leadCategory,
+                                            leadStage: _currentLead.leadStage,
+                                            fromStaffId:
+                                                _currentLead.assignedStaffId,
+                                            fromStaff:
+                                                _currentLead.assignedStaff,
+                                            toStaffId: selectedStaffId,
+                                            toStaff: selectedStaffName,
+                                          );
                                       // }
 
                                       print("oooooooooooooo");
@@ -339,19 +356,23 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                       //   _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
                                       // });
                                       // context.read<AddLeadCubit>().fetchLeads();
-                                    });
-                              }),
+                                    },
+                              );
+                            },
+                          ),
                           const SizedBox(width: 10),
-                          _headerIcon(Icons.add_box_outlined, onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MainScreen(
-                                  selectedIndex: 1,
+                          _headerIcon(
+                            Icons.add_box_outlined,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      MainScreen(selectedIndex: 1),
                                 ),
-                              ),
-                            );
-                          }),
+                              );
+                            },
+                          ),
                           const SizedBox(width: 10),
                           _headerIcon(
                             Icons.delete_outline,
@@ -372,16 +393,20 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          _metaItem(Icons.phone,
-                              // '8086287726'
-                            _currentLead.contactNumber ?? '',),
+                          _metaItem(
+                            Icons.phone,
+                            // '8086287726'
+                            _currentLead.contactNumber ?? '',
+                          ),
                           _divider(),
                           _metaItem(
                             Icons.location_on_outlined,
                             _currentLead.address,
                           ),
                           _divider(),
-                          _metaText('Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt??DateTime.now())}'),
+                          _metaText(
+                            'Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt ?? DateTime.now())}',
+                          ),
                           _divider(),
                           _metaText('category : ${_currentLead.leadCategory}'),
                           _divider(),
@@ -389,7 +414,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           _divider(),
                           // _metaText('Cost : 0'),
                           // _divider(),
-                           _StatusBadge(
+                          _StatusBadge(
                             label: _currentLead.leadStage,
                             color: Color(0xFF2196F3),
                           ),
@@ -400,7 +425,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                     const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _metaText('Lead Source : ${_currentLead.leadSource}'),
+                      child: _metaText(
+                        'Lead Source : ${_currentLead.leadSource}',
+                      ),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -523,17 +550,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   String? _leadCategory;
   String? _leadPriority;
 
-  void _confirmDeleteFollowUp(
-      BuildContext context,
-      FollowUpModel followUp,
-      ) {
+  void _confirmDeleteFollowUp(BuildContext context, FollowUpModel followUp) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete Follow-up'),
-        content: const Text(
-          'Are you sure you want to delete this follow-up?',
-        ),
+        content: const Text('Are you sure you want to delete this follow-up?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -557,18 +579,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      'Follow-up deleted successfully',
-                    ),
+                    content: Text('Follow-up deleted successfully'),
                     backgroundColor: Colors.green,
                   ),
                 );
               }
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -596,7 +613,8 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
         nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
         leadTag: widget.lead.leadTag ?? '',
         calledStatus: widget.lead.callResult ?? "",
-        calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
+        calledDate:
+            widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
         leadStage: widget.lead.leadStage,
         leadCategory: widget.lead.leadCategory,
         priority: widget.lead.priority,
@@ -604,6 +622,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
         createdById: widget.lead.createdById,
       );
     }
+
     // Group entries by date
     final Map<String, List<FollowUpModel>> grouped = {};
 
@@ -611,9 +630,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
 
-    if(widget.lead.followUpDate != null) {
+    if (widget.lead.followUpDate != null) {
       // followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
-      followupGroup[DateFormat('dd-MM-yyyy hh:mm').format(widget.lead.followUpDate!)] = createLeadFollowup();
+      followupGroup[DateFormat(
+            'dd-MM-yyyy hh:mm',
+          ).format(widget.lead.followUpDate!)] =
+          createLeadFollowup();
     }
 
     for (final f in widget.followups) {
@@ -621,7 +643,10 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     }
 
     // if(widget.followups.isEmpty) {
-      followupGroup[DateFormat('dd-MM-yyyy hh:mm').format(widget.lead.createdAt!)] = createLeadFollowup();
+    followupGroup[DateFormat(
+          'dd-MM-yyyy hh:mm',
+        ).format(widget.lead.createdAt!)] =
+        createLeadFollowup();
     // }
 
     ///---------------------------------------------------------------
@@ -740,11 +765,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
           // ✅ Rendered as plain Column children — no ListView required
           ...dates.map(
-                (date) => _DateGroup(
+            (date) => _DateGroup(
               // date: date,
               date: date.substring(0, 10),
               entry: followupGroup[date]!,
-              time: DateFormat('hh:mm a').format(followupGroup[date]!.calledDate),
+              time: DateFormat(
+                'hh:mm a',
+              ).format(followupGroup[date]!.calledDate),
               lead: widget.lead,
               index: dates.indexOf(date),
               dateCount: dates.length,
@@ -766,7 +793,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           //     lead: widget.lead,
           //   ),
           // ),
-
           const SizedBox(height: 20),
         ],
       ),
@@ -1043,7 +1069,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   //   );
   // }
 
-  void _addFollowUpBottom(BuildContext context, FollowUpModel? leadFollowup, String from, AddLeadModel lead) {
+  void _addFollowUpBottom(
+    BuildContext context,
+    FollowUpModel? leadFollowup,
+    String from,
+    AddLeadModel lead,
+  ) {
     final cubit = context.read<AddLeadCubit>();
 
     // Reset selections before opening dialog
@@ -1052,20 +1083,26 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     cubit.selectPriority(null);
 
     final TextEditingController nextFollowUpCtrl = TextEditingController(
-      text: DateFormat('dd-MM-yyyy',).format(DateTime.now().add(const Duration(days: 1))),
+      text: DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateTime.now().add(const Duration(days: 1))),
     );
     DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
     DateTime calledDateValue = DateTime.now();
 
-    if(from == 'EDIT'){
+    if (from == 'EDIT') {
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
       cubit.selectPriority(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
 
-      nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(leadFollowup.nextFollowUpDate);
-      _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(leadFollowup.calledDate);
+      nextFollowUpCtrl.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(leadFollowup.nextFollowUpDate);
+      _calledDateCtrl.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(leadFollowup.calledDate);
       _callStatusCtrl.text = leadFollowup.calledStatus;
       _remarksCtrl.text = leadFollowup.remarks;
       _emailCtrl.text = lead.email;
@@ -1073,8 +1110,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _WhtsppNoCtrl.text = lead.whatsappNumber;
       nextFollowUpDate = leadFollowup.nextFollowUpDate;
       calledDateValue = leadFollowup.calledDate;
-    }
-    else {
+    } else {
       // ✅ Reset called date to today each time dialog opens
       _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
       _callStatusCtrl.text = '';
@@ -1096,7 +1132,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                 state.successMessage == 'Follow-up added successfully.') {
               // ✅ Capture messenger BEFORE popping — context is still alive here
               final messenger = ScaffoldMessenger.of(context);
-               widget.onFollowUpAdded();
+              widget.onFollowUpAdded();
 
               Navigator.pop(dialogContext);
 
@@ -1107,7 +1143,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   backgroundColor: Colors.green,
                 ),
               );
-
             }
             if (state.errorMessage != null) {
               // ✅ Guard: only show if context is still mounted
@@ -1161,36 +1196,38 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   onSubmit: state.isSubmitting
                       ? null
                       : () async {
-                    if (_callStatusCtrl.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please select a call status.'),
-                          backgroundColor: Colors.orange,
-                        ),
-                      );
-                      return;
-                    }
-                    await cubit.submitFollowUp(
-                      leadId: widget.leadId,
-                      leadName: widget.leadName,
-                      leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
-                      leadWhatsappDialCode: '+91',
-                      calledDate: calledDateValue,
-                      nextFollowUpDate: nextFollowUpDate,
-                      calledStatus: _callStatusCtrl.text,
-                      leadTag: widget.lead.leadTag ?? '',
-                      remarks: _remarksCtrl.text.trim(),
-                      // Pass current lead's values so the repo can diff them
-                      previousStage: widget.lead.leadStage ?? '',
-                      previousCategory: widget.lead.leadCategory ?? '',
-                      previousPriority: widget.lead.priority ?? '',
-                      leadPhone: widget.lead.contactNumber ?? '',
-                      fromPage: from,
-                      editId: leadFollowup!=null? leadFollowup.id ?? "" :""
-                    );
+                          if (_callStatusCtrl.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select a call status.'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+                          await cubit.submitFollowUp(
+                            leadId: widget.leadId,
+                            leadName: widget.leadName,
+                            leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
+                            leadWhatsappDialCode: '+91',
+                            calledDate: calledDateValue,
+                            nextFollowUpDate: nextFollowUpDate,
+                            calledStatus: _callStatusCtrl.text,
+                            leadTag: widget.lead.leadTag ?? '',
+                            remarks: _remarksCtrl.text.trim(),
+                            // Pass current lead's values so the repo can diff them
+                            previousStage: widget.lead.leadStage ?? '',
+                            previousCategory: widget.lead.leadCategory ?? '',
+                            previousPriority: widget.lead.priority ?? '',
+                            leadPhone: widget.lead.contactNumber ?? '',
+                            fromPage: from,
+                            editId: leadFollowup != null
+                                ? leadFollowup.id ?? ""
+                                : "",
+                          );
 
-                    // widget.onFollowUpAdded();
-                  },
+                          // widget.onFollowUpAdded();
+                        },
                   body: Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 1.w,
@@ -1432,26 +1469,24 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                             ],
                           ),
                         ],
-                        if(state.selectedLeadStage == 'REJECTED')...[
-SizedBox(height: 1.h),
+                        if (state.selectedLeadStage == 'REJECTED') ...[
+                          SizedBox(height: 1.h),
                           Row(
                             children: [
                               Expanded(
-                                
                                 child: Dropdown(
-                                      label: 'Tags',
-                                      hint: 'Select Tags',
-                                      items: [
-                                        'Costly',
-                                        'Not intrested',
-                                        'Not Responding',
-                                        'No Budget',
-                                        'Wrong Lead',
-                                      ],
-                                      selectedValue: state.selectedLeadTag,
-                                      onChanged: (v) => cubit.selectLeadTag(v),
-                                    ),
-
+                                  label: 'Tags',
+                                  hint: 'Select Tags',
+                                  items: [
+                                    'Costly',
+                                    'Not intrested',
+                                    'Not Responding',
+                                    'No Budget',
+                                    'Wrong Lead',
+                                  ],
+                                  selectedValue: state.selectedLeadTag,
+                                  onChanged: (v) => cubit.selectLeadTag(v),
+                                ),
                               ),
                               SizedBox(width: 1.w),
                               const Expanded(child: SizedBox()),
@@ -1762,30 +1797,38 @@ class _DateGroup extends StatelessWidget {
                 ),
               ],
             ),
-            // Cards
 
+            // Cards
             Flexible(
               fit: FlexFit.loose,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                [
+                children: [
                   // Text("count of entries are $index $dateCount"),
-                  index == 0 && dateCount > 1?
-                  _LastFollowupCard(lead: lead,) :
-                  lead.followUp!.isNotEmpty && index < dateCount - 1 ?
-                  _FollowupCard(entry: entry, lead: lead, index: index, onEdit: () => onEdit(entry),onDelete: () => onDelete(entry),):
-                  _FirstFollowupCard(lead: lead, needEdit: dateCount==2, onEdit: () => onEdit(entry),)
+                  index == 0 && dateCount > 1
+                      ? _LastFollowupCard(lead: lead)
+                      : lead.followUp!.isNotEmpty && index < dateCount - 1
+                      ? _FollowupCard(
+                          entry: entry,
+                          lead: lead,
+                          index: index,
+                          onEdit: () => onEdit(entry),
+                          onDelete: () => onDelete(entry),
+                        )
+                      : _FirstFollowupCard(
+                          lead: lead,
+                          needEdit: dateCount == 2,
+                          onEdit: () => onEdit(entry),
+                        ),
                   // if(index == dateCount - 1 && lead.followUp!.isNotEmpty)
                   //   _FirstFollowupCard(lead: lead,)
 
-                // SizedBox(height: 20),
-                //   _LastFollowupCard(lead: lead,),
-                // ...entries.map((e) =>
-                //     _FollowupCard(entry: e, lead: lead, entries : entries)),
-                    ],
-
+                  // SizedBox(height: 20),
+                  //   _LastFollowupCard(lead: lead,),
+                  // ...entries.map((e) =>
+                  //     _FollowupCard(entry: e, lead: lead, entries : entries)),
+                ],
               ),
             ),
           ],
@@ -1795,7 +1838,6 @@ class _DateGroup extends StatelessWidget {
   }
 }
 
-
 class _FollowupCard extends StatelessWidget {
   final FollowUpModel entry;
   final AddLeadModel lead;
@@ -1803,7 +1845,13 @@ class _FollowupCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   // final List<FollowUpModel> entries;
-  const _FollowupCard({required this.entry, required this.lead, required this.index, required this.onEdit, required this.onDelete});
+  const _FollowupCard({
+    required this.entry,
+    required this.lead,
+    required this.index,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1863,29 +1911,28 @@ class _FollowupCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      if(index == 1)
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: onEdit,
-                            child: Icon(
-                              Icons.edit_outlined,
-                              size: 18,
-                              color: Colors.green.shade600,
+                      if (index == 1)
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: onEdit,
+                              child: Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                                color: Colors.green.shade600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: onDelete,
-                            child: Icon(
-                              Icons.delete_outline,
-                              size: 18,
-                              color: Colors.red.shade400,
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: onDelete,
+                              child: Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: Colors.red.shade400,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -1895,16 +1942,26 @@ class _FollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _cardRow('Scheduled Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.nextFollowUpDate)),
+                      _cardRow(
+                        'Scheduled Date',
+                        DateFormat(
+                          'dd-MM-yyyy hh:mm a',
+                        ).format(entry.nextFollowUpDate),
+                      ),
                       const SizedBox(height: 4),
-                      _cardRow('Called Date', DateFormat('dd-MM-yyyy hh:mm a').format(entry.calledDate)),
+                      _cardRow(
+                        'Called Date',
+                        DateFormat(
+                          'dd-MM-yyyy hh:mm a',
+                        ).format(entry.calledDate),
+                      ),
                       const SizedBox(height: 4),
                       _cardRow('Call Status', entry.calledStatus),
                       const SizedBox(height: 4),
-                      if(entry.leadStage.toLowerCase() == 'rejected')
-                      _cardRow('Tags', lead.leadTag!),
-                      if(entry.leadStage.toLowerCase() == 'rejected')
-                      const SizedBox(height: 4),
+                      if (entry.leadStage.toLowerCase() == 'rejected')
+                        _cardRow('Tags', lead.leadTag!),
+                      if (entry.leadStage.toLowerCase() == 'rejected')
+                        const SizedBox(height: 4),
                       _cardRow('Remark', '-${entry.remarks}'),
                       const SizedBox(height: 4),
                       Row(
@@ -1983,7 +2040,11 @@ class _FirstFollowupCard extends StatelessWidget {
   final bool needEdit;
   final AddLeadModel lead;
   final VoidCallback onEdit;
-  const _FirstFollowupCard({required this.lead, required this.needEdit, required this.onEdit});
+  const _FirstFollowupCard({
+    required this.lead,
+    required this.needEdit,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2042,6 +2103,7 @@ class _FirstFollowupCard extends StatelessWidget {
                           color: Color(0xFF222222),
                         ),
                       ),
+
                       // const Spacer(),
                       // if(needEdit)
                       // Row(
@@ -2062,7 +2124,6 @@ class _FirstFollowupCard extends StatelessWidget {
                       //     ),
                       //   ],
                       // ),
-
                     ],
                   ),
                 ),
@@ -2072,7 +2133,12 @@ class _FirstFollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _cardRow('Created Date', DateFormat('dd-MM-yyyy hh:mm a').format(lead.createdAt!)),
+                      _cardRow(
+                        'Created Date',
+                        DateFormat(
+                          'dd-MM-yyyy hh:mm a',
+                        ).format(lead.createdAt!),
+                      ),
                       const SizedBox(height: 6),
                       _cardRow('Remark', '-${lead.remarks}'),
 
@@ -2148,7 +2214,6 @@ class _FirstFollowupCard extends StatelessWidget {
 }
 
 class _LastFollowupCard extends StatelessWidget {
-
   final AddLeadModel lead;
   const _LastFollowupCard({required this.lead});
 
@@ -2162,7 +2227,7 @@ class _LastFollowupCard extends StatelessWidget {
           SizedBox(height: 100),
           Text(
             // entry.time,
-            DateFormat('hh:mm a').format(lead.calledDate?? lead.createdAt!),
+            DateFormat('hh:mm a').format(lead.calledDate ?? lead.createdAt!),
             style: AppTextStyle.medium(color: Color(0xFF444444), size: 12),
           ),
           SizedBox(height: 25),
@@ -2226,7 +2291,12 @@ class _LastFollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _cardRow('Scheduled Date', DateFormat('dd-MM-yyyy hh:mm a').format(lead.followUpDate!)),
+                      _cardRow(
+                        'Scheduled Date',
+                        DateFormat(
+                          'dd-MM-yyyy hh:mm a',
+                        ).format(lead.followUpDate!),
+                      ),
                       const SizedBox(height: 6),
                       _cardRow('Remark', '-${lead.remarks}'),
 
@@ -2256,13 +2326,14 @@ class _LastFollowupCard extends StatelessWidget {
                           Row(
                             children: [
                               _StatusChip(label: lead.leadStage),
-                              Text("(Pending)",
+                              Text(
+                                "(Pending)",
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   color: Color(0xFF555555),
                                   fontWeight: FontWeight.w500,
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ],
@@ -2330,8 +2401,9 @@ class _ActivitiesTabContentState extends State<_ActivitiesTabContent> {
   @override
   void initState() {
     super.initState();
-    _activitiesFuture =
-        ActivityRepository().getActivities(widget.lead.id ?? '');
+    _activitiesFuture = ActivityRepository().getActivities(
+      widget.lead.id ?? '',
+    );
   }
 
   @override
@@ -2447,11 +2519,7 @@ class _ActivityItem extends StatelessWidget {
                 backgroundColor: _iconColor.withOpacity(0.12),
                 child: Icon(_icon, size: 18, color: _iconColor),
               ),
-              Container(
-                width: 1.5,
-                height: 50,
-                color: const Color(0xFFE0E0E0),
-              ),
+              Container(width: 1.5, height: 50, color: const Color(0xFFE0E0E0)),
             ],
           ),
           const SizedBox(width: 12),
@@ -2478,6 +2546,7 @@ class _ActivityItem extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
+
                 /// Show value change pill if present
                 // if (activity.previousValue != null &&
                 //     activity.newValue != null) ...[
@@ -2651,14 +2720,12 @@ class _DetailsTabContent extends StatefulWidget {
 }
 
 class _DetailsTabContentState extends State<_DetailsTabContent> {
-
   late final Future<List<LeadStaffHandler>> _handlersFuture;
 
   @override
   void initState() {
     super.initState();
-    _handlersFuture =
-        AddLeadRepository().getLeadHandledStaffs(widget.lead);
+    _handlersFuture = AddLeadRepository().getLeadHandledStaffs(widget.lead);
   }
 
   @override
@@ -2691,21 +2758,51 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFEEEEEE)),
           const SizedBox(height: 8),
-           _DetailGrid(
+          _DetailGrid(
             rows: [
-              ['Phone', (widget.lead.contactNumber), 'Address', (widget.lead.address)],
-              ['State', (widget.lead.state), 'District', (widget.lead.district)],
-              ['Post office', widget.lead.postOffice, 'Pincode', widget.lead.pinCode],
-              ['Whatsapp_number', (widget.lead.whatsappNumber), 'Email', widget.lead.email],
+              [
+                'Phone',
+                (widget.lead.contactNumber),
+                'Address',
+                (widget.lead.address),
+              ],
+              [
+                'State',
+                (widget.lead.state),
+                'District',
+                (widget.lead.district),
+              ],
+              [
+                'Post office',
+                widget.lead.postOffice,
+                'Pincode',
+                widget.lead.pinCode,
+              ],
+              [
+                'Whatsapp_number',
+                (widget.lead.whatsappNumber),
+                'Email',
+                widget.lead.email,
+              ],
               [
                 'Created Date',
                 DateFormat('dd-MM-yyyy hh:mm').format(widget.lead.createdAt!),
                 'Created By',
                 widget.lead.createdBy,
               ],
-              ['Lead Category', widget.lead.leadCategory, 'Assigned Staff', widget.lead.assignedStaff],
+              [
+                'Lead Category',
+                widget.lead.leadCategory,
+                'Assigned Staff',
+                widget.lead.assignedStaff,
+              ],
               // ['Cost', '0',
-                ['Call Status', widget.lead.callResult??"-", 'Lead Stage', widget.lead.leadStage,],
+              [
+                'Call Status',
+                widget.lead.callResult ?? "-",
+                'Lead Stage',
+                widget.lead.leadStage,
+              ],
               // ['Products', '', '', ''],
             ],
           ),
@@ -2716,8 +2813,9 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
             left: 'Lead Method',
             leftVal: widget.lead.leadSource,
             right: 'Remarks',
-            rightVal:
-                widget.lead.remarks.isEmpty ? '-' : '-${widget.lead.remarks}',
+            rightVal: widget.lead.remarks.isEmpty
+                ? '-'
+                : '-${widget.lead.remarks}',
           ),
           const SizedBox(height: 16),
           const Divider(color: Color(0xFFEEEEEE)),
@@ -2758,17 +2856,11 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: _StaffCard(
-                              handler: handlers[i],
-                            ),
-                          ),
+                          Expanded(child: _StaffCard(handler: handlers[i])),
                           if (i + 1 < handlers.length) ...[
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _StaffCard(
-                                handler: handlers[i + 1],
-                              ),
+                              child: _StaffCard(handler: handlers[i + 1]),
                             ),
                           ] else
                             const Expanded(child: SizedBox()),
@@ -2964,7 +3056,7 @@ class _StaffCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                      handler.activityCount == 1 ? 'Activity' : 'Activities',
+                  handler.activityCount == 1 ? 'Activity' : 'Activities',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: const Color(0xFF555555),
@@ -3131,10 +3223,9 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-      Row(
-        children: [
-          Container(
+    return Row(
+      children: [
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
             color: _color.withOpacity(0.12),
@@ -3149,8 +3240,8 @@ class _StatusChip extends StatelessWidget {
               weight: FontWeight.w500,
             ),
           ),
-              ),
-          if(label == "new")
+        ),
+        if (label == "new")
           Text(
             "(Pending)",
             style: AppTextStyle.medium(
@@ -3159,7 +3250,7 @@ class _StatusChip extends StatelessWidget {
               weight: FontWeight.w500,
             ),
           ),
-        ],
-      );
+      ],
+    );
   }
 }
