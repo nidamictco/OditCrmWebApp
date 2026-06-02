@@ -1269,32 +1269,44 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                   SizedBox(height: 0.5.h),
                                   GestureDetector(
                                     onTap: () async {
-                                      showDialog(
-                                        context: sbContext,
-                                        barrierColor: Colors.transparent,
-                                        builder: (_) => Stack(
-                                          children: [
-                                            Positioned(
-                                              top: 33.h,
-                                              left: 26.w,
-                                              child: CustomCalendar(
-                                                onDateSelected: (date) {
-                                                  // ✅ sbSetState for local date
-                                                  sbSetState(() {
-                                                    calledDateValue = date;
-                                                    _calledDateCtrl.text =
-                                                        DateFormat(
-                                                          'dd-MM-yyyy',
-                                                        ).format(date);
-                                                  });
-                                                  Navigator.pop(sbContext);
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-              //                        
+                                      // showDialog(
+                                      //   context: sbContext,
+                                      //   barrierColor: Colors.transparent,
+                                      //   builder: (_) => Stack(
+                                      //     children: [
+                                      //       Positioned(
+                                      //         top: 33.h,
+                                      //         left: 26.w,
+                                      //         child: CustomCalendar(
+                                      //           onDateSelected: (date) {
+                                      //             // ✅ sbSetState for local date
+                                      //             sbSetState(() {
+                                      //               calledDateValue = date;
+                                      //               _calledDateCtrl.text =
+                                      //                   DateFormat(
+                                      //                     'dd-MM-yyyy',
+                                      //                   ).format(date);
+                                      //             });
+                                      //             Navigator.pop(sbContext);
+                                      //           },
+                                      //         ),
+                                      //       ),
+                                      //     ],
+                                      //   ),
+                                      // );
+              //                         onTap: () async {
+    final result = await showCalendarDialog(
+      sbContext,
+      initialDate: calledDateValue,
+    );
+
+    if (result != null) {
+      sbSetState(() {
+        calledDateValue = result.from;
+        _calledDateCtrl.text =
+            DateFormat('dd-MM-yyyy').format(result.from);
+      });
+    }
                                     },
                                     child: Container(
                                       height: 5.2.h,
