@@ -68,7 +68,7 @@ class _SidebarItemState extends State<SidebarItem> {
       if (perm.canViewStaffReport) subMenuItem("Staff Reports", 22),
       if (perm.canViewTransferReport) subMenuItem("Transferred Leads Reports", 23),
       if (perm.canViewTotalReport) subMenuItem("Total Leads Reports", 2),
-      if (perm.canViewLeadSource) subMenuItem("Scheduled Leads Reports", 24),
+      // if (perm.canViewLeadSource) subMenuItem("Scheduled Leads Reports", 24),
       if (perm.canViewRejectedReport) subMenuItem("Rejected Leads Reports", 25),
     ];
 

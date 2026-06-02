@@ -59,19 +59,19 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
                   );
                   break;
 
-                case "Call Settings":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 28,)),
-                  );
-                  break;
+                // case "Call Settings":
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 28,)),
+                //   );
+                //   break;
 
-                case "Unfinished Lead Distribution Settings":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 11,)),
-                  );
-                  break;
+                // case "Unfinished Lead Distribution Settings":
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 11,)),
+                //   );
+                //   break;
               }
             },
 
@@ -88,11 +88,11 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
               ),
               PopupMenuItem(value: "Lead Source", child: Text("Lead Source")),
               PopupMenuItem(value: "Lead Stage", child: Text("Lead Stage")),
-              PopupMenuItem(value: 'Call Settings', child: Text('Call Settings')),
-              PopupMenuItem(
-                value: "Unfinished Lead Distribution Settings",
-                child: Text("Unfinished Lead Distribution Settings"),
-              ),
+              // PopupMenuItem(value: 'Call Settings', child: Text('Call Settings')),
+              // PopupMenuItem(
+              //   value: "Unfinished Lead Distribution Settings",
+              //   child: Text("Unfinished Lead Distribution Settings"),
+              // ),
             ],
 
             child: AnimatedContainer(
