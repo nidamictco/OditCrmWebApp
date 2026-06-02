@@ -111,6 +111,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   int _selectedTab = 0;
   late String _selectedDate;
 
+  late StaffModel _liveModel;
+
   // Placeholder call data — wire up your calls API here when ready
   final CallStatusData _callData = const CallStatusData(
     cloudCallDuration: '-',
@@ -130,6 +132,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   @override
   void initState() {
     super.initState();
+    _liveModel = widget.staff;
     _selectedDate = _formatDate(DateTime.now());
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
@@ -167,10 +170,98 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     super.dispose();
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return BlocConsumer<StaffCubit, StaffState>(
+  //     listener: (context, state) {
+  //        if (state is StaffLoaded) {
+  //       setState(() => _liveModel = state.staff);
+  //     }
+  //       if (state is StaffError) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text(state.message),
+  //             backgroundColor: Colors.red.shade700,
+  //           ),
+  //         );
+  //       }
+  //     },
+  //     builder: (context, state) {
+
+  //       // Use freshly loaded staff if available, fall back to widget.staff
+  //       final liveModel = state is StaffLoaded ? state.staff : widget.staff;
+  //       final staffInfo = _staffInfoFromModel(liveModel);
+
+  //       if (state is StaffLoading) {
+  //         return Scaffold(
+  //           backgroundColor: const Color(0xFFF5F6FA),
+  //           body: Column(
+  //             children: [
+  //               // Keep the header visible while loading
+  //               Container(
+  //                 height: 15.h,
+  //                 decoration: const BoxDecoration(
+  //                   gradient: LinearGradient(
+  //                     begin: Alignment.topLeft,
+  //                     end: Alignment.bottomRight,
+  //                     colors: [
+  //                       Color(0xFF0F2442),
+  //                       Color(0xFF1E3A5F),
+  //                       Color(0xFF2D5F8A),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 child: SafeArea(
+  //                   child: Row(
+  //                     children: [
+  //                       IconButton(
+  //                         icon: const Icon(
+  //                           Icons.arrow_back_ios_new,
+  //                           color: Colors.white,
+  //                         ),
+  //                         onPressed: () => Navigator.pop(context),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //               const Expanded(
+  //                 child: Center(child: CircularProgressIndicator()),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       }
+
+  //       return Scaffold(
+  //         backgroundColor: const Color(0xFFF5F6FA),
+  //         body: NestedScrollView(
+  //           headerSliverBuilder: (context, innerBoxIsScrolled) => [
+  //             _buildSliverHeader(innerBoxIsScrolled, staffInfo, liveModel),
+  //           ],
+  //           body: TabBarView(
+  //             controller: _tabController,
+  //             children: [
+  //               Padding(
+  //                 padding: EdgeInsets.all(0.8.w),
+  //                 child: _buildOverviewTab(staffInfo),
+  //               ),
+  //               _buildDocumentsTab(liveModel),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StaffCubit, StaffState>(
       listener: (context, state) {
+        if (state is StaffLoaded) {
+          // ✅ Update cached model whenever fresh data arrives
+          setState(() => _liveModel = state.staff);
+        }
         if (state is StaffError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -181,16 +272,18 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
         }
       },
       builder: (context, state) {
-        // Use freshly loaded staff if available, fall back to widget.staff
-        final liveModel = state is StaffLoaded ? state.staff : widget.staff;
-        final staffInfo = _staffInfoFromModel(liveModel);
+        // ✅ Always use _liveModel — immune to NotesLoading/NotesLoaded/etc
+        final staffInfo = _staffInfoFromModel(_liveModel);
 
-        if (state is StaffLoading) {
+        // Only show full loading screen before we have any live data
+        final isInitialLoad =
+            state is StaffLoading && _liveModel == widget.staff;
+
+        if (isInitialLoad) {
           return Scaffold(
             backgroundColor: const Color(0xFFF5F6FA),
             body: Column(
               children: [
-                // Keep the header visible while loading
                 Container(
                   height: 15.h,
                   decoration: const BoxDecoration(
@@ -230,7 +323,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
           backgroundColor: const Color(0xFFF5F6FA),
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              _buildSliverHeader(innerBoxIsScrolled, staffInfo, liveModel),
+              _buildSliverHeader(innerBoxIsScrolled, staffInfo, _liveModel),
             ],
             body: TabBarView(
               controller: _tabController,
@@ -239,7 +332,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                   padding: EdgeInsets.all(0.8.w),
                   child: _buildOverviewTab(staffInfo),
                 ),
-                _buildDocumentsTab(liveModel),
+                _buildDocumentsTab(_liveModel),
               ],
             ),
           ),
@@ -439,44 +532,50 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                     child: Column(
                       children: [
                         _CallStatusCard(
-                          data: liveCallData, 
+                          data: liveCallData,
                           selectedDate: _selectedDate,
                           categoryRows: leadState.leadCategoryTableRows,
-                          onDateChanged: (date) {                          // date is now DateTime
-    setState(() => _selectedDate = _formatDate(date));
-    
-    // fetch chart counts for the selected single date
-    context.read<AddLeadCubit>().fetchLeadChartCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-      selectedDate: date,                          // ← actual selected date
-    );
-    
-    // fetch call status for the selected single date
-    context.read<AddLeadCubit>().fetchCallStatusCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-      selectedDate: date,                          // ← pass if your repo supports it
-    );
-  },
-                        onRangeChanged: (from, to) {
-    setState(() => _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}');
-    
-    // fetch chart counts for the date range
-    context.read<AddLeadCubit>().fetchLeadChartCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-      selectedDate: from,        // pass from; add a `toDate` param if your repo supports range
-      toDate: to,             // uncomment when repo supports range
-    );
-    
-    context.read<AddLeadCubit>().fetchCallStatusCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-      selectedDate: from,
-      toDate: to,
-    );
-  },
+                          onDateChanged: (date) {
+                            // date is now DateTime
+                            setState(() => _selectedDate = _formatDate(date));
+
+                            // fetch chart counts for the selected single date
+                            context.read<AddLeadCubit>().fetchLeadChartCounts(
+                              staffId: widget.staff.id ?? '',
+                              role: widget.staff.staffType ?? '',
+                              selectedDate: date, // ← actual selected date
+                            );
+
+                            // fetch call status for the selected single date
+                            context.read<AddLeadCubit>().fetchCallStatusCounts(
+                              staffId: widget.staff.id ?? '',
+                              role: widget.staff.staffType ?? '',
+                              selectedDate:
+                                  date, // ← pass if your repo supports it
+                            );
+                          },
+                          onRangeChanged: (from, to) {
+                            setState(
+                              () => _selectedDate =
+                                  '${_formatDate(from)} - ${_formatDate(to)}',
+                            );
+
+                            // fetch chart counts for the date range
+                            context.read<AddLeadCubit>().fetchLeadChartCounts(
+                              staffId: widget.staff.id ?? '',
+                              role: widget.staff.staffType ?? '',
+                              selectedDate:
+                                  from, // pass from; add a `toDate` param if your repo supports range
+                              toDate: to, // uncomment when repo supports range
+                            );
+
+                            context.read<AddLeadCubit>().fetchCallStatusCounts(
+                              staffId: widget.staff.id ?? '',
+                              role: widget.staff.staffType ?? '',
+                              selectedDate: from,
+                              toDate: to,
+                            );
+                          },
                         ),
                         SizedBox(height: 3.w),
                         // const RecentActivityCard(),
@@ -660,7 +759,6 @@ class _ProfileHeader extends StatelessWidget {
             child: Row(
               children: [
                 // Avatar
-                
                 _buildProfileImage(hasImage, user),
                 SizedBox(width: 1.5.h),
                 Column(
@@ -773,66 +871,6 @@ class _ProfileHeader extends StatelessWidget {
 // STATUS DROPDOWN
 // ─────────────────────────────────────────────
 
-// class _StatusDropdown extends StatefulWidget {
-//   final String status;
-//   final String? staffId;
-//   const _StatusDropdown({required this.status, required this.staffId});
-
-//   @override
-//   State<_StatusDropdown> createState() => _StatusDropdownState();
-// }
-
-// class _StatusDropdownState extends State<_StatusDropdown> {
-//   late String _current;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _current = widget.status;
-//   }
-
-//   @override
-//   void didUpdateWidget(_StatusDropdown oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-//     if (oldWidget.status != widget.status) {
-//       setState(() => _current = widget.status);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: DropdownButtonHideUnderline(
-//         child: DropdownButton<String>(
-//           value: _current,
-//           isDense: true,
-//           style: const TextStyle(
-//             color: Color(0xFF1E3A5F),
-//             fontWeight: FontWeight.w600,
-//             fontSize: 13,
-//           ),
-//           items: [
-//             'Active',
-//             'Inactive',
-//           ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-//           onChanged: (v) {
-//             if (v == null || widget.staffId == null) return;
-//             setState(() => _current = v);
-//             context.read<StaffCubit>().updateStatus(
-//               widget.staffId!,
-//               v,
-//             ); // ← save to Firestore
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
 class _StatusDropdown extends StatefulWidget {
   final String status;
   final String? staffId;
@@ -1075,19 +1113,19 @@ class _DateBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-    //      showDialog(
-    //   context: context,
-    //   barrierColor: Colors.black.withOpacity(0.25),
-    //   builder: (_) => CustomDateRangePicker(
-    //     initialFromDate: _parse(widget.fromController.text),
-    //     initialToDate: _parse(widget.toController.text),
-    //     onRangeSelected: (from, to) {
-    //       // No setState needed here — listeners handle it
-    //       widget.fromController.text = DateFormat('dd-MM-yyyy').format(from);
-    //       widget.toController.text = DateFormat('dd-MM-yyyy').format(to);
-    //     },
-    //   ),
-    // );
+        //      showDialog(
+        //   context: context,
+        //   barrierColor: Colors.black.withOpacity(0.25),
+        //   builder: (_) => CustomDateRangePicker(
+        //     initialFromDate: _parse(widget.fromController.text),
+        //     initialToDate: _parse(widget.toController.text),
+        //     onRangeSelected: (from, to) {
+        //       // No setState needed here — listeners handle it
+        //       widget.fromController.text = DateFormat('dd-MM-yyyy').format(from);
+        //       widget.toController.text = DateFormat('dd-MM-yyyy').format(to);
+        //     },
+        //   ),
+        // );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1129,7 +1167,7 @@ class _CallStatusCard extends StatefulWidget {
   final String selectedDate;
   final List<LeadCategoryTableRow> categoryRows;
   final ValueChanged<DateTime> onDateChanged;
-  final void Function(DateTime from, DateTime to)? onRangeChanged; 
+  final void Function(DateTime from, DateTime to)? onRangeChanged;
 
   const _CallStatusCard({
     required this.data,
@@ -1144,13 +1182,14 @@ class _CallStatusCard extends StatefulWidget {
 }
 
 class __CallStatusCardState extends State<_CallStatusCard> {
-   late String _displayLabel; // ← add this
+  late String _displayLabel; // ← add this
 
   @override
   void initState() {
     super.initState();
     _displayLabel = widget.selectedDate; // ← initialize from prop
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1192,67 +1231,67 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   //   );
   // }
   Widget _header() {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Call Status Details',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ),
-        // ← replace _DateBadge with this
-        InkWell(
-          onTap: () async {
-           final result = await showCalendarDialog(context);
-  if (result == null) return;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Call Status Details',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          // ← replace _DateBadge with this
+          InkWell(
+            onTap: () async {
+              final result = await showCalendarDialog(context);
+              if (result == null) return;
 
-  final label = result.isRange
-      ? '${_formatDate(result.from)} - ${_formatDate(result.to)}'
-      : _formatDate(result.from);
+              final label = result.isRange
+                  ? '${_formatDate(result.from)} - ${_formatDate(result.to)}'
+                  : _formatDate(result.from);
 
-  setState(() => _displayLabel = label);
+              setState(() => _displayLabel = label);
 
-  if (result.isRange) {
-    widget.onRangeChanged?.call(result.from, result.to);
-  } else {
-     widget.onDateChanged(result.from);
-  }
-          },
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              borderRadius: BorderRadius.circular(8),
-              color: const Color(0xFFF7FAFC),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 14,
-                  color: Color(0xFF718096),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  // widget.selectedDate,
-                  _displayLabel,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF4A5568),
-                    fontWeight: FontWeight.w500,
+              if (result.isRange) {
+                widget.onRangeChanged?.call(result.from, result.to);
+              } else {
+                widget.onDateChanged(result.from);
+              }
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(8),
+                color: const Color(0xFFF7FAFC),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 14,
+                    color: Color(0xFF718096),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Text(
+                    // widget.selectedDate,
+                    _displayLabel,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF4A5568),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _leftStats() {
     return Column(
@@ -1431,28 +1470,68 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     );
   }
 
+  // Widget _rightChart() {
+  //   log('Lead categories for chart: ${widget.data.leadsByCategory}');
+  //   return Column(
+  //     children: [
+  //       SizedBox(height: 2.h),
+  //       SizedBox(
+  //         height: 10.w,
+  //         width: 10.w,
+  //         // child: _DonutChart(
+  //         //   leadsByCategory: widget.data.leadsByCategory.isEmpty
+  //         //       ? const {'Follow Up': 85, 'Rejected': 15}
+  //         //       : widget.data.leadsByCategory,
+  //         // ),
+  //         child: DonutChart(
+  //           leadsByCategory:
+  //               widget.data.leadsByCategory.values.every((v) => v == 0)
+  //               ? const {'No Data': 1} // shows a grey slice when all zeros
+  //               : widget.data.leadsByCategory,
+  //         ),
+  //       ),
+  //       SizedBox(height: 2.h),
+  //       _LeadLegend(leadsByCategory: widget.data.leadsByCategory),
+  //       SizedBox(height: 2.h),
+  //       _categoryTable(),
+  //     ],
+  //   );
+  // }
   Widget _rightChart() {
-    log('Lead categories for chart: ${widget.data.leadsByCategory}');
+    final allZero = widget.data.leadsByCategory.values.every((v) => v == 0);
+
     return Column(
       children: [
         SizedBox(height: 2.h),
         SizedBox(
           height: 10.w,
           width: 10.w,
-          // child: _DonutChart(
-          //   leadsByCategory: widget.data.leadsByCategory.isEmpty
-          //       ? const {'Follow Up': 85, 'Rejected': 15}
-          //       : widget.data.leadsByCategory,
-          // ),
-          child: DonutChart(
-            leadsByCategory:
-                widget.data.leadsByCategory.values.every((v) => v == 0)
-                ? const {'No Data': 1} // shows a grey slice when all zeros
-                : widget.data.leadsByCategory,
-          ),
+          child: allZero
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.pie_chart_outline,
+                        size: 9.w,
+                        color: Colors.grey.shade300,
+                      ),
+                    ],
+                  ),
+                )
+              : DonutChart(leadsByCategory: widget.data.leadsByCategory),
         ),
         SizedBox(height: 2.h),
-        _LeadLegend(leadsByCategory: widget.data.leadsByCategory),
+        // ✅ Only show legend when there's real data
+        if (!allZero) _LeadLegend(leadsByCategory: widget.data.leadsByCategory),
+        if (allZero)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'No leads available',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+            ),
+          ),
         SizedBox(height: 2.h),
         _categoryTable(),
       ],
@@ -1643,7 +1722,6 @@ class _GridPatternPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-
 class LeadCategoryTableRow {
   final String category;
   final int newCount;
@@ -1659,4 +1737,3 @@ class LeadCategoryTableRow {
     this.closedCount = 0,
   });
 }
-

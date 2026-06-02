@@ -340,6 +340,8 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                       Expanded(
                                         child: Dropdown(
                                           showHelp: true,
+                                          message:
+                                              'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                           items: categoryItems,
                                           selectedValue: selectedCategory,
                                           onChanged: (val) {
@@ -357,6 +359,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                           label: "Lead Source",
                                           hint: 'Select Lead Source',
                                           showHelp: true,
+                                          message: 'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
                                           items: sourceItems,
                                           selectedValue: selectedSource,
                                           onChanged: (val) {
@@ -393,7 +396,6 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                         child: Dropdown(
                                           label: "Deleted By",
                                           hint: 'Select Deleted By',
-                                          showHelp: true,
                                           items: deletedByItems,
                                           selectedValue: selectedDeletedBy,
                                           onChanged: (val) {

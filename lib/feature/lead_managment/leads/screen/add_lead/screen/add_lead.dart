@@ -3287,6 +3287,10 @@ Expanded(
                   controller: controller,
                   focusNode: focusNode,
                   style: AppTextStyle.body(size: 11.sp),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                   keyboardType: TextInputType.phone,
                   textInputAction: nextFocusNode != null
                       ? TextInputAction.next

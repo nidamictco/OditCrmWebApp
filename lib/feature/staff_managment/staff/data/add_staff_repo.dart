@@ -159,7 +159,8 @@ Future<String> uploadFileBytes({
   await _collection.doc(staff.id).update(
         staff
             .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
-            .toMap(),
+            .toMap()
+            ..remove('createdAt'),
       );
   log('[StaffRepository] Staff updated: ${staff.id}');
 }

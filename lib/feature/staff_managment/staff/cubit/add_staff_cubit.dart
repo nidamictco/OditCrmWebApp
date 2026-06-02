@@ -75,16 +75,42 @@ class StaffCubit extends Cubit<StaffState> {
 
   // ─── Update status ────────────────────────────────────────────────────────
 
+  // Future<void> updateStatus(String staffId, String newStatus) async {
+  //   try {
+  //     await _repository.updateStaffField(staffId, {'status': newStatus});
+  //     log('[StaffCubit] Status updated: $staffId → $newStatus');
+  //     await getStaff(staffId);
+  //   } catch (e, st) {
+  //     log('[StaffCubit] UpdateStatus error: $e', stackTrace: st);
+  //     emit(StaffError(e.toString()));
+  //   }
+  // }
   Future<void> updateStatus(String staffId, String newStatus) async {
-    try {
-      await _repository.updateStaffField(staffId, {'status': newStatus});
-      log('[StaffCubit] Status updated: $staffId → $newStatus');
-      await getStaff(staffId);
-    } catch (e, st) {
-      log('[StaffCubit] UpdateStatus error: $e', stackTrace: st);
-      emit(StaffError(e.toString()));
+  try {
+    await _repository.updateStaffField(staffId, {'status': newStatus});
+
+    // Update list in-memory if list is loaded
+    if (state is StaffListLoaded) {
+      final updated = (state as StaffListLoaded).staffList.map((s) {
+        return s.id == staffId ? s.copyWith(status: newStatus) : s;
+      }).toList();
+      emit(StaffListLoaded(updated));
     }
+
+    // Update single staff in-memory if profile is loaded
+    if (state is StaffLoaded) {
+      final current = (state as StaffLoaded).staff;
+      if (current.id == staffId) {
+        emit(StaffLoaded(current.copyWith(status: newStatus)));
+      }
+    }
+
+   
+  } catch (e, st) {
+    log('[StaffCubit] UpdateStatus error: $e', stackTrace: st);
+    emit(StaffError(e.toString()));
   }
+}
 
   // ─── Delete (soft) ────────────────────────────────────────────────────────
 

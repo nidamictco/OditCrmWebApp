@@ -71,10 +71,10 @@ class _AddStaffState extends State<AddStaff> {
   @override
   void initState() {
     super.initState();
-    
+
     context.read<StaffCubit>().reset();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-       if (!mounted) return;
+      if (!mounted) return;
       try {
         final cubit = context.read<DesignationCubit>();
         cubit.fetchAll();
@@ -83,11 +83,11 @@ class _AddStaffState extends State<AddStaff> {
       }
     });
 
-   if (_isEditMode) {
-    _prefill(widget.staff!);
-  } else {
-    _clearAll(); // 👈 explicitly clear everything
-  }
+    if (_isEditMode) {
+      _prefill(widget.staff!);
+    } else {
+      _clearAll(); // 👈 explicitly clear everything
+    }
   }
 
   void _prefill(StaffModel s) {
@@ -113,35 +113,37 @@ class _AddStaffState extends State<AddStaff> {
         (s.documentUrl != null ? 'Existing doc' : 'No file chosen');
     _selectedDocuments = s.documentName;
   }
-void _clearAll() {
-  _nameCtrl.clear();
-  _passwordCtrl.clear();
-  _phoneCtrl.clear();
-  _emailCtrl.clear();
-  _salaryCtrl.clear();
-  _openingBalCtrl.clear();
-  _openingBalDateCtrl.clear();
-  _joiningDateCtrl.clear();
 
-  _salaryAccount = true;
-  _pettyCash = false;
-  _whatsapp = false;
-  _callLog = false;
+  void _clearAll() {
+    _nameCtrl.clear();
+    _passwordCtrl.clear();
+    _phoneCtrl.clear();
+    _emailCtrl.clear();
+    _salaryCtrl.clear();
+    _openingBalCtrl.clear();
+    _openingBalDateCtrl.clear();
+    _joiningDateCtrl.clear();
 
-  _selectedDocuments = null;
-  _staffType = null;
-  _accessibleUsers = null;
-  _designation = null;
-  _designationId = null;
+    _salaryAccount = true;
+    _pettyCash = false;
+    _whatsapp = false;
+    _callLog = false;
 
-  _selectedImage = null;
-  _selectedImageBytes = null;
-  _selectedDocument = null;
-  _selectedDocumentBytes = null;
+    _selectedDocuments = null;
+    _staffType = null;
+    _accessibleUsers = null;
+    _designation = null;
+    _designationId = null;
 
-  _imageFileName = 'No file chosen';
-  _docFileName = 'No file chosen';
-}
+    _selectedImage = null;
+    _selectedImageBytes = null;
+    _selectedDocument = null;
+    _selectedDocumentBytes = null;
+
+    _imageFileName = 'No file chosen';
+    _docFileName = 'No file chosen';
+  }
+
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -191,6 +193,12 @@ void _clearAll() {
       return 'Password must be at least 6 characters';
 
     if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
+
+    final phone = _phoneCtrl.text.trim();
+    if (phone.length < 10) return 'Phone number must be exactly 10 digits';
+    if (phone.length > 10) return 'Phone number must be exactly 10 digits';
+    if (!RegExp(r'^[0-9]{10}$').hasMatch(phone))
+      return 'Phone number must be 10 digits only';
 
     final email = _emailCtrl.text.trim();
     if (email.isEmpty) return 'Email is required';
@@ -304,7 +312,7 @@ void _clearAll() {
   }
 
   void _showSnack(String message, {bool isError = false}) {
-     if (!mounted) return;
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -346,10 +354,10 @@ void _clearAll() {
       listener: (context, state) {
         if (state is StaffSaved) {
           Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 16)),
-      );
-    }
+            context,
+            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 16)),
+          );
+        }
         if (state is StaffError) {
           _showSnack(state.message, isError: true);
         }
@@ -372,15 +380,16 @@ void _clearAll() {
                         //     builder: (context) => MainScreen(selectedIndex: 16),
                         //   ),
                         // );
-                         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(selectedIndex: 16),
-            ),
-          );
-        });
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  MainScreen(selectedIndex: 16),
+                            ),
+                          );
+                        });
                       }
                     : null,
                 parent2True: _isEditMode ? true : false,
@@ -478,6 +487,7 @@ void _clearAll() {
           showStar: true,
           hint: 'Enter Phone Number',
           controller: _phoneCtrl,
+          isPhone: true,
         ),
         BlocBuilder<DesignationCubit, DesignationState>(
           builder: (context, state) {
@@ -576,8 +586,13 @@ void _clearAll() {
           fit: BoxFit.cover,
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
-            return const Center(child: SizedBox( width: 16,
-  height: 16,child: CircularProgressIndicator()));
+            return const Center(
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(),
+              ),
+            );
           },
           errorBuilder: (context, error, stack) =>
               const Center(child: Text('Failed to load image')),
@@ -757,6 +772,7 @@ class InputField extends StatelessWidget {
   final bool isPassword;
   final TextEditingController? controller;
   final bool showStar;
+  final bool isPhone;
 
   const InputField({
     super.key,
@@ -765,6 +781,7 @@ class InputField extends StatelessWidget {
     this.isPassword = false,
     this.controller,
     this.showStar = false,
+    this.isPhone=false,
   });
 
   @override
@@ -794,11 +811,10 @@ class InputField extends StatelessWidget {
               style: AppTextStyle.body(size: 11.sp),
               obscureText: isPassword,
               inputFormatters: [
-                if (label == 'Phone Number')
-                  FilteringTextInputFormatter.digitsOnly,
-                if (label == 'Phone Number')
-                  LengthLimitingTextInputFormatter(10),
-              ],
+  if (isPhone) FilteringTextInputFormatter.digitsOnly,
+  if (isPhone) LengthLimitingTextInputFormatter(10),
+],
+keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: AppTextStyle.small(

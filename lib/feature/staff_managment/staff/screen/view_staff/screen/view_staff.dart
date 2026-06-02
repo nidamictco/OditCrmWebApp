@@ -194,6 +194,7 @@ class _ViewStaffState extends State<ViewStaff> {
           if (state is StaffSaved) {
             context.read<StaffCubit>().fetchAll();
           }
+          
         },
         builder: (context, state) {
           return SingleChildScrollView(
@@ -603,7 +604,12 @@ class _ViewStaffState extends State<ViewStaff> {
                               builder: (context) =>
                                   MainScreen(selectedIndex: 29, staff: staff),
                             ),
-                          );
+                          ).then((_) {
+      // ✅ Refresh the list when returning from profile screen
+      if (context.mounted) {
+        context.read<StaffCubit>().fetchAll();
+      }
+    });
                         },
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),

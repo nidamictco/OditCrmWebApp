@@ -215,9 +215,9 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
         child: Column(
           children: [
             StaffTopBar(
-              title: 'Transfer Leads Report',
+              title: 'Transferred Leads Report',
               parent: 'Reports',
-              current: 'Transfer Leads',
+              current: 'Transferred Leads',
             ),
             Padding(
               padding: EdgeInsets.all(2.w),
