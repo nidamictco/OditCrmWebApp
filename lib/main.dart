@@ -66,21 +66,21 @@ class OxdoApp extends StatelessWidget {
           create: (_) => PermissionCubit(),
         ),
       ],
-      child: Sizer(
-        builder: (context, orientation, deviceType) {
-          return MaterialApp(
-            supportedLocales: const [Locale('en')],
-            localizationsDelegates: const [CountryLocalizations.delegate],
-            debugShowCheckedModeBanner: false,
-            title: 'Oxdo',
-           theme: ThemeData(
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.deepPurple,
-  ),
-),
-            home: AuthGate(),
-          );
-        },
+      child: MaterialApp(
+        supportedLocales: const [Locale('en')],
+        localizationsDelegates: const [CountryLocalizations.delegate],
+        debugShowCheckedModeBanner: false,
+        title: 'Oxdo',
+       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+        ),
+      ),
+        home:Sizer(  // ✅ Sizer gets MediaQuery from MaterialApp above it
+          builder: (context, orientation, deviceType) {
+            return AuthGate();
+          },
+        ),
       ),
     );
   }

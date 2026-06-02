@@ -241,6 +241,7 @@ class FollowUpModel {
   final String leadWhatsappNo;
   final String leadWhatsappDialCode;
   final DateTime nextFollowUpDate;
+  final String leadTag;
   final String calledStatus;
   final DateTime calledDate;
   final String leadStage;
@@ -257,6 +258,7 @@ class FollowUpModel {
     required this.leadWhatsappNo,
     required this.leadWhatsappDialCode,
     required this.nextFollowUpDate,
+    required this.leadTag,
     required this.calledStatus,
     required this.calledDate,
     required this.leadStage,
@@ -275,6 +277,7 @@ class FollowUpModel {
       leadWhatsappNo: data['leadWhatsappNo'] ?? '',
       leadWhatsappDialCode: data['leadWhatsappDialCode'] ?? '',
       nextFollowUpDate: (data['nextFollowUpDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      leadTag: data['leadTag'] ?? '',
       calledStatus: data['calledStatus'] ?? '',
       calledDate: (data['calledDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       leadStage: data['leadStage'] ?? '',
@@ -293,6 +296,7 @@ class FollowUpModel {
       'leadWhatsappNo': leadWhatsappNo,
       'leadWhatsappDialCode': leadWhatsappDialCode,
       'nextFollowUpDate': Timestamp.fromDate(nextFollowUpDate),
+      'leadTag': leadTag,
       'calledStatus': calledStatus,
       'calledDate': Timestamp.fromDate(calledDate),
       'leadStage': leadStage,
@@ -311,6 +315,7 @@ class FollowUpModel {
     String? leadWhatsappNo,
     String? leadWhatsappDialCode,
     DateTime? nextFollowUpDate,
+    String? leadTag,
     String? calledStatus,
     DateTime? calledDate,
     String? leadStage,
@@ -327,6 +332,7 @@ class FollowUpModel {
       leadWhatsappNo: leadWhatsappNo ?? this.leadWhatsappNo,
       leadWhatsappDialCode: leadWhatsappDialCode ?? this.leadWhatsappDialCode,
       nextFollowUpDate: nextFollowUpDate ?? this.nextFollowUpDate,
+      leadTag: leadTag ?? this.leadTag,
       calledStatus: calledStatus ?? this.calledStatus,
       calledDate: calledDate ?? this.calledDate,
       leadStage: leadStage ?? this.leadStage,

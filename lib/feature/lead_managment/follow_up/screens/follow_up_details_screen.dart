@@ -594,6 +594,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
         leadWhatsappNo: widget.leadWhatsappNo ?? "",
         leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
         nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
+        leadTag: widget.lead.leadTag ?? '',
         calledStatus: widget.lead.callResult ?? "",
         calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
         leadStage: widget.lead.leadStage,
@@ -1059,6 +1060,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     if(from == 'EDIT'){
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
+      cubit.selectPriority(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
 
@@ -1176,6 +1178,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                       calledDate: calledDateValue,
                       nextFollowUpDate: nextFollowUpDate,
                       calledStatus: _callStatusCtrl.text,
+                      leadTag: widget.lead.leadTag ?? '',
                       remarks: _remarksCtrl.text.trim(),
                       // Pass current lead's values so the repo can diff them
                       previousStage: widget.lead.leadStage ?? '',
@@ -1423,6 +1426,32 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                     ),
                                   ],
                                 ),
+                              ),
+                              SizedBox(width: 1.w),
+                              const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ],
+                        if(state.selectedLeadStage == 'REJECTED')...[
+SizedBox(height: 1.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                
+                                child: Dropdown(
+                                      label: 'Tags',
+                                      hint: 'Select Tags',
+                                      items: [
+                                        'Costly',
+                                        'Not intrested',
+                                        'Not Responding',
+                                        'No Budget',
+                                        'Wrong Lead',
+                                      ],
+                                      selectedValue: state.selectedLeadTag,
+                                      onChanged: (v) => cubit.selectLeadTag(v),
+                                    ),
+
                               ),
                               SizedBox(width: 1.w),
                               const Expanded(child: SizedBox()),
