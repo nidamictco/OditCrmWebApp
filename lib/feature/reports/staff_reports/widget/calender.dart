@@ -346,10 +346,21 @@ class CalendarResult {
 
 /// Opens the smart calendar dialog directly — no mode-selection step.
 /// The user taps once for a single date, taps a second date for a range.
-Future<CalendarResult?> showCalendarDialog(BuildContext context) async {
+// Future<CalendarResult?> showCalendarDialog(BuildContext context) async {
+//   return showDialog<CalendarResult>(
+//     context: context,
+//     builder: (_) => const _CalendarDialog(),
+//   );
+// }
+Future<CalendarResult?> showCalendarDialog(
+  BuildContext context, {
+  DateTime? initialDate,
+}) async {
   return showDialog<CalendarResult>(
     context: context,
-    builder: (_) => const _CalendarDialog(),
+    builder: (_) => _CalendarDialog(
+      initialDate: initialDate,
+    ),
   );
 }
 
@@ -358,7 +369,11 @@ Future<CalendarResult?> showCalendarDialog(BuildContext context) async {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CalendarDialog extends StatefulWidget {
-  const _CalendarDialog();
+  final DateTime? initialDate;
+
+  const _CalendarDialog({
+    this.initialDate,
+  });
 
   @override
   State<_CalendarDialog> createState() => _CalendarDialogState();
@@ -366,8 +381,29 @@ class _CalendarDialog extends StatefulWidget {
 
 class _CalendarDialogState extends State<_CalendarDialog> {
   DateTime _currentMonth = DateTime.now();
-  DateTime? _first;  // first tap
-  DateTime? _second; // second tap (optional)
+  DateTime? _first;  
+  DateTime? _second; 
+
+  @override
+void initState() {
+  super.initState();
+
+  if (widget.initialDate != null) {
+    _first = widget.initialDate;
+
+    _currentMonth = DateTime(
+      widget.initialDate!.year,
+      widget.initialDate!.month,
+    );
+  } else {
+    _first = DateTime.now(); // Highlight today
+
+    _currentMonth = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+    );
+  }
+}
 
   // ── helpers ────────────────────────────────────────────────────────────────
 

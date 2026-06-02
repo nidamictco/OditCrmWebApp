@@ -1183,6 +1183,7 @@ class _CallStatusCard extends StatefulWidget {
 
 class __CallStatusCardState extends State<_CallStatusCard> {
   late String _displayLabel; // ← add this
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -1243,7 +1244,11 @@ class __CallStatusCardState extends State<_CallStatusCard> {
           // ← replace _DateBadge with this
           InkWell(
             onTap: () async {
-              final result = await showCalendarDialog(context);
+              // final result = await showCalendarDialog(context);
+              final result = await showCalendarDialog(
+                context,
+                initialDate: _selectedDate,
+              );
               if (result == null) return;
 
               final label = result.isRange
@@ -1252,9 +1257,18 @@ class __CallStatusCardState extends State<_CallStatusCard> {
 
               setState(() => _displayLabel = label);
 
+              // if (result.isRange) {
+              //   widget.onRangeChanged?.call(result.from, result.to);
+              // } else {
+              //   widget.onDateChanged(result.from);
+              // }
               if (result.isRange) {
                 widget.onRangeChanged?.call(result.from, result.to);
               } else {
+                setState(() {
+                  _selectedDate = result.from;
+                });
+
                 widget.onDateChanged(result.from);
               }
             },
