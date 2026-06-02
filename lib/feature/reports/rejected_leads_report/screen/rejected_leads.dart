@@ -212,7 +212,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         child: Column(
           children: [
             StaffTopBar(
-              title: 'Rejected Leads Report',
+              title: '',
               parent: 'Reports',
               current: 'Rejected Leads',
             ),
@@ -308,14 +308,14 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                           ),
                           child: Column(
                             children: [
-                              Row(
-                                children: [
-                                  _radio("Created Date", true),
-                                  SizedBox(width: 3.w),
-                                  _radio("Updated Date", false),
-                                ],
-                              ),
-                              SizedBox(height: 1.h),
+                              // Row(
+                              //   children: [
+                              //     _radio("Created Date", true),
+                              //     SizedBox(width: 3.w),
+                              //     _radio("Updated Date", false),
+                              //   ],
+                              // ),
+                              // SizedBox(height: 1.h),
 
                               Row(
                                 children: [
@@ -340,7 +340,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                   Expanded(
                                     child: Dropdown(
                                       hint: 'select category',
-                                      showHelp: true,
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
@@ -393,7 +392,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                     child: Dropdown(
                                       label: "Rejected Reason",
                                       hint: 'select reason',
-                                      showHelp: true,
                                       items: [],
                                       selectedValue: selectedRejectedReason,
                                       onChanged: (val) {
@@ -402,7 +400,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           _resetPage();
                                         });
                                       },
-                                      message: '.',
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
