@@ -559,7 +559,7 @@ class _DropdownState extends State<Dropdown> {
                 // partially-working version in the original and guarantees the
                 // menu never detaches from its widget.
                 menuProps: MenuProps(
-                  backgroundColor: Colors.white,
+                  // backgroundColor: Colors.yellow,
                   elevation: 4,
                   margin: EdgeInsets.zero,
                   clipBehavior: Clip.antiAlias,
@@ -598,8 +598,11 @@ class _DropdownState extends State<Dropdown> {
                   },
                 ),
 
+
+
                 // ── Search box ────────────────────────────────────────────────
                 searchFieldProps: TextFieldProps(
+                  autofocus: true,
                   style: AppTextStyle.small(
                       size: 11.sp, color: AppColors.black),
                   cursorHeight: 10.sp,

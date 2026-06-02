@@ -1906,6 +1906,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
     }
     // Build the initial ordered focus list (no additional fields yet).
     _buildOrderedNodes([]);
+
+    _clientNameFocus.requestFocus();
   }
 
   /// Re-builds the ordered focus list whenever additional fields change.
