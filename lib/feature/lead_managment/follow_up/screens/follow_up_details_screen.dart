@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +15,7 @@ import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:oxdo/feature/reports/staff_reports/widget/calender.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/shared_preference/session_service.dart';
@@ -1119,6 +1121,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _addressm.text = lead.address;
       _WhtsppNoCtrl.text = lead.whatsappNumber;
     }
+  //   DateTime? _selectedDate;
+  //   late String _displayLabel;
+  //    @override
+  // void initState() {
+  //   super.initState();
+  //   _displayLabel = widget.selectedDate; // ← initialize from prop
+  // }
 
     showDialog(
       context: context,
@@ -1259,7 +1268,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                   ),
                                   SizedBox(height: 0.5.h),
                                   GestureDetector(
-                                    onTap: () {
+                                    onTap: () async {
                                       showDialog(
                                         context: sbContext,
                                         barrierColor: Colors.transparent,
@@ -1285,6 +1294,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                           ],
                                         ),
                                       );
+              //                        
                                     },
                                     child: Container(
                                       height: 5.2.h,
@@ -1696,6 +1706,10 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                   controller: controller,
                   style: AppTextStyle.body(size: 11.sp),
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                   decoration: InputDecoration(
                     hintText: 'Enter number',
                     hintStyle: AppTextStyle.small(
