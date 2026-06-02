@@ -2245,9 +2245,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
           _syncAdditionalControllers(state.additionalFields);
         }
 
+        // if (state.errorMessage != null) {
+        //   _showError(state.errorMessage!);
+        // }
         if (state.errorMessage != null) {
-          _showError(state.errorMessage!);
-        }
+  if (state.errorMessage!.contains('already exists')) {
+    _showDuplicateAlert();
+  } else {
+    _showError(state.errorMessage!);
+  }
+}
 
         if (state.successMessage != null) {
           if (_isEditMode) {
@@ -3410,6 +3417,85 @@ Expanded(
       ),
     );
   }
+  void _showDuplicateAlert() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded,
+              color: Colors.orange, size: 28),
+          SizedBox(width: 8),
+          Text(
+            'Duplicate Contact',
+            style: AppTextStyle.medium(
+              size: 13.sp,
+              weight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'A lead with this contact number already exists in the system.',
+            style: AppTextStyle.medium(size: 11.sp),
+          ),
+          SizedBox(height: 1.5.h),
+          Container(
+            padding: EdgeInsets.all(1.w),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline,
+                    color: Colors.orange.shade700, size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Please use a different contact number or '
+                    'update the existing lead instead.',
+                    style: AppTextStyle.medium(
+                      size: 10.sp,
+                      color: Colors.orange.shade800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(
+            'OK',
+            style: AppTextStyle.medium(
+              size: 11.sp,
+              color: AppColors.white,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

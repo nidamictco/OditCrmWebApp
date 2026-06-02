@@ -352,7 +352,17 @@ if (isClosed) return;
     }
 
     emit(state.copyWith(isSubmitting: true, clearError: true));
-
+// ── Duplicate contact check ───────────────────────────────────────────────
+final isDuplicate = await _leadRepository.isContactNumberExists(contactNumber);
+if (isClosed) return;
+if (isDuplicate) {
+  emit(state.copyWith(
+    isSubmitting: false,
+    errorMessage: 'A lead with this contact number already exists.',
+    clearSuccess: true,
+  ));
+  return;
+}
     try {
       final user = await SessionService().getSavedUser();
 
@@ -1089,4 +1099,8 @@ Future<void> migrateCallResults() async {
  /// onPressed: () => migrateCallResults(),
  /// child: const Text('Run Migration'),
 ///),
+
+
+
+
 }

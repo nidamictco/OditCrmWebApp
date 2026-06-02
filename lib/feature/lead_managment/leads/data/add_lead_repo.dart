@@ -95,6 +95,7 @@ abstract class IAddLeadRepository {
     DateTime? selectedDate,
     DateTime? toDate,
   });
+  Future<bool> isContactNumberExists(String contactNumber);
 }
 
 class AddLeadRepository implements IAddLeadRepository {
@@ -1327,5 +1328,12 @@ Future<Map<String, int>> fetchCallStatusCounts({
       ).toFirestore(),
     );
   }
-
+@override
+Future<bool> isContactNumberExists(String contactNumber) async {
+  final snap = await _collection
+      .where('contactNumber', isEqualTo: contactNumber.trim())
+      .limit(1)
+      .get();
+  return snap.docs.isNotEmpty;
+}
 }
