@@ -530,6 +530,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'callResult': followUp.calledStatus,
       'leadTag': followUp.leadTag,
       'updatedAt': FieldValue.serverTimestamp(),
+      'remarks' : followUp.remarks,
     });
 
     final now = DateTime.now();
