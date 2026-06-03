@@ -62,9 +62,12 @@ class _LeadsReportState extends State<LeadsReport> {
     _appliedToDate = DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AddLeadCubit>().fetchLeads();
-      _applyFilters();
-    });
+    final cubit = context.read<AddLeadCubit>();
+    cubit.initialize();      // ← loads categories, sources, stages
+    cubit.fetchStaff();      // ← loads staffList for staff/createdBy dropdowns
+    cubit.fetchLeads();
+    _applyFilters();
+  });
   }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────
