@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
 import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
 
 part 'auth_state.dart';
@@ -12,12 +13,15 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
     required FirebaseAuthService authService,
     required SessionService sessionService,
+     StaffRepository? staffRepository,
   })  : _authService = authService,
         _sessionService = sessionService,
+        _staffRepository =  staffRepository ?? StaffRepository(),
         super(AuthInitial());
 
   final FirebaseAuthService _authService;
   final SessionService _sessionService;
+  final StaffRepository _staffRepository;
 
   // ─── Check saved session on app start ────────────────────────────────────
 
@@ -63,34 +67,6 @@ class AuthCubit extends Cubit<AuthState> {
 
   // ─── Login ────────────────────────────────────────────────────────────────
 
-  // Future<void> login({
-  //   required String email,
-  //   required String password,
-  // }) async {
-  //   if (email.trim().isEmpty || password.isEmpty) {
-  //     emit(AuthError(message: 'Email and password are required.'));
-  //     return;
-  //   }
-
-  //   emit(AuthLoading());
-
-  //   try {
-  //     final user = await _authService.login(
-  //       email: email.trim(),
-  //       password: password,
-  //     );
-  //     log('[AuthCubit] Login success: ${user.email} | role: ${user.designation}');
-  //     await _sessionService.saveSession(user);
-  //     emit(Authenticated(user: user));
-  //   } on AuthException catch (e) {
-  //     log('[AuthCubit] AuthException: ${e.message}');
-  //     emit(AuthError(message: e.message));
-  //   } catch (e, st) {
-  //     log('[AuthCubit] Unexpected login error: $e', stackTrace: st);
-  //     emit(AuthError(message: 'Login failed. Please try again.'));
-  //   }
-  // }
-
    Future<void> login({
     required String phoneNo,
     required String password,
@@ -128,6 +104,19 @@ class AuthCubit extends Cubit<AuthState> {
     await _sessionService.clearSession();
     permissionCubit?.clear(); 
     emit(AuthLoggedOut());
+  }
+  // ─── Refresh logged-in user's data from Firestore ─────────────────────────
+  Future<void> refreshUser(String staffId) async {
+    try {
+      final updated = await _staffRepository.getStaff(staffId);
+      if (updated != null) {
+        await _sessionService.saveSession(updated); // ← also update session cache
+        emit(Authenticated(user: updated));
+        log('[AuthCubit] User refreshed: $staffId');
+      }
+    } catch (e) {
+      log('[AuthCubit] refreshUser error: $e');
+    }
   }
 }
 

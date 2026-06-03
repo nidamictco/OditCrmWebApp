@@ -5853,6 +5853,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
         return;
       }
     }
+    if (contact.isEmpty ) {
+      _showError('Contact Number is required.');
+      return;
+    }
 
     if (contact.isNotEmpty) {
       final phoneRegex = _contactDialCode == '+91'
