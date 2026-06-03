@@ -191,6 +191,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
               subTitle: 'Details',
               title: 'Dashboard',
               subTitle2: 'Lead List',
+              onPressed: () {
+                Navigator.pop(context);
+              },
               show2ndTitle: true,
               showMenu: true,
             ),

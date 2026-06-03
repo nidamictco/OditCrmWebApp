@@ -8,6 +8,7 @@ class TopBreadcrumbBar extends StatelessWidget {
   final String title;
   final String subTitle;
   final String? subTitle2;
+  final VoidCallback? onPressed;
   final bool showMenu;
   final bool show2ndTitle;
 
@@ -16,6 +17,7 @@ class TopBreadcrumbBar extends StatelessWidget {
     required this.title,
     required this.subTitle,
     this.subTitle2,
+    this.onPressed,
     this.showMenu = true,
     this.show2ndTitle = false,
   });
@@ -59,7 +61,10 @@ class TopBreadcrumbBar extends StatelessWidget {
                     SizedBox(width: 0.4.w),
 
                     TextButton(
-                      onPressed: () {
+                      // onPressed: () {
+                      //   Navigator.pop(context);
+                      // },
+                      onPressed: onPressed ?? () {
                         Navigator.pop(context);
                       },
                       child: Text(
