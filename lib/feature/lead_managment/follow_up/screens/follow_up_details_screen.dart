@@ -1079,10 +1079,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   ) {
     final cubit = context.read<AddLeadCubit>();
 
+    cubit.setFollowup4Edit();
     // Reset selections before opening dialog
     cubit.selectLeadStage(null);
     cubit.selectCategory(null);
     cubit.selectPriority(null);
+    cubit.state.copyWith(successMessage: "",status: AddLeadStatus.initial);
+
 
     final TextEditingController nextFollowUpCtrl = TextEditingController(
       text: DateFormat(
@@ -1093,11 +1096,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     DateTime calledDateValue = DateTime.now();
 
     if (from == 'EDIT') {
+      log("qqqqqqqqqqqqqqqqqqq ${cubit.state.status}");
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
       cubit.selectPriority(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
+      cubit.state.copyWith(successMessage: "",status: AddLeadStatus.initial);
 
       nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
@@ -1137,12 +1142,14 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           // ✅ BlocConsumer at the TOP — wraps everything so the
           //    entire dialog rebuilds on every state change
           listener: (ctx, state) {
+            log(state.status.toString());
             if (state.status == AddLeadStatus.success &&
                 state.successMessage == 'Follow-up added successfully.') {
               // ✅ Capture messenger BEFORE popping — context is still alive here
               final messenger = ScaffoldMessenger.of(context);
               widget.onFollowUpAdded();
 
+              log("................${state.successMessage}");
               Navigator.pop(dialogContext);
 
               // ✅ Now safe to use — messenger was captured before pop
