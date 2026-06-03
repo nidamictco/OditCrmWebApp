@@ -1058,6 +1058,16 @@ Future<void> fetchCallStatusCounts({
     }
   }
 
+  void setFollowup4Edit(){
+    emit(state.copyWith(
+      status: AddLeadStatus.loading,
+      clearError: true,
+      successMessage: "",
+
+    ));
+
+  }
+
 
 }
 

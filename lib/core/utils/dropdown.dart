@@ -554,10 +554,7 @@ class _DropdownState extends State<Dropdown> {
                 },
 
                 // ── Anchored overlay positioning ──────────────────────────────
-                // Uses the button's RenderBox to position the menu directly
-                // below (or above when space is constrained). This replaces the
-                // partially-working version in the original and guarantees the
-                // menu never detaches from its widget.
+
                 menuProps: MenuProps(
                   // backgroundColor: Colors.yellow,
                   elevation: 4,
@@ -602,7 +599,7 @@ class _DropdownState extends State<Dropdown> {
 
                 // ── Search box ────────────────────────────────────────────────
                 searchFieldProps: TextFieldProps(
-                  autofocus: true,
+                  // autofocus: true,
                   style: AppTextStyle.small(
                       size: 11.sp, color: AppColors.black),
                   cursorHeight: 10.sp,

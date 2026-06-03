@@ -584,7 +584,11 @@ class _ViewStaffState extends State<ViewStaff> {
                           builder: (_) =>
                               MainScreen(selectedIndex: 15, staff: staff),
                         ),
-                      ),
+                      ).then((_) {
+    if (context.mounted) {
+      context.read<StaffCubit>().fetchAll();
+    }
+  }),
                       child: Tooltip(
                         message: 'Edit',
                         child: Icon(
@@ -638,7 +642,11 @@ class _ViewStaffState extends State<ViewStaff> {
                               builder: (context) =>
                                   MainScreen(selectedIndex: 32, staff: staff),
                             ),
-                          );
+                          ).then((_) {
+        if (context.mounted) {
+          context.read<StaffCubit>().fetchAll();
+        }
+      });
                         },
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),
