@@ -12,6 +12,7 @@ import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/feature/lead_managment/follow_up/screens/widget/calender.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
@@ -527,7 +528,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   final TextEditingController _calledDateCtrl = TextEditingController();
   final TextEditingController _callStatusCtrl = TextEditingController();
   // final TextEditingController _leadStagetCtrl = TextEditingController();
-  final TextEditingController _productCtrl = TextEditingController();
+  final TextEditingController _nextFollowUpDateCtrl = TextEditingController();
   final TextEditingController _costCtrl = TextEditingController();
   final TextEditingController _WhtsppNoCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
@@ -1084,8 +1085,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     cubit.selectLeadStage(null);
     cubit.selectCategory(null);
     cubit.selectPriority(null);
-    cubit.state.copyWith(successMessage: "",status: AddLeadStatus.initial);
-
+    cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
 
     final TextEditingController nextFollowUpCtrl = TextEditingController(
       text: DateFormat(
@@ -1102,7 +1102,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       cubit.selectPriority(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
-      cubit.state.copyWith(successMessage: "",status: AddLeadStatus.initial);
+      cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
 
       nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
@@ -1126,13 +1126,13 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _addressm.text = lead.address;
       _WhtsppNoCtrl.text = lead.whatsappNumber;
     }
-  //   DateTime? _selectedDate;
-  //   late String _displayLabel;
-  //    @override
-  // void initState() {
-  //   super.initState();
-  //   _displayLabel = widget.selectedDate; // ← initialize from prop
-  // }
+    //   DateTime? _selectedDate;
+    //   late String _displayLabel;
+    //    @override
+    // void initState() {
+    //   super.initState();
+    //   _displayLabel = widget.selectedDate; // ← initialize from prop
+    // }
 
     showDialog(
       context: context,
@@ -1276,44 +1276,22 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                   SizedBox(height: 0.5.h),
                                   GestureDetector(
                                     onTap: () async {
-                                      // showDialog(
-                                      //   context: sbContext,
-                                      //   barrierColor: Colors.transparent,
-                                      //   builder: (_) => Stack(
-                                      //     children: [
-                                      //       Positioned(
-                                      //         top: 33.h,
-                                      //         left: 26.w,
-                                      //         child: CustomCalendar(
-                                      //           onDateSelected: (date) {
-                                      //             // ✅ sbSetState for local date
-                                      //             sbSetState(() {
-                                      //               calledDateValue = date;
-                                      //               _calledDateCtrl.text =
-                                      //                   DateFormat(
-                                      //                     'dd-MM-yyyy',
-                                      //                   ).format(date);
-                                      //             });
-                                      //             Navigator.pop(sbContext);
-                                      //           },
-                                      //         ),
-                                      //       ),
-                                      //     ],
-                                      //   ),
-                                      // );
-              //                         onTap: () async {
-    final result = await showCalendarDialog(
-      sbContext,
-      initialDate: calledDateValue,
-    );
+                                     
+                                      final result = await showCalendarDialogUsingTimePicker(
+                                        sbContext,
+                                        initialDate: calledDateValue,
+                                        mode: CalendarMode.single,
+                                      );
 
-    if (result != null) {
-      sbSetState(() {
-        calledDateValue = result.from;
-        _calledDateCtrl.text =
-            DateFormat('dd-MM-yyyy').format(result.from);
-      });
-    }
+                                      if (result != null) {
+                                        sbSetState(() {
+                                          calledDateValue = result.from;
+                                          _calledDateCtrl.text = DateFormat(
+                                            'dd-MM-yyyy',
+                                          ).format(result.from);
+                                        });
+                                      }
+                                    
                                     },
                                     child: Container(
                                       height: 5.2.h,
@@ -1425,32 +1403,45 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                     ),
                                     SizedBox(height: 0.5.h),
                                     GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: sbContext,
-                                          barrierColor: Colors.transparent,
-                                          builder: (_) => Stack(
-                                            children: [
-                                              Positioned(
-                                                top: 38.h,
-                                                left: 27.w,
-                                                child: CustomCalendar(
-                                                  onDateSelected: (date) {
-                                                    sbSetState(() {
-                                                      nextFollowUpDate = date;
-                                                      nextFollowUpCtrl.text =
-                                                          DateFormat(
-                                                            'dd-MM-yyyy',
-                                                          ).format(date);
-                                                    });
-                                                    // ✅ pop sbContext not context
-                                                    Navigator.pop(sbContext);
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
+                                      onTap: () async {
+                                        // showDialog(
+                                        //   context: sbContext,
+                                        //   barrierColor: Colors.transparent,
+                                        //   builder: (_) => Stack(
+                                        //     children: [
+                                        //       Positioned(
+                                        //         top: 38.h,
+                                        //         left: 27.w,
+                                        //         child: CustomCalendar(
+                                        //           onDateSelected: (date) {
+                                        //             sbSetState(() {
+                                        //               nextFollowUpDate = date;
+                                        //               nextFollowUpCtrl.text =
+                                        //                   DateFormat(
+                                        //                     'dd-MM-yyyy',
+                                        //                   ).format(date);
+                                        //             });
+                                        //             // ✅ pop sbContext not context
+                                        //             Navigator.pop(sbContext);
+                                        //           },
+                                        //         ),
+                                        //       ),
+                                        //     ],
+                                        //   ),
+                                        // );
+                                       final result = await showCalendarDialogUsingTimePicker(
+  sbContext,
+  initialDate: nextFollowUpDate,
+  mode: CalendarMode.single,
+  showTimePicker: true,        // ← shows time picker
+  minDate: calledDateValue,    // ← blocks dates before called date
+);
+if (result != null) {
+  sbSetState(() {
+    nextFollowUpDate = result.from;
+    nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy hh:mm a').format(result.from);
+  });
+}
                                       },
                                       child: Container(
                                         height: 5.2.h,
