@@ -599,7 +599,7 @@ class _DropdownState extends State<Dropdown> {
 
                 // ── Search box ────────────────────────────────────────────────
                 searchFieldProps: TextFieldProps(
-                  autofocus: true,
+                  // autofocus: true,
                   style: AppTextStyle.small(
                       size: 11.sp, color: AppColors.black),
                   cursorHeight: 10.sp,
