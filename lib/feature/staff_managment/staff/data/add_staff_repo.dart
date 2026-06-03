@@ -114,7 +114,57 @@ Future<String> uploadFileBytes({
 }
   // ─── Update ───────────────────────────────────────────────────────────────
 
- Future<void> updateStaff(
+//  Future<void> updateStaff(
+//   StaffModel staff, {
+//   File? imageFile,
+//   Uint8List? imageBytes,
+//   String? imageFileName,
+//   File? documentFile,
+//   Uint8List? documentBytes,
+//   String? documentFileName,
+// }) async {
+//   assert(staff.id != null, 'ID must not be null for update');
+
+//   String? imageUrl = staff.imageUrl;
+//   String? documentUrl = staff.documentUrl;
+
+//   if (kIsWeb) {
+//     if (imageBytes != null && imageFileName != null) {
+//       imageUrl = await uploadFileBytes(
+//         bytes: imageBytes,
+//         folder: 'staff_images',
+//         fileName: imageFileName,
+//       );
+//       log('[StaffRepository] Image uploaded (web): $imageUrl');
+//     }
+//     if (documentBytes != null && documentFileName != null) {
+//       documentUrl = await uploadFileBytes(
+//         bytes: documentBytes,
+//         folder: 'staff_docs',
+//         fileName: documentFileName,
+//       );
+//       log('[StaffRepository] Document uploaded (web): $documentUrl');
+//     }
+//   } else {
+//     if (imageFile != null) {
+//       imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
+//       log('[StaffRepository] Image uploaded: $imageUrl');
+//     }
+//     if (documentFile != null) {
+//       documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
+//       log('[StaffRepository] Document uploaded: $documentUrl');
+//     }
+//   }
+
+//   await _collection.doc(staff.id).update(
+//         staff
+//             .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
+//             .toMap()
+//             ..remove('createdAt'),
+//       );
+//   log('[StaffRepository] Staff updated: ${staff.id}');
+// }
+Future<void> updateStaff(
   StaffModel staff, {
   File? imageFile,
   Uint8List? imageBytes,
@@ -125,43 +175,38 @@ Future<String> uploadFileBytes({
 }) async {
   assert(staff.id != null, 'ID must not be null for update');
 
-  String? imageUrl = staff.imageUrl;
+  String? imageUrl = staff.imageUrl;   // already null if user removed it
   String? documentUrl = staff.documentUrl;
 
   if (kIsWeb) {
     if (imageBytes != null && imageFileName != null) {
-      imageUrl = await uploadFileBytes(
-        bytes: imageBytes,
-        folder: 'staff_images',
-        fileName: imageFileName,
-      );
-      log('[StaffRepository] Image uploaded (web): $imageUrl');
+      imageUrl = await uploadFileBytes(bytes: imageBytes, folder: 'staff_images', fileName: imageFileName);
     }
     if (documentBytes != null && documentFileName != null) {
-      documentUrl = await uploadFileBytes(
-        bytes: documentBytes,
-        folder: 'staff_docs',
-        fileName: documentFileName,
-      );
-      log('[StaffRepository] Document uploaded (web): $documentUrl');
+      documentUrl = await uploadFileBytes(bytes: documentBytes, folder: 'staff_docs', fileName: documentFileName);
     }
   } else {
     if (imageFile != null) {
       imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
-      log('[StaffRepository] Image uploaded: $imageUrl');
     }
     if (documentFile != null) {
       documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
-      log('[StaffRepository] Document uploaded: $documentUrl');
     }
   }
 
-  await _collection.doc(staff.id).update(
-        staff
-            .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
-            .toMap()
-            ..remove('createdAt'),
-      );
+  // Use set with merge:false on only the changed fields, 
+  // so null imageUrl is explicitly written to Firestore
+  final updatedData = staff
+      .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
+      .toMap()
+    ..remove('createdAt');
+
+  // ← explicitly null out imageUrl in Firestore if removed
+  if (imageUrl == null) {
+    updatedData['imageUrl'] = null;
+  }
+
+  await _collection.doc(staff.id).update(updatedData);
   log('[StaffRepository] Staff updated: ${staff.id}');
 }
 

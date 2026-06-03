@@ -13,6 +13,7 @@ import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/inputfield_for_psswrd.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:oxdo/feature/staff_managment/staff/cubit/add_staff_state.dart';
@@ -61,6 +62,7 @@ class _AddStaffState extends State<AddStaff> {
 
   String _imageFileName = 'No file chosen';
   String _docFileName = 'No file chosen';
+  bool _existingImageRemoved = false;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -142,6 +144,7 @@ class _AddStaffState extends State<AddStaff> {
 
     _imageFileName = 'No file chosen';
     _docFileName = 'No file chosen';
+    _existingImageRemoved = false;
   }
 
   @override
@@ -182,6 +185,14 @@ class _AddStaffState extends State<AddStaff> {
       });
     }
   }
+  void _removeImage() {
+  setState(() {
+    _selectedImage = null;
+    _selectedImageBytes = null;
+    _imageFileName = 'No file chosen';
+    _existingImageRemoved = true;
+  });
+}
 
   // ─── Validation ───────────────────────────────────────────────────────────
 
@@ -273,7 +284,7 @@ class _AddStaffState extends State<AddStaff> {
       accessCallLog: _callLog,
       hasSalaryAccount: _salaryAccount,
       hasPettyCash: _pettyCash,
-      imageUrl: widget.staff?.imageUrl,
+      imageUrl:_existingImageRemoved ? null : widget.staff?.imageUrl,
       documentName: _selectedDocuments,
       documentUrl: widget.staff?.documentUrl,
       accessibleUsers: _accessibleUsers,
@@ -353,6 +364,17 @@ class _AddStaffState extends State<AddStaff> {
           current is StaffSaved || current is StaffError,
       listener: (context, state) {
         if (state is StaffSaved) {
+           // ── Refresh TopBar profile image if editing the logged-in user ──
+    if (_isEditMode) {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is Authenticated) {
+        final loggedInId = authState.user.id;
+        final editingId = widget.staff?.id;
+        if (loggedInId != null && loggedInId == editingId) {
+          context.read<AuthCubit>().refreshUser(loggedInId);
+        }
+      }
+    }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 16)),
@@ -567,48 +589,68 @@ class _AddStaffState extends State<AddStaff> {
     );
   }
 
-  /// Builds the image preview widget safely on both web and mobile.
-  Widget _buildImagePreview() {
-    // 1. Newly picked image (bytes work on all platforms)
-    if (_selectedImageBytes != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.memory(_selectedImageBytes!, fit: BoxFit.cover),
-      );
-    }
-
-    // 2. Existing network image (edit mode)
-    if (widget.staff?.imageUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          widget.staff!.imageUrl!,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return const Center(
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          },
-          errorBuilder: (context, error, stack) =>
-              const Center(child: Text('Failed to load image')),
+ Widget _buildImagePreview() {
+  // 1. Newly picked image
+  if (_selectedImageBytes != null) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(_selectedImageBytes!, fit: BoxFit.cover),
         ),
-      );
-    }
-
-    // 3. Placeholder
-    return Center(
-      child: Text(
-        'No Image Selected',
-        style: TextStyle(color: Colors.grey.shade500),
-      ),
+        Positioned(
+          top: 6, right: 6,
+          child: GestureDetector(
+            onTap: _removeImage,
+            child: Container(
+              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+              padding: const EdgeInsets.all(4),
+              child: const Icon(Icons.close, color: Colors.white, size: 16),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
+  // 2. Existing network image — only show if NOT removed
+  if (widget.staff?.imageUrl != null && !_existingImageRemoved) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            widget.staff!.imageUrl!,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return const Center(child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator()));
+            },
+            errorBuilder: (_, __, ___) => const Center(child: Text('Failed to load image')),
+          ),
+        ),
+        Positioned(
+          top: 6, right: 6,
+          child: GestureDetector(
+            onTap: _removeImage,
+            child: Container(
+              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+              padding: const EdgeInsets.all(4),
+              child: const Icon(Icons.close, color: Colors.white, size: 16),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 3. Placeholder
+  return Center(
+    child: Text('No Image Selected', style: TextStyle(color: Colors.grey.shade500)),
+  );
+}
   // ─── Upload Section ───────────────────────────────────────────────────────
 
   Widget _buildUploadSection() {

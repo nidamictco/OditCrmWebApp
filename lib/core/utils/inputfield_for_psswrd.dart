@@ -47,13 +47,13 @@ class _InputFieldForPsswrdState extends State<InputFieldForPsswrd> {
             child: TextField(
               controller: widget.controller,
               style: AppTextStyle.body(size: 11.sp),
-              obscureText: _isPasswordVisible,
+              obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                   icon: Icon(
                     _isPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: AppColors.grey,
                     size: 12.6.sp,
                   ),
