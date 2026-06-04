@@ -1101,7 +1101,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     DateTime calledDateValue = DateTime.now();
 
     if (from == 'EDIT') {
-      log("qqqqqqqqqqqqqqqqqqq ${cubit.state.status}");
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
       cubit.selectPriority(leadFollowup.leadTag);

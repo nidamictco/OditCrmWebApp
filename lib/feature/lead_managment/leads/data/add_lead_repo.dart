@@ -753,7 +753,7 @@ class AddLeadRepository implements IAddLeadRepository {
       if (createdAt != null) {
   final createdDate = (createdAt as Timestamp).toDate();
 
-  if (_isSameDay(createdDate, selectedDate) && leadStage == 'NEW' && followUps.isEmpty) { // ← add leadStage check
+  if (_isSameDay(createdDate, selectedDate) && leadStage.toUpperCase() == 'NEW' && followUps.isEmpty) { // ← add leadStage check
     newLeadCount++;
   }
 }
@@ -764,7 +764,7 @@ class AddLeadRepository implements IAddLeadRepository {
       if (nextFollowUpDate != null) {
         final followDate = (nextFollowUpDate as Timestamp).toDate();
 
-        if (_isSameDay(followDate, selectedDate)) {
+        if (_isSameDay(followDate, selectedDate) && leadStage.toUpperCase() != 'CLOSED' && leadStage.toUpperCase() != 'REJECTED') {
           followUpCount++;
         }
       }
