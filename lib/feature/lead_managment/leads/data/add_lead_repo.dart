@@ -344,14 +344,16 @@ class AddLeadRepository implements IAddLeadRepository {
         /// NEW LEADS
         case 'NEW':
           return allLeads.where((lead) {
-            return isSameDay(lead.createdAt)&&
-        lead.leadStage.toUpperCase() == 'NEW';
+            return isSameDay(lead.createdAt) &&
+        lead.leadStage.toUpperCase() == 'NEW' && lead.followUp!.isEmpty;
           }).toList();
 
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
           return allLeads.where((lead) {
-            return isSameDay(lead.followUpDate);
+            return isSameDay(lead.followUpDate) &&
+                lead.leadStage.toUpperCase() != 'CLOSED'&&
+                lead.leadStage.toUpperCase() != 'REJECTED';
           }).toList();
 
         /// CLOSED LEADS
