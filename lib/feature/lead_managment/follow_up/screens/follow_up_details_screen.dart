@@ -1831,7 +1831,7 @@ class _DateGroup extends StatelessWidget {
                 children: [
                   // Text("count of entries are $index $dateCount"),
                   index == 0 && dateCount > 1
-                      ? _LastFollowupCard(lead: lead)
+                      ? _LastFollowupCard(lead: lead,)
                       : lead.followUp!.isNotEmpty && index < dateCount - 1
                       ? _FollowupCard(
                           entry: entry,
@@ -2238,6 +2238,7 @@ class _FirstFollowupCard extends StatelessWidget {
 }
 
 class _LastFollowupCard extends StatelessWidget {
+
   final AddLeadModel lead;
   const _LastFollowupCard({required this.lead});
 
@@ -2322,7 +2323,7 @@ class _LastFollowupCard extends StatelessWidget {
                         ).format(lead.followUpDate!),
                       ),
                       const SizedBox(height: 6),
-                      _cardRow('Remark', '-${lead.remarks}'),
+                      _cardRow('Remark', lead.remarks),
 
                       const SizedBox(height: 6),
                       Row(
