@@ -117,9 +117,12 @@ class _CustomDateRangePickerState extends State<CustomDateRangePicker> {
                   color: AppColors.white,
                   weight: FontWeight.w500,
                 ),
-              ),
+              ), 
               // Grey-out past dates when picking "To"
-              minDate: _step == _PickStep.to ? _fromDate : null,
+    //           minDate: _step == _PickStep.to
+    // ? _fromDate?.subtract(const Duration(days: 1))
+    // : DateTime.now(),
+    minDate: _step == _PickStep.to ? _fromDate : null, 
               initialSelectedDate:
                   _step == _PickStep.from ? _fromDate : _toDate,
               onSelectionChanged:
@@ -136,6 +139,7 @@ class _CustomDateRangePickerState extends State<CustomDateRangePicker> {
                     }
                     // Auto-advance to "To" step
                     _step = _PickStep.to;
+                    _pickerController.selectedDate = null;
                   } else {
                     _toDate = picked;
                   }

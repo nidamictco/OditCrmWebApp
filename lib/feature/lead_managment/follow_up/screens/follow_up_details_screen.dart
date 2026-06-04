@@ -191,6 +191,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
               subTitle: 'Details',
               title: 'Dashboard',
               subTitle2: 'Lead List',
+              onPressed: () {
+                Navigator.pop(context);
+              },
               show2ndTitle: true,
               showMenu: true,
             ),
@@ -1216,7 +1219,16 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Please select a call status.'),
-                                backgroundColor: Colors.orange,
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          if(_WhtsppNoCtrl.text.trim().length < 10){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a valid WhatsApp number.'),
+                                backgroundColor: Colors.red,
                               ),
                             );
                             return;

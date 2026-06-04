@@ -344,7 +344,8 @@ class AddLeadRepository implements IAddLeadRepository {
         /// NEW LEADS
         case 'NEW':
           return allLeads.where((lead) {
-            return isSameDay(lead.createdAt);
+            return isSameDay(lead.createdAt)&&
+        lead.leadStage.toUpperCase() == 'NEW';
           }).toList();
 
         /// FOLLOWUP LEADS
@@ -734,14 +735,22 @@ class AddLeadRepository implements IAddLeadRepository {
 
       // ---------------- NEW LEADS ----------------
       final createdAt = data['createdAt'];
+      final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
 
+      // if (createdAt != null) {
+      //   final createdDate = (createdAt as Timestamp).toDate();
+
+      //   if (_isSameDay(createdDate, selectedDate)) {
+      //     newLeadCount++;
+      //   }
+      // }
       if (createdAt != null) {
-        final createdDate = (createdAt as Timestamp).toDate();
+  final createdDate = (createdAt as Timestamp).toDate();
 
-        if (_isSameDay(createdDate, selectedDate)) {
-          newLeadCount++;
-        }
-      }
+  if (_isSameDay(createdDate, selectedDate) && leadStage == 'NEW') { // ← add leadStage check
+    newLeadCount++;
+  }
+}
 
       // ---------------- FOLLOWUP ----------------
       final nextFollowUpDate = data['nextFollowUpDate'];
@@ -755,7 +764,7 @@ class AddLeadRepository implements IAddLeadRepository {
       }
 
       // ---------------- CLOSED ----------------
-      final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+      // final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
 
       if (leadStage == 'CLOSED') {
         closedLeadCount++;
