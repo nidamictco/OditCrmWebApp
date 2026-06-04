@@ -636,7 +636,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
 
-    if (widget.lead.followUpDate != null) {
+    if (widget.lead.followUpDate != null &&
+        widget.lead.leadStage.toLowerCase() != 'closed' &&
+        widget.lead.leadStage.toLowerCase() != 'rejected') {
       // followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
       followupGroup[DateFormat(
             'dd-MM-yyyy hh:mm',
@@ -1224,10 +1226,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                             );
                             return;
                           }
-                          if(_WhtsppNoCtrl.text.trim().length < 10){
+                          if (_WhtsppNoCtrl.text.isNotEmpty && _WhtsppNoCtrl.text.trim().length < 10) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please enter a valid WhatsApp number.'),
+                                content: Text(
+                                  'Please enter a valid WhatsApp number.',
+                                ),
                                 backgroundColor: Colors.red,
                               ),
                             );
@@ -1288,12 +1292,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                   SizedBox(height: 0.5.h),
                                   GestureDetector(
                                     onTap: () async {
-                                     
-                                      final result = await showCalendarDialogUsingTimePicker(
-                                        sbContext,
-                                        initialDate: calledDateValue,
-                                        mode: CalendarMode.single,
-                                      );
+                                      final result =
+                                          await showCalendarDialogUsingTimePicker(
+                                            sbContext,
+                                            initialDate: calledDateValue,
+                                            mode: CalendarMode.single,
+                                          );
 
                                       if (result != null) {
                                         sbSetState(() {
@@ -1303,7 +1307,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                           ).format(result.from);
                                         });
                                       }
-                                    
                                     },
                                     child: Container(
                                       height: 5.2.h,
@@ -1441,19 +1444,24 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                         //     ],
                                         //   ),
                                         // );
-                                       final result = await showCalendarDialogUsingTimePicker(
-  sbContext,
-  initialDate: nextFollowUpDate,
-  mode: CalendarMode.single,
-  showTimePicker: true,        // ← shows time picker
-  minDate: calledDateValue,    // ← blocks dates before called date
-);
-if (result != null) {
-  sbSetState(() {
-    nextFollowUpDate = result.from;
-    nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy hh:mm a').format(result.from);
-  });
-}
+                                        final result =
+                                            await showCalendarDialogUsingTimePicker(
+                                              sbContext,
+                                              initialDate: nextFollowUpDate,
+                                              mode: CalendarMode.single,
+                                              showTimePicker:
+                                                  true, // ← shows time picker
+                                              minDate:
+                                                  calledDateValue, // ← blocks dates before called date
+                                            );
+                                        if (result != null) {
+                                          sbSetState(() {
+                                            nextFollowUpDate = result.from;
+                                            nextFollowUpCtrl.text = DateFormat(
+                                              'dd-MM-yyyy hh:mm a',
+                                            ).format(result.from);
+                                          });
+                                        }
                                       },
                                       child: Container(
                                         height: 5.2.h,
@@ -1800,12 +1808,12 @@ class _DateGroup extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      "$date",
+                      date,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.heading(
                         size: 13,
                         color: Color(0xFF555555),
-                        weight: FontWeight.w600,
+                        weight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -1842,7 +1850,10 @@ class _DateGroup extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Text("count of entries are $index $dateCount"),
-                  index == 0 && dateCount > 1
+                  index == 0 &&
+                          dateCount > 1 &&
+                          lead.leadStage.toLowerCase() != 'rejected' &&
+                          lead.leadStage.toLowerCase() != "closed"
                       ? _LastFollowupCard(lead: lead)
                       : lead.followUp!.isNotEmpty && index < dateCount - 1
                       ? _FollowupCard(
@@ -1978,12 +1989,14 @@ class _FollowupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _cardRow(
-                        'Scheduled Date',
-                        DateFormat(
-                          'dd-MM-yyyy hh:mm a',
-                        ).format(entry.nextFollowUpDate),
-                      ),
+                      if (entry.leadStage.toLowerCase() != 'rejected' &&
+                          entry.leadStage.toLowerCase() != "closed")
+                        _cardRow(
+                          'Scheduled Date',
+                          DateFormat(
+                            'dd-MM-yyyy hh:mm a',
+                          ).format(entry.nextFollowUpDate),
+                        ),
                       const SizedBox(height: 4),
                       _cardRow(
                         'Called Date',
@@ -2201,7 +2214,7 @@ class _FirstFollowupCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          _StatusChip(label: lead.leadStage),
+                          _StatusChip(label: "NEW"),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -2334,7 +2347,7 @@ class _LastFollowupCard extends StatelessWidget {
                         ).format(lead.followUpDate!),
                       ),
                       const SizedBox(height: 6),
-                      _cardRow('Remark', '-${lead.remarks}'),
+                      _cardRow('Remark', lead.remarks),
 
                       const SizedBox(height: 6),
                       Row(
