@@ -15,6 +15,7 @@ import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/import_leads/widget/field_position_dialog.dart';
+import 'package:oxdo/feature/lead_managment/import_leads/widget/sample_file.dart';
 import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:oxdo/feature/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
@@ -170,7 +171,9 @@ class _ImportLeadsState extends State<ImportLeads> {
           ),
           Row(
             children: [
-              _topButton('Sample File', Colors.orange.shade50, Colors.orange),
+              InkWell(
+                onTap: () => downloadSampleLeadExcel(),
+                child: _topButton('Sample File', Colors.orange.shade50, Colors.orange)),
               SizedBox(width: 1.w),
               InkWell(
                 onTap: () => showDialog(
