@@ -725,6 +725,7 @@ class AddLeadRepository implements IAddLeadRepository {
         ? await _collection.get()
         : await _collection.where('assignedStaffId', isEqualTo: staffId).get();
 
+
     int newLeadCount = 0;
     int followUpCount = 0;
     int closedLeadCount = 0;
@@ -734,10 +735,13 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snap.docs) {
       final data = doc.data();
+      final followupSnap = doc.reference.collection('FOLLOW_UPS').get();
+      final followUps = (await followupSnap).docs;
 
       // ---------------- NEW LEADS ----------------
       final createdAt = data['createdAt'];
       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+
 
       // if (createdAt != null) {
       //   final createdDate = (createdAt as Timestamp).toDate();
@@ -749,7 +753,7 @@ class AddLeadRepository implements IAddLeadRepository {
       if (createdAt != null) {
   final createdDate = (createdAt as Timestamp).toDate();
 
-  if (_isSameDay(createdDate, selectedDate) && leadStage == 'NEW') { // ← add leadStage check
+  if (_isSameDay(createdDate, selectedDate) && leadStage == 'NEW' && followUps.isEmpty) { // ← add leadStage check
     newLeadCount++;
   }
 }

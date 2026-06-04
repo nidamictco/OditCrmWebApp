@@ -1094,7 +1094,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     final TextEditingController nextFollowUpCtrl = TextEditingController(
       text: DateFormat(
-        'dd-MM-yyyy',
+        'dd-MM-yyyy hh:mm a',
       ).format(DateTime.now().add(const Duration(days: 1))),
     );
     DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
