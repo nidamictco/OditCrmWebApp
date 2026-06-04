@@ -801,8 +801,10 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
   }
 
   List<String> _filteredItems(String filter) => _localItems
-      .where((item) =>
-  filter.isEmpty || item.toLowerCase().contains(filter.toLowerCase()))
+      .where(
+        (item) =>
+            filter.isEmpty || item.toLowerCase().contains(filter.toLowerCase()),
+      )
       .toList();
 
   @override
@@ -873,14 +875,22 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
             final count = items.length;
 
             if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-              setState(() =>
-              _highlightedIndex = (_highlightedIndex + 1).clamp(0, count - 1));
+              setState(
+                () => _highlightedIndex = (_highlightedIndex + 1).clamp(
+                  0,
+                  count - 1,
+                ),
+              );
               return KeyEventResult.handled;
             }
 
             if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-              setState(() =>
-              _highlightedIndex = (_highlightedIndex - 1).clamp(0, count - 1));
+              setState(
+                () => _highlightedIndex = (_highlightedIndex - 1).clamp(
+                  0,
+                  count - 1,
+                ),
+              );
               return KeyEventResult.handled;
             }
 
@@ -955,11 +965,13 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                       DropdownSearch<String>(
                         key: _dropdownKey,
                         items: (filter, _) => _localItems
-                            .where((item) =>
-                        filter.isEmpty ||
-                            item.toLowerCase().contains(
-                              filter.toLowerCase(),
-                            ))
+                            .where(
+                              (item) =>
+                                  filter.isEmpty ||
+                                  item.toLowerCase().contains(
+                                    filter.toLowerCase(),
+                                  ),
+                            )
                             .toList(),
                         selectedItem: widget.selectedValue,
                         itemAsString: (item) => item,
@@ -969,7 +981,9 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                             return Text(
                               widget.label,
                               style: AppTextStyle.small(
-                                  size: 11.sp, color: AppColors.grey),
+                                size: 11.sp,
+                                color: AppColors.grey,
+                              ),
                             );
                           }
                           return Padding(
@@ -991,15 +1005,17 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                             iconClosed: widget.selectedValue != null
                                 ? const SizedBox.shrink()
                                 : Padding(
-                              padding: EdgeInsets.only(right: 1.w),
-                              child: const Icon(Icons.keyboard_arrow_down),
-                            ),
+                                    padding: EdgeInsets.only(right: 1.w),
+                                    child: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                    ),
+                                  ),
                             iconOpened: widget.selectedValue != null
                                 ? const SizedBox.shrink()
                                 : Padding(
-                              padding: EdgeInsets.only(right: 1.w),
-                              child: const Icon(Icons.keyboard_arrow_up),
-                            ),
+                                    padding: EdgeInsets.only(right: 1.w),
+                                    child: const Icon(Icons.keyboard_arrow_up),
+                                  ),
                           ),
                         ),
 
@@ -1009,15 +1025,28 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                           fit: FlexFit.loose,
                           constraints: const BoxConstraints(maxHeight: 250),
 
+                          // onDismissed: () {
+                          //   setState(() {
+                          //     _popupOpen = false;
+                          //     _highlightedIndex = -1;
+                          //   });
+                          // },
                           onDismissed: () {
-                            setState(() {
-                              _popupOpen = false;
-                              _highlightedIndex = -1;
+                            // Guard: don't call setState if widget is being torn down
+                            if (!mounted) return;
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!mounted) return;
+                              setState(() {
+                                _popupOpen = false;
+                                _highlightedIndex = -1;
+                              });
                             });
                           },
 
                           itemBuilder: (context, item, isDisabled, isSelected) {
-                            final currentIndex = _filteredItems('').indexOf(item);
+                            final currentIndex = _filteredItems(
+                              '',
+                            ).indexOf(item);
                             final isKeyboardHighlighted =
                                 currentIndex == _highlightedIndex;
                             return _DropdownWithAddItem(
@@ -1038,40 +1067,51 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                             ),
                             positionCallback:
                                 (RenderBox buttonBox, RenderBox overlayBox) {
-                              final buttonOffset = overlayBox.globalToLocal(
-                                buttonBox.localToGlobal(Offset.zero),
-                              );
-                              final buttonSize = buttonBox.size;
-                              final overlaySize = overlayBox.size;
-                              const menuHeight = 260.0;
+                                  final buttonOffset = overlayBox.globalToLocal(
+                                    buttonBox.localToGlobal(Offset.zero),
+                                  );
+                                  final buttonSize = buttonBox.size;
+                                  final overlaySize = overlayBox.size;
+                                  const menuHeight = 260.0;
 
-                              final spaceBelow = overlaySize.height -
-                                  (buttonOffset.dy + buttonSize.height);
-                              final spaceAbove = buttonOffset.dy;
+                                  final spaceBelow =
+                                      overlaySize.height -
+                                      (buttonOffset.dy + buttonSize.height);
+                                  final spaceAbove = buttonOffset.dy;
 
-                              final double top;
-                              if (spaceBelow >= menuHeight ||
-                                  spaceBelow >= spaceAbove) {
-                                top = buttonOffset.dy + buttonSize.height;
-                              } else {
-                                top = buttonOffset.dy - menuHeight;
-                              }
+                                  final double top;
+                                  if (spaceBelow >= menuHeight ||
+                                      spaceBelow >= spaceAbove) {
+                                    top = buttonOffset.dy + buttonSize.height;
+                                  } else {
+                                    top = buttonOffset.dy - menuHeight;
+                                  }
 
-                              final left = buttonOffset.dx;
-                              final right = overlaySize.width -
-                                  (buttonOffset.dx + buttonSize.width);
-                              return RelativeRect.fromLTRB(left, top, right, 0);
-                            },
+                                  final left = buttonOffset.dx;
+                                  final right =
+                                      overlaySize.width -
+                                      (buttonOffset.dx + buttonSize.width);
+                                  return RelativeRect.fromLTRB(
+                                    left,
+                                    top,
+                                    right,
+                                    0,
+                                  );
+                                },
                           ),
 
                           searchFieldProps: TextFieldProps(
                             decoration: InputDecoration(
                               hintText: 'Search...',
                               hintStyle: AppTextStyle.small(
-                                  size: 11.sp, color: AppColors.grey),
+                                size: 11.sp,
+                                color: AppColors.grey,
+                              ),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
                               visualDensity: VisualDensity.comfortable,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(6),
@@ -1090,17 +1130,31 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                           ),
                         ),
 
+                        // onSelected: (value) {
+                        //   setState(() {
+                        //     _popupOpen = false;
+                        //     _highlightedIndex = -1;
+                        //   });
+                        //   widget.onChanged(value);
+                        //   if (widget.nextFocusNode != null) {
+                        //     WidgetsBinding.instance.addPostFrameCallback((_) {
+                        //       widget.nextFocusNode!.requestFocus();
+                        //     });
+                        //   }
+                        // },
                         onSelected: (value) {
-                          setState(() {
-                            _popupOpen = false;
-                            _highlightedIndex = -1;
-                          });
-                          widget.onChanged(value);
-                          if (widget.nextFocusNode != null) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              widget.nextFocusNode!.requestFocus();
+                          if (!mounted) return;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() {
+                              _popupOpen = false;
+                              _highlightedIndex = -1;
                             });
-                          }
+                            widget.onChanged?.call(value);
+                            if (widget.nextFocusNode != null) {
+                              widget.nextFocusNode!.requestFocus();
+                            }
+                          });
                         },
                       ),
 
@@ -1112,8 +1166,11 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                             onTap: () => widget.onChanged(null),
                             child: Container(
                               padding: const EdgeInsets.all(2),
-                              child: const Icon(Icons.close,
-                                  size: 18, color: Colors.grey),
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ),
@@ -1132,6 +1189,63 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
 // ─────────────────────────────────────────────────────────────────────────────
 // _DropdownWithAddItem — hover + keyboard highlight
 // ─────────────────────────────────────────────────────────────────────────────
+// class _DropdownWithAddItem extends StatefulWidget {
+//   final String item;
+//   final bool isSelected;
+//   final bool isKeyboardHighlighted;
+
+//   const _DropdownWithAddItem({
+//     required this.item,
+//     required this.isSelected,
+//     this.isKeyboardHighlighted = false,
+//   });
+
+//   @override
+//   State<_DropdownWithAddItem> createState() => _DropdownWithAddItemState();
+// }
+
+// class _DropdownWithAddItemState extends State<_DropdownWithAddItem> {
+//   bool _isHovered = false;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final Color bgColor;
+//     if (widget.isSelected) {
+//       bgColor = const Color(0xff4A5D9E);
+//     } else if (widget.isKeyboardHighlighted || _isHovered) {
+//       bgColor = const Color(0xff4A5D9E).withOpacity(0.15);
+//     } else {
+//       bgColor = Colors.white;
+//     }
+
+//     return MouseRegion(
+//       onEnter: (_) => setState(() => _isHovered = true),
+//       onExit: (_) => setState(() => _isHovered = false),
+//       child: Container(
+//         padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+//         alignment: Alignment.centerLeft,
+//         color: bgColor,
+//         child: Row(
+//           children: [
+//             Expanded(
+//               child: Text(
+//                 widget.item,
+//                 style: AppTextStyle.medium(
+//                   weight: FontWeight.w400,
+//                   color: widget.isSelected ? Colors.white : Colors.black87,
+//                   size: 11.sp,
+//                 ),
+//               ),
+//             ),
+//             if (widget.isSelected)
+//               const Icon(Icons.check, size: 16, color: Colors.white),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 class _DropdownWithAddItem extends StatefulWidget {
   final String item;
   final bool isSelected;
@@ -1161,28 +1275,44 @@ class _DropdownWithAddItemState extends State<_DropdownWithAddItem> {
       bgColor = Colors.white;
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-        alignment: Alignment.centerLeft,
-        color: bgColor,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                widget.item,
-                style: AppTextStyle.medium(
-                  weight: FontWeight.w400,
-                  color: widget.isSelected ? Colors.white : Colors.black87,
-                  size: 11.sp,
+    // Listener fires at the raw pointer level — BEFORE GestureDetector
+    // or InkWell inside dropdown_search gets a chance to absorb the event.
+    // This is why MouseRegion alone doesn't work: the library's InkWell
+    // sits above your widget in hit-test order and consumes PointerHover
+    // events. Listener receives PointerHoverEvent at a lower level.
+    return Listener(
+      onPointerHover: (_) {
+        if (!_isHovered) setState(() => _isHovered = true);
+      },
+      // Also wrap in MouseRegion just for the exit event,
+      // because Listener has no onPointerExit equivalent.
+      child: MouseRegion(
+        onExit: (_) {
+          if (_isHovered) setState(() => _isHovered = false);
+        },
+        // HitTestBehavior.translucent ensures our widget participates
+        // in hit testing even when the library's InkWell is on top.
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+          alignment: Alignment.centerLeft,
+          color: bgColor,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.item,
+                  style: AppTextStyle.medium(
+                    size: 11.sp,
+                    weight: FontWeight.w400,
+                    color: widget.isSelected ? Colors.white : Colors.black87,
+                  ),
                 ),
               ),
-            ),
-            if (widget.isSelected)
-              const Icon(Icons.check, size: 16, color: Colors.white),
-          ],
+              if (widget.isSelected)
+                const Icon(Icons.check, size: 16, color: Colors.white),
+            ],
+          ),
         ),
       ),
     );
