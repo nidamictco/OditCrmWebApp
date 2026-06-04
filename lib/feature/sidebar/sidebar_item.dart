@@ -128,7 +128,8 @@ class _SidebarItemState extends State<SidebarItem> {
             /// SETTINGS
             if (perm.canViewGeneralSettings || perm.canViewFacebookSettings)
               _expansionSection(
-                icon: Symbols.settings,
+                // icon: Symbols.settings,
+                icon: Icons.settings_outlined,
                 title: "Settings",
                 isSelected: isSettingsSelected,
                 children: [

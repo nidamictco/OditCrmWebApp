@@ -796,6 +796,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
   exportToExcel<AddLeadModel>(
     fileName: fileName,
+    wrapColumnIndices: [2],
     rows: leads,
     columns: [
       ExcelColumn(header: '#',              value: (l) => '${leads.indexOf(l) + 1}'),
