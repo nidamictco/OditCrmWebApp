@@ -129,40 +129,74 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     },
   );
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _liveModel = widget.staff;
+  //   _selectedDate = _formatDate(DateTime.now());
+  //   _tabController = TabController(length: 2, vsync: this);
+  //   _tabController.addListener(() {
+  //     setState(() => _selectedTab = _tabController.index);
+  //   });
+
+  //   // Refresh latest staff data from Firestore
+  //   if (widget.staff.id != null) {
+  //     context.read<StaffCubit>().getStaff(widget.staff.id!);
+  //   }
+  //   context.read<AddLeadCubit>().fetchLeadChartCounts(
+  //     staffId: widget.staff.id ?? '',
+  //     role: widget.staff.staffType ?? '',
+  //     selectedDate: DateTime.now(),
+  //   );
+  //   context.read<AddLeadCubit>().fetchDashboardCounts(
+  //     DateTime.now(),
+  //     staffId: widget.staff.id,
+  //     role: widget.staff.staffType,
+  //   );
+
+  //   if (widget.staff.id != null) {
+  //     context.read<StaffActivityCubit>().load(widget.staff.id!);
+  //   }
+
+  //   context.read<AddLeadCubit>().fetchCallStatusCounts(
+  //     staffId: widget.staff.id ?? '',
+  //     role: widget.staff.staffType ?? '',
+  //   );
+  // }
   @override
-  void initState() {
-    super.initState();
-    _liveModel = widget.staff;
-    _selectedDate = _formatDate(DateTime.now());
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      setState(() => _selectedTab = _tabController.index);
-    });
+void initState() {
+  super.initState();
+  _liveModel    = widget.staff;
+  _selectedDate = _formatDate(DateTime.now());
+  _tabController = TabController(length: 2, vsync: this);
+  _tabController.addListener(() => setState(() => _selectedTab = _tabController.index));
 
-    // Refresh latest staff data from Firestore
-    if (widget.staff.id != null) {
-      context.read<StaffCubit>().getStaff(widget.staff.id!);
-    }
-    context.read<AddLeadCubit>().fetchLeadChartCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-      selectedDate: DateTime.now(),
-    );
-    context.read<AddLeadCubit>().fetchDashboardCounts(
-      DateTime.now(),
-      staffId: widget.staff.id,
-      role: widget.staff.staffType,
-    );
-
-    if (widget.staff.id != null) {
-      context.read<StaffActivityCubit>().load(widget.staff.id!);
-    }
-
-    context.read<AddLeadCubit>().fetchCallStatusCounts(
-      staffId: widget.staff.id ?? '',
-      role: widget.staff.staffType ?? '',
-    );
+  if (widget.staff.id != null) {
+    context.read<StaffCubit>().getStaff(widget.staff.id!);
   }
+
+  context.read<AddLeadCubit>().fetchLeadChartCounts(
+    staffId:      widget.staff.id ?? '',
+    role:         widget.staff.staffType ?? '',
+    selectedDate: DateTime.now(),
+  );
+
+  // ← Use fetchProfileCounts instead of fetchDashboardCounts
+  context.read<AddLeadCubit>().fetchProfileCounts(
+    DateTime.now(),
+    staffId: widget.staff.id ?? '',
+    role:    widget.staff.staffType ?? '',
+  );
+
+  if (widget.staff.id != null) {
+    context.read<StaffActivityCubit>().load(widget.staff.id!);
+  }
+
+  context.read<AddLeadCubit>().fetchCallStatusCounts(
+    staffId: widget.staff.id ?? '',
+    role:    widget.staff.staffType ?? '',
+  );
+}
 
   @override
   void dispose() {
@@ -170,90 +204,6 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     super.dispose();
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return BlocConsumer<StaffCubit, StaffState>(
-  //     listener: (context, state) {
-  //        if (state is StaffLoaded) {
-  //       setState(() => _liveModel = state.staff);
-  //     }
-  //       if (state is StaffError) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text(state.message),
-  //             backgroundColor: Colors.red.shade700,
-  //           ),
-  //         );
-  //       }
-  //     },
-  //     builder: (context, state) {
-
-  //       // Use freshly loaded staff if available, fall back to widget.staff
-  //       final liveModel = state is StaffLoaded ? state.staff : widget.staff;
-  //       final staffInfo = _staffInfoFromModel(liveModel);
-
-  //       if (state is StaffLoading) {
-  //         return Scaffold(
-  //           backgroundColor: const Color(0xFFF5F6FA),
-  //           body: Column(
-  //             children: [
-  //               // Keep the header visible while loading
-  //               Container(
-  //                 height: 15.h,
-  //                 decoration: const BoxDecoration(
-  //                   gradient: LinearGradient(
-  //                     begin: Alignment.topLeft,
-  //                     end: Alignment.bottomRight,
-  //                     colors: [
-  //                       Color(0xFF0F2442),
-  //                       Color(0xFF1E3A5F),
-  //                       Color(0xFF2D5F8A),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 child: SafeArea(
-  //                   child: Row(
-  //                     children: [
-  //                       IconButton(
-  //                         icon: const Icon(
-  //                           Icons.arrow_back_ios_new,
-  //                           color: Colors.white,
-  //                         ),
-  //                         onPressed: () => Navigator.pop(context),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //               const Expanded(
-  //                 child: Center(child: CircularProgressIndicator()),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       }
-
-  //       return Scaffold(
-  //         backgroundColor: const Color(0xFFF5F6FA),
-  //         body: NestedScrollView(
-  //           headerSliverBuilder: (context, innerBoxIsScrolled) => [
-  //             _buildSliverHeader(innerBoxIsScrolled, staffInfo, liveModel),
-  //           ],
-  //           body: TabBarView(
-  //             controller: _tabController,
-  //             children: [
-  //               Padding(
-  //                 padding: EdgeInsets.all(0.8.w),
-  //                 child: _buildOverviewTab(staffInfo),
-  //               ),
-  //               _buildDocumentsTab(liveModel),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StaffCubit, StaffState>(
@@ -458,43 +408,12 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
 
   // ─── OVERVIEW TAB ────────────────────────────────────────
 
-  // Widget _buildOverviewTab(StaffInfo staffInfo) {
-  //   return SingleChildScrollView(
-  //     padding: EdgeInsets.all(2.h),
-  //     child: Column(
-  //       children: [
-  //         Row(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             // Left: Information Card
-  //             Expanded(flex: 4, child: _InformationCard(staff: staffInfo)),
-  //             SizedBox(width: 1.7.w),
-  //             // Right: Call Status + Recent Activity
-  //             Expanded(
-  //               flex: 6,
-  //               child: Column(
-  //                 children: [
-  //                   _CallStatusCard(
-  //                     data: _callData,
-  //                     selectedDate: _selectedDate,
-  //                     onDateChanged: (d) => setState(() => _selectedDate = d),
-  //                   ),
-  //                   SizedBox(height: 3.w),
-  //                   const RecentActivityCard(),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildOverviewTab(StaffInfo staffInfo) {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, leadState) {
         // Use live counts if available, fall back to zeros
+       
         // final liveCallData = CallStatusData(
         //   cloudCallDuration: _callData.cloudCallDuration,
         //   phoneCallDuration: _callData.phoneCallDuration,
@@ -504,20 +423,21 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
         //   leadsByCategory: leadState.leadChartCounts.isNotEmpty
         //       ? leadState.leadChartCounts
         //       : _callData.leadsByCategory,
+        //   connectedCount: int.tryParse(leadState.connectedCount) ?? 0,
+        //   notConnectedCount: int.tryParse(leadState.notConnectedCount) ?? 0,
         // );
-        final liveCallData = CallStatusData(
-          cloudCallDuration: _callData.cloudCallDuration,
-          phoneCallDuration: _callData.phoneCallDuration,
-          closedCount: int.tryParse(leadState.closedLeadCount) ?? 0,
-          costAmount: _callData.costAmount,
-          totalCalled: int.tryParse(leadState.totalCalledCount) ?? 0,
-          leadsByCategory: leadState.leadChartCounts.isNotEmpty
-              ? leadState.leadChartCounts
-              : _callData.leadsByCategory,
-          connectedCount: int.tryParse(leadState.connectedCount) ?? 0,
-          notConnectedCount: int.tryParse(leadState.notConnectedCount) ?? 0,
-        );
-
+final liveCallData = CallStatusData(
+  cloudCallDuration: _callData.cloudCallDuration,
+  phoneCallDuration: _callData.phoneCallDuration,
+  closedCount:      int.tryParse(leadState.profileClosedCount) ?? 0,   // ← profile field
+  costAmount:       _callData.costAmount,
+  totalCalled:      int.tryParse(leadState.profileTotalCalledCount) ?? 0, // ← profile field
+  leadsByCategory:  leadState.leadChartCounts.isNotEmpty
+      ? leadState.leadChartCounts
+      : _callData.leadsByCategory,
+  connectedCount:    int.tryParse(leadState.profileConnectedCount) ?? 0,    // ← profile field
+  notConnectedCount: int.tryParse(leadState.profileNotConnectedCount) ?? 0, // ← profile field
+);
         return SingleChildScrollView(
           padding: EdgeInsets.all(2.h),
           child: Column(
@@ -535,47 +455,87 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                           data: liveCallData,
                           selectedDate: _selectedDate,
                           categoryRows: leadState.leadCategoryTableRows,
+                          // onDateChanged: (date) {
+                          //   // date is now DateTime
+                          //   setState(() => _selectedDate = _formatDate(date));
+
+                          //   // fetch chart counts for the selected single date
+                          //   context.read<AddLeadCubit>().fetchLeadChartCounts(
+                          //     staffId: widget.staff.id ?? '',
+                          //     role: widget.staff.staffType ?? '',
+                          //     selectedDate: date, // ← actual selected date
+                          //   );
+
+                          //   // fetch call status for the selected single date
+                          //   context.read<AddLeadCubit>().fetchCallStatusCounts(
+                          //     staffId: widget.staff.id ?? '',
+                          //     role: widget.staff.staffType ?? '',
+                          //     selectedDate:
+                          //         date, // ← pass if your repo supports it
+                          //   );
+                          // },
+                          // onRangeChanged: (from, to) {
+                          //   setState(
+                          //     () => _selectedDate =
+                          //         '${_formatDate(from)} - ${_formatDate(to)}',
+                          //   );
+
+                          //   // fetch chart counts for the date range
+                          //   context.read<AddLeadCubit>().fetchLeadChartCounts(
+                          //     staffId: widget.staff.id ?? '',
+                          //     role: widget.staff.staffType ?? '',
+                          //     selectedDate:
+                          //         from, // pass from; add a `toDate` param if your repo supports range
+                          //     toDate: to, // uncomment when repo supports range
+                          //   );
+
+                          //   context.read<AddLeadCubit>().fetchCallStatusCounts(
+                          //     staffId: widget.staff.id ?? '',
+                          //     role: widget.staff.staffType ?? '',
+                          //     selectedDate: from,
+                          //     toDate: to,
+                          //   );
+                          // },
                           onDateChanged: (date) {
-                            // date is now DateTime
-                            setState(() => _selectedDate = _formatDate(date));
+  setState(() => _selectedDate = _formatDate(date));
 
-                            // fetch chart counts for the selected single date
-                            context.read<AddLeadCubit>().fetchLeadChartCounts(
-                              staffId: widget.staff.id ?? '',
-                              role: widget.staff.staffType ?? '',
-                              selectedDate: date, // ← actual selected date
-                            );
+  context.read<AddLeadCubit>().fetchLeadChartCounts(
+    staffId:      widget.staff.id ?? '',
+    role:         widget.staff.staffType ?? '',
+    selectedDate: date,
+  );
+  context.read<AddLeadCubit>().fetchProfileCounts(   // ← changed
+    date,
+    staffId: widget.staff.id ?? '',
+    role:    widget.staff.staffType ?? '',
+  );
+  context.read<AddLeadCubit>().fetchCallStatusCounts(
+    staffId:      widget.staff.id ?? '',
+    role:         widget.staff.staffType ?? '',
+    selectedDate: date,
+  );
+},
+onRangeChanged: (from, to) {
+  setState(() => _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}');
 
-                            // fetch call status for the selected single date
-                            context.read<AddLeadCubit>().fetchCallStatusCounts(
-                              staffId: widget.staff.id ?? '',
-                              role: widget.staff.staffType ?? '',
-                              selectedDate:
-                                  date, // ← pass if your repo supports it
-                            );
-                          },
-                          onRangeChanged: (from, to) {
-                            setState(
-                              () => _selectedDate =
-                                  '${_formatDate(from)} - ${_formatDate(to)}',
-                            );
-
-                            // fetch chart counts for the date range
-                            context.read<AddLeadCubit>().fetchLeadChartCounts(
-                              staffId: widget.staff.id ?? '',
-                              role: widget.staff.staffType ?? '',
-                              selectedDate:
-                                  from, // pass from; add a `toDate` param if your repo supports range
-                              toDate: to, // uncomment when repo supports range
-                            );
-
-                            context.read<AddLeadCubit>().fetchCallStatusCounts(
-                              staffId: widget.staff.id ?? '',
-                              role: widget.staff.staffType ?? '',
-                              selectedDate: from,
-                              toDate: to,
-                            );
-                          },
+  context.read<AddLeadCubit>().fetchLeadChartCounts(
+    staffId:      widget.staff.id ?? '',
+    role:         widget.staff.staffType ?? '',
+    selectedDate: from,
+    toDate:       to,
+  );
+  context.read<AddLeadCubit>().fetchProfileCounts(   // ← changed
+    from,
+    staffId: widget.staff.id ?? '',
+    role:    widget.staff.staffType ?? '',
+  );
+  context.read<AddLeadCubit>().fetchCallStatusCounts(
+    staffId:      widget.staff.id ?? '',
+    role:         widget.staff.staffType ?? '',
+    selectedDate: from,
+    toDate:       to,
+  );
+},
                         ),
                         SizedBox(height: 3.w),
                         // const RecentActivityCard(),
@@ -1321,7 +1281,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
               // _timeCard(),
               // SizedBox(height: 1.w),
               _miniStat(
-                'Closed',
+                'Total Closed',
                 widget.data.closedCount,
                 Colors.green,
                 const Color(0xFFbbdbb2),

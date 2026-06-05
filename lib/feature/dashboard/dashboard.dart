@@ -32,7 +32,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     _dateController.text = DateFormat('dd-MM-yyyy').format(today);
 
+    // context.read<AddLeadCubit>().fetchDashboardCounts(today);
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
     context.read<AddLeadCubit>().fetchDashboardCounts(today);
+  });
   }
 
   @override
@@ -49,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-              /// TOP HEADER ROW
+                    /// TOP HEADER ROW
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,119 +85,129 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             /// SEARCH BOX
                             BlocBuilder<AddLeadCubit, AddLeadState>(
-                        builder: (context, state) {
-                          final addLeadCubit = context.read<AddLeadCubit>();
+                              builder: (context, state) {
+                                final addLeadCubit = context
+                                    .read<AddLeadCubit>();
 
-                          return GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                barrierColor: Colors.transparent,
-                                builder: (dialogContext) {
-                                  return Stack(
+                                return GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierColor: Colors.transparent,
+                                      builder: (dialogContext) {
+                                        return Stack(
+                                          children: [
+                                            Positioned(
+                                              top: 20.h,
+                                              right: 5.w,
+                                              child: CustomCalendar(
+                                                onDateSelected: (date) {
+                                                  /// SET SELECTED DATE
+                                                  _dateController.text =
+                                                      DateFormat(
+                                                        'dd-MM-yyyy',
+                                                      ).format(date);
+                                                  addLeadCubit
+                                                      .updateSelectedDashboardDate(
+                                                        date,
+                                                      );
+
+                                                  addLeadCubit
+                                                      .fetchDashboardCounts(
+                                                        date,
+                                                      );
+
+                                                  /// CLOSE DIALOG ONLY
+                                                  Navigator.pop(dialogContext);
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Row(
                                     children: [
-                                      Positioned(
-                                        top: 20.h,
-                                        right: 5.w,
-                                        child: CustomCalendar(
-                                          onDateSelected: (date) {
-                                            /// SET SELECTED DATE
-                                            _dateController.text =
-                                                DateFormat('dd-MM-yyyy').format(date);
-                                            addLeadCubit.updateSelectedDashboardDate(date);
+                                      /// DATE FIELD
+                                      Container(
+                                        width: 15.w,
+                                        height: 6.h,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(4),
+                                            bottomLeft: Radius.circular(4),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: IgnorePointer(
+                                            child: TextField(
+                                              controller: _dateController,
+                                              readOnly: true,
+                                              style: AppTextStyle.small(
+                                                size: 11.sp,
+                                                color: AppColors.grey,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintStyle: AppTextStyle.small(
+                                                  size: 11.sp,
+                                                  color: AppColors.grey,
+                                                ),
+                                                isCollapsed: true,
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
 
-                                            addLeadCubit.fetchDashboardCounts(date);
+                                      /// SEARCH BUTTON
+                                      GestureDetector(
+                                        onTap: () {
+                                          /// CHECK EMPTY DATE
+                                          if (_dateController.text.isEmpty)
+                                            return;
 
-                                            /// CLOSE DIALOG ONLY
-                                            Navigator.pop(dialogContext);
-                                          },
+                                          /// CONVERT STRING TO DATETIME
+                                          final selectedDate = DateFormat(
+                                            'dd-MM-yyyy',
+                                          ).parse(_dateController.text);
+
+                                          /// CALL count function
+                                          addLeadCubit.fetchDashboardCounts(
+                                            selectedDate,
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 6.h,
+                                          width: 6.h,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.indigo,
+                                            borderRadius: BorderRadius.only(
+                                              topRight: Radius.circular(4),
+                                              bottomRight: Radius.circular(4),
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            Icons.search,
+                                            color: Colors.white,
+                                            size: 13.sp,
+                                          ),
                                         ),
                                       ),
                                     ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Row(
-                              children: [
-
-                                /// DATE FIELD
-                                Container(
-                                  width: 15.w,
-                                  height: 6.h,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
                                   ),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(4),
-                                      bottomLeft: Radius.circular(4),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: IgnorePointer(
-                                      child: TextField(
-                                        controller: _dateController,
-                                        readOnly: true,
-                                        style: AppTextStyle.small(
-                                          size: 11.sp,
-                                          color: AppColors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintStyle: AppTextStyle.small(
-                                            size: 11.sp,
-                                            color: AppColors.grey,
-                                          ),
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                /// SEARCH BUTTON
-                                GestureDetector(
-                                  onTap: () {
-
-                                    /// CHECK EMPTY DATE
-                                    if (_dateController.text.isEmpty) return;
-
-                                    /// CONVERT STRING TO DATETIME
-                                    final selectedDate = DateFormat('dd-MM-yyyy')
-                                        .parse(_dateController.text);
-
-                                    /// CALL count function
-                                    addLeadCubit.fetchDashboardCounts(selectedDate);
-                                  },
-                                  child: Container(
-                                    height: 6.h,
-                                    width: 6.h,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.indigo,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(4),
-                                        bottomRight: Radius.circular(4),
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.search,
-                                      color: Colors.white,
-                                      size: 13.sp,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
-                          );
-                        },
-                        ),
 
-                           
                             SizedBox(width: 1.w),
 
                             /// ADD LEADS BUTTON
@@ -250,68 +264,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     //     ),
                     //   ],
                     // ),
-
                     SizedBox(height: 2.h),
 
                     /// CARDS
-                    Wrap(
-                      spacing: 2.w,
-                      runSpacing: 2.h,
-                      children: const [
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "NEW LEADS",
-                            message:
-                                'The combined count of new\nleads and unattended leads.',
-                            fromCard: 'NEW',
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "FOLLOWUP LEADS",
-                            message:
-                                'The current count of leads assigned \nfor today, including missed follow-up leads.',
-                            fromCard: 'FOLLOWUP',
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "CLOSED LEADS",
-                            message:
-                                'Closed leads can be filtered using a specific \ndate range to determine the count of \nclosed leads within that period.',
-                            fromCard: 'CLOSED',
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "TOTAL CALLED",
-                            message:
-                                'Total called can be filtered \nusing a specific date range to determine \nthe count of total leads within that period.',
-                            fromCard: 'TOTAL',
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "MISSED LEADS",
-                            message: 'Missed Leads',
-                            fromCard: 'MISSED',
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: DashboardCard(
-                            title: "TRANSFERRED LEADS",
-                            message:
-                                'Count of total leads \ntransferred to you.',
-                            fromCard: 'TRANSFERRED',
-                          ),
-                        ),
-                      ],
+                    BlocBuilder<AddLeadCubit, AddLeadState>(
+                      buildWhen: (previous, current) =>
+                          previous.isLoadingCounts != current.isLoadingCounts,
+                      builder: (context, state) {
+                        if (state.isLoadingCounts) {
+                          // ── Single centered loader for all 6 cards ─────────────────
+                          return SizedBox(
+                            height: 20.h,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          );
+                        }
+                        return Wrap(
+                          spacing: 2.w,
+                          runSpacing: 2.h,
+                          children: const [
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "NEW LEADS",
+                                message:
+                                    'The combined count of new\nleads and unattended leads.',
+                                fromCard: 'NEW',
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "FOLLOWUP LEADS",
+                                message:
+                                    'The current count of leads assigned \nfor today, including missed follow-up leads.',
+                                fromCard: 'FOLLOWUP',
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "CLOSED LEADS",
+                                message:
+                                    'Closed leads can be filtered using a specific \ndate range to determine the count of \nclosed leads within that period.',
+                                fromCard: 'CLOSED',
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "TOTAL CALLED",
+                                message:
+                                    'Total called can be filtered \nusing a specific date range to determine \nthe count of total leads within that period.',
+                                fromCard: 'TOTAL',
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "MISSED LEADS",
+                                message: 'Missed Leads',
+                                fromCard: 'MISSED',
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: DashboardCard(
+                                title: "TRANSFERRED LEADS",
+                                message:
+                                    'Count of total leads \ntransferred to you.',
+                                fromCard: 'TRANSFERRED',
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),

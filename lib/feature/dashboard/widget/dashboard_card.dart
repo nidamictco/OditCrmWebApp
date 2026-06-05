@@ -126,6 +126,8 @@ class _DashboardCardState extends State<DashboardCard> {
                     break;
                 }
 
+                
+
                 return Text(count, style: AppTextStyle.number(size: 14.sp));
               },
             ),

@@ -941,7 +941,27 @@ class _LeadsReportState extends State<LeadsReport> {
                               GestureDetector(
                                 onTap: hasSelection
                                     ? () => _deleteSelectedLeads(selectedLeads)
-                                    : null,
+                                    : () => ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Please select at least one lead before deleting.',
+                                              style: AppTextStyle.medium(
+                                                color: AppColors.white,
+                                                weight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            backgroundColor: AppColors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                          ),
+                                        ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 1.w,

@@ -94,6 +94,20 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   DateTime? _appliedToDate;
 
   void _applyFilters() {
+    final from = _parseDate(fromDate.text);
+  final to   = _parseDate(toDate.text);
+
+  // Re-fetch from Firestore with the new date range
+  // so records outside the original dashboard date are included
+  if (from != null) {
+    context.read<AddLeadCubit>().fetchDashboardLeads(
+      staffId:      widget.staff?.id ?? '',
+      role:         widget.staff?.staffType ?? 'Admin',
+      fromCard:     widget.fromCard,
+      selectedDate: from,
+      toDate:       to ?? from,
+    );
+  }
     setState(() {
       _appliedCategory = selectedCategory;
       _appliedLeadStage = selectedLeadStage;
@@ -121,29 +135,80 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
-    if (_appliedFromDate != null) {
-      final from = DateTime(
-        _appliedFromDate!.year,
-        _appliedFromDate!.month,
-        _appliedFromDate!.day,
-      );
-      result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
-          .toList();
-    }
-    if (_appliedToDate != null) {
-      final to = DateTime(
-        _appliedToDate!.year,
-        _appliedToDate!.month,
-        _appliedToDate!.day,
-        23,
-        59,
-        59,
-      );
-      result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
-          .toList();
-    }
+    // if (_appliedFromDate != null) {
+    //   final from = DateTime(
+    //     _appliedFromDate!.year,
+    //     _appliedFromDate!.month,
+    //     _appliedFromDate!.day,
+    //   );
+    //   result = result
+    //       .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from) )
+    //       .toList();
+    // }
+    // if (_appliedToDate != null) {
+    //   final to = DateTime(
+    //     _appliedToDate!.year,
+    //     _appliedToDate!.month,
+    //     _appliedToDate!.day,
+    //     23,
+    //     59,
+    //     59,
+    //   );
+    //   result = result
+    //       .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+    //       .toList();
+    // }
+     final from = _appliedFromDate;
+  final to   = _appliedToDate;
+
+  if (from != null || to != null) {
+    final fromDay = from != null
+        ? DateTime(from.year, from.month, from.day)
+        : null;
+    final toDay = to != null
+        ? DateTime(to.year, to.month, to.day, 23, 59, 59)
+        : null;
+
+    result = result.where((lead) {
+      // Pick the right date field based on which card opened this screen
+      DateTime? dateToCheck;
+
+      switch (widget.fromCard.toUpperCase()) {
+        case 'NEW':
+          dateToCheck = lead.createdAt;
+          break;
+        case 'FOLLOWUP':
+          dateToCheck = lead.followUpDate;
+          break;
+        case 'TOTAL':
+          dateToCheck = lead.calledDate;
+          break;
+        case 'CLOSED':
+        case 'MISSED':
+          // These are stage-based, not date-based.
+          // Allow all through — don't filter by date.
+          return true;
+        case 'TRANSFERRED':
+          // Check if any transfer falls in range
+          if (lead.transferLeads == null || lead.transferLeads!.isEmpty) {
+            return false;
+          }
+          return lead.transferLeads!.any((t) {
+            if (t.transferTime == null) return false;
+            if (fromDay != null && t.transferTime!.isBefore(fromDay)) return false;
+            if (toDay   != null && t.transferTime!.isAfter(toDay))   return false;
+            return true;
+          });
+        default:
+          dateToCheck = lead.createdAt;
+      }
+
+      if (dateToCheck == null) return false;
+      if (fromDay != null && dateToCheck.isBefore(fromDay)) return false;
+      if (toDay   != null && dateToCheck.isAfter(toDay))   return false;
+      return true;
+    }).toList();
+  }
 
     if (!_isPlaceholder(_appliedCategory)) {
       final cat = _appliedCategory!.trim().toUpperCase();
@@ -318,32 +383,52 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     super.dispose();
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   final cubit = context.read<AddLeadCubit>();
+
+  //   fromDate.text = DateFormat(
+  //     'dd-MM-yyyy',
+  //   ).format(widget.selectedDate ?? DateTime.now());
+
+  //   toDate.text = DateFormat(
+  //     'dd-MM-yyyy',
+  //   ).format(widget.selectedDate ?? DateTime.now());
+
+  //   log("Staff ID : ${widget.staff!.id!}");
+  //   log("Staff name : ${widget.staff!.name}");
+  //   log("Role : ${widget.staff?.staffType}");
+  //   log("From Card : ${widget.fromCard}");
+  //   log("Selected Date : ${widget.selectedDate}");
+
+  //   cubit.fetchDashboardLeads(
+  //     staffId: widget.staff!.id!,
+  //     role: widget.staff?.staffType ?? 'Admin',
+  //     fromCard: widget.fromCard ?? "",
+  //     selectedDate: widget.selectedDate ?? DateTime.now(),
+  //   );
+  // }
   @override
-  void initState() {
-    super.initState();
-    final cubit = context.read<AddLeadCubit>();
+void initState() {
+  super.initState();
 
-    fromDate.text = DateFormat(
-      'dd-MM-yyyy',
-    ).format(widget.selectedDate ?? DateTime.now());
+  final initialDate = widget.selectedDate ?? DateTime.now();
 
-    toDate.text = DateFormat(
-      'dd-MM-yyyy',
-    ).format(widget.selectedDate ?? DateTime.now());
+  fromDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
+  toDate.text   = DateFormat('dd-MM-yyyy').format(initialDate);
 
-    log("Staff ID : ${widget.staff!.id!}");
-    log("Staff name : ${widget.staff!.name}");
-    log("Role : ${widget.staff?.staffType}");
-    log("From Card : ${widget.fromCard}");
-    log("Selected Date : ${widget.selectedDate}");
+  // ← Initialize applied dates so filter works immediately
+  _appliedFromDate = initialDate;
+  _appliedToDate   = initialDate;
 
-    cubit.fetchDashboardLeads(
-      staffId: widget.staff!.id!,
-      role: widget.staff?.staffType ?? 'Admin',
-      fromCard: widget.fromCard ?? "",
-      selectedDate: widget.selectedDate ?? DateTime.now(),
-    );
-  }
+  context.read<AddLeadCubit>().fetchDashboardLeads(
+    staffId:      widget.staff?.id ?? '',
+    role:         widget.staff?.staffType ?? 'Admin',
+    fromCard:     widget.fromCard,
+    selectedDate: initialDate,
+  );
+}
 
   @override
   Widget build(BuildContext context) {

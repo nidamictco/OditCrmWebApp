@@ -4,6 +4,7 @@ import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:oxdo/core/theme/asset_resources.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
@@ -66,7 +67,8 @@ class _SidebarItemState extends State<SidebarItem> {
     // ─── Which report sub-items are visible ───────────────────────────────
     final reportChildren = [
       if (perm.canViewStaffReport) subMenuItem("Staff Reports", 22),
-      if (perm.canViewTransferReport) subMenuItem("Transferred Leads Reports", 23),
+      if (perm.canViewTransferReport)
+        subMenuItem("Transferred Leads Reports", 23),
       if (perm.canViewTotalReport) subMenuItem("Total Leads Reports", 2),
       // if (perm.canViewLeadSource) subMenuItem("Scheduled Leads Reports", 24),
       if (perm.canViewRejectedReport) subMenuItem("Rejected Leads Reports", 25),
@@ -200,7 +202,13 @@ class _SidebarItemState extends State<SidebarItem> {
   Widget sidebarItem(IconData icon, String title, int index) {
     final isSelected = widget.selectedIndex == index;
     return InkWell(
-      onTap: () => widget.onItemSelected(index),
+      onTap: () {
+        // if (index == 0) {
+        //   final today = DateTime.now();
+        //   context.read<AddLeadCubit>().fetchDashboardCounts(today);
+        // }
+        widget.onItemSelected(index);
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(

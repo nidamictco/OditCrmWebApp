@@ -62,7 +62,15 @@ class AddLeadState {
   final String missedLeadCount;
   final String transferredCount;
 
+  final bool isLoadingCounts;
+
   final DateTime? selectedDashboardDate;
+
+  final String profileClosedCount;
+final String profileTotalCalledCount;
+final String profileConnectedCount;
+final String profileNotConnectedCount;
+final bool   isLoadingProfileCounts;
 
   const AddLeadState({
     this.status = AddLeadStatus.initial,
@@ -100,9 +108,15 @@ class AddLeadState {
     this.notConnectedCount = '0',
     this.missedLeadCount = '0',
     this.transferredCount = '0',
+    this.isLoadingCounts = false,
     this.selectedDashboardDate,
     this.leadChartCounts = const {},
     this.leadCategoryTableRows = const [],
+    this.profileClosedCount = '0',
+    this.profileTotalCalledCount = '0',
+    this.profileConnectedCount = '0',
+    this.profileNotConnectedCount = '0',
+    this.isLoadingProfileCounts = false,
   });
 
   bool get isLoading => status == AddLeadStatus.loading;
@@ -144,10 +158,15 @@ class AddLeadState {
     String? notConnectedCount,
     String? missedLeadCount,
     String? transferredCount,
+    bool? isLoadingCounts,
     DateTime? selectedDashboardDate,
     Map<String, int>? leadChartCounts,
     List<LeadCategoryTableRow>? leadCategoryTableRows,
-
+    String?  profileClosedCount,
+  String?  profileTotalCalledCount,
+  String?  profileConnectedCount,
+  String?  profileNotConnectedCount,
+  bool?    isLoadingProfileCounts,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
     bool clearSuccess = false,
@@ -214,10 +233,16 @@ class AddLeadState {
       notConnectedCount: notConnectedCount ?? this.notConnectedCount,
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,
       transferredCount: transferredCount ?? this.transferredCount,
+      isLoadingCounts: isLoadingCounts ?? this.isLoadingCounts,
       selectedDashboardDate:
           selectedDashboardDate ?? this.selectedDashboardDate,
       leadChartCounts: leadChartCounts ?? this.leadChartCounts,
       leadCategoryTableRows: leadCategoryTableRows ?? this.leadCategoryTableRows,
+     profileClosedCount:        profileClosedCount        ?? this.profileClosedCount,
+    profileTotalCalledCount:   profileTotalCalledCount   ?? this.profileTotalCalledCount,
+    profileConnectedCount:     profileConnectedCount     ?? this.profileConnectedCount,
+    profileNotConnectedCount:  profileNotConnectedCount  ?? this.profileNotConnectedCount,
+    isLoadingProfileCounts:    isLoadingProfileCounts    ?? this.isLoadingProfileCounts,
     );
   }
 

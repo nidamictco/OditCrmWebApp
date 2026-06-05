@@ -193,7 +193,7 @@ class _MainScreenState extends State<MainScreen> {
           hasPermission: perm.canViewDashboard,
           child: BlocProvider(
             create: (context) =>
-                AddLeadCubit()..fetchDashboardCounts(DateTime.now()),
+                AddLeadCubit(),//..fetchDashboardCounts(DateTime.now()),
             child: DashboardScreen(),
           ),
         );
@@ -432,14 +432,35 @@ class _MainScreenState extends State<MainScreen> {
             child: StaffReports(),
           ),
         );
+      // case 23:
+      //   return PermissionGuard(
+      //     hasPermission: perm.canViewTransferReport,
+      //     child: BlocProvider(
+      //       create: (_) => AddLeadCubit()..fetchLeads(),
+      //       child: TransferLeadsReport(),
+      //     ),
+      //   );
       case 23:
-        return PermissionGuard(
-          hasPermission: perm.canViewTransferReport,
-          child: BlocProvider(
-            create: (_) => AddLeadCubit()..fetchLeads(),
-            child: TransferLeadsReport(),
+  return PermissionGuard(
+    hasPermission: perm.canViewTransferReport,
+    child: FutureBuilder(
+      future: SessionService().getSavedUser(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final user = snapshot.data;
+        return BlocProvider(
+          create: (_) => AddLeadCubit(),
+          child: TransferLeadsReport(
+            currentUserId:   user?.id ?? '',
+            currentUserRole: user?.staffType ?? '',
+            currentUserName: user?.name ?? '',
           ),
         );
+      },
+    ),
+  );
       case 24:
         return PermissionGuard(
           hasPermission: perm.canViewScheduledReport,
