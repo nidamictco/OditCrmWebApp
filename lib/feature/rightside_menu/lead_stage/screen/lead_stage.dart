@@ -435,7 +435,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                 child: CustomTable(
                                   columns: [
                                     TableColumn(title: "#", flex: 1),
-                                    TableColumn(title: "Lead Source", flex: 4),
+                                    TableColumn(title: "Lead Status", flex: 4),
                                     TableColumn(title: "Created By", flex: 4),
                                     TableColumn(title: "Action", flex: 2),
                                   ],

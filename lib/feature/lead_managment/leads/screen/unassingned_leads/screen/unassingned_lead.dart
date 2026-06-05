@@ -680,7 +680,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                                 ),
                                               ),
                                               backgroundColor:
-                                                  AppColors.primary,
+                                                  AppColors.red,
                                               behavior:
                                                   SnackBarBehavior.floating,
                                               shape: RoundedRectangleBorder(
@@ -722,7 +722,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                                   color: AppColors.white,
                                                   weight: FontWeight.w400,
                                                 ),
-                                              ),
+                                              ), 
                                               backgroundColor:
                                                   AppColors.primary,
                                               behavior:
@@ -819,11 +819,12 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                         ),
                       ],
                     ),
-                    onClose: () => Navigator.pop(dialogContext),
+                    // onClose: () => Navigator.pop(dialogContext),
                     onSubmit: () async {
                       if (selectedStaffId == null || selectedStaffName == null)
                         return;
 
+Navigator.pop(dialogContext);
                       for (final lead in selectedLeads) {
                         await context.read<AddLeadCubit>().assignStaff(
                           leadId: lead.id!,

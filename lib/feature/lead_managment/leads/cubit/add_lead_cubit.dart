@@ -194,6 +194,7 @@ if (isClosed) return;
     required String role,
     required String fromCard,
     required DateTime selectedDate,
+    DateTime? toDate,
   }) async {
 
 
@@ -207,6 +208,7 @@ if (isClosed) return;
         role: role,
         fromCard: fromCard,
         selectedDate: selectedDate,
+        toDate: toDate,
       );
 
       emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
@@ -815,60 +817,141 @@ if (isDuplicate) {
 
   // ── Fetch lead count ────────────────────────────────────────────────────────────
 
-  // Future<void> fetchDashboardCounts(DateTime selectedDate) async {
-  //   try {
-  //     final user = await SessionService().getSavedUser();
 
-  //     if (user == null) return;
+// Future<void> fetchDashboardCounts(
+//   DateTime selectedDate, {
+//   String? staffId,  // ← add these
+//   String? role,
+// }) async {
+//   // emit(state.copyWith(isLoadingCounts: true));
+//   try {
+//     final user = await SessionService().getSavedUser();
+//     if (isClosed) return;
+//     if (user == null) return;
 
-  //     final counts = await _leadRepository.fetchLeadCounts(
-  //       staffId: user.id ?? '',
-  //       selectedDate: selectedDate,
-  //       role: user.staffType ?? '',
-  //     );
-
-  //     emit(
-  //       state.copyWith(
-  //         newLeadCount: counts.newLeadCount.toString(),
-  //         followUpCount: counts.followUpCount.toString(),
-  //         closedLeadCount: counts.closedLeadCount.toString(),
-  //         totalCalledCount: counts.totalCalledCount.toString(),
-  //         missedLeadCount: counts.missedLeadCount.toString(),
-  //         transferredCount: counts.transferredCount.toString(),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     log("Dashboard Count Error : $e");
-  //   }
-  // }
+//     final counts = await _leadRepository.fetchLeadCounts(
+//       staffId: staffId ?? user.id ?? '',       // ← use passed staffId
+//       selectedDate: selectedDate,
+//       role: role ?? user.staffType ?? '',      // ← use passed role
+//     );
+// if (isClosed) return;
+//     emit(
+//       state.copyWith(
+//          isLoadingCounts: false,
+//         newLeadCount: counts.newLeadCount.toString(),
+//         followUpCount: counts.followUpCount.toString(),
+//         closedLeadCount: counts.closedLeadCount.toString(),
+//         totalCalledCount: counts.totalCalledCount.toString(),
+//         missedLeadCount: counts.missedLeadCount.toString(),
+//         transferredCount: counts.transferredCount.toString(),
+//       ),
+//     );
+//   } catch (e) {
+//     log("Dashboard Count Error : $e");
+//      // ── Always turn off loading even on error ──────────────────────
+//     if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
+//   }
+// }
+// ── Dashboard fetch (unchanged role logic, fixes loading flag) ────────────
 Future<void> fetchDashboardCounts(
   DateTime selectedDate, {
-  String? staffId,  // ← add these
+  String? staffId,
   String? role,
 }) async {
+  emit(state.copyWith(isLoadingCounts: true)); // ← was commented out, now restored
+
   try {
     final user = await SessionService().getSavedUser();
     if (isClosed) return;
-    if (user == null) return;
+    if (user == null) {
+      emit(state.copyWith(isLoadingCounts: false));
+      return;
+    }
 
     final counts = await _leadRepository.fetchLeadCounts(
-      staffId: staffId ?? user.id ?? '',       // ← use passed staffId
-      selectedDate: selectedDate,
-      role: role ?? user.staffType ?? '',      // ← use passed role
+      staffId:           staffId ?? user.id ?? '',
+      selectedDate:      selectedDate,
+      role:              role ?? user.staffType ?? '',
+      forceStaffFilter:  false, // ← dashboard uses normal admin/staff logic
     );
-if (isClosed) return;
-    emit(
-      state.copyWith(
-        newLeadCount: counts.newLeadCount.toString(),
-        followUpCount: counts.followUpCount.toString(),
-        closedLeadCount: counts.closedLeadCount.toString(),
-        totalCalledCount: counts.totalCalledCount.toString(),
-        missedLeadCount: counts.missedLeadCount.toString(),
-        transferredCount: counts.transferredCount.toString(),
-      ),
-    );
+
+    if (isClosed) return;
+
+    log('[fetchDashboardCounts] closed=${counts.closedLeadCount} '
+        'total=${counts.totalCalledCount}');
+
+    emit(state.copyWith(
+      isLoadingCounts:  false,
+      newLeadCount:     counts.newLeadCount.toString(),
+      followUpCount:    counts.followUpCount.toString(),
+      closedLeadCount:  counts.closedLeadCount.toString(),
+      totalCalledCount: counts.totalCalledCount.toString(),
+      missedLeadCount:  counts.missedLeadCount.toString(),
+      transferredCount: counts.transferredCount.toString(),
+    ));
   } catch (e) {
-    log("Dashboard Count Error : $e");
+    log('[fetchDashboardCounts] Error: $e');
+    if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
+  }
+}
+
+// ── Staff profile fetch (ALWAYS filters by staffId) ───────────────────────
+Future<void> fetchProfileCounts(
+  DateTime selectedDate, {
+  required String staffId,
+  required String role,
+}) async {
+  emit(state.copyWith(isLoadingProfileCounts: true));
+
+  try {
+    final counts = await _leadRepository.fetchLeadCounts(
+      staffId:           staffId,
+      selectedDate:      selectedDate,
+      role:              role,
+      forceStaffFilter:  true, // ← ALWAYS filter by this specific staffId
+    );
+
+    if (isClosed) return;
+
+    log('[fetchProfileCounts] staffId=$staffId closed=${counts.closedLeadCount} '
+        'total=${counts.totalCalledCount}');
+
+    emit(state.copyWith(
+      isLoadingProfileCounts:  false,
+      profileClosedCount:      counts.closedLeadCount.toString(),
+      profileTotalCalledCount: counts.totalCalledCount.toString(),
+    ));
+  } catch (e) {
+    log('[fetchProfileCounts] Error: $e');
+    if (!isClosed) emit(state.copyWith(isLoadingProfileCounts: false));
+  }
+}
+
+// ── Call status fetch (writes to profile-specific fields) ─────────────────
+Future<void> fetchCallStatusCounts({
+  required String staffId,
+  required String role,
+  DateTime? selectedDate,
+  DateTime? toDate,
+}) async {
+  try {
+    final counts = await _leadRepository.fetchCallStatusCounts(
+      staffId:      staffId,
+      role:         role,
+      selectedDate: selectedDate,
+      toDate:       toDate,
+    );
+
+    log('[fetchCallStatusCounts] staffId=$staffId total=${counts['totalCalled']} '
+        'connected=${counts['connected']} notConnected=${counts['notConnected']}');
+
+    emit(state.copyWith(
+      profileTotalCalledCount:  counts['totalCalled'].toString(), // ← profile field
+      profileConnectedCount:    counts['connected'].toString(),
+      profileNotConnectedCount: counts['notConnected'].toString(),
+    ));
+  } catch (e) {
+    log('[fetchCallStatusCounts] Error: $e');
   }
 }
   // ----------search----------
@@ -970,28 +1053,28 @@ if (isClosed) return;
 }
 
 
-Future<void> fetchCallStatusCounts({
-  required String staffId,
-  required String role,
-  DateTime? selectedDate,        
-  DateTime? toDate, 
-}) async {
-  try {
-    final counts = await _leadRepository.fetchCallStatusCounts(
-      staffId: staffId,
-      role: role,
-      selectedDate: selectedDate,  
-      toDate: toDate,    
-    );
-    emit(state.copyWith(
-      totalCalledCount: counts['totalCalled'].toString(),
-      connectedCount: counts['connected'].toString(),  
-      notConnectedCount: counts['notConnected'].toString(), 
-    ));
-  } catch (e) {
-    log('[AddLeadCubit] fetchCallStatusCounts error: $e');
-  }
-}
+// Future<void> fetchCallStatusCounts({
+//   required String staffId,
+//   required String role,
+//   DateTime? selectedDate,        
+//   DateTime? toDate, 
+// }) async {
+//   try {
+//     final counts = await _leadRepository.fetchCallStatusCounts(
+//       staffId: staffId,
+//       role: role,
+//       selectedDate: selectedDate,  
+//       toDate: toDate,    
+//     );
+//     emit(state.copyWith(
+//       totalCalledCount: counts['totalCalled'].toString(),
+//       connectedCount: counts['connected'].toString(),  
+//       notConnectedCount: counts['notConnected'].toString(), 
+//     ));
+//   } catch (e) {
+//     log('[AddLeadCubit] fetchCallStatusCounts error: $e');
+//   }
+// }
 
   Future<AddLeadModel?> getLeadById(String leadId) async {
     try {

@@ -16,7 +16,12 @@ import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 class TransferLeadsReport extends StatefulWidget {
-  const TransferLeadsReport({super.key});
+  final String currentUserId;
+  final String currentUserRole;
+  final String currentUserName;
+  const TransferLeadsReport({super.key, required this.currentUserId,
+    required this.currentUserRole,
+    required this.currentUserName,});
 
   @override
   State<TransferLeadsReport> createState() => _TransferLeadsReportState();
@@ -37,6 +42,28 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
   int _tableKey = 0;
   int _currentPage = 1;
 
+   List<TransferDetails> _getTransfersForRole(List<AddLeadModel> leads) {
+  final allTransfers = leads
+      .where((l) => l.transferLeads != null && l.transferLeads!.isNotEmpty)
+      .expand((l) => l.transferLeads!)
+      .where((t) =>
+          t.fromStaff.trim().toLowerCase() !=
+          t.toStaff.trim().toLowerCase())
+      .toList();
+
+  if (widget.currentUserRole.toLowerCase() == 'admin') {
+    // Admin sees all transfers
+    return allTransfers;
+  } else {
+    // Staff sees only transfers they were involved in
+    return allTransfers.where((t) =>
+        t.fromStaffId == widget.currentUserId ||
+        t.toStaffId   == widget.currentUserId,
+    ).toList();
+  }
+}
+            
+
   @override
   void initState() {
     super.initState();
@@ -49,14 +76,17 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
     _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AddLeadCubit>().fetchLeads(); // ← only once
+      _applyFilters();
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<AddLeadCubit>().fetchLeads();
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   context.read<AddLeadCubit>().fetchLeads();
+  // }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────
   String? _appliedCategory;
@@ -264,7 +294,6 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                               Expanded(
                                 child: Dropdown(
                                   hint: 'select category',
-                                  showHelp: true,
                                   items: categoryItems,
                                   selectedValue: selectedCategory,
                                   onChanged: (val) {
@@ -445,32 +474,39 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                 state.listStatus == LeadListStatus.loaded
                                 ? state.leads.toList()
                                 : [];
-                            final List<TransferDetails> allTransfers =
-                                rawList
-                                    .where(
-                                      (l) =>
-                                          l.transferLeads != null &&
-                                          l.transferLeads!.isNotEmpty,
-                                    )
-                                    .expand((l) => l.transferLeads!)
-                                    .where(
-      (t) =>
-          t.fromStaff.trim().toLowerCase() !=
-          t.toStaff.trim().toLowerCase(),
-    )
-                                    .toList()
-                                  ..sort((a, b) {
-                                    // nulls go to the end
-                                    if (a.transferTime == null &&
-                                        b.transferTime == null)
-                                      return 0;
-                                    if (a.transferTime == null) return 1;
-                                    if (b.transferTime == null) return -1;
-                                    // latest first
-                                    return b.transferTime!.compareTo(
-                                      a.transferTime!,
-                                    );
-                                  });
+                            // final List<TransferDetails> allTransfers =
+                            //     rawList
+                            //         .where(
+                            //           (l) =>
+                            //               l.transferLeads != null &&
+                            //               l.transferLeads!.isNotEmpty,
+                            //         )
+                            //         .expand((l) => l.transferLeads!)
+                            //         .where(
+                            //           (t) =>
+                            //               t.fromStaff.trim().toLowerCase() !=
+                            //               t.toStaff.trim().toLowerCase(),
+                            //         )
+                            //         .toList()
+                            //       ..sort((a, b) {
+                            //         // nulls go to the end
+                            //         if (a.transferTime == null &&
+                            //             b.transferTime == null)
+                            //           return 0;
+                            //         if (a.transferTime == null) return 1;
+                            //         if (b.transferTime == null) return -1;
+                            //         // latest first
+                            //         return b.transferTime!.compareTo(
+                            //           a.transferTime!,
+                            //         );
+                            //       });
+                                          final List<TransferDetails> allTransfers = _getTransfersForRole(rawList)
+  ..sort((a, b) {
+    if (a.transferTime == null && b.transferTime == null) return 0;
+    if (a.transferTime == null) return 1;
+    if (b.transferTime == null) return -1;
+    return b.transferTime!.compareTo(a.transferTime!);
+  });
 
                             final allFiltered = _filteredLeads(allTransfers);
                             final totalCount = allFiltered.length;

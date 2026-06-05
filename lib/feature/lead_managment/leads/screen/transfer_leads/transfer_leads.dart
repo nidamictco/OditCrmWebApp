@@ -708,6 +708,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                 selectedStaffName == null)
                                               return;
 
+
                                             // for (final lead in selectedLeads) {
                                             //   await context.read<AddLeadCubit>().assignStaff(
                                             //     leadId: lead.id!,
@@ -715,6 +716,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                             //     staffName: selectedStaffName!,
                                             //   );
                                             // }
+                                            Navigator.pop(context);
                                             // ── Only transfer leads not already assigned to the selected staff ──
                                             final leadsToTransfer =
                                                 selectedLeads
@@ -778,7 +780,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                   );
                                             }
 
-                                            Navigator.pop(context);
+                                            // Navigator.pop(context);
 
                                             // ── Show how many were transferred vs skipped ──
                                             final skippedCount =
@@ -823,7 +825,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         .showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              'Please select atleast one lead to transfer leads.',
+                                              'Please select at least one lead to transfer leads.',
                                               style: AppTextStyle.medium(
                                                 color: AppColors.white,
                                                 weight: FontWeight.w400,

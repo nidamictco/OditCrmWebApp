@@ -104,7 +104,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         _appliedFromDate!.day,
       );
       result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .where((l) => l.calledDate != null && !l.calledDate!.isBefore(from))
           .toList();
     }
     if (_appliedToDate != null) {
@@ -117,7 +117,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         59,
       );
       result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .where((l) => l.calledDate != null && !l.calledDate!.isAfter(to))
           .toList();
     }
 
@@ -155,6 +155,28 @@ class _RejectedLeadsState extends State<RejectedLeads> {
             (l) =>
                 l.assignedStaff.toLowerCase() ==
                 _appliedStaff!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+    // ---- Rejected Reason---
+    if (!_isPlaceholder(_rejectedReason)) {
+      result = result
+          .where(
+            (l) =>
+                l.leadTag != null &&
+                l.leadTag!.toLowerCase() ==
+                    _rejectedReason!.trim().toLowerCase(),
+          )
+          .toList();
+    }
+    // ---- Call Status---
+    if (!_isPlaceholder(_callStatus)) {
+      result = result
+          .where(
+            (l) =>
+                l.callResult != null &&
+                l.callResult!.toLowerCase() ==
+                    _callStatus!.trim().toLowerCase(),
           )
           .toList();
     }
@@ -299,6 +321,22 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                           "Negative",
                           "Normal",
                         ];
+                        const callStatusItems = [
+                          "Connected",
+                          "Busy",
+                          "Not Connected",
+                          "Wrong Number",
+                          "Switched Off",
+                          "Rejected",
+                          "Out of Coverage",
+                        ];
+                        const rejectedReasonItems = [
+                          "Costly",
+                          "Not Interested",
+                          "Not Responding",
+                          "Wrong Lead",
+                          "Other",
+                        ];
                         return Padding(
                           padding: EdgeInsets.only(
                             left: 2.w,
@@ -392,7 +430,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                     child: Dropdown(
                                       label: "Rejected Reason",
                                       hint: 'select reason',
-                                      items: [],
+                                      items: rejectedReasonItems,
                                       selectedValue: selectedRejectedReason,
                                       onChanged: (val) {
                                         setState(() {
@@ -423,7 +461,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                     child: Dropdown(
                                       label: "Call Status",
                                       hint: 'select status',
-                                      items: [],
+                                      items: callStatusItems,
                                       selectedValue: selectedCallStatus,
                                       onChanged: (val) {
                                         setState(() {
