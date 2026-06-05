@@ -6728,6 +6728,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   // ─────────────────────────────────────────────────────────────────────────────
 
   Widget _buildSubmitButton() {
+
     return Padding(
       padding: EdgeInsets.only(right: 2.w),
       child: Container(
@@ -6754,7 +6755,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: ElevatedButton(
                     onPressed: isBusy ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.green,
+                      backgroundColor: _submitFocus.hasFocus?AppColors.primary:AppColors.green,
                       disabledBackgroundColor:
                       AppColors.green.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
