@@ -67,11 +67,11 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
   @override
   void initState() {
     super.initState();
-    // context.read<AddLeadCubit>().fetchLeads();
-    // final cubit = context.read<AddLeadCubit>();
-    // cubit.initialize();
-    // cubit.fetchLeads();
-    // cubit.fetchStaff();
+    context.read<AddLeadCubit>().fetchLeads();
+    final cubit = context.read<AddLeadCubit>();
+    cubit.initialize();
+    cubit.fetchLeads();
+    cubit.fetchStaff();
 
     _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());

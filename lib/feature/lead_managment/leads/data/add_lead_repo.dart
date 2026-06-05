@@ -672,6 +672,7 @@ class AddLeadRepository implements IAddLeadRepository {
     batch.update(leadRef, {
       'assignedStaff':   transfer.toStaff,
       'assignedStaffId': transfer.toStaffId,
+      'leadStage':      'TRANSFERRED',
       'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
     });
 
@@ -1176,7 +1177,7 @@ Future<DashboardCountModel> fetchLeadCounts({
       'Follow Up': 0,
       'Rejected': 0,
       'Closed': 0,
-      'Pending': 0,
+      'Transferred': 0,
     };
 
     for (final doc in snap.docs) {
@@ -1197,7 +1198,10 @@ Future<DashboardCountModel> fetchLeadCounts({
         case 'CLOSED':
           counts['Closed'] = (counts['Closed'] ?? 0) + 1;
           break;
-        default:
+        case 'TRANSFERRED':
+          counts['Transferred'] = (counts['Transferred'] ?? 0) + 1;
+          break;
+        default: 
           counts['Pending'] = (counts['Pending'] ?? 0) + 1;
           break;
       }

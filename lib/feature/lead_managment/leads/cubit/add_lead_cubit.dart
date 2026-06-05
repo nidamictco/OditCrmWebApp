@@ -799,6 +799,7 @@ if (isDuplicate) {
         return l.copyWith(
           assignedStaff: toStaff,
           assignedStaffId: toStaffId,
+          leadStage: 'TRANSFERRED',
           transferLeads: [...(l.transferLeads ?? []), transfer],
         );
       }).toList();
