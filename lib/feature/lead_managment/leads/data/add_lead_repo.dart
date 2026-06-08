@@ -54,9 +54,11 @@ abstract class IAddLeadRepository {
     required String staffId,
     required DateTime selectedDate,
     required String role,
-  bool forceStaffFilter = false,
+    bool forceStaffFilter = false,
   });
-  Future<void> transferLead(String leadId, TransferDetails transfer,{
+  Future<void> transferLead(
+    String leadId,
+    TransferDetails transfer, {
     required String changedByName,
     required String changedById,
   });
@@ -177,7 +179,6 @@ class AddLeadRepository implements IAddLeadRepository {
         }),
       );
       return allLeads;
-
     } on FirebaseException catch (e) {
       debugPrint('[fetchLeads] Firebase error: ${e.code} — ${e.message}');
       rethrow;
@@ -298,7 +299,7 @@ class AddLeadRepository implements IAddLeadRepository {
     required String role,
     required String fromCard,
     required DateTime selectedDate,
-      DateTime? toDate,
+    DateTime? toDate,
   }) async {
     Query<Map<String, dynamic>> query = _collection;
 
@@ -342,24 +343,36 @@ class AddLeadRepository implements IAddLeadRepository {
       //       date.day == selectedDate.day;
       // }
 
-       final effectiveTo = toDate ?? selectedDate;
+      final effectiveTo = toDate ?? selectedDate;
 
-    final fromDay = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    );
-    final toDay = DateTime(
-      effectiveTo.year,
-      effectiveTo.month,
-      effectiveTo.day,
-      23, 59, 59,
-    );
+      final fromDay = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+      );
+      final toDay = DateTime(
+        effectiveTo.year,
+        effectiveTo.month,
+        effectiveTo.day,
+        23,
+        59,
+        59,
+      );
 
-    bool isInRange(DateTime? date) {
-      if (date == null) return false;
-      return !date.isBefore(fromDay) && !date.isAfter(toDay);
-    }
+      bool isInRange(DateTime? date) {
+        if (date == null) return false;
+        return !date.isBefore(fromDay) && !date.isAfter(toDay);
+      }
+
+      bool isbeforeFromDay(DateTime? date) {
+        if (date == null) return false;
+        return date.isBefore(fromDay);
+      }
+
+      bool isAfterToDay(DateTime? date) {
+        if (date == null) return false;
+        return date.isAfter(toDay);
+      }
 
       /// CARD FILTER
       switch (fromCard.toUpperCase()) {
@@ -367,21 +380,25 @@ class AddLeadRepository implements IAddLeadRepository {
         case 'NEW':
           return allLeads.where((lead) {
             return isInRange(lead.createdAt) &&
-        lead.leadStage.toUpperCase() == 'NEW' && lead.followUp!.isEmpty;
+                lead.leadStage.toUpperCase() == 'NEW' &&
+                // lead.followUp!.isEmpty;
+                (lead.followUp == null || lead.followUp!.isEmpty);
           }).toList();
 
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
           return allLeads.where((lead) {
             return isInRange(lead.followUpDate) &&
-                lead.leadStage.toUpperCase() != 'CLOSED'&&
-                lead.leadStage.toUpperCase() != 'REJECTED';
+                lead.leadStage.toUpperCase() == 'FOLLOWUP'; // &&
+            // lead.leadStage.toUpperCase() != 'CLOSED'&&
+            // lead.leadStage.toUpperCase() != 'REJECTED'&& ;
           }).toList();
 
         /// CLOSED LEADS
         case 'CLOSED':
           return allLeads.where((lead) {
-            return lead.leadStage.toUpperCase() == 'CLOSED';
+            return lead.leadStage.toUpperCase() == 'CLOSED' &&
+                isInRange(lead.calledDate);
           }).toList();
 
         /// TOTAL CALLED
@@ -393,7 +410,9 @@ class AddLeadRepository implements IAddLeadRepository {
         /// MISSED / REJECTED
         case 'MISSED':
           return allLeads.where((lead) {
-            return lead.leadStage.toUpperCase() == 'REJECTED';
+            return (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
+                lead.leadStage.toUpperCase() == 'NEW') &&
+                    isbeforeFromDay(lead.followUpDate);
           }).toList();
 
         /// TRANSFERRED
@@ -427,11 +446,11 @@ class AddLeadRepository implements IAddLeadRepository {
   @override
   Future<void> updateLead(String id, AddLeadModel lead) async {
     if (id.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
-    
-  //    final data = lead.toFirestore();
-  // data.remove('createdAt'); // ✅ prevent createdAt from being overwritten
-  // data['updatedAt'] = FieldValue.serverTimestamp();
-    
+
+    //    final data = lead.toFirestore();
+    // data.remove('createdAt'); // ✅ prevent createdAt from being overwritten
+    // data['updatedAt'] = FieldValue.serverTimestamp();
+
     await _collection.doc(id).update(lead.toUpdateMap());
   }
 
@@ -528,8 +547,8 @@ class AddLeadRepository implements IAddLeadRepository {
     String? previousPriority,
     String changedByName = '',
     String changedById = '',
-    String leadName = '',   
-  String leadPhone = '', 
+    String leadName = '',
+    String leadPhone = '',
   }) async {
     if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
@@ -546,17 +565,29 @@ class AddLeadRepository implements IAddLeadRepository {
 
     // 2. Update lead document
     final leadRef = _collection.doc(leadId);
-    batch.update(leadRef, {
-      'leadStage': followUp.leadStage,
-      'priority': followUp.priority,
-      'leadCategory': followUp.leadCategory,
-      'nextFollowUpDate': followUp.nextFollowUpDate,
-      'lastCalledDate': followUp.calledDate,
-      'callResult': followUp.calledStatus,
-      'leadTag': followUp.leadTag,
-      'updatedAt': FieldValue.serverTimestamp(),
-      // 'remarks' : followUp.remarks,
-    });
+    // batch.update(leadRef, {
+    //   'leadStage': followUp.leadStage,
+    //   'priority': followUp.priority,
+    //   'leadCategory': followUp.leadCategory,
+    //   'nextFollowUpDate': followUp.nextFollowUpDate,
+    //   'lastCalledDate': followUp.calledDate,
+    //   'callResult': followUp.calledStatus,
+    //   'leadTag': followUp.leadTag,
+    //   'updatedAt': FieldValue.serverTimestamp(),
+    //   // 'remarks' : followUp.remarks,
+    // });
+    // In addFollowUp(), inside the batch.update(leadRef, {...}):
+batch.update(leadRef, {
+  'leadStage': followUp.leadStage,
+  'priority': followUp.priority,
+  'leadCategory': followUp.leadCategory,
+  'nextFollowUpDate': followUp.nextFollowUpDate,
+  'lastCalledDate': followUp.calledDate,
+  'callResult': followUp.calledStatus,
+  'leadTag': followUp.leadTag,
+  'updatedAt': FieldValue.serverTimestamp(),
+  'hasFollowUp': true,   // ← ADD THIS ONE LINE
+});
 
     final now = DateTime.now();
 
@@ -574,9 +605,9 @@ class AddLeadRepository implements IAddLeadRepository {
         changedById: changedById,
         changedAt: now,
         previousValue: followUp.calledStatus,
-         leadId: leadId,       // ← add
-    leadName: leadName,   // ← add
-    leadPhone: leadPhone, // ← add
+        leadId: leadId, // ← add
+        leadName: leadName, // ← add
+        leadPhone: leadPhone, // ← add
         newValue: DateFormat(
           'dd-MM-yyyy HH:mm',
         ).format(followUp.nextFollowUpDate),
@@ -650,8 +681,10 @@ class AddLeadRepository implements IAddLeadRepository {
     log('[AddLeadRepository] FollowUp + activities written for lead: $leadId');
   }
 
-@override
-  Future<void> transferLead(String leadId, TransferDetails transfer, {
+  @override
+  Future<void> transferLead(
+    String leadId,
+    TransferDetails transfer, {
     required String changedByName,
     required String changedById,
   }) async {
@@ -670,71 +703,79 @@ class AddLeadRepository implements IAddLeadRepository {
     // 2. Update the lead document
     final leadRef = _collection.doc(leadId);
     batch.update(leadRef, {
-      'assignedStaff':   transfer.toStaff,
+      'assignedStaff': transfer.toStaff,
       'assignedStaffId': transfer.toStaffId,
-      'leadStage':      'TRANSFERRED',
+      'leadStage': 'TRANSFERRED',
       'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
     });
 
     // 3. Log the transfer activity
-    final activityRef = _collection
-        .doc(leadId)
-        .collection('ACTIVITIES')
-        .doc();
-    batch.set(activityRef, ActivityModel(
-      id: '',
-      type: ActivityType.staffAssigned,
-      changedBy: changedByName,
-      changedById: changedById,
-      changedAt: DateTime.now(),
-      previousValue: transfer.fromStaff,
-      newValue: transfer.toStaff,
-      description:
-      'Lead transferred from ${transfer.fromStaff} to ${transfer.toStaff}.',
-    ).toFirestore());
+    final activityRef = _collection.doc(leadId).collection('ACTIVITIES').doc();
+    batch.set(
+      activityRef,
+      ActivityModel(
+        id: '',
+        type: ActivityType.staffAssigned,
+        changedBy: changedByName,
+        changedById: changedById,
+        changedAt: DateTime.now(),
+        previousValue: transfer.fromStaff,
+        newValue: transfer.toStaff,
+        description:
+            'Lead transferred from ${transfer.fromStaff} to ${transfer.toStaff}.',
+      ).toFirestore(),
+    );
 
     await batch.commit();
     log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
   }
 
-// Future<void> transferLead(String leadId, TransferDetails transfer) async {
-//   if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
-//
-//   final String transferId = _generateDateId('TRF');
-//
-//   // ── Add to subcollection ──────────────────────────────────────────────
-//   await _collection
-//       .doc(leadId)
-//       .collection('TRANSFER_LEADS')
-//       .doc(transferId)
-//       .set(transfer.toFirestore());
-//
-//   // ── Update the lead document ──────────────────────────────────────────
-//   await _collection.doc(leadId).update({
-//     'assignedStaff':   transfer.toStaff,
-//     'assignedStaffId': transfer.toStaffId,
-//     'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
-//   });
-//
-//   log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
-// }
+  // Future<void> transferLead(String leadId, TransferDetails transfer) async {
+  //   if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+  //
+  //   final String transferId = _generateDateId('TRF');
+  //
+  //   // ── Add to subcollection ──────────────────────────────────────────────
+  //   await _collection
+  //       .doc(leadId)
+  //       .collection('TRANSFER_LEADS')
+  //       .doc(transferId)
+  //       .set(transfer.toFirestore());
+  //
+  //   // ── Update the lead document ──────────────────────────────────────────
+  //   await _collection.doc(leadId).update({
+  //     'assignedStaff':   transfer.toStaff,
+  //     'assignedStaffId': transfer.toStaffId,
+  //     'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
+  //   });
+  //
+  //   log('[AddLeadRepository] Lead transferred: $leadId → ${transfer.toStaff}');
+  // }
 
   bool _isSameDay(DateTime d1, DateTime d2) {
     return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
   }
+
+  bool _isBeforeDay(DateTime d1, DateTime d2) {
+    final day1 = DateTime(d1.year, d1.month, d1.day);
+    final day2 = DateTime(d2.year, d2.month, d2.day);
+    return day1.isBefore(day2);
+  }
+
+  
 
 //   @override
 //   Future<DashboardCountModel> fetchLeadCounts({
 //     required String staffId,
 //     required DateTime selectedDate,
 //     required String role,
+//     bool forceStaffFilter = false, // ← new flag
 //   }) async {
 //     final startOfDay = DateTime(
 //       selectedDate.year,
 //       selectedDate.month,
 //       selectedDate.day,
 //     );
-
 //     final endOfDay = DateTime(
 //       selectedDate.year,
 //       selectedDate.month,
@@ -744,10 +785,23 @@ class AddLeadRepository implements IAddLeadRepository {
 //       59,
 //     );
 
-//     final snap = role.toLowerCase() == 'admin'
-//         ? await _collection.get()
-//         : await _collection.where('assignedStaffId', isEqualTo: staffId).get();
+//     // If forceStaffFilter=true (staff profile screen), ALWAYS filter by staffId
+//     // regardless of role. Otherwise use the original admin/staff logic.
+//     Query<Map<String, dynamic>> query = _collection;
+//     if (forceStaffFilter && staffId.isNotEmpty) {
+//       query = query.where('assignedStaffId', isEqualTo: staffId);
+//       log(
+//         '[fetchLeadCounts] Staff profile mode: filtering by staffId=$staffId',
+//       );
+//     } else if (role.toLowerCase() != 'admin') {
+//       query = query.where('assignedStaffId', isEqualTo: staffId);
+//       log('[fetchLeadCounts] Staff mode: filtering by staffId=$staffId');
+//     } else {
+//       log('[fetchLeadCounts] Admin dashboard mode: fetching all leads');
+//     }
 
+//     final snap = await query.get();
+//     log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
 
 //     int newLeadCount = 0;
 //     int followUpCount = 0;
@@ -758,87 +812,100 @@ class AddLeadRepository implements IAddLeadRepository {
 
 //     for (final doc in snap.docs) {
 //       final data = doc.data();
-//       final followupSnap = doc.reference.collection('FOLLOW_UPS').get();
-//       final followUps = (await followupSnap).docs;
-
-//       // ---------------- NEW LEADS ----------------
-//       final createdAt = data['createdAt'];
 //       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+//       final followUps =
+//           (await doc.reference.collection('FOLLOW_UPS').get()).docs;
 
-
-//       // if (createdAt != null) {
-//       //   final createdDate = (createdAt as Timestamp).toDate();
-
-//       //   if (_isSameDay(createdDate, selectedDate)) {
-//       //     newLeadCount++;
-//       //   }
-//       // }
+//       // NEW
+//       final createdAt = data['createdAt'];
 //       if (createdAt != null) {
-//   final createdDate = (createdAt as Timestamp).toDate();
-
-//   if (_isSameDay(createdDate, selectedDate) && leadStage.toUpperCase() == 'NEW' && followUps.isEmpty) { // ← add leadStage check
-//     newLeadCount++;
-//   }
+//         final createdDate = (createdAt as Timestamp).toDate();
+//         // if (_isSameDay(createdDate, selectedDate) &&
+//         //     leadStage == 'NEW' &&
+//         //     followUps.isEmpty) {
+//         //   newLeadCount++;
+//         // }
+// //         if (leadStage == 'NEW' && createdDate != null && _isSameDay(createdDate, selectedDate)) {
+// //   // only fetch follow-ups when the lead is actually a candidate
+// //   final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
+// //   if (followUps.isEmpty) newLeadCount++;
+// // }
+// final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+// if (leadStage == 'NEW' && _isSameDay(createdDate, selectedDate)) {
+//   if (!hasFollowUp) newLeadCount++;
 // }
+//       }
 
-//       // ---------------- FOLLOWUP ----------------
+//       // FOLLOWUP
 //       final nextFollowUpDate = data['nextFollowUpDate'];
-
 //       if (nextFollowUpDate != null) {
 //         final followDate = (nextFollowUpDate as Timestamp).toDate();
-
-//         if (_isSameDay(followDate, selectedDate) && leadStage.toUpperCase() != 'CLOSED' && leadStage.toUpperCase() != 'REJECTED') {
+//         if (_isSameDay(followDate, selectedDate) &&
+//             leadStage != 'CLOSED' &&
+//             leadStage != 'REJECTED' &&
+//             leadStage != 'NEW') {
 //           followUpCount++;
 //         }
 //       }
 
-//       // ---------------- CLOSED ----------------
-//       // final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-
-//       if (leadStage == 'CLOSED') {
-//         closedLeadCount++;
-//       }
-
-//       // ---------------- MISSED / REJECTED ----------------
-//       if (leadStage == 'REJECTED') {
-//         missedLeadCount++;
-//       }
-
-//       // ---------------- TOTAL CALLED ----------------
+//       // final calledDate = data['lastCalledDate'] ;
+//       // CLOSED
 //       final lastCalledDate = data['lastCalledDate'];
-
 //       if (lastCalledDate != null) {
 //         final calledDate = (lastCalledDate as Timestamp).toDate();
+//         if (leadStage == 'CLOSED' && _isSameDay(calledDate, selectedDate)) {
+//           closedLeadCount++;
+//         }
+//       } else {
+//         if (createdAt != null) {
+//           final createdDate = (createdAt as Timestamp).toDate();
+//           if (leadStage == 'CLOSED' && _isSameDay(createdDate, selectedDate)) {
+//             closedLeadCount++;
+//           }
+//         }
+//       }
+//       //&& _isSameDay(calledDate, selectedDate)) closedLeadCount++;
 
-//         if (_isSameDay(calledDate, selectedDate)) {
-//           totalCalledCount++;
+//       // MISSED / REJECTED
+//       if (nextFollowUpDate != null) {
+//         final followDate = (nextFollowUpDate as Timestamp).toDate();
+//         if ((leadStage == 'FOLLOWUP' || leadStage == 'NEW') &&
+//             _isBeforeDay(followDate, selectedDate)) {
+//           missedLeadCount++;
 //         }
 //       }
 
-//       // ---------------- TRANSFERRED ----------------
-//       final transferredList = data['transferred'];
+//       // TOTAL CALLED
+//       // final lastCalledDate = data['lastCalledDate'];
+//       if (lastCalledDate != null) {
+//         final calledDate = (lastCalledDate as Timestamp).toDate();
+//         if (_isSameDay(calledDate, selectedDate)) totalCalledCount++;
+//       }
 
+//       // TRANSFERRED
+//       final transferredList = data['transferLeads'];
 //       if (transferredList != null && transferredList is List) {
 //         bool alreadyCounted = false;
-
 //         for (final item in transferredList) {
 //           if (item is Map<String, dynamic>) {
-//             final transferredTime = item['transferredTime'];
-
+//             final transferredTime = item['transferTime'];
 //             if (transferredTime != null) {
 //               final transferDate = (transferredTime as Timestamp).toDate();
-
-//               if (_isSameDay(transferDate, selectedDate)) {
-//                 if (!alreadyCounted) {
-//                   transferredCount++;
-//                   alreadyCounted = true;
-//                 }
+//               if (_isSameDay(transferDate, selectedDate) && !alreadyCounted) {
+//                 transferredCount++;
+//                 alreadyCounted = true;
 //               }
 //             }
 //           }
 //         }
 //       }
 //     }
+
+//     log(
+//       '[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
+//       'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
+//       'transferred:$transferredCount',
+//     );
 
 //     return DashboardCountModel(
 //       newLeadCount: newLeadCount,
@@ -854,86 +921,103 @@ Future<DashboardCountModel> fetchLeadCounts({
   required String staffId,
   required DateTime selectedDate,
   required String role,
-  bool forceStaffFilter = false, // ← new flag
+  bool forceStaffFilter = false,
 }) async {
-  final startOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-  final endOfDay   = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
+  final sw = Stopwatch()..start();
 
-  // If forceStaffFilter=true (staff profile screen), ALWAYS filter by staffId
-  // regardless of role. Otherwise use the original admin/staff logic.
-  Query<Map<String, dynamic>> query = _collection;
+  final startOfDay = DateTime(
+      selectedDate.year, selectedDate.month, selectedDate.day);
+  final endOfDay = DateTime(
+      selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
+
+  // ── Single query, no composite index needed ──────────────────────────────
+  Query<Map<String, dynamic>> base = _collection;
   if (forceStaffFilter && staffId.isNotEmpty) {
-    query = query.where('assignedStaffId', isEqualTo: staffId);
-    log('[fetchLeadCounts] Staff profile mode: filtering by staffId=$staffId');
+    base = base.where('assignedStaffId', isEqualTo: staffId);
   } else if (role.toLowerCase() != 'admin') {
-    query = query.where('assignedStaffId', isEqualTo: staffId);
-    log('[fetchLeadCounts] Staff mode: filtering by staffId=$staffId');
-  } else {
-    log('[fetchLeadCounts] Admin dashboard mode: fetching all leads');
+    base = base.where('assignedStaffId', isEqualTo: staffId);
   }
 
-  final snap = await query.get();
-  log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
+  // ONE round-trip to Firestore — no subcollection reads at all
+  final snap = await base.get();
+  log('[fetchLeadCounts] docs: ${snap.docs.length}');
 
-  int newLeadCount      = 0;
-  int followUpCount     = 0;
-  int closedLeadCount   = 0;
-  int totalCalledCount  = 0;
-  int missedLeadCount   = 0;
-  int transferredCount  = 0;
+  int newLeadCount     = 0;
+  int followUpCount    = 0;
+  int closedLeadCount  = 0;
+  int totalCalledCount = 0;
+  int missedLeadCount  = 0;
+  int transferredCount = 0;
 
   for (final doc in snap.docs) {
     final data      = doc.data();
     final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-    final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
 
-    // NEW
-    final createdAt = data['createdAt'];
-    if (createdAt != null) {
-      final createdDate = (createdAt as Timestamp).toDate();
-      if (_isSameDay(createdDate, selectedDate) &&
-          leadStage == 'NEW' &&
-          followUps.isEmpty) {
-        newLeadCount++;
+    // ── NEW ────────────────────────────────────────────────────────────
+    if (leadStage == 'NEW') {
+      final createdAt = data['createdAt'];
+      if (createdAt != null) {
+        final createdDate = (createdAt as Timestamp).toDate();
+        if (_isInRange(createdDate, startOfDay, endOfDay)) {
+          final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+          if (!hasFollowUp) newLeadCount++;
+        }
       }
     }
 
-    // FOLLOWUP
-    final nextFollowUpDate = data['nextFollowUpDate'];
-    if (nextFollowUpDate != null) {
-      final followDate = (nextFollowUpDate as Timestamp).toDate();
-      if (_isSameDay(followDate, selectedDate) &&
-          leadStage != 'CLOSED' &&
-          leadStage != 'REJECTED') {
-        followUpCount++;
+    // ── FOLLOWUP ───────────────────────────────────────────────────────
+    if (leadStage == 'FOLLOWUP') {
+      final nextFollowUpDate = data['nextFollowUpDate'];
+      if (nextFollowUpDate != null) {
+        final followDate = (nextFollowUpDate as Timestamp).toDate();
+        if (_isInRange(followDate, startOfDay, endOfDay)) followUpCount++;
       }
     }
 
-    // CLOSED
-    if (leadStage == 'CLOSED') closedLeadCount++;
+    // ── CLOSED ─────────────────────────────────────────────────────────
+    if (leadStage == 'CLOSED') {
+      final lastCalledDate = data['lastCalledDate'];
+      final createdAt      = data['createdAt'];
+      if (lastCalledDate != null) {
+        final calledDate = (lastCalledDate as Timestamp).toDate();
+        if (_isInRange(calledDate, startOfDay, endOfDay)) closedLeadCount++;
+      } else if (createdAt != null) {
+        final createdDate = (createdAt as Timestamp).toDate();
+        if (_isInRange(createdDate, startOfDay, endOfDay)) closedLeadCount++;
+      }
+    }
 
-    // MISSED / REJECTED
-    if (leadStage == 'REJECTED') missedLeadCount++;
-
-    // TOTAL CALLED
+    // ── TOTAL CALLED ───────────────────────────────────────────────────
     final lastCalledDate = data['lastCalledDate'];
     if (lastCalledDate != null) {
       final calledDate = (lastCalledDate as Timestamp).toDate();
-      if (_isSameDay(calledDate, selectedDate)) totalCalledCount++;
+      if (_isInRange(calledDate, startOfDay, endOfDay)) totalCalledCount++;
     }
 
-    // TRANSFERRED
-    final transferredList = data['transferred'];
-    if (transferredList != null && transferredList is List) {
-      bool alreadyCounted = false;
-      for (final item in transferredList) {
-        if (item is Map<String, dynamic>) {
-          final transferredTime = item['transferredTime'];
-          if (transferredTime != null) {
-            final transferDate = (transferredTime as Timestamp).toDate();
-            if (_isSameDay(transferDate, selectedDate) && !alreadyCounted) {
-              transferredCount++;
-              alreadyCounted = true;
+    // ── MISSED ─────────────────────────────────────────────────────────
+    if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
+      final nextFollowUpDate = data['nextFollowUpDate'];
+      if (nextFollowUpDate != null) {
+        final followDate = (nextFollowUpDate as Timestamp).toDate();
+        if (_isBeforeDay(followDate, startOfDay)) missedLeadCount++;
+      }
+    }
+
+    // ── TRANSFERRED ────────────────────────────────────────────────────
+    if (leadStage == 'TRANSFERRED') {
+      final transferredList = data['transferLeads'];
+      if (transferredList is List) {
+        bool counted = false;
+        for (final item in transferredList) {
+          if (counted) break;
+          if (item is Map<String, dynamic>) {
+            final t = item['transferTime'];
+            if (t != null) {
+              final td = (t as Timestamp).toDate();
+              if (_isInRange(td, startOfDay, endOfDay)) {
+                transferredCount++;
+                counted = true;
+              }
             }
           }
         }
@@ -941,9 +1025,11 @@ Future<DashboardCountModel> fetchLeadCounts({
     }
   }
 
-  log('[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
-      'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
-      'transferred:$transferredCount');
+  sw.stop();
+  log('[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
+      'closed:$closedLeadCount total:$totalCalledCount '
+      'missed:$missedLeadCount transferred:$transferredCount '
+      '— ${sw.elapsedMilliseconds}ms');
 
   return DashboardCountModel(
     newLeadCount:     newLeadCount,
@@ -954,6 +1040,13 @@ Future<DashboardCountModel> fetchLeadCounts({
     transferredCount: transferredCount,
   );
 }
+
+// ── Add this helper if not already present ──────────────────────────────────
+bool _isInRange(DateTime date, DateTime start, DateTime end) {
+  return !date.isBefore(start) && !date.isAfter(end);
+}
+
+
 
   @override
   Future<void> _logActivity(String leadId, ActivityModel activity) async {
@@ -1068,9 +1161,7 @@ Future<DashboardCountModel> fetchLeadCounts({
     await ops.commit();
   }
 
-
-  Future<List<LeadStaffHandler>> getLeadHandledStaffs(
-      AddLeadModel lead) async {
+  Future<List<LeadStaffHandler>> getLeadHandledStaffs(AddLeadModel lead) async {
     // Collect raw staff entries: {staffId -> staffName}
     // Order matters — insertion order = chronological
     final Map<String, String> staffMap = {};
@@ -1094,12 +1185,12 @@ Future<DashboardCountModel> fetchLeadCounts({
 
     for (final doc in transferSnap.docs) {
       final data = doc.data();
-      final fromId   = data['fromStaffId'] as String? ?? '';
-      final fromName = data['fromStaff']   as String? ?? '';
-      final toId     = data['toStaffId']   as String? ?? '';
-      final toName   = data['toStaff']     as String? ?? '';
+      final fromId = data['fromStaffId'] as String? ?? '';
+      final fromName = data['fromStaff'] as String? ?? '';
+      final toId = data['toStaffId'] as String? ?? '';
+      final toName = data['toStaff'] as String? ?? '';
       if (fromId.isNotEmpty) staffMap.putIfAbsent(fromId, () => fromName);
-      if (toId.isNotEmpty)   staffMap.putIfAbsent(toId,   () => toName);
+      if (toId.isNotEmpty) staffMap.putIfAbsent(toId, () => toName);
     }
 
     // 4. Count follow-ups per staff (activity count)
@@ -1120,17 +1211,19 @@ Future<DashboardCountModel> fetchLeadCounts({
     final staffIds = staffMap.keys.toList();
     final phoneMap = <String, String>{};
 
-    await Future.wait(staffIds.map((id) async {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('STAFF')
-            .doc(id)
-            .get();
-        phoneMap[id] = doc.data()?['phone'] as String? ?? '';
-      } catch (_) {
-        phoneMap[id] = '';
-      }
-    }));
+    await Future.wait(
+      staffIds.map((id) async {
+        try {
+          final doc = await FirebaseFirestore.instance
+              .collection('STAFF')
+              .doc(id)
+              .get();
+          phoneMap[id] = doc.data()?['phone'] as String? ?? '';
+        } catch (_) {
+          phoneMap[id] = '';
+        }
+      }),
+    );
 
     // 6. Build result list — same order as staffMap insertion
     return staffIds.map((id) {
@@ -1139,8 +1232,7 @@ Future<DashboardCountModel> fetchLeadCounts({
         staffName: staffMap[id] ?? '',
         phone: phoneMap[id] ?? '',
         // +1 for the lead creation itself by the creator
-        activityCount: (fupCount[id] ?? 0) +
-            (id == lead.createdById ? 1 : 0),
+        activityCount: (fupCount[id] ?? 0) + (id == lead.createdById ? 1 : 0),
         isCurrentAssignee: id == lead.assignedStaffId,
       );
     }).toList();
@@ -1154,21 +1246,27 @@ Future<DashboardCountModel> fetchLeadCounts({
   }) async {
     Query<Map<String, dynamic>> query = _collection;
 
-     if (staffId.isNotEmpty) {
-    query = query.where('assignedStaffId', isEqualTo: staffId); // ← always filter
-  }
+    if (staffId.isNotEmpty) {
+      query = query.where(
+        'assignedStaffId',
+        isEqualTo: staffId,
+      ); // ← always filter
+    }
 
-   // ── Date filter ──────────────────────────────────────────────────────
-  final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-  final to = toDate != null
-      ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
-      : DateTime(from.year, from.month, from.day, 23, 59, 59);
+    // ── Date filter ──────────────────────────────────────────────────────
+    final from = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+    final to = toDate != null
+        ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
+        : DateTime(from.year, from.month, from.day, 23, 59, 59);
 
-  query = query
-      .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
-      .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
-  // ─────────────────────────────────────────────────────────────────────
-
+    query = query
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
+        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
+    // ─────────────────────────────────────────────────────────────────────
 
     final snap = await query.get();
 
@@ -1201,7 +1299,7 @@ Future<DashboardCountModel> fetchLeadCounts({
         case 'TRANSFERRED':
           counts['Transferred'] = (counts['Transferred'] ?? 0) + 1;
           break;
-        default: 
+        default:
           counts['Pending'] = (counts['Pending'] ?? 0) + 1;
           break;
       }
@@ -1209,144 +1307,164 @@ Future<DashboardCountModel> fetchLeadCounts({
 
     return counts;
   }
+
   // In your AddLeadRepository
-Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
-  required String staffId,
-  required String role,
-  required DateTime selectedDate,
-   DateTime? toDate,
-}) async {
-  // ← Remove the date filter, fetch all leads for this staff
-  Query<Map<String, dynamic>> query = _collection;
+  Future<List<LeadCategoryTableRow>> fetchLeadCategoryTableRows({
+    required String staffId,
+    required String role,
+    required DateTime selectedDate,
+    DateTime? toDate,
+  }) async {
+    // ← Remove the date filter, fetch all leads for this staff
+    Query<Map<String, dynamic>> query = _collection;
 
-  // Always filter by staffId for staff profile view
-  if (staffId.isNotEmpty) {
-    query = query.where('assignedStaffId', isEqualTo: staffId);
-  }
-
-  // ── Date filter ──────────────────────────────────────────────────────
-  final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-  final to = toDate != null
-      ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
-      : DateTime(from.year, from.month, from.day, 23, 59, 59);
-
-  query = query
-      .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
-      .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
-  // ─────────────────────────────────────────────────────────────────────
-
-
-  final snapshot = await query.get();
-
-  // Group by leadCategory → then count by leadStage
-  final Map<String, Map<String, int>> grouped = {};
-
-  for (final doc in snapshot.docs) {
-    final data = doc.data();
-    final category = (data['leadCategory'] as String? ?? 'Uncategorized')
-        .trim()
-        .toUpperCase();
-    final stage = (data['leadStage'] as String? ?? '').trim().toUpperCase();
-
-    // Use display-friendly category name
-    final displayCategory = category.isEmpty ? 'Uncategorized' : category;
-
-    grouped.putIfAbsent(displayCategory, () => {
-      'NEW': 0,
-      'FOLLOW UP': 0,
-      'REJECTED': 0,
-      'CLOSED': 0,
-    });
-
-    if (stage == 'NEW') {
-      grouped[displayCategory]!['NEW'] = (grouped[displayCategory]!['NEW'] ?? 0) + 1;
-    } else if (stage == 'FOLLOW UP' || stage == 'FOLLOWUP') {
-      grouped[displayCategory]!['FOLLOW UP'] = (grouped[displayCategory]!['FOLLOW UP'] ?? 0) + 1;
-    } else if (stage == 'REJECTED') {
-      grouped[displayCategory]!['REJECTED'] = (grouped[displayCategory]!['REJECTED'] ?? 0) + 1;
-    } else if (stage == 'CLOSED') {
-      grouped[displayCategory]!['CLOSED'] = (grouped[displayCategory]!['CLOSED'] ?? 0) + 1;
+    // Always filter by staffId for staff profile view
+    if (staffId.isNotEmpty) {
+      query = query.where('assignedStaffId', isEqualTo: staffId);
     }
-  }
 
-  // Sort by total count descending so most active categories appear first
-  final rows = grouped.entries.map((e) => LeadCategoryTableRow(
-    category: e.key,
-    newCount: e.value['NEW'] ?? 0,
-    followUpCount: e.value['FOLLOW UP'] ?? 0,
-    rejectedCount: e.value['REJECTED'] ?? 0,
-    closedCount: e.value['CLOSED'] ?? 0,
-  )).toList();
-
-  rows.sort((a, b) {
-    final totalA = a.newCount + a.followUpCount + a.rejectedCount + a.closedCount;
-    final totalB = b.newCount + b.followUpCount + b.rejectedCount + b.closedCount;
-    return totalB.compareTo(totalA);
-  });
-
-  return rows;
-}
-Future<Map<String, int>> fetchCallStatusCounts({
-  required String staffId,
-  required String role,
-   DateTime? selectedDate,
-  DateTime? toDate,
-}) async {
-  // Query<Map<String, dynamic>> query = _collection;
-
-  // if (staffId.isNotEmpty) {
-  //   query = query.where('assignedStaffId', isEqualTo: staffId);
-  // }
-
-    Timestamp? fromTs;
-  Timestamp? toTs;
-  if (selectedDate != null) {
-    final from = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    // ── Date filter ──────────────────────────────────────────────────────
+    final from = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
     final to = toDate != null
         ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
         : DateTime(from.year, from.month, from.day, 23, 59, 59);
-    fromTs = Timestamp.fromDate(from);
-    toTs   = Timestamp.fromDate(to);
-  }
 
-  // Query FOLLOW_UPS subcollection across all leads for this staff
-  Query<Map<String, dynamic>> query = _firestore
-      .collectionGroup('FOLLOW_UPS')
-      .where('createdById', isEqualTo: staffId);
-
-  if (fromTs != null && toTs != null) {
     query = query
-        .where('createdAt', isGreaterThanOrEqualTo: fromTs)
-        .where('createdAt', isLessThanOrEqualTo: toTs);
-  }
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
+        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to));
+    // ─────────────────────────────────────────────────────────────────────
 
-  final snap = await query.get();
+    final snapshot = await query.get();
 
-  int totalCalled = 0;
-  int connected = 0;
-  int notConnected = 0;
+    // Group by leadCategory → then count by leadStage
+    final Map<String, Map<String, int>> grouped = {};
 
-  for (final doc in snap.docs) {
-    final data = doc.data();
-    final callResult = (data['callResult'] as String? ?? '').toLowerCase().trim();
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final category = (data['leadCategory'] as String? ?? 'Uncategorized')
+          .trim()
+          .toUpperCase();
+      final stage = (data['leadStage'] as String? ?? '').trim().toUpperCase();
 
-    if (callResult.isNotEmpty) {
-      totalCalled++;
+      // Use display-friendly category name
+      final displayCategory = category.isEmpty ? 'Uncategorized' : category;
 
-      if (callResult == 'connected') {
-        connected++;
-      } else if (callResult == 'not connected' || callResult == 'notconnected') {
-        notConnected++;
+      grouped.putIfAbsent(
+        displayCategory,
+        () => {'NEW': 0, 'FOLLOW UP': 0, 'REJECTED': 0, 'CLOSED': 0},
+      );
+
+      if (stage == 'NEW') {
+        grouped[displayCategory]!['NEW'] =
+            (grouped[displayCategory]!['NEW'] ?? 0) + 1;
+      } else if (stage == 'FOLLOW UP' || stage == 'FOLLOWUP') {
+        grouped[displayCategory]!['FOLLOW UP'] =
+            (grouped[displayCategory]!['FOLLOW UP'] ?? 0) + 1;
+      } else if (stage == 'REJECTED') {
+        grouped[displayCategory]!['REJECTED'] =
+            (grouped[displayCategory]!['REJECTED'] ?? 0) + 1;
+      } else if (stage == 'CLOSED') {
+        grouped[displayCategory]!['CLOSED'] =
+            (grouped[displayCategory]!['CLOSED'] ?? 0) + 1;
       }
     }
+
+    // Sort by total count descending so most active categories appear first
+    final rows = grouped.entries
+        .map(
+          (e) => LeadCategoryTableRow(
+            category: e.key,
+            newCount: e.value['NEW'] ?? 0,
+            followUpCount: e.value['FOLLOW UP'] ?? 0,
+            rejectedCount: e.value['REJECTED'] ?? 0,
+            closedCount: e.value['CLOSED'] ?? 0,
+          ),
+        )
+        .toList();
+
+    rows.sort((a, b) {
+      final totalA =
+          a.newCount + a.followUpCount + a.rejectedCount + a.closedCount;
+      final totalB =
+          b.newCount + b.followUpCount + b.rejectedCount + b.closedCount;
+      return totalB.compareTo(totalA);
+    });
+
+    return rows;
   }
 
-  return {
-    'totalCalled': totalCalled,
-    'connected': connected,
-    'notConnected': notConnected,
-  };
-}
+  Future<Map<String, int>> fetchCallStatusCounts({
+    required String staffId,
+    required String role,
+    DateTime? selectedDate,
+    DateTime? toDate,
+  }) async {
+    // Query<Map<String, dynamic>> query = _collection;
+
+    // if (staffId.isNotEmpty) {
+    //   query = query.where('assignedStaffId', isEqualTo: staffId);
+    // }
+
+    Timestamp? fromTs;
+    Timestamp? toTs;
+    if (selectedDate != null) {
+      final from = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+      );
+      final to = toDate != null
+          ? DateTime(toDate.year, toDate.month, toDate.day, 23, 59, 59)
+          : DateTime(from.year, from.month, from.day, 23, 59, 59);
+      fromTs = Timestamp.fromDate(from);
+      toTs = Timestamp.fromDate(to);
+    }
+
+    // Query FOLLOW_UPS subcollection across all leads for this staff
+    Query<Map<String, dynamic>> query = _firestore
+        .collectionGroup('FOLLOW_UPS')
+        .where('createdById', isEqualTo: staffId);
+
+    if (fromTs != null && toTs != null) {
+      query = query
+          .where('createdAt', isGreaterThanOrEqualTo: fromTs)
+          .where('createdAt', isLessThanOrEqualTo: toTs);
+    }
+
+    final snap = await query.get();
+
+    int totalCalled = 0;
+    int connected = 0;
+    int notConnected = 0;
+
+    for (final doc in snap.docs) {
+      final data = doc.data();
+      final callResult = (data['callResult'] as String? ?? '')
+          .toLowerCase()
+          .trim();
+
+      if (callResult.isNotEmpty) {
+        totalCalled++;
+
+        if (callResult == 'connected') {
+          connected++;
+        } else if (callResult == 'not connected' ||
+            callResult == 'notconnected') {
+          notConnected++;
+        }
+      }
+    }
+
+    return {
+      'totalCalled': totalCalled,
+      'connected': connected,
+      'notConnected': notConnected,
+    };
+  }
 
   Future<AddLeadModel> getLeadById(String leadId) async {
     try {
@@ -1370,14 +1488,9 @@ Future<Map<String, int>> fetchCallStatusCounts({
           .map((e) => FollowUpModel.fromFirestore(e.data(), e.id))
           .toList();
 
-      final lead = AddLeadModel.fromFirestore(
-        leadDoc.data()!,
-        leadDoc.id,
-      );
+      final lead = AddLeadModel.fromFirestore(leadDoc.data()!, leadDoc.id);
 
-      return lead.copyWith(
-        followUp: followUps,
-      );
+      return lead.copyWith(followUp: followUps);
     } catch (e) {
       throw Exception('Failed to fetch lead: $e');
     }
@@ -1407,9 +1520,7 @@ Future<Map<String, int>> fetchCallStatusCounts({
     required String leadName,
     required String leadPhone,
   }) async {
-    final leadRef = FirebaseFirestore.instance
-        .collection('LEADS')
-        .doc(leadId);
+    final leadRef = FirebaseFirestore.instance.collection('LEADS').doc(leadId);
 
     final activityRef = leadRef.collection('ACTIVITIES');
 
@@ -1469,18 +1580,55 @@ Future<Map<String, int>> fetchCallStatusCounts({
         previousValue: deletedFollowup.calledStatus,
         newValue: '',
         description:
-        'Deleted follow-up. Status: ${deletedFollowup.leadStage}, '
+            'Deleted follow-up. Status: ${deletedFollowup.leadStage}, '
             'Call Result: ${deletedFollowup.calledStatus}, '
             'Scheduled Date: ${DateFormat('dd-MM-yyyy HH:mm').format(deletedFollowup.nextFollowUpDate)}',
       ).toFirestore(),
     );
   }
-@override
-Future<bool> isContactNumberExists(String contactNumber) async {
-  final snap = await _collection
-      .where('contactNumber', isEqualTo: contactNumber.trim())
-      .limit(1)
-      .get();
-  return snap.docs.isNotEmpty;
+
+  @override
+  Future<bool> isContactNumberExists(String contactNumber) async {
+    final snap = await _collection
+        .where('contactNumber', isEqualTo: contactNumber.trim())
+        .limit(1)
+        .get();
+    return snap.docs.isNotEmpty;
+  }
 }
+Future<void> migrateHasFollowUp() async {
+  final db = FirebaseFirestore.instance;
+  final leadsSnap = await db.collection('LEADS').get();
+
+  int updated = 0;
+  int skipped = 0;
+
+  for (final leadDoc in leadsSnap.docs) {
+    final data = leadDoc.data();
+
+    // Skip if already set
+    if (data.containsKey('hasFollowUp')) {
+      skipped++;
+      continue;
+    }
+
+    // Check if this lead has any follow-ups
+    final followUpsSnap = await db
+        .collection('LEADS')
+        .doc(leadDoc.id)
+        .collection('FOLLOW_UPS')
+        .limit(1)
+        .get();
+
+    final hasFollowUp = followUpsSnap.docs.isNotEmpty;
+
+    await db.collection('LEADS').doc(leadDoc.id).update({
+      'hasFollowUp': hasFollowUp,
+    });
+
+    updated++;
+    print('Updated ${leadDoc.id} → hasFollowUp: $hasFollowUp');
+  }
+
+  print('Migration complete. Updated: $updated, Skipped: $skipped');
 }

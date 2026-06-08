@@ -122,6 +122,32 @@ class _LeadsReportState extends State<LeadsReport> {
       val.trim().isEmpty ||
       val.toLowerCase().startsWith('select');
 
+      // ── Priority helpers ─────────────────────────────────────────────────────────
+Color getPriorityColor(String priority) {
+  switch (priority.trim().toLowerCase()) {
+    case 'high':
+      return const Color(0xffEF4444); // Red
+    case 'normal':
+      return const Color(0xff22C55E); // Green
+    case 'low':
+      return const Color(0xffF97316); // Orange-Yellow
+    case 'negative':
+      return const Color(0xff9CA3AF); // Grey
+    default:
+      return const Color(0xff9CA3AF);
+  }
+}
+
+int _priorityOrder(String priority) {
+  switch (priority.trim().toLowerCase()) {
+    case 'high':     return 1;
+    case 'normal':   return 2;
+    case 'low':      return 3;
+    case 'negative': return 4;
+    default:         return 5;
+  }
+}
+
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
@@ -244,6 +270,11 @@ class _LeadsReportState extends State<LeadsReport> {
           )
           .toList();
     }
+
+    // ── Priority sort ─────────────────────────────────────────────────────────
+result.sort((a, b) =>
+    _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)));
+
 
     return result;
   }
@@ -720,6 +751,9 @@ class _LeadsReportState extends State<LeadsReport> {
                             children: [
                               CustomTable(
                                 key: ValueKey(_tableKey),
+                                priorityColors: pagedList
+      .map((lead) => getPriorityColor(lead.priority))
+      .toList(), 
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
                                   Navigator.push(

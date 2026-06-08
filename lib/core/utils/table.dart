@@ -16,11 +16,11 @@ class CustomTable extends StatefulWidget {
   final List<TableColumn> columns;
   final List<List<Widget>> rows;
   final String emptyMessage;
-  final bool showCheckboxes; 
+  final bool showCheckboxes;
   final List<bool>? initialCheckedStates;
   final void Function(int rowIndex)? onRowTap;
-  final void Function(int rowIndex, bool checked)?
-  onCheckChanged; 
+  final void Function(int rowIndex, bool checked)? onCheckChanged;
+  final List<Color>? priorityColors; 
 
   const CustomTable({
     super.key,
@@ -31,6 +31,7 @@ class CustomTable extends StatefulWidget {
     this.onRowTap,
     this.initialCheckedStates,
     this.onCheckChanged,
+    this.priorityColors,
   });
 
   @override
@@ -164,10 +165,12 @@ class _CustomTableState extends State<CustomTable> {
   /// ROWS
   List<Widget> _buildRows() {
     return List.generate(widget.rows.length, (rowIndex) {
+       final dotColor = (widget.priorityColors != null &&
+            rowIndex < widget.priorityColors!.length)
+        ? widget.priorityColors![rowIndex]
+        : Colors.transparent;
       return GestureDetector(
-        // onTap: () {
-        //   print('Row $rowIndex tapped');
-        // },
+        
         onTap: () => widget.onRowTap?.call(rowIndex),
         child: Container(
           decoration: BoxDecoration(
@@ -177,27 +180,49 @@ class _CustomTableState extends State<CustomTable> {
           child: Row(
             children: [
               SizedBox(width: 1.5.w),
-              // 🔹 Checkbox cell
-              if (widget.showCheckboxes)
-                SizedBox(
-                  width: 5.w,
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 1.h),
-                    decoration: BoxDecoration(
-                      // border: Border(right: BorderSide(color: AppColors.divider)),
-                    ),
-                    child: Checkbox(
-                      value: _checkedStates[rowIndex],
-                      activeColor: AppColors.primary, // use your brand color
-                      onChanged: (val) {
-                        setState(() => _checkedStates[rowIndex] = val ?? false);
-                        widget.onCheckChanged?.call(rowIndex, val ?? false);
-                      },
-                    ),
-                  ),
+
+               // ── Priority dot ───────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.only(right: 0.6.w),
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
                 ),
-        
+              ),
+            ),
+
+              // 🔹 Checkbox cell
+              // Row(
+              //   children: [ 
+                 
+                  if (widget.showCheckboxes)
+                    SizedBox(
+                      width: 5.w,
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(vertical: 1.h),
+                        decoration: BoxDecoration(
+                          // border: Border(right: BorderSide(color: AppColors.divider)),
+                        ),
+                        child: Checkbox(
+                          value: _checkedStates[rowIndex],
+                          activeColor:
+                              AppColors.primary, // use your brand color
+                          onChanged: (val) {
+                            setState(
+                              () => _checkedStates[rowIndex] = val ?? false,
+                            );
+                            widget.onCheckChanged?.call(rowIndex, val ?? false);
+                          },
+                        ),
+                      ),
+                    ),
+              //   ],
+              // ),
+
               // 🔹 Regular data cells
               ...List.generate(widget.rows[rowIndex].length, (colIndex) {
                 return Expanded(
@@ -206,7 +231,6 @@ class _CustomTableState extends State<CustomTable> {
                     alignment: Alignment.centerLeft,
                     padding: EdgeInsets.symmetric(vertical: 2.h),
                     decoration: BoxDecoration(
-                      
                       border: Border(
                         // right: colIndex == widget.columns.length - 1
                         //     ? BorderSide.none

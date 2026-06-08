@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
+import 'package:oxdo/feature/dashboard/models/dashboard_count_model.dart';
 import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
@@ -854,12 +855,67 @@ if (isDuplicate) {
 //   }
 // }
 // ── Dashboard fetch (unchanged role logic, fixes loading flag) ────────────
+// Future<void> fetchDashboardCounts(
+//   DateTime selectedDate, {
+//   String? staffId,
+//   String? role,
+// }) async {
+//   emit(state.copyWith(isLoadingCounts: true)); // ← was commented out, now restored
+
+//   try {
+//     final user = await SessionService().getSavedUser();
+//     if (isClosed) return;
+//     if (user == null) {
+//       emit(state.copyWith(isLoadingCounts: false));
+//       return;
+//     }
+
+//     final counts = await _leadRepository.fetchLeadCounts(
+//       staffId:           staffId ?? user.id ?? '',
+//       selectedDate:      selectedDate,
+//       role:              role ?? user.staffType ?? '',
+//       forceStaffFilter:  false, // ← dashboard uses normal admin/staff logic
+//     );
+
+//     if (isClosed) return;
+
+//     log('[fetchDashboardCounts] closed=${counts.closedLeadCount} '
+//         'total=${counts.totalCalledCount}');
+
+//     emit(state.copyWith(
+//       isLoadingCounts:  false,
+//       newLeadCount:     counts.newLeadCount.toString(),
+//       followUpCount:    counts.followUpCount.toString(),
+//       closedLeadCount:  counts.closedLeadCount.toString(),
+//       totalCalledCount: counts.totalCalledCount.toString(),
+//       missedLeadCount:  counts.missedLeadCount.toString(),
+//       transferredCount: counts.transferredCount.toString(),
+//     ));
+//   } catch (e) {
+//     log('[fetchDashboardCounts] Error: $e');
+//     if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
+//   }
+// }
+// In AddLeadCubit — add these two fields
+DateTime? _lastCountDate;
+DashboardCountModel? _cachedCounts;
+
 Future<void> fetchDashboardCounts(
   DateTime selectedDate, {
   String? staffId,
   String? role,
 }) async {
-  emit(state.copyWith(isLoadingCounts: true)); // ← was commented out, now restored
+  // Skip re-fetch if same date and we already have counts
+  if (_lastCountDate != null &&
+      _lastCountDate!.year == selectedDate.year &&
+      _lastCountDate!.month == selectedDate.month &&
+      _lastCountDate!.day == selectedDate.day &&
+      _cachedCounts != null) {
+    log('[fetchDashboardCounts] Returning cached result');
+    return;
+  }
+
+  emit(state.copyWith(isLoadingCounts: true));
 
   try {
     final user = await SessionService().getSavedUser();
@@ -870,24 +926,28 @@ Future<void> fetchDashboardCounts(
     }
 
     final counts = await _leadRepository.fetchLeadCounts(
-      staffId:           staffId ?? user.id ?? '',
-      selectedDate:      selectedDate,
-      role:              role ?? user.staffType ?? '',
-      forceStaffFilter:  false, // ← dashboard uses normal admin/staff logic
+      staffId: staffId ?? user.id ?? '',
+      selectedDate: selectedDate,
+      role: role ?? user.staffType ?? '',
+      forceStaffFilter: false,
     );
 
     if (isClosed) return;
+
+    // Store cache after successful fetch
+    _lastCountDate = selectedDate;
+    _cachedCounts = counts;
 
     log('[fetchDashboardCounts] closed=${counts.closedLeadCount} '
         'total=${counts.totalCalledCount}');
 
     emit(state.copyWith(
-      isLoadingCounts:  false,
-      newLeadCount:     counts.newLeadCount.toString(),
-      followUpCount:    counts.followUpCount.toString(),
-      closedLeadCount:  counts.closedLeadCount.toString(),
+      isLoadingCounts: false,
+      newLeadCount: counts.newLeadCount.toString(),
+      followUpCount: counts.followUpCount.toString(),
+      closedLeadCount: counts.closedLeadCount.toString(),
       totalCalledCount: counts.totalCalledCount.toString(),
-      missedLeadCount:  counts.missedLeadCount.toString(),
+      missedLeadCount: counts.missedLeadCount.toString(),
       transferredCount: counts.transferredCount.toString(),
     ));
   } catch (e) {

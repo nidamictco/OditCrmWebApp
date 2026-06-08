@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
+import 'package:oxdo/feature/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
@@ -22,12 +23,13 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
 
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(selectedIndex: 1),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => MainScreen(selectedIndex: 1),
+          //   ),
+          // );
+          migrateHasFollowUp();
         },
 
         child: AnimatedContainer(

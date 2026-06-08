@@ -95,19 +95,19 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _applyFilters() {
     final from = _parseDate(fromDate.text);
-  final to   = _parseDate(toDate.text);
+    final to = _parseDate(toDate.text);
 
-  // Re-fetch from Firestore with the new date range
-  // so records outside the original dashboard date are included
-  if (from != null) {
-    context.read<AddLeadCubit>().fetchDashboardLeads(
-      staffId:      widget.staff?.id ?? '',
-      role:         widget.staff?.staffType ?? 'Admin',
-      fromCard:     widget.fromCard,
-      selectedDate: from,
-      toDate:       to ?? from,
-    );
-  }
+    // Re-fetch from Firestore with the new date range
+    // so records outside the original dashboard date are included
+    if (from != null) {
+      context.read<AddLeadCubit>().fetchDashboardLeads(
+        staffId: widget.staff?.id ?? '',
+        role: widget.staff?.staffType ?? 'Admin',
+        fromCard: widget.fromCard,
+        selectedDate: from,
+        toDate: to ?? from,
+      );
+    }
     setState(() {
       _appliedCategory = selectedCategory;
       _appliedLeadStage = selectedLeadStage;
@@ -158,57 +158,58 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     //       .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
     //       .toList();
     // }
-     final from = _appliedFromDate;
-  final to   = _appliedToDate;
+    final from = _appliedFromDate;
+    final to = _appliedToDate;
 
-  if (from != null || to != null) {
-    final fromDay = from != null
-        ? DateTime(from.year, from.month, from.day)
-        : null;
-    final toDay = to != null
-        ? DateTime(to.year, to.month, to.day, 23, 59, 59)
-        : null;
+    if (from != null || to != null) {
+      final fromDay = from != null
+          ? DateTime(from.year, from.month, from.day)
+          : null;
+      final toDay = to != null
+          ? DateTime(to.year, to.month, to.day, 23, 59, 59)
+          : null;
 
-    result = result.where((lead) {
-      // Pick the right date field based on which card opened this screen
-      DateTime? dateToCheck;
+      result = result.where((lead) {
+        // Pick the right date field based on which card opened this screen
+        DateTime? dateToCheck;
 
-      switch (widget.fromCard.toUpperCase()) {
-        case 'NEW':
-          dateToCheck = lead.createdAt;
-          break;
-        case 'FOLLOWUP':
-          dateToCheck = lead.followUpDate;
-          break;
-        case 'TOTAL':
-          dateToCheck = lead.calledDate;
-          break;
-        case 'CLOSED':
-        case 'MISSED':
-          // These are stage-based, not date-based.
-          // Allow all through — don't filter by date.
-          return true;
-        case 'TRANSFERRED':
-          // Check if any transfer falls in range
-          if (lead.transferLeads == null || lead.transferLeads!.isEmpty) {
-            return false;
-          }
-          return lead.transferLeads!.any((t) {
-            if (t.transferTime == null) return false;
-            if (fromDay != null && t.transferTime!.isBefore(fromDay)) return false;
-            if (toDay   != null && t.transferTime!.isAfter(toDay))   return false;
+        switch (widget.fromCard.toUpperCase()) {
+          case 'NEW':
+            dateToCheck = lead.createdAt;
+            break;
+          case 'FOLLOWUP':
+            dateToCheck = lead.followUpDate;
+            break;
+          case 'TOTAL':
+            dateToCheck = lead.calledDate;
+            break;
+          case 'CLOSED':
+          case 'MISSED':
+            // These are stage-based, not date-based.
+            // Allow all through — don't filter by date.
             return true;
-          });
-        default:
-          dateToCheck = lead.createdAt;
-      }
+          case 'TRANSFERRED':
+            // Check if any transfer falls in range
+            if (lead.transferLeads == null || lead.transferLeads!.isEmpty) {
+              return false;
+            }
+            return lead.transferLeads!.any((t) {
+              if (t.transferTime == null) return false;
+              if (fromDay != null && t.transferTime!.isBefore(fromDay))
+                return false;
+              if (toDay != null && t.transferTime!.isAfter(toDay)) return false;
+              return true;
+            });
+          default:
+            dateToCheck = lead.createdAt;
+        }
 
-      if (dateToCheck == null) return false;
-      if (fromDay != null && dateToCheck.isBefore(fromDay)) return false;
-      if (toDay   != null && dateToCheck.isAfter(toDay))   return false;
-      return true;
-    }).toList();
-  }
+        if (dateToCheck == null) return false;
+        if (fromDay != null && dateToCheck.isBefore(fromDay)) return false;
+        if (toDay != null && dateToCheck.isAfter(toDay)) return false;
+        return true;
+      }).toList();
+    }
 
     if (!_isPlaceholder(_appliedCategory)) {
       final cat = _appliedCategory!.trim().toUpperCase();
@@ -327,19 +328,19 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         builder: (context) => MainScreen(selectedIndex: 31, lead: lead),
       ),
     ).then((_) {
-    // Reload leads from cubit after returning from detail screen
-    context.read<AddLeadCubit>().fetchDashboardLeads(
-      staffId: widget.staff!.id!,
-      role: widget.staff?.staffType ?? 'Admin',
-      fromCard: widget.fromCard,
-      selectedDate: widget.selectedDate ?? DateTime.now(),
-    );
-  });
+      // Reload leads from cubit after returning from detail screen
+      context.read<AddLeadCubit>().fetchDashboardLeads(
+        staffId: widget.staff!.id!,
+        role: widget.staff?.staffType ?? 'Admin',
+        fromCard: widget.fromCard,
+        selectedDate: widget.selectedDate ?? DateTime.now(),
+      );
+    });
   }
 
   void _onEdit(AddLeadModel lead) {
     _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
- Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MainScreen(selectedIndex: 1, lead: lead),
@@ -410,25 +411,25 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   //   );
   // }
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  final initialDate = widget.selectedDate ?? DateTime.now();
+    final initialDate = widget.selectedDate ?? DateTime.now();
 
-  fromDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
-  toDate.text   = DateFormat('dd-MM-yyyy').format(initialDate);
+    fromDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
+    toDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
 
-  // ← Initialize applied dates so filter works immediately
-  _appliedFromDate = initialDate;
-  _appliedToDate   = initialDate;
+    // ← Initialize applied dates so filter works immediately
+    _appliedFromDate = initialDate;
+    _appliedToDate = initialDate;
 
-  context.read<AddLeadCubit>().fetchDashboardLeads(
-    staffId:      widget.staff?.id ?? '',
-    role:         widget.staff?.staffType ?? 'Admin',
-    fromCard:     widget.fromCard,
-    selectedDate: initialDate,
-  );
-}
+    context.read<AddLeadCubit>().fetchDashboardLeads(
+      staffId: widget.staff?.id ?? '',
+      role: widget.staff?.staffType ?? 'Admin',
+      fromCard: widget.fromCard,
+      selectedDate: initialDate,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -469,25 +470,28 @@ void initState() {
                             children: [
                               AddLeadsButton(),
                               SizedBox(width: 1.w),
-                              HoverExportButton(onExportExcel: () {
-                              final leads = context
-                                  .read<AddLeadCubit>()
-                                  .state 
-                                  .leads;
-                              final filtered = _filteredLeads(
-                                leads,
-                              ); // exports only filtered data
-                              exportLeadsToExcel(filtered,'new_leads');
-                            }, onExportPDF: () {
-                              final leads = context
-                                  .read<AddLeadCubit>()
-                                  .state 
-                                  .leads;
-                              final filtered = _filteredLeads(
-                                leads,
-                              ); // exports only filtered data
-                              exportLeadsToPdf(filtered);
-                            }),
+                              HoverExportButton(
+                                onExportExcel: () {
+                                  final leads = context
+                                      .read<AddLeadCubit>()
+                                      .state
+                                      .leads;
+                                  final filtered = _filteredLeads(
+                                    leads,
+                                  ); // exports only filtered data
+                                  exportLeadsToExcel(filtered, 'new_leads');
+                                },
+                                onExportPDF: () {
+                                  final leads = context
+                                      .read<AddLeadCubit>()
+                                      .state
+                                      .leads;
+                                  final filtered = _filteredLeads(
+                                    leads,
+                                  ); // exports only filtered data
+                                  exportLeadsToPdf(filtered);
+                                },
+                              ),
                             ],
                           ),
                         ],
@@ -1051,6 +1055,26 @@ void initState() {
                                                   _selectAll = false;
                                                   _tableKey++;
                                                 });
+                                                if (mounted) {
+                                                  context
+                                                      .read<AddLeadCubit>()
+                                                      .fetchDashboardLeads(
+                                                        staffId:
+                                                            widget.staff?.id ??
+                                                            '',
+                                                        role:
+                                                            widget
+                                                                .staff
+                                                                ?.staffType ??
+                                                            'Admin',
+                                                        fromCard:
+                                                            widget.fromCard,
+                                                        selectedDate:
+                                                            widget
+                                                                .selectedDate ??
+                                                            DateTime.now(),
+                                                      );
+                                                }
                                               },
                                         )
                                       : () => ScaffoldMessenger.of(context)
@@ -1300,16 +1324,21 @@ void initState() {
                                       selectedIndex: 31,
                                       lead: lead,
                                     ),
-                                  )
+                                  ),
                                 ).then((_) {
-    // Reload leads from cubit after returning from detail screen
-    context.read<AddLeadCubit>().fetchDashboardLeads(
-      staffId: widget.staff!.id!,
-      role: widget.staff?.staffType ?? 'Admin',
-      fromCard: widget.fromCard,
-      selectedDate: widget.selectedDate ?? DateTime.now(),
-    );
-  });
+                                  // Reload leads from cubit after returning from detail screen
+                                  context
+                                      .read<AddLeadCubit>()
+                                      .fetchDashboardLeads(
+                                        staffId: widget.staff!.id!,
+                                        role:
+                                            widget.staff?.staffType ?? 'Admin',
+                                        fromCard: widget.fromCard,
+                                        selectedDate:
+                                            widget.selectedDate ??
+                                            DateTime.now(),
+                                      );
+                                });
                               },
                               child: _LeadRow(
                                 lead: lead,
@@ -1415,44 +1444,44 @@ void initState() {
 
   // -------export to excel-------
   void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
-  exportToExcel<AddLeadModel>(
-    fileName: fileName,
-     wrapColumnIndices: [2],
-    rows: leads,
-    columns: [
-      ExcelColumn(header: '#',              value: (l) => '${leads.indexOf(l) + 1}'),
-      ExcelColumn(header: 'Client Name',    value: (l) => l.clientName),
-      ExcelColumn(header: 'Phone No',       value: (l) => l.contactNumber),
-      ExcelColumn(header: 'WhatsApp No',    value: (l) => l.whatsappNumber),
-      ExcelColumn(header: 'Email',          value: (l) => l.email),
-      ExcelColumn(header: 'Address',        value: (l) => l.address),
-      ExcelColumn(header: 'Pin Code',       value: (l) => l.pinCode),
-      ExcelColumn(header: 'Post Office',    value: (l) => l.postOffice),
-      ExcelColumn(header: 'State',          value: (l) => l.state),
-      ExcelColumn(header: 'District',       value: (l) => l.district),
-      ExcelColumn(header: 'Lead Category',  value: (l) => l.leadCategory),
-      ExcelColumn(header: 'Lead Source',    value: (l) => l.leadSource),
-      ExcelColumn(header: 'Lead Stage',     value: (l) => l.leadStage),
-      ExcelColumn(header: 'Priority',       value: (l) => l.priority),
-      ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
-      ExcelColumn(header: 'Created By',     value: (l) => l.createdBy),
-      ExcelColumn(header: 'Call Result',    value: (l) => l.callResult),
-      ExcelColumn(header: 'Remarks',        value: (l) => l.remarks),
-      ExcelColumn(
-        header: 'Created Date',
-        value: (l) => l.createdAt != null
-            ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
-            : '-',
-      ),
-    ],
-  );
-}
+    exportToExcel<AddLeadModel>(
+      fileName: fileName,
+      wrapColumnIndices: [2],
+      rows: leads,
+      columns: [
+        ExcelColumn(header: '#', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
+        ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
+        ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),
+        ExcelColumn(header: 'Email', value: (l) => l.email),
+        ExcelColumn(header: 'Address', value: (l) => l.address),
+        ExcelColumn(header: 'Pin Code', value: (l) => l.pinCode),
+        ExcelColumn(header: 'Post Office', value: (l) => l.postOffice),
+        ExcelColumn(header: 'State', value: (l) => l.state),
+        ExcelColumn(header: 'District', value: (l) => l.district),
+        ExcelColumn(header: 'Lead Category', value: (l) => l.leadCategory),
+        ExcelColumn(header: 'Lead Source', value: (l) => l.leadSource),
+        ExcelColumn(header: 'Lead Stage', value: (l) => l.leadStage),
+        ExcelColumn(header: 'Priority', value: (l) => l.priority),
+        ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
+        ExcelColumn(header: 'Created By', value: (l) => l.createdBy),
+        ExcelColumn(header: 'Call Result', value: (l) => l.callResult),
+        ExcelColumn(header: 'Remarks', value: (l) => l.remarks),
+        ExcelColumn(
+          header: 'Created Date',
+          value: (l) => l.createdAt != null
+              ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
+              : '-',
+        ),
+      ],
+    );
+  }
 }
 
 class HoverExportButton extends StatefulWidget {
   final VoidCallback? onExportExcel;
   final VoidCallback? onExportPDF;
-  const HoverExportButton({super.key,this.onExportExcel, this.onExportPDF});
+  const HoverExportButton({super.key, this.onExportExcel, this.onExportPDF});
 
   @override
   State<HoverExportButton> createState() => _HoverExportButtonState();
@@ -1489,8 +1518,16 @@ class _HoverExportButtonState extends State<HoverExportButton> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _item(Icons.table_chart, "Export Excel",onTap: widget.onExportExcel),
-                  _item(Icons.picture_as_pdf, "Export PDF", onTap: widget.onExportPDF),
+                  _item(
+                    Icons.table_chart,
+                    "Export Excel",
+                    onTap: widget.onExportExcel,
+                  ),
+                  _item(
+                    Icons.picture_as_pdf,
+                    "Export PDF",
+                    onTap: widget.onExportPDF,
+                  ),
                 ],
               ),
             ),
@@ -1532,27 +1569,27 @@ class _HoverExportButtonState extends State<HoverExportButton> {
   //   );
   // }
   Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
-  return InkWell(
-    onTap: () {
-      // Close overlay first
-      _isHovering = false;
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      // Then run the action
-      onTap?.call();
-    },
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 10),
-          Text(text),
-        ],
+    return InkWell(
+      onTap: () {
+        // Close overlay first
+        _isHovering = false;
+        _overlayEntry?.remove();
+        _overlayEntry = null;
+        // Then run the action
+        onTap?.call();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 10),
+            Text(text),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1914,7 +1951,7 @@ class _StatusBadge extends StatelessWidget {
         color: getLeadStatusColor(status).withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: getLeadStatusColor(status).withOpacity(0.3)),
-      ), 
+      ),
       child: Text(
         status,
         style: TextStyle(

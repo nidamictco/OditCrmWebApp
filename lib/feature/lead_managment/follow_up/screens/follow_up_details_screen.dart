@@ -638,7 +638,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     if (widget.lead.followUpDate != null &&
         widget.lead.leadStage.toLowerCase() != 'closed' &&
-        widget.lead.leadStage.toLowerCase() != 'rejected') {
+        widget.lead.leadStage.toLowerCase() != 'rejected'&&  widget.lead.leadStage.toLowerCase() != 'new') {
       // followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
       followupGroup[DateFormat(
             'dd-MM-yyyy hh:mm',
@@ -1852,7 +1852,10 @@ class _DateGroup extends StatelessWidget {
                   index == 0 &&
                           dateCount > 1 &&
                           lead.leadStage.toLowerCase() != 'rejected' &&
-                          lead.leadStage.toLowerCase() != "closed"
+                          lead.leadStage.toLowerCase() != "closed" 
+                          &&
+                          //  lead.followUp!.isEmpty
+                          lead.leadStage.toLowerCase() != "new"
                       ? _LastFollowupCard(lead: lead)
                       : lead.followUp!.isNotEmpty && index < dateCount - 1
                       ? _FollowupCard(

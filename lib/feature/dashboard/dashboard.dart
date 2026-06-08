@@ -271,18 +271,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       buildWhen: (previous, current) =>
                           previous.isLoadingCounts != current.isLoadingCounts,
                       builder: (context, state) {
-                        if (state.isLoadingCounts) {
-                          // ── Single centered loader for all 6 cards ─────────────────
-                          return SizedBox(
-                            height: 20.h,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          );
-                        }
+                        // if (state.isLoadingCounts) {
+                        //   // ── Single centered loader for all 6 cards ─────────────────
+                        //   return SizedBox(
+                        //     height: 20.h,
+                        //     child: Center(
+                        //       child: CircularProgressIndicator(
+                        //         strokeWidth: 2.5,
+                        //         color: AppColors.primary,
+                        //       ),
+                        //     ),
+                        //   );
+                        // }
+                         if (state.isLoadingCounts) {
+      return Wrap(
+        spacing: 2.w,
+        runSpacing: 2.h,
+        children: List.generate(6, (_) => const _SkeletonCard()),
+      );
+    }
                         return Wrap(
                           spacing: 2.w,
                           runSpacing: 2.h,
@@ -349,6 +356,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _SkeletonCard extends StatelessWidget {
+  const _SkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 18.w,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [BoxShadow(color: AppColors.lightGrey, blurRadius: 8)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(height: 12, width: 10.w, color: Colors.grey[200]),
+          SizedBox(height: 1.5.h),
+          Container(height: 24, width: 6.w, color: Colors.grey[300]),
+          SizedBox(height: 1.5.h),
+          Container(height: 10, width: 8.w, color: Colors.grey[200]),
         ],
       ),
     );
