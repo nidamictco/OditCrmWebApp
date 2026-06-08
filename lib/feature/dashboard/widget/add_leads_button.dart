@@ -23,13 +23,12 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
 
       child: GestureDetector(
         onTap: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => MainScreen(selectedIndex: 1),
-          //   ),
-          // );
-          migrateHasFollowUp();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainScreen(selectedIndex: 1),
+            ),
+          );
         },
 
         child: AnimatedContainer(
