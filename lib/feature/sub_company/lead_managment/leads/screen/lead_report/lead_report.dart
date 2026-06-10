@@ -62,12 +62,12 @@ class _LeadsReportState extends State<LeadsReport> {
     _appliedToDate = DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cubit = context.read<AddLeadCubit>();
-    cubit.initialize();      // ← loads categories, sources, stages
-    cubit.fetchStaff();      // ← loads staffList for staff/createdBy dropdowns
-    cubit.fetchLeads();
-    _applyFilters();
-  });
+      final cubit = context.read<AddLeadCubit>();
+      cubit.initialize(); // ← loads categories, sources, stages
+      cubit.fetchStaff(); // ← loads staffList for staff/createdBy dropdowns
+      cubit.fetchLeads();
+      _applyFilters();
+    });
   }
 
   // ── Snapshot fields (add alongside your existing selected* fields) ──────────
@@ -122,31 +122,36 @@ class _LeadsReportState extends State<LeadsReport> {
       val.trim().isEmpty ||
       val.toLowerCase().startsWith('select');
 
-      // ── Priority helpers ─────────────────────────────────────────────────────────
-Color getPriorityColor(String priority) {
-  switch (priority.trim().toLowerCase()) {
-    case 'high':
-      return const Color(0xffEF4444); // Red
-    case 'normal':
-      return const Color(0xff22C55E); // Green
-    case 'low':
-      return const Color(0xffF97316); // Orange-Yellow
-    case 'negative':
-      return const Color(0xff9CA3AF); // Grey
-    default:
-      return const Color(0xff9CA3AF);
+  // ── Priority helpers ─────────────────────────────────────────────────────────
+  Color getPriorityColor(String priority) {
+    switch (priority.trim().toLowerCase()) {
+      case 'high':
+        return const Color(0xffEF4444); // Red
+      case 'normal':
+        return const Color(0xff22C55E); // Green
+      case 'low':
+        return Color.fromARGB(255, 226, 249, 22); // Orange-Yellow
+      case 'negative':
+        return const Color(0xff9CA3AF);
+      default:
+        return const Color(0xffFFFFFF);
+    }
   }
-}
 
-int _priorityOrder(String priority) {
-  switch (priority.trim().toLowerCase()) {
-    case 'high':     return 1;
-    case 'normal':   return 2;
-    case 'low':      return 3;
-    case 'negative': return 4;
-    default:         return 5;
+  int _priorityOrder(String priority) {
+    switch (priority.trim().toLowerCase()) {
+      case 'high':
+        return 1;
+      case 'normal':
+        return 2;
+      case 'low':
+        return 3;
+      case 'negative':
+        return 4;
+      default:
+        return 5;
+    }
   }
-}
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
@@ -272,9 +277,10 @@ int _priorityOrder(String priority) {
     }
 
     // ── Priority sort ─────────────────────────────────────────────────────────
-result.sort((a, b) =>
-    _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)));
-
+    result.sort(
+      (a, b) =>
+          _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
+    );
 
     return result;
   }
@@ -457,13 +463,15 @@ result.sort((a, b) =>
                                   SizedBox(width: 2.w),
                                   Expanded(
                                     child: Dropdown(
+                                      showClear: true,
                                       hint: 'select category',
                                       showHelp: true,
-                                      message: 'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
+                                      message:
+                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
-                                        setState(() { 
+                                        setState(() {
                                           selectedCategory = val;
                                           _resetPage();
                                         });
@@ -475,9 +483,10 @@ result.sort((a, b) =>
                                   Expanded(
                                     child: Dropdown(
                                       label: "Lead Stage",
-                                      hint: 'select stage', 
-                                      showHelp: true, 
-                                      message: 'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                      hint: 'select stage',
+                                      showHelp: true,
+                                      message:
+                                          'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
                                       items: stageItems,
                                       selectedValue: selectedLeadStage,
                                       onChanged: (val) {
@@ -514,8 +523,9 @@ result.sort((a, b) =>
                                     child: Dropdown(
                                       label: "Lead Source",
                                       hint: 'select source',
-                                      showHelp: true, 
-                                      message:'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                      showHelp: true,
+                                      message:
+                                          'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
                                       items: sourceItems,
                                       selectedValue: selectedSource,
                                       onChanged: (val) {
@@ -749,11 +759,98 @@ result.sort((a, b) =>
                         if (state.listStatus == LeadListStatus.loaded) {
                           return Column(
                             children: [
+                              SizedBox(height: 2.w),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 2.w,
+                                  bottom: 0.5.h,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xffEF4444),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('High', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff22C55E),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('Normal', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                            255,
+                                            226,
+                                            249,
+                                            22,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('Low', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff9CA3AF),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Negative',
+                                      style: AppTextStyle.small(),
+                                    ),
+                                    SizedBox(width: 0.5.w),
+                                  ],
+                                ),
+                              ),
+
                               CustomTable(
                                 key: ValueKey(_tableKey),
+                                height: 0,
                                 priorityColors: pagedList
-      .map((lead) => getPriorityColor(lead.priority))
-      .toList(), 
+                                    .map(
+                                      (lead) => getPriorityColor(lead.priority),
+                                    )
+                                    .toList(),
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
                                   Navigator.push(
@@ -959,6 +1056,9 @@ result.sort((a, b) =>
                             : [];
                         final filteredList = _filteredLeads(rawList);
 
+                        if (filteredList.isEmpty)
+                          return const SizedBox.shrink();
+
                         // 🔹 Map selected indices → actual lead objects
                         final selectedLeads = _selectedIndices
                             .where((i) => i < filteredList.length)
@@ -976,26 +1076,27 @@ result.sort((a, b) =>
                                 onTap: hasSelection
                                     ? () => _deleteSelectedLeads(selectedLeads)
                                     : () => ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Please select at least one lead before deleting.',
-                                              style: AppTextStyle.medium(
-                                                color: AppColors.white,
-                                                weight: FontWeight.w400,
+                                          .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Please select at least one lead before deleting.',
+                                                style: AppTextStyle.medium(
+                                                  color: AppColors.white,
+                                                  weight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              backgroundColor: AppColors.red,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
                                               ),
                                             ),
-                                            backgroundColor: AppColors.red,
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
                                           ),
-                                        ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 1.w,
@@ -1162,37 +1263,23 @@ result.sort((a, b) =>
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
 
-    final List<Widget> widgets = [];
-
-    // Show at most 5 page buttons centered around current page
-    int start = (_currentPage - 2).clamp(1, totalPages);
-    int end = (start + 4).clamp(1, totalPages);
-    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
-
-    for (int page = start; page <= end; page++) {
-      final isActive = page == _currentPage;
-      widgets.add(
-        GestureDetector(
-          onTap: () => _goToPage(page, totalCount),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-            decoration: BoxDecoration(
-              color: isActive ? AppColors.primary : AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
-            ),
-            child: Text(
-              '$page',
-              style: AppTextStyle.small(
-                size: 11.sp,
-                color: isActive ? AppColors.white : AppColors.grey,
-              ),
-            ),
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
-      );
-    }
-    return widgets;
+      ),
+    ];
   }
 
   // --------------export to excel----------------
@@ -1202,7 +1289,7 @@ result.sort((a, b) =>
       wrapColumnIndices: [2],
       rows: leads,
       columns: [
-        ExcelColumn(header: '#', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'Sl No.', value: (l) => '${leads.indexOf(l) + 1}'),
         ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
         ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
         ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),

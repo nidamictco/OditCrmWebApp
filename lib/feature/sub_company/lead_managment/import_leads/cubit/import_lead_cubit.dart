@@ -8,6 +8,7 @@ import 'package:oxdo/feature/sub_company/lead_managment/import_leads/data/import
 import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
 import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
@@ -79,33 +80,85 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
     }
   }
 
+  // ── Selection helpers ─────────────────────────────────────────────────────
+
+void selectCategory(String? value) => emit(
+  state.copyWith(
+    selectedCategory: value,
+    clearCategory: value == null,
+  ),
+);
+
+void selectSource(String? value) => emit(
+  state.copyWith(
+    selectedSource: value,
+    clearSource: value == null,
+  ),
+);
+
+void selectLeadStage(String? value) => emit(
+  state.copyWith(
+    selectedLeadStage: value,
+    clearLeadStage: value == null,
+  ),
+);
+
+void selectPriority(String? value) => emit(
+  state.copyWith(
+    selectedPriority: value,
+    clearPriority: value == null,
+  ),
+);
+
+void selectStaff(String? value) => emit(
+  state.copyWith(
+    selectedStaff: value,
+    clearStaff: value == null,
+  ),
+);
+
+void selectState(String? value) => emit(
+  state.copyWith(
+    selectedState: value,
+    clearState: value == null,
+    clearDistrict: true,         // always reset district when state changes
+  ),
+);
+
+void selectDistrict(String? value) => emit(
+  state.copyWith(
+    selectedDistrict: value,
+    clearDistrict: value == null,
+  ),
+);
+
   // ── Form selection helpers ────────────────────────────────────────────────
 
   void selectTab(int tab) => emit(state.copyWith(selectedTab: tab));
 
-  void selectCategory(String? value) =>
-      emit(state.copyWith(selectedCategory: value));
+  // void selectCategory(String? value) =>
+  //     emit(state.copyWith(selectedCategory: value));
 
-  void selectSource(String? value) =>
-      emit(state.copyWith(selectedSource: value));
+  // void selectSource(String? value) =>
+  //     emit(state.copyWith(selectedSource: value));
 
-  void selectLeadStage(String? value) =>
-      emit(state.copyWith(selectedLeadStage: value));
+  // void selectLeadStage(String? value) =>
+  //     emit(state.copyWith(selectedLeadStage: value));
 
-  void selectPriority(String? value) =>
-      emit(state.copyWith(selectedPriority: value));
+  // void selectPriority(String? value) =>
+  //     emit(state.copyWith(selectedPriority: value));
 
-  void selectStaff(String? value) => emit(state.copyWith(selectedStaff: value));
+  // void selectStaff(String? value) => emit(state.copyWith(selectedStaff: value));
 
-  void selectState(String? value) => emit(
-    state.copyWith(
-      selectedState: value,
-      clearDistrict: true, // reset district when state changes
-    ),
-  );
+  // void selectState(String? value) => emit(
+  //   state.copyWith(
+  //     selectedState: value,
+  //     clearDistrict: true, // reset district when state changes
+  //   ),
+  // );
 
-  void selectDistrict(String? value) =>
-      emit(state.copyWith(selectedDistrict: value));
+  // void selectDistrict(String? value) =>
+  //     emit(state.copyWith(selectedDistrict: value));
 
   void setDialCode(String code) => emit(state.copyWith(dialCode: code));
 
@@ -171,7 +224,7 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         assignedStaffId: _staffIdFromName(state.selectedStaff),
         leadCategory: state.selectedCategory ?? '',
         leadSource: state.selectedSource ?? '',
-        priority: state.selectedPriority ?? '',
+        priority: state.selectedPriority ?? 'Normal',
         leadStage: state.selectedLeadStage ?? '',
         createdBy: user?.name ?? '',
         createdById: user?.id ?? '',
@@ -240,7 +293,8 @@ if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
     clearCategory: true,
     clearSource: true,
     selectedLeadStage: defaultStage,
-    clearPriority: true,
+    // clearPriority: true,
+    selectedPriority: 'Normal',
     clearStaff: true,
     clearState: true,
     clearDistrict: true,

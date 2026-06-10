@@ -97,7 +97,7 @@ class _MainScreenState extends State<MainScreen> {
   late int selectedIndex;
   bool isSidebarOpen = true;
   AddLeadModel? _editLead;
-   StaffModel? _currentStaff;
+  StaffModel? _currentStaff;
 
   // late final NotificationCubit _notificationCubit;
 
@@ -170,7 +170,6 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  
   void _onItemSelected(int index) {
     setState(() {
       if (selectedIndex == 20 && index != 20) {
@@ -193,7 +192,7 @@ class _MainScreenState extends State<MainScreen> {
           hasPermission: perm.canViewDashboard,
           child: BlocProvider(
             create: (context) =>
-                AddLeadCubit(),//..fetchDashboardCounts(DateTime.now()),
+                AddLeadCubit(), //..fetchDashboardCounts(DateTime.now()),
             child: DashboardScreen(),
           ),
         );
@@ -357,10 +356,10 @@ class _MainScreenState extends State<MainScreen> {
               BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
             ],
             // child: AddStaff(staff: widget.staff,),
-             child: AddStaff(
-        key: ValueKey(_currentStaff?.id ?? 'add_staff'), 
-        staff: _currentStaff, 
-      ),
+            child: AddStaff(
+              key: ValueKey(_currentStaff?.id ?? 'add_staff'),
+              staff: _currentStaff,
+            ),
           ),
         );
       case 16:
@@ -441,26 +440,26 @@ class _MainScreenState extends State<MainScreen> {
       //     ),
       //   );
       case 23:
-  return PermissionGuard(
-    hasPermission: perm.canViewTransferReport,
-    child: FutureBuilder(
-      future: SessionService().getSavedUser(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final user = snapshot.data;
-        return BlocProvider(
-          create: (_) => AddLeadCubit(),
-          child: TransferLeadsReport(
-            currentUserId:   user?.id ?? '',
-            currentUserRole: user?.staffType ?? '',
-            currentUserName: user?.name ?? '',
+        return PermissionGuard(
+          hasPermission: perm.canViewTransferReport,
+          child: FutureBuilder(
+            future: SessionService().getSavedUser(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final user = snapshot.data;
+              return BlocProvider(
+                create: (_) => AddLeadCubit(),
+                child: TransferLeadsReport(
+                  currentUserId: user?.id ?? '',
+                  currentUserRole: user?.staffType ?? '',
+                  currentUserName: user?.name ?? '',
+                ),
+              );
+            },
           ),
         );
-      },
-    ),
-  );
       case 24:
         return PermissionGuard(
           hasPermission: perm.canViewScheduledReport,
@@ -493,18 +492,25 @@ class _MainScreenState extends State<MainScreen> {
           providers: [
             BlocProvider(create: (context) => StaffCubit()),
             BlocProvider(create: (context) => AddLeadCubit()),
-            BlocProvider(create: (context) => StaffActivityCubit(ActivityRepository())),
+            BlocProvider(
+              create: (context) => StaffActivityCubit(ActivityRepository()),
+            ),
           ],
           child: StaffProfileScreen(staff: widget.staff!),
         );
       case 30:
         return TimeLine();
       case 31:
-        return BlocProvider(
-          create: (_) => AddLeadCubit()
-            // ..fetchDashboardLeads(staffId: '', role: '', fromCard: '', selectedDate: )
-            ..initialize()
-            ..fetchStaff(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => AddLeadCubit()
+                // ..fetchDashboardLeads(staffId: '', role: '', fromCard: '', selectedDate: )
+                ..initialize()
+                ..fetchStaff(),
+            ),
+            BlocProvider(create: (context) => LeadCategoryCubit()),
+          ],
           child: FollowUpDetailsScreen(currentLead: widget.lead!),
         );
       case 32:

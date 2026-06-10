@@ -57,7 +57,7 @@ class ImportLeadsState {
     this.selectedCategory,
     this.selectedSource,
     this.selectedLeadStage,
-    this.selectedPriority,
+    this.selectedPriority='Normal',
     this.selectedStaff,
     this.selectedState,
     this.selectedDistrict,

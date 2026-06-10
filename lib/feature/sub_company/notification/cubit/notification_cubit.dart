@@ -6,9 +6,7 @@ import 'package:oxdo/feature/sub_company/notification/cubit/notification_state.d
 import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
 import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
-
-import '../../settings/general_settings/model/general_settings_model.dart';
-
+import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {
   final NotificationRepo _repo;

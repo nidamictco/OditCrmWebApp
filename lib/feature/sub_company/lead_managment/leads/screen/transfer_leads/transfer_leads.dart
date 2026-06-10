@@ -595,6 +595,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                 MaterialPageRoute(
                                                   builder: (_) => MainScreen(
                                                     selectedIndex: 31,
+                                                    lead: lead,
                                                   ),
                                                 ),
                                               );
@@ -682,6 +683,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                             ? state.leads
                             : [];
                         final filteredList = _filteredLeads(rawList);
+if (filteredList.isEmpty) return const SizedBox.shrink();
 
                         // 🔹 Map selected indices → actual lead objects
                         final selectedLeads = _selectedIndices
@@ -981,41 +983,30 @@ class _TransferLeadsState extends State<TransferLeads> {
   }
 
   // ── Page number chips ───────────────────────
-  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
+ List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+  if (totalPages <= 1) return [];
 
-    final List<Widget> widgets = [];
-
-    // Show at most 5 page buttons centered around current page
-    int start = (_currentPage - 2).clamp(1, totalPages);
-    int end = (start + 4).clamp(1, totalPages);
-    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
-
-    for (int page = start; page <= end; page++) {
-      final isActive = page == _currentPage;
-      widgets.add(
-        GestureDetector(
-          onTap: () => _goToPage(page, totalCount),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-            decoration: BoxDecoration(
-              color: isActive ? AppColors.primary : AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
-            ),
-            child: Text(
-              '$page',
-              style: AppTextStyle.small(
-                size: 11.sp,
-                color: isActive ? AppColors.white : AppColors.grey,
-              ),
-            ),
+  return [
+    GestureDetector(
+      onTap: () {}, // already on this page
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          border: Border.all(color: AppColors.lightGrey),
+        ),
+        child: Text(
+          '$_currentPage',
+          style: AppTextStyle.small(
+            size: 11.sp,
+            color: AppColors.white,
           ),
         ),
-      );
-    }
-    return widgets;
-  }
+      ),
+    ),
+  ];
+}
 
   Widget _checkbox() {
     return SizedBox(

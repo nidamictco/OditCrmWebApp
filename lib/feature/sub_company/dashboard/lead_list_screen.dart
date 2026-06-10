@@ -16,12 +16,12 @@ import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/core/utils/transfer_lead_alert.dart';
 import 'package:oxdo/feature/sub_company/dashboard/widget/add_leads_button.dart';
 import 'package:oxdo/feature/sub_company/dashboard/widget/export_leads_to_pdf.dart';
-
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:sizer/sizer.dart';
 
-
-import '../lead_managment/leads/cubit/add_lead_cubit.dart';
-import '../lead_managment/leads/cubit/add_lead_state.dart';
+import '../../../core/shared_preference/session_service.dart';
 import '../lead_managment/leads/model/add_lead_model.dart';
 import '../sidebar/main_screen.dart';
 import '../staff_managment/staff/model/staff_model.dart';
@@ -743,7 +743,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                             ? state.leads
                             : [];
                         final filteredList = _filteredLeads(rawList);
-
+if (filteredList.isEmpty) return const SizedBox.shrink();
                         // ── Map selected IDs → actual lead objects ──
                         final selectedLeads = filteredList
                             .where(
@@ -1408,41 +1408,64 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     );
   }
 
-  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
+  // List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+  //   if (totalPages <= 1) return [];
 
-    final List<Widget> widgets = [];
+  //   final List<Widget> widgets = [];
 
-    int start = (_currentPage - 2).clamp(1, totalPages);
-    int end = (start + 4).clamp(1, totalPages);
-    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
+  //   int start = (_currentPage - 2).clamp(1, totalPages);
+  //   int end = (start + 4).clamp(1, totalPages);
+  //   if (end - start < 4) start = (end - 4).clamp(1, totalPages);
 
-    for (int page = start; page <= end; page++) {
-      final isActive = page == _currentPage;
-      widgets.add(
-        GestureDetector(
-          onTap: () => _goToPage(page, totalCount),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-            decoration: BoxDecoration(
-              color: isActive ? AppColors.primary : AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
-            ),
-            child: Text(
-              '$page',
-              style: AppTextStyle.small(
-                size: 11.sp,
-                color: isActive ? AppColors.white : AppColors.grey,
-              ),
-            ),
+  //   for (int page = start; page <= end; page++) {
+  //     final isActive = page == _currentPage;
+  //     widgets.add(
+  //       GestureDetector(
+  //         onTap: () => _goToPage(page, totalCount),
+  //         child: Container(
+  //           margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+  //           padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+  //           decoration: BoxDecoration(
+  //             color: isActive ? AppColors.primary : AppColors.white,
+  //             border: Border.all(color: AppColors.lightGrey),
+  //           ),
+  //           child: Text(
+  //             '$page',
+  //             style: AppTextStyle.small(
+  //               size: 11.sp,
+  //               color: isActive ? AppColors.white : AppColors.grey,
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  //   return widgets;
+  // }
+List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+  if (totalPages <= 1) return [];
+
+  return [
+    GestureDetector(
+      onTap: () {}, // already on this page
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          border: Border.all(color: AppColors.lightGrey),
+        ),
+        child: Text(
+          '$_currentPage',
+          style: AppTextStyle.small(
+            size: 11.sp,
+            color: AppColors.white,
           ),
         ),
-      );
-    }
-    return widgets;
-  }
-
+      ),
+    ),
+  ];
+}
   // -------export to excel-------
   void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
     exportToExcel<AddLeadModel>(
@@ -1450,7 +1473,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       wrapColumnIndices: [2],
       rows: leads,
       columns: [
-        ExcelColumn(header: '#', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'Sl No.', value: (l) => '${leads.indexOf(l) + 1}'),
         ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
         ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
         ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),

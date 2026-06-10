@@ -685,41 +685,30 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   }
 
   // ── Page number chips ───────────────────────
-  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
+ List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+  if (totalPages <= 1) return [];
 
-    final List<Widget> widgets = [];
-
-    // Show at most 5 page buttons centered around current page
-    int start = (_currentPage - 2).clamp(1, totalPages);
-    int end = (start + 4).clamp(1, totalPages);
-    if (end - start < 4) start = (end - 4).clamp(1, totalPages);
-
-    for (int page = start; page <= end; page++) {
-      final isActive = page == _currentPage;
-      widgets.add(
-        GestureDetector(
-          onTap: () => _goToPage(page, totalCount),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-            padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-            decoration: BoxDecoration(
-              color: isActive ? AppColors.primary : AppColors.white,
-              border: Border.all(color: AppColors.lightGrey),
-            ),
-            child: Text(
-              '$page',
-              style: AppTextStyle.small(
-                size: 11.sp,
-                color: isActive ? AppColors.white : AppColors.grey,
-              ),
-            ),
+  return [
+    GestureDetector(
+      onTap: () {}, // already on this page
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          border: Border.all(color: AppColors.lightGrey),
+        ),
+        child: Text(
+          '$_currentPage',
+          style: AppTextStyle.small(
+            size: 11.sp,
+            color: AppColors.white,
           ),
         ),
-      );
-    }
-    return widgets;
-  }
+      ),
+    ),
+  ];
+}
 
   // ─── Restore confirmation dialog ───────────────────────────────────────────
   void _confirmRestore(BuildContext ctx, AddLeadModel lead) {
@@ -799,7 +788,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     wrapColumnIndices: [2],
     rows: leads,
     columns: [
-      ExcelColumn(header: '#',              value: (l) => '${leads.indexOf(l) + 1}'),
+      ExcelColumn(header: 'SL No.',              value: (l) => '${leads.indexOf(l) + 1}'),
       ExcelColumn(header: 'Client Name',    value: (l) => l.clientName),
       ExcelColumn(header: 'Phone No',       value: (l) => l.contactNumber),
       ExcelColumn(header: 'WhatsApp No',    value: (l) => l.whatsappNumber),

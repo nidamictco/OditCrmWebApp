@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class SessionService {
   static const _keyIsLoggedIn = 'session_is_logged_in';

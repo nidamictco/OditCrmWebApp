@@ -38,7 +38,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
   final List<String> _priorities = ['High', 'Low', 'Negative', 'Normal'];
 
-   Map<String, List<String>> _stateDistrictMap = {};
+  Map<String, List<String>> _stateDistrictMap = {};
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     if (!s.isReady) {
       context.read<ImportLeadsCubit>().initialize();
     }
-     _loadLocations();
+    _loadLocations();
   }
 
   @override
@@ -59,11 +59,10 @@ class _ImportLeadsState extends State<ImportLeads> {
     super.dispose();
   }
 
-
   Future<void> _loadLocations() async {
-  final map = await IndiaLocationService.loadStateDistricts();
-  if (mounted) setState(() => _stateDistrictMap = map);
-}
+    final map = await IndiaLocationService.loadStateDistricts();
+    if (mounted) setState(() => _stateDistrictMap = map);
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // BUILD
@@ -133,9 +132,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       setState(() => _pickedCsvBytes = null);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const MainScreen(selectedIndex: 2),
-        ),
+        MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 2)),
       );
     }
 
@@ -173,7 +170,12 @@ class _ImportLeadsState extends State<ImportLeads> {
             children: [
               InkWell(
                 onTap: () => downloadSampleLeadExcel(),
-                child: _topButton('Sample File', Colors.orange.shade50, Colors.orange)),
+                child: _topButton(
+                  'Sample File',
+                  Colors.orange.shade50,
+                  Colors.orange,
+                ),
+              ),
               SizedBox(width: 1.w),
               InkWell(
                 onTap: () => showDialog(
@@ -244,13 +246,15 @@ class _ImportLeadsState extends State<ImportLeads> {
             selectedValue: state.selectedLeadStage,
             onChanged: cubit.selectLeadStage,
             label: 'Lead Stage',
+            showClear: false,
             hint: 'Select Lead Stage',
           ),
           SizedBox(height: 2.h),
 
           DropdownWithAdd(
             showHelp: true,
-            message: 'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better follow-up.',
+            message:
+                'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better follow-up.',
             label: 'Lead Category',
             icon: Icons.layers_outlined,
             items: categoryNames,
@@ -273,7 +277,8 @@ class _ImportLeadsState extends State<ImportLeads> {
 
           DropdownWithAdd(
             showHelp: true,
-            message: 'Lead Source refers to \nhow the potential customer discovered \nor engaged with the business, \nsuch as through marketing campaigns,\n social media, referrals, events,\n or website inquiries.',
+            message:
+                'Lead Source refers to \nhow the potential customer discovered \nor engaged with the business, \nsuch as through marketing campaigns,\n social media, referrals, events,\n or website inquiries.',
             label: 'Lead Source',
             icon: Icons.layers_rounded,
             items: sourceNames,
@@ -289,6 +294,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             label: 'Priority',
             hint: 'Select Priority',
             selectedValue: state.selectedPriority,
+            showClear: false,
           ),
           SizedBox(height: 2.h),
 
@@ -352,7 +358,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     // ✅ Capture both cubits from the PARENT context before dialog opens.
     //    The dialog's builder context has no BlocProviders, so
     //    context.read<X>() inside the dialog would throw.
-    final importCubit   = context.read<ImportLeadsCubit>();
+    final importCubit = context.read<ImportLeadsCubit>();
     final categoryCubit = context.read<LeadCategoryCubit>();
 
     showDialog(
@@ -396,8 +402,7 @@ class _ImportLeadsState extends State<ImportLeads> {
           await importCubit.refreshCategories();
 
           // ✅ Auto-select the newly added category
-  importCubit.selectCategory(name);
-
+          importCubit.selectCategory(name);
 
           Navigator.pop(ctx);
 
@@ -463,8 +468,7 @@ class _ImportLeadsState extends State<ImportLeads> {
           await importCubit.refreshSources();
 
           // ✅ Auto-select the newly added source
-  importCubit.selectSource(name);
-
+          importCubit.selectSource(name);
 
           Navigator.pop(ctx);
 
@@ -564,15 +568,14 @@ class _ImportLeadsState extends State<ImportLeads> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: canSubmit ? AppColors.green : Colors.grey.shade400,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
         // onPressed: canSubmit
         //     ? () => cubit.importLeads(csvBytes: _pickedCsvBytes!)
         //     : null,
         onPressed: canSubmit
-    ? () => _confirmAndImport(context, state, cubit)
-    : null,
+            ? () => _confirmAndImport(context, state, cubit)
+            : null,
         child: state.isImporting
             ? const SizedBox(
                 width: 14,
@@ -584,8 +587,7 @@ class _ImportLeadsState extends State<ImportLeads> {
               )
             : Text(
                 'Submit',
-                style:
-                    AppTextStyle.medium(size: 10.sp, color: AppColors.white),
+                style: AppTextStyle.medium(size: 10.sp, color: AppColors.white),
               ),
       ),
     );
@@ -634,7 +636,8 @@ class _ImportLeadsState extends State<ImportLeads> {
             ),
           ),
           ToolTipWidget(
-            message: 'Ensure that the file is uploaded\nonly in '
+            message:
+                'Ensure that the file is uploaded\nonly in '
                 'comma-separated\nvalues (csv) format',
           ),
         ],
@@ -693,121 +696,115 @@ class _ImportLeadsState extends State<ImportLeads> {
   }
 
   Future<void> _confirmAndImport(
-  BuildContext context,
-  ImportLeadsState state,
-  ImportLeadsCubit cubit,
-) async {
-  // Show loading while checking duplicates
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
-
-  final duplicateCount = await cubit.checkDuplicates(
-    csvBytes: _pickedCsvBytes!,
-  );
-
-  if (!mounted) return;
-  Navigator.pop(context); // close loading
-
-  if (duplicateCount > 0) {
-    final confirmed = await showDialog<bool>(
+    BuildContext context,
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) async {
+    // Show loading while checking duplicates
+    showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded,
-                color: Colors.orange, size: 28),
-            SizedBox(width: 8),
-            Text(
-              'Duplicates Found',
-              style: AppTextStyle.medium(
-                size: 13.sp,
-                weight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your file contains $duplicateCount existing '
-              'lead${duplicateCount == 1 ? '' : 's'} with phone '
-              'numbers already in the system.',
-              style: AppTextStyle.medium(size: 11.sp),
-            ),
-            SizedBox(height: 1.5.h),
-            Container(
-              padding: EdgeInsets.all(1.w),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline,
-                      color: Colors.orange.shade700, size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Duplicates will be skipped. Only unique '
-                      'leads will be imported.',
-                      style: AppTextStyle.medium(
-                        size: 10.sp,
-                        color: Colors.orange.shade800,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(
-                size: 11.sp,
-                color: AppColors.grey,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              'Import Anyway',
-              style: AppTextStyle.medium(
-                size: 11.sp,
-                color: AppColors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    if (confirmed != true) return; // user pressed Cancel
-  }
+    final duplicateCount = await cubit.checkDuplicates(
+      csvBytes: _pickedCsvBytes!,
+    );
 
-  // No duplicates OR user confirmed → proceed
-  cubit.importLeads(csvBytes: _pickedCsvBytes!);
-}
+    if (!mounted) return;
+    Navigator.pop(context); // close loading
+
+    if (duplicateCount > 0) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+              SizedBox(width: 8),
+              Text(
+                'Duplicates Found',
+                style: AppTextStyle.medium(
+                  size: 13.sp,
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your file contains $duplicateCount existing '
+                'lead${duplicateCount == 1 ? '' : 's'} with phone '
+                'numbers already in the system.',
+                style: AppTextStyle.medium(size: 11.sp),
+              ),
+              SizedBox(height: 1.5.h),
+              Container(
+                padding: EdgeInsets.all(1.w),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.orange.shade700,
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Duplicates will be skipped. Only unique '
+                        'leads will be imported.',
+                        style: AppTextStyle.medium(
+                          size: 10.sp,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(
+                'Cancel',
+                style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                'Import Anyway',
+                style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return; // user pressed Cancel
+    }
+
+    // No duplicates OR user confirmed → proceed
+    cubit.importLeads(csvBytes: _pickedCsvBytes!);
+  }
 }

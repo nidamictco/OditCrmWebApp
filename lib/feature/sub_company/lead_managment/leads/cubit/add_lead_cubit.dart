@@ -70,12 +70,12 @@ if (isClosed) return;
   }
 
   void resetStatus() {
-    emit(state.copyWith(
-      status: AddLeadStatus.initial,
-      successMessage: '',
-      errorMessage: null,
-    ));
-  }
+  emit(state.copyWith(
+    status: AddLeadStatus.initial,
+    successMessage: '',
+    errorMessage: null,
+  ));
+}
 
   void initSettings(String staffId) {
     _settingsRepo = GeneralSettingsRepository(staffId: staffId);
@@ -139,17 +139,52 @@ if (isClosed) return;
 
   // ── Selection helpers ─────────────────────────────────────────────────────
 
-  void selectCategory(String? value) =>
-      emit(state.copyWith(selectedCategory: value));
+void selectCategory(String? value) => emit(
+  state.copyWith(
+    selectedCategory: value,
+    clearCategory: value == null,
+  ),
+);
 
-  void selectSource(String? value) =>
-      emit(state.copyWith(selectedSource: value));
+void selectSource(String? value) => emit(
+  state.copyWith(
+    selectedSource: value,
+    clearSource: value == null,
+  ),
+);
 
-  void selectPriority(String? value) =>
-      emit(state.copyWith(selectedPriority: value));
+void selectLeadStage(String? value) => emit(
+  state.copyWith(
+    selectedLeadStage: value,
+    clearLeadStage: value == null,
+  ),
+);
 
-  void selectLeadStage(String? value) =>
-      emit(state.copyWith(selectedLeadStage: value));
+void selectPriority(String? value) => emit(
+  state.copyWith(
+    selectedPriority: value,
+    clearPriority: value == null,
+  ),
+);
+
+void selectLeadTag(String? value) => emit(
+  state.copyWith(
+    selectedLeadTag: value,
+    clearLeadTag: value == null,  // add this flag if missing
+  ),
+);
+
+  // void selectCategory(String? value) =>
+  //     emit(state.copyWith(selectedCategory: value));
+
+  // void selectSource(String? value) =>
+  //     emit(state.copyWith(selectedSource: value));
+
+  // void selectPriority(String? value) =>
+  //     emit(state.copyWith(selectedPriority: value));
+
+  // void selectLeadStage(String? value) =>
+  //     emit(state.copyWith(selectedLeadStage: value));
 
   void selectState(String? value) => emit(
     state.copyWith(
@@ -166,8 +201,8 @@ if (isClosed) return;
   void selectCallResult(String? value) =>
       emit(state.copyWith(selectedCallResult: value));
 
-  void selectLeadTag(String? value) =>
-      emit(state.copyWith(selectedLeadTag: value));
+  // void selectLeadTag(String? value) =>
+  //     emit(state.copyWith(selectedLeadTag: value));
 
   void selectAssignedStaff({required String name, required String id}) {
     emit(state.copyWith(assignedStaffName: name, assignedStaffId: id));
@@ -1210,16 +1245,26 @@ Future<void> fetchCallStatusCounts({
     }
   }
 
-  void setFollowup4Edit(){
-    emit(state.copyWith(
-      status: AddLeadStatus.loading,
-      clearError: true,
-      successMessage: "",
+  // void setFollowup4Edit(){
+  //   emit(state.copyWith(
+  //     status: AddLeadStatus.loading,
+  //     clearError: true,
+  //     successMessage: "",
 
-    ));
+  //   ));
 
-  }
-
+  // }
+void setFollowup4Edit() {
+  emit(state.copyWith(
+    status: AddLeadStatus.loading,
+    clearError: true,
+    successMessage: '',
+    // Add these to ensure clean slate:
+    clearCategory: true,
+    clearLeadStage: true,
+    clearPriority: true,
+  ));
+}
 
 }
 
