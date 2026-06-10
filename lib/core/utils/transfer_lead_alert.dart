@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../feature/lead_managment/leads/cubit/add_lead_cubit.dart';
-import '../../feature/lead_managment/leads/cubit/add_lead_state.dart';
-import '../../feature/lead_managment/leads/model/add_lead_model.dart';
+import '../../feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
+import '../../feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
+import '../../feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'dropdown.dart';

@@ -1,7 +1,7 @@
 import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
-import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 
 class ServiceLocator {
   ServiceLocator._();

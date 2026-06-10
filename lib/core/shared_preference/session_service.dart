@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionService {

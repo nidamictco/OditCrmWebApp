@@ -20,7 +20,8 @@ class CustomTable extends StatefulWidget {
   final List<bool>? initialCheckedStates;
   final void Function(int rowIndex)? onRowTap;
   final void Function(int rowIndex, bool checked)? onCheckChanged;
-  final List<Color>? priorityColors; 
+  final List<Color>? priorityColors;
+  final double? height;
 
   const CustomTable({
     super.key,
@@ -32,6 +33,7 @@ class CustomTable extends StatefulWidget {
     this.initialCheckedStates,
     this.onCheckChanged,
     this.priorityColors,
+    this.height,
   });
 
   @override
@@ -85,7 +87,7 @@ class _CustomTableState extends State<CustomTable> {
   Widget build(BuildContext context) {
     return Container(
       width: 100.w,
-      margin: EdgeInsets.all(2.w),
+      margin: EdgeInsets.only(right: 2.w, left: 2.w, bottom: 2.w, top:widget.height ?? 2.w),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: AppColors.divider),
@@ -121,6 +123,7 @@ class _CustomTableState extends State<CustomTable> {
       ),
       child: Row(
         children: [
+          SizedBox(width: 1.2.w),
           SizedBox(width: 1.5.w),
           // Checkbox header placeholder (keeps alignment)
           if (widget.showCheckboxes)
@@ -165,12 +168,12 @@ class _CustomTableState extends State<CustomTable> {
   /// ROWS
   List<Widget> _buildRows() {
     return List.generate(widget.rows.length, (rowIndex) {
-       final dotColor = (widget.priorityColors != null &&
-            rowIndex < widget.priorityColors!.length)
-        ? widget.priorityColors![rowIndex]
-        : Colors.transparent;
+      final dotColor =
+          (widget.priorityColors != null &&
+              rowIndex < widget.priorityColors!.length)
+          ? widget.priorityColors![rowIndex]
+          : Colors.transparent;
       return GestureDetector(
-        
         onTap: () => widget.onRowTap?.call(rowIndex),
         child: Container(
           decoration: BoxDecoration(
@@ -181,45 +184,41 @@ class _CustomTableState extends State<CustomTable> {
             children: [
               SizedBox(width: 1.5.w),
 
-               // ── Priority dot ───────────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.only(right: 0.6.w),
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
+              // ── Priority dot ───────────────────────────────────────────────
+              Padding(
+                padding: EdgeInsets.only(right: 0.6.w),
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
 
               // 🔹 Checkbox cell
               // Row(
-              //   children: [ 
-                 
-                  if (widget.showCheckboxes)
-                    SizedBox(
-                      width: 5.w,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.symmetric(vertical: 1.h),
-                        decoration: BoxDecoration(
-                          // border: Border(right: BorderSide(color: AppColors.divider)),
-                        ),
-                        child: Checkbox(
-                          value: _checkedStates[rowIndex],
-                          activeColor:
-                              AppColors.primary, // use your brand color
-                          onChanged: (val) {
-                            setState(
-                              () => _checkedStates[rowIndex] = val ?? false,
-                            );
-                            widget.onCheckChanged?.call(rowIndex, val ?? false);
-                          },
-                        ),
-                      ),
+              //   children: [
+              if (widget.showCheckboxes)
+                SizedBox(
+                  width: 5.w,
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.symmetric(vertical: 1.h),
+                    decoration: BoxDecoration(
+                      // border: Border(right: BorderSide(color: AppColors.divider)),
                     ),
+                    child: Checkbox(
+                      value: _checkedStates[rowIndex],
+                      activeColor: AppColors.primary, // use your brand color
+                      onChanged: (val) {
+                        setState(() => _checkedStates[rowIndex] = val ?? false);
+                        widget.onCheckChanged?.call(rowIndex, val ?? false);
+                      },
+                    ),
+                  ),
+                ),
               //   ],
               // ),
 

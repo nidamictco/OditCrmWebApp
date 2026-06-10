@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class FirebaseAuthService {
   FirebaseAuthService({FirebaseFirestore? firestore})
