@@ -8,14 +8,14 @@ import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/auth_gate.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
-import 'package:oxdo/feature/sidebar/main_screen.dart';
-import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
-import 'package:oxdo/feature/staff_managment/staff/data/add_staff_repo.dart';
+
 // import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'firebase_options.dart';
 
 void main() async {

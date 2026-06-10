@@ -1,6 +1,6 @@
 {
-    "name": "oxdo",
-    "short_name": "oxdo",
+    "name": "odit_crm",
+    "short_name": "odit_crm",
     "start_url": ".",
     "display": "standalone", 
     "background_color": "#0175C2",

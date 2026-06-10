@@ -21,10 +21,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -50,22 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAb1qg3coXeIhrLAFDbpvqZMTygQPM5GvY',
-    appId: '1:446854947362:web:a2f467eebfce363a64e07b',
-    messagingSenderId: '446854947362',
-    projectId: 'oxdo-leads',
-    authDomain: 'oxdo-leads.firebaseapp.com',
-    storageBucket: 'oxdo-leads.firebasestorage.app',
-    measurementId: 'G-CEF73YTBR9',
+    apiKey: 'AIzaSyCwYAM2Mai3kapSDCrIObEJjwvK5xJ2SMY',
+    appId: '1:71617127087:web:f996a540618638bc6aaa5a',
+    messagingSenderId: '71617127087',
+    projectId: 'odit-crm',
+    authDomain: 'odit-crm.firebaseapp.com',
+    storageBucket: 'odit-crm.firebasestorage.app',
+    measurementId: 'G-0F5ZYQDLBK',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAaho6H9DUuexdPUC6dJxpF8Np5V4YYgkI',
-    appId: '1:446854947362:ios:f68de24a836b855664e07b',
-    messagingSenderId: '446854947362',
-    projectId: 'oxdo-leads',
-    storageBucket: 'oxdo-leads.firebasestorage.app',
+    apiKey: 'AIzaSyBMcskuxXgej3nyS6KpBIhv7--rYAZwU9k',
+    appId: '1:71617127087:ios:560430ef1a5492de6aaa5a',
+    messagingSenderId: '71617127087',
+    projectId: 'odit-crm',
+    storageBucket: 'odit-crm.firebasestorage.app',
     iosBundleId: 'com.example.oxdo',
   );
 
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyC3-fj4CpIBi8szwybjdKTmAqkYVm8kMTE',
+    appId: '1:71617127087:android:05cccd1ecd6a50936aaa5a',
+    messagingSenderId: '71617127087',
+    projectId: 'odit-crm',
+    storageBucket: 'odit-crm.firebasestorage.app',
+  );
 }

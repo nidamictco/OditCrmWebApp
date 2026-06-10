@@ -1,7 +1,11 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+
+import '../../../core/constant/firebase_collections.dart';
+import '../../../core/constant/firebase_const.dart';
+import '../../sub_company/staff_managment/staff/model/staff_model.dart';
+
 
 class FirebaseAuthService {
   FirebaseAuthService({FirebaseFirestore? firestore})
@@ -9,56 +13,126 @@ class FirebaseAuthService {
 
   final FirebaseFirestore _firestore;
 
+  // CollectionReference<Map<String, dynamic>> get _staff =>
+  //     _firestore.collection('STAFF');
+
   CollectionReference<Map<String, dynamic>> get _staff =>
-      _firestore.collection('STAFF');
+      FirestorePath.companyCollection(DBCollections.staff);
+
+  static CollectionReference<Map<String, dynamic>> get users =>
+      FirebaseFirestore.instance.collection(DBCollections.users);
 
   Future<StaffModel> login({
     required String phoneNo,
     required String password,
   }) async {
     try {
-      log('[FirebaseAuthService] Querying STAFF where PHONE == $phoneNo');
+      // ====================================================
+      // 1. CHECK USERS COLLECTION
+      // ====================================================
 
-      final query = await _staff
+      final userQuery = await users
           .where('phone', isEqualTo: phoneNo.trim())
           .limit(1)
-          .get(); 
+          .get();
 
-      log('[FirebaseAuthService] Docs found: ${query.docs.length}');
+      if (userQuery.docs.isNotEmpty) {
+        final doc = userQuery.docs.first;
+        final data = doc.data();
 
-      if (query.docs.isEmpty) {
-        throw AuthException('No account found for "$phoneNo".');
+        if ((data['password'] ?? '') != password) {
+          throw AuthException('Incorrect password.');
+        }
+
+        return StaffModel.fromFirestore(doc);
       }
 
-      final doc = query.docs.first;
-      final data = doc.data(); 
+      // ====================================================
+      // 2. CHECK ALL STAFF SUBCOLLECTIONS
+      // ====================================================
 
-      log('[FirebaseAuthService] Raw doc data: $data');
- 
-      final storedPassword = data['password'] as String? ?? '';
+      final staffQuery = await _firestore
+          .collectionGroup(DBCollections.staff)
+          .where('phone', isEqualTo: phoneNo.trim())
+          .limit(1)
+          .get();
 
-      if (storedPassword != password) {
+      if (staffQuery.docs.isEmpty) {
+        throw AuthException('No account found.');
+      }
+
+      final doc = staffQuery.docs.first;
+      final data = doc.data();
+
+      if ((data['password'] ?? '') != password) {
         throw AuthException('Incorrect password.');
       }
 
-      try {
-        final user = StaffModel.fromFirestore(doc);
-        log('[FirebaseAuthService] UserModel built: $user');
-        return user;
-      } catch (e) { 
-        log('[FirebaseAuthService] fromMap parse error: $e  |  raw data: $data');
-        throw AuthException('Failed to parse user data: $e');
-      }
-    } on AuthException {
+      // ====================================================
+      // 3. EXTRACT COMPANY ID
+      // ====================================================
+
+      final companyId = doc.reference.parent.parent!.id;
+
+      FirestorePath.initializeCompany(companyId);
+
+      log('Company initialized: $companyId');
+
+      return StaffModel.fromFirestore(doc);
+    } catch (e) {
       rethrow;
-    } on FirebaseException catch (e) {
-      log('[FirebaseAuthService] FirebaseException: ${e.message}');
-      throw AuthException('Firebase error: ${e.message}');
-    } catch (e, st) {
-      log('[FirebaseAuthService] Unexpected: $e', stackTrace: st);
-      throw AuthException('Unexpected error: $e');
     }
   }
+
+  // Future<StaffModel> login({
+  //   required String phoneNo,
+  //   required String password,
+  // }) async {
+  //   try {
+  //     log('[FirebaseAuthService] Querying STAFF where PHONE == $phoneNo');
+  //
+  //     final query = await _staff
+  //         .where('phone', isEqualTo: phoneNo.trim())
+  //         .limit(1)
+  //         .get();
+  //
+  //     log('[FirebaseAuthService] Docs found: ${query.docs.length}');
+  //
+  //     if (query.docs.isEmpty) {
+  //       throw AuthException('No account found for "$phoneNo".');
+  //     }
+  //
+  //     final doc = query.docs.first;
+  //     final data = doc.data();
+  //
+  //     log('[FirebaseAuthService] Raw doc data: $data');
+  //
+  //     final storedPassword = data['password'] as String? ?? '';
+  //
+  //     if (storedPassword != password) {
+  //       throw AuthException('Incorrect password.');
+  //     }
+  //
+  //     try {
+  //       final user = StaffModel.fromFirestore(doc);
+  //       log('[FirebaseAuthService] UserModel built: $user');
+  //       return user;
+  //     } catch (e) {
+  //       log('[FirebaseAuthService] fromMap parse error: $e  |  raw data: $data');
+  //       throw AuthException('Failed to parse user data: $e');
+  //     }
+  //   } on AuthException {
+  //     rethrow;
+  //   } on FirebaseException catch (e) {
+  //     log('[FirebaseAuthService] FirebaseException: ${e.message}');
+  //     throw AuthException('Firebase error: ${e.message}');
+  //   } catch (e, st) {
+  //     log('[FirebaseAuthService] Unexpected: $e', stackTrace: st);
+  //     throw AuthException('Unexpected error: $e');
+  //   }
+  // }
+
+
 }
 
 class AuthException implements Exception {

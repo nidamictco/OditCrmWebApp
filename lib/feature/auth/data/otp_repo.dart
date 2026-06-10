@@ -1,7 +1,8 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+
+import '../../sub_company/staff_managment/staff/model/staff_model.dart';
 
 class OtpScreen {
   OtpScreen({FirebaseFirestore? firestore, FirebaseAuth? auth})
