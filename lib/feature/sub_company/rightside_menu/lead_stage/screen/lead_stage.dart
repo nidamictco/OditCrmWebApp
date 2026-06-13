@@ -434,7 +434,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(title: "Lead Status", flex: 4),
                                     TableColumn(title: "Created By", flex: 4),
                                     TableColumn(title: "Action", flex: 2),

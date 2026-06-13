@@ -1,8 +1,11 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/feature/sub_company/sidebar/widget/hover/sidebar_hover.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 class MiniSidebar extends StatelessWidget {
@@ -19,6 +22,7 @@ class MiniSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final perm = context.watch<PermissionCubit>();
     return Container(
       width: 70,
       color: Colors.white,
@@ -40,14 +44,13 @@ class MiniSidebar extends StatelessWidget {
 
           SizedBox(height: 5.h),
 
-          /// DASHBOARD
+          /// DASHBOARD — non-expandable, direct tap
           HoverSidebarItem(
             icon: Icons.dashboard,
             title: "Dashboard",
-            isExpandable: true,
-            children: ["Dashboard"],
+            isExpandable: false,
             isSelected: selectedIndex == 0,
-            onItemTap: (Index) => onItemSelected(0),
+            onTap: () => onItemSelected(0),
           ),
 
           /// LEAD MANAGEMENT
@@ -56,13 +59,13 @@ class MiniSidebar extends StatelessWidget {
             title: "Lead Management",
             isExpandable: true,
             children: [
-              "Add Lead",
-              "Leads Report",
-              'Import Leads',
-              'Deleted Leads',
+              if(perm.canAddLead)"Add Lead",
+             if(perm.canViewLeadsReport) "Leads Report",
+              if (perm.canImportLeads) 'Import Leads',
+             if (perm.canViewDeletedLeads) 'Deleted Leads',
               // "Call History",
-              'Unassigned Leads',
-              "Transfer Leads",
+              // 'Unassigned Leads',
+             if (perm.canTransferLeads || perm.canViewTransferLeads) "Transfer Leads",
               // "Phone Call Log",
             ],
             isSelected: _isGroupSelected([1, 2, 14, 4 /*,3*/, 13, 5 /*6*/]),
@@ -72,17 +75,13 @@ class MiniSidebar extends StatelessWidget {
             },
           ),
 
-          /// SETTINGS
-          HoverSidebarItem(
+          /// SETTINGS — non-expandable, direct tap
+          if (perm.canViewGeneralSettings) HoverSidebarItem(
             icon: Icons.settings,
             title: "Settings",
-            isExpandable: true,
-            children: ["General Settings" /*"Facebook Settings"*/],
+            isExpandable: false,
             isSelected: _isGroupSelected([20 /*21*/]),
-            onItemTap: (index) {
-              const map = [20 /*21*/];
-              onItemSelected(map[index]);
-            },
+            onTap: () => onItemSelected(20),
           ),
 
           /// STAFF MANAGEMENT
@@ -91,10 +90,10 @@ class MiniSidebar extends StatelessWidget {
             title: "Staff Management",
             isExpandable: true,
             children: [
-              "Add Staff",
-              "View Staff",
-              "Designations",
-              "Deleted Staff",
+              if (perm.canAddStaff)  "Add Staff",
+              if (perm.canViewStaff) "View Staff",
+             if (perm.canViewDesignation) "Designations",
+             if (perm.canViewDeletedStaff) "Deleted Staff",
             ],
             isSelected: _isGroupSelected([15, 16, 17, 18]),
             onItemTap: (index) {
@@ -103,7 +102,7 @@ class MiniSidebar extends StatelessWidget {
             },
           ),
 
-          // /// FILES  MANAGEMENT
+          // /// FILES MANAGEMENT
           // HoverSidebarItem(
           //   icon: Icons.folder,
           //   title: "Files Manager",
@@ -116,17 +115,17 @@ class MiniSidebar extends StatelessWidget {
           //   },
           // ),
 
-          /// reports
+          /// REPORTS
           HoverSidebarItem(
             icon: Icons.file_copy,
             title: "Reports",
             isExpandable: true,
             children: [
-              "Staff Report",
-              "Transfer Leads Reports",
-              "Total Leads Reports",
-              "Scheduled Leads Reports",
-              "Rejected leads Reports",
+              if (perm.canViewStaffReport) "Staff Report",
+              if (perm.canViewTransferReport) "Transfer Leads Reports",
+              if (perm.canViewTotalReport)"Total Leads Reports",
+              // "Scheduled Leads Reports",
+             if (perm.canViewRejectedReport)"Rejected leads Reports",
             ],
             isSelected: _isGroupSelected([22, 23, 2, 24, 25]),
             onItemTap: (index) {

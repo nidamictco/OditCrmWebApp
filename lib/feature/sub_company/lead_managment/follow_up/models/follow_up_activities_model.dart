@@ -25,8 +25,8 @@ class ActivityModel {
   final String? newValue;
   final String description; 
   final String? leadId;
-  final String? leadName; // ← new field
-  final String? leadPhone; // ← new field
+  final String? leadName;
+  final String? leadPhone;
     
 
   const ActivityModel({

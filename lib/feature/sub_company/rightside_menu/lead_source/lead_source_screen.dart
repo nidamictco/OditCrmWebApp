@@ -426,7 +426,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(title: "Lead Source", flex: 4),
                                     TableColumn(title: "Created By", flex: 4),
                                     TableColumn(title: "Action", flex: 2),

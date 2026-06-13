@@ -33,7 +33,6 @@ class AddLeadModel {
   final String? callResult;
   final List<TransferDetails>? transferLeads;
 
-
   const AddLeadModel({
     this.id,
     required this.clientName,
@@ -64,8 +63,8 @@ class AddLeadModel {
     this.calledDate,
 
     this.followUp,
-    this.leadTag='',
-    this.callResult='',
+    this.leadTag = '',
+    this.callResult = '',
     this.transferLeads,
   });
 
@@ -93,22 +92,25 @@ class AddLeadModel {
       'createdById': createdById,
       'createdAt': FieldValue.serverTimestamp(),
       // 'updatedAt': FieldValue.serverTimestamp(),
-       'updatedAt': null, 
+      'updatedAt': null,
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
-        'nextFollowUpDate' : followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
-        'lastCalledDate' : calledDate != null ? Timestamp.fromDate(calledDate!) : null,
+      'nextFollowUpDate': followUpDate != null
+          ? Timestamp.fromDate(followUpDate!)
+          : null,
+      'lastCalledDate': calledDate != null
+          ? Timestamp.fromDate(calledDate!)
+          : null,
       // 'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
       'leadTag': leadTag,
       'callResult': callResult,
-      'transferLeads': transferLeads != null ? transferLeads!.map((e) => e.toFirestore()).toList() : [],
-    }; 
+      'transferLeads': transferLeads != null
+          ? transferLeads!.map((e) => e.toFirestore()).toList()
+          : [],
+    };
   }
 
-  factory AddLeadModel.fromFirestore(
-    Map<String, dynamic> data,
-    String docId,
-  ) {
+  factory AddLeadModel.fromFirestore(Map<String, dynamic> data, String docId) {
     return AddLeadModel(
       id: docId,
       clientName: data['clientName'] ?? '',
@@ -141,15 +143,15 @@ class AddLeadModel {
       calledDate: (data['lastCalledDate'] as Timestamp?)?.toDate(),
       followUp: data['followUp'] != null
           ? (data['followUp'] as List<dynamic>)
-              .map((e) => FollowUpModel.fromFirestore(e, ''))
-              .toList()
+                .map((e) => FollowUpModel.fromFirestore(e, ''))
+                .toList()
           : null,
       leadTag: data['leadTag'] ?? '',
       callResult: data['callResult'] ?? '',
       transferLeads: data['transferLeads'] != null
           ? (data['transferLeads'] as List<dynamic>)
-              .map((e) => TransferDetails.fromFirestore(e, ''))
-              .toList()
+                .map((e) => TransferDetails.fromFirestore(e, ''))
+                .toList()
           : null,
     );
   }
@@ -175,7 +177,7 @@ class AddLeadModel {
     String? leadStage,
     String? remarks,
     DateTime? createdAt,
-     DateTime? updatedAt,
+    DateTime? updatedAt,
     String? createdBy,
     String? createdById,
     Map<String, String>? additionalFields,
@@ -222,16 +224,14 @@ class AddLeadModel {
     );
   }
 
- 
-Map<String, dynamic> toUpdateMap() {
-  final map = toFirestore();
-  map.remove('createdAt');     
-  map.remove('createdById');    
-  map.remove('createdBy');
-  map['updatedAt'] = FieldValue.serverTimestamp();
-  return map;
-}
-
+  Map<String, dynamic> toUpdateMap() {
+    final map = toFirestore();
+    map.remove('createdAt');
+    map.remove('createdById');
+    map.remove('createdBy');
+    map['updatedAt'] = FieldValue.serverTimestamp();
+    return map;
+  }
 }
 
 class FollowUpModel {
@@ -248,6 +248,11 @@ class FollowUpModel {
   final String leadCategory;
   final String priority;
   final String remarks;
+  final String adress;
+  final String email;
+  final String assignedStaff;
+  final String assignedStaffId;
+
   final String createdById;
   final DateTime? createdAt;
 
@@ -265,6 +270,10 @@ class FollowUpModel {
     required this.leadCategory,
     required this.priority,
     required this.remarks,
+    required this.adress,
+    required this.email,
+    required this.assignedStaff,
+    required this.assignedStaffId,
     required this.createdById,
     this.createdAt,
   });
@@ -276,14 +285,20 @@ class FollowUpModel {
       leadName: data['leadName'] ?? '',
       leadWhatsappNo: data['leadWhatsappNo'] ?? '',
       leadWhatsappDialCode: data['leadWhatsappDialCode'] ?? '',
-      nextFollowUpDate: (data['nextFollowUpDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      nextFollowUpDate:
+          (data['nextFollowUpDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       leadTag: data['leadTag'] ?? '',
       calledStatus: data['calledStatus'] ?? '',
-      calledDate: (data['calledDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      calledDate:
+          (data['calledDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       leadStage: data['leadStage'] ?? '',
       leadCategory: data['leadCategory'] ?? '',
       priority: data['priority'] ?? '',
       remarks: data['remarks'] ?? '',
+      adress: data['address'] ?? '',
+      email: data['email'] ?? '',
+      assignedStaff: data['assignedStaff']??'',
+      assignedStaffId: data['assignedStaffId']??'',
       createdById: data['createdById'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
@@ -303,8 +318,14 @@ class FollowUpModel {
       'leadCategory': leadCategory,
       'priority': priority,
       'remarks': remarks,
+      'address': adress,
+      'email': email,
+      'assignedStaff':assignedStaff,
+      'assignedStaffId':assignedStaffId,
       'createdById': createdById,
-      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+      'createdAt': createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
     };
   }
 
@@ -322,6 +343,10 @@ class FollowUpModel {
     String? leadCategory,
     String? priority,
     String? remarks,
+    String? adress,
+    String? email,
+    String? assignedStaff,
+    String? assignedStaffId,
     String? createdById,
     DateTime? createdAt,
   }) {
@@ -339,11 +364,16 @@ class FollowUpModel {
       leadCategory: leadCategory ?? this.leadCategory,
       priority: priority ?? this.priority,
       remarks: remarks ?? this.remarks,
+      adress: adress ?? this.adress,
+      email: email ?? this.email,
+      assignedStaff: assignedStaff?? this.assignedStaff,
+      assignedStaffId: assignedStaffId??this.assignedStaffId,
       createdById: createdById ?? this.createdById,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 }
+
 class TransferDetails {
   final String? id;
   final String leadId;
@@ -351,11 +381,11 @@ class TransferDetails {
   final String contactNumber;
   final String leadCategory;
   final String leadStage;
-  final String fromStaffId; 
+  final String fromStaffId;
   final String fromStaff;
   final String toStaffId;
   final String toStaff;
-  final DateTime? transferTime; 
+  final DateTime? transferTime;
 
   const TransferDetails({
     this.id,
@@ -368,13 +398,16 @@ class TransferDetails {
     required this.fromStaff,
     required this.toStaffId,
     required this.toStaff,
-    this.transferTime, 
+    this.transferTime,
   });
 
-  factory TransferDetails.fromFirestore(Map<String, dynamic> data, String docId) {
+  factory TransferDetails.fromFirestore(
+    Map<String, dynamic> data,
+    String docId,
+  ) {
     return TransferDetails(
       id: docId,
-      leadId: data['leadId'] ?? '',       
+      leadId: data['leadId'] ?? '',
       leadName: data['leadName'] ?? '',
       contactNumber: data['contactNumber'] ?? '',
       leadCategory: data['leadCategory'] ?? '',
@@ -383,7 +416,8 @@ class TransferDetails {
       fromStaff: data['fromStaff'] ?? '',
       toStaffId: data['toStaffId'] ?? '',
       toStaff: data['toStaff'] ?? '',
-      transferTime: (data['transferTime'] as Timestamp?)?.toDate(), // ✅ safely nullable
+      transferTime: (data['transferTime'] as Timestamp?)
+          ?.toDate(), // ✅ safely nullable
     );
   }
 
@@ -398,13 +432,13 @@ class TransferDetails {
       'fromStaff': fromStaff,
       'toStaffId': toStaffId,
       'toStaff': toStaff,
-      'transferTime': transferTime != null  
+      'transferTime': transferTime != null
           ? Timestamp.fromDate(transferTime!)
           : FieldValue.serverTimestamp(),
     };
   }
 
-   TransferDetails copyWith({
+  TransferDetails copyWith({
     String? id,
     String? leadId,
     String? leadName,
@@ -431,6 +465,4 @@ class TransferDetails {
       transferTime: transferTime ?? this.transferTime,
     );
   }
-
- 
 }

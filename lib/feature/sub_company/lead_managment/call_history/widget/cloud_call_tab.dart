@@ -108,7 +108,7 @@ Expanded(
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "#", flex: 1),
+              TableColumn(title: "Sl No.", flex: 1),
               TableColumn(title: "Staff", flex: 4),
               TableColumn(title: "From Phone", flex: 4),
               TableColumn(title: "To Phone", flex: 4),

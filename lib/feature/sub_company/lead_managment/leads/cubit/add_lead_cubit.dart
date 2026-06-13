@@ -465,13 +465,18 @@ if (isDuplicate) {
       if (isClosed) return;
       final newLead = lead.copyWith(id: newId);
 
-      if (resolvedStaffId.isNotEmpty) {
-        await notificationRepo.create(
-          staffId: resolvedStaffId,
-          title: 'New Lead Assigned',
-          message: 'Name:${lead.clientName} phone No:${lead.contactNumber}',
-        );
-      }
+      // if (resolvedStaffId.isNotEmpty) {
+      //   await notificationRepo.create(
+      //     staffId: resolvedStaffId,
+      //     title: 'New Lead Assigned',
+      //     message: 'Name:${lead.clientName} phone No:${lead.contactNumber}',
+      //   );
+      // }
+        await notificationRepo.createForAdmins(
+        title: 'New Lead Added',
+        message: 'Name:${lead.clientName} phone No:${lead.contactNumber}',
+        excludeStaffId: resolvedStaffId, // avoid duplicate if assigned staff is admin
+      );
 
       if (isClosed) return;
 
@@ -619,6 +624,8 @@ if (isDuplicate) {
     required DateTime nextFollowUpDate,
     required String calledStatus,
     required String remarks,
+    required String address,
+    required String email
   }) async {
     if (state.isSubmitting) return;
 
@@ -650,8 +657,12 @@ if (isDuplicate) {
         leadCategory: state.selectedCategory ?? '',
         priority: state.selectedPriority ?? '',
         remarks: remarks,
+        adress: address,
+        email: email,
         createdById: user?.id ?? '',
         createdAt: DateTime.now(),
+        assignedStaff: user!.name,
+        assignedStaffId: user.id ??"",
       );
 
       await _leadRepository.addFollowUp(leadId, followUp);
@@ -692,6 +703,8 @@ if (isDuplicate) {
     required String remarks,
     required String fromPage,
     required String editId,
+    required String address,
+    required String email,
     // Add these three — pass current lead values so repo can diff
     String previousStage = '',
     String previousCategory = '',
@@ -740,7 +753,9 @@ if (isDuplicate) {
         priority: state.selectedPriority ?? '',
         remarks: remarks,
         createdById: user?.id ?? '',
-        createdAt: DateTime.now(),
+        createdAt: DateTime.now(), adress: address, email: email,
+        assignedStaff: user!.name,
+        assignedStaffId: user.id??'',
       );
 
       await _leadRepository.addFollowUp(
@@ -753,7 +768,19 @@ if (isDuplicate) {
         changedById: user?.id ?? '',
          leadName: leadName,
     leadPhone: leadPhone, 
+     
       );
+       final updates = <String, dynamic>{};
+      if (address.isNotEmpty) updates['address'] = address;
+      if (email.isNotEmpty) updates['email'] = email;
+       if (remarks.isNotEmpty) updates['remarks'] = remarks;
+     
+      if (updates.isNotEmpty) {
+        updates['updatedAt'] = FieldValue.serverTimestamp();
+        await FirebaseFirestore.instance
+            .collection('LEADS')
+            .doc(leadId)
+            .update(updates);}
 
       emit(
         state.copyWith(

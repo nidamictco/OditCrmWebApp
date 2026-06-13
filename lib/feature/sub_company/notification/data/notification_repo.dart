@@ -28,7 +28,37 @@ class NotificationRepo {
       'isRead': false,
     });
   }
- 
+ Future<void> createForAdmins({
+    required String title,
+    required String message,
+    String excludeStaffId = '',
+  }) async {
+    try {
+      // Fetch all admin users
+      final snapshot = await _db
+          .collection('STAFFS')
+          .where('staffType', isEqualTo: 'Admin')
+          .get();
+
+      for (final doc in snapshot.docs) {
+        final adminId = doc.id;
+
+        // Skip if this admin is already the assigned staff (already notified above)
+        if (adminId == excludeStaffId) continue;
+
+        final String id = _generateDateId('NOTIF');
+        await _db.collection('NOTIFICATIONS').doc(id).set({
+          'staffId': adminId,
+          'title': title,
+          'message': message,
+          'createdAt': FieldValue.serverTimestamp(),
+          'isRead': false,
+        });
+      }
+    } catch (e) {
+      log('[NotificationRepo] createForAdmins error: $e');
+    }
+  }
  Stream<List<NotificationModel>> streamByStaff(String staffId) {
   return _db
       .collection('NOTIFICATIONS')

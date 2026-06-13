@@ -6,6 +6,7 @@ import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/follow_up/data/activity_repo.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/import_leads/cubit/import_lead_cubit.dart';
@@ -182,6 +183,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget? _generalSettingsPage;
+  bool _editCompleted = false;
 
   Widget getPage() {
     final perm = context.read<PermissionCubit>(); // ← read once
@@ -196,6 +198,25 @@ class _MainScreenState extends State<MainScreen> {
             child: DashboardScreen(),
           ),
         );
+      // case 1:
+      //   return PermissionGuard(
+      //     hasPermission: perm.canAddLead,
+      //     child: MultiBlocProvider(
+      //       providers: [
+      //         BlocProvider(
+      //           create: (_) => AddLeadCubit(
+      //             leadRepository: AddLeadRepository(),
+      //             categoryRepository: LeadCategoryRepository(),
+      //             sourceRepository: LeadSourceRepository(),
+      //           ),
+      //         ),
+      //         BlocProvider(create: (_) => LeadCategoryCubit()),
+      //         BlocProvider(create: (_) => LeadSourceCubit()),
+      //         BlocProvider(create: (_) => LeadStageCubit()),
+      //       ],
+      //       child: AddLeadPage(lead: _editLead),
+      //     ),
+      //   );
       case 1:
         return PermissionGuard(
           hasPermission: perm.canAddLead,
@@ -212,6 +233,7 @@ class _MainScreenState extends State<MainScreen> {
               BlocProvider(create: (_) => LeadSourceCubit()),
               BlocProvider(create: (_) => LeadStageCubit()),
             ],
+            // ✅ ADD THIS: listen for edit success and pop MainScreen with true
             child: AddLeadPage(lead: _editLead),
           ),
         );

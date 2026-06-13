@@ -638,7 +638,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                     });
                                   },
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(title: "Name", flex: 4),
                                     TableColumn(title: "Contact No.", flex: 4),
                                     TableColumn(

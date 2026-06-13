@@ -1,163 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:oxdo/core/theme/app_colors.dart';
-// import 'package:oxdo/core/theme/app_text_style.dart';
-// import 'package:oxdo/core/utils/dropdown.dart';
-// import 'package:sizer/sizer.dart';
-
-// class ShowEntries extends StatefulWidget {
-//   /// Called whenever the search text changes — parent owns the value.
-//   final ValueChanged<String>? onSearchChanged;
-
-//   /// Called whenever the entries-per-page dropdown changes — parent owns the value.
-//   final ValueChanged<String>? onEntriesChanged;
-
-//   /// Optional initial values (so the widget reflects parent state on rebuild).
-//   final String initialSearch;
-//   final String initialEntries;
-
-//   const ShowEntries({
-//     super.key,
-//     this.onSearchChanged,
-//     this.onEntriesChanged,
-//     this.initialSearch = '',
-//     this.initialEntries = '1',
-//   });
-
-//   @override
-//   State<ShowEntries> createState() => _ShowEntriesState();
-// }
-
-// class _ShowEntriesState extends State<ShowEntries> {
-//   late String? selectedValue;
-//   final List<String> dropdownItems = ['1', '10', '50', '100', '500'];
-//   late final TextEditingController _searchController;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     selectedValue = widget.initialEntries;
-//     _searchController = TextEditingController(text: widget.initialSearch);
-//   }
-
-//   @override
-//   void dispose() {
-//     _searchController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.only(top: 1.h, left: 2.w, right: 2.w, bottom: 1.h),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           // ── Show N entries ──────────────────────────────────────────
-//           Row(
-//             children: [
-//               Text(
-//                 "Show ",
-//                 style: AppTextStyle.medium(
-//                   size: 11.sp,
-//                   weight: FontWeight.w400,
-//                 ),
-//               ),
-//               _smallDropdown(),
-
-//               Text(
-//                 " entries",
-//                 style: AppTextStyle.medium(
-//                   size: 11.sp,
-//                   weight: FontWeight.w400,
-//                 ),
-//               ),
-//             ],
-//           ),
-
-//           // ── Search ──────────────────────────────────────────────────
-//           Row(
-//             children: [
-//               Text(
-//                 "Search:",
-//                 style: AppTextStyle.medium(
-//                   size: 11.sp,
-//                   weight: FontWeight.w400,
-//                 ),
-//               ),
-//               SizedBox(width: 1.w),
-//               Container(
-//                 width: 12.w,
-//                 height: 4.h,
-//                 decoration: _box(),
-//                 child: TextField(
-//                   controller: _searchController,
-//                   // ✅ Notify parent on every keystroke
-//                   onChanged: (v) => widget.onSearchChanged?.call(v),
-//                   style: AppTextStyle.small(
-//                     size: 10.sp,
-//                     color: AppColors.black,
-//                   ),
-//                   decoration: const InputDecoration(
-//                     isDense: true,
-//                     contentPadding: EdgeInsets.symmetric(
-//                       horizontal: 8,
-//                       vertical: 10,
-//                     ),
-//                     border: InputBorder.none,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _smallDropdown() {
-//     return Container(
-//       width: 4.2.w,
-//       height: 4.h,
-//       padding: const EdgeInsets.symmetric(horizontal: 4),
-//       decoration: _box(),
-//       alignment: Alignment.center,
-//       child: DropdownButtonHideUnderline(
-//         child: DropdownButton<String>(
-//           value: selectedValue,
-//           menuMaxHeight: 200,
-          
-//           // isExpanded: true,
-//           icon: const Icon(Icons.arrow_drop_down, size: 16),
-//           style: AppTextStyle.small(size: 11.sp),
-//           onChanged: (String? newValue) {
-//             if (newValue == null) return;
-//             setState(() => selectedValue = newValue);
-//             // ✅ Notify parent when entries limit changes
-//             widget.onEntriesChanged?.call(newValue);
-//           },
-//           items: dropdownItems.map((String value) {
-//             return DropdownMenuItem<String>(
-//               value: value,
-//               child: Text(value, style: AppTextStyle.small(size: 11.sp)),
-//             );
-//           }).toList(),
-          
-//         ),
-        
-//       ),
-//     );
-//   }
-
-//   BoxDecoration _box() {
-//     return BoxDecoration(
-//       border: Border.all(color: AppColors.lightGrey),
-//       borderRadius: BorderRadius.circular(4),
-//       color: AppColors.white,
-//     );
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -196,12 +36,13 @@ class _ShowEntriesState extends State<ShowEntries> {
     super.initState();
     selectedValue = widget.initialEntries;
     _searchController = TextEditingController(text: widget.initialSearch);
+    _searchController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    // _closeDropdown();
-    // _searchController.dispose();
+     _overlayEntry?.remove();   // ← if you have an OverlayEntry, remove it directly
+  _overlayEntry = null;
     super.dispose();
   }
 
@@ -211,85 +52,11 @@ class _ShowEntriesState extends State<ShowEntries> {
     _isOpen ? _closeDropdown() : _openDropdown();
   }
 
-  // void _openDropdown() {
-  //   final itemHeight = 36.0;
-  //   final totalHeight = dropdownItems.length * itemHeight;
-
-  //   _overlayEntry = OverlayEntry(
-  //     builder: (context) {
-  //       return Stack(
-  //         children: [
-  //           // Transparent barrier — tap outside to dismiss
-  //           Positioned.fill(
-  //             child: GestureDetector(
-  //               behavior: HitTestBehavior.translucent,
-  //               onTap: _closeDropdown,
-  //               child: const SizedBox.shrink(),
-  //             ),
-  //           ),
-
-  //           // The dropdown menu itself
-  //           CompositedTransformFollower(
-  //             link: _layerLink,
-  //             showWhenUnlinked: false,
-  //             targetAnchor: Alignment.topLeft,   // ← anchor on the button
-  //             followerAnchor: Alignment.bottomLeft, // ← attach bottom of menu to that anchor  = opens ABOVE
-  //             // To open BELOW instead, swap to:
-  //             // targetAnchor: Alignment.bottomLeft,
-  //             // followerAnchor: Alignment.topLeft,
-  //             child: Material(
-  //               elevation: 4,
-  //               borderRadius: BorderRadius.circular(4),
-  //               color: AppColors.white,
-  //               child: SizedBox(
-  //                 width: 80,
-  //                 height: totalHeight.clamp(0, 200),
-  //                 child: ListView(
-  //                   padding: EdgeInsets.zero,
-  //                   shrinkWrap: true,
-  //                   children: dropdownItems.map((value) {
-  //                     final isSelected = value == selectedValue;
-  //                     return InkWell(
-  //                       onTap: () {
-  //                         setState(() => selectedValue = value);
-  //                         widget.onEntriesChanged?.call(value);
-  //                         _closeDropdown();
-  //                       },
-  //                       child: Container(
-  //                         height: itemHeight,
-  //                         color: isSelected
-  //                             ? AppColors.lightGrey.withOpacity(0.4)
-  //                             : Colors.transparent,
-  //                         padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                         alignment: Alignment.centerLeft,
-  //                         child: Text(
-  //                           value,
-  //                           style: AppTextStyle.small(size: 11.sp),
-  //                         ),
-  //                       ),
-  //                     );
-  //                   }).toList(),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-
-  //   Overlay.of(context).insert(_overlayEntry!);
-  //   setState(() => _isOpen = true);
-  // }
-
   void _closeDropdown() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    if (!mounted) {
-      return;
-    }
-    
-    setState(() => _isOpen = false);
+    if (!mounted) return;   // ← guard before setState
+  setState(() {
+    _isOpen = false;
+  });
   }
 
   // ── Build ──────────────────────────────────────────────────────────
@@ -306,12 +73,18 @@ class _ShowEntriesState extends State<ShowEntries> {
             children: [
               Text(
                 "Show ",
-                style: AppTextStyle.medium(size: 11.sp, weight: FontWeight.w400),
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  weight: FontWeight.w400,
+                ),
               ),
               _smallDropdown(),
               Text(
                 " entries",
-                style: AppTextStyle.medium(size: 11.sp, weight: FontWeight.w400),
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  weight: FontWeight.w400,
+                ),
               ),
             ],
           ),
@@ -321,9 +94,27 @@ class _ShowEntriesState extends State<ShowEntries> {
             children: [
               Text(
                 "Search:",
-                style: AppTextStyle.medium(size: 11.sp, weight: FontWeight.w400),
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  weight: FontWeight.w400,
+                ),
               ),
               SizedBox(width: 1.w),
+              // Container(
+              //   width: 12.w,
+              //   height: 4.h,
+              //   decoration: _box(),
+              //   child: TextField(
+              //     controller: _searchController,
+              //     onChanged: (v) => widget.onSearchChanged?.call(v),
+              //     style: AppTextStyle.small(size: 10.sp, color: AppColors.black),
+              //     decoration: const InputDecoration(
+              //       isDense: true,
+              //       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              //       border: InputBorder.none,
+              //     ),
+              //   ),
+              // ),
               Container(
                 width: 12.w,
                 height: 4.h,
@@ -331,11 +122,36 @@ class _ShowEntriesState extends State<ShowEntries> {
                 child: TextField(
                   controller: _searchController,
                   onChanged: (v) => widget.onSearchChanged?.call(v),
-                  style: AppTextStyle.small(size: 10.sp, color: AppColors.black),
-                  decoration: const InputDecoration(
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: AppColors.black,
+                  ),
+                  decoration: InputDecoration(
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 10,
+                    ),
                     border: InputBorder.none,
+                    // ✅ Show X only when text is non-empty
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              widget.onSearchChanged?.call('');
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : null,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight:
+                          24, // ✅ prevents the suffix from expanding the row height
+                    ),
                   ),
                 ),
               ),
@@ -348,7 +164,7 @@ class _ShowEntriesState extends State<ShowEntries> {
 
   Widget _smallDropdown() {
     return CompositedTransformTarget(
-      link: _layerLink,                      
+      link: _layerLink,
       child: GestureDetector(
         onTap: _toggleDropdown,
         child: Container(
@@ -363,7 +179,7 @@ class _ShowEntriesState extends State<ShowEntries> {
             children: [
               Text(selectedValue, style: AppTextStyle.small(size: 11.sp)),
               AnimatedRotation(
-                turns: _isOpen ? 0.5 : 0,    
+                turns: _isOpen ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: const Icon(Icons.arrow_drop_down, size: 16),
               ),
@@ -381,84 +197,89 @@ class _ShowEntriesState extends State<ShowEntries> {
       color: AppColors.white,
     );
   }
+
   void _openDropdown() {
-  final itemHeight = 36.0;
-  final totalHeight = (dropdownItems.length * itemHeight).clamp(0.0, 200.0);
+    final itemHeight = 36.0;
+    final totalHeight = (dropdownItems.length * itemHeight).clamp(0.0, 200.0);
 
-  // ── Get the button's position on screen ──────────────────────────
-  final RenderBox renderBox = context.findRenderObject() as RenderBox;
-  final buttonOffset = renderBox.localToGlobal(Offset.zero);
-  final buttonHeight = renderBox.size.height;
-  final screenHeight = MediaQuery.of(context).size.height;
+    // ── Get the button's position on screen ──────────────────────────
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final buttonOffset = renderBox.localToGlobal(Offset.zero);
+    final buttonHeight = renderBox.size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-  // ── Calculate space below and above ──────────────────────────────
-  final spaceBelow = screenHeight - (buttonOffset.dy + buttonHeight);
-  final spaceAbove = buttonOffset.dy;
+    // ── Calculate space below and above ──────────────────────────────
+    final spaceBelow = screenHeight - (buttonOffset.dy + buttonHeight);
+    final spaceAbove = buttonOffset.dy;
 
-  // ── Open above if not enough space below ─────────────────────────
-  final openAbove = spaceBelow < totalHeight && spaceAbove > spaceBelow;
+    // ── Open above if not enough space below ─────────────────────────
+    final openAbove = spaceBelow < totalHeight && spaceAbove > spaceBelow;
 
-  _overlayEntry = OverlayEntry(
-    builder: (context) {
-      return Stack(
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: _closeDropdown,
-              child: const SizedBox.shrink(),
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _closeDropdown,
+                child: const SizedBox.shrink(),
+              ),
             ),
-          ),
-          CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
+            CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
 
-            // ✅ Dynamically switch anchor based on available space
-            targetAnchor: openAbove ? Alignment.topLeft : Alignment.bottomLeft,
-            followerAnchor: openAbove ? Alignment.bottomLeft : Alignment.topLeft,
+              // ✅ Dynamically switch anchor based on available space
+              targetAnchor: openAbove
+                  ? Alignment.topLeft
+                  : Alignment.bottomLeft,
+              followerAnchor: openAbove
+                  ? Alignment.bottomLeft
+                  : Alignment.topLeft,
 
-            child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(4),
-              color: AppColors.white,
-              child: SizedBox(
-                width: 80,
-                height: totalHeight,
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  children: dropdownItems.map((value) {
-                    final isSelected = value == selectedValue;
-                    return InkWell(
-                      onTap: () {
-                        setState(() => selectedValue = value);
-                        widget.onEntriesChanged?.call(value);
-                        _closeDropdown();
-                      },
-                      child: Container(
-                        height: itemHeight,
-                        color: isSelected
-                            ? AppColors.lightGrey.withOpacity(0.4)
-                            : Colors.transparent,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          value,
-                          style: AppTextStyle.small(size: 11.sp),
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(4),
+                color: AppColors.white,
+                child: SizedBox(
+                  width: 80,
+                  height: totalHeight,
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    children: dropdownItems.map((value) {
+                      final isSelected = value == selectedValue;
+                      return InkWell(
+                        onTap: () {
+                          setState(() => selectedValue = value);
+                          widget.onEntriesChanged?.call(value);
+                          _closeDropdown();
+                        },
+                        child: Container(
+                          height: itemHeight,
+                          color: isSelected
+                              ? AppColors.lightGrey.withOpacity(0.4)
+                              : Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            value,
+                            style: AppTextStyle.small(size: 11.sp),
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    },
-  );
+          ],
+        );
+      },
+    );
 
-  Overlay.of(context).insert(_overlayEntry!);
-  setState(() => _isOpen = true);
-}
+    Overlay.of(context).insert(_overlayEntry!);
+    setState(() => _isOpen = true);
+  }
 }

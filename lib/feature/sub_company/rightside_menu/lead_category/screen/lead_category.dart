@@ -545,7 +545,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(
                                       title: "Category Name",
                                       flex: 4,

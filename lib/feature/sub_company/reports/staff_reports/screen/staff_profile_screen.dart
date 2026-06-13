@@ -17,6 +17,7 @@ import 'package:oxdo/feature/sub_company/reports/staff_reports/cubit/staff_activ
 import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/donut_chart.dart';
 import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/note_dialog.dart';
+import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/notes_drawer.dart';
 import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/recent_activity_items.dart';
 import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
@@ -128,6 +129,9 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
       'Pending': 0,
     },
   );
+
+  // Add a ScaffoldKey to control the endDrawer
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // @override
   // void initState() {
@@ -270,7 +274,17 @@ void initState() {
         }
 
         return Scaffold(
+            key: _scaffoldKey,
           backgroundColor: const Color(0xFFF5F6FA),
+           endDrawer: NotesDrawer(staffId: widget.staff.id!), // ← add endDrawer
+  floatingActionButton: FloatingActionButton( // ← add FAB
+    onPressed: () {
+      context.read<StaffCubit>().fetchNotes(widget.staff.id!);
+      _scaffoldKey.currentState?.openEndDrawer();
+    },
+    backgroundColor: const Color(0xFF1E3A5F),
+    child: const Icon(Icons.note_alt_outlined, color: Colors.white),
+  ),
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               _buildSliverHeader(innerBoxIsScrolled, staffInfo, _liveModel),
@@ -306,59 +320,83 @@ void initState() {
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => Navigator.pop(context),
       ),
+      // actions: [
+      //   _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
+      //   SizedBox(width: 1.w),
+      //   ElevatedButton.icon(
+      //     onPressed: () {
+      //       showDialog(
+      //         context: context,
+      //         builder: (dialogContext) => BlocProvider.value(
+      //           value: context.read<StaffCubit>()..fetchNotes(widget.staff.id!),
+      //           child: NotesDialog(id: widget.staff.id!),
+      //         ),
+      //       );
+      //     },
+      //     icon: const Icon(Icons.note_alt_outlined, size: 16),
+      //     label: Text(
+      //       'Open Notes',
+      //       style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+      //     ),
+      //     style: ElevatedButton.styleFrom(
+      //       backgroundColor: const Color(0xFF2B5BA8),
+      //       foregroundColor: Colors.white,
+      //       textStyle: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+      //       padding: EdgeInsets.symmetric(horizontal: 0.5.w, vertical: 0.5.w),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(8),
+      //       ),
+      //     ),
+      //   ),
+      //   SizedBox(width: 1.w),
+      //   Container(
+      //     margin: EdgeInsets.only(right: 1.w),
+      //     decoration: BoxDecoration(
+      //       color: const Color(0xFFF59E0B),
+      //       borderRadius: BorderRadius.circular(8),
+      //     ),
+      //     child: IconButton(
+      //       icon: const Icon(
+      //         Icons.edit_outlined,
+      //         color: Colors.white,
+      //         size: 18,
+      //       ),
+      //       onPressed: () {
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(
+      //             builder: (context) =>
+      //                 MainScreen(selectedIndex: 15, staff: liveModel),
+      //           ),
+      //         );
+      //       },
+      //     ),
+      //   ),
+      // ],
       actions: [
-        _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
-        SizedBox(width: 1.w),
-        ElevatedButton.icon(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (dialogContext) => BlocProvider.value(
-                value: context.read<StaffCubit>()..fetchNotes(widget.staff.id!),
-                child: NotesDialog(id: widget.staff.id!),
-              ),
-            );
-          },
-          icon: const Icon(Icons.note_alt_outlined, size: 16),
-          label: Text(
-            'Open Notes',
-            style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+  _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
+  SizedBox(width: 1.w),
+  // ← "Open Notes" ElevatedButton.icon removed entirely
+  Container(
+    margin: EdgeInsets.only(right: 1.w),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF59E0B),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: IconButton(
+      icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 18),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                MainScreen(selectedIndex: 15, staff: liveModel),
           ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2B5BA8),
-            foregroundColor: Colors.white,
-            textStyle: AppTextStyle.small(size: 11.sp, color: AppColors.white),
-            padding: EdgeInsets.symmetric(horizontal: 0.5.w, vertical: 0.5.w),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        SizedBox(width: 1.w),
-        Container(
-          margin: EdgeInsets.only(right: 1.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF59E0B),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: Colors.white,
-              size: 18,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      MainScreen(selectedIndex: 15, staff: liveModel),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        );
+      },
+    ),
+  ),
+],
       flexibleSpace: FlexibleSpaceBar(
         background: _ProfileHeader(staff: staffInfo, user: liveModel),
       ),
@@ -1408,6 +1446,41 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     );
   }
 
+  // Widget _progress(String label, int value, double percent) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 12),
+  //     child: Column(
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: Text(
+  //                 label,
+  //                 style: AppTextStyle.medium(
+  //                   // size: 1.sp,
+  //                   weight: FontWeight.w400,
+  //                 ),
+  //               ),
+  //             ),
+  //             Text(
+  //               '$value',
+  //               style: AppTextStyle.number(
+  //                 size: 11.sp,
+  //                 weight: FontWeight.w500,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         SizedBox(height: 0.6.h),
+  //         LinearProgressIndicator(
+  //           value: percent,
+  //           minHeight: 8,
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _progress(String label, int value, double percent) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -1419,7 +1492,6 @@ class __CallStatusCardState extends State<_CallStatusCard> {
                 child: Text(
                   label,
                   style: AppTextStyle.medium(
-                    // size: 1.sp,
                     weight: FontWeight.w400,
                   ),
                 ),
@@ -1435,42 +1507,20 @@ class __CallStatusCardState extends State<_CallStatusCard> {
           ),
           SizedBox(height: 0.6.h),
           LinearProgressIndicator(
-            value: percent,
+            value: value == 0 ? 0.0 : percent.clamp(0.0, 1.0),
             minHeight: 8,
             borderRadius: BorderRadius.circular(10),
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              value == 0 ? Colors.transparent : AppColors.primary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  // Widget _rightChart() {
-  //   log('Lead categories for chart: ${widget.data.leadsByCategory}');
-  //   return Column(
-  //     children: [
-  //       SizedBox(height: 2.h),
-  //       SizedBox(
-  //         height: 10.w,
-  //         width: 10.w,
-  //         // child: _DonutChart(
-  //         //   leadsByCategory: widget.data.leadsByCategory.isEmpty
-  //         //       ? const {'Follow Up': 85, 'Rejected': 15}
-  //         //       : widget.data.leadsByCategory,
-  //         // ),
-  //         child: DonutChart(
-  //           leadsByCategory:
-  //               widget.data.leadsByCategory.values.every((v) => v == 0)
-  //               ? const {'No Data': 1} // shows a grey slice when all zeros
-  //               : widget.data.leadsByCategory,
-  //         ),
-  //       ),
-  //       SizedBox(height: 2.h),
-  //       _LeadLegend(leadsByCategory: widget.data.leadsByCategory),
-  //       SizedBox(height: 2.h),
-  //       _categoryTable(),
-  //     ],
-  //   );
-  // }
+ 
   Widget _rightChart() {
     final allZero = widget.data.leadsByCategory.values.every((v) => v == 0);
 

@@ -277,10 +277,26 @@ class _LeadsReportState extends State<LeadsReport> {
     }
 
     // ── Priority sort ─────────────────────────────────────────────────────────
-    result.sort(
-      (a, b) =>
-          _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
-    );
+    // result.sort(
+    //   (a, b) =>
+    //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
+    // );
+
+    result.sort((a, b) {
+  // First sort by priority
+  final priorityCompare =
+      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+
+  if (priorityCompare != 0) {
+    return priorityCompare;
+  }
+
+  // If priority is same, latest createdAt first
+  final aCreated = a.createdAt ?? DateTime(1970);
+  final bCreated = b.createdAt ?? DateTime(1970);
+
+  return bCreated.compareTo(aCreated);
+});
 
     return result;
   }
@@ -865,7 +881,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
-                                  TableColumn(title: "#", flex: 1),
+                                  TableColumn(title: "Sl No.", flex: 1),
                                   TableColumn(title: "Name", flex: 4),
                                   TableColumn(title: "Phone No", flex: 4),
                                   TableColumn(title: "Category", flex: 4),
@@ -941,29 +957,43 @@ class _LeadsReportState extends State<LeadsReport> {
                                           ),
                                         ),
                                         // ── EDIT — await pop then re-fetch ──
+                                        // GestureDetector(
+                                        //   onTap: () async {
+                                        //     await Navigator.push(
+                                        //       context,
+                                        //       MaterialPageRoute(
+                                        //         builder: (_) => MainScreen(
+                                        //           selectedIndex: 1,
+                                        //           lead: lead,
+                                        //         ),
+                                        //       ),
+                                        //     );
+                                        //     if (context.mounted) {
+                                        //       context
+                                        //           .read<AddLeadCubit>()
+                                        //           .fetchLeads();
+                                        //     }
+                                        //   },
+                                        //   child: Icon(
+                                        //     Icons.edit,
+                                        //     size: 14.sp,
+                                        //     color: Colors.blue,
+                                        //   ),
+                                        // ),
                                         GestureDetector(
-                                          onTap: () async {
-                                            await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => MainScreen(
-                                                  selectedIndex: 1,
-                                                  lead: lead,
-                                                ),
-                                              ),
-                                            );
-                                            if (context.mounted) {
-                                              context
-                                                  .read<AddLeadCubit>()
-                                                  .fetchLeads();
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.edit,
-                                            size: 14.sp,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
+  onTap: () async {
+    final didUpdate = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MainScreen(selectedIndex: 1, lead: lead),
+      ),
+    );
+    if (didUpdate == true && context.mounted) {
+      context.read<AddLeadCubit>().fetchLeads();
+    }
+  },
+  child: Icon(Icons.edit, size: 14.sp, color: Colors.blue),
+),
                                         // ── DELETE ──
                                         GestureDetector(
                                           onTap: () =>
