@@ -25,10 +25,22 @@ class _MotherCompanyMainScreenState
   Widget get currentPage {
     switch (selectedPage) {
       case MotherCompanyPage.dashboard:
-        return const DashboardPage();
+        return DashboardPage(
+          onViewAllTap: () {
+            setState(() {
+              selectedPage = MotherCompanyPage.companyManage;
+            });
+          },
+        );
 
       case MotherCompanyPage.companyManage:
-        return const CompanyManagePage();
+        return CompanyManagePage(
+          onAddCompanyTap: () {
+            setState(() {
+              selectedPage = MotherCompanyPage.addCompany;
+            });
+          },
+        );
 
       case MotherCompanyPage.addCompany:
         return const AddCompanyPage();

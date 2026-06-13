@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/plan_badge.dart';
 import '../cubit/company_manage_cubit.dart';
 import '../models/company_manage_models.dart';
+import 'edit_company_dialog.dart';
 
 import 'sortable_column_header.dart';
 import 'table_pagination.dart';
@@ -21,11 +22,7 @@ class _ColW {
 }
 
 class CompanyTable extends StatelessWidget {
-  const CompanyTable({
-    super.key,
-    required this.state,
-    required this.cubit,
-  });
+  const CompanyTable({super.key, required this.state, required this.cubit});
 
   final CompanyManageState state;
   final CompanyManageCubit cubit;
@@ -100,6 +97,7 @@ class _TableHeaderRow extends StatelessWidget {
       color: AppThemeColors.scaffoldBg,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
             width: _ColW.sl,
@@ -189,17 +187,6 @@ class _CompanyRow extends StatefulWidget {
 class _CompanyRowState extends State<_CompanyRow> {
   bool _hovered = false;
 
-  Color get _statusColor {
-    switch (widget.company.status) {
-      case CompanyStatus.active:
-        return AppThemeColors.statusActive;
-      case CompanyStatus.pending:
-        return AppThemeColors.statusPending;
-      case CompanyStatus.suspended:
-        return AppThemeColors.statusSuspended;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final sl = widget.company.sl.toString().padLeft(2, '0');
@@ -213,6 +200,7 @@ class _CompanyRowState extends State<_CompanyRow> {
         color: _hovered ? const Color(0xFFF8F9FD) : Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // SL
             SizedBox(
@@ -231,14 +219,15 @@ class _CompanyRowState extends State<_CompanyRow> {
             // Admin Name
             SizedBox(
               width: _ColW.adminName,
-              child: Text(widget.company.adminName, style: AppTextStyles.tableCell),
+              child: Text(
+                widget.company.adminName,
+                style: AppTextStyles.tableCell,
+              ),
             ),
             // Plan Type
             SizedBox(
               width: _ColW.planType,
-              child: PlanBadge(
-                label: widget.company.planType.label,
-              )
+              child: PlanBadge(label: widget.company.planType.label),
             ),
             // Subscription Start
             SizedBox(
@@ -342,8 +331,7 @@ class _ActionMenu extends StatelessWidget {
     final pos = RelativeRect.fromRect(
       Rect.fromPoints(
         box.localToGlobal(Offset.zero, ancestor: overlay),
-        box.localToGlobal(
-            box.size.bottomRight(Offset.zero), ancestor: overlay),
+        box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay),
       ),
       Offset.zero & overlay.size,
     );
@@ -354,62 +342,78 @@ class _ActionMenu extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       items: [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 16, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details', style: TextStyle(fontSize: 13)),
-          ]),
-        ),
+        // const PopupMenuItem(
+        //   value: 'view',
+        //   child: Row(children: [
+        //     Icon(Icons.visibility_outlined, size: 16, color: Colors.grey),
+        //     SizedBox(width: 8),
+        //     Text('View Details', style: TextStyle(fontSize: 13)),
+        //   ]),
+        // ),
         const PopupMenuItem(
           value: 'edit',
-          child: Row(children: [
-            Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit', style: TextStyle(fontSize: 13)),
-          ]),
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+              SizedBox(width: 8),
+              Text('Edit', style: TextStyle(fontSize: 13)),
+            ],
+          ),
         ),
         PopupMenuItem(
           value: 'toggle',
-          child: Row(children: [
-            Icon(
-              company.status == CompanyStatus.suspended
-                  ? Icons.check_circle_outline
-                  : Icons.block_outlined,
-              size: 16,
-              color: company.status == CompanyStatus.suspended
-                  ? Colors.green
-                  : Colors.orange,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              company.status == CompanyStatus.suspended ? 'Activate' : 'Suspend',
-              style: TextStyle(
-                fontSize: 13,
+          child: Row(
+            children: [
+              Icon(
+                company.status == CompanyStatus.suspended
+                    ? Icons.check_circle_outline
+                    : Icons.block_outlined,
+                size: 16,
                 color: company.status == CompanyStatus.suspended
                     ? Colors.green
                     : Colors.orange,
               ),
-            ),
-          ]),
+              const SizedBox(width: 8),
+              Text(
+                company.status == CompanyStatus.suspended
+                    ? 'Activate'
+                    : 'Suspend',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: company.status == CompanyStatus.suspended
+                      ? Colors.green
+                      : Colors.orange,
+                ),
+              ),
+            ],
+          ),
         ),
         const PopupMenuItem(
           value: 'delete',
-          child: Row(children: [
-            Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(fontSize: 13, color: Colors.red)),
-          ]),
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Delete', style: TextStyle(fontSize: 13, color: Colors.red)),
+            ],
+          ),
         ),
       ],
     ).then((val) {
-      if (val == 'toggle') {
+      if (!context.mounted) return;
+      if (val == 'edit') {
+        showDialog(
+          context: context,
+          builder: (_) => EditCompanyDialog(company: company, cubit: cubit),
+        );
+      } else if (val == 'toggle') {
         if (company.status == CompanyStatus.suspended) {
-          cubit.activateCompany(company.sl);
+          cubit.activateCompany(company.companyId);
         } else {
-          cubit.suspendCompany(company.sl);
+          cubit.suspendCompany(company.companyId);
         }
+      } else if (val == 'delete') {
+        cubit.deleteCompany(company.companyId);
       }
     });
   }
@@ -429,7 +433,11 @@ class _EmptyState extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.business_outlined, size: 48, color: AppThemeColors.textMuted),
+            Icon(
+              Icons.business_outlined,
+              size: 48,
+              color: AppThemeColors.textMuted,
+            ),
             SizedBox(height: 12),
             Text(
               'No companies found',

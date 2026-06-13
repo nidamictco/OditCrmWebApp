@@ -68,55 +68,44 @@ class VerificationStep extends StatelessWidget {
     return Column(
       children: [
         Row(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 5,
-              child: adminAccountForm,
-            ),
+            Expanded(child: adminAccountForm),
 
-            const SizedBox(width: 24),
+            // const SizedBox(width: 24),
 
-            Expanded(
-              flex: 4,
-              child: SecuritySettingsCard(
-                enableMfa: enableMfa,
-                enableAuditLogs:
-                enableAuditLogs,
-                enableIpRestriction:
-                enableIpRestriction,
-                sessionTimeout:
-                sessionTimeout,
-                onMfaChanged:
-                onMfaChanged,
-                onAuditChanged:
-                onAuditChanged,
-                onIpRestrictionChanged:
-                onIpRestrictionChanged,
-                onSessionTimeoutChanged:
-                onSessionTimeoutChanged,
-              ),
-            ),
-
+            // Expanded(
+            //   flex: 4,
+            //   child: SecuritySettingsCard(
+            //     enableMfa: enableMfa,
+            //     enableAuditLogs:
+            //     enableAuditLogs,
+            //     enableIpRestriction:
+            //     enableIpRestriction,
+            //     sessionTimeout:
+            //     sessionTimeout,
+            //     onMfaChanged:
+            //     onMfaChanged,
+            //     onAuditChanged:
+            //     onAuditChanged,
+            //     onIpRestrictionChanged:
+            //     onIpRestrictionChanged,
+            //     onSessionTimeoutChanged:
+            //     onSessionTimeoutChanged,
+            //   ),
+            // ),
             const SizedBox(width: 24),
 
             ProvisioningSummaryCard(
-              companyName:
-              companyName,
+              companyName: companyName,
               domain: domain,
-              industry:
-              industry,
+              industry: industry,
               plan: plan,
-              billingCycle:
-              billingCycle,
+              billingCycle: billingCycle,
               addons: addons,
-              adminEmail:
-              adminEmail,
-              adminMobile:
-              adminMobile,
-              generatedCompanyId:
-              generatedCompanyId,
+              adminEmail: adminEmail,
+              adminMobile: adminMobile,
+              generatedCompanyId: generatedCompanyId,
             ),
           ],
         ),
@@ -130,17 +119,9 @@ class VerificationStep extends StatelessWidget {
         Row(
           children: [
             OutlinedButton.icon(
-              onPressed:
-              isCreating
-                  ? null
-                  : onBack,
-              icon: const Icon(
-                Icons.arrow_back,
-              ),
-              label: Text(
-                "Back",
-                style: GoogleFonts.poppins(),
-              ),
+              onPressed: isCreating ? null : onBack,
+              icon: const Icon(Icons.arrow_back),
+              label: Text("Back", style: GoogleFonts.poppins()),
             ),
 
             const Spacer(),
@@ -149,84 +130,53 @@ class VerificationStep extends StatelessWidget {
               width: 220,
               height: 54,
               child: ElevatedButton(
-                onPressed:
-                isCreating
-                    ? null
-                    : onCreateCompany,
-                style:
-                ElevatedButton.styleFrom(
-                  backgroundColor:
-                  const Color(
-                    0xff0F2E8A,
-                  ),
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                      14,
-                    ),
+                onPressed: isCreating ? null : onCreateCompany,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff0F2E8A),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child:
-                isCreating
+                child: isCreating
                     ? Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
-                  children: [
-                    const SizedBox(
-                      height:
-                      18,
-                      width:
-                      18,
-                      child:
-                      CircularProgressIndicator(
-                        strokeWidth:
-                        2,
-                        color:
-                        Colors.white,
-                      ),
-                    ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
 
-                    const SizedBox(
-                      width:
-                      12,
-                    ),
+                          const SizedBox(width: 12),
 
-                    Text(
-                      "Creating...",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                )
+                          Text(
+                            "Creating...",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )
                     : Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
-                  children: [
-                    const Icon(
-                      Icons
-                          .business,
-                      color: Colors.white,
-                    ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.business, color: Colors.white),
 
-                    const SizedBox(
-                      width:
-                      10,
-                    ),
+                          const SizedBox(width: 10),
 
-                    Text(
-                      "Create Company",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                          Text(
+                            "Create Company",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

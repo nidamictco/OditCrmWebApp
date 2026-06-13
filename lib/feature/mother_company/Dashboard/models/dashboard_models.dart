@@ -17,55 +17,81 @@ class CashFlowPoint extends Equatable {
   List<Object?> get props => [month, receipt, payment, label];
 }
 
-enum PlanType { enterprise, standard, basic }
+// enum PlanType { enterprise, standard, basic }
 
-extension PlanTypeLabel on PlanType {
-  String get label {
-    switch (this) {
-      case PlanType.enterprise:
-        return 'ENTERPRISE';
-      case PlanType.standard:
-        return 'STANDARD';
-      case PlanType.basic:
-        return 'BASIC';
-    }
-  }
-}
+// extension PlanTypeLabel on PlanType {
+//   String get label {
+//     switch (this) {
+//       case PlanType.enterprise:
+//         return 'ENTERPRISE';
+//       case PlanType.standard:
+//         return 'STANDARD';
+//       case PlanType.basic:
+//         return 'BASIC';
+//     }
+//   }
+// }
 
-enum CompanyStatus { active, pending, suspended }
+// enum CompanyStatus { active, pending, suspended }
 
-extension CompanyStatusLabel on CompanyStatus {
-  String get label {
-    switch (this) {
-      case CompanyStatus.active:
-        return 'Active';
-      case CompanyStatus.pending:
-        return 'Pending';
-      case CompanyStatus.suspended:
-        return 'Suspend';
-    }
-  }
-}
+// extension CompanyStatusLabel on CompanyStatus {
+//   String get label {
+//     switch (this) {
+//       case CompanyStatus.active:
+//         return 'Active';
+//       case CompanyStatus.pending:
+//         return 'Pending';
+//       case CompanyStatus.suspended:
+//         return 'Suspend';
+//     }
+//   }
+// }
 
-class CompanyActivity extends Equatable {
-  const CompanyActivity({
-    required this.sl,
-    required this.companyName,
-    required this.adminName,
-    required this.subscriptionStartDate,
-    required this.subscriptionEndDate,
-    required this.planType,
-    required this.status,
-  });
+// class CompanyActivity extends Equatable {
+//   const CompanyActivity({
+//     required this.sl,
+//     required this.companyId,
+//     required this.companyName,
+//     required this.adminName,
+//     required this.subscriptionStartDate,
+//     required this.subscriptionEndDate,
+//     required this.planType,
+//     required this.status,
+//     required this.domain,
+//     required this.industry,
+//     required this.adminEmail,
+//     required this.adminMobile,
+//     required this.yearlyBilling,
+//   });
 
-  final int sl;
-  final String companyName;
-  final String adminName;
-  final DateTime subscriptionStartDate;
-  final DateTime subscriptionEndDate;
-  final PlanType planType;
-  final CompanyStatus status;
+//   final int sl;
+//   final String companyId;
+//   final String companyName;
+//   final String adminName;
+//   final DateTime subscriptionStartDate;
+//   final DateTime subscriptionEndDate;
+//   final PlanType planType;
+//   final CompanyStatus status;
+//   final String domain;
+//   final String industry;
+//   final String adminEmail;
+//   final String adminMobile;
+//   final bool yearlyBilling;
 
-  @override
-  List<Object?> get props => [sl, companyName, adminName, subscriptionStartDate, subscriptionEndDate, planType, status];
-}
+//   @override
+//   List<Object?> get props => [
+//     sl,
+//     companyId,
+//     companyName,
+//     adminName,
+//     subscriptionStartDate,
+//     subscriptionEndDate,
+//     planType,
+//     status,
+//     domain,
+//     industry,
+//     adminEmail,
+//     adminMobile,
+//     yearlyBilling,
+//   ];
+// }

@@ -126,7 +126,7 @@ class SubscriptionStep extends StatelessWidget {
 
                   SubscriptionCard(
                     category: "Growth",
-                    title: "Professional",
+                    title: "Standard",
                     price: yearlyBilling ? 109 : 129,
                     selected: selectedPlan == SubscriptionPlan.professional,
                     mostPopular: true,
@@ -237,7 +237,6 @@ class SubscriptionStep extends StatelessWidget {
           // ),
 
           // const SizedBox(height: 50),
-
           Align(
             alignment: Alignment.centerRight,
             child: PricingSummaryCard(
@@ -266,14 +265,23 @@ class SubscriptionStep extends StatelessWidget {
 
               SizedBox(
                 width: 180,
-                height: 52,
+                height: 45,
                 child: ElevatedButton.icon(
                   onPressed: onNext,
                   iconAlignment: IconAlignment.end,
-                  icon: const Icon(Icons.arrow_forward),
+                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   label: Text(
                     "Next Step",
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff0F2E8A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),

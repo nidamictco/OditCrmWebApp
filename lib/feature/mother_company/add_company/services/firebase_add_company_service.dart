@@ -16,8 +16,8 @@ class FirebaseAddCompanyService {
   });
 
   Future<void> createCompany(
-      AddCompanyState state,
-      ) async {
+    AddCompanyState state,
+  ) async {
     final companyId =
         state.generatedCompanyId;
 
@@ -31,8 +31,11 @@ class FirebaseAddCompanyService {
       );
     }
 
-    // Create admin auth user
-
+    final now = DateTime.now();
+    final startDate = now;
+    final endDate = state.yearlyBilling
+        ? DateTime(now.year + 1, now.month, now.day)
+        : DateTime(now.year, now.month + 1, now.day);
 
     final batch =
     firestore.batch();
@@ -62,6 +65,21 @@ class FirebaseAddCompanyService {
 
         "yearlyBilling":
         state.yearlyBilling,
+
+        "adminName":
+        state.adminName,
+
+        "adminEmail":
+        state.adminEmail,
+
+        "adminMobile":
+        state.adminMobile,
+
+        "subscriptionStartDate":
+        Timestamp.fromDate(startDate),
+
+        "subscriptionEndDate":
+        Timestamp.fromDate(endDate),
 
         // "analyticsAddon":
         // state.analyticsAddon,

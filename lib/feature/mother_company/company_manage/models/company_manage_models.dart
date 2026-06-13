@@ -39,31 +39,49 @@ extension CompanyStatusLabel on CompanyStatus {
 class CompanyActivity extends Equatable {
   const CompanyActivity({
     required this.sl,
+    required this.companyId,
     required this.companyName,
     required this.adminName,
     required this.subscriptionStartDate,
     required this.subscriptionEndDate,
     required this.planType,
     required this.status,
+    required this.domain,
+    required this.industry,
+    required this.adminEmail,
+    required this.adminMobile,
+    required this.yearlyBilling,
   });
 
   final int sl;
+  final String companyId;
   final String companyName;
   final String adminName;
   final DateTime subscriptionStartDate;
   final DateTime subscriptionEndDate;
   final PlanType planType;
   final CompanyStatus status;
+  final String domain;
+  final String industry;
+  final String adminEmail;
+  final String adminMobile;
+  final bool yearlyBilling;
 
   @override
   List<Object?> get props => [
         sl,
+        companyId,
         companyName,
         adminName,
         subscriptionStartDate,
         subscriptionEndDate,
         planType,
         status,
+        domain,
+        industry,
+        adminEmail,
+        adminMobile,
+        yearlyBilling,
       ];
 }
 
