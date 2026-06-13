@@ -15,17 +15,17 @@ class SubscriptionStep extends StatelessWidget {
 
   final SubscriptionPlan selectedPlan;
 
-  final bool analyticsAddon;
-  final bool supportAddon;
-  final bool storageAddon;
+  // final bool analyticsAddon;
+  // final bool supportAddon;
+  // final bool storageAddon;
 
   final ValueChanged<bool> onBillingChanged;
 
   final ValueChanged<SubscriptionPlan> onPlanSelected;
 
-  final VoidCallback onAnalyticsToggle;
-  final VoidCallback onSupportToggle;
-  final VoidCallback onStorageToggle;
+  // final VoidCallback onAnalyticsToggle;
+  // final VoidCallback onSupportToggle;
+  // final VoidCallback onStorageToggle;
 
   final VoidCallback onBack;
   final VoidCallback onNext;
@@ -34,14 +34,14 @@ class SubscriptionStep extends StatelessWidget {
     super.key,
     required this.yearlyBilling,
     required this.selectedPlan,
-    required this.analyticsAddon,
-    required this.supportAddon,
-    required this.storageAddon,
+    // required this.analyticsAddon,
+    // required this.supportAddon,
+    // required this.storageAddon,
     required this.onBillingChanged,
     required this.onPlanSelected,
-    required this.onAnalyticsToggle,
-    required this.onSupportToggle,
-    required this.onStorageToggle,
+    // required this.onAnalyticsToggle,
+    // required this.onSupportToggle,
+    // required this.onStorageToggle,
     required this.onBack,
     required this.onNext,
   });
@@ -192,51 +192,51 @@ class SubscriptionStep extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 30),
+          // const SizedBox(height: 30),
 
-          Text(
-            "Enhance Your Experience",
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          // Text(
+          //   "Enhance Your Experience",
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 22,
+          //     fontWeight: FontWeight.w700,
+          //   ),
+          // ),
 
-          const SizedBox(height: 24),
+          // const SizedBox(height: 24),
 
-          Wrap(
-            spacing: 20,
-            runSpacing: 20,
-            children: [
-              AddonCard(
-                title: "Advanced Analytics",
-                description:
-                    "Deep business intelligence and forecasting tools.",
-                price: 49,
-                selected: analyticsAddon,
-                onTap: onAnalyticsToggle,
-              ),
+          // Wrap(
+          //   spacing: 20,
+          //   runSpacing: 20,
+          //   children: [
+          //     AddonCard(
+          //       title: "Advanced Analytics",
+          //       description:
+          //           "Deep business intelligence and forecasting tools.",
+          //       price: 49,
+          //       selected: analyticsAddon,
+          //       onTap: onAnalyticsToggle,
+          //     ),
 
-              AddonCard(
-                title: "Priority Support",
-                description: "Dedicated support with faster response times.",
-                price: 29,
-                selected: supportAddon,
-                onTap: onSupportToggle,
-              ),
+          //     AddonCard(
+          //       title: "Priority Support",
+          //       description: "Dedicated support with faster response times.",
+          //       price: 29,
+          //       selected: supportAddon,
+          //       onTap: onSupportToggle,
+          //     ),
 
-              AddonCard(
-                title: "Extra Storage",
-                description:
-                    "Additional cloud storage for documents and files.",
-                price: 19,
-                selected: storageAddon,
-                onTap: onStorageToggle,
-              ),
-            ],
-          ),
+          //     AddonCard(
+          //       title: "Extra Storage",
+          //       description:
+          //           "Additional cloud storage for documents and files.",
+          //       price: 19,
+          //       selected: storageAddon,
+          //       onTap: onStorageToggle,
+          //     ),
+          //   ],
+          // ),
 
-          const SizedBox(height: 50),
+          // const SizedBox(height: 50),
 
           Align(
             alignment: Alignment.centerRight,
@@ -300,9 +300,9 @@ class SubscriptionStep extends StatelessWidget {
   double get _addonPrice {
     double value = 0;
 
-    if (analyticsAddon) value += 49;
-    if (supportAddon) value += 29;
-    if (storageAddon) value += 19;
+    // if (analyticsAddon) value += 49;
+    // if (supportAddon) value += 29;
+    // if (storageAddon) value += 19;
 
     return value;
   }

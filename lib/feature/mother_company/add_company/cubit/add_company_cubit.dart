@@ -124,32 +124,32 @@ class AddCompanyCubit
     );
   }
 
-  void toggleAnalytics() {
-    emit(
-      state.copyWith(
-        analyticsAddon:
-        !state.analyticsAddon,
-      ),
-    );
-  }
+  // void toggleAnalytics() {
+  //   emit(
+  //     state.copyWith(
+  //       analyticsAddon:
+  //       !state.analyticsAddon,
+  //     ),
+  //   );
+  // }
 
-  void toggleSupport() {
-    emit(
-      state.copyWith(
-        supportAddon:
-        !state.supportAddon,
-      ),
-    );
-  }
+  // void toggleSupport() {
+  //   emit(
+  //     state.copyWith(
+  //       supportAddon:
+  //       !state.supportAddon,
+  //     ),
+  //   );
+  // }
 
-  void toggleStorage() {
-    emit(
-      state.copyWith(
-        storageAddon:
-        !state.storageAddon,
-      ),
-    );
-  }
+  // void toggleStorage() {
+  //   emit(
+  //     state.copyWith(
+  //       storageAddon:
+  //       !state.storageAddon,
+  //     ),
+  //   );
+  // }
 
   void updateAdminName(
       String value,

@@ -63,14 +63,14 @@ class FirebaseAddCompanyService {
         "yearlyBilling":
         state.yearlyBilling,
 
-        "analyticsAddon":
-        state.analyticsAddon,
+        // "analyticsAddon":
+        // state.analyticsAddon,
 
-        "supportAddon":
-        state.supportAddon,
+        // "supportAddon":
+        // state.supportAddon,
 
-        "storageAddon":
-        state.storageAddon,
+        // "storageAddon":
+        // state.storageAddon,
 
         "enableMfa":
         state.enableMfa,
@@ -152,14 +152,14 @@ class FirebaseAddCompanyService {
         "yearlyBilling":
         state.yearlyBilling,
 
-        "analyticsAddon":
-        state.analyticsAddon,
+        // "analyticsAddon":
+        // state.analyticsAddon,
 
-        "supportAddon":
-        state.supportAddon,
+        // "supportAddon":
+        // state.supportAddon,
 
-        "storageAddon":
-        state.storageAddon,
+        // "storageAddon":
+        // state.storageAddon,
       },
     );
 

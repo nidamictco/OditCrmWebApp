@@ -93,6 +93,9 @@ class _AddCompanyViewState
     adminEmailController =
         TextEditingController();
 
+    adminMobileController =
+        TextEditingController();
+
     passwordController =
         TextEditingController();
 
@@ -107,6 +110,7 @@ class _AddCompanyViewState
 
     adminNameController.dispose();
     adminEmailController.dispose();
+    adminMobileController.dispose();
 
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -257,14 +261,14 @@ class _AddCompanyViewState
           selectedPlan:
           state.selectedPlan,
 
-          analyticsAddon:
-          state.analyticsAddon,
+          // analyticsAddon:
+          // state.analyticsAddon,
 
-          supportAddon:
-          state.supportAddon,
+          // supportAddon:
+          // state.supportAddon,
 
-          storageAddon:
-          state.storageAddon,
+          // storageAddon:
+          // state.storageAddon,
 
           onBillingChanged:
           cubit.changeBilling,
@@ -272,14 +276,14 @@ class _AddCompanyViewState
           onPlanSelected:
           cubit.selectPlan,
 
-          onAnalyticsToggle:
-          cubit.toggleAnalytics,
+          // onAnalyticsToggle:
+          // cubit.toggleAnalytics,
 
-          onSupportToggle:
-          cubit.toggleSupport,
+          // onSupportToggle:
+          // cubit.toggleSupport,
 
-          onStorageToggle:
-          cubit.toggleStorage,
+          // onStorageToggle:
+          // cubit.toggleStorage,
 
           onBack:
           cubit.previousStep,
@@ -369,14 +373,7 @@ class _AddCompanyViewState
               ? "Yearly"
               : "Monthly",
 
-          addons: [
-            if (state.analyticsAddon)
-              "Analytics",
-            if (state.supportAddon)
-              "Priority Support",
-            if (state.storageAddon)
-              "Extra Storage",
-          ],
+          addons: const [],
 
           adminEmail:
           adminEmailController.text,

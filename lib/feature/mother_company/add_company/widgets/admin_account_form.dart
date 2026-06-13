@@ -63,112 +63,94 @@ class AdminAccountForm extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          Row(
-            children: [
-              Expanded(
-                child: _Field(
-                  label: "Administrator Name",
-                  child: TextFormField(
-                    controller: adminNameController,
-                    style: GoogleFonts.poppins(),
-                    decoration: _inputDecoration(
-                      "Enter full name",
-                    ),
-                  ),
-                ),
+          _Field(
+            label: "Administrator Name",
+            child: TextFormField(
+              controller: adminNameController,
+              style: GoogleFonts.poppins(),
+              decoration: _inputDecoration(
+                "Enter full name",
               ),
-
-              const SizedBox(width: 20),
-
-              Expanded(
-                child: _Field(
-                  label: "Administrator Email",
-                  child: TextFormField(
-                    controller: emailController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType:
-                    TextInputType.emailAddress,
-                    decoration: _inputDecoration(
-                      "admin@company.com",
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 20),
-
-              Expanded(
-                child: _Field(
-                  label: "Administrator Mobile Number",
-                  child: TextFormField(
-                    controller: mobileController,
-                    style: GoogleFonts.poppins(),
-                    keyboardType:
-                    TextInputType.phone,
-                    decoration: _inputDecoration(
-                      "+91 9876543210",
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          Row(
-            children: [
-              Expanded(
-                child: _Field(
-                  label: "Password",
-                  child: TextFormField(
-                    controller: passwordController,
-                    style: GoogleFonts.poppins(),
-                    obscureText: obscurePassword,
-                    decoration: _inputDecoration(
-                      "Create password",
-                    ).copyWith(
-                      suffixIcon: IconButton(
-                        onPressed: togglePassword,
-                        icon: Icon(
-                          obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                      ),
-                    ),
+          _Field(
+            label: "Administrator Email",
+            child: TextFormField(
+              controller: emailController,
+              style: GoogleFonts.poppins(),
+              keyboardType:
+              TextInputType.emailAddress,
+              decoration: _inputDecoration(
+                "admin@company.com",
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          _Field(
+            label: "Administrator Mobile Number",
+            child: TextFormField(
+              controller: mobileController,
+              style: GoogleFonts.poppins(),
+              keyboardType:
+              TextInputType.phone,
+              decoration: _inputDecoration(
+                "+91 9876543210",
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          _Field(
+            label: "Password",
+            child: TextFormField(
+              controller: passwordController,
+              style: GoogleFonts.poppins(),
+              obscureText: obscurePassword,
+              decoration: _inputDecoration(
+                "Create password",
+              ).copyWith(
+                suffixIcon: IconButton(
+                  onPressed: togglePassword,
+                  icon: Icon(
+                    obscurePassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                   ),
                 ),
               ),
+            ),
+          ),
 
-              const SizedBox(width: 20),
+          const SizedBox(height: 20),
 
-              Expanded(
-                child: _Field(
-                  label: "Confirm Password",
-                  child: TextFormField(
-                    controller:
-                    confirmPasswordController,
-                    style: GoogleFonts.poppins(),
-                    obscureText:
-                    obscureConfirmPassword,
-                    decoration: _inputDecoration(
-                      "Confirm password",
-                    ).copyWith(
-                      suffixIcon: IconButton(
-                        onPressed:
-                        toggleConfirmPassword,
-                        icon: Icon(
-                          obscureConfirmPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                      ),
-                    ),
+          _Field(
+            label: "Confirm Password",
+            child: TextFormField(
+              controller:
+              confirmPasswordController,
+              style: GoogleFonts.poppins(),
+              obscureText:
+              obscureConfirmPassword,
+              decoration: _inputDecoration(
+                "Confirm password",
+              ).copyWith(
+                suffixIcon: IconButton(
+                  onPressed:
+                  toggleConfirmPassword,
+                  icon: Icon(
+                    obscureConfirmPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
 
           const SizedBox(height: 24),
