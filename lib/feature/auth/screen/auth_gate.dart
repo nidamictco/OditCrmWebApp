@@ -39,7 +39,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
+import 'package:oxdo/feature/mother_company/Dashboard/screens/dashboard_page.dart';
 
+import '../../mother_company/MotherCompanyMainScreen.dart';
 import '../../sub_company/sidebar/main_screen.dart';
 import '../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 
@@ -74,7 +76,7 @@ class _AuthGateState extends State<AuthGate> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        if (state is Authenticated) return const MainScreen();
+        if (state is Authenticated) return state.user.companyType == 'sub_company' ? const MainScreen() : const MotherCompanyMainScreen();
         return const LoginScreen();
       },
     );
