@@ -1,8 +1,8 @@
-﻿import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../../../reports/staff_reports/screen/staff_profile_screen.dart';
+import '../../../rightside_menu/common_model/lead_model.dart';
+import '../../../rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import '../../../staff_managment/staff/model/staff_model.dart';
+import '../model/add_lead_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
 
@@ -67,10 +67,10 @@ class AddLeadState {
   final DateTime? selectedDashboardDate;
 
   final String profileClosedCount;
-final String profileTotalCalledCount;
-final String profileConnectedCount;
-final String profileNotConnectedCount;
-final bool   isLoadingProfileCounts;
+  final String profileTotalCalledCount;
+  final String profileConnectedCount;
+  final String profileNotConnectedCount;
+  final bool isLoadingProfileCounts;
 
   const AddLeadState({
     this.status = AddLeadStatus.initial,
@@ -162,11 +162,11 @@ final bool   isLoadingProfileCounts;
     DateTime? selectedDashboardDate,
     Map<String, int>? leadChartCounts,
     List<LeadCategoryTableRow>? leadCategoryTableRows,
-    String?  profileClosedCount,
-  String?  profileTotalCalledCount,
-  String?  profileConnectedCount,
-  String?  profileNotConnectedCount,
-  bool?    isLoadingProfileCounts,
+    String? profileClosedCount,
+    String? profileTotalCalledCount,
+    String? profileConnectedCount,
+    String? profileNotConnectedCount,
+    bool? isLoadingProfileCounts,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
     bool clearSuccess = false,
@@ -237,16 +237,17 @@ final bool   isLoadingProfileCounts;
       selectedDashboardDate:
           selectedDashboardDate ?? this.selectedDashboardDate,
       leadChartCounts: leadChartCounts ?? this.leadChartCounts,
-      leadCategoryTableRows: leadCategoryTableRows ?? this.leadCategoryTableRows,
-     profileClosedCount:        profileClosedCount        ?? this.profileClosedCount,
-    profileTotalCalledCount:   profileTotalCalledCount   ?? this.profileTotalCalledCount,
-    profileConnectedCount:     profileConnectedCount     ?? this.profileConnectedCount,
-    profileNotConnectedCount:  profileNotConnectedCount  ?? this.profileNotConnectedCount,
-    isLoadingProfileCounts:    isLoadingProfileCounts    ?? this.isLoadingProfileCounts,
+      leadCategoryTableRows:
+          leadCategoryTableRows ?? this.leadCategoryTableRows,
+      profileClosedCount: profileClosedCount ?? this.profileClosedCount,
+      profileTotalCalledCount:
+          profileTotalCalledCount ?? this.profileTotalCalledCount,
+      profileConnectedCount:
+          profileConnectedCount ?? this.profileConnectedCount,
+      profileNotConnectedCount:
+          profileNotConnectedCount ?? this.profileNotConnectedCount,
+      isLoadingProfileCounts:
+          isLoadingProfileCounts ?? this.isLoadingProfileCounts,
     );
   }
-
-  
 }
-
-

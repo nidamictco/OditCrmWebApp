@@ -5,9 +5,10 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../model/import_leads_model.dart';
+import '../../../../../core/constant/firebase_const.dart';
+import '../../../rightside_menu/common_model/lead_model.dart';
+import '../../../staff_managment/staff/model/staff_model.dart';
 
 abstract class IImportLeadsRepository {
   Future<List<LeadsModel>> fetchCategories();
@@ -37,19 +38,19 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _leadsCollection =>
-      _firestore.collection('LEADS');
+      FirestorePath.companyCollection('LEADS');
 
   CollectionReference<Map<String, dynamic>> get _categoryCollection =>
-      _firestore.collection('LEADS CATEGORY');
+      FirestorePath.companyCollection('LEADS CATEGORY');
 
   CollectionReference<Map<String, dynamic>> get _sourceCollection =>
-      _firestore.collection('LEAD SOURCE');
+      FirestorePath.companyCollection('LEAD SOURCE');
 
   CollectionReference<Map<String, dynamic>> get _staffCollection =>
-      _firestore.collection('STAFF');
+      FirestorePath.companyCollection('STAFF');
 
   CollectionReference<Map<String, dynamic>> get _leadStagesCollection =>
-      _firestore.collection('LEADS STAGE');
+      FirestorePath.companyCollection('LEADS STAGE');
 
   String _generateDateId(String prefix, {int? rowIndex}) {
     final now = DateTime.now();

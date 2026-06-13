@@ -1,17 +1,17 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/input_date.dart';
-import 'package:oxdo/core/utils/page_button.dart';
-import 'package:oxdo/core/utils/show_entries.dart';
-import 'package:oxdo/core/utils/staff_top_bar.dart';
-import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/feature/sub_company/notification/cubit/notification_cubit.dart';
-import 'package:oxdo/feature/sub_company/notification/cubit/notification_state.dart';
-import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
+import '../../../../core/shared_preference/session_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/input_date.dart';
+import '../../../../core/utils/page_button.dart';
+import '../../../../core/utils/show_entries.dart';
+import '../../../../core/utils/staff_top_bar.dart';
+import '../../../../core/utils/table.dart';
+import '../cubit/notification_cubit.dart';
+import '../cubit/notification_state.dart';
+import '../model/notification_model.dart';
 import 'package:sizer/sizer.dart';
 
 class NotificationScreen extends StatefulWidget {

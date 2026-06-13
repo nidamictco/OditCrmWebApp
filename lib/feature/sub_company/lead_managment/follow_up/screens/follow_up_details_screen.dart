@@ -7,30 +7,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/core/utils/custom_calender.dart';
-import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/dropdown_with_add.dart';
-import 'package:oxdo/core/utils/input_date.dart';
-import 'package:oxdo/core/utils/popup_msg.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/calender.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import '../../../../../core/utils/custom_calender.dart';
+import '../../../../../core/utils/dropdown.dart';
+import '../../../../../core/utils/dropdown_with_add.dart';
+import '../../../../../core/utils/input_date.dart';
+import '../../../../../core/utils/popup_msg.dart';
+import 'widget/calender.dart';
+import '../../leads/cubit/add_lead_cubit.dart';
+import '../../leads/cubit/add_lead_state.dart';
+import '../../leads/model/add_lead_model.dart';
+import '../../../reports/staff_reports/widget/calender.dart';
+import '../../../rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../core/shared_preference/session_service.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/top_bread_crumb_bar.dart';
-import '../../../../core/utils/transfer_lead_alert.dart';
+import '../../../../../core/shared_preference/session_service.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../../../core/utils/transfer_lead_alert.dart';
 import '../../../sidebar/main_screen.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
 import '../models/follow_up_activities_model.dart';
 import '../models/follow_up_details_models.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
+import '../../../../../core/theme/app_text_style.dart';
 
 import '../models/staff_handler_model.dart';
 
@@ -635,16 +635,12 @@ class _FollowupTabContent extends StatefulWidget {
 //     // widget.onFollowUpAdded();
 //   }
 
-  
-
 //   @override
 //   Widget build(BuildContext context) {
 //     final Widget divider = SizedBox(width: 1.w);
 
-    
-
 //     Future<FollowUpModel> createLeadFollowup() async {
-      
+
 //       final user = await SessionService().getSavedUser();
 //       return FollowUpModel(
 //         leadId: widget.leadId,
@@ -971,8 +967,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
         widget.lead.leadStage.toLowerCase() != 'rejected' &&
         widget.lead.leadStage.toLowerCase() != 'new') {
       followupGroup[DateFormat(
-        'dd-MM-yyyy hh:mm',
-      ).format(widget.lead.followUpDate!)] = _createLeadFollowup(); // ✅ sync
+            'dd-MM-yyyy hh:mm',
+          ).format(widget.lead.followUpDate!)] =
+          _createLeadFollowup(); // ✅ sync
     }
 
     // Existing follow-up records
@@ -982,8 +979,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     // Lead creation node (always last)
     followupGroup[DateFormat(
-      'dd-MM-yyyy hh:mm',
-    ).format(widget.lead.createdAt!)] = _createLeadFollowup(); // ✅ sync
+          'dd-MM-yyyy hh:mm',
+        ).format(widget.lead.createdAt!)] =
+        _createLeadFollowup(); // ✅ sync
 
     final dates = followupGroup.keys.toList();
     log(dates.length.toString());
@@ -1677,7 +1675,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     );
   }
 
- 
   void _showAddCategoryDialog() {
     _dialogNameCtrl.clear();
     showDialog(
@@ -2064,9 +2061,9 @@ class _FollowupCard extends StatelessWidget {
                         // Falls back to lead.assignedStaff for older records
                         // that were saved before assignedStaff was added.
                         Text(
-  entry.assignedStaff.isNotEmpty
-      ? entry.assignedStaff
-      : 'Unknown', 
+                          entry.assignedStaff.isNotEmpty
+                              ? entry.assignedStaff
+                              : 'Unknown',
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,

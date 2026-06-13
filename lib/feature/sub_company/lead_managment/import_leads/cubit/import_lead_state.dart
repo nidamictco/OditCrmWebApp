@@ -1,7 +1,7 @@
 ﻿// import 'dart:typed_data';
 
-// import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-// import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+// import '../../../rightside_menu/common_model/lead_model.dart';
+// import '../../../staff_managment/staff/model/staff_model.dart';
 
 // // ── Top-level status enums ────────────────────────────────────────────────────
 
@@ -151,8 +151,8 @@
 
 import 'dart:typed_data';
 
-import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../../../rightside_menu/common_model/lead_model.dart';
+import '../../../staff_managment/staff/model/staff_model.dart';
 
 
 enum ImportLeadsStatus {

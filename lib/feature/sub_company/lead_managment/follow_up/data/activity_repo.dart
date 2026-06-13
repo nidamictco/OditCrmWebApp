@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../../../../../core/constant/firebase_const.dart';
 import '../models/follow_up_activities_model.dart';
 
 class ActivityRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _activitiesRef(String leadId) =>
-      _db.collection('LEADS').doc(leadId).collection('ACTIVITIES');
+      FirestorePath.companyCollection('LEADS').doc(leadId).collection('ACTIVITIES');
 
   /// Fetch all activities for a lead, newest first.
   Future<List<ActivityModel>> getActivities(String leadId) async {
@@ -78,13 +78,19 @@ class ActivityRepository {
         // Try stored leadId first, fall back to parent doc traversal
         final leadId =
             data['leadId'] as String? ??
-            d.reference.parent.parent?.id; // ← fallback for old docs
+            (() {
+              final segments = d.reference.path.split('/');
+              if (segments.length >= 4 && segments[2] == 'LEADS') {
+                return segments[3];
+              }
+              return null;
+            }());
 
         String? leadName;
         String? leadPhone;
 
         if (leadId != null) {
-          final leadDoc = await _db.collection('LEADS').doc(leadId).get();
+          final leadDoc = await FirestorePath.companyCollection('LEADS').doc(leadId).get();
           if (leadDoc.exists) {
             leadName = leadDoc.data()?['clientName'] as String?;
             leadPhone = leadDoc.data()?['contactNumber'] as String?;

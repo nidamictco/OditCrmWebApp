@@ -4,10 +4,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/note_dialog.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/note_model.dart';
+import 'note_dialog.dart';
+import '../../../staff_managment/staff/cubit/add_staff_cubit.dart';
+import '../../../staff_managment/staff/cubit/add_staff_state.dart';
+import '../../../staff_managment/staff/model/note_model.dart';
 
 class NotesDrawer extends StatefulWidget {
   final String staffId;

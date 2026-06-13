@@ -1,11 +1,11 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/call_history/widget/cloud_call_tab.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/call_history/widget/folow_up_tab.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/call_history/widget/phone_log_tab.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/top_bread_crumb_bar.dart';
+import 'widget/cloud_call_tab.dart';
+import 'widget/folow_up_tab.dart';
+import 'widget/phone_log_tab.dart';
+import '../../sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class CallHistoryPage extends StatefulWidget {

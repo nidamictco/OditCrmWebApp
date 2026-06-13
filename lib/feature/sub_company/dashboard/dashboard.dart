@@ -1,14 +1,14 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/custom_calender.dart';
-import 'package:oxdo/core/utils/menu_hover_bottun.dart';
-import 'package:oxdo/feature/sub_company/dashboard/widget/add_leads_button.dart';
-import 'package:oxdo/feature/sub_company/dashboard/widget/dashboard_card.dart';
-import 'package:oxdo/feature/sub_company/dashboard/widget/social_connect_card.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../core/utils/custom_calender.dart';
+import '../../../core/utils/menu_hover_bottun.dart';
+import 'widget/add_leads_button.dart';
+import 'widget/dashboard_card.dart';
+import 'widget/social_connect_card.dart';
+import '../sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../lead_managment/leads/cubit/add_lead_cubit.dart';

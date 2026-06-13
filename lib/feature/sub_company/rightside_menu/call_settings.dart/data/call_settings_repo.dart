@@ -8,8 +8,9 @@
 //   Document   : "VOXBAY"    →  { entries: [ {…}, … ] }
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
+import '../model/bonvoice_model.dart';
+import '../model/voxbay_model.dart';
+import '../../../../../core/constant/firebase_const.dart';
 
 
 class CallSettingsRepository {
@@ -24,10 +25,10 @@ class CallSettingsRepository {
   static const String _field = 'entries';
 
   DocumentReference<Map<String, dynamic>> get _bonvoiceRef =>
-      _db.collection(_collection).doc(_bonvoiceDoc);
+      FirestorePath.companyCollection(_collection).doc(_bonvoiceDoc);
 
   DocumentReference<Map<String, dynamic>> get _voxbayRef =>
-      _db.collection(_collection).doc(_voxbayDoc);
+      FirestorePath.companyCollection(_collection).doc(_voxbayDoc);
 
   // ── BONVOICE ─────────────────────────────────────────────────────────────
 

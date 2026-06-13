@@ -1,7 +1,7 @@
-// // import 'dart:developer';
+﻿// // import 'dart:developer';
 // // import 'package:flutter_bloc/flutter_bloc.dart';
 // // import 'package:cloud_firestore/cloud_firestore.dart';
-// // import 'package:oxdo/feature/auth/data/msg91_service.dart';
+// // import '../../data/msg91_service.dart';
 
 // // part 'forget_psswrd_state.dart';
 
@@ -169,10 +169,10 @@
 
 // import 'dart:developer';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
-// import 'package:oxdo/core/shared_preference/session_service.dart';
-// import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
-// import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+// import '../../data/firebase_auth_service.dart';
+// import '../../../../core/shared_preference/session_service.dart';
+// import '../../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+// import '../../../sub_company/staff_managment/staff/model/staff_model.dart';
 
 // part 'auth_state.dart';
 

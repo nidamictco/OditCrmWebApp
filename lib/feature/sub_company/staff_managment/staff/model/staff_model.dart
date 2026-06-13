@@ -18,13 +18,14 @@ class StaffModel {
   final bool accessCallLog;
   final bool hasSalaryAccount;
   final bool hasPettyCash;
-  final String? imageUrl;     
+  final String? imageUrl;
   final String? documentName;
-  final String? documentUrl; 
+  final String? documentUrl;
   final String? accessibleUsers;
   final DateTime? createdAt;
   final DateTime? deletedAt;
   final String? companyType;
+  final String? companyId;
 
   const StaffModel({
     this.id,
@@ -51,6 +52,7 @@ class StaffModel {
     this.createdAt,
     this.deletedAt,
     this.companyType,
+    this.companyId,
   });
 
   // ─── copyWith ────────────────────────────────────────────────────────────
@@ -80,6 +82,7 @@ class StaffModel {
     DateTime? createdAt,
     DateTime? deletedAt,
     String? companyType,
+    String? companyId,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -106,6 +109,7 @@ class StaffModel {
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
       companyType: companyType ?? this.companyType,
+      companyId: companyId ?? this.companyId,
     );
   }
 
@@ -126,7 +130,7 @@ class StaffModel {
       salary: map['salary'],
       openingBalance: map['openingBalance'],
       openingBalanceDate: map['openingBalanceDate'],
-       status: map['status'] as String? ?? 'Active', 
+      status: map['status'] as String? ?? 'Active',
       accessWhatsapp: map['accessWhatsapp'] ?? false,
       accessCallLog: map['accessCallLog'] ?? false,
       hasSalaryAccount: map['hasSalaryAccount'] ?? true,
@@ -137,7 +141,15 @@ class StaffModel {
       accessibleUsers: map['accessibleUsers'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
       deletedAt: (map['deletedAt'] as Timestamp?)?.toDate(),
-      companyType: map['companyType']??'',
+      companyType: map['companyType'] ?? '',
+      companyId: map['companyId'] ??
+          (() {
+            final segments = doc.reference.path.split('/');
+            if (segments.length >= 2 && segments[0] == 'COMPANY') {
+              return segments[1];
+            }
+            return null;
+          }()),
     );
   }
 
@@ -166,67 +178,72 @@ class StaffModel {
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
-      'deletedAt': deletedAt != null
-          ? Timestamp.fromDate(deletedAt!)
-          : null,
+      'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
       'companyType': companyType,
+      'companyId': companyId,
     };
   }
 
   Map<String, dynamic> toJson() {
-  return {
-    'name': name,
-    'password': password,
-    'phone': phone,
-    'email': email,
-    'designationId': designationId,
-    'designation': designation,
-    'staffType': staffType,
-    'joiningDate': joiningDate,
-    'salary': salary,
-    'openingBalance': openingBalance,
-    'openingBalanceDate': openingBalanceDate,
-    'status': status,
-    'accessWhatsapp': accessWhatsapp,
-    'accessCallLog': accessCallLog,
-    'hasSalaryAccount': hasSalaryAccount,
-    'hasPettyCash': hasPettyCash,
-    'imageUrl': imageUrl,
-    'documentName': documentName,
-    'documentUrl': documentUrl,
-    'accessibleUsers': accessibleUsers,
-    'createdAt': createdAt?.toIso8601String(), 
-    'deletedAt': deletedAt?.toIso8601String(),
-    'companyType': companyType,
-  };
-}
+    return {
+      'name': name,
+      'password': password,
+      'phone': phone,
+      'email': email,
+      'designationId': designationId,
+      'designation': designation,
+      'staffType': staffType,
+      'joiningDate': joiningDate,
+      'salary': salary,
+      'openingBalance': openingBalance,
+      'openingBalanceDate': openingBalanceDate,
+      'status': status,
+      'accessWhatsapp': accessWhatsapp,
+      'accessCallLog': accessCallLog,
+      'hasSalaryAccount': hasSalaryAccount,
+      'hasPettyCash': hasPettyCash,
+      'imageUrl': imageUrl,
+      'documentName': documentName,
+      'documentUrl': documentUrl,
+      'accessibleUsers': accessibleUsers,
+      'createdAt': createdAt?.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
+      'companyType': companyType,
+      'companyId': companyId,
+    };
+  }
 
-factory StaffModel.fromJson(Map<String, dynamic> map) {
-  return StaffModel(
-    id: map['id'],
-    name: map['name'] ?? '',
-    password: map['password'] ?? '',
-    phone: map['phone'] ?? '',
-    email: map['email'],
-    designationId: map['designationId'],
-    designation: map['designation'],
-    staffType: map['staffType'],
-    joiningDate: map['joiningDate'],
-    salary: map['salary'],
-    openingBalance: map['openingBalance'],
-    openingBalanceDate: map['openingBalanceDate'],
-    status: map['status'] as String? ?? 'Active',
-    accessWhatsapp: map['accessWhatsapp'] ?? false,
-    accessCallLog: map['accessCallLog'] ?? false,
-    hasSalaryAccount: map['hasSalaryAccount'] ?? true,
-    hasPettyCash: map['hasPettyCash'] ?? false,
-    imageUrl: map['imageUrl'],
-    documentName: map['documentName'],
-    documentUrl: map['documentUrl'],
-    accessibleUsers: map['accessibleUsers'],
-    createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt']) : null,
-    deletedAt: map['deletedAt'] != null ? DateTime.tryParse(map['deletedAt']) : null,
-    companyType: map['companyType']??'',
-  );
-}
+  factory StaffModel.fromJson(Map<String, dynamic> map) {
+    return StaffModel(
+      id: map['id'],
+      name: map['name'] ?? '',
+      password: map['password'] ?? '',
+      phone: map['phone'] ?? '',
+      email: map['email'],
+      designationId: map['designationId'],
+      designation: map['designation'],
+      staffType: map['staffType'],
+      joiningDate: map['joiningDate'],
+      salary: map['salary'],
+      openingBalance: map['openingBalance'],
+      openingBalanceDate: map['openingBalanceDate'],
+      status: map['status'] as String? ?? 'Active',
+      accessWhatsapp: map['accessWhatsapp'] ?? false,
+      accessCallLog: map['accessCallLog'] ?? false,
+      hasSalaryAccount: map['hasSalaryAccount'] ?? true,
+      hasPettyCash: map['hasPettyCash'] ?? false,
+      imageUrl: map['imageUrl'],
+      documentName: map['documentName'],
+      documentUrl: map['documentUrl'],
+      accessibleUsers: map['accessibleUsers'],
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt'])
+          : null,
+      deletedAt: map['deletedAt'] != null
+          ? DateTime.tryParse(map['deletedAt'])
+          : null,
+      companyType: map['companyType'] ?? '',
+      companyId: map['companyId'],
+    );
+  }
 }

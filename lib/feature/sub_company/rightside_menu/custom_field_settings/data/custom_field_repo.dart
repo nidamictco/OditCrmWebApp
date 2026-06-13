@@ -1,5 +1,7 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../../../../core/constant/firebase_const.dart';
+import '../model/custom_field_model.dart';
 
 abstract class AdditionalFieldsRepository {
   Future<List<AdditionalFieldModel>> fetchFields();
@@ -14,14 +16,13 @@ class AdditionalFieldsRepositoryImpl implements AdditionalFieldsRepository {
   static const String _collection = 'ADDITIONAL_FIELD';
 
   AdditionalFieldsRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<List<AdditionalFieldModel>> fetchFields() async {
-    final snapshot = await _firestore
-        .collection(_collection)
-        .orderBy('createdAt', descending: false)
-        .get();
+    final snapshot = await FirestorePath.companyCollection(
+      _collection,
+    ).orderBy('createdAt', descending: false).get();
 
     return snapshot.docs
         .map((doc) => AdditionalFieldModel.fromMap(doc.data(), doc.id))
@@ -38,7 +39,7 @@ class AdditionalFieldsRepositoryImpl implements AdditionalFieldsRepository {
     final batch = _firestore.batch();
 
     for (final name in validFields) {
-      final docRef = _firestore.collection(_collection).doc();
+      final docRef = FirestorePath.companyCollection(_collection).doc();
       batch.set(docRef, AdditionalFieldModel(fieldName: name.trim()).toMap());
     }
 
@@ -47,6 +48,6 @@ class AdditionalFieldsRepositoryImpl implements AdditionalFieldsRepository {
 
   @override
   Future<void> deleteField(String id) async {
-    await _firestore.collection(_collection).doc(id).delete();
+    await FirestorePath.companyCollection(_collection).doc(id).delete();
   }
 }

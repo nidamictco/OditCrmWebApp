@@ -1,18 +1,18 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/export_excel.dart';
-import 'package:oxdo/core/utils/input_date.dart';
-import 'package:oxdo/core/utils/page_button.dart';
-import 'package:oxdo/core/utils/show_entries.dart';
-import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
+import '../../../../../../../core/theme/app_colors.dart';
+import '../../../../../../../core/theme/app_text_style.dart';
+import '../../../../../../../core/utils/dropdown.dart';
+import '../../../../../../../core/utils/export_excel.dart';
+import '../../../../../../../core/utils/input_date.dart';
+import '../../../../../../../core/utils/page_button.dart';
+import '../../../../../../../core/utils/show_entries.dart';
+import '../../../../../../../core/utils/table.dart';
+import '../../../../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../cubit/add_lead_cubit.dart';
+import '../../../cubit/add_lead_state.dart';
+import '../../../model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 class DeleteLeads extends StatefulWidget {

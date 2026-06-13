@@ -2,7 +2,7 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
+import '../../lead_managment/leads/model/add_lead_model.dart';
 
 Future<void> exportLeadsToPdf(List<AddLeadModel> leads) async {
   final pdf = pw.Document();

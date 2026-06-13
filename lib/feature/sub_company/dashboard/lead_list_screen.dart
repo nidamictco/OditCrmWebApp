@@ -5,23 +5,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/export_excel.dart';
-import 'package:oxdo/core/utils/input_date.dart';
-import 'package:oxdo/core/utils/page_button.dart';
-import 'package:oxdo/core/utils/show_entries.dart';
-import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/core/utils/transfer_lead_alert.dart';
-import 'package:oxdo/feature/sub_company/dashboard/widget/add_leads_button.dart';
-import 'package:oxdo/feature/sub_company/dashboard/widget/export_leads_to_pdf.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../core/utils/dropdown.dart';
+import '../../../core/utils/export_excel.dart';
+import '../../../core/utils/input_date.dart';
+import '../../../core/utils/page_button.dart';
+import '../../../core/utils/show_entries.dart';
+import '../../../core/utils/table.dart';
+import '../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../core/utils/transfer_lead_alert.dart';
+import 'widget/add_leads_button.dart';
+import 'widget/export_leads_to_pdf.dart';
+import '../lead_managment/leads/cubit/add_lead_cubit.dart';
+import '../lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../core/shared_preference/session_service.dart';
+import '../../../core/shared_preference/session_service.dart';
 import '../lead_managment/leads/model/add_lead_model.dart';
 import '../sidebar/main_screen.dart';
 import '../staff_managment/staff/model/staff_model.dart';
@@ -279,20 +279,21 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
     // );
     result.sort((a, b) {
-  // First sort by priority
-  final priorityCompare =
-      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+      // First sort by priority
+      final priorityCompare = _priorityOrder(
+        a.priority,
+      ).compareTo(_priorityOrder(b.priority));
 
-  if (priorityCompare != 0) {
-    return priorityCompare;
-  }
+      if (priorityCompare != 0) {
+        return priorityCompare;
+      }
 
-  // If priority is same, latest createdAt first
-  final aCreated = a.createdAt ?? DateTime(1970);
-  final bCreated = b.createdAt ?? DateTime(1970);
+      // If priority is same, latest createdAt first
+      final aCreated = a.createdAt ?? DateTime(1970);
+      final bCreated = b.createdAt ?? DateTime(1970);
 
-  return bCreated.compareTo(aCreated);
-});
+      return bCreated.compareTo(aCreated);
+    });
 
     return result;
   }
@@ -1465,7 +1466,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         );
 
         // ── Build columns ──────────────────────────────────────
-        
+
         final columns = [
           TableColumn(title: 'Sl No.', flex: 1),
           TableColumn(title: 'NAME', flex: isNew ? 5 : 3),
@@ -1558,7 +1559,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             ),
             // Status
             SizedBox(child: _StatusBadge(status: lead.leadStage)),
-           
+
             if (!isNew)
               Text(
                 lead.followUpDate != null
@@ -1775,8 +1776,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     );
   }
 
- 
-
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
 
@@ -1881,10 +1880,16 @@ class _HoverExportButtonState extends State<HoverExportButton> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _item(Icons.table_chart, "Export Excel",
-                        onTap: widget.onExportExcel),
-                    _item(Icons.picture_as_pdf, "Export PDF",
-                        onTap: widget.onExportPDF),
+                    _item(
+                      Icons.table_chart,
+                      "Export Excel",
+                      onTap: widget.onExportExcel,
+                    ),
+                    _item(
+                      Icons.picture_as_pdf,
+                      "Export PDF",
+                      onTap: widget.onExportPDF,
+                    ),
                   ],
                 ),
               ),
@@ -1914,7 +1919,7 @@ class _HoverExportButtonState extends State<HoverExportButton> {
     return InkWell(
       onTap: () {
         _hideOverlay(); // ✅ Close first
-        onTap?.call();  // ✅ Then execute action
+        onTap?.call(); // ✅ Then execute action
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

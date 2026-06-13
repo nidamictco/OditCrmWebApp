@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/footer.dart';
-import 'package:oxdo/core/utils/page_button.dart';
-import 'package:oxdo/core/utils/show_entries.dart';
-import 'package:oxdo/core/utils/staff_top_bar.dart';
-import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../../../../../../../core/theme/app_colors.dart';
+import '../../../../../../../core/theme/app_text_style.dart';
+import '../../../../../../../core/utils/footer.dart';
+import '../../../../../../../core/utils/page_button.dart';
+import '../../../../../../../core/utils/show_entries.dart';
+import '../../../../../../../core/utils/staff_top_bar.dart';
+import '../../../../../../../core/utils/table.dart';
+import '../../../../../sidebar/main_screen.dart';
+import '../../../cubit/add_staff_cubit.dart';
+import '../../../cubit/add_staff_state.dart';
+import '../../../model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class ViewStaff extends StatefulWidget {

@@ -1,8 +1,8 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/data/designation_repository.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/model/designation_model.dart';
+import '../data/designation_repository.dart';
+import '../model/designation_model.dart';
 
 part 'designation_state.dart';
 

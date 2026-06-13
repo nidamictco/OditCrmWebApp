@@ -1,12 +1,12 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/foundation.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/note_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../model/note_model.dart';
+import '../model/staff_model.dart';
 
 import '../../../../../core/constant/firebase_collections.dart';
 import '../../../../../core/constant/firebase_const.dart';

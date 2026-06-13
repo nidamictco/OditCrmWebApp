@@ -1,7 +1,9 @@
-﻿import 'package:flutter/material.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+import 'package:flutter/material.dart';
+
 import 'package:sizer/sizer.dart';
+
+import '../../feature/sub_company/sidebar/main_screen.dart';
+import '../theme/app_colors.dart';
 
 class MenuHoverButton extends StatefulWidget {
   const MenuHoverButton({super.key});
@@ -45,17 +47,21 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
                   );
                   break;
 
-                case "Lead Source": 
+                case "Lead Source":
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 9,)),
+                    MaterialPageRoute(
+                      builder: (_) => MainScreen(selectedIndex: 9),
+                    ),
                   );
                   break;
 
                 case "Lead Stage":
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 10,)),
+                    MaterialPageRoute(
+                      builder: (_) => MainScreen(selectedIndex: 10),
+                    ),
                   );
                   break;
 

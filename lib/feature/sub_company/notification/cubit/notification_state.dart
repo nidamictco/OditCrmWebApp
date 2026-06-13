@@ -1,4 +1,4 @@
-﻿import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
+﻿import '../model/notification_model.dart';
 
 abstract class NotificationState {}
 

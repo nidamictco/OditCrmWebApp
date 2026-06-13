@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/model/designation_model.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/designation_model.dart';
+import '../../../../../core/constant/firebase_const.dart';
 
 class DesignationRepository {
   final FirebaseFirestore _firestore;
@@ -8,8 +9,7 @@ class DesignationRepository {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
-      // _firestore.collection('STAFF').doc('data').collection('DESIGNATIONS');
-      _firestore.collection('DESIGNATIONS');
+      FirestorePath.companyCollection('DESIGNATIONS');
 
   /// Add a new designation, returns the new document ID
   Future<String> addDesignation(DesignationModel designation) async {

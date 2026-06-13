@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oxdo/feature/mother_company/company_manage/widgets/company_table.dart';
+import '../widgets/company_table.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/dashboard_topbar.dart';
 import '../cubit/company_manage_cubit.dart';
