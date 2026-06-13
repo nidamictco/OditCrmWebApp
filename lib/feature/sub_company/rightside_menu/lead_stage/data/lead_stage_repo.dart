@@ -1,9 +1,9 @@
-// lib/features/lead_category/data/repositories/lead_category_repository.dart
+﻿// lib/features/lead_category/data/repositories/lead_category_repository.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 abstract class ILeadStageRepository {
   Stream<List<LeadsModel>> watchCategories();

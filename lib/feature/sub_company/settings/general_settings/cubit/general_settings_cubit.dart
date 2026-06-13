@@ -1,11 +1,11 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/settings/general_settings/cubit/general_settings_state.dart';
-import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
-import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
+import 'package:oxdo/feature/sub_company/settings/general_settings/cubit/general_settings_state.dart';
+import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
+import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 class GeneralSettingsCubit extends Cubit<GeneralSettingsState> {
   GeneralSettingsRepository? _repo;

@@ -1,4 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
+﻿// ─────────────────────────────────────────────────────────────────────────────
 // cubit/call_settings_cubit.dart
 // ─────────────────────────────────────────────────────────────────────────────
 //
@@ -9,9 +9,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/rightside_menu/call_settings.dart/data/call_settings_repo.dart';
-import 'package:oxdo/feature/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
-import 'package:oxdo/feature/rightside_menu/call_settings.dart/model/voxbay_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/data/call_settings_repo.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
 
 part 'call_settings_state.dart';
 

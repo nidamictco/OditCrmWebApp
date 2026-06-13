@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
@@ -9,9 +9,9 @@ import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/staff_top_bar.dart';
 import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/feature/notification/cubit/notification_cubit.dart';
-import 'package:oxdo/feature/notification/cubit/notification_state.dart';
-import 'package:oxdo/feature/notification/model/notification_model.dart';
+import 'package:oxdo/feature/sub_company/notification/cubit/notification_cubit.dart';
+import 'package:oxdo/feature/sub_company/notification/cubit/notification_state.dart';
+import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
 import 'package:sizer/sizer.dart';
 
 class NotificationScreen extends StatefulWidget {

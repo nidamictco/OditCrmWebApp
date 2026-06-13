@@ -1,8 +1,8 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/feature/notification/model/notification_model.dart';
+import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
 
 class NotificationRepo {
   final _db = FirebaseFirestore.instance;
