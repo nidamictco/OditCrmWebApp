@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 
 abstract class AdditionalFieldsRepository {
   Future<List<AdditionalFieldModel>> fetchFields();

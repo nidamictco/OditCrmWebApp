@@ -2,8 +2,8 @@
 
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_stage/data/lead_stage_repo.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
+import 'package:oxdo/feature/rightside_menu/lead_stage/data/lead_stage_repo.dart';
+import 'package:oxdo/feature/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 
 
 class LeadStageCubit extends Cubit<LeadStageState> {

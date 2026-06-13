@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_style.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_style.dart';
 
 // class SocialConnectCard extends StatelessWidget {
 //   final String title;

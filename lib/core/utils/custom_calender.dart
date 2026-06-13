@@ -6,7 +6,8 @@ import 'package:sizer/sizer.dart';
 
 class CustomCalendar extends StatefulWidget {
   final Function(DateTime)? onDateSelected;
-  const CustomCalendar({super.key, this.onDateSelected});
+  final DateTime? initialSelectedDate;
+  const CustomCalendar({super.key, this.onDateSelected,this.initialSelectedDate});
 
   @override
   State<CustomCalendar> createState() => _CustomCalendarState();
@@ -15,6 +16,12 @@ class CustomCalendar extends StatefulWidget {
 class _CustomCalendarState extends State<CustomCalendar> {
   DateTime currentMonth = DateTime.now();
   DateTime? selectedDate;
+
+   @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.initialSelectedDate;
+  }
 
   List<DateTime> _daysInMonth(DateTime month) {
     final firstDay = DateTime(month.year, month.month, 1);
@@ -38,6 +45,14 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
     return total;
   }
+
+  // //  DateTime? selectedDate;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   selectedDate = DateTime.now();
+  // }
 
   void _nextMonth() {
     setState(() {
@@ -98,13 +113,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 ),
                 child: Row(
                   children: [
-                    /// LEFT ARROW
                     IconButton(
                       onPressed: _prevMonth,
                       icon: const Icon(Icons.chevron_left, color: Colors.white),
                     ),
-
-                    /// CENTER TITLE
                     Expanded(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -116,12 +128,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
                               weight: FontWeight.w600,
                             ),
                           ),
-                          // SizedBox(width: 1.w),
-                          // Icon(
-                          //   Icons.keyboard_arrow_down,
-                          //   color: Colors.white,
-                          //   size: 14.sp,
-                          // ),
                           SizedBox(width: 1.w),
                           Text(
                             currentMonth.year.toString(),
@@ -133,8 +139,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
                         ],
                       ),
                     ),
-
-                    /// RIGHT ARROW
                     IconButton(
                       onPressed: _nextMonth,
                       icon: const Icon(
@@ -185,6 +189,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   ),
                   itemBuilder: (context, index) {
                     final day = days[index];
+                    final today = DateTime.now();
 
                     final isCurrentMonth = day.month == currentMonth.month;
 
@@ -194,22 +199,28 @@ class _CustomCalendarState extends State<CustomCalendar> {
                         day.month == selectedDate!.month &&
                         day.year == selectedDate!.year;
 
+                    // ✅ Today check
+                    final isToday =
+                        day.day == today.day &&
+                        day.month == today.month &&
+                        day.year == today.year;
+
                     return GestureDetector(
                       onTap: () {
                         setState(() => selectedDate = day);
-
-                        if (widget.onDateSelected != null) {
-                          widget.onDateSelected!(day);
-                        }
+                        widget.onDateSelected?.call(day);
                       },
                       child: Container(
+                        // ✅ Priority: selected → today → normal
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isSelected
-                              ? const Color(0xff4A5A8A).withOpacity(0.12)
+                              ? AppColors.primary
+                              : isToday
+                              ? AppColors.primary.withOpacity(0.12)
                               : Colors.transparent,
-                          border: isSelected
-                              ? Border.all(color: const Color(0xff4A5A8A))
+                          border: !isSelected && isToday
+                              ? Border.all(color: AppColors.primary, width: 1.5)
                               : null,
                         ),
                         alignment: Alignment.center,
@@ -218,7 +229,12 @@ class _CustomCalendarState extends State<CustomCalendar> {
                           style: AppTextStyle.small(
                             size: 10.sp,
                             weight: FontWeight.w500,
-                            color: isCurrentMonth
+                            // ✅ Priority: selected → today → current month → outside month
+                            color: isSelected
+                                ? Colors.white
+                                : isToday
+                                ? AppColors.primary
+                                : isCurrentMonth
                                 ? AppColors.black
                                 : AppColors.lightGrey.withOpacity(0.6),
                           ),
