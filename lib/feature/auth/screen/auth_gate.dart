@@ -39,8 +39,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+
+import '../../sub_company/sidebar/main_screen.dart';
+import '../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+
 
 class AuthGate extends StatefulWidget {   
   const AuthGate({super.key});

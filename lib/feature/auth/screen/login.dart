@@ -5,10 +5,11 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/theme/asset_resources.dart';
 import 'package:oxdo/core/utils/notification_service.dart';
 import 'package:oxdo/feature/auth/screen/forget_psswrd.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+
 import 'package:sizer/sizer.dart';
 
+import '../../sub_company/sidebar/main_screen.dart';
+import '../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import '../cubit/auth/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -8,6 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/model/note_model.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
+import '../../../../../core/constant/firebase_collections.dart';
+import '../../../../../core/constant/firebase_const.dart';
+
 class StaffRepository {
   final FirebaseFirestore _firestore;
 
@@ -20,10 +23,16 @@ class StaffRepository {
   // ─── Collection references ────────────────────────────────────────────────
 
   CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('STAFF');
+      FirestorePath.companyCollection('STAFF');
 
   CollectionReference<Map<String, dynamic>> get _deletedCollection =>
-      _firestore.collection('DELETED_STAFF');
+      FirestorePath.companyCollection('DELETED_STAFF');
+
+  // CollectionReference<Map<String, dynamic>> get _collection =>
+  //     _firestore.collection('STAFF');
+  //
+  // CollectionReference<Map<String, dynamic>> get _deletedCollection =>
+  //     _firestore.collection('DELETED_STAFF');
 
   // ─── Upload file to Cloudinary ────────────────────────────────────────────
 

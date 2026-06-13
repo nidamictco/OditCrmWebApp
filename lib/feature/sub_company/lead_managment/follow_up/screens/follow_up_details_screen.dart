@@ -20,10 +20,10 @@ import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/calender.d
 import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:sizer/sizer.dart';
 
-import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/core/utils/transfer_lead_alert.dart';
+import '../../../../../core/shared_preference/session_service.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../../../core/utils/transfer_lead_alert.dart';
 import '../../../sidebar/main_screen.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
