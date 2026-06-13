@@ -533,7 +533,7 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                   SizedBox(
                                     child: CustomTable(
                                       columns: [
-                                        TableColumn(title: "#", flex: 1),
+                                        TableColumn(title: "Sl No.", flex: 1),
                                         TableColumn(title: "Name", flex: 4),
                                         TableColumn(
                                           title: "Contact Number",

@@ -1,3 +1,363 @@
+// import 'dart:developer';
+// import 'dart:typed_data';
+
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:oxdo/core/shared_preference/session_service.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/data/import_lead_repo.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
+// import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
+// import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+// import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
+// import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+
+// class ImportLeadsCubit extends Cubit<ImportLeadsState> {
+//   final IImportLeadsRepository _repository;
+//   final NotificationRepo _notificationRepo;
+
+//   ImportLeadsCubit({
+//     IImportLeadsRepository? repository,
+//     NotificationRepo? notificationRepo,
+//   }) : _repository = repository ?? ImportLeadsRepository(),
+//        _notificationRepo = notificationRepo ?? NotificationRepo(),
+//        super(const ImportLeadsState());
+
+//   // ── Initialization ────────────────────────────────────────────────────────
+
+//   /// Call once from initState — loads all dropdown data in parallel.
+//   Future<void> initialize() async {
+//     if (state.status == ImportLeadsStatus.ready ||
+//         state.status == ImportLeadsStatus.success)
+//       return;
+//     emit(state.copyWith(status: ImportLeadsStatus.loading, clearError: true));
+
+//     try {
+//       final results = await Future.wait([
+//         _repository.fetchCategories(),
+//         _repository.fetchSources(),
+//         _repository.fetchStaff(),
+//         _repository.fetchLeadStages(),
+//       ]);
+//       log("categories length: ${results[0].length}");
+//       log("sources length: ${results[1].length}");
+//       log("staff length: ${results[2].length}");
+//       log("stages length: ${results[3].length}");
+
+//       final fetchedStages = results[3] as List<LeadsModel>;
+
+//       final defaultStage = fetchedStages
+//           .firstWhere(
+//             (s) => s.name?.toLowerCase() == 'new',
+//             orElse: () => fetchedStages.first,
+//           )
+//           .name;
+//       emit(
+//         state.copyWith(
+//           status: ImportLeadsStatus.ready,
+//           categories: results[0] as List<LeadsModel>,
+//           sources: results[1] as List<LeadsModel>,
+//           staffList: results[2] as List<StaffModel>,
+//          stages:            fetchedStages,
+//   selectedLeadStage: state.selectedLeadStage ?? defaultStage,
+//         ),
+//       );
+
+//       log(
+//         '[ImportLeadsCubit] Initialized — '
+//         'categories: ${state.categories.length}, '
+//         'sources: ${state.sources.length}, '
+//         'staff: ${state.staffList.length}'
+//         'stages ${state.stages.length}',
+//       );
+//     } catch (e, st) {
+//       log('[ImportLeadsCubit] initialize error: $e', stackTrace: st);
+//       emit(
+//         state.copyWith(
+//           status: ImportLeadsStatus.failure,
+//           errorMessage: _friendlyError(e),
+//         ),
+//       );
+//     }
+//   }
+
+//   // ── Selection helpers ─────────────────────────────────────────────────────
+
+// void selectCategory(String? value) => emit(
+//   state.copyWith(
+//     selectedCategory: value,
+//     clearCategory: value == null,
+//   ),
+// );
+
+// void selectSource(String? value) => emit(
+//   state.copyWith(
+//     selectedSource: value,
+//     clearSource: value == null,
+//   ),
+// );
+
+// void selectLeadStage(String? value) => emit(
+//   state.copyWith(
+//     selectedLeadStage: value,
+//     clearLeadStage: value == null,
+//   ),
+// );
+
+// void selectPriority(String? value) => emit(
+//   state.copyWith(
+//     selectedPriority: value,
+//     clearPriority: value == null,
+//   ),
+// );
+
+// void selectStaff(String? value) => emit(
+//   state.copyWith(
+//     selectedStaff: value,
+//     clearStaff: value == null,
+//   ),
+// );
+
+// void selectState(String? value) => emit(
+//   state.copyWith(
+//     selectedState: value,
+//     clearState: value == null,
+//     clearDistrict: true,         // always reset district when state changes
+//   ),
+// );
+
+// void selectDistrict(String? value) => emit(
+//   state.copyWith(
+//     selectedDistrict: value,
+//     clearDistrict: value == null,
+//   ),
+// );
+
+//   // ── Form selection helpers ────────────────────────────────────────────────
+
+//   void selectTab(int tab) => emit(state.copyWith(selectedTab: tab));
+
+//   // void selectCategory(String? value) =>
+//   //     emit(state.copyWith(selectedCategory: value));
+
+//   // void selectSource(String? value) =>
+//   //     emit(state.copyWith(selectedSource: value));
+
+//   // void selectLeadStage(String? value) =>
+//   //     emit(state.copyWith(selectedLeadStage: value));
+
+//   // void selectPriority(String? value) =>
+//   //     emit(state.copyWith(selectedPriority: value));
+
+//   // void selectStaff(String? value) => emit(state.copyWith(selectedStaff: value));
+
+//   // void selectState(String? value) => emit(
+//   //   state.copyWith(
+//   //     selectedState: value,
+//   //     clearDistrict: true, // reset district when state changes
+//   //   ),
+//   // );
+
+//   // void selectDistrict(String? value) =>
+//   //     emit(state.copyWith(selectedDistrict: value));
+
+//   void setDialCode(String code) => emit(state.copyWith(dialCode: code));
+
+//   void setCsvBytes(Uint8List? bytes) => emit(state.copyWith(csvBytes: bytes));
+
+//   /// Update a single field-position entry, e.g. updateFieldPosition('phone', 2)
+//   void updateFieldPosition(String fieldName, int position) {
+//     final updated = Map<String, int>.from(state.fieldPositions);
+//     updated[fieldName] = position;
+//     emit(state.copyWith(fieldPositions: updated));
+//   }
+
+//   // ── Add category / source (inline quick-add) ──────────────────────────────
+
+//   /// Refreshes categories after a new one is added externally.
+//   Future<void> refreshCategories() async {
+//     try {
+//       final cats = await _repository.fetchCategories();
+//       emit(state.copyWith(categories: cats));
+//     } catch (e) {
+//       log('[ImportLeadsCubit] refreshCategories error: $e');
+//     }
+//   }
+
+//   /// Refreshes sources after a new one is added externally.
+//   Future<void> refreshSources() async {
+//     try {
+//       final srcs = await _repository.fetchSources();
+//       emit(state.copyWith(sources: srcs));
+//     } catch (e) {
+//       log('[ImportLeadsCubit] refreshSources error: $e');
+//     }
+//   }
+
+//   Future<void> refreshStages() async {
+//     try {
+//       final stgs = await _repository.fetchLeadStages();
+//       emit(state.copyWith(stages: stgs));
+//     } catch (e) {
+//       log('[ImportLeadsCubit] refreshStages error: $e');
+//     }
+//   }
+
+//   // ── CSV Import ────────────────────────────────────────────────────────────
+
+//   Future<void> importLeads({required Uint8List csvBytes}) async {
+//     emit(
+//       state.copyWith(
+//         status: ImportLeadsStatus.importing,
+//         clearError: true,
+//         clearSuccess: true,
+//       ),
+//     );
+
+//     try {
+//       final user = await SessionService().getSavedUser();
+
+//       // Build the default values that will fill non-CSV columns
+//       final defaults = ImportLeadModel(
+//         contactDialCode: state.selectedTab == 0 ? state.dialCode : '',
+//         whatsappDialCode: state.selectedTab == 0 ? state.dialCode : '',
+//         assignedStaff: state.selectedStaff ?? '',
+//         assignedStaffId: _staffIdFromName(state.selectedStaff),
+//         leadCategory: state.selectedCategory ?? '',
+//         leadSource: state.selectedSource ?? '',
+//         priority: state.selectedPriority ?? 'Normal',
+//         leadStage: state.selectedLeadStage ?? '',
+//         createdBy: user?.name ?? '',
+//         createdById: user?.id ?? '',
+//       );
+
+//       // final count = await _repository.importFromCsv(
+//       //   csvBytes: csvBytes,
+//       //   fieldPositions: state.fieldPositions,
+//       //   defaults: defaults,
+//       //   hasCountryCode: state.selectedTab == 0,
+//       // );
+//       // if (isClosed) return;
+//       final result = await _repository.importFromCsv(
+//   csvBytes: csvBytes,
+//   fieldPositions: state.fieldPositions,
+//   defaults: defaults,
+//   hasCountryCode: state.selectedTab == 0,
+// );
+// if (isClosed) return;
+
+// final count   = result['imported']!;
+// final skipped = result['skipped']!;
+
+//       //       // ── Notify assigned staff ──────────────────────────────────────────────
+
+// final assignedStaffId = _staffIdFromName(state.selectedStaff);
+// if (assignedStaffId.isNotEmpty) {
+//   await _notificationRepo.create(
+//     staffId: assignedStaffId,
+//     title: 'Leads Imported',
+//     message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
+//   );
+//   if (isClosed) return;
+// }
+
+// // ── Always notify admin/creator ───────────────────────────────────────────
+// final creatorId = user?.id ?? '';
+// if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
+//   await _notificationRepo.create(
+//     staffId: creatorId,
+//     title: 'Import Complete',
+//     message: '$count lead${count == 1 ? '' : 's'} imported successfully'
+//         '${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
+//   );
+//   if (isClosed) return;
+// }
+
+//      final defaultStage = state.stages
+//     .firstWhere(
+//       (s) => s.name?.toLowerCase() == 'new',
+//       orElse: () => state.stages.first,
+//     )
+//     .name;
+
+//       emit(
+//   state.copyWith(
+//     status: ImportLeadsStatus.success,
+//     importedCount: count,
+//     skippedCount: skipped,   // ✅ make sure this is added to state too
+//     successMessage: skipped > 0
+//         ? '$count lead${count == 1 ? '' : 's'} imported. '
+//           '$skipped duplicate${skipped == 1 ? '' : 's'} skipped.'
+//         : '$count lead${count == 1 ? '' : 's'} imported successfully.',
+//     clearError: true,
+//     clearCsvBytes: true,
+//     clearCategory: true,
+//     clearSource: true,
+//     selectedLeadStage: defaultStage,
+//     // clearPriority: true,
+//     selectedPriority: 'Normal',
+//     clearStaff: true,
+//     clearState: true,
+//     clearDistrict: true,
+//   ),
+// );
+
+//       log('[ImportLeadsCubit] Import complete: $count records');
+//     } catch (e, st) {
+//       log('[ImportLeadsCubit] importLeads error: $e', stackTrace: st);
+//       emit(
+//         state.copyWith(
+//           status: ImportLeadsStatus.failure,
+//           errorMessage: _friendlyError(e),
+//           clearSuccess: true,
+//         ),
+//       );
+//     }
+//   }
+
+//   // ── Helpers ───────────────────────────────────────────────────────────────
+
+//   /// Look up the staff ID for a given name from the loaded staff list.
+//   String _staffIdFromName(String? name) {
+//     if (name == null || name.isEmpty) return '';
+//     try {
+//       return state.staffList
+//               .firstWhere(
+//                 (s) => s.name == name,
+//                 orElse: () => state.staffList.first,
+//               )
+//               .id ??
+//           '';
+//     } catch (_) {
+//       return '';
+//     }
+//   }
+
+//   String _friendlyError(Object error) {
+//     final msg = error.toString();
+//     if (msg.contains('permission-denied')) {
+//       return 'You do not have permission to perform this action.';
+//     }
+//     if (msg.contains('network') || msg.contains('unavailable')) {
+//       return 'Network error. Please check your connection.';
+//     }
+//     if (msg.contains('empty')) return msg;
+//     if (msg.contains('no data')) return msg;
+//     return 'Something went wrong. Please try again.';
+//   }
+
+//   Future<int> checkDuplicates({required Uint8List csvBytes}) async {
+//   try {
+//     return await _repository.countDuplicates(
+//       csvBytes: csvBytes,
+//       fieldPositions: state.fieldPositions,
+//     );
+//   } catch (e) {
+//     log('[ImportLeadsCubit] checkDuplicates error: $e');
+//     return 0;
+//   }
+// }
+// }
+
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -8,7 +368,6 @@ import 'package:oxdo/feature/sub_company/lead_managment/import_leads/data/import
 import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
 import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
 import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
@@ -24,26 +383,29 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
   // ── Initialization ────────────────────────────────────────────────────────
 
-  /// Call once from initState — loads all dropdown data in parallel.
   Future<void> initialize() async {
     if (state.status == ImportLeadsStatus.ready ||
         state.status == ImportLeadsStatus.success)
       return;
+
     emit(state.copyWith(status: ImportLeadsStatus.loading, clearError: true));
 
     try {
+      // ── 1. Resolve logged-in user ────────────────────────────────────────
+      final user = await SessionService().getSavedUser();
+      final role = user?.staffType ?? ''; // e.g. 'Admin' or 'Staff'
+      final isAdmin = role.toLowerCase() == 'admin';
+
+      // ── 2. Fetch all dropdown data in parallel ───────────────────────────
       final results = await Future.wait([
         _repository.fetchCategories(),
         _repository.fetchSources(),
         _repository.fetchStaff(),
         _repository.fetchLeadStages(),
       ]);
-      log("categories length: ${results[0].length}");
-      log("sources length: ${results[1].length}");
-      log("staff length: ${results[2].length}");
-      log("stages length: ${results[3].length}");
 
       final fetchedStages = results[3] as List<LeadsModel>;
+      final fetchedStaff = results[2] as List<StaffModel>;
 
       final defaultStage = fetchedStages
           .firstWhere(
@@ -51,23 +413,40 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
             orElse: () => fetchedStages.first,
           )
           .name;
+
+      // ── 3. Resolve staff assignment based on role ────────────────────────
+      //
+      //  Admin  → no pre-selection; user picks from dropdown
+      //  Staff  → auto-assign the logged-in staff; hide the dropdown
+      //
+      final String? preSelectedStaff = isAdmin ? null : (user?.name ?? '');
+      final String preAssignedName = isAdmin ? '' : (user?.name ?? '');
+      final String preAssignedId = isAdmin ? '' : (user?.id ?? '');
+      final String loggedInStaffId = user?.id ?? '';
+
       emit(
         state.copyWith(
           status: ImportLeadsStatus.ready,
           categories: results[0] as List<LeadsModel>,
           sources: results[1] as List<LeadsModel>,
-          staffList: results[2] as List<StaffModel>,
-         stages:            fetchedStages,
-  selectedLeadStage: state.selectedLeadStage ?? defaultStage,
+          staffList: fetchedStaff,
+          stages: fetchedStages,
+          userRole: role,
+          loggedInStaffId: loggedInStaffId,
+          selectedLeadStage: state.selectedLeadStage ?? defaultStage,
+          // Staff users get their own name pre-filled; Admin leaves it null
+          selectedStaff: preSelectedStaff,
+          assignedStaffName: preAssignedName,
+          assignedStaffId: preAssignedId,
         ),
       );
 
       log(
-        '[ImportLeadsCubit] Initialized — '
+        '[ImportLeadsCubit] Initialized — role: $role, '
         'categories: ${state.categories.length}, '
         'sources: ${state.sources.length}, '
-        'staff: ${state.staffList.length}'
-        'stages ${state.stages.length}',
+        'staff: ${state.staffList.length}, '
+        'stages: ${state.stages.length}',
       );
     } catch (e, st) {
       log('[ImportLeadsCubit] initialize error: $e', stackTrace: st);
@@ -82,98 +461,66 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
   // ── Selection helpers ─────────────────────────────────────────────────────
 
-void selectCategory(String? value) => emit(
-  state.copyWith(
-    selectedCategory: value,
-    clearCategory: value == null,
-  ),
-);
+  void selectCategory(String? value) => emit(
+    state.copyWith(selectedCategory: value, clearCategory: value == null),
+  );
 
-void selectSource(String? value) => emit(
-  state.copyWith(
-    selectedSource: value,
-    clearSource: value == null,
-  ),
-);
+  void selectSource(String? value) =>
+      emit(state.copyWith(selectedSource: value, clearSource: value == null));
 
-void selectLeadStage(String? value) => emit(
-  state.copyWith(
-    selectedLeadStage: value,
-    clearLeadStage: value == null,
-  ),
-);
+  void selectLeadStage(String? value) => emit(
+    state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+  );
 
-void selectPriority(String? value) => emit(
-  state.copyWith(
-    selectedPriority: value,
-    clearPriority: value == null,
-  ),
-);
+  void selectPriority(String? value) => emit(
+    state.copyWith(selectedPriority: value, clearPriority: value == null),
+  );
 
-void selectStaff(String? value) => emit(
-  state.copyWith(
-    selectedStaff: value,
-    clearStaff: value == null,
-  ),
-);
+  /// Only called for Admin users — Staff assignment is read-only.
+  void selectStaff(String? value) {
+    if (!state.isAdmin) return; // guard: Staff users cannot change assignment
+    final staffMember = value == null
+        ? null
+        : state.staffList.firstWhere(
+            (s) => s.name == value,
+            orElse: () => state.staffList.first,
+          );
+    emit(
+      state.copyWith(
+        selectedStaff: value,
+        assignedStaffName: value ?? '',
+        assignedStaffId: staffMember?.id,
+        clearStaff: value == null,
+      ),
+    );
+  }
 
-void selectState(String? value) => emit(
-  state.copyWith(
-    selectedState: value,
-    clearState: value == null,
-    clearDistrict: true,         // always reset district when state changes
-  ),
-);
+  void selectState(String? value) => emit(
+    state.copyWith(
+      selectedState: value,
+      clearState: value == null,
+      clearDistrict: true,
+    ),
+  );
 
-void selectDistrict(String? value) => emit(
-  state.copyWith(
-    selectedDistrict: value,
-    clearDistrict: value == null,
-  ),
-);
-
-  // ── Form selection helpers ────────────────────────────────────────────────
+  void selectDistrict(String? value) => emit(
+    state.copyWith(selectedDistrict: value, clearDistrict: value == null),
+  );
 
   void selectTab(int tab) => emit(state.copyWith(selectedTab: tab));
-
-  // void selectCategory(String? value) =>
-  //     emit(state.copyWith(selectedCategory: value));
-
-  // void selectSource(String? value) =>
-  //     emit(state.copyWith(selectedSource: value));
-
-  // void selectLeadStage(String? value) =>
-  //     emit(state.copyWith(selectedLeadStage: value));
-
-  // void selectPriority(String? value) =>
-  //     emit(state.copyWith(selectedPriority: value));
-
-  // void selectStaff(String? value) => emit(state.copyWith(selectedStaff: value));
-
-  // void selectState(String? value) => emit(
-  //   state.copyWith(
-  //     selectedState: value,
-  //     clearDistrict: true, // reset district when state changes
-  //   ),
-  // );
-
-  // void selectDistrict(String? value) =>
-  //     emit(state.copyWith(selectedDistrict: value));
 
   void setDialCode(String code) => emit(state.copyWith(dialCode: code));
 
   void setCsvBytes(Uint8List? bytes) => emit(state.copyWith(csvBytes: bytes));
 
-  /// Update a single field-position entry, e.g. updateFieldPosition('phone', 2)
   void updateFieldPosition(String fieldName, int position) {
     final updated = Map<String, int>.from(state.fieldPositions);
     updated[fieldName] = position;
     emit(state.copyWith(fieldPositions: updated));
   }
 
-  // ── Add category / source (inline quick-add) ──────────────────────────────
+  // ── Refresh helpers ───────────────────────────────────────────────────────
 
-  /// Refreshes categories after a new one is added externally.
   Future<void> refreshCategories() async {
     try {
       final cats = await _repository.fetchCategories();
@@ -183,7 +530,6 @@ void selectDistrict(String? value) => emit(
     }
   }
 
-  /// Refreshes sources after a new one is added externally.
   Future<void> refreshSources() async {
     try {
       final srcs = await _repository.fetchSources();
@@ -202,9 +548,40 @@ void selectDistrict(String? value) => emit(
     }
   }
 
+  // ── Duplicate pre-check ───────────────────────────────────────────────────
+
+  Future<int> checkDuplicates({required Uint8List csvBytes}) async {
+    try {
+      return await _repository.countDuplicates(
+        csvBytes: csvBytes,
+        fieldPositions: state.fieldPositions,
+      );
+    } catch (e) {
+      log('[ImportLeadsCubit] checkDuplicates error: $e');
+      return 0;
+    }
+  }
+
   // ── CSV Import ────────────────────────────────────────────────────────────
 
   Future<void> importLeads({required Uint8List csvBytes}) async {
+    // ── Validation ───────────────────────────────────────────────────────────
+    //
+    //  Admin  → must have selected a staff member from the dropdown.
+    //  Staff  → assignedStaffName is always pre-filled during initialize();
+    //           nothing to validate on the UI side.
+    //
+    if (state.isAdmin &&
+        (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
+      emit(
+        state.copyWith(
+          status: ImportLeadsStatus.failure,
+          errorMessage: 'Please select a staff member before importing leads.',
+        ),
+      );
+      return;
+    }
+
     emit(
       state.copyWith(
         status: ImportLeadsStatus.importing,
@@ -216,12 +593,28 @@ void selectDistrict(String? value) => emit(
     try {
       final user = await SessionService().getSavedUser();
 
-      // Build the default values that will fill non-CSV columns
+      // ── Resolve the final staff assignment ──────────────────────────────
+      //
+      //  Admin  → uses whatever the Admin chose in the dropdown.
+      //  Staff  → always the logged-in user (never overrideable).
+      //
+      final String resolvedStaffName;
+      final String resolvedStaffId;
+
+      if (state.isAdmin) {
+        resolvedStaffName = state.selectedStaff ?? '';
+        resolvedStaffId = _staffIdFromName(state.selectedStaff);
+      } else {
+        // Staff: use the session user directly (most authoritative source)
+        resolvedStaffName = user?.name ?? state.assignedStaffName;
+        resolvedStaffId = user?.id ?? state.loggedInStaffId;
+      }
+
       final defaults = ImportLeadModel(
         contactDialCode: state.selectedTab == 0 ? state.dialCode : '',
         whatsappDialCode: state.selectedTab == 0 ? state.dialCode : '',
-        assignedStaff: state.selectedStaff ?? '',
-        assignedStaffId: _staffIdFromName(state.selectedStaff),
+        assignedStaff: resolvedStaffName,
+        assignedStaffId: resolvedStaffId,
         leadCategory: state.selectedCategory ?? '',
         leadSource: state.selectedSource ?? '',
         priority: state.selectedPriority ?? 'Normal',
@@ -230,78 +623,87 @@ void selectDistrict(String? value) => emit(
         createdById: user?.id ?? '',
       );
 
-      // final count = await _repository.importFromCsv(
-      //   csvBytes: csvBytes,
-      //   fieldPositions: state.fieldPositions,
-      //   defaults: defaults,
-      //   hasCountryCode: state.selectedTab == 0,
-      // );
-      // if (isClosed) return;
       final result = await _repository.importFromCsv(
-  csvBytes: csvBytes,
-  fieldPositions: state.fieldPositions,
-  defaults: defaults,
-  hasCountryCode: state.selectedTab == 0,
-);
-if (isClosed) return;
+        csvBytes: csvBytes,
+        fieldPositions: state.fieldPositions,
+        defaults: defaults,
+        hasCountryCode: state.selectedTab == 0,
+      );
+      if (isClosed) return;
 
-final count   = result['imported']!;
-final skipped = result['skipped']!;
+      final count = result['imported']!;
+      final skipped = result['skipped']!;
 
-      //       // ── Notify assigned staff ──────────────────────────────────────────────
-     
-final assignedStaffId = _staffIdFromName(state.selectedStaff);
-if (assignedStaffId.isNotEmpty) {
-  await _notificationRepo.create(
-    staffId: assignedStaffId,
-    title: 'Leads Imported',
-    message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to ${state.selectedStaff}',
-  );
-  if (isClosed) return;
-}
+      // ── Notifications ────────────────────────────────────────────────────
+      //
+      //  Always notify the assigned staff member (could be Admin themselves
+      //  or an explicit Staff user).  Also notify the creator separately
+      //  when they are different from the assignee.
+      //
+      if (resolvedStaffId.isNotEmpty) {
+        await _notificationRepo.create(
+          staffId: resolvedStaffId,
+          title: 'Leads Imported',
+          message:
+              '$count lead${count == 1 ? '' : 's'} have been imported '
+              'and assigned to $resolvedStaffName',
+        );
+        if (isClosed) return;
+      }
 
-// ── Always notify admin/creator ───────────────────────────────────────────
-final creatorId = user?.id ?? '';
-if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
-  await _notificationRepo.create(
-    staffId: creatorId,
-    title: 'Import Complete',
-    message: '$count lead${count == 1 ? '' : 's'} imported successfully'
-        '${state.selectedStaff != null ? ' and assigned to ${state.selectedStaff}' : ''}',
-  );
-  if (isClosed) return;
-}
+      final creatorId = user?.id ?? '';
+      if (creatorId.isNotEmpty && creatorId != resolvedStaffId) {
+        await _notificationRepo.create(
+          staffId: creatorId,
+          title: 'Import Complete',
+          message:
+              '$count lead${count == 1 ? '' : 's'} imported successfully'
+              '${resolvedStaffName.isNotEmpty ? ' and assigned to $resolvedStaffName' : ''}',
+        );
+        if (isClosed) return;
+      }
 
-     final defaultStage = state.stages
-    .firstWhere(
-      (s) => s.name?.toLowerCase() == 'new',
-      orElse: () => state.stages.first,
-    )
-    .name;
+      // ── Reset form, keep role-level defaults ────────────────────────────
+      final defaultStage = state.stages
+          .firstWhere(
+            (s) => s.name?.toLowerCase() == 'new',
+            orElse: () => state.stages.first,
+          )
+          .name;
+
+      // For Staff users, re-pin the staff assignment after reset.
+      final postStaffName = state.isAdmin ? '' : resolvedStaffName;
+      final postStaffId = state.isAdmin ? '' : resolvedStaffId;
+      final postSelected = state.isAdmin ? null : resolvedStaffName;
 
       emit(
-  state.copyWith(
-    status: ImportLeadsStatus.success,
-    importedCount: count,
-    skippedCount: skipped,   // ✅ make sure this is added to state too
-    successMessage: skipped > 0
-        ? '$count lead${count == 1 ? '' : 's'} imported. '
-          '$skipped duplicate${skipped == 1 ? '' : 's'} skipped.'
-        : '$count lead${count == 1 ? '' : 's'} imported successfully.',
-    clearError: true,
-    clearCsvBytes: true,
-    clearCategory: true,
-    clearSource: true,
-    selectedLeadStage: defaultStage,
-    // clearPriority: true,
-    selectedPriority: 'Normal',
-    clearStaff: true,
-    clearState: true,
-    clearDistrict: true,
-  ),
-);
+        state.copyWith(
+          status: ImportLeadsStatus.success,
+          importedCount: count,
+          skippedCount: skipped,
+          successMessage: skipped > 0
+              ? '$count lead${count == 1 ? '' : 's'} imported. '
+                    '$skipped duplicate${skipped == 1 ? '' : 's'} skipped.'
+              : '$count lead${count == 1 ? '' : 's'} imported successfully.',
+          clearError: true,
+          clearCsvBytes: true,
+          clearCategory: true,
+          clearSource: true,
+          selectedLeadStage: defaultStage,
+          selectedPriority: 'Normal',
+          // Admin: clear staff selection so they must re-pick next time.
+          // Staff: re-pin their own details.
+          selectedStaff: postSelected,
+          assignedStaffName: postStaffName,
+          assignedStaffId: postStaffId,
+          clearState: true,
+          clearDistrict: true,
+        ),
+      );
 
-      log('[ImportLeadsCubit] Import complete: $count records');
+      log(
+        '[ImportLeadsCubit] Import complete: $count imported, $skipped skipped',
+      );
     } catch (e, st) {
       log('[ImportLeadsCubit] importLeads error: $e', stackTrace: st);
       emit(
@@ -316,7 +718,6 @@ if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  /// Look up the staff ID for a given name from the loaded staff list.
   String _staffIdFromName(String? name) {
     if (name == null || name.isEmpty) return '';
     try {
@@ -340,20 +741,7 @@ if (creatorId.isNotEmpty && creatorId != assignedStaffId) {
     if (msg.contains('network') || msg.contains('unavailable')) {
       return 'Network error. Please check your connection.';
     }
-    if (msg.contains('empty')) return msg;
-    if (msg.contains('no data')) return msg;
+    if (msg.contains('empty') || msg.contains('no data')) return msg;
     return 'Something went wrong. Please try again.';
   }
-
-  Future<int> checkDuplicates({required Uint8List csvBytes}) async {
-  try {
-    return await _repository.countDuplicates(
-      csvBytes: csvBytes,
-      fieldPositions: state.fieldPositions,
-    );
-  } catch (e) {
-    log('[ImportLeadsCubit] checkDuplicates error: $e');
-    return 0;
-  }
-}
 }

@@ -19,6 +19,7 @@ class DropdownWithAdd extends StatefulWidget {
   final bool showStar;
   final FocusNode? focusNode;
   final FocusNode? nextFocusNode;
+  final bool showClear;
 
   const DropdownWithAdd({
     super.key,
@@ -34,6 +35,7 @@ class DropdownWithAdd extends StatefulWidget {
     this.showStar = false,
     this.focusNode,
     this.nextFocusNode,
+    this.showClear=true,
   });
 
   @override
@@ -322,15 +324,51 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                       );
                     },
 
+                    // suffixProps: DropdownSuffixProps(
+                    //   dropdownButtonProps: DropdownButtonProps(
+                    //     iconClosed: widget.selectedValue != null
+                    //         ? const SizedBox.shrink()
+                    //         : Padding(
+                    //             padding: EdgeInsets.only(right: 1.w),
+                    //             child: const Icon(Icons.keyboard_arrow_down),
+                    //           ),
+                    //     iconOpened: widget.selectedValue != null
+                    //         ? const SizedBox.shrink()
+                    //         : Padding(
+                    //             padding: EdgeInsets.only(right: 1.w),
+                    //             child: const Icon(Icons.keyboard_arrow_up),
+                    //           ),
+                    //   ),
+                    // ),
                     suffixProps: DropdownSuffixProps(
                       dropdownButtonProps: DropdownButtonProps(
-                        iconClosed: widget.selectedValue != null
+                        constraints:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? const BoxConstraints.tightFor(width: 0, height: 0)
+                            : const BoxConstraints(),
+                        splashColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+                        highlightColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+                        hoverColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+
+                        // ✅ FIXED — show arrow only when clear button is NOT shown
+                        iconClosed:
+                            (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
                             : Padding(
                                 padding: EdgeInsets.only(right: 1.w),
                                 child: const Icon(Icons.keyboard_arrow_down),
                               ),
-                        iconOpened: widget.selectedValue != null
+                        iconOpened:
+                            (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
                             : Padding(
                                 padding: EdgeInsets.only(right: 1.w),

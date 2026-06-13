@@ -514,7 +514,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                     });
                                   },
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(title: "Name", flex: 4),
                                     TableColumn(
                                       title: "Contact Number",

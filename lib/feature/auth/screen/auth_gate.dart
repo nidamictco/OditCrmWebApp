@@ -5,7 +5,7 @@
 // import 'package:oxdo/core/theme/app_colors.dart';
 // import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
 // import 'package:oxdo/feature/auth/screen/login.dart';
-// import 'package:oxdo/feature/sidebar/main_screen.dart';
+// import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
 
 // class AuthGate extends StatelessWidget {
 //   const AuthGate({super.key});

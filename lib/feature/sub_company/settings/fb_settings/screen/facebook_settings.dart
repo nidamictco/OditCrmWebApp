@@ -79,7 +79,7 @@ class _FacebookSettingsState extends State<FacebookSettings> {
                         // Icon(
                         //   Icons.help_outline,
                         //   size: 14.sp,
-                        //   color: Colors.teal,
+                          // color: Colors.teal,
                         // ),
                         ToolTipWidget(
                           message:

@@ -8,6 +8,7 @@ import 'package:oxdo/core/utils/popup_msg.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
+import 'package:oxdo/core/utils/transfer_lead_alert.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
@@ -16,7 +17,7 @@ import 'package:sizer/sizer.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 
-import '../../../../../../core/utils/transfer_lead_alert.dart';
+
 
 class TransferLeads extends StatefulWidget {
   const TransferLeads({super.key});
@@ -92,6 +93,37 @@ class _TransferLeadsState extends State<TransferLeads> {
       val == null ||
       val.trim().isEmpty ||
       val.toLowerCase().startsWith('select');
+
+  // ── Priority helpers ─────────────────────────────────────────────────────────
+  Color getPriorityColor(String priority) {
+    switch (priority.trim().toLowerCase()) {
+      case 'high':
+        return const Color(0xffEF4444); // Red
+      case 'normal':
+        return const Color(0xff22C55E); // Green
+      case 'low':
+        return Color.fromARGB(255, 226, 249, 22); // Orange-Yellow
+      case 'negative':
+        return const Color(0xff9CA3AF);
+      default:
+        return const Color(0xffFFFFFF);
+    }
+  }
+
+  int _priorityOrder(String priority) {
+    switch (priority.trim().toLowerCase()) {
+      case 'high':
+        return 1;
+      case 'normal':
+        return 2;
+      case 'low':
+        return 3;
+      case 'negative':
+        return 4;
+      default:
+        return 5;
+    }
+  }
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
@@ -176,6 +208,27 @@ class _TransferLeadsState extends State<TransferLeads> {
           )
           .toList();
     }
+
+    // ── Priority sort ─────────────────────────────────────────────────────────
+    // result.sort(
+    //   (a, b) =>
+    //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
+    // );
+    result.sort((a, b) {
+  // First sort by priority
+  final priorityCompare =
+      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+
+  if (priorityCompare != 0) {
+    return priorityCompare;
+  }
+
+  // If priority is same, latest createdAt first
+  final aCreated = a.createdAt ?? DateTime(1970);
+  final bCreated = b.createdAt ?? DateTime(1970);
+
+  return bCreated.compareTo(aCreated);
+});
 
     // Entries limit
     // final limit = int.tryParse(_selectedEntries) ?? 10;
@@ -306,7 +359,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       label: "Lead Category",
                                       hint: 'select category',
                                       showHelp: true,
-                                       message: 'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
+                                      message:
+                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
@@ -323,7 +377,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       label: "Lead Status",
                                       hint: 'select status',
                                       showHelp: true,
-                                       message: 'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                      message:
+                                          'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
                                       items: stageItems,
                                       selectedValue: selectedLeadStage,
                                       onChanged: (val) {
@@ -347,8 +402,9 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       label: "Lead Source",
                                       hint: 'select source',
                                       showHelp: true,
-                                       message:'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                     items: sourceItems,
+                                      message:
+                                          'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                      items: sourceItems,
                                       selectedValue: selectedSource,
                                       onChanged: (val) {
                                         setState(() {
@@ -509,6 +565,89 @@ class _TransferLeadsState extends State<TransferLeads> {
                         if (state.listStatus == LeadListStatus.loaded) {
                           return Column(
                             children: [
+                              SizedBox(height: 2.w),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 2.w,
+                                  bottom: 0.5.h,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xffEF4444),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('High', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff22C55E),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('Normal', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                            255,
+                                            226,
+                                            249,
+                                            22,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('Low', style: AppTextStyle.small()),
+                                    SizedBox(width: 0.5.w),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 0.6.w,
+                                        right: 0.3.w,
+                                      ),
+                                      child: Container(
+                                        width: 8.5,
+                                        height: 8.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff9CA3AF),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Negative',
+                                      style: AppTextStyle.small(),
+                                    ),
+                                    SizedBox(width: 0.5.w),
+                                  ],
+                                ),
+                              ),
                               SizedBox(
                                 child: CustomTable(
                                   key: ValueKey(_tableKey),
@@ -527,8 +666,28 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       }
                                     });
                                   },
+                                  height: 0,
+                                  priorityColors: pagedList
+                                      .map(
+                                        (lead) =>
+                                            getPriorityColor(lead.priority),
+                                      )
+                                      .toList(),
+                                  //      onRowTap: (rowIndex) {
+                                  //   final lead = pagedList[rowIndex];
+                                  //   Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //       builder: (context) => MainScreen(
+                                  //         selectedIndex: 31,
+                                  //         lead: lead,
+                                  //       ),
+                                  //     ),
+                                  //   );
+                                  //   print('Row $rowIndex tapped');
+                                  // },
                                   columns: [
-                                    TableColumn(title: "#", flex: 1),
+                                    TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(title: "Name", flex: 4),
                                     TableColumn(
                                       title: "Contact Number",
@@ -683,7 +842,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                             ? state.leads
                             : [];
                         final filteredList = _filteredLeads(rawList);
-if (filteredList.isEmpty) return const SizedBox.shrink();
+                        if (filteredList.isEmpty)
+                          return const SizedBox.shrink();
 
                         // 🔹 Map selected indices → actual lead objects
                         final selectedLeads = _selectedIndices
@@ -709,7 +869,6 @@ if (filteredList.isEmpty) return const SizedBox.shrink();
                                             if (selectedStaffId == null ||
                                                 selectedStaffName == null)
                                               return;
-
 
                                             // for (final lead in selectedLeads) {
                                             //   await context.read<AddLeadCubit>().assignStaff(
@@ -983,30 +1142,27 @@ if (filteredList.isEmpty) return const SizedBox.shrink();
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 
   Widget _checkbox() {
     return SizedBox(

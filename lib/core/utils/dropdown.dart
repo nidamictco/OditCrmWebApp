@@ -366,57 +366,45 @@ class _DropdownState extends State<Dropdown> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          // if (widget.showClear)
-                          //   GestureDetector(
-                          //     onTap: () => widget.onChanged?.call(null),
-                          //     child: Padding(
-                          //       padding: EdgeInsets.only(right: 1.w),
-                          //       child: Icon(
-                          //         Icons.close,
-                          //         size: 16,
-                          //         color: AppColors.grey,
-                          //       ),
-                          //     ),
-                          //   ),
                         ],
                       );
                     },
+
                     suffixProps: DropdownSuffixProps(
                       dropdownButtonProps: DropdownButtonProps(
-                        // isVisible:
-                        //     !(widget.showClear && widget.selectedValue != null),
-                        // alignment: Alignment.centerLeft,
-                        // iconClosed: Padding(
-                        //   padding: EdgeInsets.only(right: 1.w),
-                        //   child: const Icon(Icons.keyboard_arrow_down),
-                        // ),
-                        // iconOpened: Padding(
-                        //   padding: EdgeInsets.only(right: 1.w),
-                        //   child: const Icon(Icons.keyboard_arrow_up),
-                        // ),
-                        iconClosed: Padding(
-                          padding: EdgeInsets.only(right: 1.w),
-                          child:
-                              (widget.showClear && widget.selectedValue != null)
-                              ? SizedBox()
-                              : const Icon(Icons.keyboard_arrow_down),
-                        ),
-                        iconOpened: Padding(
-                          padding: EdgeInsets.only(right: 1.w),
-                          child:
-                              (widget.showClear && widget.selectedValue != null)
-                              ? SizedBox()
-                              : const Icon(Icons.keyboard_arrow_up),
-                        ),
+                        constraints:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? const BoxConstraints.tightFor(width: 0, height: 0)
+                            : const BoxConstraints(),
+                        splashColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+                        highlightColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+                        hoverColor:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? Colors.transparent
+                            : null,
+
+                        // ✅ FIXED — show arrow only when clear button is NOT shown
+                        iconClosed:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? const SizedBox.shrink()
+                            : Padding(
+                                padding: EdgeInsets.only(right: 1.w),
+                                child: const Icon(Icons.keyboard_arrow_down),
+                              ),
+                        iconOpened:
+                            (widget.showClear && widget.selectedValue != null)
+                            ? const SizedBox.shrink()
+                            : Padding(
+                                padding: EdgeInsets.only(right: 1.w),
+                                child: const Icon(Icons.keyboard_arrow_up),
+                              ),
                       ),
-                      //                  clearButtonProps: ClearButtonProps(
-                      //   isVisible: widget.showClear && widget.selectedValue != null,
-                      //   icon: const Icon(Icons.close, size: 16),
-                      //   padding: EdgeInsets.only(right: 0.5.w),
-                      //   onTap: () {
-                      //     widget.onChanged?.call(null);
-                      //   },
-                      // ),
                     ),
 
                     popupProps: PopupProps.menu(
@@ -578,11 +566,17 @@ class _DropdownState extends State<Dropdown> {
                   ),
                 ),
                 if (widget.selectedValue != null && widget.showClear == true)
-                  GestureDetector(
-                    onTap: () => widget.onChanged?.call(null),
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 1.w),
-                      child: Icon(Icons.close, size: 16, color: AppColors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(right: 1.w),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: IconButton(
+                        padding: EdgeInsets.only(right: 1.w),
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => widget.onChanged?.call(null),
+                      ),
                     ),
                   ),
               ],

@@ -12,13 +12,13 @@ import 'package:oxdo/core/utils/export_excel.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
+import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
 import 'package:oxdo/core/utils/transfer_lead_alert.dart';
 import 'package:oxdo/feature/sub_company/dashboard/widget/add_leads_button.dart';
 import 'package:oxdo/feature/sub_company/dashboard/widget/export_leads_to_pdf.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/shared_preference/session_service.dart';
@@ -67,7 +67,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   String _searchQuery = '';
   String _selectedEntries = '10';
 
-  // ── CHANGED: use Set<String> of lead IDs instead of List<int> indices ──
   Set<String> _selectedIds = {};
 
   int _tableKey = 0;
@@ -79,6 +78,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
+  // static const double _tableWidth =
+  //     52 + 40 + 140 + 160 + 160 + 100 + 110 + 140 + 140 + 150;
   static const double _tableWidth =
       52 + 40 + 140 + 160 + 160 + 100 + 110 + 140 + 140 + 150;
 
@@ -91,6 +92,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   String? _appliedLeadStage;
   String? _appliedPriority;
   String? _appliedStaff;
+
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
 
@@ -132,6 +134,21 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       val == null ||
       val.trim().isEmpty ||
       val.toLowerCase().startsWith('select');
+
+  int _priorityOrder(String priority) {
+    switch (priority.trim().toLowerCase()) {
+      case 'high':
+        return 1;
+      case 'normal':
+        return 2;
+      case 'low':
+        return 3;
+      case 'negative':
+        return 4;
+      default:
+        return 5;
+    }
+  }
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
@@ -257,6 +274,26 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           .toList();
     }
 
+    // result.sort(
+    //   (a, b) =>
+    //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
+    // );
+    result.sort((a, b) {
+  // First sort by priority
+  final priorityCompare =
+      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+
+  if (priorityCompare != 0) {
+    return priorityCompare;
+  }
+
+  // If priority is same, latest createdAt first
+  final aCreated = a.createdAt ?? DateTime(1970);
+  final bCreated = b.createdAt ?? DateTime(1970);
+
+  return bCreated.compareTo(aCreated);
+});
+
     return result;
   }
 
@@ -339,14 +376,30 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     });
   }
 
-  void _onEdit(AddLeadModel lead) {
-    _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
-    Navigator.push(
+  // void _onEdit(AddLeadModel lead) {
+  //   _showSnackBar('Editing ${lead.clientName}', AppTheme.actionEdit);
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => MainScreen(selectedIndex: 1, lead: lead),
+  //     ),
+  //   );
+  // }
+  void _onEdit(AddLeadModel lead) async {
+    final didUpdate = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => MainScreen(selectedIndex: 1, lead: lead),
       ),
     );
+    if (didUpdate == true && mounted) {
+      context.read<AddLeadCubit>().fetchDashboardLeads(
+        staffId: widget.staff?.id ?? '',
+        role: widget.staff?.staffType ?? 'Admin',
+        fromCard: widget.fromCard,
+        selectedDate: widget.selectedDate ?? DateTime.now(),
+      );
+    }
   }
 
   void _onHistory(AddLeadModel lead) {
@@ -385,32 +438,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   final cubit = context.read<AddLeadCubit>();
-
-  //   fromDate.text = DateFormat(
-  //     'dd-MM-yyyy',
-  //   ).format(widget.selectedDate ?? DateTime.now());
-
-  //   toDate.text = DateFormat(
-  //     'dd-MM-yyyy',
-  //   ).format(widget.selectedDate ?? DateTime.now());
-
-  //   log("Staff ID : ${widget.staff!.id!}");
-  //   log("Staff name : ${widget.staff!.name}");
-  //   log("Role : ${widget.staff?.staffType}");
-  //   log("From Card : ${widget.fromCard}");
-  //   log("Selected Date : ${widget.selectedDate}");
-
-  //   cubit.fetchDashboardLeads(
-  //     staffId: widget.staff!.id!,
-  //     role: widget.staff?.staffType ?? 'Admin',
-  //     fromCard: widget.fromCard ?? "",
-  //     selectedDate: widget.selectedDate ?? DateTime.now(),
-  //   );
-  // }
   @override
   void initState() {
     super.initState();
@@ -708,34 +735,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     _buildTable(),
 
                     /// 🔹 BOTTOM TRANSFER BUTTON
-                    // Padding(
-                    //   padding: EdgeInsets.only(bottom: 2.h),
-                    //   child: Center(
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.center,
-                    //       children: [
-                    //         Container(
-                    //           width: 3.w,
-                    //           height: 5.h,
-                    //           decoration: BoxDecoration(
-                    //             color: AppColors.red.withOpacity(0.2),
-                    //             borderRadius: BorderRadius.circular(4),
-                    //           ),
-                    //           child: Center(
-                    //             child: Icon(
-                    //               Icons.delete_forever_outlined,
-                    //               color: AppColors.red,
-                    //               size: 1.5.w,
-                    //             ),
-                    //           ),
-                    //         ),
-                    //         SizedBox(width: 0.5.w),
-                    //         Center(child: _bottomButton("Transfer")),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                    /// 🔹 BOTTOM TRANSFER BUTTON
                     BlocBuilder<AddLeadCubit, AddLeadState>(
                       builder: (context, state) {
                         final List<AddLeadModel> rawList =
@@ -743,7 +742,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                             ? state.leads
                             : [];
                         final filteredList = _filteredLeads(rawList);
-if (filteredList.isEmpty) return const SizedBox.shrink();
+                        if (filteredList.isEmpty)
+                          return const SizedBox.shrink();
                         // ── Map selected IDs → actual lead objects ──
                         final selectedLeads = filteredList
                             .where(
@@ -1188,284 +1188,617 @@ if (filteredList.isEmpty) return const SizedBox.shrink();
     );
   }
 
+  // Widget _buildTable() {
+  //   return Scrollbar(
+  //     controller: _horizontalScrollController,
+  //     thumbVisibility: true,
+  //     notificationPredicate: (n) => n.depth == 0,
+  //     child: SingleChildScrollView(
+  //       controller: _horizontalScrollController,
+  //       scrollDirection: Axis.horizontal,
+  //       child: SizedBox(
+  //         width: _tableWidth,
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             // ── Body ──
+  //             ConstrainedBox(
+  //               constraints: const BoxConstraints(minHeight: 56),
+  //               child: BlocBuilder<AddLeadCubit, AddLeadState>(
+  //                 builder: (context, state) {
+  //                   // Loading
+  //                   if (state.listStatus == LeadListStatus.loading) {
+  //                     return Padding(
+  //                       padding: EdgeInsets.symmetric(vertical: 6.h),
+  //                       child: const Center(child: CircularProgressIndicator()),
+  //                     );
+  //                   }
+
+  //                   // Error
+  //                   if (state.listStatus == LeadListStatus.failure) {
+  //                     return Padding(
+  //                       padding: EdgeInsets.all(4.w),
+  //                       child: Text(
+  //                         state.listError ?? 'Something went wrong.',
+  //                         style: AppTextStyle.medium(color: Colors.red),
+  //                       ),
+  //                     );
+  //                   }
+
+  //                   final List<AddLeadModel> rawList =
+  //                       state.listStatus == LeadListStatus.loaded
+  //                       ? state.leads
+  //                       : [];
+
+  //                   final List<AddLeadModel> leads = rawList;
+  //                   final allFiltered = _filteredLeads(leads);
+  //                   final totalCount = allFiltered.length;
+  //                   final totalPages = _totalPages(totalCount);
+  //                   final limit = int.tryParse(_selectedEntries) ?? 10;
+
+  //                   if (_currentPage > totalPages) {
+  //                     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //                       setState(() => _currentPage = totalPages);
+  //                     });
+  //                   }
+
+  //                   final pagedList = _pagedLeads(allFiltered);
+
+  //                   // ── CHANGED: compute selectAll from current page ──
+  //                   final allPageSelected =
+  //                       pagedList.isNotEmpty &&
+  //                       pagedList.every(
+  //                         (l) => l.id != null && _selectedIds.contains(l.id),
+  //                       );
+  //                   if (_selectAll != allPageSelected) {
+  //                     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //                       if (mounted)
+  //                         setState(() => _selectAll = allPageSelected);
+  //                     });
+  //                   }
+
+  //                   final showFrom = totalCount == 0
+  //                       ? 0
+  //                       : (_currentPage - 1) * limit + 1;
+  //                   final showTo = (showFrom + pagedList.length - 1).clamp(
+  //                     0,
+  //                     totalCount,
+  //                   );
+
+  //                   if (pagedList.isEmpty) {
+  //                     return Column(
+  //                       children: [
+  //                         // Still show header even when empty
+  //                         Container(
+  //                           color: AppTheme.surface,
+  //                           child: Column(
+  //                             children: [
+  //                               Container(height: 1, color: AppTheme.border),
+  //                               // ── CHANGED: pass empty list so selectAll does nothing ──
+  //                               _HeaderRow(
+  //                                 selectAll: false,
+  //                                 onSelectAll: (v) => _toggleSelectAll(v, []),
+  //                                 fromCard: widget.fromCard,
+  //                               ),
+  //                               Container(height: 1, color: AppTheme.border),
+  //                             ],
+  //                           ),
+  //                         ),
+  //                         Center(child: _buildEmptyState()),
+  //                       ],
+  //                     );
+  //                   }
+
+  //                   return Column(
+  //                     children: [
+  //                       // ── Sticky header ──
+  //                       Container(
+  //                         color: AppTheme.surface,
+  //                         child: Column(
+  //                           children: [
+  //                             Container(height: 1, color: AppTheme.border),
+  //                             // ── CHANGED: pass pagedList so header knows which rows to select ──
+  //                             _HeaderRow(
+  //                               selectAll: allPageSelected,
+  //                               onSelectAll: (v) =>
+  //                                   _toggleSelectAll(v, pagedList),
+  //                               fromCard: widget.fromCard,
+  //                             ),
+  //                             Container(height: 1, color: AppTheme.border),
+  //                           ],
+  //                         ),
+  //                       ),
+
+  //                       ListView.separated(
+  //                         shrinkWrap: true,
+  //                         itemCount: pagedList.length,
+  //                         separatorBuilder: (_, __) =>
+  //                             Container(height: 1, color: AppTheme.border),
+  //                         itemBuilder: (context, index) {
+  //                           final lead = pagedList[index];
+
+  //                           return InkWell(
+  //                             onTap: () {
+  //                               Navigator.push(
+  //                                 context,
+  //                                 MaterialPageRoute(
+  //                                   builder: (context) => MainScreen(
+  //                                     selectedIndex: 31,
+  //                                     lead: lead,
+  //                                   ),
+  //                                 ),
+  //                               ).then((_) {
+  //                                 // Reload leads from cubit after returning from detail screen
+  //                                 context
+  //                                     .read<AddLeadCubit>()
+  //                                     .fetchDashboardLeads(
+  //                                       staffId: widget.staff!.id!,
+  //                                       role:
+  //                                           widget.staff?.staffType ?? 'Admin',
+  //                                       fromCard: widget.fromCard,
+  //                                       selectedDate:
+  //                                           widget.selectedDate ??
+  //                                           DateTime.now(),
+  //                                     );
+  //                               });
+  //                             },
+  //                             child: _LeadRow(
+  //                               lead: lead,
+  //                               isEven: index.isEven,
+  //                               // ── CHANGED: pass real isSelected value ──
+  //                               isSelected: _selectedIds.contains(lead.id),
+  //                               onToggleSelect: _toggleSelect,
+  //                               onView: _onView,
+  //                               onEdit: _onEdit,
+  //                               onHistory: _onHistory,
+  //                               onDelete: _onDelete,
+  //                               index: index,
+  //                               fromCard: widget.fromCard,
+  //                             ),
+  //                           );
+  //                         },
+  //                       ),
+
+  //                       Divider(color: AppColors.divider),
+
+  //                       /// 🔹 FOOTER
+  //                       Padding(
+  //                         padding: EdgeInsets.symmetric(
+  //                           horizontal: 2.w,
+  //                           vertical: 1.5.h,
+  //                         ),
+  //                         child: Row(
+  //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                           children: [
+  //                             Text(
+  //                               "Showing $showFrom to $showTo of $totalCount entries",
+  //                               style: AppTextStyle.medium(
+  //                                 weight: FontWeight.w400,
+  //                               ),
+  //                             ),
+  //                             Row(
+  //                               children: [
+  //                                 PageButton(
+  //                                   label: 'Previous',
+  //                                   enabled: _currentPage > 1,
+  //                                   isLeft: true,
+  //                                   onTap: () =>
+  //                                       _goToPage(_currentPage - 1, totalCount),
+  //                                 ),
+  //                                 ..._buildPageNumbers(totalPages, totalCount),
+  //                                 PageButton(
+  //                                   label: 'Next',
+  //                                   enabled: _currentPage < totalPages,
+  //                                   isRight: true,
+  //                                   onTap: () =>
+  //                                       _goToPage(_currentPage + 1, totalCount),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _buildTable() {
-    return Scrollbar(
-      controller: _horizontalScrollController,
-      thumbVisibility: true,
-      notificationPredicate: (n) => n.depth == 0,
-      child: SingleChildScrollView(
-        controller: _horizontalScrollController,
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: _tableWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Body ──
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 56),
-                child: BlocBuilder<AddLeadCubit, AddLeadState>(
-                  builder: (context, state) {
-                    // Loading
-                    if (state.listStatus == LeadListStatus.loading) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6.h),
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    }
+    return BlocBuilder<AddLeadCubit, AddLeadState>(
+      builder: (context, state) {
+        if (state.listStatus == LeadListStatus.loading) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
 
-                    // Error
-                    if (state.listStatus == LeadListStatus.failure) {
-                      return Padding(
-                        padding: EdgeInsets.all(4.w),
-                        child: Text(
-                          state.listError ?? 'Something went wrong.',
-                          style: AppTextStyle.medium(color: Colors.red),
-                        ),
-                      );
-                    }
+        if (state.listStatus == LeadListStatus.failure) {
+          return Padding(
+            padding: EdgeInsets.all(4.w),
+            child: Text(
+              state.listError ?? 'Something went wrong.',
+              style: AppTextStyle.medium(color: Colors.red),
+            ),
+          );
+        }
 
-                    final List<AddLeadModel> rawList =
-                        state.listStatus == LeadListStatus.loaded
-                        ? state.leads
-                        : [];
+        final List<AddLeadModel> rawList =
+            state.listStatus == LeadListStatus.loaded ? state.leads : [];
 
-                    final List<AddLeadModel> leads = rawList;
-                    final allFiltered = _filteredLeads(leads);
-                    final totalCount = allFiltered.length;
-                    final totalPages = _totalPages(totalCount);
-                    final limit = int.tryParse(_selectedEntries) ?? 10;
+        final allFiltered = _filteredLeads(rawList);
+        final totalCount = allFiltered.length;
+        final totalPages = _totalPages(totalCount);
+        final limit = int.tryParse(_selectedEntries) ?? 10;
+        final isNew = widget.fromCard.toUpperCase() == 'NEW';
 
-                    if (_currentPage > totalPages) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        setState(() => _currentPage = totalPages);
-                      });
-                    }
+        if (_currentPage > totalPages) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() => _currentPage = totalPages);
+          });
+        }
 
-                    final pagedList = _pagedLeads(allFiltered);
+        final pagedList = _pagedLeads(allFiltered);
 
-                    // ── CHANGED: compute selectAll from current page ──
-                    final allPageSelected =
-                        pagedList.isNotEmpty &&
-                        pagedList.every(
-                          (l) => l.id != null && _selectedIds.contains(l.id),
-                        );
-                    if (_selectAll != allPageSelected) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted)
-                          setState(() => _selectAll = allPageSelected);
-                      });
-                    }
+        final allPageSelected =
+            pagedList.isNotEmpty &&
+            pagedList.every((l) => l.id != null && _selectedIds.contains(l.id));
+        if (_selectAll != allPageSelected) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _selectAll = allPageSelected);
+          });
+        }
 
-                    final showFrom = totalCount == 0
-                        ? 0
-                        : (_currentPage - 1) * limit + 1;
-                    final showTo = (showFrom + pagedList.length - 1).clamp(
-                      0,
-                      totalCount,
-                    );
+        final showFrom = totalCount == 0 ? 0 : (_currentPage - 1) * limit + 1;
+        final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
 
-                    if (pagedList.isEmpty) {
-                      return Column(
-                        children: [
-                          // Still show header even when empty
-                          Container(
-                            color: AppTheme.surface,
-                            child: Column(
-                              children: [
-                                Container(height: 1, color: AppTheme.border),
-                                // ── CHANGED: pass empty list so selectAll does nothing ──
-                                _HeaderRow(
-                                  selectAll: false,
-                                  onSelectAll: (v) => _toggleSelectAll(v, []),
-                                ),
-                                Container(height: 1, color: AppTheme.border),
-                              ],
-                            ),
-                          ),
-                          Center(child: _buildEmptyState()),
-                        ],
-                      );
-                    }
+        const _dateStyle = TextStyle(
+          fontSize: 11,
+          color: AppTheme.textSecondary,
+        );
 
-                    return Column(
-                      children: [
-                        // ── Sticky header ──
-                        Container(
-                          color: AppTheme.surface,
-                          child: Column(
-                            children: [
-                              Container(height: 1, color: AppTheme.border),
-                              // ── CHANGED: pass pagedList so header knows which rows to select ──
-                              _HeaderRow(
-                                selectAll: allPageSelected,
-                                onSelectAll: (v) =>
-                                    _toggleSelectAll(v, pagedList),
-                              ),
-                              Container(height: 1, color: AppTheme.border),
-                            ],
-                          ),
-                        ),
+        // ── Build columns ──────────────────────────────────────
+        
+        final columns = [
+          TableColumn(title: 'Sl No.', flex: 1),
+          TableColumn(title: 'NAME', flex: isNew ? 5 : 3),
+          TableColumn(title: 'CONTACT NUMBER', flex: isNew ? 5 : 3),
+          TableColumn(title: 'LEAD CATEGORY', flex: isNew ? 5 : 3),
+          TableColumn(title: 'STAFF', flex: isNew ? 4 : 2),
+          TableColumn(title: 'STATUS', flex: isNew ? 4 : 2),
+          if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 3),
+          if (!isNew) TableColumn(title: 'CALLED DATE', flex: 3),
+          TableColumn(title: 'ACTION', flex: 2),
+        ];
 
-                        ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: pagedList.length,
-                          separatorBuilder: (_, __) =>
-                              Container(height: 1, color: AppTheme.border),
-                          itemBuilder: (context, index) {
-                            final lead = pagedList[index];
+        final _fmt = DateFormat('dd-MM-yyyy hh:mm a');
 
-                            return InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MainScreen(
-                                      selectedIndex: 31,
-                                      lead: lead,
-                                    ),
-                                  ),
-                                ).then((_) {
-                                  // Reload leads from cubit after returning from detail screen
-                                  context
-                                      .read<AddLeadCubit>()
-                                      .fetchDashboardLeads(
-                                        staffId: widget.staff!.id!,
-                                        role:
-                                            widget.staff?.staffType ?? 'Admin',
-                                        fromCard: widget.fromCard,
-                                        selectedDate:
-                                            widget.selectedDate ??
-                                            DateTime.now(),
-                                      );
-                                });
-                              },
-                              child: _LeadRow(
-                                lead: lead,
-                                isEven: index.isEven,
-                                // ── CHANGED: pass real isSelected value ──
-                                isSelected: _selectedIds.contains(lead.id),
-                                onToggleSelect: _toggleSelect,
-                                onView: _onView,
-                                onEdit: _onEdit,
-                                onHistory: _onHistory,
-                                onDelete: _onDelete,
-                                index: index,
-                              ),
-                            );
-                          },
-                        ),
+        // ── Build rows ─────────────────────────────────────────
+        final rows = pagedList.asMap().entries.map((entry) {
+          final index = entry.key;
+          final lead = entry.value;
+          final serial = (_currentPage - 1) * limit + index + 1;
 
-                        Divider(color: AppColors.divider),
-
-                        /// 🔹 FOOTER
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            vertical: 1.5.h,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Showing $showFrom to $showTo of $totalCount entries",
-                                style: AppTextStyle.medium(
-                                  weight: FontWeight.w400,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  PageButton(
-                                    label: 'Previous',
-                                    enabled: _currentPage > 1,
-                                    isLeft: true,
-                                    onTap: () =>
-                                        _goToPage(_currentPage - 1, totalCount),
-                                  ),
-                                  ..._buildPageNumbers(totalPages, totalCount),
-                                  PageButton(
-                                    label: 'Next',
-                                    enabled: _currentPage < totalPages,
-                                    isRight: true,
-                                    onTap: () =>
-                                        _goToPage(_currentPage + 1, totalCount),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+          return [
+            // #
+            Text(
+              '$serial',
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.w500,
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            // Name
+            Text(
+              lead.clientName,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            // Contact
+            GestureDetector(
+              onTap: () =>
+                  Clipboard.setData(ClipboardData(text: lead.contactNumber)),
+              child: Text(
+                lead.contactNumber,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // Category
+            Text(
+              lead.leadCategory,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            // Staff
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 12,
+                  backgroundColor: AppTheme.border,
+                  child: const Icon(
+                    Icons.person_rounded,
+                    size: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    lead.assignedStaff,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            // Status
+            SizedBox(child: _StatusBadge(status: lead.leadStage)),
+           
+            if (!isNew)
+              Text(
+                lead.followUpDate != null
+                    ? _fmt.format(lead.followUpDate!)
+                    : _fmt.format(DateTime.now()),
+                style: _dateStyle,
+              ),
+            // Called Date (conditional — already correct, no change needed)
+            if (!isNew)
+              Text(
+                lead.calledDate != null
+                    ? _fmt.format(lead.calledDate!)
+                    : _fmt.format(DateTime.now()),
+                style: _dateStyle,
+              ),
+            // Actions
+            Row(
+              // mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _ActionButton(
+                  icon: Icons.visibility_rounded,
+                  color: AppTheme.actionView,
+                  tooltip: 'View',
+                  onTap: () => _onView(lead),
+                ),
+                _ActionButton(
+                  icon: Icons.edit_rounded,
+                  color: AppTheme.actionEdit,
+                  tooltip: 'Edit',
+                  onTap: () => _onEdit(lead),
+                ),
+                _ActionButton(
+                  icon: Icons.delete_rounded,
+                  color: AppTheme.actionDelete,
+                  tooltip: 'Delete',
+                  onTap: () => _onDelete(lead),
+                ),
+              ],
+            ),
+          ];
+        }).toList();
+
+        // ── Priority colors for the left dot ──────────────────
+        final priorityColors = pagedList.map((lead) {
+          switch (lead.priority.trim().toLowerCase()) {
+            case 'high':
+              return const Color(0xFFEF4444);
+            case 'normal':
+              return const Color(0xFF22C55E);
+            case 'low':
+              return const Color(0xFFF97316);
+            case 'negative':
+              return const Color(0xFF9CA3AF);
+            default:
+              return const Color(0xFF9CA3AF);
+          }
+        }).toList();
+
+        return Column(
+          children: [
+            if (pagedList.isEmpty)
+              Column(
+                children: [
+                  CustomTable(
+                    key: ValueKey(_tableKey),
+                    height: 0,
+                    columns: columns,
+                    rows: const [],
+                    showCheckboxes: true,
+                    priorityColors: const [],
+                    onRowTap: (_) {},
+                    // onCheckChanged: (_, __) {},
+                    onCheckChanged: (rowIndex, isChecked) {
+                      final lead = pagedList[rowIndex];
+                      if (lead.id != null) {
+                        _toggleSelect(lead.id!, isChecked);
+                      }
+                    },
+                  ),
+                  _buildEmptyState(),
+                ],
+              )
+            else
+              SizedBox(height: 2.w),
+            Padding(
+              padding: EdgeInsets.only(left: 2.w, bottom: 0.5.h),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 0.6.w, right: 0.3.w),
+                    child: Container(
+                      width: 8.5,
+                      height: 8.5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffEF4444),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Text('High', style: AppTextStyle.small()),
+                  SizedBox(width: 0.5.w),
+                  Padding(
+                    padding: EdgeInsets.only(left: 0.6.w, right: 0.3.w),
+                    child: Container(
+                      width: 8.5,
+                      height: 8.5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff22C55E),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Text('Normal', style: AppTextStyle.small()),
+                  SizedBox(width: 0.5.w),
+                  Padding(
+                    padding: EdgeInsets.only(left: 0.6.w, right: 0.3.w),
+                    child: Container(
+                      width: 8.5,
+                      height: 8.5,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 226, 249, 22),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Text('Low', style: AppTextStyle.small()),
+                  SizedBox(width: 0.5.w),
+                  Padding(
+                    padding: EdgeInsets.only(left: 0.6.w, right: 0.3.w),
+                    child: Container(
+                      width: 8.5,
+                      height: 8.5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff9CA3AF),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Text('Negative', style: AppTextStyle.small()),
+                  SizedBox(width: 0.5.w),
+                ],
+              ),
+            ),
+            CustomTable(
+              key: ValueKey(_tableKey),
+              height: 0,
+              columns: columns,
+              rows: rows,
+              showCheckboxes: true,
+              priorityColors: priorityColors,
+              // ── Row tap → lead details ──────────────────────
+              onRowTap: (rowIndex) {
+                final lead = pagedList[rowIndex];
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        MainScreen(selectedIndex: 31, lead: lead),
+                  ),
+                ).then((_) {
+                  context.read<AddLeadCubit>().fetchDashboardLeads(
+                    staffId: widget.staff?.id ?? '',
+                    role: widget.staff?.staffType ?? 'Admin',
+                    fromCard: widget.fromCard,
+                    selectedDate: widget.selectedDate ?? DateTime.now(),
+                  );
+                });
+              },
+              // ── Per-row checkbox ────────────────────────────
+              onCheckChanged: (rowIndex, isChecked) {
+                final lead = pagedList[rowIndex];
+                if (lead.id != null) {
+                  _toggleSelect(lead.id!, isChecked);
+                }
+              },
+            ),
+
+            Divider(color: AppColors.divider),
+
+            // ── Footer ─────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Showing $showFrom to $showTo of $totalCount entries',
+                    style: AppTextStyle.medium(weight: FontWeight.w400),
+                  ),
+                  Row(
+                    children: [
+                      PageButton(
+                        label: 'Previous',
+                        enabled: _currentPage > 1,
+                        isLeft: true,
+                        onTap: () => _goToPage(_currentPage - 1, totalCount),
+                      ),
+                      ..._buildPageNumbers(totalPages, totalCount),
+                      PageButton(
+                        label: 'Next',
+                        enabled: _currentPage < totalPages,
+                        isRight: true,
+                        onTap: () => _goToPage(_currentPage + 1, totalCount),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  // List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  //   if (totalPages <= 1) return [];
+ 
 
-  //   final List<Widget> widgets = [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  //   int start = (_currentPage - 2).clamp(1, totalPages);
-  //   int end = (start + 4).clamp(1, totalPages);
-  //   if (end - start < 4) start = (end - 4).clamp(1, totalPages);
-
-  //   for (int page = start; page <= end; page++) {
-  //     final isActive = page == _currentPage;
-  //     widgets.add(
-  //       GestureDetector(
-  //         onTap: () => _goToPage(page, totalCount),
-  //         child: Container(
-  //           margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-  //           padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-  //           decoration: BoxDecoration(
-  //             color: isActive ? AppColors.primary : AppColors.white,
-  //             border: Border.all(color: AppColors.lightGrey),
-  //           ),
-  //           child: Text(
-  //             '$page',
-  //             style: AppTextStyle.small(
-  //               size: 11.sp,
-  //               color: isActive ? AppColors.white : AppColors.grey,
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     );
-  //   }
-  //   return widgets;
-  // }
-List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
-
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
+
   // -------export to excel-------
   void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
     exportToExcel<AddLeadModel>(
@@ -1513,7 +1846,6 @@ class HoverExportButton extends StatefulWidget {
 
 class _HoverExportButtonState extends State<HoverExportButton> {
   OverlayEntry? _overlayEntry;
-  bool _isHovering = false;
 
   void _showOverlay() {
     if (_overlayEntry != null) return;
@@ -1523,84 +1855,66 @@ class _HoverExportButtonState extends State<HoverExportButton> {
     final position = renderBox.localToGlobal(Offset.zero);
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: position.dx - 10.w,
-        top: position.dy + renderBox.size.height + 5,
-        child: MouseRegion(
-          onEnter: (_) => _isHovering = true,
-          onExit: (_) => _hideOverlay(),
-          child: Material(
-            elevation: 6,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: 180,
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _item(
-                    Icons.table_chart,
-                    "Export Excel",
-                    onTap: widget.onExportExcel,
-                  ),
-                  _item(
-                    Icons.picture_as_pdf,
-                    "Export PDF",
-                    onTap: widget.onExportPDF,
-                  ),
-                ],
+      builder: (context) => Stack(
+        children: [
+          // ✅ Full-screen barrier — catches any outside click
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _hideOverlay,
+            ),
+          ),
+          // ✅ The actual dropdown menu
+          Positioned(
+            left: position.dx - 120,
+            top: position.dy + renderBox.size.height + 5,
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 180,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _item(Icons.table_chart, "Export Excel",
+                        onTap: widget.onExportExcel),
+                    _item(Icons.picture_as_pdf, "Export PDF",
+                        onTap: widget.onExportPDF),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
 
     overlay.insert(_overlayEntry!);
   }
 
-  void _hideOverlay() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!_isHovering) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
+  void _hideOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
-  // Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
-  //   return InkWell(
-  //     onTap: () {
-  //       _overlayEntry?.remove();
-  //       _overlayEntry = null;
-  //     },
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  //       child: GestureDetector(
-  //         onTap: onTap,
-  //         child: Row(
-  //           children: [
-  //             Icon(icon, size: 18),
-  //             const SizedBox(width: 10),
-  //             Text(text),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  @override
+  void dispose() {
+    // ✅ Clean up overlay directly — no setState during dispose
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    super.dispose();
+  }
+
   Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
     return InkWell(
       onTap: () {
-        // Close overlay first
-        _isHovering = false;
-        _overlayEntry?.remove();
-        _overlayEntry = null;
-        // Then run the action
-        onTap?.call();
+        _hideOverlay(); // ✅ Close first
+        onTap?.call();  // ✅ Then execute action
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1617,345 +1931,505 @@ class _HoverExportButtonState extends State<HoverExportButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        _isHovering = true;
-        _showOverlay();
+    return GestureDetector(
+      onTap: () {
+        // ✅ Toggle: click again to close, click to open
+        if (_overlayEntry != null) {
+          _hideOverlay();
+        } else {
+          _showOverlay();
+        }
       },
-      onExit: (_) {
-        _isHovering = false;
-        _hideOverlay();
-      },
-      child: Container(
-        height: 4.5.h,
-        width: 4.5.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          color: Colors.indigo.shade100,
-        ),
-        child: Icon(Icons.print, size: 18, color: Colors.indigo.shade900),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// HEADER ROW
-// ─────────────────────────────────────────────
-
-class _HeaderRow extends StatelessWidget {
-  final bool selectAll;
-  final ValueChanged<bool?> onSelectAll;
-
-  const _HeaderRow({required this.selectAll, required this.onSelectAll});
-
-  static const _style = TextStyle(
-    fontSize: 11,
-    fontWeight: FontWeight.w700,
-    color: AppTheme.textSecondary,
-    letterSpacing: 0.6,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 15),
-      color: const Color(0xFFF1F5F9),
-      height: 44,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 52,
-            child: Center(
-              child: Checkbox(
-                value: selectAll,
-                onChanged: onSelectAll,
-                activeColor: AppTheme.primary,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
+      child: MouseRegion(
+        onEnter: (_) => _showOverlay(),
+        onExit: (_) {
+          // Small delay so mouse can reach the dropdown
+          Future.delayed(const Duration(milliseconds: 150), () {
+            // Only hide if overlay is still showing and mouse didn't enter dropdown
+            // The barrier GestureDetector handles outside clicks instead
+          });
+        },
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          height: 4.5.h,
+          width: 4.5.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.indigo.shade100,
           ),
-          _cell('#', 40),
-          _cell('NAME', 140),
-          _cell('CONTACT NUMBER', 140),
-          _cell('LEAD CATEGORY', 160),
-          _cell('STAFF', 100),
-          _cell('STATUS', 110),
-          _cell('FOLLOWUP DATE', 140),
-          _cell('CALLED DATE', 140),
-          _cell('ACTION', 130),
-        ],
-      ),
-    );
-  }
-
-  Widget _cell(String label, double width) {
-    return SizedBox(
-      width: width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(label, style: _style),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// DATA ROW
-// ─────────────────────────────────────────────
-
-class _LeadRow extends StatefulWidget {
-  final AddLeadModel lead;
-  final bool isEven;
-  final bool isSelected; // ── CHANGED: added isSelected ──
-  final int index;
-  final void Function(String, bool?) onToggleSelect;
-  final void Function(AddLeadModel) onView;
-  final void Function(AddLeadModel) onEdit;
-  final void Function(AddLeadModel) onHistory;
-  final void Function(AddLeadModel) onDelete;
-
-  const _LeadRow({
-    required this.lead,
-    required this.isEven,
-    required this.isSelected, // ── CHANGED ──
-    required this.onToggleSelect,
-    required this.onView,
-    required this.onEdit,
-    required this.onHistory,
-    required this.onDelete,
-    required this.index,
-  });
-
-  @override
-  State<_LeadRow> createState() => _LeadRowState();
-}
-
-class _LeadRowState extends State<_LeadRow> {
-  bool _hovered = false;
-
-  static final DateFormat _fmt = DateFormat('dd-MM-yyyy hh:mm a');
-
-  @override
-  Widget build(BuildContext context) {
-    final lead = widget.lead;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        // ── CHANGED: highlight selected rows ──
-        color: widget.isSelected
-            ? AppTheme.primary.withOpacity(0.07)
-            : _hovered
-            ? const Color(0xFFF8FAFC)
-            : widget.isEven
-            ? AppTheme.surface
-            : const Color(0xFFFAFAFA),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Row(
-            children: [
-              // Checkbox
-              SizedBox(
-                width: 52,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      margin: const EdgeInsets.only(right: 4),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.onlineGreen,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    // ── CHANGED: use widget.isSelected and wire onChanged ──
-                    Checkbox(
-                      value: widget.isSelected,
-                      onChanged: (v) => widget.onToggleSelect(lead.id!, v),
-                      activeColor: AppTheme.primary,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ],
-                ),
-              ),
-              // #
-              _textCell(
-                '${widget.index + 1}',
-                40,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              // Name
-              _textCell(
-                lead.clientName,
-                140,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              // Contact
-              SizedBox(
-                width: 140,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: lead.contactNumber),
-                      );
-                    },
-                    child: Text(
-                      lead.contactNumber,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ),
-              // Category
-              _textCell(
-                lead.leadCategory,
-                160,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              // Staff
-              SizedBox(
-                width: 100,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: AppTheme.border,
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 14,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          lead.assignedStaff,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Status
-              SizedBox(
-                width: 110,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: _StatusBadge(status: lead.leadStage),
-                ),
-              ),
-              // FollowUp Date
-              lead.followUpDate == null
-                  ? _textCell(
-                      _fmt.format(DateTime.now()),
-                      140,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                      ),
-                    )
-                  : _textCell(
-                      _fmt.format(lead.followUpDate!),
-                      140,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-              // Called Date
-              lead.calledDate == null
-                  ? _textCell(
-                      _fmt.format(DateTime.now()),
-                      140,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                      ),
-                    )
-                  : _textCell(
-                      _fmt.format(lead.calledDate!),
-                      140,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-              // Actions
-              SizedBox(
-                width: 130,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    children: [
-                      _ActionButton(
-                        icon: Icons.visibility_rounded,
-                        color: AppTheme.actionView,
-                        tooltip: 'View',
-                        onTap: () => widget.onView(lead),
-                      ),
-                      _ActionButton(
-                        icon: Icons.edit_rounded,
-                        color: AppTheme.actionEdit,
-                        tooltip: 'Edit',
-                        onTap: () => widget.onEdit(lead),
-                      ),
-                      _ActionButton(
-                        icon: Icons.delete_rounded,
-                        color: AppTheme.actionDelete,
-                        tooltip: 'Delete',
-                        onTap: () => widget.onDelete(lead),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: Icon(Icons.print, size: 18, color: Colors.indigo.shade900),
         ),
       ),
     );
   }
-
-  Widget _textCell(String text, double width, {required TextStyle style}) {
-    return SizedBox(
-      width: width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Text(text, style: style),
-      ),
-    );
-  }
 }
+
+// class HoverExportButton extends StatefulWidget {
+//   final VoidCallback? onExportExcel;
+//   final VoidCallback? onExportPDF;
+//   const HoverExportButton({super.key, this.onExportExcel, this.onExportPDF});
+
+//   @override
+//   State<HoverExportButton> createState() => _HoverExportButtonState();
+// }
+
+// class _HoverExportButtonState extends State<HoverExportButton> {
+//   OverlayEntry? _overlayEntry;
+//   bool _isHovering = false;
+
+//   void _showOverlay() {
+//     if (_overlayEntry != null) return;
+
+//     final overlay = Overlay.of(context);
+//     final renderBox = context.findRenderObject() as RenderBox;
+//     final position = renderBox.localToGlobal(Offset.zero);
+
+//     _overlayEntry = OverlayEntry(
+//       builder: (context) => Positioned(
+//         left: position.dx - 10.w,
+//         top: position.dy + renderBox.size.height + 5,
+//         child: MouseRegion(
+//           onEnter: (_) => _isHovering = true,
+//           onExit: (_) => _hideOverlay(),
+//           child: Material(
+//             elevation: 6,
+//             borderRadius: BorderRadius.circular(8),
+//             child: Container(
+//               width: 180,
+//               padding: const EdgeInsets.symmetric(vertical: 6),
+//               decoration: BoxDecoration(
+//                 color: Colors.white,
+//                 borderRadius: BorderRadius.circular(8),
+//               ),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   _item(
+//                     Icons.table_chart,
+//                     "Export Excel",
+//                     onTap: widget.onExportExcel,
+//                   ),
+//                   _item(
+//                     Icons.picture_as_pdf,
+//                     "Export PDF",
+//                     onTap: widget.onExportPDF,
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+
+//     overlay.insert(_overlayEntry!);
+//   }
+
+//   void _hideOverlay() async {
+//     await Future.delayed(const Duration(milliseconds: 100));
+//     if (!_isHovering) {
+//       _overlayEntry?.remove();
+//       _overlayEntry = null;
+//     }
+//   }
+
+//   // Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
+//   //   return InkWell(
+//   //     onTap: () {
+//   //       _overlayEntry?.remove();
+//   //       _overlayEntry = null;
+//   //     },
+//   //     child: Padding(
+//   //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+//   //       child: GestureDetector(
+//   //         onTap: onTap,
+//   //         child: Row(
+//   //           children: [
+//   //             Icon(icon, size: 18),
+//   //             const SizedBox(width: 10),
+//   //             Text(text),
+//   //           ],
+//   //         ),
+//   //       ),
+//   //     ),
+//   //   );
+//   // }
+//   Widget _item(IconData icon, String text, {VoidCallback? onTap}) {
+//     return InkWell(
+//       onTap: () {
+//         // Close overlay first
+//         _isHovering = false;
+//         _overlayEntry?.remove();
+//         _overlayEntry = null;
+//         // Then run the action
+//         onTap?.call();
+//       },
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+//         child: Row(
+//           children: [
+//             Icon(icon, size: 18),
+//             const SizedBox(width: 10),
+//             Text(text),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MouseRegion(
+//       onEnter: (_) {
+//         _isHovering = true;
+//         _showOverlay();
+//       },
+//       onExit: (_) {
+//         _isHovering = false;
+//         _hideOverlay();
+//       },
+//       child: Container(
+//         height: 4.5.h,
+//         width: 4.5.h,
+//         decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(4),
+//           color: Colors.indigo.shade100,
+//         ),
+//         child: Icon(Icons.print, size: 18, color: Colors.indigo.shade900),
+//       ),
+//     );
+//   }
+// }
+
+// // ─────────────────────────────────────────────
+// // HEADER ROW
+// // ─────────────────────────────────────────────
+
+// class _HeaderRow extends StatelessWidget {
+//   final bool selectAll;
+//   final String fromCard;
+//   final ValueChanged<bool?> onSelectAll;
+
+//   const _HeaderRow({
+//     required this.selectAll,
+//     required this.onSelectAll,
+//     required this.fromCard,
+//   });
+
+//   static const _style = TextStyle(
+//     fontSize: 11,
+//     fontWeight: FontWeight.w700,
+//     color: AppTheme.textSecondary,
+//     letterSpacing: 0.6,
+//   );
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.only(left: 15),
+//       color: const Color(0xFFF1F5F9),
+//       height: 44,
+//       child: Row(
+//         children: [
+//           SizedBox(
+//             width: 52,
+//             child: Center(
+//               child: Checkbox(
+//                 value: selectAll,
+//                 onChanged: onSelectAll,
+//                 activeColor: AppTheme.primary,
+//                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+//               ),
+//             ),
+//           ),
+//           _cell('#', 40),
+//           _cell('NAME', 140),
+//           _cell('CONTACT NUMBER', 140),
+//           _cell('LEAD CATEGORY', 160),
+//           _cell('STAFF', 100),
+//           _cell('STATUS', 110),
+//           if (fromCard.toUpperCase() != 'NEW') _cell('FOLLOWUP DATE', 140),
+//           if (fromCard.toUpperCase() != 'NEW') _cell('CALLED DATE', 140),
+//           _cell('ACTION', 130),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _cell(String label, double width) {
+//     return SizedBox(
+//       width: width,
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 8),
+//         child: Text(label, style: _style),
+//       ),
+//     );
+//   }
+// }
+
+// // ─────────────────────────────────────────────
+// // DATA ROW
+// // ─────────────────────────────────────────────
+
+// class _LeadRow extends StatefulWidget {
+//   final AddLeadModel lead;
+//   final bool isEven;
+//   final bool isSelected; // ── CHANGED: added isSelected ──
+//   final int index;
+//   final String fromCard;
+//   final void Function(String, bool?) onToggleSelect;
+//   final void Function(AddLeadModel) onView;
+//   final void Function(AddLeadModel) onEdit;
+//   final void Function(AddLeadModel) onHistory;
+//   final void Function(AddLeadModel) onDelete;
+
+//   const _LeadRow({
+//     required this.lead,
+//     required this.isEven,
+//     required this.isSelected,
+//     required this.fromCard,
+//     required this.onToggleSelect,
+//     required this.onView,
+//     required this.onEdit,
+//     required this.onHistory,
+//     required this.onDelete,
+//     required this.index,
+//   });
+
+//   @override
+//   State<_LeadRow> createState() => _LeadRowState();
+// }
+
+// class _LeadRowState extends State<_LeadRow> {
+//   bool _hovered = false;
+
+//   static final DateFormat _fmt = DateFormat('dd-MM-yyyy hh:mm a');
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final lead = widget.lead;
+
+//     return MouseRegion(
+//       onEnter: (_) => setState(() => _hovered = true),
+//       onExit: (_) => setState(() => _hovered = false),
+//       child: AnimatedContainer(
+//         duration: const Duration(milliseconds: 150),
+//         // ── CHANGED: highlight selected rows ──
+//         color: widget.isSelected
+//             ? AppTheme.primary.withOpacity(0.07)
+//             : _hovered
+//             ? const Color(0xFFF8FAFC)
+//             : widget.isEven
+//             ? AppTheme.surface
+//             : const Color(0xFFFAFAFA),
+//         child: Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 10.0),
+//           child: Row(
+//             children: [
+//               // Checkbox
+//               SizedBox(
+//                 width: 52,
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Container(
+//                       width: 8,
+//                       height: 8,
+//                       margin: const EdgeInsets.only(right: 4),
+//                       decoration: const BoxDecoration(
+//                         color: AppTheme.onlineGreen,
+//                         shape: BoxShape.circle,
+//                       ),
+//                     ),
+//                     // ── CHANGED: use widget.isSelected and wire onChanged ──
+//                     Checkbox(
+//                       value: widget.isSelected,
+//                       onChanged: (v) => widget.onToggleSelect(lead.id!, v),
+//                       activeColor: AppTheme.primary,
+//                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               // #
+//               _textCell(
+//                 '${widget.index + 1}',
+//                 40,
+//                 style: const TextStyle(
+//                   fontSize: 13,
+//                   color: AppTheme.textSecondary,
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//               ),
+//               // Name
+//               _textCell(
+//                 lead.clientName,
+//                 140,
+//                 style: const TextStyle(
+//                   fontSize: 13,
+//                   color: AppTheme.primary,
+//                   fontWeight: FontWeight.w600,
+//                 ),
+//               ),
+//               // Contact
+//               SizedBox(
+//                 width: 140,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 10),
+//                   child: GestureDetector(
+//                     onTap: () {
+//                       Clipboard.setData(
+//                         ClipboardData(text: lead.contactNumber),
+//                       );
+//                     },
+//                     child: Text(
+//                       lead.contactNumber,
+//                       style: const TextStyle(
+//                         fontSize: 12,
+//                         color: AppTheme.primary,
+//                         fontWeight: FontWeight.w500,
+//                       ),
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               // Category
+//               _textCell(
+//                 lead.leadCategory,
+//                 160,
+//                 style: const TextStyle(
+//                   fontSize: 12,
+//                   color: AppTheme.textSecondary,
+//                 ),
+//               ),
+//               // Staff
+//               SizedBox(
+//                 width: 100,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 10),
+//                   child: Row(
+//                     children: [
+//                       CircleAvatar(
+//                         radius: 12,
+//                         backgroundColor: AppTheme.border,
+//                         child: const Icon(
+//                           Icons.person_rounded,
+//                           size: 14,
+//                           color: AppTheme.textSecondary,
+//                         ),
+//                       ),
+//                       const SizedBox(width: 6),
+//                       Flexible(
+//                         child: Text(
+//                           lead.assignedStaff,
+//                           style: const TextStyle(
+//                             fontSize: 12,
+//                             color: AppTheme.textPrimary,
+//                             fontWeight: FontWeight.w500,
+//                           ),
+//                           overflow: TextOverflow.ellipsis,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               // Status
+//               SizedBox(
+//                 width: 110,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 12),
+//                   child: _StatusBadge(status: lead.leadStage),
+//                 ),
+//               ),
+//               // FollowUp Date
+//               if (widget.fromCard.toUpperCase() != 'NEW') ...[
+//                 _textCell(
+//                   lead.followUpDate != null
+//                       ? _fmt.format(lead.followUpDate!)
+//                       : _fmt.format(DateTime.now()),
+//                   140,
+//                   style: const TextStyle(
+//                     fontSize: 11,
+//                     color: AppTheme.textSecondary,
+//                   ),
+//                 ),
+//                 _textCell(
+//                   lead.calledDate != null
+//                       ? _fmt.format(lead.calledDate!)
+//                       : _fmt.format(DateTime.now()),
+//                   140,
+//                   style: const TextStyle(
+//                     fontSize: 11,
+//                     color: AppTheme.textSecondary,
+//                   ),
+//                 ),
+//               ],
+//               // Called Date
+//               // lead.calledDate == null
+//               //     ? _textCell(
+//               //         _fmt.format(DateTime.now()),
+//               //         140,
+//               //         style: const TextStyle(
+//               //           fontSize: 11,
+//               //           color: AppTheme.textSecondary,
+//               //         ),
+//               //       )
+//               //     : _textCell(
+//               //         _fmt.format(lead.calledDate!),
+//               //         140,
+//               //         style: const TextStyle(
+//               //           fontSize: 11,
+//               //           color: AppTheme.textSecondary,
+//               //         ),
+//               //       ),
+//               // Actions
+//               SizedBox(
+//                 width: 130,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 8),
+//                   child: Row(
+//                     children: [
+//                       _ActionButton(
+//                         icon: Icons.visibility_rounded,
+//                         color: AppTheme.actionView,
+//                         tooltip: 'View',
+//                         onTap: () => widget.onView(lead),
+//                       ),
+//                       _ActionButton(
+//                         icon: Icons.edit_rounded,
+//                         color: AppTheme.actionEdit,
+//                         tooltip: 'Edit',
+//                         onTap: () => widget.onEdit(lead),
+//                       ),
+//                       _ActionButton(
+//                         icon: Icons.delete_rounded,
+//                         color: AppTheme.actionDelete,
+//                         tooltip: 'Delete',
+//                         onTap: () => widget.onDelete(lead),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _textCell(String text, double width, {required TextStyle style}) {
+//     return SizedBox(
+//       width: width,
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 12),
+//         child: Text(text, style: style),
+//       ),
+//     );
+//   }
+// }
 
 // ─────────────────────────────────────────────
 // STATUS BADGE
@@ -1968,23 +2442,28 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: getLeadStatusColor(status).withOpacity(0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: getLeadStatusColor(status).withOpacity(0.3)),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: getLeadStatusColor(status),
-          letterSpacing: 0.2,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        // alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+          color: getLeadStatusColor(status).withOpacity(0.12),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: getLeadStatusColor(status).withOpacity(0.3),
+          ),
         ),
-        overflow: TextOverflow.ellipsis,
+        child: Text(
+          status,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: getLeadStatusColor(status),
+            letterSpacing: 0.2,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
@@ -2027,8 +2506,8 @@ class _ActionButtonState extends State<_ActionButton> {
           onTap: widget.onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: 28,
-            height: 28,
+            // width: 28,
+            // height: 28,
             decoration: BoxDecoration(
               color: _hovered
                   ? widget.color.withOpacity(0.12)

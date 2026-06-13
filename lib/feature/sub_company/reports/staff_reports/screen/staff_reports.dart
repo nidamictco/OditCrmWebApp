@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
@@ -287,8 +289,21 @@ class _StaffReportsState extends State<StaffReports> {
                           children: [
                             SizedBox(
                               child: CustomTable(
+                                onRowTap: (rowIndex) {
+                                  final staff = pagedList[rowIndex];
+                                  log('stafff........$staff');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MainScreen(
+                                        selectedIndex: 29,
+                                        staff: staff,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 columns: [
-                                  TableColumn(title: "#", flex: 1),
+                                  TableColumn(title: "Sl No.", flex: 1),
                                   TableColumn(title: "Name", flex: 4),
                                   TableColumn(title: "Phone Number", flex: 4),
                                   TableColumn(title: "Designation", flex: 4),
@@ -408,28 +423,25 @@ class _StaffReportsState extends State<StaffReports> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

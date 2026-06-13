@@ -49,7 +49,7 @@ class _SidebarItemState extends State<SidebarItem> {
       // if(perm.canViewCallHistory)
       //   subMenuItem("Call History", 3),
       if (perm.canViewDeletedLeads) subMenuItem("Deleted Leads", 4),
-      if (perm.canViewUnassignedLeads) subMenuItem("Unassigned Leads", 13),
+      // if (perm.canViewUnassignedLeads) subMenuItem("Unassigned Leads", 13),
       if (perm.canTransferLeads || perm.canViewTransferLeads)
         subMenuItem("Transfer Leads", 5),
       // if(perm.canViewPhoneCallLog)

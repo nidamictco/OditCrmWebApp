@@ -82,7 +82,7 @@ SizedBox(width: 2.w),
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "#", flex: 1),
+              TableColumn(title: "Sl No.", flex: 1),
               TableColumn(title: "Name", flex: 4),
               TableColumn(title: "Phone", flex: 4),
               TableColumn(title: "Duration", flex: 4),

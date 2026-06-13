@@ -580,7 +580,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "#", flex: 1),
+              TableColumn(title: "Sl No.", flex: 1),
               TableColumn(title: "Name", flex: 4),
               TableColumn(title: "Contact Number", flex: 4),
               TableColumn(title: "Lead Category", flex: 4),

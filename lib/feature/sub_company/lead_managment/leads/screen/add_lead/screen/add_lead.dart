@@ -13,10 +13,12 @@ import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/indian_location_service.dart';
 import 'package:oxdo/core/utils/menu_hover_bottun.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
+import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:oxdo/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
@@ -58,7 +60,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final TextEditingController _dialogNameCtrl = TextEditingController();
   final TextEditingController nextFollowUpCtrl = TextEditingController(
     text: DateFormat(
-      'dd-MM-yyyy',
+      'dd-MM-yyyy hh:mm a',
     ).format(DateTime.now().add(const Duration(days: 1))),
   );
   DateTime nextFollowUpDate = DateTime.now().add(const Duration(hours: 1));
@@ -521,12 +523,13 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
         if (state.successMessage != null) {
           if (_isEditMode) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainScreen(selectedIndex: 2),
-              ),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => MainScreen(selectedIndex: 2),
+            //   ),
+            // );
+            Navigator.pop(context,true);
           } else {
             context.read<AddLeadCubit>().fetchLeads();
             Navigator.pushReplacement(
@@ -535,6 +538,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 builder: (context) => MainScreen(selectedIndex: 2),
               ),
             );
+    //          context.read<AddLeadCubit>().fetchLeads();
+    // Navigator.pop(context, true);
           }
         }
       },
@@ -1116,7 +1121,24 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     ),
                                     SizedBox(height: 0.5.h),
                                     GestureDetector(
-                                      onTap: () => _pickFollowUpDate(context),
+                                      onTap: () async { final result =
+                                            await showCalendarDialogUsingTimePicker(
+                                              context,
+                                              initialDate: nextFollowUpDate,
+                                              mode: CalendarMode.single,
+                                              showTimePicker:
+                                                  true, // ← shows time picker
+                                              minDate:
+                                                  calledDateValue, // ← blocks dates before called date
+                                            );
+                                        if (result != null) {
+                                          setState(() {
+                                            nextFollowUpDate = result.from;
+                                            nextFollowUpCtrl.text = DateFormat(
+                                              'dd-MM-yyyy hh:mm a',
+                                            ).format(result.from);
+                                          });
+                                        }},
                                       child: Container(
                                         height: 5.2.h,
                                         padding: const EdgeInsets.symmetric(
@@ -1187,9 +1209,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                       },
                                     ),
                                   ),
+                                  SizedBox(width: 1.w),
                                 ],
                               ),
-                            SizedBox(width: 1.w),
+                            
                             SizedBox(
                               width: 24.w,
                               child: Dropdown(
