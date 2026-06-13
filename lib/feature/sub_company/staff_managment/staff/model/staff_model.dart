@@ -24,6 +24,7 @@ class StaffModel {
   final String? accessibleUsers;
   final DateTime? createdAt;
   final DateTime? deletedAt;
+  final String? companyType;
 
   const StaffModel({
     this.id,
@@ -49,6 +50,7 @@ class StaffModel {
     this.accessibleUsers,
     this.createdAt,
     this.deletedAt,
+    this.companyType,
   });
 
   // ─── copyWith ────────────────────────────────────────────────────────────
@@ -77,6 +79,7 @@ class StaffModel {
     String? accessibleUsers,
     DateTime? createdAt,
     DateTime? deletedAt,
+    String? companyType,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -102,6 +105,7 @@ class StaffModel {
       accessibleUsers: accessibleUsers ?? this.accessibleUsers,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      companyType: companyType ?? this.companyType,
     );
   }
 
@@ -133,6 +137,7 @@ class StaffModel {
       accessibleUsers: map['accessibleUsers'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
       deletedAt: (map['deletedAt'] as Timestamp?)?.toDate(),
+      companyType: map['companyType']??'',
     );
   }
 
@@ -164,6 +169,7 @@ class StaffModel {
       'deletedAt': deletedAt != null
           ? Timestamp.fromDate(deletedAt!)
           : null,
+      'companyType': companyType,
     };
   }
 
@@ -190,7 +196,8 @@ class StaffModel {
     'documentUrl': documentUrl,
     'accessibleUsers': accessibleUsers,
     'createdAt': createdAt?.toIso8601String(), 
-    'deletedAt': deletedAt?.toIso8601String(), 
+    'deletedAt': deletedAt?.toIso8601String(),
+    'companyType': companyType,
   };
 }
 
@@ -219,6 +226,7 @@ factory StaffModel.fromJson(Map<String, dynamic> map) {
     accessibleUsers: map['accessibleUsers'],
     createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt']) : null,
     deletedAt: map['deletedAt'] != null ? DateTime.tryParse(map['deletedAt']) : null,
+    companyType: map['companyType']??'',
   );
 }
 }
