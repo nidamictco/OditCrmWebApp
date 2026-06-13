@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
+import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
 import 'package:sizer/sizer.dart';
 import '../cubit/general_settings_cubit.dart';
 import '../cubit/general_settings_state.dart';

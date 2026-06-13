@@ -690,6 +690,13 @@ class _DesignationPermissionsScreenState
                       ),
                     ),
                   ),
+                  Icon(
+                    group.expanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: AppColors.primary,
+                    size: 18.sp,
+                  ),
                 ],
               ),
             ),

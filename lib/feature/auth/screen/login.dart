@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -24,6 +26,30 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndPrintRegisteredUsers();
+  }
+
+  void _fetchAndPrintRegisteredUsers() async {
+    try {
+      final usersSnap = await FirebaseFirestore.instance.collection('USERS').get();
+      print('=== REGISTERED USERS ===');
+      for (var doc in usersSnap.docs) {
+        print('User: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}');
+      }
+
+      final staffSnap = await FirebaseFirestore.instance.collectionGroup('STAFF').get();
+      print('=== REGISTERED STAFF ===');
+      for (var doc in staffSnap.docs) {
+        print('Staff: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}');
+      }
+    } catch (e) {
+      print('Error fetching registered users: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -248,15 +274,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildUsernameField() {
     return TextFormField(
       controller: _phoneNoController,
-      keyboardType: TextInputType.text,
       textInputAction: TextInputAction.next,
       autocorrect: false,
+      inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter your phone number';
         }
         return null;
       },
+      keyboardType: TextInputType.phone,
       decoration: InputDecoration(
         hintText: 'Enter phone number',
         hintStyle: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),

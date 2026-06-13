@@ -12,18 +12,18 @@ import 'package:oxdo/core/utils/dropdown.dart';
 import 'package:oxdo/core/utils/dropdown_with_add.dart';
 import 'package:oxdo/core/utils/input_date.dart';
 import 'package:oxdo/core/utils/popup_msg.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/widget/calender.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import 'package:oxdo/feature/lead_managment/follow_up/screens/widget/calender.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:oxdo/feature/reports/staff_reports/widget/calender.dart';
+import 'package:oxdo/feature/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../../core/shared_preference/session_service.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/utils/top_bread_crumb_bar.dart';
-import '../../../../../core/utils/transfer_lead_alert.dart';
+import '../../../../core/shared_preference/session_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/top_bread_crumb_bar.dart';
+import '../../../../core/utils/transfer_lead_alert.dart';
 import '../../../sidebar/main_screen.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
@@ -915,12 +915,8 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       createdById: widget.lead.createdById,
       adress: widget.lead.address,
       email: widget.lead.email,
-      assignedStaff: _currentUserName.isNotEmpty
-          ? _currentUserName
-          : widget.lead.assignedStaff,
-      assignedStaffId: _currentUserId.isNotEmpty
-          ? _currentUserId
-          : widget.lead.assignedStaffId,
+      assignedStaff: widget.lead.assignedStaff,
+      assignedStaffId: widget.lead.assignedStaffId,
     );
   }
 
@@ -2068,9 +2064,9 @@ class _FollowupCard extends StatelessWidget {
                         // Falls back to lead.assignedStaff for older records
                         // that were saved before assignedStaff was added.
                         Text(
-                          entry.assignedStaff.isNotEmpty
-                              ? entry.assignedStaff
-                              : lead.assignedStaff,
+  entry.assignedStaff.isNotEmpty
+      ? entry.assignedStaff
+      : 'Unknown', 
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
