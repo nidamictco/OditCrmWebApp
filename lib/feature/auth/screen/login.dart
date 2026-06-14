@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/theme/asset_resources.dart';
-import 'package:oxdo/core/utils/notification_service.dart';
-import 'package:oxdo/feature/auth/screen/forget_psswrd.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../core/theme/asset_resources.dart';
+import '../../../core/utils/notification_service.dart';
+import 'forget_psswrd.dart';
 
 import 'package:sizer/sizer.dart';
 
@@ -35,16 +35,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _fetchAndPrintRegisteredUsers() async {
     try {
-      final usersSnap = await FirebaseFirestore.instance.collection('USERS').get();
+      final usersSnap = await FirebaseFirestore.instance
+          .collection('USERS')
+          .get();
       print('=== REGISTERED USERS ===');
       for (var doc in usersSnap.docs) {
-        print('User: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}');
+        print(
+          'User: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
+        );
       }
 
-      final staffSnap = await FirebaseFirestore.instance.collectionGroup('STAFF').get();
+      final staffSnap = await FirebaseFirestore.instance
+          .collectionGroup('STAFF')
+          .get();
       print('=== REGISTERED STAFF ===');
       for (var doc in staffSnap.docs) {
-        print('Staff: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}');
+        print(
+          'Staff: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
+        );
       }
     } catch (e) {
       print('Error fetching registered users: $e');
@@ -214,7 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordScreen(),
+                    ),
                   );
                 },
                 child: Text(
@@ -277,9 +287,9 @@ class _LoginScreenState extends State<LoginScreen> {
       textInputAction: TextInputAction.next,
       autocorrect: false,
       inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10),
+      ],
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter your phone number';

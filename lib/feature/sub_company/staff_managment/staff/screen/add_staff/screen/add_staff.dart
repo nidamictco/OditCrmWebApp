@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -7,19 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/dropdown.dart';
-import 'package:oxdo/core/utils/inputfield_for_psswrd.dart';
-import 'package:oxdo/core/utils/staff_top_bar.dart';
-import 'package:oxdo/core/utils/dropdown_with_add.dart';
-import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/designation_cubit.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/screen/add_designation_screen.dart';
+import '../../../../../../../core/theme/app_colors.dart';
+import '../../../../../../../core/theme/app_text_style.dart';
+import '../../../../../../../core/utils/dropdown.dart';
+import '../../../../../../../core/utils/inputfield_for_psswrd.dart';
+import '../../../../../../../core/utils/staff_top_bar.dart';
+import '../../../../../../../core/utils/dropdown_with_add.dart';
+import '../../../../../../auth/cubit/auth/auth_cubit.dart';
+import '../../../../../sidebar/main_screen.dart';
+import '../../../cubit/add_staff_cubit.dart';
+import '../../../cubit/add_staff_state.dart';
+import '../../../model/staff_model.dart';
+import '../../../../designation/cubit/designation_cubit.dart';
+import '../../../../designation/screen/add_designation_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class AddStaff extends StatefulWidget {

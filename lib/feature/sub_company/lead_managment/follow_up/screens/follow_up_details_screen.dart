@@ -1,4 +1,4 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +30,7 @@ import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
 import '../models/follow_up_activities_model.dart';
 import '../models/follow_up_details_models.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
+import '../../../../../core/theme/app_text_style.dart';
 
 import '../models/staff_handler_model.dart';
 
@@ -635,16 +635,12 @@ class _FollowupTabContent extends StatefulWidget {
 //     // widget.onFollowUpAdded();
 //   }
 
-  
-
 //   @override
 //   Widget build(BuildContext context) {
 //     final Widget divider = SizedBox(width: 1.w);
 
-    
-
 //     Future<FollowUpModel> createLeadFollowup() async {
-      
+
 //       final user = await SessionService().getSavedUser();
 //       return FollowUpModel(
 //         leadId: widget.leadId,
@@ -971,8 +967,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
         widget.lead.leadStage.toLowerCase() != 'rejected' &&
         widget.lead.leadStage.toLowerCase() != 'new') {
       followupGroup[DateFormat(
-        'dd-MM-yyyy hh:mm',
-      ).format(widget.lead.followUpDate!)] = _createLeadFollowup(); // ✅ sync
+            'dd-MM-yyyy hh:mm',
+          ).format(widget.lead.followUpDate!)] =
+          _createLeadFollowup(); // ✅ sync
     }
 
     // Existing follow-up records
@@ -982,8 +979,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     // Lead creation node (always last)
     followupGroup[DateFormat(
-      'dd-MM-yyyy hh:mm',
-    ).format(widget.lead.createdAt!)] = _createLeadFollowup(); // ✅ sync
+          'dd-MM-yyyy hh:mm',
+        ).format(widget.lead.createdAt!)] =
+        _createLeadFollowup(); // ✅ sync
 
     final dates = followupGroup.keys.toList();
     log(dates.length.toString());
@@ -1677,7 +1675,6 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     );
   }
 
- 
   void _showAddCategoryDialog() {
     _dialogNameCtrl.clear();
     showDialog(
@@ -2064,9 +2061,9 @@ class _FollowupCard extends StatelessWidget {
                         // Falls back to lead.assignedStaff for older records
                         // that were saved before assignedStaff was added.
                         Text(
-  entry.assignedStaff.isNotEmpty
-      ? entry.assignedStaff
-      : 'Unknown', 
+                          entry.assignedStaff.isNotEmpty
+                              ? entry.assignedStaff
+                              : 'Unknown',
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,

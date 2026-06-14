@@ -1,8 +1,9 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/feature/sub_company/notification/model/notification_model.dart';
+import '../model/notification_model.dart';
+import '../../../../core/constant/firebase_const.dart';
 
 class NotificationRepo {
   final _db = FirebaseFirestore.instance;
@@ -20,7 +21,7 @@ class NotificationRepo {
     required String message,
   }) async {
     final String id = _generateDateId('NOTIF');
-    await _db.collection('NOTIFICATIONS').doc(id).set({
+    await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
       'staffId': staffId,
       'title': title,
       'message': message,
@@ -35,8 +36,7 @@ class NotificationRepo {
   }) async {
     try {
       // Fetch all admin users
-      final snapshot = await _db
-          .collection('STAFFS')
+      final snapshot = await FirestorePath.companyCollection('STAFF')
           .where('staffType', isEqualTo: 'Admin')
           .get();
 
@@ -47,7 +47,7 @@ class NotificationRepo {
         if (adminId == excludeStaffId) continue;
 
         final String id = _generateDateId('NOTIF');
-        await _db.collection('NOTIFICATIONS').doc(id).set({
+        await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
           'staffId': adminId,
           'title': title,
           'message': message,
@@ -59,9 +59,8 @@ class NotificationRepo {
       log('[NotificationRepo] createForAdmins error: $e');
     }
   }
- Stream<List<NotificationModel>> streamByStaff(String staffId) {
-  return _db
-      .collection('NOTIFICATIONS')
+  Stream<List<NotificationModel>> streamByStaff(String staffId) {
+   return FirestorePath.companyCollection('NOTIFICATIONS')
       .where('staffId', isEqualTo: staffId)
       .orderBy('createdAt', descending: true)
       .snapshots()
@@ -77,13 +76,12 @@ class NotificationRepo {
 
   // delete single notification by ID
   Future<void> deleteOne(String notificationId) async {
-    await _db.collection('NOTIFICATIONS').doc(notificationId).delete();
+    await FirestorePath.companyCollection('NOTIFICATIONS').doc(notificationId).delete();
   }
 
   // delete all notifications for a staff member
   Future<void> deleteAll(String staffId) async {
-    final snapshot = await _db
-        .collection('NOTIFICATIONS')
+    final snapshot = await FirestorePath.companyCollection('NOTIFICATIONS')
         .where('staffId', isEqualTo: staffId)
         .get();
 
@@ -112,8 +110,7 @@ class NotificationRepo {
 
    // in notification_repo.dart
 Future<void> markAllRead(String staffId) async {
-  final snapshot = await _db
-      .collection('NOTIFICATIONS')
+  final snapshot = await FirestorePath.companyCollection('NOTIFICATIONS')
       .where('staffId', isEqualTo: staffId)
       .where('isRead', isEqualTo: false)
       .get();

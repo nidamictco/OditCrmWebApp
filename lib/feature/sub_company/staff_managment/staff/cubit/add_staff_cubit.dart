@@ -1,12 +1,12 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/note_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import 'add_staff_state.dart';
+import '../data/add_staff_repo.dart';
+import '../model/note_model.dart';
+import '../model/staff_model.dart';
 
 class StaffCubit extends Cubit<StaffState> {
   final StaffRepository _repository;

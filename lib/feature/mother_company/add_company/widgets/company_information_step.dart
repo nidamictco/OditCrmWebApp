@@ -22,6 +22,10 @@ class CompanyInformationStep extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onNext;
 
+  final FormFieldValidator<String>? companyNameValidator;
+  final FormFieldValidator<String>? domainValidator;
+  final FormFieldValidator<String>? industryValidator;
+
   const CompanyInformationStep({
     super.key,
     required this.companyNameController,
@@ -33,6 +37,9 @@ class CompanyInformationStep extends StatelessWidget {
     required this.onUploadLogo,
     required this.onCancel,
     required this.onNext,
+    this.companyNameValidator,
+    this.domainValidator,
+    this.industryValidator,
   });
 
   @override
@@ -51,15 +58,18 @@ class CompanyInformationStep extends StatelessWidget {
                       controller: companyNameController,
                       label: "Company Official Name",
                       hint: "e.g. Acme Corporation",
+                      validator: companyNameValidator,
                     ),
 
                     const SizedBox(height: 24),
 
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: _DomainField(
                             controller: domainController,
+                            validator: domainValidator,
                           ),
                         ),
 
@@ -70,6 +80,7 @@ class CompanyInformationStep extends StatelessWidget {
                             industries: industries,
                             selectedIndustry: selectedIndustry,
                             onChanged: onIndustryChanged,
+                            validator: industryValidator,
                           ),
                         ),
                       ],
@@ -78,12 +89,9 @@ class CompanyInformationStep extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 40),
+              // const SizedBox(width: 40),
 
-              LogoUploadWidget(
-                imageBytes: logoBytes,
-                onTap: onUploadLogo,
-              ),
+              // LogoUploadWidget(imageBytes: logoBytes, onTap: onUploadLogo),
             ],
           ),
 
@@ -95,17 +103,16 @@ class CompanyInformationStep extends StatelessWidget {
 
           Row(
             children: [
-              TextButton(
-                onPressed: onCancel,
-                child: Text(
-                  "Cancel Request",
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    color: Color(0xff334155),
-                  ),
-                ),
-              ),
-
+              // TextButton(
+              //   onPressed: onCancel,
+              //   child: Text(
+              //     "Cancel Request",
+              //     style: GoogleFonts.poppins(
+              //       fontSize: 15,
+              //       color: Color(0xff334155),
+              //     ),
+              //   ),
+              // ),
               const Spacer(),
 
               SizedBox(
@@ -114,7 +121,7 @@ class CompanyInformationStep extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: onNext,
                   iconAlignment: IconAlignment.end,
-                  icon: const Icon(Icons.arrow_forward, color: Colors.white,),
+                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   label: Text(
                     "Next Step",
                     style: GoogleFonts.poppins(
@@ -140,10 +147,9 @@ class CompanyInformationStep extends StatelessWidget {
 
 class _DomainField extends StatelessWidget {
   final TextEditingController controller;
+  final FormFieldValidator<String>? validator;
 
-  const _DomainField({
-    required this.controller,
-  });
+  const _DomainField({required this.controller, this.validator});
 
   @override
   Widget build(BuildContext context) {
@@ -152,16 +158,14 @@ class _DomainField extends StatelessWidget {
       children: [
         Text(
           "Corporate Domain",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
 
         const SizedBox(height: 8),
 
         SizedBox(
-          // height: 54,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 80,
@@ -169,9 +173,7 @@ class _DomainField extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: const Color(0xffF1F5F9),
-                  border: Border.all(
-                    color: const Color(0xffCBD5E1),
-                  ),
+                  border: Border.all(color: const Color(0xffCBD5E1)),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomLeft: Radius.circular(12),
@@ -179,19 +181,22 @@ class _DomainField extends StatelessWidget {
                 ),
                 child: Text(
                   "https://",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
               ),
 
               Expanded(
                 child: TextFormField(
                   controller: controller,
+                  validator: validator,
                   style: GoogleFonts.poppins(),
                   decoration: InputDecoration(
                     hintText: "acme.com",
                     hintStyle: GoogleFonts.poppins(),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.only(
                         topRight: Radius.circular(12),
@@ -213,11 +218,13 @@ class _IndustryDropdown extends StatelessWidget {
   final List<String> industries;
   final String? selectedIndustry;
   final ValueChanged<String?> onChanged;
+  final FormFieldValidator<String>? validator;
 
   const _IndustryDropdown({
     required this.industries,
     required this.selectedIndustry,
     required this.onChanged,
+    this.validator,
   });
 
   @override
@@ -225,41 +232,75 @@ class _IndustryDropdown extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 6,),
+        const SizedBox(height: 6),
         Text(
           "Industry Sector",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
 
         const SizedBox(height: 8),
 
-        SizedBox(
-          height: 56,
-          child: DropdownButtonFormField<String>(
-            value: selectedIndustry,
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-            ),
-            items: industries
-                .map(
-                  (e) => DropdownMenuItem(
-                value: e,
-                child: Text(
-                  e,
-                  style: GoogleFonts.poppins(),
-                ),
-              ),
-            )
-                .toList(),
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return FormField<String>(
+              initialValue: selectedIndustry,
+              validator: validator,
+              builder: (FormFieldState<String> fieldState) {
+                return DropdownMenu<String>(
+                  initialSelection: selectedIndustry,
+                  width: constraints.maxWidth,
+                  textStyle: GoogleFonts.poppins(),
+                  hintText: "Select industry",
+                  dropdownMenuEntries: industries.map((String value) {
+                    return DropdownMenuEntry<String>(
+                      value: value,
+                      label: value,
+                      style: MenuItemButton.styleFrom(
+                        textStyle: GoogleFonts.poppins(),
+                      ),
+                    );
+                  }).toList(),
+                  inputDecorationTheme: InputDecorationTheme(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: fieldState.hasError
+                            ? Colors.red
+                            : const Color(0xffCBD5E1),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: fieldState.hasError
+                            ? Colors.red
+                            : const Color(0xffCBD5E1),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: fieldState.hasError
+                            ? Colors.red
+                            : const Color(0xff0F2E8A),
+                        width: 2,
+                      ),
+                    ),
+                    // errorText: fieldState.errorText,
+                    errorStyle: GoogleFonts.poppins(color: Colors.red),
+                  ),
+                  onSelected: (String? value) {
+                    fieldState.didChange(value);
+                    onChanged(value);
+                  },
+                );
+              },
+            );
+          },
         ),
       ],
     );

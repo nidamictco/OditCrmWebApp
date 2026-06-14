@@ -1,9 +1,10 @@
-// lib/feature/permission/cubit/permission_cubit.dart
+﻿// lib/feature/permission/cubit/permission_cubit.dart
 
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/designation/model/designation_model.dart';
+import '../../model/designation_model.dart';
+import '../../../../../../core/constant/firebase_const.dart';
 
 part 'permission_state.dart';
 
@@ -22,8 +23,7 @@ class PermissionCubit extends Cubit<PermissionState> {
     }
     try {
       emit(PermissionLoading());
-      final doc = await FirebaseFirestore.instance
-          .collection('DESIGNATIONS') 
+      final doc = await FirestorePath.companyCollection('DESIGNATIONS')
           .doc(designationId)
           .get();
  

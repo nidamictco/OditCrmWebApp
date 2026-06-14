@@ -14,6 +14,12 @@ class AdminAccountForm extends StatelessWidget {
   final VoidCallback togglePassword;
   final VoidCallback toggleConfirmPassword;
 
+  final FormFieldValidator<String>? adminNameValidator;
+  final FormFieldValidator<String>? emailValidator;
+  final FormFieldValidator<String>? mobileValidator;
+  final FormFieldValidator<String>? passwordValidator;
+  final FormFieldValidator<String>? confirmPasswordValidator;
+
   const AdminAccountForm({
     super.key,
     required this.adminNameController,
@@ -25,6 +31,11 @@ class AdminAccountForm extends StatelessWidget {
     required this.obscureConfirmPassword,
     required this.togglePassword,
     required this.toggleConfirmPassword,
+    this.adminNameValidator,
+    this.emailValidator,
+    this.mobileValidator,
+    this.passwordValidator,
+    this.confirmPasswordValidator,
   });
 
   @override
@@ -36,9 +47,7 @@ class AdminAccountForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xffE2E8F0),
-        ),
+        border: Border.all(color: const Color(0xffE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,10 +64,7 @@ class AdminAccountForm extends StatelessWidget {
 
           Text(
             "Create the primary administrator account for this organization.",
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Color(0xff64748B),
-            ),
+            style: GoogleFonts.poppins(fontSize: 14, color: Color(0xff64748B)),
           ),
 
           const SizedBox(height: 32),
@@ -67,10 +73,9 @@ class AdminAccountForm extends StatelessWidget {
             label: "Administrator Name",
             child: TextFormField(
               controller: adminNameController,
+              validator: adminNameValidator,
               style: GoogleFonts.poppins(),
-              decoration: _inputDecoration(
-                "Enter full name",
-              ),
+              decoration: _inputDecoration("Enter full name"),
             ),
           ),
 
@@ -80,12 +85,10 @@ class AdminAccountForm extends StatelessWidget {
             label: "Administrator Email",
             child: TextFormField(
               controller: emailController,
+              validator: emailValidator,
               style: GoogleFonts.poppins(),
-              keyboardType:
-              TextInputType.emailAddress,
-              decoration: _inputDecoration(
-                "admin@company.com",
-              ),
+              keyboardType: TextInputType.emailAddress,
+              decoration: _inputDecoration("admin@company.com"),
             ),
           ),
 
@@ -95,12 +98,10 @@ class AdminAccountForm extends StatelessWidget {
             label: "Administrator Mobile Number",
             child: TextFormField(
               controller: mobileController,
+              validator: mobileValidator,
               style: GoogleFonts.poppins(),
-              keyboardType:
-              TextInputType.phone,
-              decoration: _inputDecoration(
-                "+91 9876543210",
-              ),
+              keyboardType: TextInputType.phone,
+              decoration: _inputDecoration("+91 9876543210"),
             ),
           ),
 
@@ -110,17 +111,14 @@ class AdminAccountForm extends StatelessWidget {
             label: "Password",
             child: TextFormField(
               controller: passwordController,
+              validator: passwordValidator,
               style: GoogleFonts.poppins(),
               obscureText: obscurePassword,
-              decoration: _inputDecoration(
-                "Create password",
-              ).copyWith(
+              decoration: _inputDecoration("Create password").copyWith(
                 suffixIcon: IconButton(
                   onPressed: togglePassword,
                   icon: Icon(
-                    obscurePassword
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                    obscurePassword ? Icons.visibility_off : Icons.visibility,
                   ),
                 ),
               ),
@@ -132,17 +130,13 @@ class AdminAccountForm extends StatelessWidget {
           _Field(
             label: "Confirm Password",
             child: TextFormField(
-              controller:
-              confirmPasswordController,
+              controller: confirmPasswordController,
+              validator: confirmPasswordValidator,
               style: GoogleFonts.poppins(),
-              obscureText:
-              obscureConfirmPassword,
-              decoration: _inputDecoration(
-                "Confirm password",
-              ).copyWith(
+              obscureText: obscureConfirmPassword,
+              decoration: _inputDecoration("Confirm password").copyWith(
                 suffixIcon: IconButton(
-                  onPressed:
-                  toggleConfirmPassword,
+                  onPressed: toggleConfirmPassword,
                   icon: Icon(
                     obscureConfirmPassword
                         ? Icons.visibility_off
@@ -155,58 +149,50 @@ class AdminAccountForm extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          Text(
-            "Password Strength",
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          // Text(
+          //   "Password Strength",
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 13,
+          //     fontWeight: FontWeight.w600,
+          //   ),
+          // ),
 
-          const SizedBox(height: 10),
+          // const SizedBox(height: 10),
 
-          _PasswordStrengthBar(
-            password: password,
-          ),
+          // _PasswordStrengthBar(
+          //   password: password,
+          // ),
 
-          const SizedBox(height: 10),
+          // const SizedBox(height: 10),
 
-          Text(
-            _passwordStrengthLabel(password),
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: _passwordStrengthColor(
-                password,
-              ),
-            ),
-          ),
+          // Text(
+          //   _passwordStrengthLabel(password),
+          //   style: GoogleFonts.poppins(
+          //     fontWeight: FontWeight.w600,
+          //     color: _passwordStrengthColor(
+          //       password,
+          //     ),
+          //   ),
+          // ),
 
-          const SizedBox(height: 28),
-
+          // const SizedBox(height: 28),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: const Color(0xffF8FAFC),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xffE2E8F0),
-              ),
+              border: Border.all(color: const Color(0xffE2E8F0)),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: Color(0xff0F2E8A),
-                ),
+                const Icon(Icons.info_outline, color: Color(0xff0F2E8A)),
 
                 const SizedBox(width: 12),
 
                 Expanded(
                   child: Text(
                     "The administrator will receive an invitation email after the company is provisioned.",
-                    style: GoogleFonts.poppins(
-                      color: Color(0xff475569),
-                    ),
+                    style: GoogleFonts.poppins(color: Color(0xff475569)),
                   ),
                 ),
               ],
@@ -217,47 +203,29 @@ class AdminAccountForm extends StatelessWidget {
     );
   }
 
-  static InputDecoration _inputDecoration(
-      String hint,
-      ) {
+  static InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
       hintStyle: GoogleFonts.poppins(),
       filled: true,
       fillColor: const Color(0xffF8FAFC),
-      contentPadding:
-      const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xffCBD5E1),
-        ),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xffCBD5E1)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xffCBD5E1),
-        ),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xffCBD5E1)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xff0F2E8A),
-          width: 2,
-        ),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xff0F2E8A), width: 2),
       ),
     );
   }
 
-  static String _passwordStrengthLabel(
-      String password,
-      ) {
+  static String _passwordStrengthLabel(String password) {
     if (password.length < 6) {
       return "Weak";
     }
@@ -269,9 +237,7 @@ class AdminAccountForm extends StatelessWidget {
     return "Strong";
   }
 
-  static Color _passwordStrengthColor(
-      String password,
-      ) {
+  static Color _passwordStrengthColor(String password) {
     if (password.length < 6) {
       return Colors.red;
     }
@@ -288,23 +254,16 @@ class _Field extends StatelessWidget {
   final String label;
   final Widget child;
 
-  const _Field({
-    required this.label,
-    required this.child,
-  });
+  const _Field({required this.label, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
         ),
 
         const SizedBox(height: 8),
@@ -315,13 +274,10 @@ class _Field extends StatelessWidget {
   }
 }
 
-class _PasswordStrengthBar
-    extends StatelessWidget {
+class _PasswordStrengthBar extends StatelessWidget {
   final String password;
 
-  const _PasswordStrengthBar({
-    required this.password,
-  });
+  const _PasswordStrengthBar({required this.password});
 
   @override
   Widget build(BuildContext context) {
@@ -340,15 +296,12 @@ class _PasswordStrengthBar
     }
 
     return ClipRRect(
-      borderRadius:
-      BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10),
       child: LinearProgressIndicator(
         value: value,
         minHeight: 8,
-        backgroundColor:
-        const Color(0xffE2E8F0),
-        valueColor:
-        AlwaysStoppedAnimation(
+        backgroundColor: const Color(0xffE2E8F0),
+        valueColor: AlwaysStoppedAnimation(
           value < .34
               ? Colors.red
               : value < .67

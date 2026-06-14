@@ -158,10 +158,7 @@ class SocialConnectCard extends StatelessWidget {
             ),
             child: Text(
               title,
-              style: AppTextStyle.small(
-                color: Colors.brown,
-                size: 11.sp,
-              ),
+              style: AppTextStyle.small(color: Colors.brown, size: 11.sp),
             ),
           ),
 
@@ -183,7 +180,8 @@ class SocialConnectCard extends StatelessWidget {
                 SizedBox(width: 2.w),
 
                 /// TEXT + BUTTON AREA
-                Expanded( // ✅ IMPORTANT FIX
+                Expanded(
+                  // ✅ IMPORTANT FIX
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -192,7 +190,8 @@ class SocialConnectCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           /// TEXT
-                          Expanded( // ✅ prevents overflow
+                          Expanded(
+                            // ✅ prevents overflow
                             child: Text(
                               "Auto-assign leads to staff and stay ahead of the game",
                               style: AppTextStyle.medium(size: 12.5.sp),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:oxdo/core/utils/dropdown.dart';
@@ -13,8 +13,8 @@ import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_sta
 import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../../../core/theme/app_text_style.dart';
 
 import '../../../../../../core/utils/transfer_lead_alert.dart';
 
@@ -214,20 +214,21 @@ class _TransferLeadsState extends State<TransferLeads> {
     //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
     // );
     result.sort((a, b) {
-  // First sort by priority
-  final priorityCompare =
-      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+      // First sort by priority
+      final priorityCompare = _priorityOrder(
+        a.priority,
+      ).compareTo(_priorityOrder(b.priority));
 
-  if (priorityCompare != 0) {
-    return priorityCompare;
-  }
+      if (priorityCompare != 0) {
+        return priorityCompare;
+      }
 
-  // If priority is same, latest createdAt first
-  final aCreated = a.createdAt ?? DateTime(1970);
-  final bCreated = b.createdAt ?? DateTime(1970);
+      // If priority is same, latest createdAt first
+      final aCreated = a.createdAt ?? DateTime(1970);
+      final bCreated = b.createdAt ?? DateTime(1970);
 
-  return bCreated.compareTo(aCreated);
-});
+      return bCreated.compareTo(aCreated);
+    });
 
     // Entries limit
     // final limit = int.tryParse(_selectedEntries) ?? 10;

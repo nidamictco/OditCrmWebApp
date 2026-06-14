@@ -11,19 +11,21 @@ import '../widgets/payable_receivable_chart.dart';
 import '../widgets/recent_company_table.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  final VoidCallback? onViewAllTap;
+  const DashboardPage({super.key, this.onViewAllTap});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => DashboardCubit()..loadDashboard(),
-      child: const _DashboardView(),
+      child: _DashboardView(onViewAllTap: onViewAllTap),
     );
   }
 }
 
 class _DashboardView extends StatelessWidget {
-  const _DashboardView();
+  final VoidCallback? onViewAllTap;
+  const _DashboardView({this.onViewAllTap});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class _DashboardView extends StatelessWidget {
                           ),
                         );
                       }
-                      return _DashboardContent(state: state);
+                      return _DashboardContent(state: state, onViewAllTap: onViewAllTap);
                     },
                   ),
                 ),
@@ -69,8 +71,9 @@ class _DashboardView extends StatelessWidget {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.state});
+  const _DashboardContent({required this.state, this.onViewAllTap});
   final DashboardState state;
+  final VoidCallback? onViewAllTap;
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +280,8 @@ class _DashboardContent extends StatelessWidget {
           // ── Recent Company Activity table ──────────────────────
           RecentCompanyTable(
             companies: state.companies,
-            onViewAll: () {},
+            cubit: cubit,
+            onViewAll: onViewAllTap,
           ),
           const SizedBox(height: 20),
         ],

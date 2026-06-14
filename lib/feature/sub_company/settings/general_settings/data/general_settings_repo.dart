@@ -61,6 +61,7 @@
 // }
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:oxdo/core/constant/firebase_const.dart';
 import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 class GeneralSettingsRepository {
@@ -72,8 +73,7 @@ class GeneralSettingsRepository {
   final String staffId;
   final FirebaseFirestore _firestore;
 
-  DocumentReference<Map<String, dynamic>> get _docRef => _firestore
-      .collection('STAFF')
+  DocumentReference<Map<String, dynamic>> get _docRef => FirestorePath.companyCollection('STAFF')
       .doc(staffId)
       .collection('settings')
       .doc('general');

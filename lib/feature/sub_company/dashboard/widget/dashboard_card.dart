@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
@@ -126,8 +126,6 @@ class _DashboardCardState extends State<DashboardCard> {
                     break;
                 }
 
-                
-
                 return Text(count, style: AppTextStyle.number(size: 14.sp));
               },
             ),
@@ -139,32 +137,32 @@ class _DashboardCardState extends State<DashboardCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 BlocBuilder<AddLeadCubit, AddLeadState>(
-  builder: (context, state) {
-    return GestureDetector(
-                  onTap: () async {
-                    final user = await SessionService().getSavedUser();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MainScreen(
-                          selectedIndex: 12,
-                          fromCard: widget.fromCard,
-                          staff: user,
-                          selectedDate: state.selectedDashboardDate,
+                  builder: (context, state) {
+                    return GestureDetector(
+                      onTap: () async {
+                        final user = await SessionService().getSavedUser();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MainScreen(
+                              selectedIndex: 12,
+                              fromCard: widget.fromCard,
+                              staff: user,
+                              selectedDate: state.selectedDashboardDate,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "View Details",
+                        style: AppTextStyle.link(
+                          color: AppColors.grey,
+                          decorationColor: AppColors.grey,
                         ),
                       ),
                     );
                   },
-                  child: Text(
-                    "View Details",
-                    style: AppTextStyle.link(
-                      color: AppColors.grey,
-                      decorationColor: AppColors.grey,
-                    ),
-                  ),
-                );
-  },
-),
+                ),
                 BlocBuilder<AddLeadCubit, AddLeadState>(
                   builder: (context, state) {
                     String count = "0";

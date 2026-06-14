@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/utils/popup_msg.dart';
+
 import 'package:sizer/sizer.dart';
 
 import '../../feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
@@ -9,11 +9,11 @@ import '../../feature/sub_company/lead_managment/leads/model/add_lead_model.dart
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'dropdown.dart';
+import 'popup_msg.dart';
 
 // void showAssignStaffDialog(List<AddLeadModel> selectedLeads, BuildContext context, {required Function(String? selectedStaffId, String? selectedStaffName) onSubmit}) {
 //   String? selectedStaffId;
 //   String? selectedStaffName;
-
 
 //   showDialog(
 //     context: context,
@@ -77,11 +77,14 @@ import 'dropdown.dart';
 void showAssignStaffDialog(
   List<AddLeadModel> selectedLeads,
   BuildContext context, {
-  required Function(String? selectedStaffId, String? selectedStaffName) onSubmit,
+  required Function(String? selectedStaffId, String? selectedStaffName)
+  onSubmit,
 }) {
   // ── Pre-populate if all selected leads share the same assigned staff ──
   final firstStaff = selectedLeads.first.assignedStaff;
-  final allSameStaff = selectedLeads.every((l) => l.assignedStaff == firstStaff);
+  final allSameStaff = selectedLeads.every(
+    (l) => l.assignedStaff == firstStaff,
+  );
 
   String? selectedStaffId = allSameStaff
       ? selectedLeads.first.assignedStaffId
@@ -102,7 +105,8 @@ void showAssignStaffDialog(
 
                 // ── Disable transfer if every selected lead already belongs
                 //    to the chosen staff ────────────────────────────────────
-                final isSameAsExisting = selectedStaffName != null &&
+                final isSameAsExisting =
+                    selectedStaffName != null &&
                     selectedLeads.every(
                       (l) => l.assignedStaff == selectedStaffName,
                     );
@@ -134,8 +138,8 @@ void showAssignStaffDialog(
                               selectedStaffName = val;
                               selectedStaffId = val != null
                                   ? staffList
-                                      .firstWhere((s) => s.name == val)
-                                      .id
+                                        .firstWhere((s) => s.name == val)
+                                        .id
                                   : null;
                             });
                           },

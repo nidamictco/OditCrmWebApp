@@ -2,18 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../company_manage/models/company_manage_models.dart';
 import '../../shared/widgets/plan_badge.dart';
-import '../models/dashboard_models.dart';
+// import '../models/dashboard_models.dart';
+import '../cubit/dashboard_cubit.dart';
+import '../../company_manage/widgets/edit_company_dialog.dart';
 
 class RecentCompanyTable extends StatelessWidget {
   const RecentCompanyTable({
     super.key,
     required this.companies,
+    required this.cubit,
     this.onViewAll,
   });
 
   final List<CompanyActivity> companies;
   final VoidCallback? onViewAll;
+  final DashboardCubit cubit;
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +43,11 @@ class RecentCompanyTable extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
             child: Row(
               children: [
-                 Text('Recent Company Activity', style: AppTextStyles.heading2),
+                Text('Recent Company Activity', style: AppTextStyles.heading2),
                 const Spacer(),
                 GestureDetector(
                   onTap: onViewAll,
-                  child:  Text(
+                  child: Text(
                     'View All',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
@@ -60,7 +65,7 @@ class RecentCompanyTable extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:  [
+              children: [
                 SizedBox(
                   width: 40,
                   child: Text('SL', style: AppTextStyles.tableHeader),
@@ -82,12 +87,18 @@ class RecentCompanyTable extends StatelessWidget {
                 SizedBox(
                   // flex: 2,
                   width: 100,
-                  child: Text('SUBSCRIPTION START', style: AppTextStyles.tableHeader),
+                  child: Text(
+                    'SUBSCRIPTION START',
+                    style: AppTextStyles.tableHeader,
+                  ),
                 ),
                 SizedBox(
                   // flex: 2,
                   width: 100,
-                  child: Text('SUBSCRIPTION END', style: AppTextStyles.tableHeader),
+                  child: Text(
+                    'SUBSCRIPTION END',
+                    style: AppTextStyles.tableHeader,
+                  ),
                 ),
                 SizedBox(
                   width: 72,
@@ -107,16 +118,19 @@ class RecentCompanyTable extends StatelessWidget {
           const SizedBox(height: 8),
           const Divider(height: 1, color: AppThemeColors.divider),
           // Rows
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: companies.length,
-            separatorBuilder: (_, __) =>
-                const Divider(height: 1, color: AppThemeColors.divider),
-            itemBuilder: (context, index) {
-              return _CompanyRow(company: companies[index]);
-            },
-          ),
+          if (companies.isEmpty)
+            const _EmptyState()
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: companies.length,
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 1, color: AppThemeColors.divider),
+              itemBuilder: (context, index) {
+                return _CompanyRow(company: companies[index], cubit: cubit);
+              },
+            ),
         ],
       ),
     );
@@ -124,8 +138,9 @@ class RecentCompanyTable extends StatelessWidget {
 }
 
 class _CompanyRow extends StatefulWidget {
-  const _CompanyRow({required this.company});
+  const _CompanyRow({required this.company, required this.cubit});
   final CompanyActivity company;
+  final DashboardCubit cubit;
 
   @override
   State<_CompanyRow> createState() => _CompanyRowState();
@@ -189,7 +204,9 @@ class _CompanyRowState extends State<_CompanyRow> {
               width: 100,
               // flex: 1,
               child: Text(
-                DateFormat('dd MMM yyyy').format(widget.company.subscriptionStartDate),
+                DateFormat(
+                  'dd MMM yyyy',
+                ).format(widget.company.subscriptionStartDate),
                 style: AppTextStyles.tableCell,
               ),
             ),
@@ -197,7 +214,9 @@ class _CompanyRowState extends State<_CompanyRow> {
               width: 100,
               // flex: 1,
               child: Text(
-                DateFormat('dd MMM yyyy').format(widget.company.subscriptionEndDate),
+                DateFormat(
+                  'dd MMM yyyy',
+                ).format(widget.company.subscriptionEndDate),
                 style: AppTextStyles.tableCell,
               ),
             ),
@@ -243,19 +262,78 @@ class _CompanyRowState extends State<_CompanyRow> {
       ),
       Offset.zero & overlay.size,
     );
-    showMenu(
+    showMenu<String>(
       context: context,
       position: position,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      items: const [
-        PopupMenuItem(value: 'view', child: Text('View Details')),
-        PopupMenuItem(value: 'edit', child: Text('Edit')),
+      items: [
+        const PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+              SizedBox(width: 8),
+              Text('Edit', style: TextStyle(fontSize: 13)),
+            ],
+          ),
+        ),
         PopupMenuItem(
-          value: 'suspend',
-          child: Text('Suspend', style: TextStyle(color: Colors.red)),
+          value: 'toggle',
+          child: Row(
+            children: [
+              Icon(
+                widget.company.status == CompanyStatus.suspended
+                    ? Icons.check_circle_outline
+                    : Icons.block_outlined,
+                size: 16,
+                color: widget.company.status == CompanyStatus.suspended
+                    ? Colors.green
+                    : Colors.orange,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.company.status == CompanyStatus.suspended
+                    ? 'Activate'
+                    : 'Suspend',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: widget.company.status == CompanyStatus.suspended
+                      ? Colors.green
+                      : Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Delete', style: TextStyle(fontSize: 13, color: Colors.red)),
+            ],
+          ),
         ),
       ],
-    );
+    ).then((val) {
+      if (!context.mounted) return;
+      if (val == 'edit') {
+        showDialog(
+          context: context,
+          builder: (_) =>
+              EditCompanyDialog(company: widget.company, cubit: widget.cubit),
+        );
+      } else if (val == 'toggle') {
+        if (widget.company.status == CompanyStatus.suspended) {
+          widget.cubit.activateCompany(widget.company.companyId);
+        } else {
+          widget.cubit.suspendCompany(widget.company.companyId);
+        }
+      } else if (val == 'delete') {
+        widget.cubit.deleteCompany(widget.company.companyId);
+      }
+    });
   }
 }
 
@@ -283,3 +361,39 @@ class _CompanyRowState extends State<_CompanyRow> {
 //     );
 //   }
 // }
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 60),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.business_outlined,
+              size: 48,
+              color: AppThemeColors.textMuted,
+            ),
+            SizedBox(height: 12),
+            Text(
+              'No companies found',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: AppThemeColors.textSecondary,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Click "Add Company" in the sidebar to onboard a new organization.',
+              style: TextStyle(fontSize: 13, color: AppThemeColors.textMuted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

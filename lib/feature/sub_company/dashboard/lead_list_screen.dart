@@ -1,4 +1,4 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -279,20 +279,21 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     //       _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority)),
     // );
     result.sort((a, b) {
-  // First sort by priority
-  final priorityCompare =
-      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+      // First sort by priority
+      final priorityCompare = _priorityOrder(
+        a.priority,
+      ).compareTo(_priorityOrder(b.priority));
 
-  if (priorityCompare != 0) {
-    return priorityCompare;
-  }
+      if (priorityCompare != 0) {
+        return priorityCompare;
+      }
 
-  // If priority is same, latest createdAt first
-  final aCreated = a.createdAt ?? DateTime(1970);
-  final bCreated = b.createdAt ?? DateTime(1970);
+      // If priority is same, latest createdAt first
+      final aCreated = a.createdAt ?? DateTime(1970);
+      final bCreated = b.createdAt ?? DateTime(1970);
 
-  return bCreated.compareTo(aCreated);
-});
+      return bCreated.compareTo(aCreated);
+    });
 
     return result;
   }
@@ -1465,7 +1466,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         );
 
         // ── Build columns ──────────────────────────────────────
-        
+
         final columns = [
           TableColumn(title: 'Sl No.', flex: 1),
           TableColumn(title: 'NAME', flex: isNew ? 5 : 3),
@@ -1558,7 +1559,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             ),
             // Status
             SizedBox(child: _StatusBadge(status: lead.leadStage)),
-           
+
             if (!isNew)
               Text(
                 lead.followUpDate != null
@@ -1774,8 +1775,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       },
     );
   }
-
- 
+  
 
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
@@ -1881,10 +1881,16 @@ class _HoverExportButtonState extends State<HoverExportButton> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _item(Icons.table_chart, "Export Excel",
-                        onTap: widget.onExportExcel),
-                    _item(Icons.picture_as_pdf, "Export PDF",
-                        onTap: widget.onExportPDF),
+                    _item(
+                      Icons.table_chart,
+                      "Export Excel",
+                      onTap: widget.onExportExcel,
+                    ),
+                    _item(
+                      Icons.picture_as_pdf,
+                      "Export PDF",
+                      onTap: widget.onExportPDF,
+                    ),
                   ],
                 ),
               ),
@@ -1914,7 +1920,7 @@ class _HoverExportButtonState extends State<HoverExportButton> {
     return InkWell(
       onTap: () {
         _hideOverlay(); // ✅ Close first
-        onTap?.call();  // ✅ Then execute action
+        onTap?.call(); // ✅ Then execute action
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

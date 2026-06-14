@@ -1,26 +1,28 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oxdo/feature/mother_company/company_manage/widgets/company_table.dart';
+import '../widgets/company_table.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/dashboard_topbar.dart';
 import '../cubit/company_manage_cubit.dart';
 import '../models/company_manage_models.dart';
 
 class CompanyManagePage extends StatelessWidget {
-  const CompanyManagePage({super.key});
+  final VoidCallback? onAddCompanyTap;
+  const CompanyManagePage({super.key, this.onAddCompanyTap});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => CompanyManageCubit()..loadCompanies(),
-      child: const _CompanyManageView(),
+      child: _CompanyManageView(onAddCompanyTap: onAddCompanyTap),
     );
   }
 }
 
 class _CompanyManageView extends StatelessWidget {
-  const _CompanyManageView();
+  final VoidCallback? onAddCompanyTap;
+  const _CompanyManageView({this.onAddCompanyTap});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class _CompanyManageView extends StatelessWidget {
             children: [
               const DashboardTopBar(),
               // ── Page header ─────────────────────────────────────
-              _PageHeader(state: state, cubit: cubit),
+              _PageHeader(state: state, cubit: cubit, onAddCompanyTap: onAddCompanyTap),
               // ── Content ─────────────────────────────────────────
               Expanded(
                 child: _buildBody(context, state, cubit),
@@ -99,9 +101,10 @@ class _CompanyManageView extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PageHeader extends StatelessWidget {
-  const _PageHeader({required this.state, required this.cubit});
+  const _PageHeader({required this.state, required this.cubit, this.onAddCompanyTap});
   final CompanyManageState state;
   final CompanyManageCubit cubit;
+  final VoidCallback? onAddCompanyTap;
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +145,13 @@ class _PageHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           // Add New Company button
-          _AddCompanyButton(onTap: () => _showAddDialog(context)),
+          _AddCompanyButton(onTap: () {
+            if (onAddCompanyTap != null) {
+              onAddCompanyTap!();
+            } else {
+              _showAddDialog(context);
+            }
+          }),
         ],
       ),
     );

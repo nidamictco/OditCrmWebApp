@@ -1,12 +1,13 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/auth/data/firebase_auth_service.dart';
-import 'package:oxdo/core/shared_preference/session_service.dart';
+import '../../data/firebase_auth_service.dart';
+import '../../../../core/shared_preference/session_service.dart';
 
 import '../../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import '../../../sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import '../../../sub_company/staff_managment/staff/model/staff_model.dart';
+import '../../../../core/constant/firebase_const.dart';
 
 
 part 'auth_state.dart';
@@ -52,8 +53,14 @@ class AuthCubit extends Cubit<AuthState> {
       final loggedIn = await _sessionService.isLoggedIn();
       if (loggedIn) {
         final user = await _sessionService.getSavedUser();
-        if (user != null) {
+         if (user != null) {
           log('[AuthCubit] Session restored for ${user.email}');
+          
+          if (user.companyId != null && user.companyId!.isNotEmpty) {
+            FirestorePath.initializeCompany(user.companyId!);
+            log('[AuthCubit] Company context restored: ${user.companyId}');
+          }
+          
           // ✅ Restore permissions
           await permissionCubit?.loadPermissions(user.designationId);
           emit(Authenticated(user: user));

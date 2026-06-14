@@ -7,6 +7,7 @@ import '../../shared/widgets/app_sidebar.dart';
 import '../../shared/widgets/dashboard_topbar.dart';
 import '../cubit/add_company_cubit.dart';
 import '../cubit/add_company_state.dart';
+import '../utils/add_company_validator.dart';
 
 import '../repository/add_company_repo.dart';
 
@@ -65,6 +66,9 @@ class _AddCompanyViewState
 
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
+
+  final _step1FormKey = GlobalKey<FormState>();
+  final _step3FormKey = GlobalKey<FormState>();
 
   final List<String> industries = const [
     "Technology & SaaS",
@@ -211,46 +215,57 @@ class _AddCompanyViewState
       ) {
     switch (state.currentStep) {
       case 1:
-        return CompanyInformationStep(
-          companyNameController:
-          companyController,
-          domainController:
-          domainController,
-          selectedIndustry:
-          state.industry.isEmpty
-              ? null
-              : state.industry,
-          industries: industries,
-          logoBytes:
-          state.logoBytes,
+        return Form(
+          key: _step1FormKey,
+          child: CompanyInformationStep(
+            companyNameController:
+            companyController,
+            domainController:
+            domainController,
+            selectedIndustry:
+            state.industry.isEmpty
+                ? null
+                : state.industry,
+            industries: industries,
+            logoBytes:
+            state.logoBytes,
+            companyNameValidator:
+                AddCompanyValidator.validateCompanyName,
+            domainValidator:
+                AddCompanyValidator.validateDomain,
+            industryValidator:
+                AddCompanyValidator.validateIndustry,
 
-          onIndustryChanged:
-              (value) {
-            cubit.updateIndustry(
-              value ?? '',
-            );
-          },
+            onIndustryChanged:
+                (value) {
+              cubit.updateIndustry(
+                value ?? '',
+              );
+            },
 
-          onUploadLogo:
-          cubit.pickLogo,
+            onUploadLogo:
+            cubit.pickLogo,
 
-          onCancel: () {
-            Navigator.pop(
-              context,
-            );
-          },
+            onCancel: () {
+              Navigator.pop(
+                context,
+              );
+            },
 
-          onNext: () {
-            cubit.updateCompanyName(
-              companyController.text,
-            );
+            onNext: () {
+              if (_step1FormKey.currentState!.validate()) {
+                cubit.updateCompanyName(
+                  companyController.text,
+                );
 
-            cubit.updateDomain(
-              domainController.text,
-            );
+                cubit.updateDomain(
+                  domainController.text,
+                );
 
-            cubit.nextStep();
-          },
+                cubit.nextStep();
+              }
+            },
+          ),
         );
 
       case 2:
@@ -293,127 +308,146 @@ class _AddCompanyViewState
         );
 
       case 3:
-        return VerificationStep(
-          adminAccountForm:
-          AdminAccountForm(
-            adminNameController:
-            adminNameController,
+        return Form(
+          key: _step3FormKey,
+          child: VerificationStep(
+            adminAccountForm:
+            AdminAccountForm(
+              adminNameController:
+              adminNameController,
 
-            emailController: adminEmailController,
-            mobileController: adminMobileController,
+              emailController: adminEmailController,
+              mobileController: adminMobileController,
 
-            passwordController:
-            passwordController,
+              passwordController:
+              passwordController,
 
-            confirmPasswordController:
-            confirmPasswordController,
+              confirmPasswordController:
+              confirmPasswordController,
 
-            obscurePassword:
-            obscurePassword,
+              obscurePassword:
+              obscurePassword,
 
-            obscureConfirmPassword:
-            obscureConfirmPassword,
+              obscureConfirmPassword:
+              obscureConfirmPassword,
 
-            togglePassword: () {
-              setState(() {
-                obscurePassword =
-                !obscurePassword;
-              });
-            },
+              togglePassword: () {
+                setState(() {
+                  obscurePassword =
+                  !obscurePassword;
+                });
+              },
 
-            toggleConfirmPassword:
-                () {
-              setState(() {
-                obscureConfirmPassword =
-                !obscureConfirmPassword;
-              });
+              toggleConfirmPassword:
+                  () {
+                setState(() {
+                  obscureConfirmPassword =
+                  !obscureConfirmPassword;
+                });
+              },
+
+              adminNameValidator:
+                  AddCompanyValidator.validateAdminName,
+              emailValidator:
+                  AddCompanyValidator.validateAdminEmail,
+              mobileValidator:
+                  AddCompanyValidator.validateMobile,
+              passwordValidator:
+                  AddCompanyValidator.validatePassword,
+              confirmPasswordValidator: (val) =>
+                  AddCompanyValidator.validateConfirmPassword(
+                password: passwordController.text,
+                confirmPassword: confirmPasswordController.text,
+              ),
+            ),
+
+            enableMfa:
+            state.enableMfa,
+
+            enableAuditLogs:
+            state.enableAuditLogs,
+
+            enableIpRestriction:
+            state.enableIpRestriction,
+
+            sessionTimeout:
+            state.sessionTimeout,
+
+            onMfaChanged:
+            cubit.toggleMfa,
+
+            onAuditChanged:
+            cubit.toggleAudit,
+
+            onIpRestrictionChanged:
+            cubit
+                .toggleIpRestriction,
+
+            onSessionTimeoutChanged:
+            cubit
+                .updateSessionTimeout,
+
+            companyName:
+            state.companyName,
+
+            domain:
+            state.domain,
+
+            industry:
+            state.industry,
+
+            plan:
+            state.selectedPlan.name,
+
+            billingCycle:
+            state.yearlyBilling
+                ? "Yearly"
+                : "Monthly",
+
+            addons: const [],
+
+            adminEmail:
+            adminEmailController.text,
+
+            adminMobile:
+            adminMobileController.text,
+
+            generatedCompanyId:
+            state.generatedCompanyId,
+
+            isCreating:
+            state.isCreating,
+
+            onBack:
+            cubit.previousStep,
+
+            onCreateCompany: () {
+              if (_step3FormKey.currentState!.validate()) {
+                cubit.updateAdminName(
+                  adminNameController.text,
+                );
+
+                cubit.updateAdminEmail(
+                  adminEmailController.text,
+                );
+
+                cubit.updateAdminMobile(
+                  adminMobileController.text,
+                );
+
+                cubit.updatePassword(
+                  passwordController.text,
+                );
+
+                cubit.updateConfirmPassword(
+                  confirmPasswordController
+                      .text,
+                );
+
+                cubit.createCompany();
+              }
             },
           ),
-
-          enableMfa:
-          state.enableMfa,
-
-          enableAuditLogs:
-          state.enableAuditLogs,
-
-          enableIpRestriction:
-          state.enableIpRestriction,
-
-          sessionTimeout:
-          state.sessionTimeout,
-
-          onMfaChanged:
-          cubit.toggleMfa,
-
-          onAuditChanged:
-          cubit.toggleAudit,
-
-          onIpRestrictionChanged:
-          cubit
-              .toggleIpRestriction,
-
-          onSessionTimeoutChanged:
-          cubit
-              .updateSessionTimeout,
-
-          companyName:
-          state.companyName,
-
-          domain:
-          state.domain,
-
-          industry:
-          state.industry,
-
-          plan:
-          state.selectedPlan.name,
-
-          billingCycle:
-          state.yearlyBilling
-              ? "Yearly"
-              : "Monthly",
-
-          addons: const [],
-
-          adminEmail:
-          adminEmailController.text,
-
-          adminMobile:
-          adminMobileController.text,
-
-          generatedCompanyId:
-          state.generatedCompanyId,
-
-          isCreating:
-          state.isCreating,
-
-          onBack:
-          cubit.previousStep,
-
-          onCreateCompany: () {
-            cubit.updateAdminName(
-              adminNameController.text,
-            );
-
-            cubit.updateAdminEmail(
-              adminEmailController.text,
-            );
-
-            cubit.updateAdminMobile(
-              adminEmailController.text,
-            );
-
-            cubit.updatePassword(
-              passwordController.text,
-            );
-
-            cubit.updateConfirmPassword(
-              confirmPasswordController
-                  .text,
-            );
-
-            cubit.createCompany();
-          },
         );
 
       default:

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
+﻿import 'package:flutter/material.dart';
+import '../../../../../core/theme/app_text_style.dart';
 import 'package:sizer/sizer.dart';
 
 class HoverProfileAvatar extends StatefulWidget {

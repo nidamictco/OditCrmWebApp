@@ -1,6 +1,7 @@
 // lib/features/lead_category/data/repositories/lead_category_repository.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:oxdo/core/constant/firebase_const.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
 import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -17,7 +18,7 @@ class LeadCategoryRepository implements ILeadCategoryRepository {
 
   // Firestore collection reference
   CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('LEADS CATEGORY');
+      FirestorePath.companyCollection('LEADS CATEGORY');
 
   LeadCategoryRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;

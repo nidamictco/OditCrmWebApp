@@ -10,171 +10,139 @@ class FirebaseAddCompanyService {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
-  FirebaseAddCompanyService({
-    required this.firestore,
-    required this.storage,
-  });
+  FirebaseAddCompanyService({required this.firestore, required this.storage});
 
-  Future<void> createCompany(
-      AddCompanyState state,
-      ) async {
-    final companyId =
-        state.generatedCompanyId;
+  Future<void> createCompany(AddCompanyState state) async {
+    final companyId = state.generatedCompanyId;
+    final userId = DateTime.now().millisecondsSinceEpoch.toString();
 
     String? logoUrl;
 
     // Upload logo
     if (state.logoBytes != null) {
-      logoUrl = await _uploadLogo(
-        companyId,
-        state.logoBytes!,
-      );
+      logoUrl = await _uploadLogo(companyId, state.logoBytes!);
     }
 
-    // Create admin auth user
+    final now = DateTime.now();
+    final startDate = now;
+    final endDate = state.yearlyBilling
+        ? DateTime(now.year + 1, now.month, now.day)
+        : DateTime(now.year, now.month + 1, now.day);
 
+    final batch = firestore.batch();
 
-    final batch =
-    firestore.batch();
+    final userDoc = firestore.collection("USERS").doc(userId);
+    batch.set(userDoc, {
+      "userId": userId,
+      "name": state.adminName,
+      "email": state.adminEmail,
+      "phone": state.adminMobile,
+      "password": state.password,
+      "companyId": companyId,
+      "companyType": "sub_company",
+      "status": "Active",
+      "createdAt": FieldValue.serverTimestamp(),
+    });
 
-    final companyDoc = firestore
-        .collection("COMPANY")
-        .doc(companyId);
+    final companyDoc = firestore.collection("COMPANY").doc(companyId);
 
-    batch.set(
-      companyDoc,
-      {
-        "companyId": companyId,
+    batch.set(companyDoc, {
+      "companyId": companyId,
 
-        "companyName":
-        state.companyName,
+      "companyName": state.companyName,
 
-        "domain":
-        state.domain,
+      "domain": state.domain,
 
-        "industry":
-        state.industry,
+      "industry": state.industry,
 
-        "logoUrl": logoUrl,
+      "logoUrl": logoUrl,
 
-        "subscriptionPlan":
-        state.selectedPlan.name,
+      "subscriptionPlan": state.selectedPlan.name,
 
-        "yearlyBilling":
-        state.yearlyBilling,
+      "yearlyBilling": state.yearlyBilling,
 
-        // "analyticsAddon":
-        // state.analyticsAddon,
+      "adminName": state.adminName,
 
-        // "supportAddon":
-        // state.supportAddon,
+      "adminEmail": state.adminEmail,
 
-        // "storageAddon":
-        // state.storageAddon,
+      "adminMobile": state.adminMobile,
 
-        "enableMfa":
-        state.enableMfa,
+      "subscriptionStartDate": Timestamp.fromDate(startDate),
 
-        "enableAuditLogs":
-        state.enableAuditLogs,
+      "subscriptionEndDate": Timestamp.fromDate(endDate),
 
-        "enableIpRestriction":
-        state.enableIpRestriction,
+      // "analyticsAddon":
+      // state.analyticsAddon,
 
-        "sessionTimeout":
-        state.sessionTimeout,
+      // "supportAddon":
+      // state.supportAddon,
 
-        "createdAt":
-        FieldValue.serverTimestamp(),
+      // "storageAddon":
+      // state.storageAddon,
+      "enableMfa": state.enableMfa,
 
-        "createdBy":
-        "SUPER_ADMIN",
+      "enableAuditLogs": state.enableAuditLogs,
 
-        "status":
-        "ACTIVE",
-      },
-    );
+      "enableIpRestriction": state.enableIpRestriction,
+
+      "sessionTimeout": state.sessionTimeout,
+
+      "createdAt": FieldValue.serverTimestamp(),
+
+      "createdBy": "SUPER_ADMIN",
+
+      "status": "ACTIVE",
+    });
 
     // Admin
 
     final adminUid = "admin-$companyId";
-    batch.set(
-      companyDoc
-          .collection("staff")
-          .doc(adminUid),
-      {
-        "staffId": adminUid,
-
-        "name":
-        state.adminName,
-
-        "email":
-        state.adminEmail,
-
-        "role":
-        "ADMIN",
-
-        "isActive": true,
-
-        "createdAt":
-        FieldValue.serverTimestamp(),
-      },
-    );
+    batch.set(companyDoc.collection("STAFF").doc(adminUid), {
+      "staffId": adminUid,
+      "name": state.adminName,
+      "email": state.adminEmail,
+      "role": "ADMIN",
+      "isActive": true,
+      "phone": state.adminMobile,
+      "password": state.password,
+      "companyId": companyId,
+      "companyType": "sub_company",
+      "status": "Active",
+      "createdAt": FieldValue.serverTimestamp(),
+    });
 
     // Settings
 
-    batch.set(
-      companyDoc
-          .collection("settings")
-          .doc("general"),
-      {
-        "companyName":
-        state.companyName,
+    batch.set(companyDoc.collection("SETTINGS").doc("general"), {
+      "companyName": state.companyName,
 
-        "domain":
-        state.domain,
+      "domain": state.domain,
 
-        "industry":
-        state.industry,
-      },
-    );
+      "industry": state.industry,
+    });
 
     // Subscription
 
-    batch.set(
-      companyDoc
-          .collection("settings")
-          .doc("subscription"),
-      {
-        "plan":
-        state.selectedPlan.name,
+    batch.set(companyDoc.collection("SETTINGS").doc("subscription"), {
+      "plan": state.selectedPlan.name,
 
-        "yearlyBilling":
-        state.yearlyBilling,
+      "yearlyBilling": state.yearlyBilling,
 
-        // "analyticsAddon":
-        // state.analyticsAddon,
+      // "analyticsAddon":
+      // state.analyticsAddon,
 
-        // "supportAddon":
-        // state.supportAddon,
+      // "supportAddon":
+      // state.supportAddon,
 
-        // "storageAddon":
-        // state.storageAddon,
-      },
-    );
+      // "storageAddon":
+      // state.storageAddon,
+    });
 
     await batch.commit();
   }
 
-  Future<String> _uploadLogo(
-      String companyId,
-      Uint8List bytes,
-      ) async {
-    final ref = storage
-        .ref()
-        .child(
-      "company_logos/$companyId.png",
-    );
+  Future<String> _uploadLogo(String companyId, Uint8List bytes) async {
+    final ref = storage.ref().child("company_logos/$companyId.png");
 
     await ref.putData(bytes);
 

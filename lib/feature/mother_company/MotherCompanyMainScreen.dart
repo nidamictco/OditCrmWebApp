@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/mother_company/shared/enum/mother_company_enum.dart';
-import 'package:oxdo/feature/mother_company/shared/widgets/app_sidebar.dart';
+import 'shared/enum/mother_company_enum.dart';
+import 'shared/widgets/app_sidebar.dart';
 import 'Dashboard/screens/dashboard_page.dart';
 import 'add_company/cubit/add_company_cubit.dart';
 import 'add_company/repository/add_company_repo.dart';
@@ -25,10 +25,22 @@ class _MotherCompanyMainScreenState
   Widget get currentPage {
     switch (selectedPage) {
       case MotherCompanyPage.dashboard:
-        return const DashboardPage();
+        return DashboardPage(
+          onViewAllTap: () {
+            setState(() {
+              selectedPage = MotherCompanyPage.companyManage;
+            });
+          },
+        );
 
       case MotherCompanyPage.companyManage:
-        return const CompanyManagePage();
+        return CompanyManagePage(
+          onAddCompanyTap: () {
+            setState(() {
+              selectedPage = MotherCompanyPage.addCompany;
+            });
+          },
+        );
 
       case MotherCompanyPage.addCompany:
         return const AddCompanyPage();

@@ -1,11 +1,11 @@
-// import 'dart:developer';
+﻿// import 'dart:developer';
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:oxdo/core/theme/app_colors.dart';
-// import 'package:oxdo/feature/auth/cubit/auth_cubit.dart';
-// import 'package:oxdo/feature/auth/screen/login.dart';
-// import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+// import '../../../core/theme/app_colors.dart';
+// import '../cubit/auth_cubit.dart';
+// import 'login.dart';
+// import '../../sub_company/sidebar/main_screen.dart';
 
 // class AuthGate extends StatelessWidget {
 //   const AuthGate({super.key});
@@ -21,7 +21,7 @@
 //             body: Center(child: CircularProgressIndicator()),
 //           );
 //         }
-//         log('log : state : $state'); 
+//         log('log : state : $state');
 //         if (state is Authenticated) {
 //           return const MainScreen();
 //         }
@@ -36,17 +36,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
-import 'package:oxdo/feature/auth/screen/login.dart';
-import 'package:oxdo/feature/mother_company/Dashboard/screens/dashboard_page.dart';
+import '../../../core/theme/app_colors.dart';
+import '../cubit/auth/auth_cubit.dart';
+import 'login.dart';
 
 import '../../mother_company/MotherCompanyMainScreen.dart';
 import '../../sub_company/sidebar/main_screen.dart';
 import '../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 
-
-class AuthGate extends StatefulWidget {   
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
   @override
@@ -76,7 +74,12 @@ class _AuthGateState extends State<AuthGate> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        if (state is Authenticated) return state.user.companyType == 'sub_company' ? const MainScreen() : const MotherCompanyMainScreen();
+        log('log : bbbbbbbbbbb state : $state');
+        if (state is Authenticated) {
+          return state.user.companyType == 'mother_company'
+              ? const MotherCompanyMainScreen()
+              : const MainScreen();
+        }
         return const LoginScreen();
       },
     );

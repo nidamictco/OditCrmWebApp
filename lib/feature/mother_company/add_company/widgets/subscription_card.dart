@@ -37,20 +37,14 @@ class SubscriptionCard extends StatelessWidget {
       width: 320,
       height: 600,
       padding: const EdgeInsets.all(28),
-      transform: Matrix4.identity()
-        ..scale(selected ? 1.03 : 1.0),
+      transform: Matrix4.identity()..scale(selected ? 1.03 : 1.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: borderColor,
-          width: selected ? 2 : 1,
-        ),
+        border: Border.all(color: borderColor, width: selected ? 2 : 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              selected ? .08 : .03,
-            ),
+            color: Colors.black.withOpacity(selected ? .08 : .03),
             blurRadius: selected ? 18 : 10,
             offset: const Offset(0, 6),
           ),
@@ -77,7 +71,7 @@ class SubscriptionCard extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.poppins(
-                  fontSize: 40,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -90,7 +84,7 @@ class SubscriptionCard extends StatelessWidget {
                   Text(
                     "\$${price.toInt()}",
                     style: GoogleFonts.poppins(
-                      fontSize: 54,
+                      fontSize: 34,
                       height: 1,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xff0F2E8A),
@@ -98,10 +92,7 @@ class SubscriptionCard extends StatelessWidget {
                   ),
 
                   Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 8,
-                      left: 4,
-                    ),
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
                     child: Text(
                       "/ month",
                       style: GoogleFonts.poppins(
@@ -116,11 +107,10 @@ class SubscriptionCard extends StatelessWidget {
               const SizedBox(height: 30),
 
               ...features.map(
-                    (feature) => Padding(
+                (feature) => Padding(
                   padding: const EdgeInsets.only(bottom: 18),
                   child: Row(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
                         feature.available
@@ -139,8 +129,7 @@ class SubscriptionCard extends StatelessWidget {
                           feature.title,
                           style: GoogleFonts.poppins(
                             fontSize: 15,
-                            fontWeight:
-                            feature.available
+                            fontWeight: feature.available
                                 ? FontWeight.w500
                                 : FontWeight.w400,
                             color: feature.available
@@ -168,19 +157,14 @@ class SubscriptionCard extends StatelessWidget {
                     foregroundColor: selected
                         ? Colors.white
                         : const Color(0xff0F2E8A),
-                    side: const BorderSide(
-                      color: Color(0xff0F2E8A),
-                    ),
+                    side: const BorderSide(color: Color(0xff0F2E8A)),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
                     "Select $title",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -200,8 +184,7 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xff0F2E8A),
-                    borderRadius:
-                    BorderRadius.circular(50),
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   child: Text(
                     "MOST POPULAR",

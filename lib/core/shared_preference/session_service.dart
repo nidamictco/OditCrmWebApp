@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class SessionService {
   static const _keyIsLoggedIn = 'session_is_logged_in';
@@ -73,24 +74,24 @@ class SessionService {
   //   }
   // }
   Future<StaffModel?> getSavedUser() async {
-  final prefs = await SharedPreferences.getInstance();
-  final raw = prefs.getString(_keyUser);
-  if (raw == null) return null;
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_keyUser);
+    if (raw == null) return null;
 
-  try {
-    final map = jsonDecode(raw) as Map<String, dynamic>;
-    final savedId = prefs.getString(_keyUserId) ?? '';
-     
-    // Inject the saved ID back since toJson() may not include it
-    map['id'] = savedId.isNotEmpty ? savedId : map['id'];
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final savedId = prefs.getString(_keyUserId) ?? '';
 
-    return StaffModel.fromJson(map); // ← use same parser everywhere
-  } catch (e) {
-    log('[SessionService] Corrupt session data, clearing: $e');
-    await clearSession();
-    return null;
+      // Inject the saved ID back since toJson() may not include it
+      map['id'] = savedId.isNotEmpty ? savedId : map['id'];
+
+      return StaffModel.fromJson(map); // ← use same parser everywhere
+    } catch (e) {
+      log('[SessionService] Corrupt session data, clearing: $e');
+      await clearSession();
+      return null;
+    }
   }
-}
 
   /// Firestore [Timestamp] serialises to `{"_seconds": x, "_nanoseconds": y}`
   /// after going through jsonEncode. Handle both that and a raw ISO string.

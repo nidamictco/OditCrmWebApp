@@ -67,10 +67,10 @@ class AddLeadState {
   final DateTime? selectedDashboardDate;
 
   final String profileClosedCount;
-final String profileTotalCalledCount;
-final String profileConnectedCount;
-final String profileNotConnectedCount;
-final bool   isLoadingProfileCounts;
+  final String profileTotalCalledCount;
+  final String profileConnectedCount;
+  final String profileNotConnectedCount;
+  final bool isLoadingProfileCounts;
 
   const AddLeadState({
     this.status = AddLeadStatus.initial,
@@ -162,11 +162,11 @@ final bool   isLoadingProfileCounts;
     DateTime? selectedDashboardDate,
     Map<String, int>? leadChartCounts,
     List<LeadCategoryTableRow>? leadCategoryTableRows,
-    String?  profileClosedCount,
-  String?  profileTotalCalledCount,
-  String?  profileConnectedCount,
-  String?  profileNotConnectedCount,
-  bool?    isLoadingProfileCounts,
+    String? profileClosedCount,
+    String? profileTotalCalledCount,
+    String? profileConnectedCount,
+    String? profileNotConnectedCount,
+    bool? isLoadingProfileCounts,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
     bool clearSuccess = false,
@@ -237,16 +237,17 @@ final bool   isLoadingProfileCounts;
       selectedDashboardDate:
           selectedDashboardDate ?? this.selectedDashboardDate,
       leadChartCounts: leadChartCounts ?? this.leadChartCounts,
-      leadCategoryTableRows: leadCategoryTableRows ?? this.leadCategoryTableRows,
-     profileClosedCount:        profileClosedCount        ?? this.profileClosedCount,
-    profileTotalCalledCount:   profileTotalCalledCount   ?? this.profileTotalCalledCount,
-    profileConnectedCount:     profileConnectedCount     ?? this.profileConnectedCount,
-    profileNotConnectedCount:  profileNotConnectedCount  ?? this.profileNotConnectedCount,
-    isLoadingProfileCounts:    isLoadingProfileCounts    ?? this.isLoadingProfileCounts,
+      leadCategoryTableRows:
+          leadCategoryTableRows ?? this.leadCategoryTableRows,
+      profileClosedCount: profileClosedCount ?? this.profileClosedCount,
+      profileTotalCalledCount:
+          profileTotalCalledCount ?? this.profileTotalCalledCount,
+      profileConnectedCount:
+          profileConnectedCount ?? this.profileConnectedCount,
+      profileNotConnectedCount:
+          profileNotConnectedCount ?? this.profileNotConnectedCount,
+      isLoadingProfileCounts:
+          isLoadingProfileCounts ?? this.isLoadingProfileCounts,
     );
   }
-
-  
 }
-
-

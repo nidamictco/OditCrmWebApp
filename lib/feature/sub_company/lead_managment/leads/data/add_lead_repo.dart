@@ -1,10 +1,11 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
+import '../model/add_lead_model.dart';
+import '../../../../../core/constant/firebase_const.dart';
+import '../../../reports/staff_reports/screen/staff_profile_screen.dart';
 
 import '../../../dashboard/models/dashboard_count_model.dart';
 import '../../follow_up/models/follow_up_activities_model.dart';
@@ -109,9 +110,9 @@ class AddLeadRepository implements IAddLeadRepository {
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('LEADS');
+      FirestorePath.companyCollection('LEADS');
   CollectionReference<Map<String, dynamic>> get _deletedCollection =>
-      _firestore.collection('DELETED_LEADS');
+      FirestorePath.companyCollection('DELETED_LEADS');
 
   String _generateDateId(String prefix) {
     final now = DateTime.now();
@@ -1214,8 +1215,7 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     await Future.wait(
       staffIds.map((id) async {
         try {
-          final doc = await FirebaseFirestore.instance
-              .collection('STAFF')
+          final doc = await FirestorePath.companyCollection('STAFF')
               .doc(id)
               .get();
           phoneMap[id] = doc.data()?['phone'] as String? ?? '';

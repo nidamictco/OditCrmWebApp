@@ -33,29 +33,33 @@ class SortableColumnHeader extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.tableHeader.copyWith(
-              color: _isActive ? AppThemeColors.primary : AppThemeColors.textSecondary,
+              color: _isActive
+                  ? AppThemeColors.primary
+                  : AppThemeColors.textSecondary,
             ),
           ),
           const SizedBox(width: 4),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.arrow_drop_up,
-                size: 14,
-                color: (_isActive && currentSortOrder == SortOrder.asc)
-                    ? AppThemeColors.primary
-                    : AppThemeColors.textMuted,
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 14,
-                color: (_isActive && currentSortOrder == SortOrder.desc)
-                    ? AppThemeColors.primary
-                    : AppThemeColors.textMuted,
-              ),
-            ],
-          ),
+
+          ///sorting arrows..........................
+          // Column(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: [
+          //     Icon(
+          //       Icons.arrow_drop_up,
+          //       size: 14,
+          //       color: (_isActive && currentSortOrder == SortOrder.asc)
+          //           ? AppThemeColors.primary
+          //           : AppThemeColors.textMuted,
+          //     ),
+          //     Icon(
+          //       Icons.arrow_drop_down,
+          //       size: 14,
+          //       color: (_isActive && currentSortOrder == SortOrder.desc)
+          //           ? AppThemeColors.primary
+          //           : AppThemeColors.textMuted,
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

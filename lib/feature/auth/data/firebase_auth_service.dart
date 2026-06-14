@@ -6,17 +6,16 @@ import '../../../core/constant/firebase_collections.dart';
 import '../../../core/constant/firebase_const.dart';
 import '../../sub_company/staff_managment/staff/model/staff_model.dart';
 
-
 class FirebaseAuthService {
   FirebaseAuthService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
 
   // CollectionReference<Map<String, dynamic>> get _staff =>
   //     _firestore.collection('STAFF');
 
-  CollectionReference<Map<String, dynamic>> get _staff =>
+  CollectionReference<Map<String, dynamic>> get staff =>
       FirestorePath.companyCollection(DBCollections.staff);
 
   static CollectionReference<Map<String, dynamic>> get users =>
@@ -44,7 +43,15 @@ class FirebaseAuthService {
           throw AuthException('Incorrect password.');
         }
 
-        return StaffModel.fromFirestore(doc);
+        final userModel = StaffModel.fromFirestore(doc);
+        if (userModel.companyId != null && userModel.companyId!.isNotEmpty) {
+          FirestorePath.initializeCompany(userModel.companyId!);
+          log(
+            'Company initialized from USERS document: ${userModel.companyId}',
+          );
+        }
+
+        return userModel;
       }
 
       // ====================================================
@@ -72,7 +79,11 @@ class FirebaseAuthService {
       // 3. EXTRACT COMPANY ID
       // ====================================================
 
-      final companyId = doc.reference.parent.parent!.id;
+      final segments = doc.reference.path.split('/');
+      if (segments.length < 2 || segments[0] != 'COMPANY') {
+        throw AuthException('Invalid company document structure.');
+      }
+      final companyId = segments[1];
 
       FirestorePath.initializeCompany(companyId);
 
@@ -131,8 +142,6 @@ class FirebaseAuthService {
   //     throw AuthException('Unexpected error: $e');
   //   }
   // }
-
-
 }
 
 class AuthException implements Exception {

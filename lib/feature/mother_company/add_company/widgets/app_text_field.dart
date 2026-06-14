@@ -6,6 +6,7 @@ class AppTextField extends StatelessWidget {
   final String label;
   final String hint;
   final TextInputType? keyboardType;
+  final FormFieldValidator<String>? validator;
 
   const AppTextField({
     super.key,
@@ -13,6 +14,7 @@ class AppTextField extends StatelessWidget {
     required this.label,
     required this.hint,
     this.keyboardType,
+    this.validator,
   });
 
   @override
@@ -30,31 +32,30 @@ class AppTextField extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        SizedBox(
-          height: 56,
-          child: TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            style: GoogleFonts.poppins(),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: GoogleFonts.poppins(),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          validator: validator,
+          style: GoogleFonts.poppins(),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xffCBD5E1),
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xffCBD5E1),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xffCBD5E1),
-                ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xffCBD5E1),
               ),
             ),
           ),
