@@ -7,14 +7,14 @@ import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:oxdo/feature/auth/screen/login.dart';
-import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/notification/cubit/notification_cubit.dart';
-import 'package:oxdo/feature/notification/cubit/notification_state.dart';
-import 'package:oxdo/feature/sidebar/main_screen.dart';
-import 'package:oxdo/feature/sidebar/widget/hover/hover_icon.dart';
-import 'package:oxdo/feature/staff_managment/designation/cubit/cubit/permission_cubit.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/sub_company/notification/cubit/notification_cubit.dart';
+import 'package:oxdo/feature/sub_company/notification/cubit/notification_state.dart';
+import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+import 'package:oxdo/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class TopBar extends StatefulWidget {

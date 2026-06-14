@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
-import 'package:oxdo/feature/lead_managment/follow_up/models/follow_up_activities_model.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/follow_up/models/follow_up_activities_model.dart';
 
 class RecentActivityItem {
   final String name;

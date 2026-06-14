@@ -8,8 +8,8 @@
 //   Document   : "VOXBAY"    →  { entries: [ {…}, … ] }
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
-import 'package:oxdo/feature/rightside_menu/call_settings.dart/model/voxbay_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
 
 
 class CallSettingsRepository {

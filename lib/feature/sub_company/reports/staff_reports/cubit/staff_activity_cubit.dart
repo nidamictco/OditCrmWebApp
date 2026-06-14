@@ -1,7 +1,7 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/lead_managment/follow_up/data/activity_repo.dart';
-import 'package:oxdo/feature/reports/staff_reports/cubit/staff_activity_state.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/follow_up/data/activity_repo.dart';
+import 'package:oxdo/feature/sub_company/reports/staff_reports/cubit/staff_activity_state.dart';
 
 class StaffActivityCubit extends Cubit<StaffActivityState> {
   final ActivityRepository _repo;

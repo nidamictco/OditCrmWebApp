@@ -2,7 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/rightside_menu/lead_category/data/lead_category_repository.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/data/lead_category_repository.dart';
 import 'lead_category_state.dart';
 
 class LeadCategoryCubit extends Cubit<LeadCategoryState> {

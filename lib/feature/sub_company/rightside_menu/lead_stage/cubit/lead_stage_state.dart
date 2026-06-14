@@ -1,7 +1,7 @@
 // lib/features/lead_category/presentation/cubit/lead_category_state.dart
 
 import 'package:equatable/equatable.dart';
-import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 
 enum LeadStageStatus { initial, loading, success, failure }
 

@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
-import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
-import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 abstract class IImportLeadsRepository {
   Future<List<LeadsModel>> fetchCategories();

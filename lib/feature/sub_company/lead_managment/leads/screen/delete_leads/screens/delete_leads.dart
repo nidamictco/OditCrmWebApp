@@ -10,9 +10,9 @@ import 'package:oxdo/core/utils/page_button.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:oxdo/feature/lead_managment/leads/cubit/add_lead_state.dart';
-import 'package:oxdo/feature/lead_managment/leads/model/add_lead_model.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 class DeleteLeads extends StatefulWidget {

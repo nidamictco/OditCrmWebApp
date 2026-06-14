@@ -3,13 +3,13 @@
 
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:oxdo/core/shared_preference/session_service.dart';
-// import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
-// import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
-// import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
-// import 'package:oxdo/feature/notification/data/notification_repo.dart';
-// import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
-// import 'package:oxdo/feature/settings/general_settings/data/general_settings_repo.dart';
-// import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/data/import_lead_repo.dart';
+// import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
+// import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
+// import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+// import 'package:oxdo/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
+// import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 // class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 //   final IImportLeadsRepository _repository;
@@ -363,12 +363,12 @@ import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/shared_preference/session_service.dart';
-import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_state.dart';
-import 'package:oxdo/feature/lead_managment/import_leads/data/import_lead_repo.dart';
-import 'package:oxdo/feature/lead_managment/import_leads/model/import_leads_model.dart';
-import 'package:oxdo/feature/notification/data/notification_repo.dart';
-import 'package:oxdo/feature/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/staff_managment/staff/model/staff_model.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/import_leads/data/import_lead_repo.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
+import 'package:oxdo/feature/sub_company/notification/data/notification_repo.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;

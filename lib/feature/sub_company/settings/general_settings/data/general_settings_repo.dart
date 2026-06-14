@@ -1,5 +1,5 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
+// import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 // class GeneralSettingsRepository {
 //   GeneralSettingsRepository({
@@ -61,7 +61,7 @@
 // }
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/feature/settings/general_settings/model/general_settings_model.dart';
+import 'package:oxdo/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 class GeneralSettingsRepository {
   GeneralSettingsRepository({

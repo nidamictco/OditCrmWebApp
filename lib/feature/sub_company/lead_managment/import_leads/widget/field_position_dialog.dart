@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oxdo/core/theme/app_colors.dart';
 import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/feature/lead_managment/import_leads/cubit/import_lead_cubit.dart';
+import 'package:oxdo/feature/sub_company/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 /// Dialog that lets the user configure which CSV column index maps to which

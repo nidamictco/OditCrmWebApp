@@ -5,10 +5,10 @@ import 'package:oxdo/core/theme/app_text_style.dart';
 import 'package:oxdo/core/utils/show_entries.dart';
 import 'package:oxdo/core/utils/table.dart';
 import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/rightside_menu/custom_field_settings/cubit/custom_field_cubit.dart';
-import 'package:oxdo/feature/rightside_menu/custom_field_settings/cubit/custom_field_state.dart';
-import 'package:oxdo/feature/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
-import 'package:oxdo/feature/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/cubit/custom_field_cubit.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/cubit/custom_field_state.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
+import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 import 'package:sizer/sizer.dart';
 
 class AdditionalFieldsSection extends StatefulWidget {
