@@ -1,4 +1,4 @@
-﻿// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // repositories/call_settings_repository.dart
 // ─────────────────────────────────────────────────────────────────────────────
 //
@@ -8,9 +8,9 @@
 //   Document   : "VOXBAY"    →  { entries: [ {…}, … ] }
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:oxdo/core/constant/firebase_const.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
+import 'package:Odit_CRM/core/constant/firebase_const.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
 
 
 

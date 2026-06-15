@@ -1,8 +1,8 @@
-import 'package:oxdo/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:oxdo/feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
-import 'package:oxdo/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
 

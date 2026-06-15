@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/utils/page_button.dart';
 import '../../../../../core/utils/show_entries.dart';
@@ -6,11 +6,11 @@ import '../../../../../core/utils/table.dart';
 import '../../../../../core/utils/top_bread_crumb_bar.dart';
 import '../../../../../core/utils/popup_msg.dart';
 import 'package:sizer/sizer.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_state.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 
 class LeadCategory extends StatefulWidget {
   const LeadCategory({super.key});

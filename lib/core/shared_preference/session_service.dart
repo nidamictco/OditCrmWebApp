@@ -22,10 +22,8 @@ class SessionService {
 
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyIsLoggedIn);
-    await prefs.remove(_keyUser);
-    await prefs.remove(_keyUserId);
-    log('[SessionService] Session cleared');
+    await prefs.clear();
+    log('[SessionService] Session cleared and all shared preferences cleared');
   }
 
   Future<bool> isLoggedIn() async {

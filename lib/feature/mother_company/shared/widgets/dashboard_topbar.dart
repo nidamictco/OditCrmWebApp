@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/cubit/auth/auth_cubit.dart';
 
 class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const DashboardTopBar({super.key});
+  const DashboardTopBar({
+    super.key,
+    required this.screen,
+    this.onSearchChanged,
+    this.searchHint = 'Global search',
+    this.searchController,
+  });
+
+  final ValueChanged<String>? onSearchChanged;
+  final String screen;
+  final String searchHint;
+  final TextEditingController? searchController;
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -21,78 +34,117 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
       child: Row(
         children: [
           // Search
-          Expanded(
-            child: Container(
-              height: 38,
-              constraints: const BoxConstraints(maxWidth: 400),
-              decoration: BoxDecoration(
-                color: AppThemeColors.scaffoldBg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppThemeColors.borderLight),
-              ),
-              child: const TextField(
-                style: TextStyle(fontSize: 13, color: AppThemeColors.textPrimary),
-                decoration: InputDecoration(
-                  hintText: 'Global search',
-                  hintStyle: TextStyle(
+          if (screen != "addCompany")
+            Expanded(
+              child: Container(
+                height: 38,
+                constraints: const BoxConstraints(maxWidth: 400),
+                decoration: BoxDecoration(
+                  color: AppThemeColors.scaffoldBg,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppThemeColors.borderLight),
+                ),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: onSearchChanged,
+                  style: const TextStyle(
                     fontSize: 13,
-                    color: AppThemeColors.textMuted,
+                    color: AppThemeColors.textPrimary,
                   ),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    size: 18,
-                    color: AppThemeColors.textMuted,
+                  decoration: InputDecoration(
+                    hintText: searchHint,
+                    hintStyle: const TextStyle(
+                      fontSize: 13,
+                      color: AppThemeColors.textMuted,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 18,
+                      color: AppThemeColors.textMuted,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
             ),
-          ),
           const Spacer(),
           // Actions
-          _IconBtn(icon: Icons.settings_outlined, onTap: () {}),
-          const SizedBox(width: 4),
-          _IconBtn(icon: Icons.notifications_none_rounded, onTap: () {}, badge: true),
+          // _IconBtn(icon: Icons.settings_outlined, onTap: () {}),
+          // const SizedBox(width: 4),
+          _IconBtn(
+            icon: Icons.notifications_none_rounded,
+            onTap: () {},
+            badge: true,
+          ),
           const SizedBox(width: 16),
           // User
-          Row(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  Text(
-                    'Ismail CT',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppThemeColors.textPrimary,
-                    ),
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              String name = 'Ismail CT';
+              String role = 'Super Admin';
+              String initials = 'IC';
+              String? imageUrl;
+
+              if (state is Authenticated) {
+                name = state.user.name;
+                role = state.user.designation ?? 'Super Admin';
+                imageUrl = state.user.imageUrl;
+
+                final nameParts = name.trim().split(RegExp(r'\s+'));
+                if (nameParts.length >= 2) {
+                  initials = (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+                } else if (nameParts.isNotEmpty && nameParts[0].isNotEmpty) {
+                  initials = nameParts[0][0].toUpperCase();
+                } else {
+                  initials = 'IC';
+                }
+              }
+
+              return Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppThemeColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        role,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppThemeColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Super Admin',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppThemeColors.textSecondary,
-                    ),
+                  const SizedBox(width: 10),
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppThemeColors.primary,
+                    backgroundImage: imageUrl != null && imageUrl.isNotEmpty
+                        ? NetworkImage(imageUrl)
+                        : null,
+                    child: imageUrl != null && imageUrl.isNotEmpty
+                        ? null
+                        : Text(
+                            initials,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                   ),
                 ],
-              ),
-              const SizedBox(width: 10),
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppThemeColors.primary,
-                child: const Text(
-                  'IC',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ],
       ),

@@ -1,10 +1,10 @@
-﻿// lib/features/lead_category/presentation/cubit/lead_category_cubit.dart
+// lib/features/lead_category/presentation/cubit/lead_category_cubit.dart
 
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_category/data/lead_category_repository.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_state.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/lead_source/data/lead_source_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/data/lead_category_repository.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/data/lead_source_repo.dart';
 
 class LeadSourceCubit extends Cubit<LeadSourceState> {
   final ILeadSourceRepository _repository;

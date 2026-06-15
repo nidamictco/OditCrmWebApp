@@ -71,6 +71,12 @@ class DashboardCubit extends Cubit<DashboardState> {
       final totalSnapshot = await firestore.collection('COMPANY').get();
       final totalCompanies = totalSnapshot.docs.length;
 
+      final activeCompanies = totalSnapshot.docs.where((doc) {
+        final data = doc.data();
+        final statusStr = data['status'] as String? ?? 'PENDING';
+        return statusStr.toUpperCase() == 'ACTIVE';
+      }).length;
+
       final cashFlow = _generateCashFlowData();
 
       emit(
@@ -78,7 +84,10 @@ class DashboardCubit extends Cubit<DashboardState> {
           status: DashboardStatus.loaded,
           cashFlowData: cashFlow,
           companies: companies,
-          stats: DashboardStats(totalCompanies: totalCompanies),
+          stats: DashboardStats(
+            totalCompanies: totalCompanies,
+            activeCompanies: activeCompanies,
+          ),
         ),
       );
     } catch (e) {
@@ -109,6 +118,10 @@ class DashboardCubit extends Cubit<DashboardState> {
       default:
         return CompanyStatus.pending;
     }
+  }
+
+  void updateSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
   }
 
   void changeOverviewFilter(DateFilter filter) {

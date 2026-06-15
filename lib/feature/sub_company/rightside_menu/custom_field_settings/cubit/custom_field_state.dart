@@ -1,4 +1,4 @@
-import 'package:oxdo/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 enum AdditionalFieldsStatus { initial, loading, success, failure }
 
 class AdditionalFieldsState {

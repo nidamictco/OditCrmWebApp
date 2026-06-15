@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/feature/sub_company/sidebar/main_screen.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../feature/sub_company/sidebar/main_screen.dart';

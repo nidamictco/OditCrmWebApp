@@ -30,6 +30,7 @@ class DashboardState extends Equatable {
     this.companies = const [],
     this.selectedCashFlowIndex,
     this.error,
+    this.searchQuery = '',
   });
 
   final DashboardStatus status;
@@ -41,6 +42,7 @@ class DashboardState extends Equatable {
   final List<CompanyActivity> companies;
   final int? selectedCashFlowIndex;
   final String? error;
+  final String searchQuery;
 
   DashboardState copyWith({
     DashboardStatus? status,
@@ -53,6 +55,7 @@ class DashboardState extends Equatable {
     int? selectedCashFlowIndex,
     String? error,
     bool clearSelectedIndex = false,
+    String? searchQuery,
   }) {
     return DashboardState(
       status: status ?? this.status,
@@ -65,6 +68,7 @@ class DashboardState extends Equatable {
       selectedCashFlowIndex:
           clearSelectedIndex ? null : (selectedCashFlowIndex ?? this.selectedCashFlowIndex),
       error: error ?? this.error,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 
@@ -79,6 +83,7 @@ class DashboardState extends Equatable {
         companies,
         selectedCashFlowIndex,
         error,
+        searchQuery,
       ];
 }
 
@@ -86,7 +91,7 @@ class DashboardStats extends Equatable {
   const DashboardStats({
     this.totalCompanies = 1276,
     this.companiesGrowth = 12.5,
-    this.activeLeads = 8,
+    this.activeCompanies = 8,
     this.leadsGrowth = 12.5,
     this.staffMembers = 890,
     this.staffStatus = 'Stables',
@@ -98,7 +103,7 @@ class DashboardStats extends Equatable {
 
   final int totalCompanies;
   final double companiesGrowth;
-  final int activeLeads;
+  final int activeCompanies;
   final double leadsGrowth;
   final int staffMembers;
   final String staffStatus;
@@ -111,7 +116,7 @@ class DashboardStats extends Equatable {
   List<Object?> get props => [
         totalCompanies,
         companiesGrowth,
-        activeLeads,
+        activeCompanies,
         leadsGrowth,
         staffMembers,
         staffStatus,

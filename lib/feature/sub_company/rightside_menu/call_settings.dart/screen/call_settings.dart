@@ -1,12 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oxdo/core/theme/app_colors.dart';
-import 'package:oxdo/core/theme/app_text_style.dart';
-import 'package:oxdo/core/utils/table.dart';
-import 'package:oxdo/core/utils/top_bread_crumb_bar.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/data/call_settings_repo.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
-import 'package:oxdo/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/utils/table.dart';
+import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/call_settings.dart/data/call_settings_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/call_settings.dart/model/bonvoice_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/call_settings.dart/model/voxbay_model.dart';
 import 'package:sizer/sizer.dart';
 
 import '../cubit/call_settings_cubit.dart';

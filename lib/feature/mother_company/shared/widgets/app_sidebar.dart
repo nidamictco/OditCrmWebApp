@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../Dashboard/screens/dashboard_page.dart';
 import '../enum/mother_company_enum.dart';
-
+import '../../../auth/cubit/auth/auth_cubit.dart';
+import '../../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 
 class _SidebarItem {
   const _SidebarItem({
@@ -28,7 +30,7 @@ class AppSidebar extends StatelessWidget {
   final MotherCompanyPage selectedPage;
   final ValueChanged<MotherCompanyPage> onPageChanged;
 
-  static  final List<_SidebarItem> _items = [
+  static final List<_SidebarItem> _items = [
     const _SidebarItem(
       icon: Icons.dashboard_rounded,
       label: 'Dashboard',
@@ -43,7 +45,7 @@ class AppSidebar extends StatelessWidget {
       label: "Add Company",
       icon: Icons.add_business,
       page: MotherCompanyPage.addCompany,
-    )
+    ),
     // const _SidebarItem(
     //   icon: Icons.settings_rounded,
     //   label: 'System Setting',
@@ -93,7 +95,7 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                 Text(
+                Text(
                   'Odit-crm',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
@@ -122,55 +124,105 @@ class AppSidebar extends StatelessWidget {
             ),
           ),
           // Bottom user hint
-          Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppThemeColors.scaffoldBg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppThemeColors.primary,
-                  child: const Text(
-                    'IC',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+          GestureDetector(
+            onTap: () => _showLogoutDialog(context),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
+
+              decoration: BoxDecoration(
+                color: AppThemeColors.scaffoldBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppThemeColors.borderLight, width: 1),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppThemeColors.primary,
+                      child: Image.asset("assets/icon/logout.png", scale: 2),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ismail CT',
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Logout',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppThemeColors.textPrimary,
                         ),
                       ),
-                      Text(
-                        'Super Admin',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppThemeColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Confirm Logout',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: AppThemeColors.textPrimary,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to log out of your account?',
+            style: GoogleFonts.poppins(color: AppThemeColors.textSecondary),
+          ),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: AppThemeColors.textSecondary,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                context.read<AuthCubit>().logout(
+                  permissionCubit: context.read<PermissionCubit>(),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppThemeColors.statusSuspended,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Log Out',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -210,14 +262,21 @@ class _SidebarNavItem extends StatelessWidget {
             color: Colors.white,
             size: 18,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 2,
+          ),
           visualDensity: VisualDensity.compact,
         ),
       );
     }
     return ListTile(
       dense: true,
-      leading: Icon(item.icon, color: AppThemeColors.sidebarInactiveText, size: 20),
+      leading: Icon(
+        item.icon,
+        color: AppThemeColors.sidebarInactiveText,
+        size: 20,
+      ),
       title: Text(
         item.label,
         style: const TextStyle(

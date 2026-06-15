@@ -40,6 +40,7 @@ class FirebaseAddCompanyService {
       "password": state.password,
       "companyId": companyId,
       "companyType": "sub_company",
+      'staffType': 'Admin',
       "status": "Active",
       "createdAt": FieldValue.serverTimestamp(),
     });
@@ -101,7 +102,7 @@ class FirebaseAddCompanyService {
       "staffId": adminUid,
       "name": state.adminName,
       "email": state.adminEmail,
-      "role": "ADMIN",
+      "staffType": "Admin",
       "isActive": true,
       "phone": state.adminMobile,
       "password": state.password,

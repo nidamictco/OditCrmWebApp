@@ -48,12 +48,10 @@ class _AddCompanyView extends StatefulWidget {
   const _AddCompanyView();
 
   @override
-  State<_AddCompanyView> createState() =>
-      _AddCompanyViewState();
+  State<_AddCompanyView> createState() => _AddCompanyViewState();
 }
 
-class _AddCompanyViewState
-    extends State<_AddCompanyView> {
+class _AddCompanyViewState extends State<_AddCompanyView> {
   late TextEditingController companyController;
   late TextEditingController domainController;
 
@@ -85,26 +83,19 @@ class _AddCompanyViewState
   void initState() {
     super.initState();
 
-    companyController =
-        TextEditingController();
+    companyController = TextEditingController();
 
-    domainController =
-        TextEditingController();
+    domainController = TextEditingController();
 
-    adminNameController =
-        TextEditingController();
+    adminNameController = TextEditingController();
 
-    adminEmailController =
-        TextEditingController();
+    adminEmailController = TextEditingController();
 
-    adminMobileController =
-        TextEditingController();
+    adminMobileController = TextEditingController();
 
-    passwordController =
-        TextEditingController();
+    passwordController = TextEditingController();
 
-    confirmPasswordController =
-        TextEditingController();
+    confirmPasswordController = TextEditingController();
   }
 
   @override
@@ -124,21 +115,16 @@ class _AddCompanyViewState
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<
-        AddCompanyCubit,
-        AddCompanyState>(
+    return BlocConsumer<AddCompanyCubit, AddCompanyState>(
       listener: (context, state) {
         if (state.companyCreated) {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (_) =>
-                CompanyCreatedDialog(
-                  companyId:
-                  state.generatedCompanyId,
-                  adminMobile:
-                  state.adminMobile,
-                ),
+            builder: (_) => CompanyCreatedDialog(
+              companyId: state.generatedCompanyId,
+              adminMobile: state.adminMobile,
+            ),
           );
         }
       },
@@ -146,55 +132,34 @@ class _AddCompanyViewState
         final cubit = context.read<AddCompanyCubit>();
 
         return Scaffold(
-          backgroundColor:
-          AppThemeColors.scaffoldBg,
+          backgroundColor: AppThemeColors.scaffoldBg,
           body: Column(
             children: [
-              const DashboardTopBar(),
+              const DashboardTopBar(screen: 'addCompany'),
 
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(28,),
+                  padding: const EdgeInsets.all(28),
                   child: Center(
-                    child:
-                    ConstrainedBox(
-                      constraints:
-                      const BoxConstraints(
-                        maxWidth: 1500,
-                      ),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1500),
                       child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const PageHeader(
-                            breadcrumb:
-                            "Company Management > Add New Company",
-                            title:
-                            "Onboard New Organization",
+                            breadcrumb: "Company Management > Add New Company",
+                            title: "Onboard New Organization",
                             subtitle:
-                            "Initialize a new company instance and configure its subscription.",
+                                "Initialize a new company instance and configure its subscription.",
                           ),
 
-                          const SizedBox(
-                            height: 32,
-                          ),
+                          const SizedBox(height: 32),
 
-                          OnboardingStepper(
-                            currentStep:
-                            state
-                                .currentStep,
-                          ),
+                          OnboardingStepper(currentStep: state.currentStep),
 
-                          const SizedBox(
-                            height: 40,
-                          ),
+                          const SizedBox(height: 40),
 
-                          _buildStep(
-                            context,
-                            cubit,
-                            state,
-                          ),
+                          _buildStep(context, cubit, state),
                         ],
                       ),
                     ),
@@ -209,58 +174,39 @@ class _AddCompanyViewState
   }
 
   Widget _buildStep(
-      BuildContext context,
-      AddCompanyCubit cubit,
-      AddCompanyState state,
-      ) {
+    BuildContext context,
+    AddCompanyCubit cubit,
+    AddCompanyState state,
+  ) {
     switch (state.currentStep) {
       case 1:
         return Form(
           key: _step1FormKey,
           child: CompanyInformationStep(
-            companyNameController:
-            companyController,
-            domainController:
-            domainController,
-            selectedIndustry:
-            state.industry.isEmpty
-                ? null
-                : state.industry,
+            companyNameController: companyController,
+            domainController: domainController,
+            selectedIndustry: state.industry.isEmpty ? null : state.industry,
             industries: industries,
-            logoBytes:
-            state.logoBytes,
-            companyNameValidator:
-                AddCompanyValidator.validateCompanyName,
-            domainValidator:
-                AddCompanyValidator.validateDomain,
-            industryValidator:
-                AddCompanyValidator.validateIndustry,
+            logoBytes: state.logoBytes,
+            companyNameValidator: AddCompanyValidator.validateCompanyName,
+            domainValidator: AddCompanyValidator.validateDomain,
+            industryValidator: AddCompanyValidator.validateIndustry,
 
-            onIndustryChanged:
-                (value) {
-              cubit.updateIndustry(
-                value ?? '',
-              );
+            onIndustryChanged: (value) {
+              cubit.updateIndustry(value ?? '');
             },
 
-            onUploadLogo:
-            cubit.pickLogo,
+            onUploadLogo: cubit.pickLogo,
 
             onCancel: () {
-              Navigator.pop(
-                context,
-              );
+              Navigator.pop(context);
             },
 
             onNext: () {
               if (_step1FormKey.currentState!.validate()) {
-                cubit.updateCompanyName(
-                  companyController.text,
-                );
+                cubit.updateCompanyName(companyController.text);
 
-                cubit.updateDomain(
-                  domainController.text,
-                );
+                cubit.updateDomain(domainController.text);
 
                 cubit.nextStep();
               }
@@ -270,11 +216,9 @@ class _AddCompanyViewState
 
       case 2:
         return SubscriptionStep(
-          yearlyBilling:
-          state.yearlyBilling,
+          yearlyBilling: state.yearlyBilling,
 
-          selectedPlan:
-          state.selectedPlan,
+          selectedPlan: state.selectedPlan,
 
           // analyticsAddon:
           // state.analyticsAddon,
@@ -284,12 +228,9 @@ class _AddCompanyViewState
 
           // storageAddon:
           // state.storageAddon,
+          onBillingChanged: cubit.changeBilling,
 
-          onBillingChanged:
-          cubit.changeBilling,
-
-          onPlanSelected:
-          cubit.selectPlan,
+          onPlanSelected: cubit.selectPlan,
 
           // onAnalyticsToggle:
           // cubit.toggleAnalytics,
@@ -299,150 +240,101 @@ class _AddCompanyViewState
 
           // onStorageToggle:
           // cubit.toggleStorage,
+          onBack: cubit.previousStep,
 
-          onBack:
-          cubit.previousStep,
-
-          onNext:
-          cubit.nextStep,
+          onNext: cubit.nextStep,
         );
 
       case 3:
         return Form(
           key: _step3FormKey,
           child: VerificationStep(
-            adminAccountForm:
-            AdminAccountForm(
-              adminNameController:
-              adminNameController,
+            adminAccountForm: AdminAccountForm(
+              adminNameController: adminNameController,
 
               emailController: adminEmailController,
               mobileController: adminMobileController,
 
-              passwordController:
-              passwordController,
+              passwordController: passwordController,
 
-              confirmPasswordController:
-              confirmPasswordController,
+              confirmPasswordController: confirmPasswordController,
 
-              obscurePassword:
-              obscurePassword,
+              obscurePassword: obscurePassword,
 
-              obscureConfirmPassword:
-              obscureConfirmPassword,
+              obscureConfirmPassword: obscureConfirmPassword,
 
               togglePassword: () {
                 setState(() {
-                  obscurePassword =
-                  !obscurePassword;
+                  obscurePassword = !obscurePassword;
                 });
               },
 
-              toggleConfirmPassword:
-                  () {
+              toggleConfirmPassword: () {
                 setState(() {
-                  obscureConfirmPassword =
-                  !obscureConfirmPassword;
+                  obscureConfirmPassword = !obscureConfirmPassword;
                 });
               },
 
-              adminNameValidator:
-                  AddCompanyValidator.validateAdminName,
-              emailValidator:
-                  AddCompanyValidator.validateAdminEmail,
-              mobileValidator:
-                  AddCompanyValidator.validateMobile,
-              passwordValidator:
-                  AddCompanyValidator.validatePassword,
+              adminNameValidator: AddCompanyValidator.validateAdminName,
+              emailValidator: AddCompanyValidator.validateAdminEmail,
+              mobileValidator: AddCompanyValidator.validateMobile,
+              passwordValidator: AddCompanyValidator.validatePassword,
               confirmPasswordValidator: (val) =>
                   AddCompanyValidator.validateConfirmPassword(
-                password: passwordController.text,
-                confirmPassword: confirmPasswordController.text,
-              ),
+                    password: passwordController.text,
+                    confirmPassword: confirmPasswordController.text,
+                  ),
             ),
 
-            enableMfa:
-            state.enableMfa,
+            enableMfa: state.enableMfa,
 
-            enableAuditLogs:
-            state.enableAuditLogs,
+            enableAuditLogs: state.enableAuditLogs,
 
-            enableIpRestriction:
-            state.enableIpRestriction,
+            enableIpRestriction: state.enableIpRestriction,
 
-            sessionTimeout:
-            state.sessionTimeout,
+            sessionTimeout: state.sessionTimeout,
 
-            onMfaChanged:
-            cubit.toggleMfa,
+            onMfaChanged: cubit.toggleMfa,
 
-            onAuditChanged:
-            cubit.toggleAudit,
+            onAuditChanged: cubit.toggleAudit,
 
-            onIpRestrictionChanged:
-            cubit
-                .toggleIpRestriction,
+            onIpRestrictionChanged: cubit.toggleIpRestriction,
 
-            onSessionTimeoutChanged:
-            cubit
-                .updateSessionTimeout,
+            onSessionTimeoutChanged: cubit.updateSessionTimeout,
 
-            companyName:
-            state.companyName,
+            companyName: state.companyName,
 
-            domain:
-            state.domain,
+            domain: state.domain,
 
-            industry:
-            state.industry,
+            industry: state.industry,
 
-            plan:
-            state.selectedPlan.name,
+            plan: state.selectedPlan.name,
 
-            billingCycle:
-            state.yearlyBilling
-                ? "Yearly"
-                : "Monthly",
+            billingCycle: state.yearlyBilling ? "Yearly" : "Monthly",
 
             addons: const [],
 
-            adminEmail:
-            adminEmailController.text,
+            adminEmail: adminEmailController.text,
 
-            adminMobile:
-            adminMobileController.text,
+            adminMobile: adminMobileController.text,
 
-            generatedCompanyId:
-            state.generatedCompanyId,
+            generatedCompanyId: state.generatedCompanyId,
 
-            isCreating:
-            state.isCreating,
+            isCreating: state.isCreating,
 
-            onBack:
-            cubit.previousStep,
+            onBack: cubit.previousStep,
 
             onCreateCompany: () {
               if (_step3FormKey.currentState!.validate()) {
-                cubit.updateAdminName(
-                  adminNameController.text,
-                );
+                cubit.updateAdminName(adminNameController.text);
 
-                cubit.updateAdminEmail(
-                  adminEmailController.text,
-                );
+                cubit.updateAdminEmail(adminEmailController.text);
 
-                cubit.updateAdminMobile(
-                  adminMobileController.text,
-                );
+                cubit.updateAdminMobile(adminMobileController.text);
 
-                cubit.updatePassword(
-                  passwordController.text,
-                );
+                cubit.updatePassword(passwordController.text);
 
-                cubit.updateConfirmPassword(
-                  confirmPasswordController
-                      .text,
-                );
+                cubit.updateConfirmPassword(confirmPasswordController.text);
 
                 cubit.createCompany();
               }
