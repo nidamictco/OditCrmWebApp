@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:developer' as dev;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -51,8 +52,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
 
     _fromDateController.text = '';
     _toDateController.text = '';
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
 
   String? _appliedCategory;
@@ -68,7 +67,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
     setState(() {
       _appliedCategory = selectedCategory;
       _appliedPriority = selectedPriority;
-      _appliedSource = selectedSource;
+      _appliedSource = selectedLeadSource;
       _appliedStaff = selectedStaff;
       _rejectedReason = selectedRejectedReason;
       _callStatus = selectedCallStatus;
@@ -80,6 +79,9 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           : _parseDate(_toDateController.text);
       _resetPage();
     });
+    dev.log(
+      '[_applyFilters] Applied filters: FromDate=$_appliedFromDate, ToDate=$_appliedToDate, Category=$_appliedCategory, Priority=$_appliedPriority, Staff=$_appliedStaff, RejectedReason=$_rejectedReason, CallStatus=$_callStatus, Source=$_appliedSource',
+    );
   }
 
   DateTime? _parseDate(String text) {
@@ -97,11 +99,18 @@ class _RejectedLeadsState extends State<RejectedLeads> {
       val.toLowerCase().startsWith('select');
 
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
-    List<AddLeadModel> result = leads;
+    dev.log('[RejectedLeads] Total leads fetched from state: ${leads.length}');
+    
+    // Log each lead's stage for troubleshooting
+    for (final lead in leads) {
+      dev.log('[RejectedLeads] Lead ID: ${lead.id}, Stage: "${lead.leadStage}"');
+    }
 
-    result = result.where((lead) => lead.leadStage.toUpperCase() == 'REJECTED').toList();
+    // 1. Rejected Stage Filter
+    List<AddLeadModel> result = leads.where((lead) => lead.leadStage.trim().toUpperCase() == 'REJECTED').toList();
+    dev.log('[RejectedLeads] Total leads matching REJECTED stage: ${result.length}');
 
-    // ── Date range ─────────────────────────────────────────────────────────────
+    // 2. Date Range Filter
     if (_appliedFromDate != null) {
       final from = DateTime(
         _appliedFromDate!.year,
@@ -128,7 +137,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
       }).toList();
     }
 
-    // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
+    // 3. Category Filter
     if (!_isPlaceholder(_appliedCategory)) {
       final cat = _appliedCategory!.trim().toUpperCase();
       result = result
@@ -136,7 +145,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           .toList();
     }
 
-    // ── Lead Source — stored UPPERCASE in Firestore ───────────────────────────
+    // 4. Lead Source Filter
     if (!_isPlaceholder(_appliedSource)) {
       final source = _appliedSource!.trim().toUpperCase();
       result = result
@@ -144,7 +153,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           .toList();
     }
 
-    // ── Priority — stored as-is (no .toUpperCase() in toFirestore) ───────────
+    // 5. Priority Filter
     if (!_isPlaceholder(_appliedPriority)) {
       result = result
           .where(
@@ -155,7 +164,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           .toList();
     }
 
-    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    // 6. Assigned Staff Filter
     if (!_isPlaceholder(_appliedStaff)) {
       result = result
           .where(
@@ -165,30 +174,32 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           )
           .toList();
     }
-    // ---- Rejected Reason---
+
+    // 7. Rejected Reason Filter
     if (!_isPlaceholder(_rejectedReason)) {
       result = result
           .where(
             (l) =>
                 l.leadTag != null &&
                 l.leadTag!.toLowerCase() ==
-                    _rejectedReason!.trim().toLowerCase(),
+                _rejectedReason!.trim().toLowerCase(),
           )
           .toList();
     }
-    // ---- Call Status---
+
+    // 8. Call Status Filter
     if (!_isPlaceholder(_callStatus)) {
       result = result
           .where(
             (l) =>
                 l.callResult != null &&
                 l.callResult!.toLowerCase() ==
-                    _callStatus!.trim().toLowerCase(),
+                _callStatus!.trim().toLowerCase(),
           )
           .toList();
     }
 
-    // Search filter
+    // 9. Search Filter
     final q = _searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
       result = result
@@ -200,6 +211,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           .toList();
     }
 
+    dev.log('[RejectedLeads] Total leads after filtering: ${result.length}');
     return result;
   }
 
@@ -237,7 +249,14 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
+      body: BlocListener<AddLeadCubit, AddLeadState>(
+        listenWhen: (previous, current) =>
+            previous.listStatus != LeadListStatus.loaded &&
+            current.listStatus == LeadListStatus.loaded,
+        listener: (context, state) {
+          _applyFilters();
+        },
+        child: SingleChildScrollView(
         child: Column(
           children: [
             StaffTopBar(
@@ -624,6 +643,19 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                         );
                         // Loaded with data
                         if (state.listStatus == LeadListStatus.loaded) {
+                          if (allFiltered.isEmpty) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 6.h),
+                              child: Center(
+                                child: Text(
+                                  "No Rejected Leads Found",
+                                  style: AppTextStyle.medium(
+                                    color: AppColors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
                           return Column(
                             children: [
                               SizedBox(
@@ -844,6 +876,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
