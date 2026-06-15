@@ -741,6 +741,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaff: user!.name,
         assignedStaffId: user.id ?? '',
       );
+      log('followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp');
 
       await _leadRepository.addFollowUp(
         leadId,

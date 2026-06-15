@@ -1,4 +1,4 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1564,7 +1564,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               Text(
                 lead.followUpDate != null
                     ? _fmt.format(lead.followUpDate!)
-                    : _fmt.format(DateTime.now()),
+                    : '',
                 style: _dateStyle,
               ),
             // Called Date (conditional — already correct, no change needed)
@@ -1572,7 +1572,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               Text(
                 lead.calledDate != null
                     ? _fmt.format(lead.calledDate!)
-                    : _fmt.format(DateTime.now()),
+                    : '',
                 style: _dateStyle,
               ),
             // Actions
@@ -1949,10 +1949,7 @@ class _HoverExportButtonState extends State<HoverExportButton> {
       child: MouseRegion(
         onEnter: (_) => _showOverlay(),
         onExit: (_) {
-          // Small delay so mouse can reach the dropdown
           Future.delayed(const Duration(milliseconds: 150), () {
-            // Only hide if overlay is still showing and mouse didn't enter dropdown
-            // The barrier GestureDetector handles outside clicks instead
           });
         },
         cursor: SystemMouseCursors.click,
