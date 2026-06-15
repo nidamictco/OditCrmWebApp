@@ -13,6 +13,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:Odit_CRM/core/utils/indian_location_service.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_text_style.dart';
@@ -51,9 +52,21 @@ class _LeadsReportState extends State<LeadsReport> {
   int _tableKey = 0;
   int _currentPage = 1;
 
+  Map<String, List<String>> stateDistrictMap = {};
+
+  Future<void> _loadLocations() async {
+    final map = await IndiaLocationService.loadStateDistricts();
+    if (mounted) {
+      setState(() {
+        stateDistrictMap = map;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadLocations();
 
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -596,10 +609,12 @@ class _LeadsReportState extends State<LeadsReport> {
                                     child: Dropdown(
                                       label: "State",
                                       hint: "select state",
-
+                                      items: stateDistrictMap.keys.toList(),
+                                      selectedValue: selectedState,
                                       onChanged: (val) {
                                         setState(() {
                                           selectedState = val;
+                                          selectedDistrict = null;
                                           _resetPage();
                                         });
                                       },
@@ -611,6 +626,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                     child: Dropdown(
                                       label: "District",
                                       hint: "select district",
+                                      items: selectedState != null
+                                          ? (stateDistrictMap[selectedState] ?? [])
+                                          : [],
+                                      selectedValue: selectedDistrict,
                                       onChanged: (val) {
                                         setState(() {
                                           selectedDistrict = val;

@@ -47,8 +47,8 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   void initState() {
     super.initState();
     _loadData();
-    _fromDateController.text = '';
-    _toDateController.text = '';
+    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
   Future<void> _loadData() async {
