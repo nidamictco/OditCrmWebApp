@@ -1,4 +1,4 @@
-﻿// import 'dart:developer';
+// import 'dart:developer';
 // import 'dart:typed_data';
 
 // import 'package:flutter_bloc/flutter_bloc.dart';
@@ -662,6 +662,13 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         );
         if (isClosed) return;
       }
+
+      await _notificationRepo.createForAdmins(
+        title: 'Leads Imported',
+        message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to $resolvedStaffName',
+        excludeStaffId: resolvedStaffId,
+      );
+      if (isClosed) return;
 
       // ── Reset form, keep role-level defaults ────────────────────────────
       final defaultStage = state.stages

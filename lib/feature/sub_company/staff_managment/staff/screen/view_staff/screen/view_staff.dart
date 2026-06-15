@@ -534,6 +534,19 @@ class _ViewStaffState extends State<ViewStaff> {
     return Column(
       children: [
         CustomTable(
+          onRowTap: (rowIndex) {
+            final staff = pagedList[rowIndex];
+                                  // log('stafff........$staff');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MainScreen(
+                                        selectedIndex: 29,
+                                        staff: staff,
+                                      ),
+                                    ),
+                                  );
+          },
           columns: [
             TableColumn(title: "#", flex: 1),
             TableColumn(title: "Name", flex: 4),
