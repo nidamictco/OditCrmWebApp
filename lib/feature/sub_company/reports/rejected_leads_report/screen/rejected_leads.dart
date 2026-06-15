@@ -46,12 +46,16 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   @override
   void initState() {
     super.initState();
-    context.read<AddLeadCubit>().fetchLeads();
-    context.read<AddLeadCubit>().initialize();
-    context.read<AddLeadCubit>().fetchStaff();
-
+    _loadData();
     _fromDateController.text = '';
     _toDateController.text = '';
+  }
+
+  Future<void> _loadData() async {
+    final cubit = context.read<AddLeadCubit>();
+    await cubit.initialize();
+    await cubit.fetchStaff();
+    await cubit.fetchLeads();
   }
 
   String? _appliedCategory;
