@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/feature/mother_company/MotherCompanyMainScreen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/asset_resources.dart';
@@ -92,18 +94,21 @@ class _LoginScreenState extends State<LoginScreen> {
             (_) => false,
           );
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.redAccent,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          if (!state.message.toLowerCase().contains('suspended') &&
+              !state.message.toLowerCase().contains('upgrade plan')) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.redAccent,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-            );
+              );
+          }
         }
       },
       builder: (context, state) {
@@ -202,10 +207,10 @@ class _LoginScreenState extends State<LoginScreen> {
               //     ),
               //   ],
               // ),
-              child: Image.asset(AssetResources.logo, width: 10.w),
+              child: Image.asset(AssetResources.logo, scale: 7),
             ),
 
-            // const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
             // Username
             Text('Phone Number', style: AppTextStyle.medium()),
@@ -252,9 +257,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: isLoading ? null : () => _handleLogin(context),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: const Color(0xFF1ABC9C),
+                  backgroundColor: const Color(0xFF002660),
                   disabledBackgroundColor: const Color(
-                    0xFF1ABC9C,
+                    0xFF002660,
                   ).withOpacity(0.6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),

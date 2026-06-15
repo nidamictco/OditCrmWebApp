@@ -1,4 +1,4 @@
-﻿// import 'dart:developer';
+// import 'dart:developer';
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +36,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_colors.dart';
 import '../cubit/auth/auth_cubit.dart';
 import 'login.dart';
@@ -65,7 +67,57 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthError) {
+          if (state.message.toLowerCase().contains('suspended') || state.message.toLowerCase().contains('upgrade plan')) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Account Suspended',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: AppThemeColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Text(
+                    state.message,
+                    style: GoogleFonts.poppins(
+                      color: AppThemeColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'OK',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: AppThemeColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
+      },
       builder: (context, state) {
         log('log : state : $state');
         if (state is AuthLoading || state is AuthInitial) {

@@ -26,6 +26,7 @@ class StaffModel {
   final DateTime? deletedAt;
   final String? companyType;
   final String? companyId;
+  final String? companyStatus;
 
   const StaffModel({
     this.id,
@@ -53,6 +54,7 @@ class StaffModel {
     this.deletedAt,
     this.companyType,
     this.companyId,
+    this.companyStatus,
   });
 
   // ─── copyWith ────────────────────────────────────────────────────────────
@@ -83,6 +85,7 @@ class StaffModel {
     DateTime? deletedAt,
     String? companyType,
     String? companyId,
+    String? companyStatus,
   }) {
     return StaffModel(
       id: id ?? this.id,
@@ -110,6 +113,7 @@ class StaffModel {
       deletedAt: deletedAt ?? this.deletedAt,
       companyType: companyType ?? this.companyType,
       companyId: companyId ?? this.companyId,
+      companyStatus: companyStatus ?? this.companyStatus,
     );
   }
 
@@ -158,6 +162,7 @@ class StaffModel {
             }
             return null;
           }()),
+      companyStatus: map['companyStatus'] ?? 'PENDING',
     );
   }
 
@@ -189,6 +194,7 @@ class StaffModel {
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
       'companyType': companyType,
       'companyId': companyId,
+      'companyStatus': companyStatus,
     };
   }
 
@@ -218,6 +224,7 @@ class StaffModel {
       'deletedAt': deletedAt?.toIso8601String(),
       'companyType': companyType,
       'companyId': companyId,
+      'companyStatus': companyStatus,
     };
   }
 
@@ -252,6 +259,7 @@ class StaffModel {
           : null,
       companyType: map['companyType'] ?? '',
       companyId: map['companyId'],
+      companyStatus: map['companyStatus'] ?? 'PENDING',
     );
   }
 }

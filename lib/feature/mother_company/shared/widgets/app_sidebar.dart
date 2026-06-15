@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -66,7 +67,7 @@ class AppSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 230,
+      width: 240,
       decoration: const BoxDecoration(
         color: AppThemeColors.sidebarBg,
         border: Border(
@@ -85,25 +86,21 @@ class AppSidebar extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppThemeColors.primary,
+                    // color: AppThemeColors.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
-                    Icons.crop_square_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: Image.asset(AssetResources.sidebar_logo),
                 ),
-                const SizedBox(width: 10),
-                Text(
-                  'Odit-crm',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppThemeColors.textPrimary,
-                    letterSpacing: -0.3,
-                  ),
-                ),
+                // const SizedBox(width: 10),
+                // Text(
+                //   'Odit CRM',
+                //   style: GoogleFonts.poppins(
+                //     fontSize: 18,
+                //     fontWeight: FontWeight.w700,
+                //     color: AppThemeColors.textPrimary,
+                //     letterSpacing: -0.3,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -138,7 +135,6 @@ class AppSidebar extends StatelessWidget {
               ),
               child: Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CircleAvatar(
                       radius: 20,
@@ -242,6 +238,7 @@ class _SidebarNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isActive) {
       return Container(
+        margin: EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
           color: AppThemeColors.primary,
           borderRadius: BorderRadius.circular(10),
@@ -254,7 +251,7 @@ class _SidebarNavItem extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           trailing: const Icon(
@@ -270,26 +267,34 @@ class _SidebarNavItem extends StatelessWidget {
         ),
       );
     }
-    return ListTile(
-      dense: true,
-      leading: Icon(
-        item.icon,
-        color: AppThemeColors.sidebarInactiveText,
-        size: 20,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppThemeColors.borderLight3, width: 1),
       ),
-      title: Text(
-        item.label,
-        style: const TextStyle(
+      child: ListTile(
+        dense: true,
+        leading: Icon(
+          item.icon,
           color: AppThemeColors.sidebarInactiveText,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
+          size: 20,
         ),
+
+        title: Text(
+          item.label,
+          style: const TextStyle(
+            color: AppThemeColors.sidebarInactiveText,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        visualDensity: VisualDensity.compact,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        hoverColor: AppThemeColors.scaffoldBg,
+        onTap: onTap,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-      visualDensity: VisualDensity.compact,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      hoverColor: AppThemeColors.scaffoldBg,
-      onTap: onTap,
     );
   }
 }

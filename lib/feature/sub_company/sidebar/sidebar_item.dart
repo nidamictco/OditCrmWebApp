@@ -95,13 +95,17 @@ class _SidebarItemState extends State<SidebarItem> {
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 1.w),
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.w),
                 // padding: EdgeInsets.zero,
                 // child: Text(
                 //   "Oxdo Leads",
                 //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
                 // ),
-                child: Image.asset(AssetResources.logo, width: 8.w),
+                child: Image.asset(
+                  AssetResources.sidebar_logo,
+                  // width: 8.w,
+                  scale: 10,
+                ),
               ),
             ),
             //  SizedBox(height: 2.h),
