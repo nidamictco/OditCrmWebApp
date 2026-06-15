@@ -1,4 +1,4 @@
-﻿import '../model/notification_model.dart';
+import 'package:Odit_CRM/feature/sub_company/notification/model/notification_model.dart';
 
 abstract class NotificationState {}
 

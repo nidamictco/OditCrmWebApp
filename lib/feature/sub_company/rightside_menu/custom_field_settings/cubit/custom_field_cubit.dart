@@ -1,6 +1,6 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
-import 'custom_field_state.dart';
-import '../data/custom_field_repo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/cubit/custom_field_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
 
 class AdditionalFieldsCubit extends Cubit<AdditionalFieldsState> {
   final AdditionalFieldsRepository _repository;

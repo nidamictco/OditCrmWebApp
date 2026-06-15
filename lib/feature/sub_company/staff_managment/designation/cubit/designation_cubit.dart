@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/designation_repository.dart';
@@ -19,9 +19,11 @@ class DesignationCubit extends Cubit<DesignationState> {
     emit(DesignationSaving());
     try {
       final docId = await _repository.addDesignation(designation);
+      if (isClosed) return;
       log('[DesignationCubit] Saved designation: $docId');
       emit(DesignationSaved(docId));
     } catch (e, st) {
+      if (isClosed) return;
       log('[DesignationCubit] Save error: $e', stackTrace: st);
       emit(DesignationError(e.toString()));
     }
@@ -33,9 +35,11 @@ class DesignationCubit extends Cubit<DesignationState> {
     emit(DesignationSaving());
     try {
       await _repository.updateDesignation(designation);
+      if (isClosed) return;
       log('[DesignationCubit] Updated designation: ${designation.id}');
       emit(DesignationSaved(designation.id!));
     } catch (e, st) {
+      if (isClosed) return;
       log('[DesignationCubit] Update error: $e', stackTrace: st);
       emit(DesignationError(e.toString()));
     }
@@ -46,9 +50,11 @@ class DesignationCubit extends Cubit<DesignationState> {
   Future<void> deleteDesignation(String id) async {
     try {
       await _repository.deleteDesignation(id);
+      if (isClosed) return;
       log('[DesignationCubit] Deleted designation: $id');
       await fetchAll(); // refresh list
     } catch (e, st) {
+      if (isClosed) return;
       log('[DesignationCubit] Delete error: $e', stackTrace: st);
       emit(DesignationError(e.toString()));
     }
@@ -60,9 +66,11 @@ class DesignationCubit extends Cubit<DesignationState> {
     emit(DesignationLoading());
     try {
       final list = await _repository.fetchAll();
+      if (isClosed) return;
       print('✅ Designations fetched: ${list.length}'); 
       emit(DesignationListLoaded(list));
     } catch (e, st) {
+      if (isClosed) return;
       log('[DesignationCubit] FetchAll error: $e', stackTrace: st);
       emit(DesignationError(e.toString()));
     }
@@ -70,5 +78,8 @@ class DesignationCubit extends Cubit<DesignationState> {
 
   // ─── Reset to initial (e.g. after navigation) ──────────────────────────────
 
-  void reset() => emit(DesignationInitial());
+  void reset() {
+    if (isClosed) return;
+    emit(DesignationInitial());
+  }
 }

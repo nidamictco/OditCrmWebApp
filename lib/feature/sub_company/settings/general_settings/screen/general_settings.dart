@@ -1,10 +1,10 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_style.dart';
-import '../model/general_settings_model.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 import 'package:sizer/sizer.dart';
 import '../cubit/general_settings_cubit.dart';
 import '../cubit/general_settings_state.dart';

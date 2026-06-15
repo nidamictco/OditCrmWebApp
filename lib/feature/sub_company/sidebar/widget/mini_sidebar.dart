@@ -1,11 +1,11 @@
-﻿
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/theme/asset_resources.dart';
-import 'hover/sidebar_hover.dart';
-import '../../staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
+import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/sidebar_hover.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 class MiniSidebar extends StatelessWidget {

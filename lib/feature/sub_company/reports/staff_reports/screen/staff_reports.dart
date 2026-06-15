@@ -1,18 +1,18 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/utils/footer.dart';
-import '../../../../../core/utils/page_button.dart';
-import '../../../../../core/utils/show_entries.dart';
-import '../../../../../core/utils/staff_top_bar.dart';
-import '../../../../../core/utils/table.dart';
-import '../../../sidebar/main_screen.dart';
-import '../../../staff_managment/staff/cubit/add_staff_cubit.dart';
-import '../../../staff_managment/staff/cubit/add_staff_state.dart';
-import '../../../staff_managment/staff/model/staff_model.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/utils/footer.dart';
+import 'package:Odit_CRM/core/utils/page_button.dart';
+import 'package:Odit_CRM/core/utils/show_entries.dart';
+import 'package:Odit_CRM/core/utils/staff_top_bar.dart';
+import 'package:Odit_CRM/core/utils/table.dart';
+import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class StaffReports extends StatefulWidget {

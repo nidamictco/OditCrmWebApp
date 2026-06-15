@@ -8,8 +8,6 @@ import 'core/shared_preference/session_service.dart';
 import 'feature/auth/cubit/auth/auth_cubit.dart';
 import 'feature/auth/screen/auth_gate.dart';
 import 'feature/auth/screen/login.dart';
-
-// import 'package:intl/date_symbol_data_http_request.dart';
 import 'package:sizer/sizer.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -64,7 +62,7 @@ class OxdoApp extends StatelessWidget {
             staffRepository: StaffRepository(),
           ),
         ),
-        BlocProvider<PermissionCubit>(   // ← NEW
+        BlocProvider<PermissionCubit>(
           create: (_) => PermissionCubit(),
         ),
       ],

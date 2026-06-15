@@ -1,14 +1,14 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/utils/show_entries.dart';
-import '../../../../../core/utils/table.dart';
-import '../../../../../core/utils/top_bread_crumb_bar.dart';
-import '../cubit/custom_field_cubit.dart';
-import '../cubit/custom_field_state.dart';
-import '../data/custom_field_repo.dart';
-import '../model/custom_field_model.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/utils/show_entries.dart';
+import 'package:Odit_CRM/core/utils/table.dart';
+import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/cubit/custom_field_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/cubit/custom_field_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 import 'package:sizer/sizer.dart';
 
 class AdditionalFieldsSection extends StatefulWidget {

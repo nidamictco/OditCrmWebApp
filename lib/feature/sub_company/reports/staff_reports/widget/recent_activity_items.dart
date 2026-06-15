@@ -1,10 +1,10 @@
-﻿
+
 // ─────────────────────────────────────────────
 // RECENT ACTIVITY
 // ─────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
-import '../../../lead_managment/follow_up/models/follow_up_activities_model.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/models/follow_up_activities_model.dart';
 
 class RecentActivityItem {
   final String name;

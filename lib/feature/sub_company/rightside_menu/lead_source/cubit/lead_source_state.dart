@@ -1,7 +1,7 @@
-﻿// lib/features/lead_category/presentation/cubit/lead_category_state.dart
+// lib/features/lead_category/presentation/cubit/lead_category_state.dart
 
 import 'package:equatable/equatable.dart';
-import '../../common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 
 enum LeadSourceStatus { initial, loading, success, failure }
 

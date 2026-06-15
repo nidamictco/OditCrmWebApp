@@ -1,5 +1,5 @@
-﻿// import 'package:cloud_firestore/cloud_firestore.dart';
-// import '../model/general_settings_model.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 // class GeneralSettingsRepository {
 //   GeneralSettingsRepository({
@@ -61,8 +61,8 @@
 // }
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../model/general_settings_model.dart';
-import '../../../../../core/constant/firebase_const.dart';
+import 'package:Odit_CRM/core/constant/firebase_const.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 class GeneralSettingsRepository {
   GeneralSettingsRepository({

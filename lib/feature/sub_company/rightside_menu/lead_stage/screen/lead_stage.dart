@@ -1,15 +1,15 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/utils/page_button.dart';
-import '../../../../../core/utils/popup_msg.dart';
-import '../../../../../core/utils/show_entries.dart';
-import '../../../../../core/utils/table.dart';
-import '../../../../../core/utils/top_bread_crumb_bar.dart';
-import '../../common_model/lead_model.dart';
-import '../cubit/lead_stage_cubit.dart';
-import '../cubit/lead_stage_state.dart';
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/utils/page_button.dart';
+import 'package:Odit_CRM/core/utils/popup_msg.dart';
+import 'package:Odit_CRM/core/utils/show_entries.dart';
+import 'package:Odit_CRM/core/utils/table.dart';
+import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 import 'package:sizer/sizer.dart';
 
 class LeadStagesScreen extends StatefulWidget {

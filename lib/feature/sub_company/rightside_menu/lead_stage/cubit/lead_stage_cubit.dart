@@ -1,9 +1,9 @@
-﻿// lib/features/lead_category/presentation/cubit/lead_category_cubit.dart
+// lib/features/lead_category/presentation/cubit/lead_category_cubit.dart
 
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../data/lead_stage_repo.dart';
-import 'lead_stage_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_stage_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 
 
 class LeadStageCubit extends Cubit<LeadStageState> {

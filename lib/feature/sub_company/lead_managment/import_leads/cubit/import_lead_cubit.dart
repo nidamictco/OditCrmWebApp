@@ -1,15 +1,15 @@
-﻿// import 'dart:developer';
+// import 'dart:developer';
 // import 'dart:typed_data';
 
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../../../../core/shared_preference/session_service.dart';
-// import 'import_lead_state.dart';
-// import '../data/import_lead_repo.dart';
-// import '../model/import_leads_model.dart';
-// import '../../../notification/data/notification_repo.dart';
-// import '../../../rightside_menu/common_model/lead_model.dart';
-// import '../../../settings/general_settings/data/general_settings_repo.dart';
-// import '../../../staff_managment/staff/model/staff_model.dart';
+// import 'package:Odit_CRM/core/shared_preference/session_service.dart';
+// import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
+// import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/data/import_lead_repo.dart';
+// import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
+// import 'package:Odit_CRM/feature/sub_company/notification/data/notification_repo.dart';
+// import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+// import 'package:Odit_CRM/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
+// import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 // class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 //   final IImportLeadsRepository _repository;
@@ -662,6 +662,13 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         );
         if (isClosed) return;
       }
+
+      await _notificationRepo.createForAdmins(
+        title: 'Leads Imported',
+        message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to $resolvedStaffName',
+        excludeStaffId: resolvedStaffId,
+      );
+      if (isClosed) return;
 
       // ── Reset form, keep role-level defaults ────────────────────────────
       final defaultStage = state.stages

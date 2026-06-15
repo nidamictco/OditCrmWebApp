@@ -1,4 +1,4 @@
-﻿import '../model/general_settings_model.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 
 abstract class GeneralSettingsState {
   const GeneralSettingsState();

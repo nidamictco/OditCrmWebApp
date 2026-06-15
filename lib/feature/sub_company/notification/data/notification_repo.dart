@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +29,7 @@ class NotificationRepo {
       'isRead': false,
     });
   }
- Future<void> createForAdmins({
+  Future<void> createForAdmins({
     required String title,
     required String message,
     String excludeStaffId = '',
@@ -46,6 +46,7 @@ class NotificationRepo {
         // Skip if this admin is already the assigned staff (already notified above)
         if (adminId == excludeStaffId) continue;
 
+        log('Creating admin notification for: $adminId');
         final String id = _generateDateId('NOTIF');
         await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
           'staffId': adminId,
@@ -54,25 +55,30 @@ class NotificationRepo {
           'createdAt': FieldValue.serverTimestamp(),
           'isRead': false,
         });
+        log('Notification saved successfully');
       }
     } catch (e) {
       log('[NotificationRepo] createForAdmins error: $e');
     }
   }
   Stream<List<NotificationModel>> streamByStaff(String staffId) {
-   return FirestorePath.companyCollection('NOTIFICATIONS')
-      .where('staffId', isEqualTo: staffId)
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs
-            .map((doc) => NotificationModel.fromMap(doc.id, doc.data()))
-            .toList(),
-      )
-      .handleError((error) { 
-        log('[NotificationRepo] streamByStaff error: $error');
-      });
-}
+    log('Listening for notifications of $staffId');
+    return FirestorePath.companyCollection('NOTIFICATIONS')
+        .where('staffId', isEqualTo: staffId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) {
+            log('Received ${snapshot.docs.length} notifications');
+            return snapshot.docs
+                .map((doc) => NotificationModel.fromMap(doc.id, doc.data()))
+                .toList();
+          },
+        )
+        .handleError((error) { 
+          log('[NotificationRepo] streamByStaff error: $error');
+        });
+  }
 
   // delete single notification by ID
   Future<void> deleteOne(String notificationId) async {
