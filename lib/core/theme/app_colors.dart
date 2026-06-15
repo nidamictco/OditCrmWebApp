@@ -33,14 +33,11 @@ class AppColors {
   /// ➖ DIVIDER
   static const divider = Color(0xffE5E7EB);
 
-  ///gradient 
+  ///gradient
   static const gradientBlue = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFF495580),
-      Color(0xFF303649),
-    ],
+    colors: [Color(0xFF495580), Color(0xFF303649)],
     // stops: [0.0, 0.5, 1.0],
   );
 }

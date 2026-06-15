@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/cubit/auth/auth_cubit.dart';
 
@@ -67,6 +68,40 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
+            ),
+          if (screen == "addCompany")
+            Row(
+              children: [
+                Text(
+                  'Company Manage',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: AppThemeColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: AppThemeColors.textSecondary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Add New Company',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: AppThemeColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: AppThemeColors.textSecondary,
+                ),
+              ],
             ),
           const Spacer(),
           // Actions

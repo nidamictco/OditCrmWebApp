@@ -71,10 +71,9 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         state.copyWith(
           status: CompanyManageStatus.loaded,
           allCompanies: companies,
-          filteredCompanies: companies,
-          currentPage: 1,
         ),
       );
+      _applyFilters();
     } catch (e) {
       emit(
         state.copyWith(status: CompanyManageStatus.error, error: e.toString()),
@@ -132,6 +131,25 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
             c.status.label.toLowerCase().contains(q);
       }).toList();
     }
+
+    // Date Filter
+    final now = DateTime.now();
+    list = list.where((c) {
+      final date = c.subscriptionStartDate;
+      switch (state.dateFilter) {
+        case DateFilter.thisMonth:
+          return date.year == now.year && date.month == now.month;
+        case DateFilter.last3Months:
+          final limit = DateTime(now.year, now.month - 3, now.day);
+          return date.isAfter(limit) || date.isAtSameMomentAs(limit);
+        case DateFilter.last6Months:
+          final limit = DateTime(now.year, now.month - 6, now.day);
+          return date.isAfter(limit) || date.isAtSameMomentAs(limit);
+        case DateFilter.last12Months:
+          final limit = DateTime(now.year, now.month - 12, now.day);
+          return date.isAfter(limit) || date.isAtSameMomentAs(limit);
+      }
+    }).toList();
 
     // Sort
     list = _sortList(list, state.sortField, state.sortOrder);

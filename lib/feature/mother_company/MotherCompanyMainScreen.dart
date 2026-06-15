@@ -1,12 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'shared/enum/mother_company_enum.dart';
 import 'shared/widgets/app_sidebar.dart';
 import 'Dashboard/screens/dashboard_page.dart';
-import 'add_company/cubit/add_company_cubit.dart';
-import 'add_company/repository/add_company_repo.dart';
-import 'add_company/screens/add_company_page.dart';
-import 'add_company/services/firebase_add_company_service.dart';
+import 'add_new_company/screens/add_new_company_page.dart';
 import 'company_manage/screens/company_manage_page.dart';
 
 class MotherCompanyMainScreen extends StatefulWidget {
@@ -17,10 +14,8 @@ class MotherCompanyMainScreen extends StatefulWidget {
       _MotherCompanyMainScreenState();
 }
 
-class _MotherCompanyMainScreenState
-    extends State<MotherCompanyMainScreen> {
-  MotherCompanyPage selectedPage =
-      MotherCompanyPage.dashboard;
+class _MotherCompanyMainScreenState extends State<MotherCompanyMainScreen> {
+  MotherCompanyPage selectedPage = MotherCompanyPage.dashboard;
 
   Widget get currentPage {
     switch (selectedPage) {
@@ -43,8 +38,13 @@ class _MotherCompanyMainScreenState
         );
 
       case MotherCompanyPage.addCompany:
-        return const AddCompanyPage();
-
+        return AddNewCompanyPage(
+          onBackTap: () {
+            setState(() {
+              selectedPage = MotherCompanyPage.companyManage;
+            });
+          },
+        );
 
       // case MotherCompanyPage.systemSetting:
       //   return const Center(
@@ -77,9 +77,7 @@ class _MotherCompanyMainScreenState
             },
           ),
 
-          Expanded(
-            child: currentPage,
-          ),
+          Expanded(child: currentPage),
         ],
       ),
     );

@@ -58,6 +58,7 @@ class AppThemeColors {
   // Border
   static const Color borderLight = Color(0xFFE2E8F0);
   static const Color borderLight2 = Color.fromARGB(255, 220, 218, 228);
+  static Color borderLight3 = Color(0xff747474).withValues(alpha: 0.1);
   static const Color divider = Color(0xFFF1F5F9);
 
   // Plan badges
