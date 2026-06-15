@@ -9,6 +9,7 @@ import '../widgets/date_filter_dropdown.dart';
 import '../widgets/cash_flow_chart.dart';
 import '../widgets/payable_receivable_chart.dart';
 import '../widgets/recent_company_table.dart';
+import '../../company_manage/models/company_manage_models.dart';
 
 class DashboardPage extends StatelessWidget {
   final VoidCallback? onViewAllTap;
@@ -29,42 +30,53 @@ class _DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppThemeColors.scaffoldBg,
-      body: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                const DashboardTopBar(),
-                Expanded(
-                  child: BlocBuilder<DashboardCubit, DashboardState>(
-                    builder: (context, state) {
-                      if (state.status == DashboardStatus.loading ||
-                          state.status == DashboardStatus.initial) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: AppThemeColors.primary,
-                            strokeWidth: 2,
-                          ),
-                        );
-                      }
-                      if (state.status == DashboardStatus.error) {
-                        return Center(
-                          child: Text(
-                            state.error ?? 'An error occurred',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        );
-                      }
-                      return _DashboardContent(state: state, onViewAllTap: onViewAllTap);
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: AppThemeColors.scaffoldBg,
+        body: Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  DashboardTopBar(
+                    screen: 'dashboard',
+                    onSearchChanged: (value) {
+                      context.read<DashboardCubit>().updateSearchQuery(value);
                     },
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: BlocBuilder<DashboardCubit, DashboardState>(
+                      builder: (context, state) {
+                        if (state.status == DashboardStatus.loading ||
+                            state.status == DashboardStatus.initial) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppThemeColors.primary,
+                              strokeWidth: 2,
+                            ),
+                          );
+                        }
+                        if (state.status == DashboardStatus.error) {
+                          return Center(
+                            child: Text(
+                              state.error ?? 'An error occurred',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
+                        }
+                        return _DashboardContent(
+                          state: state,
+                          onViewAllTap: onViewAllTap,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -88,7 +100,7 @@ class _DashboardContent extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-               Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('System Overview', style: AppTextStyles.heading1),
@@ -109,63 +121,65 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: 22),
 
           /// ── Stat cards ─────────────────────────────────────────
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: StatCard(
-          //         title: 'Total Companies',
-          //         value: '276',
-          //         icon: Icons.grid_view_rounded,
-          //         iconBg: AppThemeColors.statCompanyBg,
-          //         iconColor: AppThemeColors.statCompanyIcon,
-          //         cardBg: Colors.white,
-          //         growth: state.stats.companiesGrowth,
-          //       ),
-          //     ),
-          //     const SizedBox(width: 16),
-          //     Expanded(
-          //       child: StatCard(
-          //         title: 'Active Leads',
-          //         value: '08',
-          //         icon: Icons.people_alt_rounded,
-          //         iconBg: AppThemeColors.statLeadsBg,
-          //         iconColor: AppThemeColors.statLeadsIcon,
-          //         cardBg: Colors.white,
-          //         growth: state.stats.leadsGrowth,
-          //         valueColor: const Color(0xFF00B4D8),
-          //       ),
-          //     ),
-          //     const SizedBox(width: 16),
-          //     Expanded(
-          //       child: StatCard(
-          //         title: 'Staff Members',
-          //         value: '890',
-          //         icon: Icons.manage_accounts_rounded,
-          //         iconBg: AppThemeColors.statStaffBg,
-          //         iconColor: AppThemeColors.statStaffIcon,
-          //         cardBg: Colors.white,
-          //         statusLabel: state.stats.staffStatus,
-          //         statusColor: AppThemeColors.statusPending,
-          //         valueColor: AppThemeColors.statStaffIcon,
-          //       ),
-          //     ),
-          //     const SizedBox(width: 16),
-          //     Expanded(
-          //       child: StatCard(
-          //         title: 'System Uptime',
-          //         value: '99.9%',
-          //         icon: Icons.sync_alt_rounded,
-          //         iconBg: AppThemeColors.statUptimeBg,
-          //         iconColor: AppThemeColors.statUptimeIcon,
-          //         cardBg: Colors.white,
-          //         statusLabel: state.stats.uptimeStatus,
-          //         statusColor: AppThemeColors.statUptimeIcon,
-          //         valueColor: AppThemeColors.statUptimeIcon,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: 22),
+          Row(
+            children: [
+              Expanded(
+                child: StatCard(
+                  title: 'Total Companies',
+                  value: state.stats.totalCompanies.toString().padLeft(2, '0'),
+                  icon: Icons.business_rounded,
+                  iconBg: AppThemeColors.statCompanyBg,
+                  iconColor: AppThemeColors.statCompanyIcon,
+                  cardBg: Color(0xFF4C3F77).withValues(alpha: .06),
+                  growth: state.stats.companiesGrowth,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatCard(
+                  title: 'Active Companies',
+                  value: state.stats.activeCompanies.toString().padLeft(2, '0'),
+                  icon: Icons.people_alt_rounded,
+                  iconBg: AppThemeColors
+                      .statLeadsIcon, //AppThemeColors.statLeadsBg,
+                  iconColor: AppThemeColors.statLeadsBg,
+                  cardBg: AppThemeColors
+                      .statLeadsBg, //Color(0xFF4FC3CE).withValues(alpha: .06),
+                  growth: state.stats.leadsGrowth,
+                  valueColor: const Color(0xFF00B4D8),
+                ),
+              ),
+              // const SizedBox(width: 16),
+              // Expanded(
+              //   child: StatCard(
+              //     title: 'Staff Members',
+              //     value: '890',
+              //     icon: Icons.manage_accounts_rounded,
+              //     iconBg: AppThemeColors.statStaffBg,
+              //     iconColor: AppThemeColors.statStaffIcon,
+              //     cardBg: Colors.white,
+              //     statusLabel: state.stats.staffStatus,
+              //     statusColor: AppThemeColors.statusPending,
+              //     valueColor: AppThemeColors.statStaffIcon,
+              //   ),
+              // ),
+              // const SizedBox(width: 16),
+              // Expanded(
+              //   child: StatCard(
+              //     title: 'System Uptime',
+              //     value: '99.9%',
+              //     icon: Icons.sync_alt_rounded,
+              //     iconBg: AppThemeColors.statUptimeBg,
+              //     iconColor: AppThemeColors.statUptimeIcon,
+              //     cardBg: Colors.white,
+              //     statusLabel: state.stats.uptimeStatus,
+              //     statusColor: AppThemeColors.statUptimeIcon,
+              //     valueColor: AppThemeColors.statUptimeIcon,
+              //   ),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 22),
           //
           // // ── Charts row ─────────────────────────────────────────
           // IntrinsicHeight(
@@ -279,7 +293,15 @@ class _DashboardContent extends StatelessWidget {
 
           // ── Recent Company Activity table ──────────────────────
           RecentCompanyTable(
-            companies: state.companies,
+            companies: state.searchQuery.isEmpty
+                ? state.companies
+                : state.companies.where((company) {
+                    final query = state.searchQuery.toLowerCase();
+                    return company.companyName.toLowerCase().contains(query) ||
+                        company.adminName.toLowerCase().contains(query) ||
+                        company.planType.label.toLowerCase().contains(query) ||
+                        company.status.label.toLowerCase().contains(query);
+                  }).toList(),
             cubit: cubit,
             onViewAll: onViewAllTap,
           ),

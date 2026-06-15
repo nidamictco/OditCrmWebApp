@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Odit_CRM/feature/mother_company/MotherCompanyMainScreen.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/asset_resources.dart';
@@ -83,7 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (state is Authenticated) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const MainScreen()),
+            MaterialPageRoute(
+              builder: (_) => state.user.companyType == 'mother_company'
+                  ? const MotherCompanyMainScreen()
+                  : const MainScreen(),
+            ),
             (_) => false,
           );
         } else if (state is AuthError) {

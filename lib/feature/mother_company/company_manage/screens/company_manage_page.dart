@@ -34,13 +34,15 @@ class _CompanyManageView extends StatelessWidget {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DashboardTopBar(),
+              const DashboardTopBar(screen: 'companyManage'),
               // ── Page header ─────────────────────────────────────
-              _PageHeader(state: state, cubit: cubit, onAddCompanyTap: onAddCompanyTap),
-              // ── Content ─────────────────────────────────────────
-              Expanded(
-                child: _buildBody(context, state, cubit),
+              _PageHeader(
+                state: state,
+                cubit: cubit,
+                onAddCompanyTap: onAddCompanyTap,
               ),
+              // ── Content ─────────────────────────────────────────
+              Expanded(child: _buildBody(context, state, cubit)),
             ],
           ),
         );
@@ -101,7 +103,11 @@ class _CompanyManageView extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PageHeader extends StatelessWidget {
-  const _PageHeader({required this.state, required this.cubit, this.onAddCompanyTap});
+  const _PageHeader({
+    required this.state,
+    required this.cubit,
+    this.onAddCompanyTap,
+  });
   final CompanyManageState state;
   final CompanyManageCubit cubit;
   final VoidCallback? onAddCompanyTap;
@@ -115,7 +121,7 @@ class _PageHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Title + subtitle
-           Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -145,13 +151,15 @@ class _PageHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           // Add New Company button
-          _AddCompanyButton(onTap: () {
-            if (onAddCompanyTap != null) {
-              onAddCompanyTap!();
-            } else {
-              _showAddDialog(context);
-            }
-          }),
+          _AddCompanyButton(
+            onTap: () {
+              if (onAddCompanyTap != null) {
+                onAddCompanyTap!();
+              } else {
+                _showAddDialog(context);
+              }
+            },
+          ),
         ],
       ),
     );
@@ -172,11 +180,12 @@ class _PageHeader extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppThemeColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text('Add', style: TextStyle(color: Colors.white)),
+            child: const Text('Add', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -227,9 +236,7 @@ class _SearchFilterBarState extends State<_SearchFilterBar> {
           ),
           const SizedBox(width: 12),
           // Status filter chips
-          _FilterChipGroup(
-            current: widget.state.searchQuery,
-          ),
+          _FilterChipGroup(current: widget.state.searchQuery),
         ],
       ),
     );
@@ -257,7 +264,11 @@ class _SearchField extends StatelessWidget {
         decoration: const InputDecoration(
           hintText: 'Search company, admin, plan...',
           hintStyle: TextStyle(fontSize: 13, color: AppThemeColors.textMuted),
-          prefixIcon: Icon(Icons.search_rounded, size: 18, color: AppThemeColors.textMuted),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            size: 18,
+            color: AppThemeColors.textMuted,
+          ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 10),
         ),
@@ -287,7 +298,11 @@ class _FilterChipGroup extends StatelessWidget {
 }
 
 class _SmallChip extends StatelessWidget {
-  const _SmallChip({required this.label, required this.isActive, required this.onTap});
+  const _SmallChip({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
   final String label;
   final bool isActive;
   final VoidCallback onTap;
@@ -302,7 +317,9 @@ class _SmallChip extends StatelessWidget {
           color: isActive ? AppThemeColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isActive ? AppThemeColors.primary : AppThemeColors.borderLight,
+            color: isActive
+                ? AppThemeColors.primary
+                : AppThemeColors.borderLight,
           ),
         ),
         child: Text(
@@ -398,7 +415,9 @@ class _DateFilterChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: f == value ? FontWeight.w600 : FontWeight.w400,
-              color: f == value ? AppThemeColors.primary : AppThemeColors.textPrimary,
+              color: f == value
+                  ? AppThemeColors.primary
+                  : AppThemeColors.textPrimary,
             ),
           ),
         );

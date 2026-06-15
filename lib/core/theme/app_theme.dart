@@ -57,6 +57,7 @@ class AppThemeColors {
 
   // Border
   static const Color borderLight = Color(0xFFE2E8F0);
+  static const Color borderLight2 = Color.fromARGB(255, 220, 218, 228);
   static const Color divider = Color(0xFFF1F5F9);
 
   // Plan badges
@@ -70,58 +71,58 @@ class AppTextStyles {
   static const String fontFamily = 'Inter';
 
   static final TextStyle heading1 = GoogleFonts.poppins(
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: FontWeight.w700,
     color: AppThemeColors.textPrimary,
     letterSpacing: -0.3,
   );
 
-  static  TextStyle heading2 = GoogleFonts.poppins(
+  static TextStyle heading2 = GoogleFonts.poppins(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppThemeColors.textPrimary,
     letterSpacing: -0.2,
   );
 
-  static  TextStyle statValue = GoogleFonts.poppins(
+  static TextStyle statValue = GoogleFonts.poppins(
     fontSize: 22,
     fontWeight: FontWeight.w700,
     color: AppThemeColors.textPrimary,
     letterSpacing: -0.5,
   );
 
-  static  TextStyle statLabel = GoogleFonts.poppins(
+  static TextStyle statLabel = GoogleFonts.poppins(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppThemeColors.textSecondary,
   );
 
-  static  TextStyle bodyMedium = GoogleFonts.poppins(
+  static TextStyle bodyMedium = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: AppThemeColors.textPrimary,
   );
 
-  static  TextStyle bodySmall = GoogleFonts.poppins(
+  static TextStyle bodySmall = GoogleFonts.poppins(
     fontSize: 12,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     color: AppThemeColors.textSecondary,
   );
 
-  static  TextStyle caption = GoogleFonts.poppins(
+  static TextStyle caption = GoogleFonts.poppins(
     fontSize: 11,
     fontWeight: FontWeight.w400,
     color: AppThemeColors.textMuted,
   );
 
-  static  TextStyle tableHeader = GoogleFonts.poppins(
+  static TextStyle tableHeader = GoogleFonts.poppins(
     fontSize: 11,
     fontWeight: FontWeight.w600,
     color: AppThemeColors.tableHeader,
     letterSpacing: 0.8,
   );
 
-  static  TextStyle tableCell = GoogleFonts.poppins(
+  static TextStyle tableCell = GoogleFonts.poppins(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppThemeColors.textPrimary,

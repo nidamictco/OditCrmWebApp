@@ -7,6 +7,7 @@ import '../../shared/widgets/plan_badge.dart';
 // import '../models/dashboard_models.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../../company_manage/widgets/edit_company_dialog.dart';
+import '../../company_manage/widgets/company_details_dialog.dart';
 
 class RecentCompanyTable extends StatelessWidget {
   const RecentCompanyTable({
@@ -60,77 +61,92 @@ class RecentCompanyTable extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          // Column headers
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: 40,
-                  child: Text('SL', style: AppTextStyles.tableHeader),
-                ),
-                SizedBox(
-                  width: 250,
-                  child: Text('COMPANY NAME', style: AppTextStyles.tableHeader),
-                ),
-                SizedBox(
-                  width: 150,
-                  // flex: 2,
-                  child: Text('ADMIN NAME', style: AppTextStyles.tableHeader),
-                ),
-                SizedBox(
-                  // flex: 2,
-                  width: 100,
-                  child: Text('PLAN TYPE', style: AppTextStyles.tableHeader),
-                ),
-                SizedBox(
-                  // flex: 2,
-                  width: 100,
-                  child: Text(
-                    'SUBSCRIPTION START',
-                    style: AppTextStyles.tableHeader,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const double minWidth = 920;
+              final double tableWidth = constraints.maxWidth > minWidth
+                  ? constraints.maxWidth
+                  : minWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Column headers
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: 40,
+                              child: Text('SL', style: AppTextStyles.tableHeader),
+                            ),
+                            SizedBox(
+                              width: 250,
+                              child: Text('COMPANY NAME', style: AppTextStyles.tableHeader),
+                            ),
+                            SizedBox(
+                              width: 150,
+                              child: Text('ADMIN NAME', style: AppTextStyles.tableHeader),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: Text('PLAN TYPE', style: AppTextStyles.tableHeader),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: Text(
+                                'SUBSCRIPTION START',
+                                style: AppTextStyles.tableHeader,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: Text(
+                                'SUBSCRIPTION END',
+                                style: AppTextStyles.tableHeader,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 72,
+                              child: Text('STATUS', style: AppTextStyles.tableHeader),
+                            ),
+                            SizedBox(
+                              width: 56,
+                              child: Text(
+                                'ACTION',
+                                style: AppTextStyles.tableHeader,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Divider(height: 1, color: AppThemeColors.divider),
+                      // Rows
+                      if (companies.isEmpty)
+                        const _EmptyState()
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: companies.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1, color: AppThemeColors.divider),
+                          itemBuilder: (context, index) {
+                            return _CompanyRow(company: companies[index], cubit: cubit);
+                          },
+                        ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  // flex: 2,
-                  width: 100,
-                  child: Text(
-                    'SUBSCRIPTION END',
-                    style: AppTextStyles.tableHeader,
-                  ),
-                ),
-                SizedBox(
-                  width: 72,
-                  child: Text('STATUS', style: AppTextStyles.tableHeader),
-                ),
-                SizedBox(
-                  width: 56,
-                  child: Text(
-                    'ACTION',
-                    style: AppTextStyles.tableHeader,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
-          const SizedBox(height: 8),
-          const Divider(height: 1, color: AppThemeColors.divider),
-          // Rows
-          if (companies.isEmpty)
-            const _EmptyState()
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: companies.length,
-              separatorBuilder: (_, __) =>
-                  const Divider(height: 1, color: AppThemeColors.divider),
-              itemBuilder: (context, index) {
-                return _CompanyRow(company: companies[index], cubit: cubit);
-              },
-            ),
         ],
       ),
     );
@@ -167,85 +183,97 @@ class _CompanyRowState extends State<_CompanyRow> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        color: _hovered ? AppThemeColors.scaffoldBg : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              width: 40,
-              child: Text(sl, style: AppTextStyles.tableCell),
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) => CompanyDetailsDialog(
+              company: widget.company,
+              cubit: widget.cubit,
             ),
-            SizedBox(
-              width: 250,
-              // flex: 1,
-              child: Text(
-                widget.company.companyName,
-                style: AppTextStyles.tableCell,
-                overflow: TextOverflow.ellipsis,
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          color: _hovered ? AppThemeColors.scaffoldBg : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 40,
+                child: Text(sl, style: AppTextStyles.tableCell),
               ),
-            ),
-            SizedBox(
-              width: 150,
-              // flex: 2,
-              child: Text(
-                widget.company.adminName,
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-            SizedBox(
-              width: 100,
-              // flex: 1,
-              child: PlanBadge(label: widget.company.planType.label),
-            ),
-            SizedBox(
-              width: 100,
-              // flex: 1,
-              child: Text(
-                DateFormat(
-                  'dd MMM yyyy',
-                ).format(widget.company.subscriptionStartDate),
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-            SizedBox(
-              width: 100,
-              // flex: 1,
-              child: Text(
-                DateFormat(
-                  'dd MMM yyyy',
-                ).format(widget.company.subscriptionEndDate),
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-
-            SizedBox(
-              width: 72,
-              child: Text(
-                widget.company.status.label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: _statusColor,
+              SizedBox(
+                width: 250,
+                // flex: 1,
+                child: Text(
+                  widget.company.companyName,
+                  style: AppTextStyles.tableCell,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            SizedBox(
-              width: 56,
-              child: Center(
-                child: GestureDetector(
-                  onTap: () => _showActionMenu(context),
-                  child: const Icon(
-                    Icons.more_vert_rounded,
-                    size: 18,
-                    color: AppThemeColors.textSecondary,
+              SizedBox(
+                width: 150,
+                // flex: 2,
+                child: Text(
+                  widget.company.adminName,
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                // flex: 1,
+                child: PlanBadge(label: widget.company.planType.label),
+              ),
+              SizedBox(
+                width: 100,
+                // flex: 1,
+                child: Text(
+                  DateFormat(
+                    'dd MMM yyyy',
+                  ).format(widget.company.subscriptionStartDate),
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                // flex: 1,
+                child: Text(
+                  DateFormat(
+                    'dd MMM yyyy',
+                  ).format(widget.company.subscriptionEndDate),
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+
+              SizedBox(
+                width: 72,
+                child: Text(
+                  widget.company.status.label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _statusColor,
                   ),
                 ),
               ),
-            ),
-          ],
+              SizedBox(
+                width: 56,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () => _showActionMenu(context),
+                    child: const Icon(
+                      Icons.more_vert_rounded,
+                      size: 18,
+                      color: AppThemeColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

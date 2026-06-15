@@ -5,6 +5,7 @@ import '../../shared/widgets/plan_badge.dart';
 import '../cubit/company_manage_cubit.dart';
 import '../models/company_manage_models.dart';
 import 'edit_company_dialog.dart';
+import 'company_details_dialog.dart';
 
 import 'sortable_column_header.dart';
 import 'table_pagination.dart';
@@ -44,26 +45,44 @@ class CompanyTable extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ── Header row ────────────────────────────────────────────
-          _TableHeaderRow(state: state, cubit: cubit),
-          const Divider(height: 1, color: AppThemeColors.divider),
-          // ── Data rows ─────────────────────────────────────────────
-          if (state.pagedCompanies.isEmpty)
-            const _EmptyState()
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: state.pagedCompanies.length,
-              separatorBuilder: (_, __) =>
-                  const Divider(height: 1, color: AppThemeColors.divider),
-              itemBuilder: (context, index) {
-                return _CompanyRow(
-                  company: state.pagedCompanies[index],
-                  cubit: cubit,
-                );
-              },
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const double minWidth = 1000;
+              final double tableWidth = constraints.maxWidth > minWidth
+                  ? constraints.maxWidth
+                  : minWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  child: Column(
+                    children: [
+                      // ── Header row ────────────────────────────────────────────
+                      _TableHeaderRow(state: state, cubit: cubit),
+                      const Divider(height: 1, color: AppThemeColors.divider),
+                      // ── Data rows ─────────────────────────────────────────────
+                      if (state.pagedCompanies.isEmpty)
+                        const _EmptyState()
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: state.pagedCompanies.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1, color: AppThemeColors.divider),
+                          itemBuilder: (context, index) {
+                            return _CompanyRow(
+                              company: state.pagedCompanies[index],
+                              cubit: cubit,
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
           // ── Pagination ────────────────────────────────────────────
           const Divider(height: 1, color: AppThemeColors.divider),
           TablePagination(
@@ -195,72 +214,84 @@ class _CompanyRowState extends State<_CompanyRow> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        color: _hovered ? const Color(0xFFF8F9FD) : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // SL
-            SizedBox(
-              width: _ColW.sl,
-              child: Text(sl, style: AppTextStyles.tableCell),
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) => CompanyDetailsDialog(
+              company: widget.company,
+              cubit: widget.cubit,
             ),
-            // Company Name
-            SizedBox(
-              width: _ColW.companyName,
-              child: Text(
-                widget.company.companyName,
-                style: AppTextStyles.tableCell,
-                overflow: TextOverflow.ellipsis,
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          color: _hovered ? const Color(0xFFF8F9FD) : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // SL
+              SizedBox(
+                width: _ColW.sl,
+                child: Text(sl, style: AppTextStyles.tableCell),
               ),
-            ),
-            // Admin Name
-            SizedBox(
-              width: _ColW.adminName,
-              child: Text(
-                widget.company.adminName,
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-            // Plan Type
-            SizedBox(
-              width: _ColW.planType,
-              child: PlanBadge(label: widget.company.planType.label),
-            ),
-            // Subscription Start
-            SizedBox(
-              width: _ColW.subStart,
-              child: Text(
-                fmt.format(widget.company.subscriptionStartDate),
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-            // Subscription End
-            SizedBox(
-              width: _ColW.subEnd,
-              child: Text(
-                fmt.format(widget.company.subscriptionEndDate),
-                style: AppTextStyles.tableCell,
-              ),
-            ),
-            // Status
-            SizedBox(
-              width: _ColW.status,
-              child: _StatusBadge(status: widget.company.status),
-            ),
-            // Action
-            SizedBox(
-              width: _ColW.action,
-              child: Center(
-                child: _ActionMenu(
-                  company: widget.company,
-                  cubit: widget.cubit,
+              // Company Name
+              SizedBox(
+                width: _ColW.companyName,
+                child: Text(
+                  widget.company.companyName,
+                  style: AppTextStyles.tableCell,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ],
+              // Admin Name
+              SizedBox(
+                width: _ColW.adminName,
+                child: Text(
+                  widget.company.adminName,
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+              // Plan Type
+              SizedBox(
+                width: _ColW.planType,
+                child: PlanBadge(label: widget.company.planType.label),
+              ),
+              // Subscription Start
+              SizedBox(
+                width: _ColW.subStart,
+                child: Text(
+                  fmt.format(widget.company.subscriptionStartDate),
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+              // Subscription End
+              SizedBox(
+                width: _ColW.subEnd,
+                child: Text(
+                  fmt.format(widget.company.subscriptionEndDate),
+                  style: AppTextStyles.tableCell,
+                ),
+              ),
+              // Status
+              SizedBox(
+                width: _ColW.status,
+                child: _StatusBadge(status: widget.company.status),
+              ),
+              // Action
+              SizedBox(
+                width: _ColW.action,
+                child: Center(
+                  child: _ActionMenu(
+                    company: widget.company,
+                    cubit: widget.cubit,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
