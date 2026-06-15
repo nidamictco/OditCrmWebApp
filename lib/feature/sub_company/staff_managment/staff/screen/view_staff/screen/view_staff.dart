@@ -194,7 +194,6 @@ class _ViewStaffState extends State<ViewStaff> {
           if (state is StaffSaved) {
             context.read<StaffCubit>().fetchAll();
           }
-          
         },
         builder: (context, state) {
           return SingleChildScrollView(
@@ -536,16 +535,14 @@ class _ViewStaffState extends State<ViewStaff> {
         CustomTable(
           onRowTap: (rowIndex) {
             final staff = pagedList[rowIndex];
-                                  // log('stafff........$staff');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MainScreen(
-                                        selectedIndex: 29,
-                                        staff: staff,
-                                      ),
-                                    ),
-                                  );
+            // log('stafff........$staff');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    MainScreen(selectedIndex: 29, staff: staff),
+              ),
+            );
           },
           columns: [
             TableColumn(title: "#", flex: 1),
@@ -591,17 +588,18 @@ class _ViewStaffState extends State<ViewStaff> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              MainScreen(selectedIndex: 15, staff: staff),
-                        ),
-                      ).then((_) {
-    if (context.mounted) {
-      context.read<StaffCubit>().fetchAll();
-    }
-  }),
+                      onTap: () =>
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  MainScreen(selectedIndex: 15, staff: staff),
+                            ),
+                          ).then((_) {
+                            if (context.mounted) {
+                              context.read<StaffCubit>().fetchAll();
+                            }
+                          }),
                       child: Tooltip(
                         message: 'Edit',
                         child: Icon(
@@ -622,11 +620,11 @@ class _ViewStaffState extends State<ViewStaff> {
                                   MainScreen(selectedIndex: 29, staff: staff),
                             ),
                           ).then((_) {
-      // ✅ Refresh the list when returning from profile screen
-      if (context.mounted) {
-        context.read<StaffCubit>().fetchAll();
-      }
-    });
+                            // ✅ Refresh the list when returning from profile screen
+                            if (context.mounted) {
+                              context.read<StaffCubit>().fetchAll();
+                            }
+                          });
                         },
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),
@@ -656,10 +654,10 @@ class _ViewStaffState extends State<ViewStaff> {
                                   MainScreen(selectedIndex: 32, staff: staff),
                             ),
                           ).then((_) {
-        if (context.mounted) {
-          context.read<StaffCubit>().fetchAll();
-        }
-      });
+                            if (context.mounted) {
+                              context.read<StaffCubit>().fetchAll();
+                            }
+                          });
                         },
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),
@@ -732,27 +730,24 @@ class _ViewStaffState extends State<ViewStaff> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

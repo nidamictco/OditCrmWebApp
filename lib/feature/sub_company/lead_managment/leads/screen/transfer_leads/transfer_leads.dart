@@ -765,12 +765,13 @@ class _TransferLeadsState extends State<TransferLeads> {
                                               color: Colors.indigo,
                                             ),
                                           ),
+                                          SizedBox(width: 1.w),
                                           GestureDetector(
                                             onTap: () =>
                                                 _confirmDelete(context, lead),
                                             child: Icon(
                                               Icons.delete_outline,
-                                              size: 14.sp,
+                                              size: 13.sp,
                                               color: Colors.red,
                                             ),
                                           ),

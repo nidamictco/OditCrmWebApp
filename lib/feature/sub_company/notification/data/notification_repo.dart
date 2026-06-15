@@ -32,7 +32,7 @@ class NotificationRepo {
   Future<void> createForAdmins({
     required String title,
     required String message,
-    String excludeStaffId = '',
+    String? excludeStaffId,
   }) async {
     try {
       // Fetch all admin users
@@ -44,7 +44,11 @@ class NotificationRepo {
         final adminId = doc.id;
 
         // Skip if this admin is already the assigned staff (already notified above)
-        if (adminId == excludeStaffId) continue;
+        if (excludeStaffId != null &&
+            excludeStaffId.isNotEmpty &&
+            adminId == excludeStaffId) {
+          continue;
+        }
 
         log('Creating admin notification for: $adminId');
         final String id = _generateDateId('NOTIF');

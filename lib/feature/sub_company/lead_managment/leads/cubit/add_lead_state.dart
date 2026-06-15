@@ -70,6 +70,7 @@ class AddLeadState {
   final String profileTotalCalledCount;
   final String profileConnectedCount;
   final String profileNotConnectedCount;
+  final Map<String, int> profileCallResultCounts;
   final bool isLoadingProfileCounts;
 
   const AddLeadState({
@@ -116,6 +117,7 @@ class AddLeadState {
     this.profileTotalCalledCount = '0',
     this.profileConnectedCount = '0',
     this.profileNotConnectedCount = '0',
+    this.profileCallResultCounts = const {},
     this.isLoadingProfileCounts = false,
   });
 
@@ -166,6 +168,7 @@ class AddLeadState {
     String? profileTotalCalledCount,
     String? profileConnectedCount,
     String? profileNotConnectedCount,
+    Map<String, int>? profileCallResultCounts,
     bool? isLoadingProfileCounts,
     // ── clear flags ──────────────────────────────────────────────────────────
     bool clearError = false,
@@ -246,6 +249,8 @@ class AddLeadState {
           profileConnectedCount ?? this.profileConnectedCount,
       profileNotConnectedCount:
           profileNotConnectedCount ?? this.profileNotConnectedCount,
+      profileCallResultCounts:
+          profileCallResultCounts ?? this.profileCallResultCounts,
       isLoadingProfileCounts:
           isLoadingProfileCounts ?? this.isLoadingProfileCounts,
     );

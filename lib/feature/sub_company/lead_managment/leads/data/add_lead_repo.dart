@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -412,8 +412,8 @@ class AddLeadRepository implements IAddLeadRepository {
         case 'MISSED':
           return allLeads.where((lead) {
             return (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
-                lead.leadStage.toUpperCase() == 'NEW') &&
-                    isbeforeFromDay(lead.followUpDate);
+                    lead.leadStage.toUpperCase() == 'NEW') &&
+                isbeforeFromDay(lead.followUpDate);
           }).toList();
 
         /// TRANSFERRED
@@ -577,18 +577,27 @@ class AddLeadRepository implements IAddLeadRepository {
     //   'updatedAt': FieldValue.serverTimestamp(),
     //   // 'remarks' : followUp.remarks,
     // });
-    // In addFollowUp(), inside the batch.update(leadRef, {...}):
-batch.update(leadRef, {
-  'leadStage': followUp.leadStage,
-  'priority': followUp.priority,
-  'leadCategory': followUp.leadCategory,
-  'nextFollowUpDate': followUp.nextFollowUpDate,
-  'lastCalledDate': followUp.calledDate,
-  'callResult': followUp.calledStatus,
-  'leadTag': followUp.leadTag,
-  'updatedAt': FieldValue.serverTimestamp(),
-  'hasFollowUp': true,   // ← ADD THIS ONE LINE
-});
+    final Map<String, dynamic> leadUpdates = {
+      'leadStage': followUp.leadStage,
+      'priority': followUp.priority,
+      'leadCategory': followUp.leadCategory,
+      'nextFollowUpDate': followUp.nextFollowUpDate,
+      'lastCalledDate': followUp.calledDate,
+      'callResult': followUp.calledStatus,
+      'leadTag': followUp.leadTag,
+      'updatedAt': FieldValue.serverTimestamp(),
+      'hasFollowUp': true,
+    };
+    if ((followUp.adress ?? '').isNotEmpty) {
+      leadUpdates['address'] = followUp.adress;
+    }
+    if ((followUp.email ?? '').isNotEmpty) {
+      leadUpdates['email'] = followUp.email;
+    }
+    if ((followUp.remarks ?? '').isNotEmpty) {
+      leadUpdates['remarks'] = followUp.remarks;
+    }
+    batch.update(leadRef, leadUpdates);
 
     final now = DateTime.now();
 
@@ -763,291 +772,298 @@ batch.update(leadRef, {
     return day1.isBefore(day2);
   }
 
-  
+  //   @override
+  //   Future<DashboardCountModel> fetchLeadCounts({
+  //     required String staffId,
+  //     required DateTime selectedDate,
+  //     required String role,
+  //     bool forceStaffFilter = false, // ← new flag
+  //   }) async {
+  //     final startOfDay = DateTime(
+  //       selectedDate.year,
+  //       selectedDate.month,
+  //       selectedDate.day,
+  //     );
+  //     final endOfDay = DateTime(
+  //       selectedDate.year,
+  //       selectedDate.month,
+  //       selectedDate.day,
+  //       23,
+  //       59,
+  //       59,
+  //     );
 
-//   @override
-//   Future<DashboardCountModel> fetchLeadCounts({
-//     required String staffId,
-//     required DateTime selectedDate,
-//     required String role,
-//     bool forceStaffFilter = false, // ← new flag
-//   }) async {
-//     final startOfDay = DateTime(
-//       selectedDate.year,
-//       selectedDate.month,
-//       selectedDate.day,
-//     );
-//     final endOfDay = DateTime(
-//       selectedDate.year,
-//       selectedDate.month,
-//       selectedDate.day,
-//       23,
-//       59,
-//       59,
-//     );
+  //     // If forceStaffFilter=true (staff profile screen), ALWAYS filter by staffId
+  //     // regardless of role. Otherwise use the original admin/staff logic.
+  //     Query<Map<String, dynamic>> query = _collection;
+  //     if (forceStaffFilter && staffId.isNotEmpty) {
+  //       query = query.where('assignedStaffId', isEqualTo: staffId);
+  //       log(
+  //         '[fetchLeadCounts] Staff profile mode: filtering by staffId=$staffId',
+  //       );
+  //     } else if (role.toLowerCase() != 'admin') {
+  //       query = query.where('assignedStaffId', isEqualTo: staffId);
+  //       log('[fetchLeadCounts] Staff mode: filtering by staffId=$staffId');
+  //     } else {
+  //       log('[fetchLeadCounts] Admin dashboard mode: fetching all leads');
+  //     }
 
-//     // If forceStaffFilter=true (staff profile screen), ALWAYS filter by staffId
-//     // regardless of role. Otherwise use the original admin/staff logic.
-//     Query<Map<String, dynamic>> query = _collection;
-//     if (forceStaffFilter && staffId.isNotEmpty) {
-//       query = query.where('assignedStaffId', isEqualTo: staffId);
-//       log(
-//         '[fetchLeadCounts] Staff profile mode: filtering by staffId=$staffId',
-//       );
-//     } else if (role.toLowerCase() != 'admin') {
-//       query = query.where('assignedStaffId', isEqualTo: staffId);
-//       log('[fetchLeadCounts] Staff mode: filtering by staffId=$staffId');
-//     } else {
-//       log('[fetchLeadCounts] Admin dashboard mode: fetching all leads');
-//     }
+  //     final snap = await query.get();
+  //     log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
 
-//     final snap = await query.get();
-//     log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
+  //     int newLeadCount = 0;
+  //     int followUpCount = 0;
+  //     int closedLeadCount = 0;
+  //     int totalCalledCount = 0;
+  //     int missedLeadCount = 0;
+  //     int transferredCount = 0;
 
-//     int newLeadCount = 0;
-//     int followUpCount = 0;
-//     int closedLeadCount = 0;
-//     int totalCalledCount = 0;
-//     int missedLeadCount = 0;
-//     int transferredCount = 0;
+  //     for (final doc in snap.docs) {
+  //       final data = doc.data();
+  //       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+  //       final followUps =
+  //           (await doc.reference.collection('FOLLOW_UPS').get()).docs;
 
-//     for (final doc in snap.docs) {
-//       final data = doc.data();
-//       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-//       final followUps =
-//           (await doc.reference.collection('FOLLOW_UPS').get()).docs;
+  //       // NEW
+  //       final createdAt = data['createdAt'];
+  //       if (createdAt != null) {
+  //         final createdDate = (createdAt as Timestamp).toDate();
+  //         // if (_isSameDay(createdDate, selectedDate) &&
+  //         //     leadStage == 'NEW' &&
+  //         //     followUps.isEmpty) {
+  //         //   newLeadCount++;
+  //         // }
+  // //         if (leadStage == 'NEW' && createdDate != null && _isSameDay(createdDate, selectedDate)) {
+  // //   // only fetch follow-ups when the lead is actually a candidate
+  // //   final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
+  // //   if (followUps.isEmpty) newLeadCount++;
+  // // }
+  // final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+  // if (leadStage == 'NEW' && _isSameDay(createdDate, selectedDate)) {
+  //   if (!hasFollowUp) newLeadCount++;
+  // }
+  //       }
 
-//       // NEW
-//       final createdAt = data['createdAt'];
-//       if (createdAt != null) {
-//         final createdDate = (createdAt as Timestamp).toDate();
-//         // if (_isSameDay(createdDate, selectedDate) &&
-//         //     leadStage == 'NEW' &&
-//         //     followUps.isEmpty) {
-//         //   newLeadCount++;
-//         // }
-// //         if (leadStage == 'NEW' && createdDate != null && _isSameDay(createdDate, selectedDate)) {
-// //   // only fetch follow-ups when the lead is actually a candidate
-// //   final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
-// //   if (followUps.isEmpty) newLeadCount++;
-// // }
-// final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
-// if (leadStage == 'NEW' && _isSameDay(createdDate, selectedDate)) {
-//   if (!hasFollowUp) newLeadCount++;
-// }
-//       }
+  //       // FOLLOWUP
+  //       final nextFollowUpDate = data['nextFollowUpDate'];
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //         if (_isSameDay(followDate, selectedDate) &&
+  //             leadStage != 'CLOSED' &&
+  //             leadStage != 'REJECTED' &&
+  //             leadStage != 'NEW') {
+  //           followUpCount++;
+  //         }
+  //       }
 
-//       // FOLLOWUP
-//       final nextFollowUpDate = data['nextFollowUpDate'];
-//       if (nextFollowUpDate != null) {
-//         final followDate = (nextFollowUpDate as Timestamp).toDate();
-//         if (_isSameDay(followDate, selectedDate) &&
-//             leadStage != 'CLOSED' &&
-//             leadStage != 'REJECTED' &&
-//             leadStage != 'NEW') {
-//           followUpCount++;
-//         }
-//       }
+  //       // final calledDate = data['lastCalledDate'] ;
+  //       // CLOSED
+  //       final lastCalledDate = data['lastCalledDate'];
+  //       if (lastCalledDate != null) {
+  //         final calledDate = (lastCalledDate as Timestamp).toDate();
+  //         if (leadStage == 'CLOSED' && _isSameDay(calledDate, selectedDate)) {
+  //           closedLeadCount++;
+  //         }
+  //       } else {
+  //         if (createdAt != null) {
+  //           final createdDate = (createdAt as Timestamp).toDate();
+  //           if (leadStage == 'CLOSED' && _isSameDay(createdDate, selectedDate)) {
+  //             closedLeadCount++;
+  //           }
+  //         }
+  //       }
+  //       //&& _isSameDay(calledDate, selectedDate)) closedLeadCount++;
 
-//       // final calledDate = data['lastCalledDate'] ;
-//       // CLOSED
-//       final lastCalledDate = data['lastCalledDate'];
-//       if (lastCalledDate != null) {
-//         final calledDate = (lastCalledDate as Timestamp).toDate();
-//         if (leadStage == 'CLOSED' && _isSameDay(calledDate, selectedDate)) {
-//           closedLeadCount++;
-//         }
-//       } else {
-//         if (createdAt != null) {
-//           final createdDate = (createdAt as Timestamp).toDate();
-//           if (leadStage == 'CLOSED' && _isSameDay(createdDate, selectedDate)) {
-//             closedLeadCount++;
-//           }
-//         }
-//       }
-//       //&& _isSameDay(calledDate, selectedDate)) closedLeadCount++;
+  //       // MISSED / REJECTED
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //         if ((leadStage == 'FOLLOWUP' || leadStage == 'NEW') &&
+  //             _isBeforeDay(followDate, selectedDate)) {
+  //           missedLeadCount++;
+  //         }
+  //       }
 
-//       // MISSED / REJECTED
-//       if (nextFollowUpDate != null) {
-//         final followDate = (nextFollowUpDate as Timestamp).toDate();
-//         if ((leadStage == 'FOLLOWUP' || leadStage == 'NEW') &&
-//             _isBeforeDay(followDate, selectedDate)) {
-//           missedLeadCount++;
-//         }
-//       }
+  //       // TOTAL CALLED
+  //       // final lastCalledDate = data['lastCalledDate'];
+  //       if (lastCalledDate != null) {
+  //         final calledDate = (lastCalledDate as Timestamp).toDate();
+  //         if (_isSameDay(calledDate, selectedDate)) totalCalledCount++;
+  //       }
 
-//       // TOTAL CALLED
-//       // final lastCalledDate = data['lastCalledDate'];
-//       if (lastCalledDate != null) {
-//         final calledDate = (lastCalledDate as Timestamp).toDate();
-//         if (_isSameDay(calledDate, selectedDate)) totalCalledCount++;
-//       }
+  //       // TRANSFERRED
+  //       final transferredList = data['transferLeads'];
+  //       if (transferredList != null && transferredList is List) {
+  //         bool alreadyCounted = false;
+  //         for (final item in transferredList) {
+  //           if (item is Map<String, dynamic>) {
+  //             final transferredTime = item['transferTime'];
+  //             if (transferredTime != null) {
+  //               final transferDate = (transferredTime as Timestamp).toDate();
+  //               if (_isSameDay(transferDate, selectedDate) && !alreadyCounted) {
+  //                 transferredCount++;
+  //                 alreadyCounted = true;
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
 
-//       // TRANSFERRED
-//       final transferredList = data['transferLeads'];
-//       if (transferredList != null && transferredList is List) {
-//         bool alreadyCounted = false;
-//         for (final item in transferredList) {
-//           if (item is Map<String, dynamic>) {
-//             final transferredTime = item['transferTime'];
-//             if (transferredTime != null) {
-//               final transferDate = (transferredTime as Timestamp).toDate();
-//               if (_isSameDay(transferDate, selectedDate) && !alreadyCounted) {
-//                 transferredCount++;
-//                 alreadyCounted = true;
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
+  //     log(
+  //       '[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
+  //       'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
+  //       'transferred:$transferredCount',
+  //     );
 
-//     log(
-//       '[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
-//       'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
-//       'transferred:$transferredCount',
-//     );
+  //     return DashboardCountModel(
+  //       newLeadCount: newLeadCount,
+  //       followUpCount: followUpCount,
+  //       closedLeadCount: closedLeadCount,
+  //       totalCalledCount: totalCalledCount,
+  //       missedLeadCount: missedLeadCount,
+  //       transferredCount: transferredCount,
+  //     );
+  //   }
+  @override
+  Future<DashboardCountModel> fetchLeadCounts({
+    required String staffId,
+    required DateTime selectedDate,
+    required String role,
+    bool forceStaffFilter = false,
+  }) async {
+    final sw = Stopwatch()..start();
 
-//     return DashboardCountModel(
-//       newLeadCount: newLeadCount,
-//       followUpCount: followUpCount,
-//       closedLeadCount: closedLeadCount,
-//       totalCalledCount: totalCalledCount,
-//       missedLeadCount: missedLeadCount,
-//       transferredCount: transferredCount,
-//     );
-//   }
-@override
-Future<DashboardCountModel> fetchLeadCounts({
-  required String staffId,
-  required DateTime selectedDate,
-  required String role,
-  bool forceStaffFilter = false,
-}) async {
-  final sw = Stopwatch()..start();
+    final startOfDay = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+    final endOfDay = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      23,
+      59,
+      59,
+    );
 
-  final startOfDay = DateTime(
-      selectedDate.year, selectedDate.month, selectedDate.day);
-  final endOfDay = DateTime(
-      selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
+    // ── Single query, no composite index needed ──────────────────────────────
+    Query<Map<String, dynamic>> base = _collection;
+    if (forceStaffFilter && staffId.isNotEmpty) {
+      base = base.where('assignedStaffId', isEqualTo: staffId);
+    } else if (role.toLowerCase() != 'admin') {
+      base = base.where('assignedStaffId', isEqualTo: staffId);
+    }
 
-  // ── Single query, no composite index needed ──────────────────────────────
-  Query<Map<String, dynamic>> base = _collection;
-  if (forceStaffFilter && staffId.isNotEmpty) {
-    base = base.where('assignedStaffId', isEqualTo: staffId);
-  } else if (role.toLowerCase() != 'admin') {
-    base = base.where('assignedStaffId', isEqualTo: staffId);
-  }
+    // ONE round-trip to Firestore — no subcollection reads at all
+    final snap = await base.get();
+    log('[fetchLeadCounts] docs: ${snap.docs.length}');
 
-  // ONE round-trip to Firestore — no subcollection reads at all
-  final snap = await base.get();
-  log('[fetchLeadCounts] docs: ${snap.docs.length}');
+    int newLeadCount = 0;
+    int followUpCount = 0;
+    int closedLeadCount = 0;
+    int totalCalledCount = 0;
+    int missedLeadCount = 0;
+    int transferredCount = 0;
 
-  int newLeadCount     = 0;
-  int followUpCount    = 0;
-  int closedLeadCount  = 0;
-  int totalCalledCount = 0;
-  int missedLeadCount  = 0;
-  int transferredCount = 0;
+    for (final doc in snap.docs) {
+      final data = doc.data();
+      final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
 
-  for (final doc in snap.docs) {
-    final data      = doc.data();
-    final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-
-    // ── NEW ────────────────────────────────────────────────────────────
-    if (leadStage == 'NEW') {
-      final createdAt = data['createdAt'];
-      if (createdAt != null) {
-        final createdDate = (createdAt as Timestamp).toDate();
-        if (_isInRange(createdDate, startOfDay, endOfDay)) {
-          final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
-          if (!hasFollowUp) newLeadCount++;
+      // ── NEW ────────────────────────────────────────────────────────────
+      if (leadStage == 'NEW') {
+        final createdAt = data['createdAt'];
+        if (createdAt != null) {
+          final createdDate = (createdAt as Timestamp).toDate();
+          if (_isInRange(createdDate, startOfDay, endOfDay)) {
+            final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+            if (!hasFollowUp) newLeadCount++;
+          }
         }
       }
-    }
 
-    // ── FOLLOWUP ───────────────────────────────────────────────────────
-    if (leadStage == 'FOLLOWUP') {
-      final nextFollowUpDate = data['nextFollowUpDate'];
-      if (nextFollowUpDate != null) {
-        final followDate = (nextFollowUpDate as Timestamp).toDate();
-        if (_isInRange(followDate, startOfDay, endOfDay)) followUpCount++;
+      // ── FOLLOWUP ───────────────────────────────────────────────────────
+      if (leadStage == 'FOLLOWUP') {
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
+          if (_isInRange(followDate, startOfDay, endOfDay)) followUpCount++;
+        }
       }
-    }
 
-    // ── CLOSED ─────────────────────────────────────────────────────────
-    if (leadStage == 'CLOSED') {
+      // ── CLOSED ─────────────────────────────────────────────────────────
+      if (leadStage == 'CLOSED') {
+        final lastCalledDate = data['lastCalledDate'];
+        final createdAt = data['createdAt'];
+        if (lastCalledDate != null) {
+          final calledDate = (lastCalledDate as Timestamp).toDate();
+          if (_isInRange(calledDate, startOfDay, endOfDay)) closedLeadCount++;
+        } else if (createdAt != null) {
+          final createdDate = (createdAt as Timestamp).toDate();
+          if (_isInRange(createdDate, startOfDay, endOfDay)) closedLeadCount++;
+        }
+      }
+
+      // ── TOTAL CALLED ───────────────────────────────────────────────────
       final lastCalledDate = data['lastCalledDate'];
-      final createdAt      = data['createdAt'];
       if (lastCalledDate != null) {
         final calledDate = (lastCalledDate as Timestamp).toDate();
-        if (_isInRange(calledDate, startOfDay, endOfDay)) closedLeadCount++;
-      } else if (createdAt != null) {
-        final createdDate = (createdAt as Timestamp).toDate();
-        if (_isInRange(createdDate, startOfDay, endOfDay)) closedLeadCount++;
+        if (_isInRange(calledDate, startOfDay, endOfDay)) totalCalledCount++;
       }
-    }
 
-    // ── TOTAL CALLED ───────────────────────────────────────────────────
-    final lastCalledDate = data['lastCalledDate'];
-    if (lastCalledDate != null) {
-      final calledDate = (lastCalledDate as Timestamp).toDate();
-      if (_isInRange(calledDate, startOfDay, endOfDay)) totalCalledCount++;
-    }
-
-    // ── MISSED ─────────────────────────────────────────────────────────
-    if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
-      final nextFollowUpDate = data['nextFollowUpDate'];
-      if (nextFollowUpDate != null) {
-        final followDate = (nextFollowUpDate as Timestamp).toDate();
-        if (_isBeforeDay(followDate, startOfDay)) missedLeadCount++;
+      // ── MISSED ─────────────────────────────────────────────────────────
+      if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
+          if (_isBeforeDay(followDate, startOfDay)) missedLeadCount++;
+        }
       }
-    }
 
-    // ── TRANSFERRED ────────────────────────────────────────────────────
-    if (leadStage == 'TRANSFERRED') {
-      final transferredList = data['transferLeads'];
-      if (transferredList is List) {
-        bool counted = false;
-        for (final item in transferredList) {
-          if (counted) break;
-          if (item is Map<String, dynamic>) {
-            final t = item['transferTime'];
-            if (t != null) {
-              final td = (t as Timestamp).toDate();
-              if (_isInRange(td, startOfDay, endOfDay)) {
-                transferredCount++;
-                counted = true;
+      // ── TRANSFERRED ────────────────────────────────────────────────────
+      if (leadStage == 'TRANSFERRED') {
+        final transferredList = data['transferLeads'];
+        if (transferredList is List) {
+          bool counted = false;
+          for (final item in transferredList) {
+            if (counted) break;
+            if (item is Map<String, dynamic>) {
+              final t = item['transferTime'];
+              if (t != null) {
+                final td = (t as Timestamp).toDate();
+                if (_isInRange(td, startOfDay, endOfDay)) {
+                  transferredCount++;
+                  counted = true;
+                }
               }
             }
           }
         }
       }
     }
-  }
 
-  sw.stop();
-  log('[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
+    sw.stop();
+    log(
+      '[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
       'closed:$closedLeadCount total:$totalCalledCount '
       'missed:$missedLeadCount transferred:$transferredCount '
-      '— ${sw.elapsedMilliseconds}ms');
+      '— ${sw.elapsedMilliseconds}ms',
+    );
 
-  return DashboardCountModel(
-    newLeadCount:     newLeadCount,
-    followUpCount:    followUpCount,
-    closedLeadCount:  closedLeadCount,
-    totalCalledCount: totalCalledCount,
-    missedLeadCount:  missedLeadCount,
-    transferredCount: transferredCount,
-  );
-}
+    return DashboardCountModel(
+      newLeadCount: newLeadCount,
+      followUpCount: followUpCount,
+      closedLeadCount: closedLeadCount,
+      totalCalledCount: totalCalledCount,
+      missedLeadCount: missedLeadCount,
+      transferredCount: transferredCount,
+    );
+  }
 
-// ── Add this helper if not already present ──────────────────────────────────
-bool _isInRange(DateTime date, DateTime start, DateTime end) {
-  return !date.isBefore(start) && !date.isAfter(end);
-}
-
-
+  // ── Add this helper if not already present ──────────────────────────────────
+  bool _isInRange(DateTime date, DateTime start, DateTime end) {
+    return !date.isBefore(start) && !date.isAfter(end);
+  }
 
   @override
   Future<void> _logActivity(String leadId, ActivityModel activity) async {
@@ -1215,9 +1231,9 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     await Future.wait(
       staffIds.map((id) async {
         try {
-          final doc = await FirestorePath.companyCollection('STAFF')
-              .doc(id)
-              .get();
+          final doc = await FirestorePath.companyCollection(
+            'STAFF',
+          ).doc(id).get();
           phoneMap[id] = doc.data()?['phone'] as String? ?? '';
         } catch (_) {
           phoneMap[id] = '';
@@ -1397,18 +1413,40 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     return rows;
   }
 
+  static const Map<String, bool> callResultConnectionMap = {
+    'connected': true,
+    'answered': true,
+    'busy': false,
+    'not attended': false,
+    'notattended': false,
+    'out of coverage area': false,
+    'outofcoveragearea': false,
+    'rejected': false,
+    'switched off': false,
+    'switchedoff': false,
+    'no answer': false,
+    'noanswer': false,
+  };
+
+  static bool isCallConnected(String status) {
+    final normalized = status.toLowerCase().trim();
+    if (normalized.isEmpty) return false;
+    if (callResultConnectionMap.containsKey(normalized)) {
+      return callResultConnectionMap[normalized]!;
+    }
+    // Fallback: If it contains 'connect' or 'answer', assume connected; otherwise, not connected.
+    if (normalized.contains('connect') || normalized.contains('answer')) {
+      return true;
+    }
+    return false;
+  }
+
   Future<Map<String, int>> fetchCallStatusCounts({
     required String staffId,
     required String role,
     DateTime? selectedDate,
     DateTime? toDate,
   }) async {
-    // Query<Map<String, dynamic>> query = _collection;
-
-    // if (staffId.isNotEmpty) {
-    //   query = query.where('assignedStaffId', isEqualTo: staffId);
-    // }
-
     Timestamp? fromTs;
     Timestamp? toTs;
     if (selectedDate != null) {
@@ -1440,20 +1478,31 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     int totalCalled = 0;
     int connected = 0;
     int notConnected = 0;
+    final Map<String, int> detailedCounts = {};
 
     for (final doc in snap.docs) {
       final data = doc.data();
-      final callResult = (data['callResult'] as String? ?? '')
-          .toLowerCase()
-          .trim();
+      final calledStatus = (data['calledStatus'] as String? ?? '').trim();
 
-      if (callResult.isNotEmpty) {
+      if (calledStatus.isNotEmpty) {
+        // Capitalize first letter of each word to look clean on UI
+        final normalized = calledStatus
+            .split(RegExp(r'\s+'))
+            .map((word) {
+              if (word.isEmpty) return '';
+              return word[0].toUpperCase() + word.substring(1).toLowerCase();
+            })
+            .join(' ');
+
+        if (normalized.isNotEmpty) {
+          detailedCounts[normalized] = (detailedCounts[normalized] ?? 0) + 1;
+        }
+
         totalCalled++;
 
-        if (callResult == 'connected') {
+        if (isCallConnected(calledStatus)) {
           connected++;
-        } else if (callResult == 'not connected' ||
-            callResult == 'notconnected') {
+        } else {
           notConnected++;
         }
       }
@@ -1463,22 +1512,19 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
       'totalCalled': totalCalled,
       'connected': connected,
       'notConnected': notConnected,
+      ...detailedCounts,
     };
   }
 
   Future<AddLeadModel> getLeadById(String leadId) async {
     try {
-      final leadDoc = await FirebaseFirestore.instance
-          .collection('LEADS')
-          .doc(leadId)
-          .get();
+      final leadDoc = await _collection.doc(leadId).get();
 
       if (!leadDoc.exists) {
         throw Exception('Lead not found');
       }
 
-      final followUpSnap = await FirebaseFirestore.instance
-          .collection('LEADS')
+      final followUpSnap = await _collection
           .doc(leadId)
           .collection('FOLLOW_UPS')
           .orderBy('createdAt', descending: true)
@@ -1520,7 +1566,7 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     required String leadName,
     required String leadPhone,
   }) async {
-    final leadRef = FirebaseFirestore.instance.collection('LEADS').doc(leadId);
+    final leadRef = _collection.doc(leadId);
 
     final activityRef = leadRef.collection('ACTIVITIES');
 
@@ -1596,6 +1642,7 @@ bool _isInRange(DateTime date, DateTime start, DateTime end) {
     return snap.docs.isNotEmpty;
   }
 }
+
 Future<void> migrateHasFollowUp() async {
   final db = FirebaseFirestore.instance;
   final leadsSnap = await db.collection('LEADS').get();

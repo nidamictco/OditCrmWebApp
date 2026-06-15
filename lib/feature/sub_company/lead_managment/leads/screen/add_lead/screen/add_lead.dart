@@ -1218,12 +1218,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
                               child: Dropdown(
                                 label: 'Call Result',
                                 hint: 'Select Call Result',
+                                showStar: true,
                                 focusNode: _callResultFocus,
                                 nextFocusNode: _remarksFocus,
                                 items: const [
-                                  'Answered',
                                   'Busy',
-                                  'No Answer',
+                                  'Connected',
+                                  'Not Attended',
+                                  'Out of Coverage Area',
                                   'Rejected',
                                   'Switched Off',
                                 ],

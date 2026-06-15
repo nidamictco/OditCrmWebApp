@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
@@ -58,6 +58,7 @@ class CallStatusData {
   final Map<String, int> leadsByCategory;
   final int connectedCount;
   final int notConnectedCount;
+  final Map<String, int> callResultCounts;
 
   const CallStatusData({
     required this.cloudCallDuration,
@@ -68,6 +69,7 @@ class CallStatusData {
     required this.leadsByCategory,
     this.connectedCount = 0,
     this.notConnectedCount = 0,
+    this.callResultCounts = const {},
   });
 }
 
@@ -111,6 +113,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   late TabController _tabController;
   int _selectedTab = 0;
   late String _selectedDate;
+  DateTime? _selectedDateValue;
+  DateTime? _toDateValue;
 
   late StaffModel _liveModel;
 
@@ -167,40 +171,63 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   //     role: widget.staff.staffType ?? '',
   //   );
   // }
+  void _refreshCounts() {
+    final staffId = _liveModel.id ?? '';
+    final role = _liveModel.staffType ?? '';
+    final date = _selectedDateValue ?? DateTime.now();
+
+    context.read<AddLeadCubit>().fetchLeadChartCounts(
+      staffId:      staffId,
+      role:         role,
+      selectedDate: date,
+      toDate:       _toDateValue,
+    );
+
+    context.read<AddLeadCubit>().fetchProfileCounts(
+      date,
+      staffId: staffId,
+      role:    role,
+    );
+
+    context.read<AddLeadCubit>().fetchCallStatusCounts(
+      staffId:      staffId,
+      role:         role,
+      selectedDate: _selectedDateValue,
+      toDate:       _toDateValue,
+    );
+  }
+
   @override
-void initState() {
-  super.initState();
-  _liveModel    = widget.staff;
-  _selectedDate = _formatDate(DateTime.now());
-  _tabController = TabController(length: 2, vsync: this);
-  _tabController.addListener(() => setState(() => _selectedTab = _tabController.index));
-
-  if (widget.staff.id != null) {
-    context.read<StaffCubit>().getStaff(widget.staff.id!);
+  void didUpdateWidget(covariant StaffProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.staff.id != oldWidget.staff.id) {
+      setState(() {
+        _liveModel = widget.staff;
+      });
+      _refreshCounts();
+    }
   }
 
-  context.read<AddLeadCubit>().fetchLeadChartCounts(
-    staffId:      widget.staff.id ?? '',
-    role:         widget.staff.staffType ?? '',
-    selectedDate: DateTime.now(),
-  );
+  @override
+  void initState() {
+    super.initState();
+    _liveModel    = widget.staff;
+    _selectedDate = _formatDate(DateTime.now());
+    _selectedDateValue = DateTime.now();
+    _toDateValue = null;
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() => _selectedTab = _tabController.index));
 
-  // ← Use fetchProfileCounts instead of fetchDashboardCounts
-  context.read<AddLeadCubit>().fetchProfileCounts(
-    DateTime.now(),
-    staffId: widget.staff.id ?? '',
-    role:    widget.staff.staffType ?? '',
-  );
+    if (widget.staff.id != null) {
+      context.read<StaffCubit>().getStaff(widget.staff.id!);
+    }
 
-  if (widget.staff.id != null) {
-    context.read<StaffActivityCubit>().load(widget.staff.id!);
+    _refreshCounts();
+
+    if (widget.staff.id != null) {
+      context.read<StaffActivityCubit>().load(widget.staff.id!);
+    }
   }
-
-  context.read<AddLeadCubit>().fetchCallStatusCounts(
-    staffId: widget.staff.id ?? '',
-    role:    widget.staff.staffType ?? '',
-  );
-}
 
   @override
   void dispose() {
@@ -210,7 +237,15 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StaffCubit, StaffState>(
+    return BlocListener<AddLeadCubit, AddLeadState>(
+      listener: (context, leadState) {
+        if (leadState.status == AddLeadStatus.success &&
+            leadState.successMessage != null &&
+            leadState.successMessage!.toLowerCase().contains('follow-up')) {
+          _refreshCounts();
+        }
+      },
+      child: BlocConsumer<StaffCubit, StaffState>(
       listener: (context, state) {
         if (state is StaffLoaded) {
           // ✅ Update cached model whenever fresh data arrives
@@ -302,8 +337,9 @@ void initState() {
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   // ─── SLIVER HEADER ───────────────────────────────────────
 
@@ -475,6 +511,7 @@ final liveCallData = CallStatusData(
       : _callData.leadsByCategory,
   connectedCount:    int.tryParse(leadState.profileConnectedCount) ?? 0,    // ← profile field
   notConnectedCount: int.tryParse(leadState.profileNotConnectedCount) ?? 0, // ← profile field
+  callResultCounts:  leadState.profileCallResultCounts,
 );
         return SingleChildScrollView(
           padding: EdgeInsets.all(2.h),
@@ -535,45 +572,21 @@ final liveCallData = CallStatusData(
                           //   );
                           // },
                           onDateChanged: (date) {
-  setState(() => _selectedDate = _formatDate(date));
-
-  context.read<AddLeadCubit>().fetchLeadChartCounts(
-    staffId:      widget.staff.id ?? '',
-    role:         widget.staff.staffType ?? '',
-    selectedDate: date,
-  );
-  context.read<AddLeadCubit>().fetchProfileCounts(   // ← changed
-    date,
-    staffId: widget.staff.id ?? '',
-    role:    widget.staff.staffType ?? '',
-  );
-  context.read<AddLeadCubit>().fetchCallStatusCounts(
-    staffId:      widget.staff.id ?? '',
-    role:         widget.staff.staffType ?? '',
-    selectedDate: date,
-  );
-},
-onRangeChanged: (from, to) {
-  setState(() => _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}');
-
-  context.read<AddLeadCubit>().fetchLeadChartCounts(
-    staffId:      widget.staff.id ?? '',
-    role:         widget.staff.staffType ?? '',
-    selectedDate: from,
-    toDate:       to,
-  );
-  context.read<AddLeadCubit>().fetchProfileCounts(   // ← changed
-    from,
-    staffId: widget.staff.id ?? '',
-    role:    widget.staff.staffType ?? '',
-  );
-  context.read<AddLeadCubit>().fetchCallStatusCounts(
-    staffId:      widget.staff.id ?? '',
-    role:         widget.staff.staffType ?? '',
-    selectedDate: from,
-    toDate:       to,
-  );
-},
+                            setState(() {
+                              _selectedDate = _formatDate(date);
+                              _selectedDateValue = date;
+                              _toDateValue = null;
+                            });
+                            _refreshCounts();
+                          },
+                          onRangeChanged: (from, to) {
+                            setState(() {
+                              _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}';
+                              _selectedDateValue = from;
+                              _toDateValue = to;
+                            });
+                            _refreshCounts();
+                          },
                         ),
                         SizedBox(height: 3.w),
                         // const RecentActivityCard(),

@@ -125,7 +125,7 @@ class StaffModel {
       email: map['email'],
       designationId: map['designationId'],
       designation: map['designation'],
-      staffType: map['staffType'],
+      staffType: map['staffType'] ?? map['role'],
       joiningDate: map['joiningDate'],
       salary: map['salary'],
       openingBalance: map['openingBalance'],
@@ -142,7 +142,8 @@ class StaffModel {
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
       deletedAt: (map['deletedAt'] as Timestamp?)?.toDate(),
       companyType: map['companyType'] ?? '',
-      companyId: map['companyId'] ??
+      companyId:
+          map['companyId'] ??
           (() {
             final segments = doc.reference.path.split('/');
             if (segments.length >= 2 && segments[0] == 'COMPANY') {

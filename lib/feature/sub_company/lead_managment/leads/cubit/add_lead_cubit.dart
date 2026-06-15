@@ -458,6 +458,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       await notificationRepo.createForAdmins(
         title: 'New Lead Added',
         message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
+        excludeStaffId: user?.id,
       );
 
       if (isClosed) return;
@@ -752,19 +753,6 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         leadName: leadName,
         leadPhone: leadPhone,
       );
-      final updates = <String, dynamic>{};
-      if (address.isNotEmpty) updates['address'] = address;
-      if (email.isNotEmpty) updates['email'] = email;
-      if (remarks.isNotEmpty) updates['remarks'] = remarks;
-
-      if (updates.isNotEmpty) {
-        updates['updatedAt'] = FieldValue.serverTimestamp();
-        await FirebaseFirestore.instance
-            .collection('LEADS')
-            .doc(leadId)
-            .update(updates);
-      }
-
       emit(
         state.copyWith(
           isSubmitting: false,
@@ -835,14 +823,6 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           message: 'Name :$leadName, Phone No: $contactNumber',
         );
       }
-
-      // if (fromStaffId.isNotEmpty) {
-      //   await notificationRepo.create(
-      //     staffId: fromStaffId,
-      //     title: 'Lead Transferred',
-      //     message: 'Name :$leadName, Phone No: $contactNumber to $toStaff',
-      //   );
-      // }
 
       if (isClosed) return;
 
@@ -1038,7 +1018,6 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         state.copyWith(
           isLoadingProfileCounts: false,
           profileClosedCount: counts.closedLeadCount.toString(),
-          profileTotalCalledCount: counts.totalCalledCount.toString(),
         ),
       );
     } catch (e) {
@@ -1067,12 +1046,17 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         'connected=${counts['connected']} notConnected=${counts['notConnected']}',
       );
 
+      final detailed = Map<String, int>.from(counts)
+        ..remove('totalCalled')
+        ..remove('connected')
+        ..remove('notConnected');
+
       emit(
         state.copyWith(
-          profileTotalCalledCount: counts['totalCalled']
-              .toString(), // ← profile field
+          profileTotalCalledCount: counts['totalCalled'].toString(),
           profileConnectedCount: counts['connected'].toString(),
           profileNotConnectedCount: counts['notConnected'].toString(),
+          profileCallResultCounts: detailed,
         ),
       );
     } catch (e) {

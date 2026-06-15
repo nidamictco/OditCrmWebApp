@@ -283,20 +283,21 @@ class _LeadsReportState extends State<LeadsReport> {
     // );
 
     result.sort((a, b) {
-  // First sort by priority
-  final priorityCompare =
-      _priorityOrder(a.priority).compareTo(_priorityOrder(b.priority));
+      // First sort by priority
+      final priorityCompare = _priorityOrder(
+        a.priority,
+      ).compareTo(_priorityOrder(b.priority));
 
-  if (priorityCompare != 0) {
-    return priorityCompare;
-  }
+      if (priorityCompare != 0) {
+        return priorityCompare;
+      }
 
-  // If priority is same, latest createdAt first
-  final aCreated = a.createdAt ?? DateTime(1970);
-  final bCreated = b.createdAt ?? DateTime(1970);
+      // If priority is same, latest createdAt first
+      final aCreated = a.createdAt ?? DateTime(1970);
+      final bCreated = b.createdAt ?? DateTime(1970);
 
-  return bCreated.compareTo(aCreated);
-});
+      return bCreated.compareTo(aCreated);
+    });
 
     return result;
   }
@@ -980,27 +981,40 @@ class _LeadsReportState extends State<LeadsReport> {
                                         //     color: Colors.blue,
                                         //   ),
                                         // ),
+                                        SizedBox(width: 0.1.h),
                                         GestureDetector(
-  onTap: () async {
-    final didUpdate = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MainScreen(selectedIndex: 1, lead: lead),
-      ),
-    );
-    if (didUpdate == true && context.mounted) {
-      context.read<AddLeadCubit>().fetchLeads();
-    }
-  },
-  child: Icon(Icons.edit, size: 14.sp, color: Colors.blue),
-),
+                                          onTap: () async {
+                                            final didUpdate =
+                                                await Navigator.push<bool>(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) => MainScreen(
+                                                      selectedIndex: 1,
+                                                      lead: lead,
+                                                    ),
+                                                  ),
+                                                );
+                                            if (didUpdate == true &&
+                                                context.mounted) {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .fetchLeads();
+                                            }
+                                          },
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 14.sp,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        SizedBox(width: 0.1.w),
                                         // ── DELETE ──
                                         GestureDetector(
                                           onTap: () =>
                                               _confirmDelete(context, lead),
                                           child: Icon(
                                             Icons.delete_outline,
-                                            size: 14.sp,
+                                            size: 13.sp,
                                             color: Colors.red,
                                           ),
                                         ),

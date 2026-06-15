@@ -635,38 +635,12 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
       final skipped = result['skipped']!;
 
       // ── Notifications ────────────────────────────────────────────────────
-      //
-      //  Always notify the assigned staff member (could be Admin themselves
-      //  or an explicit Staff user).  Also notify the creator separately
-      //  when they are different from the assignee.
-      //
-      if (resolvedStaffId.isNotEmpty) {
-        await _notificationRepo.create(
-          staffId: resolvedStaffId,
-          title: 'Leads Imported',
-          message:
-              '$count lead${count == 1 ? '' : 's'} have been imported '
-              'and assigned to $resolvedStaffName',
-        );
-        if (isClosed) return;
-      }
-
       final creatorId = user?.id ?? '';
-      if (creatorId.isNotEmpty && creatorId != resolvedStaffId) {
-        await _notificationRepo.create(
-          staffId: creatorId,
-          title: 'Import Complete',
-          message:
-              '$count lead${count == 1 ? '' : 's'} imported successfully'
-              '${resolvedStaffName.isNotEmpty ? ' and assigned to $resolvedStaffName' : ''}',
-        );
-        if (isClosed) return;
-      }
 
       await _notificationRepo.createForAdmins(
         title: 'Leads Imported',
         message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to $resolvedStaffName',
-        excludeStaffId: resolvedStaffId,
+        excludeStaffId: creatorId,
       );
       if (isClosed) return;
 
