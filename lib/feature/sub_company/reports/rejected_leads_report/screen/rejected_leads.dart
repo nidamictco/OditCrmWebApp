@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -49,8 +49,8 @@ class _RejectedLeadsState extends State<RejectedLeads> {
     context.read<AddLeadCubit>().initialize();
     context.read<AddLeadCubit>().fetchStaff();
 
-    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _fromDateController.text = '';
+    _toDateController.text = '';
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
   }
@@ -72,8 +72,12 @@ class _RejectedLeadsState extends State<RejectedLeads> {
       _appliedStaff = selectedStaff;
       _rejectedReason = selectedRejectedReason;
       _callStatus = selectedCallStatus;
-      _appliedFromDate = _parseDate(_fromDateController.text);
-      _appliedToDate = _parseDate(_toDateController.text);
+      _appliedFromDate = _fromDateController.text.trim().isEmpty
+          ? null
+          : _parseDate(_fromDateController.text);
+      _appliedToDate = _toDateController.text.trim().isEmpty
+          ? null
+          : _parseDate(_toDateController.text);
       _resetPage();
     });
   }
@@ -95,7 +99,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   List<AddLeadModel> _filteredLeads(List<AddLeadModel> leads) {
     List<AddLeadModel> result = leads;
 
-    result = result.where((lead) => lead.leadStage == 'REJECTED').toList();
+    result = result.where((lead) => lead.leadStage.toUpperCase() == 'REJECTED').toList();
 
     // ── Date range ─────────────────────────────────────────────────────────────
     if (_appliedFromDate != null) {
@@ -104,9 +108,10 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         _appliedFromDate!.month,
         _appliedFromDate!.day,
       );
-      result = result
-          .where((l) => l.calledDate != null && !l.calledDate!.isBefore(from))
-          .toList();
+      result = result.where((l) {
+        final date = l.calledDate ?? l.updatedAt ?? l.createdAt;
+        return date != null && !date.isBefore(from);
+      }).toList();
     }
     if (_appliedToDate != null) {
       final to = DateTime(
@@ -117,9 +122,10 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         59,
         59,
       );
-      result = result
-          .where((l) => l.calledDate != null && !l.calledDate!.isAfter(to))
-          .toList();
+      result = result.where((l) {
+        final date = l.calledDate ?? l.updatedAt ?? l.createdAt;
+        return date != null && !date.isAfter(to);
+      }).toList();
     }
 
     // ── Lead Category — stored UPPERCASE in Firestore ─────────────────────────
@@ -688,7 +694,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
-                                        lead.leadTag!,
+                                        lead.leadTag ?? '--',
                                         style: AppTextStyle.medium(),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

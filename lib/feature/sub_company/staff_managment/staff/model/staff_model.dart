@@ -117,15 +117,22 @@ class StaffModel {
 
   factory StaffModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final map = doc.data()!;
+    final isUsersCollection = doc.reference.parent.path == 'USERS';
+    final companyIdVal = map['companyId'] as String?;
+    final resolvedId = (isUsersCollection && companyIdVal != null && companyIdVal.isNotEmpty)
+        ? "admin-$companyIdVal"
+        : doc.id;
     return StaffModel(
-      id: doc.id,
+      id: resolvedId,
       name: map['name'] ?? '',
       password: map['password'] ?? '',
       phone: map['phone'] ?? '',
       email: map['email'],
       designationId: map['designationId'],
       designation: map['designation'],
-      staffType: map['staffType'] ?? map['role'],
+      staffType: map['staffType'] ??
+          map['role'] ??
+          (isUsersCollection ? 'Admin' : null),
       joiningDate: map['joiningDate'],
       salary: map['salary'],
       openingBalance: map['openingBalance'],
