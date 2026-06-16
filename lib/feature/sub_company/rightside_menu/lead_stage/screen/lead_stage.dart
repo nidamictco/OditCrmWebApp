@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -141,7 +141,23 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
     );
   }
 
+  void _showWarningSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   void _showEditDialog(LeadsModel category) {
+    if (category.isDefault) {
+      _showWarningSnack(
+        "This is a default lead stage and cannot be edited or deleted.",
+      );
+      return;
+    }
     stagesController.text = category.name;
 
     showDialog(
@@ -194,6 +210,12 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
   }
 
   void _confirmDelete(LeadsModel category) {
+    if (category.isDefault) {
+      _showWarningSnack(
+        "This is a default lead stage and cannot be edited or deleted.",
+      );
+      return;
+    }
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
@@ -357,28 +379,28 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                       SizedBox(height: 3.h),
 
                       /// 🔹 SWITCH
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Priority Required for All Stages",
-                              style: AppTextStyle.medium(),
-                            ),
-                            SizedBox(width: 0.4.w),
-                            Transform.scale(
-                              scale: 0.6,
-                              child: Switch(
-                                value: false,
-                                activeColor: AppColors.primary,
-                                onChanged: (value) {},
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      //   child: Row(
+                      //     children: [
+                      //       Text(
+                      //         "Priority Required for All Stages",
+                      //         style: AppTextStyle.medium(),
+                      //       ),
+                      //       SizedBox(width: 0.4.w),
+                      //       Transform.scale(
+                      //         scale: 0.6,
+                      //         child: Switch(
+                      //           value: false,
+                      //           activeColor: AppColors.primary,
+                      //           onChanged: (value) {},
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
-                      SizedBox(height: 3.h),
+                      // SizedBox(height: 3.h),
 
                       /// 🔹 FILTER
                       ShowEntries(
@@ -393,8 +415,6 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                           _resetPage();
                         }),
                       ),
-
-                      SizedBox(height: 2.h),
 
                       /// 🔹 TABLE
                       BlocBuilder<LeadStageCubit, LeadStageState>(
@@ -467,6 +487,16 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
                                                 color: Colors.red,
+                                              ),
+                                            )
+                                          : cat.isDefault
+                                          ? Tooltip(
+                                              message:
+                                                  "Default stage cannot be modified.",
+                                              child: Icon(
+                                                Icons.lock_outline,
+                                                size: 14.sp,
+                                                color: AppColors.grey,
                                               ),
                                             )
                                           : Row(
@@ -561,27 +591,24 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

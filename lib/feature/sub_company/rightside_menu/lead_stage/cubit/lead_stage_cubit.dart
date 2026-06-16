@@ -6,6 +6,8 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
 
 
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+
 class LeadStageCubit extends Cubit<LeadStageState> {
   final ILeadStageRepository _repository;
   StreamSubscription? _categoriesSubscription;
@@ -76,6 +78,16 @@ class LeadStageCubit extends Cubit<LeadStageState> {
     required String name,
   }) async {
     if (state.isSubmitting) return;
+
+    final stage = state.stages.firstWhere(
+      (s) => s.id == id,
+      orElse: () =>  LeadsModel(id: '', name: '', createdBy: '', idOfCreator: '', createdAt: null as dynamic),
+    );
+    if (stage.id.isNotEmpty && stage.isDefault) {
+      emit(state.copyWith(errorMessage: 'This is a default lead stage and cannot be edited or deleted.'));
+      return;
+    }
+
     emit(state.copyWith(isSubmitting: true, clearError: true));
 
     try {
@@ -94,6 +106,16 @@ class LeadStageCubit extends Cubit<LeadStageState> {
   /// Delete a category by its Firestore document ID.
   Future<void> deleteStage({required String id}) async {
     if (state.deletingId != null) return;
+
+    final stage = state.stages.firstWhere(
+      (s) => s.id == id,
+      orElse: () => LeadsModel(id: '', name: '', createdBy: '', idOfCreator: '', createdAt: null as dynamic),
+    );
+    if (stage.id.isNotEmpty && stage.isDefault) {
+      emit(state.copyWith(errorMessage: 'This is a default lead stage and cannot be edited or deleted.'));
+      return;
+    }
+
     emit(state.copyWith(deletingId: id, clearError: true));
 
     try {

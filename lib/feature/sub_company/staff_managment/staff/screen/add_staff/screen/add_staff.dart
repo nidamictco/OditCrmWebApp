@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -342,7 +342,7 @@ class _AddStaffState extends State<AddStaff> {
   void _openDesignationDialog() async {
     final designationCubit = context.read<DesignationCubit>();
 
-    await showDialog(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) => BlocProvider.value(
         value: designationCubit,
@@ -352,6 +352,12 @@ class _AddStaffState extends State<AddStaff> {
 
     if (mounted) {
       await designationCubit.fetchAll();
+      if (result != null && result['name'] != null && result['id'] != null) {
+        setState(() {
+          _designation = result['name'] as String;
+          _designationId = result['id'] as String;
+        });
+      }
     }
   }
 
