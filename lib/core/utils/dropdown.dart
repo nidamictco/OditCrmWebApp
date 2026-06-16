@@ -411,7 +411,7 @@ class _DropdownState extends State<Dropdown> {
                       showSearchBox: true,
                       showSelectedItems: true,
                       fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 250),
+                      constraints: const BoxConstraints(maxHeight: 150),
 
                       onDismissed: () {
                         if (!mounted) return;
@@ -469,7 +469,7 @@ class _DropdownState extends State<Dropdown> {
                           final buttonSize = buttonBox.size;
                           final overlaySize = overlayBox.size;
                           // Must match the maxHeight in constraints above.
-                          const maxMenuHeight = 200.0;
+                          const maxMenuHeight = 150.0;
 
                           final spaceBelow =
                               overlaySize.height -
