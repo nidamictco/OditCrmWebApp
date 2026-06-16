@@ -407,12 +407,14 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
       final fetchedStages = results[3] as List<LeadsModel>;
       final fetchedStaff = results[2] as List<StaffModel>;
 
-      final defaultStage = fetchedStages
-          .firstWhere(
-            (s) => s.name?.toLowerCase() == 'new',
-            orElse: () => fetchedStages.first,
-          )
-          .name;
+      final defaultStage = fetchedStages.isEmpty
+          ? null
+          : fetchedStages
+              .firstWhere(
+                (s) => s.name?.toLowerCase() == 'new',
+                orElse: () => fetchedStages.first,
+              )
+              .name;
 
       // ── 3. Resolve staff assignment based on role ────────────────────────
       //
@@ -479,7 +481,7 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   /// Only called for Admin users — Staff assignment is read-only.
   void selectStaff(String? value) {
     if (!state.isAdmin) return; // guard: Staff users cannot change assignment
-    final staffMember = value == null
+    final staffMember = value == null || state.staffList.isEmpty
         ? null
         : state.staffList.firstWhere(
             (s) => s.name == value,
@@ -645,12 +647,14 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
       if (isClosed) return;
 
       // ── Reset form, keep role-level defaults ────────────────────────────
-      final defaultStage = state.stages
-          .firstWhere(
-            (s) => s.name?.toLowerCase() == 'new',
-            orElse: () => state.stages.first,
-          )
-          .name;
+      final defaultStage = state.stages.isEmpty
+          ? null
+          : state.stages
+              .firstWhere(
+                (s) => s.name?.toLowerCase() == 'new',
+                orElse: () => state.stages.first,
+              )
+              .name;
 
       // For Staff users, re-pin the staff assignment after reset.
       final postStaffName = state.isAdmin ? '' : resolvedStaffName;
@@ -700,7 +704,7 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   String _staffIdFromName(String? name) {
-    if (name == null || name.isEmpty) return '';
+    if (name == null || name.isEmpty || state.staffList.isEmpty) return '';
     try {
       return state.staffList
               .firstWhere(
