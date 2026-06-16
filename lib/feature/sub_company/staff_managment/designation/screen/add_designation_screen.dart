@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -511,9 +511,11 @@ class _DesignationPermissionsScreenState
     return BlocListener<DesignationCubit, DesignationState>(
       listener: (context, state) {
         if (state is DesignationSaved) {
-          _showSnack('Designation "${_designationController.text}" saved!');
+          final docId = state.docId;
+          final name = _designationController.text.trim();
+          _showSnack('Designation "$name" saved!');
           context.read<DesignationCubit>().reset();
-    Navigator.pop(context);
+          Navigator.pop(context, {'id': docId, 'name': name});
           // context.read<DesignationCubit>().reset();
         } else if (state is DesignationError) {
           _showSnack('Error: ${state.message}', isError: true);

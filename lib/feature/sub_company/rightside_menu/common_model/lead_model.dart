@@ -4,6 +4,7 @@ class LeadsModel {
   final String createdBy;
   final String idOfCreator; 
   final DateTime createdAt;
+  final bool isDefault;
 
   const LeadsModel({
     required this.id,
@@ -11,6 +12,7 @@ class LeadsModel {
     required this.createdBy,
     required this.idOfCreator,
     required this.createdAt,
+    this.isDefault = false,
   });
 
   factory LeadsModel.fromFirestore(
@@ -25,6 +27,7 @@ class LeadsModel {
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as dynamic).toDate() as DateTime
           : DateTime.now(),
+      isDefault: data['isDefault'] as bool? ?? false,
     );
   }
 
@@ -34,6 +37,7 @@ class LeadsModel {
       'createdBy': createdBy,
       'idOfCreator': idOfCreator,
       'createdAt': createdAt,
+      'isDefault': isDefault,
     };
   }
 
@@ -43,6 +47,7 @@ class LeadsModel {
     String? createdBy,
     String? idOfCreator,
     DateTime? createdAt,
+    bool? isDefault,
   }) {
     return LeadsModel(
       id: id ?? this.id,
@@ -50,20 +55,21 @@ class LeadsModel {
       createdBy: createdBy ?? this.createdBy,
       idOfCreator: idOfCreator ?? this.idOfCreator,
       createdAt: createdAt ?? this.createdAt,
+      isDefault: isDefault ?? this.isDefault,
     );
   }
 
- // ✅ Compare all fields, not just id
-@override
-bool operator ==(Object other) =>
-    identical(this, other) ||
-    other is LeadsModel &&
-        runtimeType == other.runtimeType &&
-        id == other.id &&
-        name == other.name &&        // ✅ include name
-        createdBy == other.createdBy; // ✅ include createdBy
-        // idOfCreator == other.idOfCreator; // ✅ include idOfCreator
+  // Compare all fields, not just id
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LeadsModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          createdBy == other.createdBy &&
+          isDefault == other.isDefault;
 
-@override
-int get hashCode => Object.hash(id, name, createdBy);
+  @override
+  int get hashCode => Object.hash(id, name, createdBy, isDefault);
 }

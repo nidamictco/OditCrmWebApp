@@ -22,19 +22,71 @@ class LeadStageRepository implements ILeadStageRepository {
   LeadStageRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  /// 🔹 Stream all categories ordered by creation date
-  // In lead_stage_repository.dart
-@override
-Stream<List<LeadsModel>> watchCategories() {
-  return _collection
-      .orderBy('createdAt', descending: false)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs
-            .map((doc) => LeadsModel.fromFirestore(doc.data(), doc.id))
-            .toList(), // already creates a new list, but be explicit:
-      );
-}
+  /// 🔹 Stream all categories ordered by creation date (with default stages first in specific order)
+  @override
+  Stream<List<LeadsModel>> watchCategories() {
+    _checkAndSeedDefaultStages();
+    return _collection
+        .snapshots()
+        .map(
+          (snapshot) {
+            final stages = snapshot.docs
+                .map((doc) => LeadsModel.fromFirestore(doc.data(), doc.id))
+                .toList();
+
+            const List<String> defaultStagesOrder = [
+              'NEW',
+              'FOLLOWUP',
+              'CLOSED',
+              'REJECTED',
+              'TRANSFERRED'
+            ];
+
+            stages.sort((a, b) {
+              final aUpper = a.name.toUpperCase();
+              final bUpper = b.name.toUpperCase();
+              final aIsDefault = a.isDefault || defaultStagesOrder.contains(aUpper);
+              final bIsDefault = b.isDefault || defaultStagesOrder.contains(bUpper);
+
+              if (aIsDefault && bIsDefault) {
+                final aIdx = defaultStagesOrder.indexOf(aUpper);
+                final bIdx = defaultStagesOrder.indexOf(bUpper);
+                final normalizedAIdx = aIdx == -1 ? 99 : aIdx;
+                final normalizedBIdx = bIdx == -1 ? 99 : bIdx;
+                return normalizedAIdx.compareTo(normalizedBIdx);
+              } else if (aIsDefault) {
+                return -1;
+              } else if (bIsDefault) {
+                return 1;
+              } else {
+                return a.createdAt.compareTo(b.createdAt);
+              }
+            });
+            return stages;
+          },
+        );
+  }
+
+  Future<void> _checkAndSeedDefaultStages() async {
+    try {
+      final snapshot = await _collection.limit(1).get();
+      if (snapshot.docs.isEmpty) {
+        final batch = _firestore.batch();
+        final defaultStages = ['New', 'Followup', 'Closed', 'Rejected', 'Transferred'];
+        for (var stageName in defaultStages) {
+          final docRef = _collection.doc();
+          batch.set(docRef, {
+            'name': stageName,
+            'createdBy': 'System',
+            'idOfCreator': 'system',
+            'createdAt': FieldValue.serverTimestamp(),
+            'isDefault': true,
+          });
+        }
+        await batch.commit();
+      }
+    } catch (_) {}
+  }
 
   /// 🔹 Add a new category
   @override
@@ -51,6 +103,7 @@ Stream<List<LeadsModel>> watchCategories() {
       'createdBy': user?.name, 
       'idOfCreator': user?.id,
       'createdAt': FieldValue.serverTimestamp(),
+      'isDefault': false,
     });
   } 
 
@@ -60,6 +113,14 @@ Stream<List<LeadsModel>> watchCategories() {
     required String id,
     required String name,
   }) async {
+    final doc = await _collection.doc(id).get();
+    if (doc.exists) {
+      final isDefault = doc.data()?['isDefault'] as bool? ?? false;
+      if (isDefault) {
+        throw Exception('This is a default lead stage and cannot be edited or deleted.');
+      }
+    }
+
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
       throw ArgumentError('Category name cannot be empty.');
@@ -71,6 +132,13 @@ Stream<List<LeadsModel>> watchCategories() {
   /// 🔹 Delete a category
   @override
   Future<void> deleteCategory({required String id}) async {
+    final doc = await _collection.doc(id).get();
+    if (doc.exists) {
+      final isDefault = doc.data()?['isDefault'] as bool? ?? false;
+      if (isDefault) {
+        throw Exception('This is a default lead stage and cannot be edited or deleted.');
+      }
+    }
     await _collection.doc(id).delete();
   }
 }

@@ -109,7 +109,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   void _watchCategories() {
     _categorySubscription?.cancel();
     _categorySubscription = _categoryRepository.watchCategories().listen(
-      (cats) => emit(state.copyWith(categories: [...cats])),
+      (cats) {
+        if (isClosed) return;
+        emit(state.copyWith(categories: [...cats]));
+      },
       onError: (_) {},
     );
   }
@@ -117,7 +120,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   void _watchSources() {
     _sourceSubscription?.cancel();
     _sourceSubscription = _sourceRepository.watchSource().listen(
-      (srcs) => emit(state.copyWith(sources: [...srcs])),
+      (srcs) {
+        if (isClosed) return;
+        emit(state.copyWith(sources: [...srcs]));
+      },
       onError: (_) {},
     );
   }
@@ -125,7 +131,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   void _watchLeadStages() {
     _leadStageSubscription?.cancel();
     _leadStageSubscription = _leadStageRepository.watchCategories().listen(
-      (stages) => emit(state.copyWith(stages: [...stages])),
+      (stages) {
+        if (isClosed) return;
+        emit(state.copyWith(stages: [...stages]));
+      },
       onError: (_) {},
     );
   }
@@ -186,6 +195,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     state.copyWith(selectedDistrict: value, clearDistrict: value == null),
   );
 
+  void selectTheme(String? value) =>
+      emit(state.copyWith(selectedCallResult: value));
+
   void selectCallResult(String? value) =>
       emit(state.copyWith(selectedCallResult: value));
 
@@ -240,9 +252,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         selectedDate: selectedDate,
         toDate: toDate,
       );
-
+      if (isClosed) return;
       emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           listStatus: LeadListStatus.failure,
