@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../theme/app_colors.dart';
@@ -35,7 +35,7 @@ class DropdownWithAdd extends StatefulWidget {
     this.showStar = false,
     this.focusNode,
     this.nextFocusNode,
-    this.showClear=true,
+    this.showClear = true,
   });
 
   @override
@@ -381,7 +381,7 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                       showSearchBox: true,
                       showSelectedItems: true,
                       fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 250),
+                      constraints: const BoxConstraints(maxHeight: 150),
 
                       onDismissed: () {
                         if (!mounted) return;
@@ -424,7 +424,7 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                               );
                               final buttonSize = buttonBox.size;
                               final overlaySize = overlayBox.size;
-                              const maxMenuHeight = 250.0;
+                              const maxMenuHeight = 150.0;
 
                               final spaceBelow =
                                   overlaySize.height -
