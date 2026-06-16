@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -468,7 +468,6 @@ class _DropdownState extends State<Dropdown> {
                           );
                           final buttonSize = buttonBox.size;
                           final overlaySize = overlayBox.size;
-
                           // Must match the maxHeight in constraints above.
                           const maxMenuHeight = 200.0;
 
@@ -538,6 +537,8 @@ class _DropdownState extends State<Dropdown> {
                     ),
 
                     decoratorProps: DropDownDecoratorProps(
+                      expands: true,
+                      isHovering: true,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(

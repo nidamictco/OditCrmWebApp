@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../theme/app_colors.dart';
@@ -35,7 +35,7 @@ class DropdownWithAdd extends StatefulWidget {
     this.showStar = false,
     this.focusNode,
     this.nextFocusNode,
-    this.showClear=true,
+    this.showClear = true,
   });
 
   @override
@@ -381,7 +381,6 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                       showSearchBox: true,
                       showSelectedItems: true,
                       fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 250),
 
                       onDismissed: () {
                         if (!mounted) return;
@@ -417,48 +416,6 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        positionCallback:
-                            (RenderBox buttonBox, RenderBox overlayBox) {
-                              final buttonOffset = overlayBox.globalToLocal(
-                                buttonBox.localToGlobal(Offset.zero),
-                              );
-                              final buttonSize = buttonBox.size;
-                              final overlaySize = overlayBox.size;
-                              const maxMenuHeight = 250.0;
-
-                              final spaceBelow =
-                                  overlaySize.height -
-                                  (buttonOffset.dy + buttonSize.height);
-                              final spaceAbove = buttonOffset.dy;
-                              final bool showBelow =
-                                  spaceBelow >= maxMenuHeight ||
-                                  spaceBelow >= spaceAbove;
-
-                              final left = buttonOffset.dx;
-                              final right =
-                                  overlaySize.width -
-                                  (buttonOffset.dx + buttonSize.width);
-
-                              if (showBelow) {
-                                return RelativeRect.fromLTRB(
-                                  left,
-                                  buttonOffset.dy + buttonSize.height,
-                                  right,
-                                  0,
-                                );
-                              } else {
-                                final double actualMenuHeight =
-                                    spaceAbove < maxMenuHeight
-                                    ? spaceAbove
-                                    : maxMenuHeight;
-                                return RelativeRect.fromLTRB(
-                                  left,
-                                  buttonOffset.dy - actualMenuHeight,
-                                  right,
-                                  0,
-                                );
-                              }
-                            },
                       ),
 
                       searchFieldProps: TextFieldProps(
