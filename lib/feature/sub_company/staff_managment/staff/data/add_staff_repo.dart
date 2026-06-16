@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -203,9 +203,29 @@ Future<void> updateStaff(
     }
   }
 
+  // Preserve designation if it is Company_Admin
+  final doc = await _collection.doc(staff.id).get();
+  String? originalDesignation;
+  String? originalDesignationId;
+  String? originalStaffType;
+  if (doc.exists) {
+    originalDesignation = doc.data()?['designation'] as String?;
+    originalDesignationId = doc.data()?['designationId'] as String?;
+    originalStaffType = doc.data()?['staffType'] as String?;
+  }
+
+  final isCompanyAdmin = originalDesignation == "Company_Admin";
+  final finalStaff = isCompanyAdmin
+      ? staff.copyWith(
+          designation: originalDesignation,
+          designationId: originalDesignationId,
+          staffType: originalStaffType,
+        )
+      : staff;
+
   // Use set with merge:false on only the changed fields, 
   // so null imageUrl is explicitly written to Firestore
-  final updatedData = staff
+  final updatedData = finalStaff
       .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
       .toMap()
     ..remove('createdAt');

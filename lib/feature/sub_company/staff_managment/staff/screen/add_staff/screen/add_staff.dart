@@ -261,15 +261,18 @@ class _AddStaffState extends State<AddStaff> {
       return;
     }
 
+    final isCompanyAdmin =
+        _isEditMode && widget.staff?.designation == "Company_Admin";
+
     final model = StaffModel(
       id: widget.staff?.id,
       name: _nameCtrl.text.trim(),
       password: _passwordCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-      designation: _designation,
-      designationId: _designationId,
-      staffType: _staffType,
+      designation: isCompanyAdmin ? widget.staff?.designation : _designation,
+      designationId: isCompanyAdmin ? widget.staff?.designationId : _designationId,
+      staffType: isCompanyAdmin ? widget.staff?.staffType : _staffType,
       joiningDate: _joiningDateCtrl.text.trim().isEmpty
           ? null
           : _joiningDateCtrl.text.trim(),
@@ -480,20 +483,50 @@ class _AddStaffState extends State<AddStaff> {
           hint: 'Password',
           controller: _passwordCtrl,
         ),
-        Dropdown(
-          showStar: true,
-          label: 'Staff Type',
-          hint: 'Select staff type',
-          items: const [
-            'Admin',
-            'Marketing',
-            'Team Lead',
-            'Technical',
-            'Telecalling',
-          ],
-          selectedValue: _staffType,
-          onChanged: (v) => setState(() => _staffType = v),
-        ),
+        (() {
+          final isCompanyAdmin =
+              _isEditMode && widget.staff?.designation == "Company_Admin";
+
+          final staffTypeWidget = Dropdown(
+            showStar: true,
+            label: 'Staff Type',
+            hint: 'Select staff type',
+            items: const [
+              'Admin',
+              'Marketing',
+              'Team Lead',
+              'Technical',
+              'Telecalling',
+            ],
+            selectedValue: _staffType,
+            onChanged: isCompanyAdmin ? (v) {} : (v) => setState(() => _staffType = v),
+          );
+
+          if (isCompanyAdmin) {
+            return AbsorbPointer(
+              absorbing: true,
+              child: Tooltip(
+                message: "Company Admin staff type cannot be changed.",
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    staffTypeWidget,
+                    Padding(
+                      padding: EdgeInsets.only(right: 3.w, top: 2.h),
+                      child: Icon(
+                        Icons.lock_outline,
+                        size: 14.sp,
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return staffTypeWidget;
+        })(),
         SizedBox(height: 0.8.h),
         InputField(
           label: 'Joining Date',
@@ -517,6 +550,7 @@ class _AddStaffState extends State<AddStaff> {
           controller: _phoneCtrl,
           isPhone: true,
         ),
+      // if()
         BlocBuilder<DesignationCubit, DesignationState>(
           builder: (context, state) {
             List<String> designationItems = [];
@@ -537,17 +571,47 @@ class _AddStaffState extends State<AddStaff> {
               designationItems.insert(0, _designation!);
             }
 
-            return DropdownWithAdd(
+            final isCompanyAdmin =
+                _isEditMode && widget.staff?.designation == "Company_Admin";
+
+            final dropdownWidget = DropdownWithAdd(
               label: 'Designation',
               items: designationItems,
               selectedValue: _designation,
               showStar: true,
-              onTap: _openDesignationDialog,
-              onChanged: (v) => setState(() {
-                _designation = v;
-                _designationId = v != null ? designationMap[v] : null;
-              }),
+              onTap: isCompanyAdmin ? () {} : _openDesignationDialog,
+              onChanged: isCompanyAdmin
+                  ? (v) {}
+                  : (v) => setState(() {
+                      _designation = v;
+                      _designationId = v != null ? designationMap[v] : null;
+                    }),
             );
+
+            if (isCompanyAdmin) {
+              return AbsorbPointer(
+                absorbing: true,
+                child: Tooltip(
+                  message: "Company Admin designation cannot be changed.",
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      dropdownWidget,
+                      Padding(
+                        padding: EdgeInsets.only(right: 3.w, top: 2.h),
+                        child: Icon(
+                          Icons.lock_outline,
+                          size: 14.sp,
+                          color: AppColors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return dropdownWidget;
           },
         ),
         SizedBox(height: 0.8.h),

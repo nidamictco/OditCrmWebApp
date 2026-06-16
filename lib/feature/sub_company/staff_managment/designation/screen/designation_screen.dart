@@ -125,8 +125,8 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                   ),
                                 );
                                 if (context.mounted) {
-    context.read<DesignationCubit>().fetchAll();
-  }
+                                  context.read<DesignationCubit>().fetchAll();
+                                }
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -187,7 +187,6 @@ class _DesignationScreenState extends State<DesignationScreen> {
                             ),
                           );
                         }
-                        
                       },
                       builder: (context, state) {
                         /// 🔄 Loading
@@ -219,19 +218,6 @@ class _DesignationScreenState extends State<DesignationScreen> {
                           final showTo = (showFrom + pagedList.length - 1)
                               .clamp(0, totalCount);
 
-                          if (pagedList.isEmpty) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6.h),
-                              child: Center(
-                                child: Text(
-                                  'No designations found.',
-                                  style: AppTextStyle.medium(
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
                           final rows = pagedList.asMap().entries.map((entry) {
                             final index =
                                 (_currentPage - 1) * limit + entry.key + 1;
@@ -264,8 +250,10 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                           ),
                                         );
                                         if (context.mounted) {
-    context.read<DesignationCubit>().fetchAll();
-  }
+                                          context
+                                              .read<DesignationCubit>()
+                                              .fetchAll();
+                                        }
                                       },
                                       child: Icon(
                                         Icons.edit_outlined,
@@ -409,28 +397,25 @@ class _DesignationScreenState extends State<DesignationScreen> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }
