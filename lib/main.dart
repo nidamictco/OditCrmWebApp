@@ -1,4 +1,4 @@
-﻿import 'package:country_code_picker/country_code_picker.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +70,7 @@ class OxdoApp extends StatelessWidget {
         supportedLocales: const [Locale('en')],
         localizationsDelegates: const [CountryLocalizations.delegate],
         debugShowCheckedModeBanner: false,
-        title: 'Oxdo',
+        title: 'Oditbiz',
        theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,

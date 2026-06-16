@@ -188,9 +188,13 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
         if (state.formStatus == AddNewCompanyStatus.success) {
           _showSuccessDialog(context, state);
         } else if (state.formStatus == AddNewCompanyStatus.error) {
+          final rawMsg = state.errorMessage ?? 'An error occurred';
+          final friendlyMsg = rawMsg.startsWith('Exception: ')
+              ? rawMsg.substring('Exception: '.length)
+              : rawMsg;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'An error occurred'),
+              content: Text(friendlyMsg),
               backgroundColor: Colors.red,
             ),
           );
