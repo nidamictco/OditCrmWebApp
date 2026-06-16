@@ -255,19 +255,19 @@ class _DesignationPermissionsScreenState
         ),
       ],
     ),
-    PermissionGroup(
-      title: 'File Manager',
-      items: [
-        MenuPermission(
-          name: 'View',
-          createEnabled: false,
-          viewEnabled: false,
-          editEnabled: false,
-          deleteEnabled: false,
-          otherEnabled: true,
-        ),
-      ],
-    ),
+    // PermissionGroup(
+    //   title: 'File Manager',
+    //   items: [
+    //     MenuPermission(
+    //       name: 'View',
+    //       createEnabled: false,
+    //       viewEnabled: false,
+    //       editEnabled: false,
+    //       deleteEnabled: false,
+    //       otherEnabled: true,
+    //     ),
+    //   ],
+    // ),
     PermissionGroup(
       title: 'Reports',
       items: [
@@ -361,7 +361,7 @@ class _DesignationPermissionsScreenState
         facebookSettings: _perm('Settings', 'Facebook Settings'),
         generalSettings: _perm('Settings', 'General Settings'),
       ),
-      fileManager: FileManagerPermissions(view: _perm('File Manager', 'View')),
+      // fileManager: FileManagerPermissions(view: _perm('File Manager', 'View')),
       reports: ReportsPermissions(
         transferLeadReport: _perm('Reports', 'Transfer Lead Report'),
         totalLeadReport: _perm('Reports', 'Total Lead Report'),
