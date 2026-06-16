@@ -30,6 +30,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         final companyName = data['companyName'] as String? ?? '';
         final adminName = data['adminName'] as String? ?? '';
         final domain = data['domain'] as String? ?? '';
+        final location = data['location'] as String? ?? '';
         final industry = data['industry'] as String? ?? '';
         final adminEmail = data['adminEmail'] as String? ?? '';
         final adminMobile = data['adminMobile'] as String? ?? '';
@@ -63,6 +64,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
             adminEmail: adminEmail,
             adminMobile: adminMobile,
             yearlyBilling: yearlyBilling,
+            location: location,
           ),
         );
       }
@@ -270,6 +272,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
     required String companyId,
     required String companyName,
     required String domain,
+    required String location,
     required String industry,
     required String adminName,
     required String adminEmail,
@@ -296,6 +299,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
       await firestore.collection('COMPANY').doc(companyId).update({
         'companyName': companyName,
         'domain': domain,
+        'location': location,
         'industry': industry,
         'adminName': adminName,
         'adminEmail': adminEmail,

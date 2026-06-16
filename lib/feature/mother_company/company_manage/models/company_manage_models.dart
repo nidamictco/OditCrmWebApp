@@ -51,6 +51,7 @@ class CompanyActivity extends Equatable {
     required this.adminEmail,
     required this.adminMobile,
     required this.yearlyBilling,
+    required this.location,
   });
 
   final int sl;
@@ -66,6 +67,7 @@ class CompanyActivity extends Equatable {
   final String adminEmail;
   final String adminMobile;
   final bool yearlyBilling;
+  final String location;
 
   @override
   List<Object?> get props => [
@@ -82,6 +84,7 @@ class CompanyActivity extends Equatable {
         adminEmail,
         adminMobile,
         yearlyBilling,
+        location,
       ];
 }
 

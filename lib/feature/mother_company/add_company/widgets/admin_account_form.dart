@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AdminAccountForm extends StatelessWidget {
@@ -99,6 +100,10 @@ class AdminAccountForm extends StatelessWidget {
             child: TextFormField(
               controller: mobileController,
               validator: mobileValidator,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
               style: GoogleFonts.poppins(),
               keyboardType: TextInputType.phone,
               decoration: _inputDecoration("+91 9876543210"),

@@ -16,7 +16,7 @@ class FirebaseAddNewCompanyService {
         .get();
 
     if (existingUser.docs.isNotEmpty) {
-      throw Exception("This phone number is already registered. Please use a different phone number.");
+      throw Exception("Phone number already exists.");
     }
 
     final companyId = state.companyId;

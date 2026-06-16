@@ -185,14 +185,15 @@ class _AddStaffState extends State<AddStaff> {
       });
     }
   }
+
   void _removeImage() {
-  setState(() {
-    _selectedImage = null;
-    _selectedImageBytes = null;
-    _imageFileName = 'No file chosen';
-    _existingImageRemoved = true;
-  });
-}
+    setState(() {
+      _selectedImage = null;
+      _selectedImageBytes = null;
+      _imageFileName = 'No file chosen';
+      _existingImageRemoved = true;
+    });
+  }
 
   // ─── Validation ───────────────────────────────────────────────────────────
 
@@ -271,7 +272,9 @@ class _AddStaffState extends State<AddStaff> {
       phone: _phoneCtrl.text.trim(),
       email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
       designation: isCompanyAdmin ? widget.staff?.designation : _designation,
-      designationId: isCompanyAdmin ? widget.staff?.designationId : _designationId,
+      designationId: isCompanyAdmin
+          ? widget.staff?.designationId
+          : _designationId,
       staffType: isCompanyAdmin ? widget.staff?.staffType : _staffType,
       joiningDate: _joiningDateCtrl.text.trim().isEmpty
           ? null
@@ -287,7 +290,7 @@ class _AddStaffState extends State<AddStaff> {
       accessCallLog: _callLog,
       hasSalaryAccount: _salaryAccount,
       hasPettyCash: _pettyCash,
-      imageUrl:_existingImageRemoved ? null : widget.staff?.imageUrl,
+      imageUrl: _existingImageRemoved ? null : widget.staff?.imageUrl,
       documentName: _selectedDocuments,
       documentUrl: widget.staff?.documentUrl,
       accessibleUsers: _accessibleUsers,
@@ -373,24 +376,32 @@ class _AddStaffState extends State<AddStaff> {
           current is StaffSaved || current is StaffError,
       listener: (context, state) {
         if (state is StaffSaved) {
-           // ── Refresh TopBar profile image if editing the logged-in user ──
-    if (_isEditMode) {
-      final authState = context.read<AuthCubit>().state;
-      if (authState is Authenticated) {
-        final loggedInId = authState.user.id;
-        final editingId = widget.staff?.id;
-        if (loggedInId != null && loggedInId == editingId) {
-          context.read<AuthCubit>().refreshUser(loggedInId);
-        }
-      }
-    }
+          // ── Refresh TopBar profile image if editing the logged-in user ──
+          if (_isEditMode) {
+            final authState = context.read<AuthCubit>().state;
+            if (authState is Authenticated) {
+              final loggedInId = authState.user.id;
+              final editingId = widget.staff?.id;
+              if (loggedInId != null && loggedInId == editingId) {
+                context.read<AuthCubit>().refreshUser(loggedInId);
+              }
+            }
+          }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 16)),
           );
         }
         if (state is StaffError) {
-          _showSnack(state.message, isError: true);
+          final rawMsg = state.message;
+          var friendlyMsg = rawMsg.startsWith('Exception: ')
+              ? rawMsg.substring('Exception: '.length)
+              : rawMsg;
+          if (friendlyMsg.contains("Phone number already exists.")) {
+            friendlyMsg =
+                "This phone number is already registered. Please use a different phone number.";
+          }
+          _showSnack(friendlyMsg, isError: true);
         }
       },
       child: Scaffold(
@@ -499,7 +510,9 @@ class _AddStaffState extends State<AddStaff> {
               'Telecalling',
             ],
             selectedValue: _staffType,
-            onChanged: isCompanyAdmin ? (v) {} : (v) => setState(() => _staffType = v),
+            onChanged: isCompanyAdmin
+                ? (v) {}
+                : (v) => setState(() => _staffType = v),
           );
 
           if (isCompanyAdmin) {
@@ -550,7 +563,7 @@ class _AddStaffState extends State<AddStaff> {
           controller: _phoneCtrl,
           isPhone: true,
         ),
-      // if()
+        // if()
         BlocBuilder<DesignationCubit, DesignationState>(
           builder: (context, state) {
             List<String> designationItems = [];
@@ -659,68 +672,86 @@ class _AddStaffState extends State<AddStaff> {
     );
   }
 
- Widget _buildImagePreview() {
-  // 1. Newly picked image
-  if (_selectedImageBytes != null) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.memory(_selectedImageBytes!, fit: BoxFit.cover),
-        ),
-        Positioned(
-          top: 6, right: 6,
-          child: GestureDetector(
-            onTap: _removeImage,
-            child: Container(
-              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-              padding: const EdgeInsets.all(4),
-              child: const Icon(Icons.close, color: Colors.white, size: 16),
+  Widget _buildImagePreview() {
+    // 1. Newly picked image
+    if (_selectedImageBytes != null) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(_selectedImageBytes!, fit: BoxFit.cover),
+          ),
+          Positioned(
+            top: 6,
+            right: 6,
+            child: GestureDetector(
+              onTap: _removeImage,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
             ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
+    }
 
-  // 2. Existing network image — only show if NOT removed
-  if (widget.staff?.imageUrl != null && !_existingImageRemoved) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            widget.staff!.imageUrl!,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, progress) {
-              if (progress == null) return child;
-              return const Center(child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator()));
-            },
-            errorBuilder: (_, __, ___) => const Center(child: Text('Failed to load image')),
-          ),
-        ),
-        Positioned(
-          top: 6, right: 6,
-          child: GestureDetector(
-            onTap: _removeImage,
-            child: Container(
-              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-              padding: const EdgeInsets.all(4),
-              child: const Icon(Icons.close, color: Colors.white, size: 16),
+    // 2. Existing network image — only show if NOT removed
+    if (widget.staff?.imageUrl != null && !_existingImageRemoved) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              widget.staff!.imageUrl!,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) return child;
+                return const Center(
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              },
+              errorBuilder: (_, __, ___) =>
+                  const Center(child: Text('Failed to load image')),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            top: 6,
+            right: 6,
+            child: GestureDetector(
+              onTap: _removeImage,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 3. Placeholder
+    return Center(
+      child: Text(
+        'No Image Selected',
+        style: TextStyle(color: Colors.grey.shade500),
+      ),
     );
   }
-
-  // 3. Placeholder
-  return Center(
-    child: Text('No Image Selected', style: TextStyle(color: Colors.grey.shade500)),
-  );
-}
   // ─── Upload Section ───────────────────────────────────────────────────────
 
   Widget _buildUploadSection() {
@@ -893,7 +924,7 @@ class InputField extends StatelessWidget {
     this.isPassword = false,
     this.controller,
     this.showStar = false,
-    this.isPhone=false,
+    this.isPhone = false,
   });
 
   @override
@@ -923,10 +954,10 @@ class InputField extends StatelessWidget {
               style: AppTextStyle.body(size: 11.sp),
               obscureText: isPassword,
               inputFormatters: [
-  if (isPhone) FilteringTextInputFormatter.digitsOnly,
-  if (isPhone) LengthLimitingTextInputFormatter(10),
-],
-keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+                if (isPhone) FilteringTextInputFormatter.digitsOnly,
+                if (isPhone) LengthLimitingTextInputFormatter(10),
+              ],
+              keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: AppTextStyle.small(

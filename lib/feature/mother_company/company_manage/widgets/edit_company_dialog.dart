@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/company_manage_models.dart';
 import '../../add_company/utils/add_company_validator.dart';
@@ -21,7 +22,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _nameController;
-  late TextEditingController _domainController;
+  late TextEditingController _locationController;
   late TextEditingController _adminNameController;
   late TextEditingController _adminEmailController;
   late TextEditingController _adminMobileController;
@@ -45,7 +46,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.company.companyName);
-    _domainController = TextEditingController(text: widget.company.domain);
+    _locationController = TextEditingController(text: widget.company.location);
     _adminNameController = TextEditingController(
       text: widget.company.adminName,
     );
@@ -66,7 +67,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   @override
   void dispose() {
     _nameController.dispose();
-    _domainController.dispose();
+    _locationController.dispose();
     _adminNameController.dispose();
     _adminEmailController.dispose();
     _adminMobileController.dispose();
@@ -137,9 +138,15 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                         validator: AddCompanyValidator.validateCompanyName,
                       ),
                       const SizedBox(height: 20),
-                      _buildDomainField(),
-                      const SizedBox(height: 20),
-                      _buildIndustryDropdown(),
+                      // _buildDomainField(),
+                      _buildTextField(
+                        label: "Company Location",
+                        controller: _locationController,
+                        hint: "e.g. Kochi",
+                        // validator: AddCompanyValidator.validateCompanyName,
+                      ),
+                      // const SizedBox(height: 20),
+                      // _buildIndustryDropdown(),
                       const SizedBox(height: 32),
 
                       // Section 2: Admin Account
@@ -171,6 +178,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                         label: "Administrator Mobile Number",
                         controller: _adminMobileController,
                         hint: "+91 9876543210",
+                        isphone: true,
                         keyboardType: TextInputType.phone,
                         validator: AddCompanyValidator.validateMobile,
                       ),
@@ -187,8 +195,8 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                       ),
                       const SizedBox(height: 16),
                       _buildPlanDropdown(),
-                      const SizedBox(height: 20),
-                      _buildBillingCycleSwitch(),
+                      // const SizedBox(height: 20),
+                      // _buildBillingCycleSwitch(),
                     ],
                   ),
                 ),
@@ -249,6 +257,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
     required String hint,
     TextInputType? keyboardType,
     FormFieldValidator<String>? validator,
+    bool isphone=false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,6 +275,10 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
+          inputFormatters: isphone? [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ]:[],
           style: GoogleFonts.poppins(fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
@@ -294,70 +307,70 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
     );
   }
 
-  Widget _buildDomainField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Corporate Domain",
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xff334155),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: const Color(0xffF1F5F9),
-                border: Border.all(color: const Color(0xffCBD5E1)),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
-                ),
-              ),
-              child: Text(
-                "https://",
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: _domainController,
-                validator: AddCompanyValidator.validateDomain,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: "acme.com",
-                  hintStyle: GoogleFonts.poppins(
-                    color: const Color(0xff94A3B8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _buildDomainField() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         "Corporate Domain",
+  //         style: GoogleFonts.poppins(
+  //           fontSize: 13,
+  //           fontWeight: FontWeight.w600,
+  //           color: const Color(0xff334155),
+  //         ),
+  //       ),
+  //       const SizedBox(height: 6),
+  //       Row(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Container(
+  //             height: 48,
+  //             padding: const EdgeInsets.symmetric(horizontal: 12),
+  //             alignment: Alignment.center,
+  //             decoration: BoxDecoration(
+  //               color: const Color(0xffF1F5F9),
+  //               border: Border.all(color: const Color(0xffCBD5E1)),
+  //               borderRadius: const BorderRadius.only(
+  //                 topLeft: Radius.circular(12),
+  //                 bottomLeft: Radius.circular(12),
+  //               ),
+  //             ),
+  //             child: Text(
+  //               "https://",
+  //               style: GoogleFonts.poppins(
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //           ),
+  //           Expanded(
+  //             child: TextFormField(
+  //               controller: _domainController,
+  //               validator: AddCompanyValidator.validateDomain,
+  //               style: GoogleFonts.poppins(fontSize: 14),
+  //               decoration: InputDecoration(
+  //                 hintText: "acme.com",
+  //                 hintStyle: GoogleFonts.poppins(
+  //                   color: const Color(0xff94A3B8),
+  //                 ),
+  //                 contentPadding: const EdgeInsets.symmetric(
+  //                   horizontal: 16,
+  //                   vertical: 14,
+  //                 ),
+  //                 border: const OutlineInputBorder(
+  //                   borderRadius: BorderRadius.only(
+  //                     topRight: Radius.circular(12),
+  //                     bottomRight: Radius.circular(12),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildIndustryDropdown() {
     return Column(
@@ -531,7 +544,8 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
       widget.cubit.updateCompany(
         companyId: widget.company.companyId,
         companyName: _nameController.text.trim(),
-        domain: _domainController.text.trim(),
+        domain: widget.company.domain,
+        location: _locationController.text.trim(),
         industry: _selectedIndustry ?? '',
         adminName: _adminNameController.text.trim(),
         adminEmail: _adminEmailController.text.trim(),
