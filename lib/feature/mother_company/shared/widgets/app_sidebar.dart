@@ -83,8 +83,8 @@ class AppSidebar extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 150,
+                  height: 60,
                   decoration: BoxDecoration(
                     // color: AppThemeColors.primary,
                     borderRadius: BorderRadius.circular(8),
@@ -167,6 +167,9 @@ class AppSidebar extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.all(25),
+          buttonPadding: EdgeInsets.all(15),
+
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -182,10 +185,7 @@ class AppSidebar extends StatelessWidget {
             'Are you sure you want to log out of your account?',
             style: GoogleFonts.poppins(color: AppThemeColors.textSecondary),
           ),
-          actionsPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
+          actionsPadding: const EdgeInsets.only(right: 25, bottom: 25),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),

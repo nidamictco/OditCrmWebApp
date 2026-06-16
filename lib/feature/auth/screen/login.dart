@@ -226,33 +226,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
             SizedBox(height: 1.5.h),
 
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ForgotPasswordScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'Forgot password?',
-                  style: AppTextStyle.medium(
-                    size: 10.sp,
-                    color: Colors.grey,
-                    weight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-
+            // Align(
+            //   alignment: Alignment.centerRight,
+            //   child: GestureDetector(
+            //     onTap: () {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (_) => const ForgotPasswordScreen(),
+            //         ),
+            //       );
+            //     },
+            //     child: Text(
+            //       'Forgot password?',
+            //       style: AppTextStyle.medium(
+            //         size: 10.sp,
+            //         color: Colors.grey,
+            //         weight: FontWeight.w400,
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 1.3.h),
 
             // Sign In button
             SizedBox(
               width: double.infinity,
+              height: 40,
               child: ElevatedButton(
                 onPressed: isLoading ? null : () => _handleLogin(context),
                 style: ElevatedButton.styleFrom(
@@ -262,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     0xFF002660,
                   ).withOpacity(0.6),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: isLoading
