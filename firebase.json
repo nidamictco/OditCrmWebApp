@@ -1,1 +1,37 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"odit-crm","appId":"1:71617127087:android:05cccd1ecd6a50936aaa5a","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"odit-crm","configurations":{"android":"1:71617127087:android:05cccd1ecd6a50936aaa5a","ios":"1:71617127087:ios:560430ef1a5492de6aaa5a","web":"1:71617127087:web:f996a540618638bc6aaa5a"}}}}},"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}]}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "odit-crm",
+          "appId": "1:71617127087:android:05cccd1ecd6a50936aaa5a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "odit-crm",
+          "configurations": {
+            "android": "1:71617127087:android:05cccd1ecd6a50936aaa5a",
+            "ios": "1:71617127087:ios:560430ef1a5492de6aaa5a",
+            "web": "1:71617127087:web:f996a540618638bc6aaa5a"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
