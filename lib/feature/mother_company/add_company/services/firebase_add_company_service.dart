@@ -13,6 +13,17 @@ class FirebaseAddCompanyService {
   FirebaseAddCompanyService({required this.firestore, required this.storage});
 
   Future<void> createCompany(AddCompanyState state) async {
+    // Check if phone number already exists globally in USERS collection
+    final existingUser = await firestore
+        .collection("USERS")
+        .where("phone", isEqualTo: state.adminMobile.trim())
+        .limit(1)
+        .get();
+
+    if (existingUser.docs.isNotEmpty) {
+      throw Exception("Phone number already exists.");
+    }
+
     final companyId = state.generatedCompanyId;
     final userId = DateTime.now().millisecondsSinceEpoch.toString();
 

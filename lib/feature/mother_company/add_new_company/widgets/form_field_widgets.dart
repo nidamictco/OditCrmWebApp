@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -10,6 +11,7 @@ class NewCompanyTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
+  final bool? isPhone;
 
   const NewCompanyTextField({
     super.key,
@@ -19,6 +21,7 @@ class NewCompanyTextField extends StatelessWidget {
     this.prefixIcon,
     this.validator,
     this.keyboardType,
+    this.isPhone=false,
   });
 
   @override
@@ -39,6 +42,10 @@ class NewCompanyTextField extends StatelessWidget {
           controller: controller,
           validator: validator,
           keyboardType: keyboardType,
+          inputFormatters: [
+            if (isPhone!) FilteringTextInputFormatter.digitsOnly,
+            if (isPhone!) LengthLimitingTextInputFormatter(10),
+          ],
           style: GoogleFonts.poppins(
             fontSize: 13,
             color: AppThemeColors.textPrimary,

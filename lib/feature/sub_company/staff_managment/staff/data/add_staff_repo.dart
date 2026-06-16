@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -84,6 +84,17 @@ Future<String> uploadFileBytes({
   Uint8List? documentBytes,   // ← add
   String? documentFileName,   // ← add
 }) async {
+  // Check if phone number already exists globally in USERS collection
+  final existingUser = await _firestore
+      .collection("USERS")
+      .where("phone", isEqualTo: staff.phone.trim())
+      .limit(1)
+      .get();
+
+  if (existingUser.docs.isNotEmpty) {
+    throw Exception("Phone number already exists.");
+  }
+
   String? imageUrl = staff.imageUrl;
   String? documentUrl = staff.documentUrl;
 
@@ -203,9 +214,45 @@ Future<void> updateStaff(
     }
   }
 
+  // Preserve designation if it is Company_Admin
+  final doc = await _collection.doc(staff.id).get();
+  String? originalDesignation;
+  String? originalDesignationId;
+  String? originalStaffType;
+  String? originalPhone;
+  if (doc.exists) {
+    originalDesignation = doc.data()?['designation'] as String?;
+    originalDesignationId = doc.data()?['designationId'] as String?;
+    originalStaffType = doc.data()?['staffType'] as String?;
+    originalPhone = doc.data()?['phone'] as String?;
+  }
+
+  // If phone number has changed, perform global uniqueness check
+  if (originalPhone != staff.phone) {
+    final existingUser = await _firestore
+        .collection("USERS")
+        .where("phone", isEqualTo: staff.phone.trim())
+        .get();
+
+    for (var userDoc in existingUser.docs) {
+      if (userDoc.id != staff.id) {
+        throw Exception("Phone number already exists.");
+      }
+    }
+  }
+
+  final isCompanyAdmin = originalDesignation == "Company_Admin";
+  final finalStaff = isCompanyAdmin
+      ? staff.copyWith(
+          designation: originalDesignation,
+          designationId: originalDesignationId,
+          staffType: originalStaffType,
+        )
+      : staff;
+
   // Use set with merge:false on only the changed fields, 
   // so null imageUrl is explicitly written to Firestore
-  final updatedData = staff
+  final updatedData = finalStaff
       .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
       .toMap()
     ..remove('createdAt');

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/utils/dropdown.dart';
@@ -627,7 +627,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                       label: "District",
                                       hint: "select district",
                                       items: selectedState != null
-                                          ? (stateDistrictMap[selectedState] ?? [])
+                                          ? (stateDistrictMap[selectedState] ??
+                                                [])
                                           : [],
                                       selectedValue: selectedDistrict,
                                       onChanged: (val) {
@@ -901,7 +902,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
-                                  TableColumn(title: "Sl No.", flex: 1),
+                                  TableColumn(title: "Sl No.", flex: 2),
                                   TableColumn(title: "Name", flex: 4),
                                   TableColumn(title: "Phone No", flex: 4),
                                   TableColumn(title: "Category", flex: 4),

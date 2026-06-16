@@ -188,9 +188,16 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
         if (state.formStatus == AddNewCompanyStatus.success) {
           _showSuccessDialog(context, state);
         } else if (state.formStatus == AddNewCompanyStatus.error) {
+          final rawMsg = state.errorMessage ?? 'An error occurred';
+          var friendlyMsg = rawMsg.startsWith('Exception: ')
+              ? rawMsg.substring('Exception: '.length)
+              : rawMsg;
+          if (friendlyMsg.contains("Phone number already exists.")) {
+            friendlyMsg = "This phone number is already registered. Please use a different phone number.";
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'An error occurred'),
+              content: Text(friendlyMsg),
               backgroundColor: Colors.red,
             ),
           );
@@ -369,6 +376,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                                           label: 'Phone Number',
                                           hint: '9876543210',
                                           controller: _phoneController,
+                                          isPhone: true,
                                           keyboardType: TextInputType.phone,
                                           validator: (val) {
                                             if (val == null ||

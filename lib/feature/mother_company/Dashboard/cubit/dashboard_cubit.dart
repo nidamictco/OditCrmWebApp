@@ -31,6 +31,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         final companyName = data['companyName'] as String? ?? '';
         final adminName = data['adminName'] as String? ?? '';
         final domain = data['domain'] as String? ?? '';
+        final location = data['location'] as String? ?? '';
         final industry = data['industry'] as String? ?? '';
         final adminEmail = data['adminEmail'] as String? ?? '';
         final adminMobile = data['adminMobile'] as String? ?? '';
@@ -64,6 +65,7 @@ class DashboardCubit extends Cubit<DashboardState> {
             adminEmail: adminEmail,
             adminMobile: adminMobile,
             yearlyBilling: yearlyBilling,
+            location: location,
           ),
         );
       }
@@ -182,6 +184,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     required String companyId,
     required String companyName,
     required String domain,
+    required String location,
     required String industry,
     required String adminName,
     required String adminEmail,
@@ -208,6 +211,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       await firestore.collection('COMPANY').doc(companyId).update({
         'companyName': companyName,
         'domain': domain,
+        'location': location,
         'industry': industry,
         'adminName': adminName,
         'adminEmail': adminEmail,

@@ -199,10 +199,11 @@ class AppSidebar extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Close the dialog
-                context.read<AuthCubit>().logout(
+                 context.read<AuthCubit>().logout(
                   permissionCubit: context.read<PermissionCubit>(),
                 );
+                Navigator.pop(context); // Close the dialog
+               
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppThemeColors.statusSuspended,
