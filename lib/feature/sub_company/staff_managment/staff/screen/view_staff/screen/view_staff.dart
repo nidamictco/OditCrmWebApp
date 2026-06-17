@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/app_text_style.dart';
@@ -676,17 +676,18 @@ class _ViewStaffState extends State<ViewStaff> {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => _confirmDelete(context, staff),
-                      child: Tooltip(
-                        message: 'Delete',
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 14.sp,
-                          color: Colors.red,
+                    if (staff.designation != "Company_Admin")
+                      GestureDetector(
+                        onTap: () => _confirmDelete(context, staff),
+                        child: Tooltip(
+                          message: 'Delete',
+                          child: Icon(
+                            Icons.delete_outline,
+                            size: 14.sp,
+                            color: Colors.red,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

@@ -380,6 +380,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                         );
                                       });
                                       Navigator.pop(context);
+                                      Navigator.pop(context);
                                       // 🔹 Clear selection — assigned leads auto-disappear
                                       // because _filteredLeads filters out assignedStaffId != ''
                                       // setState(() {

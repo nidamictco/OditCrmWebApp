@@ -74,7 +74,6 @@ class FirebaseAddNewCompanyService {
       "name": state.adminName,
       "email": state.adminEmail,
       "staffType": "Admin",
-      "isActive": true,
       "phone": state.phone,
       "password": "Admin@123",
       "companyId": companyId,
@@ -82,6 +81,10 @@ class FirebaseAddNewCompanyService {
       "status": "Active",
       "designation":'Company_Admin',
       "designationId":"Company_Admin",
+      "joiningDate":'_',
+      "imageUrl":'',
+      
+
       "createdAt": FieldValue.serverTimestamp(),
     });
 
