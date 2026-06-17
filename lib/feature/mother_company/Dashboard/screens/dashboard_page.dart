@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../cubit/dashboard_cubit.dart';
-import '../../shared/widgets/app_sidebar.dart';
 import '../../shared/widgets/dashboard_topbar.dart';
 import '../widgets/stat_card.dart';
-import '../widgets/date_filter_dropdown.dart';
-import '../widgets/cash_flow_chart.dart';
-import '../widgets/payable_receivable_chart.dart';
 import '../widgets/recent_company_table.dart';
 import '../../company_manage/models/company_manage_models.dart';
 
@@ -30,8 +26,9 @@ class _DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {},
       child: Scaffold(
         backgroundColor: AppThemeColors.scaffoldBg,
         body: Row(

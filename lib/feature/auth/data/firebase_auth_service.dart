@@ -95,12 +95,24 @@ class FirebaseAuthService {
       // 4. CHECK COMPANY STATUS
       // ====================================================
       final companyId = userModel.companyId;
-      if (userModel.companyType != 'mother_company' && companyId != null && companyId.isNotEmpty) {
-        final compDoc = await _firestore.collection('COMPANY').doc(companyId).get();
+      if (userModel.companyType != 'mother_company' &&
+          companyId != null &&
+          companyId.isNotEmpty) {
+        final compDoc = await _firestore
+            .collection('COMPANY')
+            .doc(companyId)
+            .get();
         if (compDoc.exists) {
-          final compStatus = (compDoc.data()?['status'] as String? ?? 'PENDING').toUpperCase();
-          if (compStatus == 'SUSPENDED' || compStatus == 'PENDING') {
-            throw const AuthException('Account is suspended. Need to upgrade plan.');
+          final compStatus = (compDoc.data()?['status'] as String? ?? 'PENDING')
+              .toUpperCase();
+          if (compStatus == 'SUSPENDED') {
+            throw const AuthException(
+              'Account is suspended. Need to upgrade plan.',
+            );
+          } else if (compStatus == 'PENDING') {
+            throw const AuthException(
+              'Account is pending. Need to purchase plan. Contact admin',
+            );
           }
           userModel = userModel.copyWith(companyStatus: compStatus);
         }

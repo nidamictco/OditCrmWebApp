@@ -331,11 +331,14 @@ class _DropdownState extends State<Dropdown> {
                     // },
                     dropdownBuilder: (context, selectedItem) {
                       if (selectedItem == null) {
-                        return Text(
-                          widget.hint,
-                          style: AppTextStyle.small(
-                            size: 11.sp,
-                            color: AppColors.grey,
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: Text(
+                            widget.hint,
+                            style: AppTextStyle.small(
+                              size: 11.sp,
+                              color: AppColors.grey,
+                            ),
                           ),
                         );
                       }
@@ -356,14 +359,17 @@ class _DropdownState extends State<Dropdown> {
                           //     ),
                           //   ),
                           Expanded(
-                            child: Text(
-                              selectedItem,
-                              style: AppTextStyle.medium(
-                                size: 11.sp,
-                                weight: FontWeight.w400,
-                                color: AppColors.black,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: Text(
+                                selectedItem,
+                                style: AppTextStyle.medium(
+                                  size: 11.sp,
+                                  weight: FontWeight.w400,
+                                  color: AppColors.black,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

@@ -33,7 +33,6 @@
 
 // lib/feature/auth/screen/auth_gate.dart
 
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -70,7 +69,8 @@ class _AuthGateState extends State<AuthGate> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthError) {
-          if (state.message.toLowerCase().contains('suspended') || state.message.toLowerCase().contains('upgrade plan')) {
+          if (state.message.toLowerCase().contains('suspended') ||
+              state.message.toLowerCase().contains('upgrade plan')) {
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -82,7 +82,11 @@ class _AuthGateState extends State<AuthGate> {
                   ),
                   title: Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.orange,
+                        size: 28,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         'Account Suspended',
@@ -119,14 +123,12 @@ class _AuthGateState extends State<AuthGate> {
         }
       },
       builder: (context, state) {
-        log('log : state : $state');
         if (state is AuthLoading || state is AuthInitial) {
           return const Scaffold(
             backgroundColor: AppColors.background,
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        log('log : bbbbbbbbbbb state : $state');
         if (state is Authenticated) {
           return state.user.companyType == 'mother_company'
               ? const MotherCompanyMainScreen()
