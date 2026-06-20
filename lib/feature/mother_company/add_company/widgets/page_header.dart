@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class PageHeader extends StatelessWidget {
@@ -20,7 +22,7 @@ class PageHeader extends StatelessWidget {
       children: [
         Text(
           breadcrumb,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             color: Color(0xff64748B),
             fontWeight: FontWeight.w500,
@@ -31,7 +33,7 @@ class PageHeader extends StatelessWidget {
 
         Text(
           title,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 35,
             fontWeight: FontWeight.w600,
             color: Color(0xff0F2E8A),
@@ -42,7 +44,7 @@ class PageHeader extends StatelessWidget {
 
         Text(
           subtitle,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 15,
             color: Color(0xff64748B),
           ),

@@ -587,7 +587,8 @@ class _ViewStaffState extends State<ViewStaff> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    GestureDetector(
+                    if(staff.designation != "Company_Admin")
+                    GestureDetector( 
                       onTap: () =>
                           Navigator.pushReplacement(
                             context,

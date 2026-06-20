@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../models/company_manage_models.dart';
@@ -39,7 +41,7 @@ class RecentCompanyTable extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
             child: Row(
               children: [
-                Text('Recent Company Activity', style: AppTextStyles.heading2),
+                Text('Recent Company Activity', style: AppTextStyle.heading2()),
                 const Spacer(),
                 GestureDetector(
                   onTap: onViewAll,
@@ -98,7 +100,7 @@ class _HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: AppTextStyles.tableHeader,
+      style: AppTextStyle.tableHeader(),
       textAlign: centered ? TextAlign.center : TextAlign.start,
     );
   }
@@ -142,19 +144,19 @@ class _RecentCompanyRowState extends State<_RecentCompanyRow> {
           children: [
             SizedBox(
               width: 50,
-              child: Text(sl, style: AppTextStyles.tableCell),
+              child: Text(sl, style: AppTextStyle.tableCell()),
             ),
             SizedBox(
               width: 220,
               child: Text(
                 widget.company.companyName,
-                style: AppTextStyles.tableCell,
+                style: AppTextStyle.tableCell(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             SizedBox(
               width: 150,
-              child: Text(widget.company.adminName, style: AppTextStyles.tableCell),
+              child: Text(widget.company.adminName, style: AppTextStyle.tableCell()),
             ),
             SizedBox(
               width: 110,
@@ -164,14 +166,14 @@ class _RecentCompanyRowState extends State<_RecentCompanyRow> {
               width: 120,
               child: Text(
                 fmt.format(widget.company.subscriptionStartDate),
-                style: AppTextStyles.tableCell,
+                style: AppTextStyle.tableCell(),
               ),
             ),
             SizedBox(
               width: 120,
               child: Text(
                 fmt.format(widget.company.subscriptionEndDate),
-                style: AppTextStyles.tableCell,
+                style: AppTextStyle.tableCell(),
               ),
             ),
             SizedBox(

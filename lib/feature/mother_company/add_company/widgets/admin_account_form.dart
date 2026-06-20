@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -55,7 +57,7 @@ class AdminAccountForm extends StatelessWidget {
         children: [
           Text(
             "Administrator Account",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -65,7 +67,7 @@ class AdminAccountForm extends StatelessWidget {
 
           Text(
             "Create the primary administrator account for this organization.",
-            style: GoogleFonts.poppins(fontSize: 14, color: Color(0xff64748B)),
+            style: AppTextStyle.body(fontSize: 14, color: Color(0xff64748B)),
           ),
 
           const SizedBox(height: 32),
@@ -75,7 +77,7 @@ class AdminAccountForm extends StatelessWidget {
             child: TextFormField(
               controller: adminNameController,
               validator: adminNameValidator,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
               decoration: _inputDecoration("Enter full name"),
             ),
           ),
@@ -87,7 +89,7 @@ class AdminAccountForm extends StatelessWidget {
             child: TextFormField(
               controller: emailController,
               validator: emailValidator,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
               keyboardType: TextInputType.emailAddress,
               decoration: _inputDecoration("admin@company.com"),
             ),
@@ -104,7 +106,7 @@ class AdminAccountForm extends StatelessWidget {
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(10),
               ],
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
               keyboardType: TextInputType.phone,
               decoration: _inputDecoration("+91 9876543210"),
             ),
@@ -117,7 +119,7 @@ class AdminAccountForm extends StatelessWidget {
             child: TextFormField(
               controller: passwordController,
               validator: passwordValidator,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
               obscureText: obscurePassword,
               decoration: _inputDecoration("Create password").copyWith(
                 suffixIcon: IconButton(
@@ -137,7 +139,7 @@ class AdminAccountForm extends StatelessWidget {
             child: TextFormField(
               controller: confirmPasswordController,
               validator: confirmPasswordValidator,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
               obscureText: obscureConfirmPassword,
               decoration: _inputDecoration("Confirm password").copyWith(
                 suffixIcon: IconButton(
@@ -156,7 +158,7 @@ class AdminAccountForm extends StatelessWidget {
 
           // Text(
           //   "Password Strength",
-          //   style: GoogleFonts.poppins(
+          //   style: AppTextStyle.body(
           //     fontSize: 13,
           //     fontWeight: FontWeight.w600,
           //   ),
@@ -172,7 +174,7 @@ class AdminAccountForm extends StatelessWidget {
 
           // Text(
           //   _passwordStrengthLabel(password),
-          //   style: GoogleFonts.poppins(
+          //   style: AppTextStyle.body(
           //     fontWeight: FontWeight.w600,
           //     color: _passwordStrengthColor(
           //       password,
@@ -197,7 +199,7 @@ class AdminAccountForm extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "The administrator will receive an invitation email after the company is provisioned.",
-                    style: GoogleFonts.poppins(color: Color(0xff475569)),
+                    style: AppTextStyle.body(color: Color(0xff475569)),
                   ),
                 ),
               ],
@@ -211,7 +213,7 @@ class AdminAccountForm extends StatelessWidget {
   static InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.poppins(),
+      hintStyle: AppTextStyle.body(),
       filled: true,
       fillColor: const Color(0xffF8FAFC),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -268,7 +270,7 @@ class _Field extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+          style: AppTextStyle.body(fontWeight: FontWeight.w600, fontSize: 14),
         ),
 
         const SizedBox(height: 8),

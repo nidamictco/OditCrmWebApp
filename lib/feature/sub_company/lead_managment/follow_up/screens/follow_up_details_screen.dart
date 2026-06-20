@@ -522,7 +522,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
   Widget _divider() => Text(
     '|',
-    style: GoogleFonts.poppins(fontSize: 12, color: Color(0xFFBBBBBB)),
+    style: AppTextStyle.body(fontSize: 12, color: Color(0xFFBBBBBB)),
   );
 }
 
@@ -2065,7 +2065,7 @@ class _FollowupCard extends StatelessWidget {
                           entry.assignedStaff.isNotEmpty
                               ? entry.assignedStaff
                               : 'Unknown',
-                          style: GoogleFonts.poppins(
+                          style: AppTextStyle.body(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: const Color(0xFF222222),
@@ -2135,7 +2135,7 @@ class _FollowupCard extends StatelessWidget {
                               width: 110,
                               child: Text(
                                 'Status',
-                                style: GoogleFonts.poppins(
+                                style: AppTextStyle.body(
                                   fontSize: 13,
                                   color: const Color(0xFF555555),
                                   fontWeight: FontWeight.w600,
@@ -2144,7 +2144,7 @@ class _FollowupCard extends StatelessWidget {
                             ),
                             Text(
                               ': ',
-                              style: GoogleFonts.poppins(
+                              style: AppTextStyle.body(
                                 color: const Color(0xFF555555),
                               ),
                             ),
@@ -2173,7 +2173,7 @@ class _FollowupCard extends StatelessWidget {
           width: 110,
           child: Text(
             'Remark',
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 13,
               color: const Color(0xFF555555),
               fontWeight: FontWeight.w600,
@@ -2195,7 +2195,7 @@ class _FollowupCard extends StatelessWidget {
             width: 110,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: const Color(0xFF555555),
                 fontWeight: FontWeight.w600,
@@ -2205,7 +2205,7 @@ class _FollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: const Color(0xFF333333),
               ),
@@ -2279,7 +2279,7 @@ class _FirstFollowupCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           lead.createdBy,
-                          style: GoogleFonts.poppins(
+                          style: AppTextStyle.body(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: Color(0xFF222222),
@@ -2333,7 +2333,7 @@ class _FirstFollowupCard extends StatelessWidget {
                               width: 110,
                               child: Text(
                                 'Status',
-                                style: GoogleFonts.poppins(
+                                style: AppTextStyle.body(
                                   fontSize: 13,
                                   color: Color(0xFF555555),
                                   fontWeight: FontWeight.w600,
@@ -2342,7 +2342,7 @@ class _FirstFollowupCard extends StatelessWidget {
                             ),
                             Text(
                               ': ',
-                              style: GoogleFonts.poppins(
+                              style: AppTextStyle.body(
                                 color: Color(0xFF555555),
                               ),
                             ),
@@ -2374,7 +2374,7 @@ class _FirstFollowupCard extends StatelessWidget {
             width: 110,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: Color(0xFF555555),
                 fontWeight: FontWeight.w600,
@@ -2384,7 +2384,7 @@ class _FirstFollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: Color(0xFF333333),
               ),
@@ -2449,7 +2449,7 @@ class _LastFollowupCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           lead.assignedStaff,
-                          style: GoogleFonts.poppins(
+                          style: AppTextStyle.body(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: Color(0xFF222222),
@@ -2494,7 +2494,7 @@ class _LastFollowupCard extends StatelessWidget {
                               width: 110,
                               child: Text(
                                 'Status',
-                                style: GoogleFonts.poppins(
+                                style: AppTextStyle.body(
                                   fontSize: 13,
                                   color: Color(0xFF555555),
                                   fontWeight: FontWeight.w600,
@@ -2503,7 +2503,7 @@ class _LastFollowupCard extends StatelessWidget {
                             ),
                             Text(
                               ': ',
-                              style: GoogleFonts.poppins(
+                              style: AppTextStyle.body(
                                 color: Color(0xFF555555),
                               ),
                             ),
@@ -2513,7 +2513,7 @@ class _LastFollowupCard extends StatelessWidget {
                                 _StatusChip(label: lead.leadStage),
                                 Text(
                                   "(Pending)",
-                                  style: GoogleFonts.poppins(
+                                  style: AppTextStyle.body(
                                     fontSize: 13,
                                     color: Color(0xFF555555),
                                     fontWeight: FontWeight.w500,
@@ -2547,7 +2547,7 @@ class _LastFollowupCard extends StatelessWidget {
             width: 110,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: Color(0xFF555555),
                 fontWeight: FontWeight.w600,
@@ -2557,7 +2557,7 @@ class _LastFollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 color: Color(0xFF333333),
               ),
@@ -2603,7 +2603,7 @@ class _ActivitiesTabContentState extends State<_ActivitiesTabContent> {
         children: [
           Text(
             'Activities',
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 17,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF222222),
@@ -2716,7 +2716,7 @@ class _ActivityItem extends StatelessWidget {
                 // Agent name
                 Text(
                   activity.changedBy,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: const Color(0xFF222222),
@@ -2726,7 +2726,7 @@ class _ActivityItem extends StatelessWidget {
                 // Description (auto-generated sentence)
                 Text(
                   activity.description,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: const Color(0xFF555555),
                     height: 1.5,
@@ -2760,7 +2760,7 @@ class _ActivityItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd-MM-yyyy hh:mm a').format(activity.changedAt),
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 12,
                     color: const Color(0xFF999999),
                   ),
@@ -2795,7 +2795,7 @@ class _ValueChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.poppins(fontSize: 12, color: textColor),
+        style: AppTextStyle.body(fontSize: 12, color: textColor),
       ),
     );
   }
@@ -2817,7 +2817,7 @@ class _ValueChip extends StatelessWidget {
 //         children: [
 //           Text(
 //             'Activities',
-//             style: GoogleFonts.poppins(
+//             style: AppTextStyle.body(
 //               fontSize: 17,
 //               fontWeight: FontWeight.w700,
 //               color: Color(0xFF222222),
@@ -2860,7 +2860,7 @@ class _ValueChip extends StatelessWidget {
 //               children: [
 //                 Text(
 //                   entry.agent,
-//                   style: GoogleFonts.poppins(
+//                   style: AppTextStyle.body(
 //                     fontWeight: FontWeight.w600,
 //                     fontSize: 14,
 //                     color: Color(0xFF222222),
@@ -2869,7 +2869,7 @@ class _ValueChip extends StatelessWidget {
 //                 const SizedBox(height: 3),
 //                 Text(
 //                   entry.description,
-//                   style: GoogleFonts.poppins(
+//                   style: AppTextStyle.body(
 //                     fontSize: 13,
 //                     color: Color(0xFF555555),
 //                     height: 1.5,
@@ -2878,7 +2878,7 @@ class _ValueChip extends StatelessWidget {
 //                 const SizedBox(height: 4),
 //                 Text(
 //                   entry.dateTime,
-//                   style: GoogleFonts.poppins(
+//                   style: AppTextStyle.body(
 //                     fontSize: 12,
 //                     color: Color(0xFF999999),
 //                   ),
@@ -2916,12 +2916,12 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = GoogleFonts.poppins(
+    TextStyle labelStyle = AppTextStyle.body(
       fontSize: 13,
       color: Color(0xFF888888),
       fontWeight: FontWeight.w500,
     );
-    TextStyle valueStyle = GoogleFonts.poppins(
+    TextStyle valueStyle = AppTextStyle.body(
       fontSize: 13,
       color: Color(0xFF222222),
     );
@@ -2935,7 +2935,7 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
         children: [
           Text(
             'Details',
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 17,
               fontWeight: FontWeight.w700,
               color: Color(0xFF222222),
@@ -3008,7 +3008,7 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
           const SizedBox(height: 12),
           Text(
             'Lead handled staffs',
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: Color(0xFF222222),
@@ -3165,7 +3165,7 @@ class _DetailCell extends StatelessWidget {
       children: [
         Text(
           '$label :',
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             color: Color(0xFF888888),
             fontWeight: FontWeight.w500,
@@ -3174,7 +3174,7 @@ class _DetailCell extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           value,
-          style: GoogleFonts.poppins(fontSize: 13, color: Color(0xFF222222)),
+          style: AppTextStyle.body(fontSize: 13, color: Color(0xFF222222)),
         ),
       ],
     );
@@ -3209,7 +3209,7 @@ class _StaffCard extends StatelessWidget {
               children: [
                 Text(
                   handler.staffName,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF222222),
@@ -3219,7 +3219,7 @@ class _StaffCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     handler.phone,
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 12,
                       color: const Color(0xFF777777),
                     ),
@@ -3235,7 +3235,7 @@ class _StaffCard extends StatelessWidget {
               children: [
                 Text(
                   '${handler.activityCount}',
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 12,
                     color: const Color(0xFF555555),
                   ),
@@ -3243,7 +3243,7 @@ class _StaffCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   handler.activityCount == 1 ? 'Activity' : 'Activities',
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 12,
                     color: const Color(0xFF555555),
                   ),

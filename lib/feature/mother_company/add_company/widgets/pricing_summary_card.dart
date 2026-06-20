@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class PricingSummaryCard extends StatelessWidget {
@@ -28,7 +30,7 @@ class PricingSummaryCard extends StatelessWidget {
         children: [
           Text(
             "Pricing Summary",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               color: Colors.white,
               fontWeight: FontWeight.w700,
               fontSize: 18,
@@ -71,7 +73,7 @@ class PricingSummaryCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             color: Colors.white70,
             fontWeight:
             bold ? FontWeight.w700 : FontWeight.w500,
@@ -82,7 +84,7 @@ class PricingSummaryCard extends StatelessWidget {
 
         Text(
           "\$${value.toStringAsFixed(0)}",
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             color: Colors.white,
             fontSize: bold ? 18 : 15,
             fontWeight:

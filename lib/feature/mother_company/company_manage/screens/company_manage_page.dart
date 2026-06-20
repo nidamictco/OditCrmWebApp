@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/company_table.dart';
@@ -126,7 +128,7 @@ class _PageHeader extends StatelessWidget {
             children: [
               Text(
                 'Company Manage',
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppThemeColors.textPrimary,
@@ -136,7 +138,7 @@ class _PageHeader extends StatelessWidget {
               SizedBox(height: 2),
               Text(
                 'Your all-in-one solution for modern company management.',
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontSize: 13,
                   color: AppThemeColors.textSecondary,
                 ),

@@ -1,37 +1,5 @@
-// import 'dart:developer';
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../../core/theme/app_colors.dart';
-// import '../cubit/auth_cubit.dart';
-// import 'login.dart';
-// import '../../sub_company/sidebar/main_screen.dart';
-
-// class AuthGate extends StatelessWidget {
-//   const AuthGate({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<AuthCubit, AuthState>(
-//       builder: (context, state) {
-//         if (state is AuthLoading || state is AuthInitial) {
-//           log('log : state : $state');
-//           return const Scaffold(
-//             backgroundColor: AppColors.background,
-//             body: Center(child: CircularProgressIndicator()),
-//           );
-//         }
-//         log('log : state : $state');
-//         if (state is Authenticated) {
-//           return const MainScreen();
-//         }
-//         return const LoginScreen();
-//       },
-//     );
-//   }
-// }
-
-// lib/feature/auth/screen/auth_gate.dart
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -86,7 +54,7 @@ class _AuthGateState extends State<AuthGate> {
                       const SizedBox(width: 10),
                       Text(
                         'Account Suspended',
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontWeight: FontWeight.bold,
                           color: AppThemeColors.textPrimary,
                         ),
@@ -95,7 +63,7 @@ class _AuthGateState extends State<AuthGate> {
                   ),
                   content: Text(
                     state.message,
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       color: AppThemeColors.textSecondary,
                       fontSize: 14,
                     ),
@@ -105,7 +73,7 @@ class _AuthGateState extends State<AuthGate> {
                       onPressed: () => Navigator.pop(context),
                       child: Text(
                         'OK',
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontWeight: FontWeight.w600,
                           color: AppThemeColors.primary,
                         ),

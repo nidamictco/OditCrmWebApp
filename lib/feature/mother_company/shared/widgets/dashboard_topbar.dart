@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -74,7 +76,7 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 Text(
                   'Company Manage',
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: AppThemeColors.textSecondary,
                     fontWeight: FontWeight.w500,
@@ -89,7 +91,7 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                 const SizedBox(width: 4),
                 Text(
                   'Add New Company',
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: AppThemeColors.primary,
                     fontWeight: FontWeight.w600,

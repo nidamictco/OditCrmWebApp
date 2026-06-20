@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class SecuritySettingsCard extends StatelessWidget {
@@ -43,7 +45,7 @@ class SecuritySettingsCard extends StatelessWidget {
         children: [
           Text(
             "Security Configuration",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -53,7 +55,7 @@ class SecuritySettingsCard extends StatelessWidget {
 
           Text(
             "Configure organization security and compliance requirements.",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               color: const Color(0xff64748B),
             ),
           ),
@@ -96,7 +98,7 @@ class SecuritySettingsCard extends StatelessWidget {
 
           Text(
             "Session Timeout",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontWeight: FontWeight.w700,
               fontSize: 15,
             ),
@@ -106,7 +108,7 @@ class SecuritySettingsCard extends StatelessWidget {
 
           Text(
             "Automatically sign out inactive users.",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               color: const Color(0xff64748B),
               fontSize: 13,
             ),
@@ -116,7 +118,7 @@ class SecuritySettingsCard extends StatelessWidget {
 
           DropdownButtonFormField<int>(
             value: sessionTimeout,
-            style: GoogleFonts.poppins(color: Colors.black),
+            style: AppTextStyle.body(color: Colors.black),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xffF8FAFC),
@@ -128,23 +130,23 @@ class SecuritySettingsCard extends StatelessWidget {
             items: [
               DropdownMenuItem(
                 value: 15,
-                child: Text("15 Minutes", style: GoogleFonts.poppins()),
+                child: Text("15 Minutes", style: AppTextStyle.body()),
               ),
               DropdownMenuItem(
                 value: 30,
-                child: Text("30 Minutes", style: GoogleFonts.poppins()),
+                child: Text("30 Minutes", style: AppTextStyle.body()),
               ),
               DropdownMenuItem(
                 value: 60,
-                child: Text("1 Hour", style: GoogleFonts.poppins()),
+                child: Text("1 Hour", style: AppTextStyle.body()),
               ),
               DropdownMenuItem(
                 value: 120,
-                child: Text("2 Hours", style: GoogleFonts.poppins()),
+                child: Text("2 Hours", style: AppTextStyle.body()),
               ),
               DropdownMenuItem(
                 value: 240,
-                child: Text("4 Hours", style: GoogleFonts.poppins()),
+                child: Text("4 Hours", style: AppTextStyle.body()),
               ),
             ],
             onChanged: (value) {
@@ -177,7 +179,7 @@ class SecuritySettingsCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "Recommended: Enable MFA and Audit Logging for organizations handling sensitive customer information.",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       color: const Color(0xff334155),
                     ),
                   ),
@@ -223,7 +225,7 @@ class _SettingTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                   ),
@@ -233,7 +235,7 @@ class _SettingTile extends StatelessWidget {
 
                 Text(
                   subtitle,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: const Color(0xff64748B),
                   ),

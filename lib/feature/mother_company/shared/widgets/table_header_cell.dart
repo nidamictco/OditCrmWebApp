@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import '../../../../core/theme/app_theme.dart';
 
 class TableHeaderCell extends StatelessWidget {
@@ -17,7 +19,7 @@ class TableHeaderCell extends StatelessWidget {
       label,
       textAlign:
       centered ? TextAlign.center : TextAlign.start,
-      style: AppTextStyles.tableHeader,
+      style: AppTextStyle.tableHeader(),
     );
   }
 }

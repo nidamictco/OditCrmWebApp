@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -40,7 +42,7 @@ class CompanyDetailsDialog extends StatelessWidget {
                 children: [
                   Text(
                     'Company Details',
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: AppThemeColors.textPrimary,
@@ -143,7 +145,7 @@ class CompanyDetailsDialog extends StatelessWidget {
                     ),
                     child: Text(
                       'Close',
-                      style: GoogleFonts.poppins(
+                      style: AppTextStyle.body(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -174,7 +176,7 @@ class CompanyDetailsDialog extends StatelessWidget {
                     ),
                     child: Text(
                       'Edit Details',
-                      style: GoogleFonts.poppins(
+                      style: AppTextStyle.body(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -195,7 +197,7 @@ class CompanyDetailsDialog extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 10,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF64748B),
@@ -205,7 +207,7 @@ class CompanyDetailsDialog extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value.isNotEmpty ? value : '—',
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textPrimary,
@@ -221,7 +223,7 @@ class CompanyDetailsDialog extends StatelessWidget {
       children: [
         Text(
           'PLANE TYPE',
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 10,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF64748B),
@@ -237,7 +239,7 @@ class CompanyDetailsDialog extends StatelessWidget {
           ),
           child: Text(
             planType.label,
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1E3A8A),
@@ -268,7 +270,7 @@ class CompanyDetailsDialog extends StatelessWidget {
       children: [
         Text(
           'STATUS',
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 10,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF64748B),
@@ -278,7 +280,7 @@ class CompanyDetailsDialog extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           status.label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: statusColor,

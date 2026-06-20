@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/company_manage_models.dart';
@@ -92,7 +94,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                 children: [
                   Text(
                     "Edit Organization",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xff0F2E8A),
@@ -101,7 +103,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                   const Spacer(),
                   Text(
                     widget.company.companyId,
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xff64748B),
@@ -124,7 +126,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                       // Section 1: Company Details
                       Text(
                         "Company Details",
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xff64748B),
@@ -152,7 +154,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                       // Section 2: Admin Account
                       Text(
                         "Administrator Profile",
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xff64748B),
@@ -187,7 +189,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                       // Section 3: Subscription details
                       Text(
                         "Subscription & Billing Plan",
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xff64748B),
@@ -215,7 +217,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       "Cancel",
-                      style: GoogleFonts.poppins(
+                      style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
                         color: const Color(0xff475569),
                       ),
@@ -235,7 +237,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                       ),
                       child: Text(
                         "Save Changes",
-                        style: GoogleFonts.poppins(
+                        style: AppTextStyle.body(
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -264,7 +266,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xff334155),
@@ -279,10 +281,10 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(10),
           ]:[],
-          style: GoogleFonts.poppins(fontSize: 14),
+          style: AppTextStyle.body(fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.poppins(color: const Color(0xff94A3B8)),
+            hintStyle: AppTextStyle.body(color: const Color(0xff94A3B8)),
             filled: true,
             fillColor: const Color(0xffF8FAFC),
             contentPadding: const EdgeInsets.symmetric(
@@ -313,7 +315,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   //     children: [
   //       Text(
   //         "Corporate Domain",
-  //         style: GoogleFonts.poppins(
+  //         style: AppTextStyle.body(
   //           fontSize: 13,
   //           fontWeight: FontWeight.w600,
   //           color: const Color(0xff334155),
@@ -337,7 +339,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   //             ),
   //             child: Text(
   //               "https://",
-  //               style: GoogleFonts.poppins(
+  //               style: AppTextStyle.body(
   //                 fontSize: 14,
   //                 fontWeight: FontWeight.w500,
   //               ),
@@ -347,10 +349,10 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
   //             child: TextFormField(
   //               controller: _domainController,
   //               validator: AddCompanyValidator.validateDomain,
-  //               style: GoogleFonts.poppins(fontSize: 14),
+  //               style: AppTextStyle.body(fontSize: 14),
   //               decoration: InputDecoration(
   //                 hintText: "acme.com",
-  //                 hintStyle: GoogleFonts.poppins(
+  //                 hintStyle: AppTextStyle.body(
   //                   color: const Color(0xff94A3B8),
   //                 ),
   //                 contentPadding: const EdgeInsets.symmetric(
@@ -378,7 +380,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
       children: [
         Text(
           "Industry Sector",
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xff334155),
@@ -394,14 +396,14 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                 return DropdownMenu<String>(
                   initialSelection: _selectedIndustry,
                   width: constraints.maxWidth,
-                  textStyle: GoogleFonts.poppins(fontSize: 14),
+                  textStyle: AppTextStyle.body(fontSize: 14),
                   hintText: "Select industry",
                   dropdownMenuEntries: industries.map((String value) {
                     return DropdownMenuEntry<String>(
                       value: value,
                       label: value,
                       style: MenuItemButton.styleFrom(
-                        textStyle: GoogleFonts.poppins(),
+                        textStyle: AppTextStyle.body(),
                       ),
                     );
                   }).toList(),
@@ -450,7 +452,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
       children: [
         Text(
           "Subscription Plan",
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: const Color(0xff334155),
@@ -462,7 +464,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
             return DropdownMenu<PlanType>(
               initialSelection: _selectedPlan,
               width: constraints.maxWidth,
-              textStyle: GoogleFonts.poppins(fontSize: 14),
+              textStyle: AppTextStyle.body(fontSize: 14),
               hintText: "Select plan",
               dropdownMenuEntries: const [
                 DropdownMenuEntry(value: PlanType.basic, label: "BASIC"),
@@ -510,7 +512,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
           children: [
             Text(
               "Yearly Billing Cycle",
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xff334155),
@@ -518,7 +520,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
             ),
             Text(
               "Enable yearly pricing (15% discount)",
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 11,
                 color: const Color(0xff64748B),
               ),

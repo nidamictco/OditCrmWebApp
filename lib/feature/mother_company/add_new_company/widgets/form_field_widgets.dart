@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +33,7 @@ class NewCompanyTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textPrimary,
@@ -46,13 +48,13 @@ class NewCompanyTextField extends StatelessWidget {
             if (isPhone!) FilteringTextInputFormatter.digitsOnly,
             if (isPhone!) LengthLimitingTextInputFormatter(10),
           ],
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             color: AppThemeColors.textPrimary,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.poppins(
+            hintStyle: AppTextStyle.body(
               fontSize: 13,
               color: AppThemeColors.textMuted,
             ),
@@ -126,7 +128,7 @@ class NewCompanyDropdownField<T> extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.textPrimary,
@@ -154,7 +156,7 @@ class NewCompanyDropdownField<T> extends StatelessWidget {
                 color: AppThemeColors.textSecondary,
                 size: 18,
               ),
-              textStyle: GoogleFonts.poppins(
+              textStyle: AppTextStyle.body(
                 fontSize: 13,
                 color: AppThemeColors.textPrimary,
               ),
@@ -217,7 +219,7 @@ class NewCompanyDropdownField<T> extends StatelessWidget {
                   label: labelText,
                   style: ButtonStyle(
                     textStyle: WidgetStateProperty.all(
-                      GoogleFonts.poppins(
+                      AppTextStyle.body(
                         fontSize: 13,
                         color: AppThemeColors.textPrimary,
                       ),
@@ -255,7 +257,7 @@ class NewCompanyDatePickerField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textPrimary,
@@ -306,7 +308,7 @@ class NewCompanyDatePickerField extends StatelessWidget {
                   isToday
                       ? DateFormat('dd MMM yyyy').format(DateTime.now())
                       : formattedDate,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: AppThemeColors.textPrimary,
                     fontWeight: FontWeight.w500,

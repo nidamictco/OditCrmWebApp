@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import '../../../../core/theme/app_theme.dart';
 
 class PayableReceivableChart extends StatefulWidget {
@@ -134,7 +136,7 @@ class _LegendRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: AppTextStyles.bodySmall,
+            style: AppTextStyle.bodySmall(),
           ),
         ),
         Text(

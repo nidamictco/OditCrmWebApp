@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/subscription_feature.dart';
@@ -59,7 +61,7 @@ class SubscriptionStep extends StatelessWidget {
         children: [
           Text(
             "Select Subscription Plan",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontSize: 24,
               fontWeight: FontWeight.w700,
             ),
@@ -69,7 +71,7 @@ class SubscriptionStep extends StatelessWidget {
 
           Text(
             "Choose the ideal plan for your organization and add optional enhancements.",
-            style: GoogleFonts.poppins(color: const Color(0xff64748B)),
+            style: AppTextStyle.body(color: const Color(0xff64748B)),
           ),
 
           const SizedBox(height: 32),
@@ -196,7 +198,7 @@ class SubscriptionStep extends StatelessWidget {
 
           // Text(
           //   "Enhance Your Experience",
-          //   style: GoogleFonts.poppins(
+          //   style: AppTextStyle.body(
           //     fontSize: 22,
           //     fontWeight: FontWeight.w700,
           //   ),
@@ -258,7 +260,7 @@ class SubscriptionStep extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back),
-                label: Text("Back", style: GoogleFonts.poppins()),
+                label: Text("Back", style: AppTextStyle.body()),
               ),
 
               const Spacer(),
@@ -272,7 +274,7 @@ class SubscriptionStep extends StatelessWidget {
                   icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   label: Text(
                     "Next Step",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
