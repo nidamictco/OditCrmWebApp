@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class ProvisioningSummaryCard extends StatelessWidget {
@@ -43,7 +45,7 @@ class ProvisioningSummaryCard extends StatelessWidget {
         children: [
           Text(
             "Provisioning Summary",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               color: Colors.white,
               fontWeight: FontWeight.w700,
               fontSize: 22,
@@ -134,7 +136,7 @@ class ProvisioningSummaryCard extends StatelessWidget {
       const EdgeInsets.only(bottom: 12),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.poppins(
+        style: AppTextStyle.body(
           color: Colors.white54,
           letterSpacing: 1,
           fontWeight: FontWeight.w700,
@@ -159,7 +161,7 @@ class ProvisioningSummaryCard extends StatelessWidget {
             width: 95,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 color: Colors.white54,
               ),
             ),
@@ -168,7 +170,7 @@ class ProvisioningSummaryCard extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),

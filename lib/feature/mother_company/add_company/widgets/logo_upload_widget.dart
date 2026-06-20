@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class LogoUploadWidget extends StatelessWidget {
@@ -20,7 +22,7 @@ class LogoUploadWidget extends StatelessWidget {
       children: [
         Text(
           "Company Logo",
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -52,7 +54,7 @@ class LogoUploadWidget extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     "UPLOAD PNG",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -76,7 +78,7 @@ class LogoUploadWidget extends StatelessWidget {
         Text(
           "Max size 2MB\nRecommended 400x400",
           textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 12,
             color: const Color(0xff94A3B8),
           ),

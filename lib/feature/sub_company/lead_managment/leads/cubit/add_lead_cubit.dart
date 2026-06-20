@@ -941,9 +941,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //     if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
   //   }
   // }
-  // In AddLeadCubit — add these two fields
+  // In AddLeadCubit — add these fields
   DateTime? _lastCountDate;
   DashboardCountModel? _cachedCounts;
+  int? _cachedTotalCalled;
 
   Future<void> fetchDashboardCounts(
     DateTime selectedDate, {
@@ -955,7 +956,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         _lastCountDate!.year == selectedDate.year &&
         _lastCountDate!.month == selectedDate.month &&
         _lastCountDate!.day == selectedDate.day &&
-        _cachedCounts != null) {
+        _cachedCounts != null &&
+        _cachedTotalCalled != null) {
       log('[fetchDashboardCounts] Returning cached result');
       return;
     }
@@ -970,22 +972,35 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         return;
       }
 
-      final counts = await _leadRepository.fetchLeadCounts(
-        staffId: staffId ?? user.id ?? '',
-        selectedDate: selectedDate,
-        role: role ?? user.staffType ?? '',
-        forceStaffFilter: false,
-      );
+      // Fetch both in parallel
+      final results = await Future.wait([
+        _leadRepository.fetchLeadCounts(
+          staffId: staffId ?? user.id ?? '',
+          selectedDate: selectedDate,
+          role: role ?? user.staffType ?? '',
+          forceStaffFilter: false,
+        ),
+        _leadRepository.fetchCallStatusCounts(
+          staffId: staffId ?? user.id ?? '',
+          role: role ?? user.staffType ?? '',
+          selectedDate: selectedDate,
+        ),
+      ]);
+
+      final counts = results[0] as DashboardCountModel;
+      final callCounts = results[1] as Map<String, int>;
+      final totalCalled = callCounts['totalCalled'] ?? 0;
 
       if (isClosed) return;
 
       // Store cache after successful fetch
       _lastCountDate = selectedDate;
       _cachedCounts = counts;
+      _cachedTotalCalled = totalCalled;
 
       log(
         '[fetchDashboardCounts] closed=${counts.closedLeadCount} '
-        'total=${counts.totalCalledCount}',
+        'total=${counts.totalCalledCount} totalCalled=$totalCalled',
       );
 
       emit(
@@ -995,6 +1010,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           followUpCount: counts.followUpCount.toString(),
           closedLeadCount: counts.closedLeadCount.toString(),
           totalCalledCount: counts.totalCalledCount.toString(),
+          dashboardTotalCalledCount: totalCalled.toString(),
           missedLeadCount: counts.missedLeadCount.toString(),
           transferredCount: counts.transferredCount.toString(),
         ),

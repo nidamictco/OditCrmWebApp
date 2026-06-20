@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class BillingToggle extends StatelessWidget {
@@ -80,7 +82,7 @@ class _Item extends StatelessWidget {
         ),
         child: Text(
           title,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontWeight: FontWeight.w700,
             color: selected
                 ? const Color(0xff0F2E8A)

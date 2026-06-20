@@ -1018,7 +1018,7 @@ class _DesignationPermissionsScreenState
       data.settings.generalSettings,
     );
 
-    apply(_groupItem('File Manager', 'View'), data.fileManager.view);
+    // apply(_groupItem('File Manager', 'View'), data.fileManager.view);
 
     apply(
       _groupItem('Reports', 'Rejected Lead Report'),

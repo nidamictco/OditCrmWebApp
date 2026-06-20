@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -88,7 +90,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                 const SizedBox(height: 18),
                 Text(
                   'Onboarding Successful!',
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppThemeColors.textPrimary,
@@ -98,7 +100,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                 Text(
                   'The company profile has been created in the database.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontSize: 13,
                     color: AppThemeColors.textSecondary,
                   ),
@@ -142,7 +144,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                     ),
                     child: Text(
                       'Done',
-                      style: GoogleFonts.poppins(
+                      style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
@@ -163,7 +165,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textSecondary,
@@ -171,7 +173,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
         ),
         Text(
           value,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: AppThemeColors.textPrimary,
@@ -231,7 +233,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                             //   children: [
                             //     Text(
                             //       'Company Manage',
-                            //       style: GoogleFonts.poppins(
+                            //       style: AppTextStyle.body(
                             //         fontSize: 13,
                             //         color: AppThemeColors.textSecondary,
                             //         fontWeight: FontWeight.w500,
@@ -246,7 +248,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                             //     const SizedBox(width: 4),
                             //     Text(
                             //       'Add New Company',
-                            //       style: GoogleFonts.poppins(
+                            //       style: AppTextStyle.body(
                             //         fontSize: 13,
                             //         color: AppThemeColors.primary,
                             //         fontWeight: FontWeight.w600,
@@ -265,7 +267,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                             // Onboard Headers
                             Text(
                               'Onboard New Organization',
-                              style: GoogleFonts.poppins(
+                              style: AppTextStyle.body(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
                                 color: AppThemeColors.textPrimary,
@@ -274,7 +276,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                             const SizedBox(height: 6),
                             Text(
                               'Initialize A New For Your Enterprise Client, Complete The Three-Step Setup Below.',
-                              style: GoogleFonts.poppins(
+                              style: AppTextStyle.body(
                                 fontSize: 13,
                                 color: AppThemeColors.textSecondary,
                                 fontWeight: FontWeight.w400,
@@ -507,7 +509,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                                         ),
                                         child: Text(
                                           'Back',
-                                          style: GoogleFonts.poppins(
+                                          style: AppTextStyle.body(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -573,7 +575,7 @@ class _AddNewCompanyViewState extends State<_AddNewCompanyView> {
                                                 )
                                               : Text(
                                                   'Save',
-                                                  style: GoogleFonts.poppins(
+                                                  style: AppTextStyle.body(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
                                                     color: Colors.white,

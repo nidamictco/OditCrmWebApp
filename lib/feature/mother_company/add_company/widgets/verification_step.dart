@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'admin_account_form.dart';
@@ -121,7 +123,7 @@ class VerificationStep extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: isCreating ? null : onBack,
               icon: const Icon(Icons.arrow_back),
-              label: Text("Back", style: GoogleFonts.poppins()),
+              label: Text("Back", style: AppTextStyle.body()),
             ),
 
             const Spacer(),
@@ -154,7 +156,7 @@ class VerificationStep extends StatelessWidget {
 
                           Text(
                             "Creating...",
-                            style: GoogleFonts.poppins(
+                            style: AppTextStyle.body(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
@@ -170,7 +172,7 @@ class VerificationStep extends StatelessWidget {
 
                           Text(
                             "Create Company",
-                            style: GoogleFonts.poppins(
+                            style: AppTextStyle.body(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),

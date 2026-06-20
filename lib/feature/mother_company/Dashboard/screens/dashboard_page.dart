@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../cubit/dashboard_cubit.dart';
@@ -100,11 +102,11 @@ class _DashboardContent extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('System Overview', style: AppTextStyles.heading1),
+                  Text('System Overview', style: AppTextStyle.heading1()),
                   SizedBox(height: 3),
                   Text(
                     'Welcome back, Super Admin. Here is what\'s happening today.',
-                    style: AppTextStyles.bodySmall,
+                    style: AppTextStyle.bodySmall(),
                   ),
                 ],
               ),
@@ -208,11 +210,11 @@ class _DashboardContent extends StatelessWidget {
           //                   const Column(
           //                     crossAxisAlignment: CrossAxisAlignment.start,
           //                     children: [
-          //                       Text('Cash Flow', style: AppTextStyles.heading2),
+          //                       Text('Cash Flow', style: AppTextStyle.heading2()),
           //                       SizedBox(height: 2),
           //                       Text(
           //                         'Monthly receipt vs payment overview',
-          //                         style: AppTextStyles.bodySmall,
+          //                         style: AppTextStyle.bodySmall(),
           //                       ),
           //                     ],
           //                   ),
@@ -262,7 +264,7 @@ class _DashboardContent extends StatelessWidget {
           //                 children: [
           //                   const Text(
           //                     'Payable / Receivable',
-          //                     style: AppTextStyles.heading2,
+          //                     style: AppTextStyle.heading2(),
           //                   ),
           //                   const Spacer(),
           //                 ],

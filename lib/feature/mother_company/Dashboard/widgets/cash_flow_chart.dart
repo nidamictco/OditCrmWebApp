@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../models/dashboard_models.dart';
 
@@ -116,7 +118,7 @@ class _Tooltip extends StatelessWidget {
       children: [
         Text(
           point.label ?? '29 July 00:00',
-          style: AppTextStyles.caption,
+          style: AppTextStyle.caption(),
         ),
         const SizedBox(width: 12),
         Text(
@@ -167,7 +169,7 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label, style: AppTextStyles.bodySmall),
+        Text(label, style: AppTextStyle.bodySmall()),
       ],
     );
   }

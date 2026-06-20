@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class AddonCard extends StatelessWidget {
@@ -56,7 +58,7 @@ class AddonCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -66,7 +68,7 @@ class AddonCard extends StatelessWidget {
 
                   Text(
                     description,
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 13,
                       color: Color(0xff64748B),
                     ),
@@ -87,7 +89,7 @@ class AddonCard extends StatelessWidget {
               ),
               child: Text(
                 "+\$${price.toInt()}",
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontWeight: FontWeight.w700,
                   color: Color(0xff0F2E8A),
                 ),

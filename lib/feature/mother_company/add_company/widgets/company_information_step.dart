@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_text_field.dart';
@@ -107,7 +109,7 @@ class CompanyInformationStep extends StatelessWidget {
               //   onPressed: onCancel,
               //   child: Text(
               //     "Cancel Request",
-              //     style: GoogleFonts.poppins(
+              //     style: AppTextStyle.body(
               //       fontSize: 15,
               //       color: Color(0xff334155),
               //     ),
@@ -124,7 +126,7 @@ class CompanyInformationStep extends StatelessWidget {
                   icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   label: Text(
                     "Next Step",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
@@ -158,7 +160,7 @@ class _DomainField extends StatelessWidget {
       children: [
         Text(
           "Corporate Domain",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: AppTextStyle.body(fontWeight: FontWeight.w600),
         ),
 
         const SizedBox(height: 8),
@@ -181,7 +183,7 @@ class _DomainField extends StatelessWidget {
                 ),
                 child: Text(
                   "https://",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                  style: AppTextStyle.body(fontWeight: FontWeight.w500),
                 ),
               ),
 
@@ -189,10 +191,10 @@ class _DomainField extends StatelessWidget {
                 child: TextFormField(
                   controller: controller,
                   validator: validator,
-                  style: GoogleFonts.poppins(),
+                  style: AppTextStyle.body(),
                   decoration: InputDecoration(
                     hintText: "acme.com",
-                    hintStyle: GoogleFonts.poppins(),
+                    hintStyle: AppTextStyle.body(),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
@@ -235,7 +237,7 @@ class _IndustryDropdown extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           "Industry Sector",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: AppTextStyle.body(fontWeight: FontWeight.w600),
         ),
 
         const SizedBox(height: 8),
@@ -249,14 +251,14 @@ class _IndustryDropdown extends StatelessWidget {
                 return DropdownMenu<String>(
                   initialSelection: selectedIndustry,
                   width: constraints.maxWidth,
-                  textStyle: GoogleFonts.poppins(),
+                  textStyle: AppTextStyle.body(),
                   hintText: "Select industry",
                   dropdownMenuEntries: industries.map((String value) {
                     return DropdownMenuEntry<String>(
                       value: value,
                       label: value,
                       style: MenuItemButton.styleFrom(
-                        textStyle: GoogleFonts.poppins(),
+                        textStyle: AppTextStyle.body(),
                       ),
                     );
                   }).toList(),
@@ -291,7 +293,7 @@ class _IndustryDropdown extends StatelessWidget {
                       ),
                     ),
                     // errorText: fieldState.errorText,
-                    errorStyle: GoogleFonts.poppins(color: Colors.red),
+                    errorStyle: AppTextStyle.body(color: Colors.red),
                   ),
                   onSelected: (String? value) {
                     fieldState.didChange(value);

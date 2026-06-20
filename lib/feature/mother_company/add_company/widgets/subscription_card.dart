@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/subscription_feature.dart';
@@ -58,7 +60,7 @@ class SubscriptionCard extends StatelessWidget {
             children: [
               Text(
                 category.toUpperCase(),
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
@@ -70,7 +72,7 @@ class SubscriptionCard extends StatelessWidget {
 
               Text(
                 title,
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -83,7 +85,7 @@ class SubscriptionCard extends StatelessWidget {
                 children: [
                   Text(
                     "\$${price.toInt()}",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       fontSize: 34,
                       height: 1,
                       fontWeight: FontWeight.w700,
@@ -95,7 +97,7 @@ class SubscriptionCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 8, left: 4),
                     child: Text(
                       "/ month",
-                      style: GoogleFonts.poppins(
+                      style: AppTextStyle.body(
                         fontSize: 16,
                         color: const Color(0xff64748B),
                       ),
@@ -127,7 +129,7 @@ class SubscriptionCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           feature.title,
-                          style: GoogleFonts.poppins(
+                          style: AppTextStyle.body(
                             fontSize: 15,
                             fontWeight: feature.available
                                 ? FontWeight.w500
@@ -164,7 +166,7 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                   child: Text(
                     "Select $title",
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
+                    style: AppTextStyle.body(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -188,7 +190,7 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                   child: Text(
                     "MOST POPULAR",
-                    style: GoogleFonts.poppins(
+                    style: AppTextStyle.body(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 11,

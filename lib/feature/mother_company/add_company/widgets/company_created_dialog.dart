@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -51,7 +53,7 @@ class CompanyCreatedDialog
 
             Text(
               "Company Created Successfully",
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 24,
                 fontWeight:
                 FontWeight.w700,
@@ -64,7 +66,7 @@ class CompanyCreatedDialog
               "Organization has been provisioned successfully.",
               textAlign:
               TextAlign.center,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
             ),
 
             const SizedBox(height: 30),
@@ -98,7 +100,7 @@ class CompanyCreatedDialog
                 },
                 child: Text(
                   "Done",
-                  style: GoogleFonts.poppins(
+                  style: AppTextStyle.body(
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -124,7 +126,7 @@ class CompanyCreatedDialog
         children: [
           Text(
             "$title : ",
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontWeight:
               FontWeight.w600,
             ),
@@ -132,7 +134,7 @@ class CompanyCreatedDialog
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.poppins(),
+              style: AppTextStyle.body(),
             ),
           ),
         ],

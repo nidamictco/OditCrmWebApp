@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTextField extends StatelessWidget {
@@ -24,7 +26,7 @@ class AppTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -36,10 +38,10 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
-          style: GoogleFonts.poppins(),
+          style: AppTextStyle.body(),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.poppins(),
+            hintStyle: AppTextStyle.body(),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(

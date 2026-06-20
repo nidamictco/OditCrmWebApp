@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/plan_badge.dart';
@@ -162,11 +164,11 @@ class _TableHeaderRow extends StatelessWidget {
           ),
           SizedBox(
             width: _ColW.subStart,
-            child: Text('SUB. START', style: AppTextStyles.tableHeader),
+            child: Text('SUB. START', style: AppTextStyle.tableHeader()),
           ),
           SizedBox(
             width: _ColW.subEnd,
-            child: Text('SUB. END', style: AppTextStyles.tableHeader),
+            child: Text('SUB. END', style: AppTextStyle.tableHeader()),
           ),
           SizedBox(
             width: _ColW.status,
@@ -182,7 +184,7 @@ class _TableHeaderRow extends StatelessWidget {
             width: _ColW.action,
             child: Text(
               'ACTION',
-              style: AppTextStyles.tableHeader,
+              style: AppTextStyle.tableHeader(),
               textAlign: TextAlign.center,
             ),
           ),
@@ -237,14 +239,14 @@ class _CompanyRowState extends State<_CompanyRow> {
               // SL
               SizedBox(
                 width: _ColW.sl,
-                child: Text(sl, style: AppTextStyles.tableCell),
+                child: Text(sl, style: AppTextStyle.tableCell()),
               ),
               // Company Name
               SizedBox(
                 width: _ColW.companyName,
                 child: Text(
                   widget.company.companyName,
-                  style: AppTextStyles.tableCell,
+                  style: AppTextStyle.tableCell(),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -253,7 +255,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 width: _ColW.adminName,
                 child: Text(
                   widget.company.adminName,
-                  style: AppTextStyles.tableCell,
+                  style: AppTextStyle.tableCell(),
                 ),
               ),
               // Plan Type
@@ -266,7 +268,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 width: _ColW.subStart,
                 child: Text(
                   fmt.format(widget.company.subscriptionStartDate),
-                  style: AppTextStyles.tableCell,
+                  style: AppTextStyle.tableCell(),
                 ),
               ),
               // Subscription End
@@ -274,7 +276,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 width: _ColW.subEnd,
                 child: Text(
                   fmt.format(widget.company.subscriptionEndDate),
-                  style: AppTextStyles.tableCell,
+                  style: AppTextStyle.tableCell(),
                 ),
               ),
               // Status

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class OnboardingStepper extends StatelessWidget {
@@ -127,7 +129,7 @@ class _StepItem extends StatelessWidget {
             )
                 : Text(
               "$number",
-              style: GoogleFonts.poppins(
+              style: AppTextStyle.body(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: textColor,
@@ -140,7 +142,7 @@ class _StepItem extends StatelessWidget {
 
         Text(
           title,
-          style: GoogleFonts.poppins(
+          style: AppTextStyle.body(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: state == StepStateType.pending

@@ -1,5 +1,7 @@
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -94,7 +96,7 @@ class AppSidebar extends StatelessWidget {
                 // const SizedBox(width: 10),
                 // Text(
                 //   'Odit CRM',
-                //   style: GoogleFonts.poppins(
+                //   style: AppTextStyle.body(
                 //     fontSize: 18,
                 //     fontWeight: FontWeight.w700,
                 //     color: AppThemeColors.textPrimary,
@@ -176,14 +178,14 @@ class AppSidebar extends StatelessWidget {
           ),
           title: Text(
             'Confirm Logout',
-            style: GoogleFonts.poppins(
+            style: AppTextStyle.body(
               fontWeight: FontWeight.bold,
               color: AppThemeColors.textPrimary,
             ),
           ),
           content: Text(
             'Are you sure you want to log out of your account?',
-            style: GoogleFonts.poppins(color: AppThemeColors.textSecondary),
+            style: AppTextStyle.body(color: AppThemeColors.textSecondary),
           ),
           actionsPadding: const EdgeInsets.only(right: 25, bottom: 25),
           actions: [
@@ -191,7 +193,7 @@ class AppSidebar extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Cancel',
-                style: GoogleFonts.poppins(
+                style: AppTextStyle.body(
                   fontWeight: FontWeight.w600,
                   color: AppThemeColors.textSecondary,
                 ),
@@ -214,7 +216,7 @@ class AppSidebar extends StatelessWidget {
               ),
               child: Text(
                 'Log Out',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                style: AppTextStyle.body(fontWeight: FontWeight.w600),
               ),
             ),
           ],

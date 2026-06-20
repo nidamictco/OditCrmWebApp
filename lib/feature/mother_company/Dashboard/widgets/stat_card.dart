@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import '../../../../core/theme/app_theme.dart';
 
 class StatCard extends StatelessWidget {
@@ -60,12 +62,12 @@ class StatCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           // Title
-          Text(title, style: AppTextStyles.statLabel),
+          Text(title, style: AppTextStyle.statLabel()),
           const SizedBox(height: 4),
           // Value
           Text(
             value,
-            style: AppTextStyles.statValue.copyWith(
+            style: AppTextStyle.statValue().copyWith(
               color: valueColor ?? AppThemeColors.textPrimary,
             ),
           ),

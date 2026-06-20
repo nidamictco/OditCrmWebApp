@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../models/company_manage_models.dart';
 
@@ -32,7 +34,7 @@ class SortableColumnHeader extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTextStyles.tableHeader.copyWith(
+            style: AppTextStyle.tableHeader().copyWith(
               color: _isActive
                   ? AppThemeColors.primary
                   : AppThemeColors.textSecondary,
