@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../Dashboard/cubit/dashboard_cubit.dart' as dashboardCubit;
 import '../widgets/company_table.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/dashboard_topbar.dart';
@@ -34,7 +35,14 @@ class _CompanyManageView extends StatelessWidget {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DashboardTopBar(screen: 'companyManage'),
+              DashboardTopBar(
+                screen: 'companyManage',
+                onSearchChanged: (value) {
+                  context
+                      .read<dashboardCubit.DashboardCubit>()
+                      .updateSearchQuery(value);
+                },
+              ),
               // ── Page header ─────────────────────────────────────
               _PageHeader(
                 state: state,
@@ -147,7 +155,9 @@ class _PageHeader extends StatelessWidget {
           // Date filter
           _DateFilterChip(
             value: state.dateFilter,
-            onChanged: cubit.changeDateFilter,
+            onChanged: (value) {
+              cubit.changeDateFilter(value);
+            },
           ),
           const SizedBox(width: 12),
           // Add New Company button

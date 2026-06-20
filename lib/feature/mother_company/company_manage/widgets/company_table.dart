@@ -68,8 +68,10 @@ class CompanyTable extends StatelessWidget {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state.pagedCompanies.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1, color: AppThemeColors.divider),
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 1,
+                            color: AppThemeColors.divider,
+                          ),
                           itemBuilder: (context, index) {
                             return _CompanyRow(
                               company: state.pagedCompanies[index],
