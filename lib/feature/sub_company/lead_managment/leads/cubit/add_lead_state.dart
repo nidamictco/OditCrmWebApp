@@ -57,6 +57,7 @@ class AddLeadState {
   final String followUpCount;
   final String closedLeadCount;
   final String totalCalledCount;
+  final String dashboardTotalCalledCount;
   final String connectedCount;
   final String notConnectedCount;
   final String missedLeadCount;
@@ -105,6 +106,7 @@ class AddLeadState {
     this.newLeadCount = '0',
     this.followUpCount = '0',
     this.totalCalledCount = '0',
+    this.dashboardTotalCalledCount = '0',
     this.connectedCount = '0',
     this.notConnectedCount = '0',
     this.missedLeadCount = '0',
@@ -156,6 +158,7 @@ class AddLeadState {
     String? followUpCount,
     String? closedLeadCount,
     String? totalCalledCount,
+    String? dashboardTotalCalledCount,
     String? connectedCount,
     String? notConnectedCount,
     String? missedLeadCount,
@@ -232,6 +235,8 @@ class AddLeadState {
       followUpCount: followUpCount ?? this.followUpCount,
       closedLeadCount: closedLeadCount ?? this.closedLeadCount,
       totalCalledCount: totalCalledCount ?? this.totalCalledCount,
+      dashboardTotalCalledCount:
+          dashboardTotalCalledCount ?? this.dashboardTotalCalledCount,
       connectedCount: connectedCount ?? this.connectedCount,
       notConnectedCount: notConnectedCount ?? this.notConnectedCount,
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,

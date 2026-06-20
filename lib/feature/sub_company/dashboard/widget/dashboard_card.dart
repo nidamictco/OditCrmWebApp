@@ -114,7 +114,7 @@ class _DashboardCardState extends State<DashboardCard> {
                     break;
 
                   case 'TOTAL':
-                    count = state.totalCalledCount;
+                    count = state.dashboardTotalCalledCount;
                     break;
 
                   case 'MISSED':
@@ -181,7 +181,7 @@ class _DashboardCardState extends State<DashboardCard> {
                         break;
 
                       case 'TOTAL':
-                        count = state.totalCalledCount;
+                        count = state.dashboardTotalCalledCount;
                         break;
 
                       case 'MISSED':

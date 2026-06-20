@@ -331,7 +331,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                   padding: EdgeInsets.all(0.8.w),
                   child: _buildOverviewTab(staffInfo),
                 ),
-                _buildDocumentsTab(_liveModel),
+                // _buildDocumentsTab(_liveModel),
               ],
             ),
           ),
