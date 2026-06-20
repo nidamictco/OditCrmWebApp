@@ -260,6 +260,15 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
     try {
       emit(state.copyWith(status: CompanyManageStatus.loading));
       await firestore.collection('COMPANY').doc(companyId).delete();
+      await firestore
+          .collection('USERS')
+          .where('companyId', isEqualTo: companyId)
+          .get()
+          .then((snapshot) {
+            for (var doc in snapshot.docs) {
+              doc.reference.delete();
+            }
+          });
       await loadCompanies();
     } catch (e) {
       emit(
@@ -308,6 +317,20 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         'yearlyBilling': yearlyBilling,
         'subscriptionEndDate': Timestamp.fromDate(endDate),
       });
+
+      await firestore
+          .collection('USERS')
+          .where('companyId', isEqualTo: companyId)
+          .get()
+          .then((snapshot) {
+            for (var doc in snapshot.docs) {
+              doc.reference.update({
+                'name': adminName,
+                'email': adminEmail,
+                'phone': adminMobile,
+              });
+            }
+          });
 
       await loadCompanies();
     } catch (e) {
