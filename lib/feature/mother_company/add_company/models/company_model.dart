@@ -9,6 +9,8 @@ class CompanyModel {
 
   final String companyLogo;
 
+  final String adminId;
+
   final String contactPerson;
 
   final String mobileNumber;
@@ -42,6 +44,7 @@ class CompanyModel {
     required this.companyName,
     required this.companyCategory,
     required this.companyLogo,
+    required this.adminId,
     required this.contactPerson,
     required this.mobileNumber,
     required this.address,
@@ -64,62 +67,42 @@ class CompanyModel {
       "companyName": companyName,
       "companyCategory": companyCategory,
       "companyLogo": companyLogo,
+      "adminId": adminId,
       "contactPerson": contactPerson,
       "mobileNumber": mobileNumber,
       "address": address,
       "planType": planType,
       "subscriptionType": subscriptionType,
-      "subscriptionAmount":
-      subscriptionAmount,
+      "subscriptionAmount": subscriptionAmount,
       "taxAmount": taxAmount,
-      "discountAmount":
-      discountAmount,
+      "discountAmount": discountAmount,
       "totalAmount": totalAmount,
-      "subscriptionStartDate":
-      subscriptionStartDate,
-      "subscriptionEndDate":
-      subscriptionEndDate,
+      "subscriptionStartDate": subscriptionStartDate,
+      "subscriptionEndDate": subscriptionEndDate,
       "status": status,
       "createdAt": createdAt,
       "updatedAt": updatedAt,
     };
   }
 
-  factory CompanyModel.fromMap(
-      Map<String, dynamic> map,
-      ) {
+  factory CompanyModel.fromMap(Map<String, dynamic> map) {
     return CompanyModel(
       companyId: map["companyId"] ?? "",
-      companyName:
-      map["companyName"] ?? "",
-      companyCategory:
-      map["companyCategory"] ?? "",
-      companyLogo:
-      map["companyLogo"] ?? "",
-      contactPerson:
-      map["contactPerson"] ?? "",
-      mobileNumber:
-      map["mobileNumber"] ?? "",
+      companyName: map["companyName"] ?? "",
+      companyCategory: map["companyCategory"] ?? "",
+      companyLogo: map["companyLogo"] ?? "",
+      adminId: map["adminId"] ?? "",
+      contactPerson: map["contactPerson"] ?? "",
+      mobileNumber: map["mobileNumber"] ?? "",
       address: map["address"] ?? "",
       planType: map["planType"] ?? "",
-      subscriptionType:
-      map["subscriptionType"] ?? "",
-      subscriptionAmount:
-      (map["subscriptionAmount"] ?? 0)
-          .toDouble(),
-      taxAmount:
-      (map["taxAmount"] ?? 0)
-          .toDouble(),
-      discountAmount:
-      (map["discountAmount"] ?? 0)
-          .toDouble(),
-      totalAmount:
-      (map["totalAmount"] ?? 0)
-          .toDouble(),
-      subscriptionStartDate:
-      map["subscriptionStartDate"],
-      subscriptionEndDate:
-      map["subscriptionEndDate"],
+      subscriptionType: map["subscriptionType"] ?? "",
+      subscriptionAmount: (map["subscriptionAmount"] ?? 0).toDouble(),
+      taxAmount: (map["taxAmount"] ?? 0).toDouble(),
+      discountAmount: (map["discountAmount"] ?? 0).toDouble(),
+      totalAmount: (map["totalAmount"] ?? 0).toDouble(),
+      subscriptionStartDate: map["subscriptionStartDate"],
+      subscriptionEndDate: map["subscriptionEndDate"],
       status: map["status"] ?? "",
       createdAt: map["createdAt"],
       updatedAt: map["updatedAt"],

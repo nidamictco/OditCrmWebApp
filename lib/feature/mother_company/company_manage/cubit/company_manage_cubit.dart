@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +30,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         final data = doc.data();
         final companyId = doc.id;
         final companyName = data['companyName'] as String? ?? '';
+        final adminId = data['adminId'] as String? ?? '';
         final adminName = data['adminName'] as String? ?? '';
         final domain = data['domain'] as String? ?? '';
         final location = data['location'] as String? ?? '';
@@ -54,6 +57,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
             sl: sl++,
             companyId: companyId,
             companyName: companyName,
+            adminId: adminId,
             adminName: adminName,
             subscriptionStartDate: subscriptionStartDate,
             subscriptionEndDate: subscriptionEndDate,
@@ -283,6 +287,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
     required String domain,
     required String location,
     required String industry,
+    required String adminId,
     required String adminName,
     required String adminEmail,
     required String adminMobile,
@@ -310,6 +315,7 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         'domain': domain,
         'location': location,
         'industry': industry,
+        'adminId': adminId,
         'adminName': adminName,
         'adminEmail': adminEmail,
         'adminMobile': adminMobile,
@@ -318,19 +324,13 @@ class CompanyManageCubit extends Cubit<CompanyManageState> {
         'subscriptionEndDate': Timestamp.fromDate(endDate),
       });
 
-      await firestore
-          .collection('USERS')
-          .where('companyId', isEqualTo: companyId)
-          .get()
-          .then((snapshot) {
-            for (var doc in snapshot.docs) {
-              doc.reference.update({
-                'name': adminName,
-                'email': adminEmail,
-                'phone': adminMobile,
-              });
-            }
-          });
+      log("comp id = $companyId");
+
+      await firestore.collection('USERS').doc(adminId).update({
+        'name': adminName,
+        'email': adminEmail,
+        'phone': adminMobile,
+      });
 
       await loadCompanies();
     } catch (e) {

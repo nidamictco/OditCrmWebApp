@@ -29,6 +29,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         final data = doc.data();
         final companyId = doc.id;
         final companyName = data['companyName'] as String? ?? '';
+        final adminId = data['adminId'] as String? ?? '';
         final adminName = data['adminName'] as String? ?? '';
         final domain = data['domain'] as String? ?? '';
         final location = data['location'] as String? ?? '';
@@ -55,6 +56,7 @@ class DashboardCubit extends Cubit<DashboardState> {
             sl: sl++,
             companyId: companyId,
             companyName: companyName,
+            adminId: adminId,
             adminName: adminName,
             subscriptionStartDate: subscriptionStartDate,
             subscriptionEndDate: subscriptionEndDate,
@@ -174,6 +176,15 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(status: DashboardStatus.loading));
       await firestore.collection('COMPANY').doc(companyId).delete();
+      await firestore
+          .collection('USERS')
+          .where('companyId', isEqualTo: companyId)
+          .get()
+          .then((snapshot) {
+            for (var doc in snapshot.docs) {
+              doc.reference.delete();
+            }
+          });
       await loadDashboard();
     } catch (e) {
       emit(state.copyWith(status: DashboardStatus.error, error: e.toString()));
@@ -186,6 +197,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     required String domain,
     required String location,
     required String industry,
+    required String adminId,
     required String adminName,
     required String adminEmail,
     required String adminMobile,
@@ -213,12 +225,19 @@ class DashboardCubit extends Cubit<DashboardState> {
         'domain': domain,
         'location': location,
         'industry': industry,
+        'adminId': adminId,
         'adminName': adminName,
         'adminEmail': adminEmail,
         'adminMobile': adminMobile,
         'subscriptionPlan': planName,
         'yearlyBilling': yearlyBilling,
         'subscriptionEndDate': Timestamp.fromDate(endDate),
+      });
+
+      await firestore.collection('USERS').doc(adminId).update({
+        'name': adminName,
+        'email': adminEmail,
+        'phone': adminMobile,
       });
 
       await loadDashboard();

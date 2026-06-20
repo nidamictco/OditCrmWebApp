@@ -5,7 +5,7 @@ class FirebaseAddNewCompanyService {
   final FirebaseFirestore firestore;
 
   FirebaseAddNewCompanyService({FirebaseFirestore? firestore})
-      : firestore = firestore ?? FirebaseFirestore.instance;
+    : firestore = firestore ?? FirebaseFirestore.instance;
 
   Future<void> createCompany(AddNewCompanyState state) async {
     // Check if phone number already exists globally in USERS collection
@@ -20,21 +20,28 @@ class FirebaseAddNewCompanyService {
     }
 
     final companyId = state.companyId;
-    final userId = DateTime.now().millisecondsSinceEpoch.toString();
+    // final userId = DateTime.now().millisecondsSinceEpoch.toString();
+    final adminUid = "admin-$companyId";
 
     final now = DateTime.now();
     final startDate = state.registrationDate;
     // subscriptionEndDate is 1 month later by default
-    final endDate = DateTime(startDate.year, startDate.month + 1, startDate.day);
+    final endDate = DateTime(
+      startDate.year,
+      startDate.month + 1,
+      startDate.day,
+    );
 
-    final domain = state.companyName.toLowerCase().replaceAll(RegExp(r'\s+'), '') + '.oditcrm.com';
+    final domain =
+        state.companyName.toLowerCase().replaceAll(RegExp(r'\s+'), '') +
+        '.oditcrm.com';
 
     final batch = firestore.batch();
 
     // 1. Create User in USERS collection
-    final userDoc = firestore.collection("USERS").doc(userId);
+    final userDoc = firestore.collection("USERS").doc(adminUid);
     batch.set(userDoc, {
-      "userId": userId,
+      "userId": adminUid,
       "name": state.adminName,
       "email": state.adminEmail,
       "phone": state.phone,
@@ -56,6 +63,7 @@ class FirebaseAddNewCompanyService {
       "logoUrl": "",
       "subscriptionPlan": state.planType, // basic / professional / enterprise
       "yearlyBilling": false,
+      "adminId": adminUid,
       "adminName": state.adminName,
       "adminEmail": state.adminEmail,
       "adminMobile": state.phone,
@@ -68,7 +76,7 @@ class FirebaseAddNewCompanyService {
     });
 
     // 3. Create Admin Staff in STAFF sub-collection
-    final adminUid = "admin-$companyId";
+
     batch.set(companyDoc.collection("STAFF").doc(adminUid), {
       "staffId": adminUid,
       "name": state.adminName,
@@ -79,11 +87,10 @@ class FirebaseAddNewCompanyService {
       "companyId": companyId,
       "companyType": "sub_company",
       "status": "Active",
-      "designation":'Company_Admin',
-      "designationId":"Company_Admin",
-      "joiningDate":'_',
-      "imageUrl":'',
-      
+      "designation": 'Company_Admin',
+      "designationId": "Company_Admin",
+      "joiningDate": '',
+      "imageUrl": '',
 
       "createdAt": FieldValue.serverTimestamp(),
     });
