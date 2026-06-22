@@ -20,7 +20,7 @@ class AppThemeColors {
   static const Color contentBg = Color(0xFFFFFFFF);
 
   // Stat Card Icon backgrounds
-  static const Color statCompanyIcon = Color(0xFF2A3F8F);
+  static const Color statCompanyIcon = Color(0xff4C3F77); //Color(0xFF2A3F8F);
   static const Color statLeadsIcon = Color(0xFF00B4D8);
   static const Color statStaffIcon = Color(0xFF9B5DE5);
   static const Color statUptimeIcon = Color(0xFF00B388);
@@ -37,8 +37,8 @@ class AppThemeColors {
   static const Color tableHeader = Color(0xFF002660);
 
   // Status
-  static const Color statusActive = Color(0xFF38A169);
-  static const Color statusPending = Color(0xFFD97706);
+  static const Color statusActive = Color(0xff00B16E); //Color(0xFF38A169);
+  static const Color statusPending = Color(0xffD5AE2E); //Color(0xFFD97706);
   static const Color statusSuspended = Color(0xFFE53E3E);
 
   // Accent
@@ -66,4 +66,10 @@ class AppThemeColors {
   static const Color planText = Color(0xFF4A5568);
 }
 
-
+// class AppTextStyles {
+//   AppTextStyles._();
+//
+//   static const String fontFamily = 'Inter';
+//
+//
+// }

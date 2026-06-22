@@ -46,7 +46,7 @@ class RecentCompanyTable extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
             child: Row(
               children: [
-                Text('Recent Company Activity', style: AppTextStyle.heading2()),
+                Text('Recent Company Activity', style: AppTextStyle.heading2),
                 const Spacer(),
                 GestureDetector(
                   onTap: onViewAll,
@@ -86,56 +86,56 @@ class RecentCompanyTable extends StatelessWidget {
                               width: 40,
                               child: Text(
                                 'SL',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 250,
                               child: Text(
                                 'COMPANY NAME',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 150,
                               child: Text(
                                 'ADMIN NAME',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 100,
                               child: Text(
                                 'PLAN TYPE',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 100,
                               child: Text(
                                 'SUBSCRIPTION START',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 100,
                               child: Text(
                                 'SUBSCRIPTION END',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 72,
                               child: Text(
                                 'STATUS',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                               ),
                             ),
                             SizedBox(
                               width: 56,
                               child: Text(
                                 'ACTION',
-                                style: AppTextStyle.tableHeader(),
+                                style: AppTextStyle.tableHeader,
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -225,14 +225,14 @@ class _CompanyRowState extends State<_CompanyRow> {
             children: [
               SizedBox(
                 width: 40,
-                child: Text(sl, style: AppTextStyle.tableCell()),
+                child: Text(sl, style: AppTextStyle.tableCell),
               ),
               SizedBox(
                 width: 250,
                 // flex: 1,
                 child: Text(
                   widget.company.companyName,
-                  style: AppTextStyle.tableCell(),
+                  style: AppTextStyle.tableCell,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -241,7 +241,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 // flex: 2,
                 child: Text(
                   widget.company.adminName,
-                  style: AppTextStyle.tableCell(),
+                  style: AppTextStyle.tableCell,
                 ),
               ),
               SizedBox(
@@ -256,7 +256,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                   DateFormat(
                     'dd MMM yyyy',
                   ).format(widget.company.subscriptionStartDate),
-                  style: AppTextStyle.tableCell(),
+                  style: AppTextStyle.tableCell,
                 ),
               ),
               SizedBox(
@@ -266,7 +266,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                   DateFormat(
                     'dd MMM yyyy',
                   ).format(widget.company.subscriptionEndDate),
-                  style: AppTextStyle.tableCell(),
+                  style: AppTextStyle.tableCell,
                 ),
               ),
 

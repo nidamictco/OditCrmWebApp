@@ -16,8 +16,7 @@ class PayableReceivableChart extends StatefulWidget {
   final double payable;
 
   @override
-  State<PayableReceivableChart> createState() =>
-      _PayableReceivableChartState();
+  State<PayableReceivableChart> createState() => _PayableReceivableChartState();
 }
 
 class _PayableReceivableChartState extends State<PayableReceivableChart>
@@ -134,12 +133,7 @@ class _LegendRow extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: AppTextStyle.bodySmall(),
-          ),
-        ),
+        Expanded(child: Text(label, style: AppTextStyle.bodySmall)),
         Text(
           value,
           style: GoogleFonts.poppins(
@@ -164,7 +158,10 @@ class _DonutPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2;
     const strokeWidth = 28.0;
-    final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+    final rect = Rect.fromCircle(
+      center: center,
+      radius: radius - strokeWidth / 2,
+    );
 
     final bgPaint = Paint()
       ..color = AppThemeColors.borderLight.withOpacity(0.4)

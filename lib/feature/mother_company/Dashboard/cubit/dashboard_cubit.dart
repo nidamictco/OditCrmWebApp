@@ -81,6 +81,18 @@ class DashboardCubit extends Cubit<DashboardState> {
         return statusStr.toUpperCase() == 'ACTIVE';
       }).length;
 
+      final pendingCompanies = totalSnapshot.docs.where((doc) {
+        final data = doc.data();
+        final statusStr = data['status'] as String? ?? 'PENDING';
+        return statusStr.toUpperCase() == 'PENDING';
+      }).length;
+
+      final suspendedCompanies = totalSnapshot.docs.where((doc) {
+        final data = doc.data();
+        final statusStr = data['status'] as String? ?? 'PENDING';
+        return statusStr.toUpperCase() == 'SUSPENDED';
+      }).length;
+
       final cashFlow = _generateCashFlowData();
 
       emit(
@@ -91,6 +103,8 @@ class DashboardCubit extends Cubit<DashboardState> {
           stats: DashboardStats(
             totalCompanies: totalCompanies,
             activeCompanies: activeCompanies,
+            pendingCompanies: pendingCompanies,
+            suspendedCompanies: suspendedCompanies,
           ),
         ),
       );
