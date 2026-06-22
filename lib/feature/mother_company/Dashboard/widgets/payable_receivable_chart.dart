@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 
@@ -68,9 +69,9 @@ class _PayableReceivableChartState extends State<PayableReceivableChart>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'RECEIVABLE',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,
@@ -80,7 +81,7 @@ class _PayableReceivableChartState extends State<PayableReceivableChart>
                     const SizedBox(height: 4),
                     Text(
                       _formatK(widget.receivable),
-                      style: const TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: AppThemeColors.textPrimary,
@@ -141,7 +142,7 @@ class _LegendRow extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textPrimary,

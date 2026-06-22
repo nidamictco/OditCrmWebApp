@@ -197,7 +197,7 @@ class _PageHeader extends StatelessWidget {
               ),
             ),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Add', style: TextStyle(color: Colors.white)),
+            child: Text('Add', style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -272,17 +272,17 @@ class _SearchField extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: const TextStyle(fontSize: 13, color: AppThemeColors.textPrimary),
-        decoration: const InputDecoration(
+        style: GoogleFonts.poppins(fontSize: 13, color: AppThemeColors.textPrimary),
+        decoration: InputDecoration(
           hintText: 'Search company, admin, plan...',
-          hintStyle: TextStyle(fontSize: 13, color: AppThemeColors.textMuted),
-          prefixIcon: Icon(
+          hintStyle: GoogleFonts.poppins(fontSize: 13, color: AppThemeColors.textMuted),
+          prefixIcon: const Icon(
             Icons.search_rounded,
             size: 18,
             color: AppThemeColors.textMuted,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 10),
+          contentPadding: const EdgeInsets.symmetric(vertical: 10),
         ),
       ),
     );
@@ -336,7 +336,7 @@ class _SmallChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: isActive ? Colors.white : AppThemeColors.textSecondary,
@@ -386,7 +386,7 @@ class _DateFilterChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               value.label,
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppThemeColors.textPrimary,
@@ -424,7 +424,7 @@ class _DateFilterChip extends StatelessWidget {
           value: f,
           child: Text(
             f.label,
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: f == value ? FontWeight.w600 : FontWeight.w400,
               color: f == value
@@ -460,9 +460,9 @@ class _AddCompanyButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       icon: const Icon(Icons.add_rounded, size: 18),
-      label: const Text(
+      label: Text(
         'Add New Company',
-        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600),
       ),
     );
   }

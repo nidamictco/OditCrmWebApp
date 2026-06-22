@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -45,9 +46,9 @@ class RecentCompanyTable extends StatelessWidget {
                 const Spacer(),
                 GestureDetector(
                   onTap: onViewAll,
-                  child: const Text(
+                  child: Text(
                     'View All',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: AppThemeColors.primary,
@@ -70,7 +71,10 @@ class RecentCompanyTable extends StatelessWidget {
                 SizedBox(width: 120, child: _HeaderCell('SUB. START')),
                 SizedBox(width: 120, child: _HeaderCell('SUB. END')),
                 SizedBox(width: 80, child: _HeaderCell('STATUS')),
-                SizedBox(width: 56, child: _HeaderCell('ACTION', centered: true)),
+                SizedBox(
+                  width: 56,
+                  child: _HeaderCell('ACTION', centered: true),
+                ),
               ],
             ),
           ),
@@ -144,19 +148,22 @@ class _RecentCompanyRowState extends State<_RecentCompanyRow> {
           children: [
             SizedBox(
               width: 50,
-              child: Text(sl, style: AppTextStyle.tableCell()),
+              child: Text(sl, style: AppTextStyle.tableCell(fontSize: 13)),
             ),
             SizedBox(
               width: 220,
               child: Text(
                 widget.company.companyName,
-                style: AppTextStyle.tableCell(),
+                style: AppTextStyle.tableCell(fontSize: 13),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             SizedBox(
               width: 150,
-              child: Text(widget.company.adminName, style: AppTextStyle.tableCell()),
+              child: Text(
+                widget.company.adminName,
+                style: AppTextStyle.tableCell(fontSize: 13),
+              ),
             ),
             SizedBox(
               width: 110,
@@ -166,21 +173,21 @@ class _RecentCompanyRowState extends State<_RecentCompanyRow> {
               width: 120,
               child: Text(
                 fmt.format(widget.company.subscriptionStartDate),
-                style: AppTextStyle.tableCell(),
+                style: AppTextStyle.tableCell(fontSize: 12),
               ),
             ),
             SizedBox(
               width: 120,
               child: Text(
                 fmt.format(widget.company.subscriptionEndDate),
-                style: AppTextStyle.tableCell(),
+                style: AppTextStyle.tableCell(fontSize: 12),
               ),
             ),
             SizedBox(
               width: 80,
               child: Text(
                 widget.company.status.label,
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _statusColor,
@@ -226,20 +233,20 @@ class _RecentCompanyRowState extends State<_RecentCompanyRow> {
       position: pos,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      items: const [
+      items: [
         PopupMenuItem(
           value: 'view',
-          child: Text('View Details', style: TextStyle(fontSize: 13)),
+          child: Text('View Details', style: GoogleFonts.poppins(fontSize: 13)),
         ),
         PopupMenuItem(
           value: 'edit',
-          child: Text('Edit', style: TextStyle(fontSize: 13)),
+          child: Text('Edit', style: GoogleFonts.poppins(fontSize: 13)),
         ),
         PopupMenuItem(
           value: 'suspend',
           child: Text(
             'Suspend',
-            style: TextStyle(fontSize: 13, color: Colors.red),
+            style: GoogleFonts.poppins(fontSize: 13, color: Colors.red),
           ),
         ),
       ],
@@ -261,7 +268,7 @@ class _PlanBadge extends StatelessWidget {
       ),
       child: Text(
         planType.label,
-        style: const TextStyle(
+        style: GoogleFonts.poppins(
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: AppThemeColors.planText,

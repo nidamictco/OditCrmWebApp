@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -325,7 +326,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       status.label,
-      style: TextStyle(
+      style: GoogleFonts.poppins(
         fontSize: 13,
         fontWeight: FontWeight.w600,
         color: _color,
@@ -385,13 +386,13 @@ class _ActionMenu extends StatelessWidget {
         //     Text('View Details', style: TextStyle(fontSize: 13)),
         //   ]),
         // ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
-              SizedBox(width: 8),
-              Text('Edit', style: TextStyle(fontSize: 13)),
+              const Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+              const SizedBox(width: 8),
+              Text('Edit', style: GoogleFonts.poppins(fontSize: 13)),
             ],
           ),
         ),
@@ -413,7 +414,7 @@ class _ActionMenu extends StatelessWidget {
                 company.status == CompanyStatus.suspended
                     ? 'Activate'
                     : 'Suspend',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
                   color: company.status == CompanyStatus.suspended
                       ? Colors.green
@@ -423,13 +424,13 @@ class _ActionMenu extends StatelessWidget {
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Delete', style: TextStyle(fontSize: 13, color: Colors.red)),
+              const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
+              const SizedBox(width: 8),
+              Text('Delete', style: GoogleFonts.poppins(fontSize: 13, color: Colors.red)),
             ],
           ),
         ),
@@ -463,29 +464,29 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 60),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
       child: Center(
         child: Column(
           children: [
-            Icon(
+            const Icon(
               Icons.business_outlined,
               size: 48,
               color: AppThemeColors.textMuted,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'No companies found',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: AppThemeColors.textSecondary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Try adjusting your search or filter.',
-              style: TextStyle(fontSize: 13, color: AppThemeColors.textMuted),
+              style: GoogleFonts.poppins(fontSize: 13, color: AppThemeColors.textMuted),
             ),
           ],
         ),

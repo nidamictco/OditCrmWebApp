@@ -18,19 +18,19 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting();
+
   // await windowManager.ensureInitialized();
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
-  final settings =
-    await FirebaseMessaging.instance.requestPermission();
 
-print(
-  'Notification permission: ${settings.authorizationStatus}',
-);
+    FirebaseMessaging.instance.requestPermission();
+    initializeDateFormatting();
+
+    // print(
+    //   'Notification permission: ${settings.authorizationStatus}',
+    // );
     runApp(const OxdoApp());
   } catch (e) {
     // Fallback UI or log error
@@ -38,13 +38,13 @@ print(
   }
 }
 
-
 class ErrorApp extends StatelessWidget {
   final String error;
   const ErrorApp({super.key, required this.error});
   @override
-  Widget build(BuildContext context) =>
-      MaterialApp(home: Scaffold(body: Center(child: Text('Failed to start: $error'))));
+  Widget build(BuildContext context) => MaterialApp(
+    home: Scaffold(body: Center(child: Text('Failed to start: $error'))),
+  );
 }
 
 class OxdoApp extends StatelessWidget {
@@ -62,21 +62,18 @@ class OxdoApp extends StatelessWidget {
             staffRepository: StaffRepository(),
           ),
         ),
-        BlocProvider<PermissionCubit>(
-          create: (_) => PermissionCubit(),
-        ),
+        BlocProvider<PermissionCubit>(create: (_) => PermissionCubit()),
       ],
       child: MaterialApp(
         supportedLocales: const [Locale('en')],
         localizationsDelegates: const [CountryLocalizations.delegate],
         debugShowCheckedModeBanner: false,
-        title: 'Oditbiz',
-       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+        title: 'Odit CRM',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-      ),
-        home:Sizer(  // ✅ Sizer gets MediaQuery from MaterialApp above it
+        home: Sizer(
+          // ✅ Sizer gets MediaQuery from MaterialApp above it
           builder: (context, orientation, deviceType) {
             return AuthGate();
           },

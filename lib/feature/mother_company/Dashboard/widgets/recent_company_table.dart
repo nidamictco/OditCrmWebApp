@@ -84,19 +84,31 @@ class RecentCompanyTable extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: 40,
-                              child: Text('SL', style: AppTextStyle.tableHeader()),
+                              child: Text(
+                                'SL',
+                                style: AppTextStyle.tableHeader(),
+                              ),
                             ),
                             SizedBox(
                               width: 250,
-                              child: Text('COMPANY NAME', style: AppTextStyle.tableHeader()),
+                              child: Text(
+                                'COMPANY NAME',
+                                style: AppTextStyle.tableHeader(),
+                              ),
                             ),
                             SizedBox(
                               width: 150,
-                              child: Text('ADMIN NAME', style: AppTextStyle.tableHeader()),
+                              child: Text(
+                                'ADMIN NAME',
+                                style: AppTextStyle.tableHeader(),
+                              ),
                             ),
                             SizedBox(
                               width: 100,
-                              child: Text('PLAN TYPE', style: AppTextStyle.tableHeader()),
+                              child: Text(
+                                'PLAN TYPE',
+                                style: AppTextStyle.tableHeader(),
+                              ),
                             ),
                             SizedBox(
                               width: 100,
@@ -114,7 +126,10 @@ class RecentCompanyTable extends StatelessWidget {
                             ),
                             SizedBox(
                               width: 72,
-                              child: Text('STATUS', style: AppTextStyle.tableHeader()),
+                              child: Text(
+                                'STATUS',
+                                style: AppTextStyle.tableHeader(),
+                              ),
                             ),
                             SizedBox(
                               width: 56,
@@ -137,10 +152,15 @@ class RecentCompanyTable extends StatelessWidget {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: companies.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1, color: AppThemeColors.divider),
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 1,
+                            color: AppThemeColors.divider,
+                          ),
                           itemBuilder: (context, index) {
-                            return _CompanyRow(company: companies[index], cubit: cubit);
+                            return _CompanyRow(
+                              company: companies[index],
+                              cubit: cubit,
+                            );
                           },
                         ),
                     ],
@@ -254,7 +274,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 width: 72,
                 child: Text(
                   widget.company.status.label,
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: _statusColor,
@@ -297,13 +317,13 @@ class _CompanyRowState extends State<_CompanyRow> {
       position: position,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       items: [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
-              SizedBox(width: 8),
-              Text('Edit', style: TextStyle(fontSize: 13)),
+              const Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+              const SizedBox(width: 8),
+              Text('Edit', style: GoogleFonts.poppins(fontSize: 13)),
             ],
           ),
         ),
@@ -325,7 +345,7 @@ class _CompanyRowState extends State<_CompanyRow> {
                 widget.company.status == CompanyStatus.suspended
                     ? 'Activate'
                     : 'Suspend',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
                   color: widget.company.status == CompanyStatus.suspended
                       ? Colors.green
@@ -335,13 +355,20 @@ class _CompanyRowState extends State<_CompanyRow> {
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Delete', style: TextStyle(fontSize: 13, color: Colors.red)),
+              const Icon(
+                Icons.delete_outline_rounded,
+                size: 16,
+                color: Colors.red,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Delete',
+                style: GoogleFonts.poppins(fontSize: 13, color: Colors.red),
+              ),
             ],
           ),
         ),
@@ -397,29 +424,32 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 60),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
       child: Center(
         child: Column(
           children: [
-            Icon(
+            const Icon(
               Icons.business_outlined,
               size: 48,
               color: AppThemeColors.textMuted,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'No companies found',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: AppThemeColors.textSecondary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Click "Add Company" in the sidebar to onboard a new organization.',
-              style: TextStyle(fontSize: 13, color: AppThemeColors.textMuted),
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: AppThemeColors.textMuted,
+              ),
             ),
           ],
         ),

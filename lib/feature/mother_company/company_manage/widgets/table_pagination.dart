@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class TablePagination extends StatelessWidget {
@@ -46,9 +47,9 @@ class TablePagination extends StatelessWidget {
       child: Row(
         children: [
           // Rows per page
-          const Text(
+          Text(
             'Rows per page:',
-            style: TextStyle(fontSize: 12, color: AppThemeColors.textSecondary),
+            style: GoogleFonts.poppins(fontSize: 12, color: AppThemeColors.textSecondary),
           ),
           const SizedBox(width: 8),
           _RowsDropdown(value: rowsPerPage, onChanged: onRowsPerPageChanged),
@@ -56,7 +57,7 @@ class TablePagination extends StatelessWidget {
           // Info
           Text(
             '$start–$end of $totalItems',
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 12,
               color: AppThemeColors.textSecondary,
             ),
@@ -65,11 +66,11 @@ class TablePagination extends StatelessWidget {
           // Page numbers
           ..._pageNumbers.map((p) {
             if (p == -1) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   '…',
-                  style: TextStyle(color: AppThemeColors.textMuted),
+                  style: GoogleFonts.poppins(color: AppThemeColors.textMuted),
                 ),
               );
             }
@@ -110,10 +111,9 @@ class _RowsDropdown extends StatelessWidget {
       child: DropdownButton<int>(
         value: value,
         isDense: true,
-        style: const TextStyle(
+        style: GoogleFonts.inter(
           fontSize: 12,
           color: AppThemeColors.textPrimary,
-          fontFamily: 'Inter',
         ),
         items: [5, 10, 20, 50].map((v) {
           return DropdownMenuItem(value: v, child: Text('$v'));
@@ -148,7 +148,7 @@ class _PageBtn extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           '$page',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 12,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
             color: isActive ? Colors.white : AppThemeColors.textSecondary,

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../models/dashboard_models.dart';
@@ -123,7 +124,7 @@ class _Tooltip extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           '220,342.76',
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: AppThemeColors.textPrimary,
@@ -139,9 +140,9 @@ class _Tooltip extends StatelessWidget {
               color: AppThemeColors.growthGreenBg,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
+            child: Text(
               '+3.4%',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.growthGreen,
@@ -224,7 +225,7 @@ class _ChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: level.toString(),
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
               fontSize: 9, color: AppThemeColors.textMuted),
         ),
         textDirection: TextDirection.ltr,

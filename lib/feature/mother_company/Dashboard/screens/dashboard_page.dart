@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -60,7 +61,7 @@ class _DashboardView extends StatelessWidget {
                           return Center(
                             child: Text(
                               state.error ?? 'An error occurred',
-                              style: const TextStyle(color: Colors.red),
+                              style: GoogleFonts.poppins(color: Colors.red),
                             ),
                           );
                         }
