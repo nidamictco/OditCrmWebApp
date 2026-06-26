@@ -16,6 +16,8 @@ import 'feature/sub_company/staff_managment/designation/cubit/cubit/permission_c
 import 'feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'firebase_options.dart';
 
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -65,6 +67,8 @@ class OxdoApp extends StatelessWidget {
         BlocProvider<PermissionCubit>(create: (_) => PermissionCubit()),
       ],
       child: MaterialApp(
+        navigatorKey: appNavigatorKey,
+        navigatorObservers: [routeObserver],
         supportedLocales: const [Locale('en')],
         localizationsDelegates: const [CountryLocalizations.delegate],
         debugShowCheckedModeBanner: false,

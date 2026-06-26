@@ -21,7 +21,7 @@ abstract class IAddLeadRepository {
     required String staffId,
     required String role,
     required String fromCard,
-    required DateTime selectedDate,
+    required DateTime? selectedDate,
     DateTime? toDate,
   });
   Future<void> updateLead(String id, AddLeadModel lead);
@@ -299,7 +299,7 @@ class AddLeadRepository implements IAddLeadRepository {
     required String staffId,
     required String role,
     required String fromCard,
-    required DateTime selectedDate,
+    required DateTime? selectedDate,
     DateTime? toDate,
   }) async {
     Query<Map<String, dynamic>> query = _collection;
@@ -344,14 +344,11 @@ class AddLeadRepository implements IAddLeadRepository {
       //       date.day == selectedDate.day;
       // }
 
-      final effectiveTo = toDate ?? selectedDate;
-
-      final fromDay = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-      );
-      final toDay = DateTime(
+      final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
+      final DateTime? fromDay = selectedDate != null
+          ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+          : null;
+      final DateTime toDay = DateTime(
         effectiveTo.year,
         effectiveTo.month,
         effectiveTo.day,
@@ -362,18 +359,24 @@ class AddLeadRepository implements IAddLeadRepository {
 
       bool isInRange(DateTime? date) {
         if (date == null) return false;
-        return !date.isBefore(fromDay) && !date.isAfter(toDay);
+        if (selectedDate == null) {
+          return date.isBefore(toDay);
+        }
+        return !date.isBefore(fromDay!) && !date.isAfter(toDay);
       }
 
       bool isbeforeFromDay(DateTime? date) {
         if (date == null) return false;
-        return date.isBefore(fromDay);
+        if (selectedDate == null) {
+          return date.isBefore(toDay);
+        }
+        return date.isBefore(fromDay!);
       }
 
-      bool isAfterToDay(DateTime? date) {
-        if (date == null) return false;
-        return date.isAfter(toDay);
-      }
+      // bool isAfterToDay(DateTime? date) {
+      //   if (date == null) return false;
+      //   return date.isAfter(toDay);
+      // }
 
       /// CARD FILTER
       switch (fromCard.toUpperCase()) {

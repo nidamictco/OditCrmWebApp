@@ -135,7 +135,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   );
 
   // Add a ScaffoldKey to control the endDrawer
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // @override
   // void initState() {
@@ -177,23 +177,23 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     final date = _selectedDateValue ?? DateTime.now();
 
     context.read<AddLeadCubit>().fetchLeadChartCounts(
-      staffId:      staffId,
-      role:         role,
+      staffId: staffId,
+      role: role,
       selectedDate: date,
-      toDate:       _toDateValue,
+      toDate: _toDateValue,
     );
 
     context.read<AddLeadCubit>().fetchProfileCounts(
       date,
       staffId: staffId,
-      role:    role,
+      role: role,
     );
 
     context.read<AddLeadCubit>().fetchCallStatusCounts(
-      staffId:      staffId,
-      role:         role,
+      staffId: staffId,
+      role: role,
       selectedDate: _selectedDateValue,
-      toDate:       _toDateValue,
+      toDate: _toDateValue,
     );
   }
 
@@ -211,12 +211,14 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
-    _liveModel    = widget.staff;
+    _liveModel = widget.staff;
     _selectedDate = _formatDate(DateTime.now());
     _selectedDateValue = DateTime.now();
     _toDateValue = null;
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() => _selectedTab = _tabController.index));
+    _tabController.addListener(
+      () => setState(() => _selectedTab = _tabController.index),
+    );
 
     if (widget.staff.id != null) {
       context.read<StaffCubit>().getStaff(widget.staff.id!);
@@ -246,100 +248,103 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
         }
       },
       child: BlocConsumer<StaffCubit, StaffState>(
-      listener: (context, state) {
-        if (state is StaffLoaded) {
-          // ✅ Update cached model whenever fresh data arrives
-          setState(() => _liveModel = state.staff);
-        }
-        if (state is StaffError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red.shade700,
-            ),
-          );
-        }
-      },
-      builder: (context, state) {
-        // ✅ Always use _liveModel — immune to NotesLoading/NotesLoaded/etc
-        final staffInfo = _staffInfoFromModel(_liveModel);
+        listener: (context, state) {
+          if (state is StaffLoaded) {
+            // ✅ Update cached model whenever fresh data arrives
+            setState(() => _liveModel = state.staff);
+          }
+          if (state is StaffError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red.shade700,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          // ✅ Always use _liveModel — immune to NotesLoading/NotesLoaded/etc
+          final staffInfo = _staffInfoFromModel(_liveModel);
 
-        // Only show full loading screen before we have any live data
-        final isInitialLoad =
-            state is StaffLoading && _liveModel == widget.staff;
+          // Only show full loading screen before we have any live data
+          final isInitialLoad =
+              state is StaffLoading && _liveModel == widget.staff;
 
-        if (isInitialLoad) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF5F6FA),
-            body: Column(
-              children: [
-                Container(
-                  height: 15.h,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF0F2442),
-                        Color(0xFF1E3A5F),
-                        Color(0xFF2D5F8A),
-                      ],
+          if (isInitialLoad) {
+            return Scaffold(
+              backgroundColor: const Color(0xFFF5F6FA),
+              body: Column(
+                children: [
+                  Container(
+                    height: 15.h,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF0F2442),
+                          Color(0xFF1E3A5F),
+                          Color(0xFF2D5F8A),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: SafeArea(
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
+                    child: SafeArea(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                ),
+                  const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: const Color(0xFFF5F6FA),
+            endDrawer: NotesDrawer(
+              staffId: widget.staff.id!,
+            ), // ← add endDrawer
+            floatingActionButton: FloatingActionButton(
+              // ← add FAB
+              onPressed: () {
+                context.read<StaffCubit>().fetchNotes(widget.staff.id!);
+                _scaffoldKey.currentState?.openEndDrawer();
+              },
+              backgroundColor: const Color(0xFF1E3A5F),
+              child: const Icon(Icons.note_alt_outlined, color: Colors.white),
+            ),
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                _buildSliverHeader(innerBoxIsScrolled, staffInfo, _liveModel),
               ],
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(0.8.w),
+                    child: _buildOverviewTab(staffInfo),
+                  ),
+                  // _buildDocumentsTab(_liveModel),
+                ],
+              ),
             ),
           );
-        }
-
-        return Scaffold(
-            key: _scaffoldKey,
-          backgroundColor: const Color(0xFFF5F6FA),
-           endDrawer: NotesDrawer(staffId: widget.staff.id!), // ← add endDrawer
-  floatingActionButton: FloatingActionButton( // ← add FAB
-    onPressed: () {
-      context.read<StaffCubit>().fetchNotes(widget.staff.id!);
-      _scaffoldKey.currentState?.openEndDrawer();
-    },
-    backgroundColor: const Color(0xFF1E3A5F),
-    child: const Icon(Icons.note_alt_outlined, color: Colors.white),
-  ),
-          body: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              _buildSliverHeader(innerBoxIsScrolled, staffInfo, _liveModel),
-            ],
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(0.8.w),
-                  child: _buildOverviewTab(staffInfo),
-                ),
-                // _buildDocumentsTab(_liveModel),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
-  );
-}
+        },
+      ),
+    );
+  }
 
   // ─── SLIVER HEADER ───────────────────────────────────────
 
@@ -410,29 +415,33 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
       //   ),
       // ],
       actions: [
-  _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
-  SizedBox(width: 1.w),
-  // ← "Open Notes" ElevatedButton.icon removed entirely
-  Container(
-    margin: EdgeInsets.only(right: 1.w),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF59E0B),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: IconButton(
-      icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 18),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                MainScreen(selectedIndex: 15, staff: liveModel),
+        _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
+        SizedBox(width: 1.w),
+        // ← "Open Notes" ElevatedButton.icon removed entirely
+        Container(
+          margin: EdgeInsets.only(right: 1.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF59E0B),
+            borderRadius: BorderRadius.circular(8),
           ),
-        );
-      },
-    ),
-  ),
-],
+          child: IconButton(
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: Colors.white,
+              size: 18,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MainScreen(selectedIndex: 15, staff: liveModel),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: _ProfileHeader(staff: staffInfo, user: liveModel),
       ),
@@ -482,12 +491,11 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // ─── OVERVIEW TAB ────────────────────────────────────────
 
-
   Widget _buildOverviewTab(StaffInfo staffInfo) {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, leadState) {
         // Use live counts if available, fall back to zeros
-       
+
         // final liveCallData = CallStatusData(
         //   cloudCallDuration: _callData.cloudCallDuration,
         //   phoneCallDuration: _callData.phoneCallDuration,
@@ -500,19 +508,27 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
         //   connectedCount: int.tryParse(leadState.connectedCount) ?? 0,
         //   notConnectedCount: int.tryParse(leadState.notConnectedCount) ?? 0,
         // );
-final liveCallData = CallStatusData(
-  cloudCallDuration: _callData.cloudCallDuration,
-  phoneCallDuration: _callData.phoneCallDuration,
-  closedCount:      int.tryParse(leadState.profileClosedCount) ?? 0,   // ← profile field
-  costAmount:       _callData.costAmount,
-  totalCalled:      int.tryParse(leadState.profileTotalCalledCount) ?? 0, // ← profile field
-  leadsByCategory:  leadState.leadChartCounts.isNotEmpty
-      ? leadState.leadChartCounts
-      : _callData.leadsByCategory,
-  connectedCount:    int.tryParse(leadState.profileConnectedCount) ?? 0,    // ← profile field
-  notConnectedCount: int.tryParse(leadState.profileNotConnectedCount) ?? 0, // ← profile field
-  callResultCounts:  leadState.profileCallResultCounts,
-);
+        final liveCallData = CallStatusData(
+          cloudCallDuration: _callData.cloudCallDuration,
+          phoneCallDuration: _callData.phoneCallDuration,
+          closedCount:
+              int.tryParse(leadState.profileClosedCount) ??
+              0, // ← profile field
+          costAmount: _callData.costAmount,
+          totalCalled:
+              int.tryParse(leadState.profileTotalCalledCount) ??
+              0, // ← profile field
+          leadsByCategory: leadState.leadChartCounts.isNotEmpty
+              ? leadState.leadChartCounts
+              : _callData.leadsByCategory,
+          connectedCount:
+              int.tryParse(leadState.profileConnectedCount) ??
+              0, // ← profile field
+          notConnectedCount:
+              int.tryParse(leadState.profileNotConnectedCount) ??
+              0, // ← profile field
+          callResultCounts: leadState.profileCallResultCounts,
+        );
         return SingleChildScrollView(
           padding: EdgeInsets.all(2.h),
           child: Column(
@@ -581,7 +597,8 @@ final liveCallData = CallStatusData(
                           },
                           onRangeChanged: (from, to) {
                             setState(() {
-                              _selectedDate = '${_formatDate(from)} - ${_formatDate(to)}';
+                              _selectedDate =
+                                  '${_formatDate(from)} - ${_formatDate(to)}';
                               _selectedDateValue = from;
                               _toDateValue = to;
                             });
@@ -1504,9 +1521,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
               Expanded(
                 child: Text(
                   label,
-                  style: AppTextStyle.medium(
-                    weight: FontWeight.w400,
-                  ),
+                  style: AppTextStyle.medium(weight: FontWeight.w400),
                 ),
               ),
               Text(
@@ -1533,7 +1548,6 @@ class __CallStatusCardState extends State<_CallStatusCard> {
     );
   }
 
- 
   Widget _rightChart() {
     final allZero = widget.data.leadsByCategory.values.every((v) => v == 0);
 

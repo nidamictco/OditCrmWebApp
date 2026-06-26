@@ -108,35 +108,30 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   void _watchCategories() {
     _categorySubscription?.cancel();
-    _categorySubscription = _categoryRepository.watchCategories().listen(
-      (cats) {
-        if (isClosed) return;
-        emit(state.copyWith(categories: [...cats]));
-      },
-      onError: (_) {},
-    );
+    _categorySubscription = _categoryRepository.watchCategories().listen((
+      cats,
+    ) {
+      if (isClosed) return;
+      emit(state.copyWith(categories: [...cats]));
+    }, onError: (_) {});
   }
 
   void _watchSources() {
     _sourceSubscription?.cancel();
-    _sourceSubscription = _sourceRepository.watchSource().listen(
-      (srcs) {
-        if (isClosed) return;
-        emit(state.copyWith(sources: [...srcs]));
-      },
-      onError: (_) {},
-    );
+    _sourceSubscription = _sourceRepository.watchSource().listen((srcs) {
+      if (isClosed) return;
+      emit(state.copyWith(sources: [...srcs]));
+    }, onError: (_) {});
   }
 
   void _watchLeadStages() {
     _leadStageSubscription?.cancel();
-    _leadStageSubscription = _leadStageRepository.watchCategories().listen(
-      (stages) {
-        if (isClosed) return;
-        emit(state.copyWith(stages: [...stages]));
-      },
-      onError: (_) {},
-    );
+    _leadStageSubscription = _leadStageRepository.watchCategories().listen((
+      stages,
+    ) {
+      if (isClosed) return;
+      emit(state.copyWith(stages: [...stages]));
+    }, onError: (_) {});
   }
 
   @override
@@ -237,7 +232,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required String staffId,
     required String role,
     required String fromCard,
-    required DateTime selectedDate,
+    DateTime? selectedDate,
     DateTime? toDate,
   }) async {
     emit(
@@ -754,7 +749,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaff: user!.name,
         assignedStaffId: user.id ?? '',
       );
-      log('followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp');
+      log(
+        'followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp',
+      );
 
       await _leadRepository.addFollowUp(
         leadId,

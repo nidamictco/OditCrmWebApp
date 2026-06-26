@@ -1,4 +1,4 @@
-﻿// import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 // import 'package:intl/intl.dart';
 // import '../theme/app_colors.dart';
 // import '../theme/app_text_style.dart';
@@ -104,7 +104,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
-import 'custom_date_range_picker.dart';
+import 'custom_single_date_picker.dart';
 import 'package:sizer/sizer.dart';
 
 class InputDate extends StatefulWidget {
@@ -151,16 +151,33 @@ class _InputDateState extends State<InputDate> {
   }
 
   void _openPicker() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final initialDate = _parse(
+      widget.isFrom ? widget.fromController.text : widget.toController.text,
+    );
+    final minDate = widget.isFrom ? null : _parse(widget.fromController.text);
+    final parsedTo = _parse(widget.toController.text);
+    final maxDate = widget.isFrom
+        ? (parsedTo != null && parsedTo.isBefore(today) ? parsedTo : today)
+        : today;
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.25),
-      builder: (_) => CustomDateRangePicker(
-        initialFromDate: _parse(widget.fromController.text),
-        initialToDate: _parse(widget.toController.text),
-        onRangeSelected: (from, to) {
-          // No setState needed here — listeners handle it
-          widget.fromController.text = DateFormat('dd-MM-yyyy').format(from);
-          widget.toController.text = DateFormat('dd-MM-yyyy').format(to);
+      builder: (_) => CustomSingleDatePicker(
+        title: widget.label,
+        initialDate: initialDate,
+        minDate: minDate,
+        maxDate: maxDate,
+        onDateSelected: (date) {
+          final formatted = DateFormat('dd-MM-yyyy').format(date);
+          if (widget.isFrom) {
+            widget.fromController.text = formatted;
+          } else {
+            widget.toController.text = formatted;
+          }
         },
       ),
     );
@@ -168,7 +185,7 @@ class _InputDateState extends State<InputDate> {
 
   DateTime? _parse(String text) {
     try {
-      return text.isEmpty ? null : DateFormat('dd MMM yyyy').parse(text);
+      return text.isEmpty ? null : DateFormat('dd-MM-yyyy').parse(text);
     } catch (_) {
       return null;
     }
@@ -195,13 +212,37 @@ class _InputDateState extends State<InputDate> {
             decoration: _box(),
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.symmetric(horizontal: 1.w),
-            child: Text(
-              _displayText,
-              style: AppTextStyle.small(
-                size: 11.sp,
-                color: AppColors.black,
-                weight: FontWeight.w400,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _displayText,
+                    style: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.black,
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                if (widget.isFrom ? widget.fromController.text.isNotEmpty : widget.toController.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      if (widget.isFrom) {
+                        widget.fromController.clear();
+                      } else {
+                        widget.toController.clear();
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: Icon(
+                        Icons.clear,
+                        size: 16,
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

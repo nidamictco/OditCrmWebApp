@@ -55,11 +55,11 @@ class AuthCubit extends Cubit<AuthState> {
       if (loggedIn) {
         final user = await _sessionService.getSavedUser();
         if (user != null) {
-          log('[AuthCubit] Session restored for ${user.email}');
+          // log('[AuthCubit] Session restored for ${user.email}');
 
           if (user.companyId != null && user.companyId!.isNotEmpty) {
             FirestorePath.initializeCompany(user.companyId!);
-            log('[AuthCubit] Company context restored: ${user.companyId}');
+            // log('[AuthCubit] Company context restored: ${user.companyId}');
 
             // Check company status live in database
             if (user.companyType != 'mother_company') {

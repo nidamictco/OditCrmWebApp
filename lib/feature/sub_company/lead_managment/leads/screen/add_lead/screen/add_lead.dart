@@ -529,17 +529,17 @@ class _AddLeadPageState extends State<AddLeadPage> {
             //     builder: (context) => MainScreen(selectedIndex: 2),
             //   ),
             // );
-            Navigator.pop(context,true);
+            Navigator.pop(context, true);
           } else {
             context.read<AddLeadCubit>().fetchLeads();
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MainScreen(selectedIndex: 2),
               ),
             );
-    //          context.read<AddLeadCubit>().fetchLeads();
-    // Navigator.pop(context, true);
+            //          context.read<AddLeadCubit>().fetchLeads();
+            // Navigator.pop(context, true);
           }
         }
       },
@@ -1121,7 +1121,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     ),
                                     SizedBox(height: 0.5.h),
                                     GestureDetector(
-                                      onTap: () async { final result =
+                                      onTap: () async {
+                                        final result =
                                             await showCalendarDialogUsingTimePicker(
                                               context,
                                               initialDate: nextFollowUpDate,
@@ -1138,7 +1139,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                               'dd-MM-yyyy hh:mm a',
                                             ).format(result.from);
                                           });
-                                        }},
+                                        }
+                                      },
                                       child: Container(
                                         height: 5.2.h,
                                         padding: const EdgeInsets.symmetric(
@@ -1212,7 +1214,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                   SizedBox(width: 1.w),
                                 ],
                               ),
-                            
+
                             SizedBox(
                               width: 24.w,
                               child: Dropdown(

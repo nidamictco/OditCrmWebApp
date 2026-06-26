@@ -876,9 +876,11 @@ class _TransferLeadsState extends State<TransferLeads> {
                                             //     leadId: lead.id!,
                                             //     staffId: selectedStaffId!,
                                             //     staffName: selectedStaffName!,
-                                            //   ); 
+                                            //   );
                                             // }
-                                            context.read<AddLeadCubit>().fetchLeads();
+                                            context
+                                                .read<AddLeadCubit>()
+                                                .fetchLeads();
                                             Navigator.pop(context);
                                             // ── Only transfer leads not already assigned to the selected staff ──
                                             final leadsToTransfer =
@@ -942,6 +944,12 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                     toStaff: selectedStaffName,
                                                   );
                                             }
+
+                                            context
+                                                .read<AddLeadCubit>()
+                                                .fetchDashboardCounts(
+                                                  DateTime.now(),
+                                                );
 
                                             // Navigator.pop(context);
 

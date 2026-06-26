@@ -1,4 +1,4 @@
-﻿import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -102,22 +102,20 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
     // Re-fetch from Firestore with the new date range
     // so records outside the original dashboard date are included
-    if (from != null) {
-      context.read<AddLeadCubit>().fetchDashboardLeads(
-        staffId: widget.staff?.id ?? '',
-        role: widget.staff?.staffType ?? 'Admin',
-        fromCard: widget.fromCard,
-        selectedDate: from,
-        toDate: to ?? from,
-      );
-    }
+    context.read<AddLeadCubit>().fetchDashboardLeads(
+      staffId: widget.staff?.id ?? '',
+      role: widget.staff?.staffType ?? 'Admin',
+      fromCard: widget.fromCard,
+      selectedDate: from,
+      toDate: to ?? DateTime.now(),
+    );
     setState(() {
       _appliedCategory = selectedCategory;
       _appliedLeadStage = selectedLeadStage;
       _appliedPriority = selectedPriority;
       _appliedStaff = selectedStaff;
-      _appliedFromDate = _parseDate(fromDate.text);
-      _appliedToDate = _parseDate(toDate.text);
+      _appliedFromDate = from;
+      _appliedToDate = to ?? DateTime.now();
       _resetPage();
     });
   }
@@ -364,6 +362,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
+        settings: const RouteSettings(name: '/follow_up'),
         builder: (context) => MainScreen(selectedIndex: 31, lead: lead),
       ),
     ).then((_) {
@@ -445,8 +444,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
     final initialDate = widget.selectedDate ?? DateTime.now();
 
-    fromDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
-    toDate.text = DateFormat('dd-MM-yyyy').format(initialDate);
+    fromDate.text = '';
+    toDate.text = '';
 
     // ← Initialize applied dates so filter works immediately
     _appliedFromDate = initialDate;
@@ -488,7 +487,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "${widget.fromCard.toUpperCase()} LEADS",
+                            widget.fromCard.toUpperCase() == "TOTAL"
+                                ? "CALLED LEADS"
+                                : "${widget.fromCard.toUpperCase()} LEADS",
                             style: AppTextStyle.medium(
                               size: 13.6.sp,
                               color: AppColors.black.withOpacity(0.77),
@@ -1224,7 +1225,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         final columns = [
           TableColumn(title: 'Sl No.', flex: 2),
           TableColumn(title: 'NAME', flex: isNew ? 4 : 2),
-          TableColumn(title: 'CONTACT NO.', flex: isNew ? 5 : 3), 
+          TableColumn(title: 'CONTACT NO.', flex: isNew ? 5 : 3),
           TableColumn(title: 'LEAD CATEGORY', flex: isNew ? 5 : 3),
           TableColumn(title: 'STAFF', flex: isNew ? 4 : 2),
           TableColumn(title: 'STATUS', flex: isNew ? 4 : 2),
@@ -1446,8 +1447,11 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        MainScreen(selectedIndex: 31, lead: lead),
+                    builder: (context) => MainScreen(
+                      selectedIndex: 31,
+                      lead: lead,
+                      // goToDashboardOnBack: true,
+                    ),
                   ),
                 ).then((_) {
                   context.read<AddLeadCubit>().fetchDashboardLeads(

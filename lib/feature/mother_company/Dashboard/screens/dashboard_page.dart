@@ -29,54 +29,50 @@ class _DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {},
-      child: Scaffold(
-        backgroundColor: AppThemeColors.scaffoldBg,
-        body: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  DashboardTopBar(
-                    screen: 'dashboard',
-                    onSearchChanged: (value) {
-                      context.read<DashboardCubit>().updateSearchQuery(value);
+    return Scaffold(
+      backgroundColor: AppThemeColors.scaffoldBg,
+      body: Row(
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                DashboardTopBar(
+                  screen: 'dashboard',
+                  onSearchChanged: (value) {
+                    context.read<DashboardCubit>().updateSearchQuery(value);
+                  },
+                ),
+                Expanded(
+                  child: BlocBuilder<DashboardCubit, DashboardState>(
+                    builder: (context, state) {
+                      if (state.status == DashboardStatus.loading ||
+                          state.status == DashboardStatus.initial) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: AppThemeColors.primary,
+                            strokeWidth: 2,
+                          ),
+                        );
+                      }
+                      if (state.status == DashboardStatus.error) {
+                        return Center(
+                          child: Text(
+                            state.error ?? 'An error occurred',
+                            style: GoogleFonts.poppins(color: Colors.red),
+                          ),
+                        );
+                      }
+                      return _DashboardContent(
+                        state: state,
+                        onViewAllTap: onViewAllTap,
+                      );
                     },
                   ),
-                  Expanded(
-                    child: BlocBuilder<DashboardCubit, DashboardState>(
-                      builder: (context, state) {
-                        if (state.status == DashboardStatus.loading ||
-                            state.status == DashboardStatus.initial) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppThemeColors.primary,
-                              strokeWidth: 2,
-                            ),
-                          );
-                        }
-                        if (state.status == DashboardStatus.error) {
-                          return Center(
-                            child: Text(
-                              state.error ?? 'An error occurred',
-                              style: GoogleFonts.poppins(color: Colors.red),
-                            ),
-                          );
-                        }
-                        return _DashboardContent(
-                          state: state,
-                          onViewAllTap: onViewAllTap,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
