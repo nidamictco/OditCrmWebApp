@@ -947,9 +947,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     DateTime selectedDate, {
     String? staffId,
     String? role,
+    bool forceFetch = false,
   }) async {
     // Skip re-fetch if same date and we already have counts
-    if (_lastCountDate != null &&
+    if (!forceFetch &&
+        _lastCountDate != null &&
         _lastCountDate!.year == selectedDate.year &&
         _lastCountDate!.month == selectedDate.month &&
         _lastCountDate!.day == selectedDate.day &&
@@ -996,7 +998,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       _cachedTotalCalled = totalCalled;
 
       log(
-        '[fetchDashboardCounts] closed=${counts.closedLeadCount} '
+        '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
         'total=${counts.totalCalledCount} totalCalled=$totalCalled',
       );
 
@@ -1012,6 +1014,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           transferredCount: counts.transferredCount.toString(),
         ),
       );
+      log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
     } catch (e) {
       log('[fetchDashboardCounts] Error: $e');
       if (!isClosed) emit(state.copyWith(isLoadingCounts: false));

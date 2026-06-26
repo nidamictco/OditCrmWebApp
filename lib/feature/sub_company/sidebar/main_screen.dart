@@ -268,7 +268,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         return PermissionGuard(
           hasPermission: perm.canViewDashboard,
           child: BlocProvider(
-            create: (_) => AddLeadCubit()..fetchDashboardCounts(DateTime.now()),
+            create: (_) => AddLeadCubit(),
             child: DashboardScreen(),
           ),
         );

@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
     final today = _dateController.text.isNotEmpty
         ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
         : DateTime.now();
-    context.read<AddLeadCubit>().fetchDashboardCounts(today);
+    context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
   }
 
   @override
@@ -149,6 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                                   addLeadCubit
                                                       .fetchDashboardCounts(
                                                         date,
+                                                        forceFetch: true,
                                                       );
 
                                                   /// CLOSE DIALOG ONLY
@@ -217,6 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                           /// CALL count function
                                           addLeadCubit.fetchDashboardCounts(
                                             selectedDate,
+                                            forceFetch: true,
                                           );
                                         },
                                         child: Container(

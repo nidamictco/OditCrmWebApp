@@ -407,9 +407,43 @@ class AddLeadRepository implements IAddLeadRepository {
 
         /// TOTAL CALLED
         case 'TOTAL':
-          return allLeads.where((lead) {
-            return isInRange(lead.calledDate);
-          }).toList();
+          final List<AddLeadModel> result = [];
+          for (final lead in allLeads) {
+            final matchingFollowUps =
+                lead.followUp?.where((fup) {
+                  final inRange = isInRange(fup.calledDate);
+                  if (role.toLowerCase() != 'admin') {
+                    return inRange && fup.createdById == staffId;
+                  }
+                  return inRange;
+                }).toList() ??
+                [];
+            if (matchingFollowUps.isNotEmpty) {
+              for (final fup in matchingFollowUps) {
+                result.add(
+                  lead.copyWith(
+                    calledDate: fup.calledDate,
+                    leadStage: fup.leadStage,
+                    leadCategory: fup.leadCategory,
+                    priority: fup.priority,
+                    followUpDate: fup.nextFollowUpDate,
+                    remarks: fup.remarks,
+                    callResult: fup.calledStatus,
+                  ),
+                );
+              }
+            } else if (isInRange(lead.calledDate)) {
+              result.add(lead);
+            }
+          }
+          // Sort the expanded calls list by calledDate descending so latest call comes first
+          result.sort((a, b) {
+            if (a.calledDate == null && b.calledDate == null) return 0;
+            if (a.calledDate == null) return 1;
+            if (b.calledDate == null) return -1;
+            return b.calledDate!.compareTo(a.calledDate!);
+          });
+          return result;
 
         /// MISSED / REJECTED
         case 'MISSED':
@@ -960,12 +994,24 @@ class AddLeadRepository implements IAddLeadRepository {
 
     // ONE round-trip to Firestore — no subcollection reads at all
     final snap = await base.get();
-    log('[fetchLeadCounts] docs: ${snap.docs.length}');
+    log('[fetchLeadCounts...............] docs: ${snap.docs.length}');
 
+    final activeLeadIds = snap.docs.map((doc) => doc.id).toSet();
     int newLeadCount = 0;
     int followUpCount = 0;
     int closedLeadCount = 0;
-    int totalCalledCount = 0;
+    // int totalCalledCount = await getTotalCalledCount(
+    //   startOfDay,
+    //   endOfDay,
+    //   staffId,
+    //   role,
+    // );
+    int totalCalledCount = await findTotalCalledCount(
+      staffId,
+      role,
+      selectedDate,
+      endOfDay,
+    );
     int missedLeadCount = 0;
     int transferredCount = 0;
 
@@ -1008,11 +1054,7 @@ class AddLeadRepository implements IAddLeadRepository {
       }
 
       // ── TOTAL CALLED ───────────────────────────────────────────────────
-      final lastCalledDate = data['lastCalledDate'];
-      if (lastCalledDate != null) {
-        final calledDate = (lastCalledDate as Timestamp).toDate();
-        if (_isInRange(calledDate, startOfDay, endOfDay)) totalCalledCount++;
-      }
+      // Handled outside the loop above to avoid N+1 queries.
 
       // ── MISSED ─────────────────────────────────────────────────────────
       if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
@@ -1066,6 +1108,137 @@ class AddLeadRepository implements IAddLeadRepository {
   // ── Add this helper if not already present ──────────────────────────────────
   bool _isInRange(DateTime date, DateTime start, DateTime end) {
     return !date.isBefore(start) && !date.isAfter(end);
+  }
+
+  Future<int> findTotalCalledCount(
+    String staffId,
+    String role,
+    DateTime? selectedDate,
+    DateTime? toDate,
+  ) async {
+    Query<Map<String, dynamic>> query = _collection;
+
+    /// ROLE FILTER
+    if (role.toLowerCase() != 'admin') {
+      query = query.where('assignedStaffId', isEqualTo: staffId);
+    }
+
+    try {
+      final snap = await query.orderBy('createdAt', descending: true).get();
+
+      /// FETCH LEADS + FOLLOWUPS
+      final List<AddLeadModel> allLeads = await Future.wait(
+        snap.docs.map((leadDoc) async {
+          /// MAIN LEAD
+          final lead = AddLeadModel.fromFirestore(leadDoc.data(), leadDoc.id);
+
+          /// FETCH FOLLOWUP SUBCOLLECTION
+          final followUpSnap = await _collection
+              .doc(leadDoc.id)
+              .collection('FOLLOW_UPS')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          /// CONVERT FOLLOWUPS
+          final followUps = followUpSnap.docs.map((fupDoc) {
+            return FollowUpModel.fromFirestore(fupDoc.data(), fupDoc.id);
+          }).toList();
+
+          /// RETURN LEAD WITH FOLLOWUPS
+          return lead.copyWith(followUp: followUps);
+        }),
+      );
+
+      final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
+      final DateTime? fromDay = selectedDate != null
+          ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+          : null;
+      final DateTime toDay = DateTime(
+        effectiveTo.year,
+        effectiveTo.month,
+        effectiveTo.day,
+        23,
+        59,
+        59,
+      );
+
+      bool isInRange(DateTime? date) {
+        if (date == null) return false;
+        if (selectedDate == null) {
+          return date.isBefore(toDay);
+        }
+        return !date.isBefore(fromDay!) && !date.isAfter(toDay);
+      }
+
+      final List<AddLeadModel> result = [];
+
+      int totalCount = 0;
+      for (final lead in allLeads) {
+        final matchingFollowUps =
+            lead.followUp?.where((fup) {
+              final inRange = isInRange(fup.calledDate);
+              if (role.toLowerCase() != 'admin') {
+                return inRange && fup.createdById == staffId;
+              }
+              return inRange;
+            }).toList() ??
+            [];
+        if (matchingFollowUps.isNotEmpty) {
+          for (final fup in matchingFollowUps) {
+            totalCount++;
+          }
+        } else if (isInRange(lead.calledDate)) {
+          totalCount++;
+          // result.add(lead);
+        }
+      }
+      log("totalCount $totalCount");
+      // Sort the expanded calls list by calledDate descending so latest call comes first
+
+      return totalCount;
+    } catch (e) {
+      log("error in fetchDashboardLeads ::: $e");
+
+      return 0;
+    }
+  }
+
+  Future<int> getTotalCalledCount(
+    DateTime startOfDay,
+    DateTime endOfDay,
+    String staffId,
+    String role,
+  ) async {
+    int totalCalledCount = 0;
+    try {
+      final startTs = Timestamp.fromDate(startOfDay);
+      final endTs = Timestamp.fromDate(endOfDay);
+      Query<Map<String, dynamic>> fupQuery = _firestore.collectionGroup(
+        'FOLLOW_UPS',
+      );
+      // Query on calledDate to match exactly how leadlistscreen filters follow-ups.
+      // Use single-field query to avoid requiring composite indexes on Firestore.
+      fupQuery = fupQuery
+          .where('calledDate', isGreaterThanOrEqualTo: startTs)
+          .where('calledDate', isLessThanOrEqualTo: endTs);
+      final fupSnap = await fupQuery.get();
+
+      int count = 0;
+      for (final doc in fupSnap.docs) {
+        final data = doc.data();
+        if (role.toLowerCase() != 'admin') {
+          if (data['createdById'] == staffId) {
+            count++;
+          }
+        } else {
+          count++;
+        }
+      }
+      totalCalledCount = count;
+    } catch (e) {
+      log('Error fetching follow-up counts in fetchLeadCounts: $e');
+    }
+    return totalCalledCount;
   }
 
   @override
@@ -1465,15 +1638,15 @@ class AddLeadRepository implements IAddLeadRepository {
       toTs = Timestamp.fromDate(to);
     }
 
-    // Query FOLLOW_UPS subcollection across all leads for this staff
-    Query<Map<String, dynamic>> query = _firestore
-        .collectionGroup('FOLLOW_UPS')
-        .where('createdById', isEqualTo: staffId);
+    // Query FOLLOW_UPS subcollection across all leads
+    Query<Map<String, dynamic>> query = _firestore.collectionGroup(
+      'FOLLOW_UPS',
+    );
 
     if (fromTs != null && toTs != null) {
       query = query
-          .where('createdAt', isGreaterThanOrEqualTo: fromTs)
-          .where('createdAt', isLessThanOrEqualTo: toTs);
+          .where('calledDate', isGreaterThanOrEqualTo: fromTs)
+          .where('calledDate', isLessThanOrEqualTo: toTs);
     }
 
     final snap = await query.get();
@@ -1485,6 +1658,11 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snap.docs) {
       final data = doc.data();
+      if (role.toLowerCase() != 'admin') {
+        if (data['createdById'] != staffId) {
+          continue;
+        }
+      }
       final calledStatus = (data['calledStatus'] as String? ?? '').trim();
 
       if (calledStatus.isNotEmpty) {

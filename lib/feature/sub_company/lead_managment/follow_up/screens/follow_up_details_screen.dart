@@ -1197,7 +1197,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       builder: (dialogContext) => BlocProvider.value(
         value: cubit,
         child: BlocConsumer<AddLeadCubit, AddLeadState>(
-          listener: (ctx, state) {
+          listener: (ctx, state) async {
             log(state.status.toString());
 
             // ── Success ──────────────────────────────────────────────────────
@@ -1208,7 +1208,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
               // 1️⃣ Reload parent data
               widget.onFollowUpAdded();
-              cubit.fetchDashboardCounts(DateTime.now());
+              await cubit.fetchDashboardCounts(DateTime.now(), forceFetch: true);
 
               // 2️⃣ Close the follow-up form dialog first
               Navigator.pop(dialogContext);

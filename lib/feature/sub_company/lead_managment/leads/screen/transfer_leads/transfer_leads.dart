@@ -949,6 +949,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                 .read<AddLeadCubit>()
                                                 .fetchDashboardCounts(
                                                   DateTime.now(),
+                                                  forceFetch: true,
                                                 );
 
                                             // Navigator.pop(context);
