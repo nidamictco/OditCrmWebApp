@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -180,7 +181,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       backgroundColor: AppColors.background,
       // ✅ SingleChildScrollView is the ONE scroll owner for the whole screen.
       // No Expanded / TabBarView inside — zero conflict.
@@ -208,6 +209,24 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
           ],
         ),
       ),
+    );
+
+    if (kIsWeb) {
+      return scaffold;
+    }
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainScreen(selectedIndex: 0),
+            ),
+          );
+        }
+      },
+      child: scaffold,
     );
   }
 
@@ -959,7 +978,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   Widget build(BuildContext context) {
     final Map<String, FollowUpModel> followupGroup = {};
 
-    log("followUpDate: ${widget.lead.followUpDate}");
+    log(
+      "followUpDate: ${widget.lead.followUpDate}   widget.followups: ${widget.followups.length}",
+    );
 
     // Pending follow-up node (only when stage is active)
     if (widget.lead.followUpDate != null &&
@@ -974,8 +995,11 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
     // Existing follow-up records
     for (final f in widget.followups) {
-      followupGroup[DateFormat('dd-MM-yyyy hh:mm').format(f.calledDate)] = f;
+      followupGroup[DateFormat('dd-MM-yyyy hh:mm:ss').format(f.calledDate)] = f;
     }
+
+    log("followupGroup keys: ${followupGroup.keys.toList()}");
+    log("widget.lead.createdAt! : ${widget.lead.createdAt!}");
 
     // Lead creation node (always last)
     followupGroup[DateFormat(
@@ -1177,7 +1201,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       builder: (dialogContext) => BlocProvider.value(
         value: cubit,
         child: BlocConsumer<AddLeadCubit, AddLeadState>(
-          listener: (ctx, state) {
+          listener: (ctx, state) async {
             log(state.status.toString());
 
             // ── Success ──────────────────────────────────────────────────────
@@ -1188,6 +1212,10 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
               // 1️⃣ Reload parent data
               widget.onFollowUpAdded();
+              await cubit.fetchDashboardCounts(
+                DateTime.now(),
+                forceFetch: true,
+              );
 
               // 2️⃣ Close the follow-up form dialog first
               Navigator.pop(dialogContext);
@@ -1307,6 +1335,21 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                               sbContext,
                               title: 'Validation',
                               message: 'Please enter a valid WhatsApp number.',
+                              icon: Icons.warning_amber_outlined,
+                              iconColor: Colors.orange,
+                              titleColor: Colors.orange.shade700,
+                            );
+                            return;
+                          }
+
+                          // ── Validation: tag for rejected lead ───────────────────
+                          if (state.selectedLeadStage!.toUpperCase() ==
+                                  'REJECTED' &&
+                              state.selectedLeadTag == null) {
+                            _showAlertDialog(
+                              sbContext,
+                              title: 'Validation',
+                              message: 'Please select tag for rejected lead.',
                               icon: Icons.warning_amber_outlined,
                               iconColor: Colors.orange,
                               titleColor: Colors.orange.shade700,
@@ -1566,6 +1609,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                 child: Dropdown(
                                   label: 'Tags',
                                   hint: 'Select Tags',
+                                  showStar: true,
                                   items: [
                                     'Costly',
                                     'Not intrested',
@@ -2383,10 +2427,7 @@ class _FirstFollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
-              style: AppTextStyle.body(
-                fontSize: 13,
-                color: Color(0xFF333333),
-              ),
+              style: AppTextStyle.body(fontSize: 13, color: Color(0xFF333333)),
             ),
           ),
         ],
@@ -2556,10 +2597,7 @@ class _LastFollowupCard extends StatelessWidget {
           Expanded(
             child: Text(
               ':  $value',
-              style: AppTextStyle.body(
-                fontSize: 13,
-                color: Color(0xFF333333),
-              ),
+              style: AppTextStyle.body(fontSize: 13, color: Color(0xFF333333)),
             ),
           ),
         ],

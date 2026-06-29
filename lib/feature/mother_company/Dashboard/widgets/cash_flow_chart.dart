@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../models/dashboard_models.dart';
@@ -55,27 +56,22 @@ class _CashFlowChartState extends State<CashFlowChart>
         if (widget.selectedIndex != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
-            child: _Tooltip(
-              point: widget.data[widget.selectedIndex!],
-            ),
+            child: _Tooltip(point: widget.data[widget.selectedIndex!]),
           )
         else
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
-            child: _Tooltip(
-              point: widget.data[6],
-              isDefault: true,
-            ),
+            child: _Tooltip(point: widget.data[6], isDefault: true),
           ),
         // Chart
         Expanded(
           child: MouseRegion(
             onHover: (event) {
               final width = context.size?.width ?? 1;
-              final index = ((event.localPosition.dx / width) *
-                      widget.data.length)
-                  .clamp(0, widget.data.length - 1)
-                  .toInt();
+              final index =
+                  ((event.localPosition.dx / width) * widget.data.length)
+                      .clamp(0, widget.data.length - 1)
+                      .toInt();
               widget.onHover?.call(index);
             },
             onExit: (_) => widget.onExit?.call(),
@@ -116,14 +112,11 @@ class _Tooltip extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          point.label ?? '29 July 00:00',
-          style: AppTextStyle.caption(),
-        ),
+        Text(point.label ?? '29 July 00:00', style: AppTextStyle.caption),
         const SizedBox(width: 12),
         Text(
           '220,342.76',
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: AppThemeColors.textPrimary,
@@ -139,9 +132,9 @@ class _Tooltip extends StatelessWidget {
               color: AppThemeColors.growthGreenBg,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
+            child: Text(
               '+3.4%',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.growthGreen,
@@ -169,7 +162,7 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label, style: AppTextStyle.bodySmall()),
+        Text(label, style: AppTextStyle.bodySmall),
       ],
     );
   }
@@ -202,10 +195,11 @@ class _ChartPainter extends CustomPainter {
     final minVal = 0.0;
     final range = maxVal - minVal == 0 ? 1.0 : maxVal - minVal;
 
-    double xOf(int i) =>
-        paddingLeft + (i / (data.length - 1)) * chartWidth;
+    double xOf(int i) => paddingLeft + (i / (data.length - 1)) * chartWidth;
     double yOf(double v) =>
-        paddingTop + chartHeight - ((v - minVal) / range) * chartHeight * progress;
+        paddingTop +
+        chartHeight -
+        ((v - minVal) / range) * chartHeight * progress;
 
     // Grid lines
     final gridPaint = Paint()
@@ -224,8 +218,10 @@ class _ChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: level.toString(),
-          style: const TextStyle(
-              fontSize: 9, color: AppThemeColors.textMuted),
+          style: GoogleFonts.poppins(
+            fontSize: 9,
+            color: AppThemeColors.textMuted,
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -262,9 +258,7 @@ class _ChartPainter extends CustomPainter {
           AppThemeColors.primary.withOpacity(0.12),
           AppThemeColors.primary.withOpacity(0.0),
         ],
-      ).createShader(
-        Rect.fromLTWH(0, paddingTop, size.width, chartHeight),
-      );
+      ).createShader(Rect.fromLTWH(0, paddingTop, size.width, chartHeight));
     canvas.drawPath(fillPath, fillPaint);
 
     // Stroke receipt
@@ -312,11 +306,7 @@ class _ChartPainter extends CustomPainter {
     );
 
     // Dot
-    canvas.drawCircle(
-      Offset(crossX, crossY),
-      6,
-      Paint()..color = Colors.white,
-    );
+    canvas.drawCircle(Offset(crossX, crossY), 6, Paint()..color = Colors.white);
     canvas.drawCircle(
       Offset(crossX, crossY),
       4,

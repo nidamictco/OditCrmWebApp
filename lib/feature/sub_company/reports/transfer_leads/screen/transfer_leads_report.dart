@@ -19,9 +19,12 @@ class TransferLeadsReport extends StatefulWidget {
   final String currentUserId;
   final String currentUserRole;
   final String currentUserName;
-  const TransferLeadsReport({super.key, required this.currentUserId,
+  const TransferLeadsReport({
+    super.key,
+    required this.currentUserId,
     required this.currentUserRole,
-    required this.currentUserName,});
+    required this.currentUserName,
+  });
 
   @override
   State<TransferLeadsReport> createState() => _TransferLeadsReportState();
@@ -42,27 +45,31 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
   int _tableKey = 0;
   int _currentPage = 1;
 
-   List<TransferDetails> _getTransfersForRole(List<AddLeadModel> leads) {
-  final allTransfers = leads
-      .where((l) => l.transferLeads != null && l.transferLeads!.isNotEmpty)
-      .expand((l) => l.transferLeads!)
-      .where((t) =>
-          t.fromStaff.trim().toLowerCase() !=
-          t.toStaff.trim().toLowerCase())
-      .toList();
+  List<TransferDetails> _getTransfersForRole(List<AddLeadModel> leads) {
+    final allTransfers = leads
+        .where((l) => l.transferLeads != null && l.transferLeads!.isNotEmpty)
+        .expand((l) => l.transferLeads!)
+        .where(
+          (t) =>
+              t.fromStaff.trim().toLowerCase() !=
+              t.toStaff.trim().toLowerCase(),
+        )
+        .toList();
 
-  if (widget.currentUserRole.toLowerCase() == 'admin') {
-    // Admin sees all transfers
-    return allTransfers;
-  } else {
-    // Staff sees only transfers they were involved in
-    return allTransfers.where((t) =>
-        t.fromStaffId == widget.currentUserId ||
-        t.toStaffId   == widget.currentUserId,
-    ).toList();
+    if (widget.currentUserRole.toLowerCase() == 'admin') {
+      // Admin sees all transfers
+      return allTransfers;
+    } else {
+      // Staff sees only transfers they were involved in
+      return allTransfers
+          .where(
+            (t) =>
+                t.fromStaffId == widget.currentUserId ||
+                t.toStaffId == widget.currentUserId,
+          )
+          .toList();
+    }
   }
-}
-            
 
   @override
   void initState() {
@@ -500,13 +507,17 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                             //           a.transferTime!,
                             //         );
                             //       });
-                                          final List<TransferDetails> allTransfers = _getTransfersForRole(rawList)
-  ..sort((a, b) {
-    if (a.transferTime == null && b.transferTime == null) return 0;
-    if (a.transferTime == null) return 1;
-    if (b.transferTime == null) return -1;
-    return b.transferTime!.compareTo(a.transferTime!);
-  });
+                            final List<TransferDetails> allTransfers =
+                                _getTransfersForRole(rawList)..sort((a, b) {
+                                  if (a.transferTime == null &&
+                                      b.transferTime == null)
+                                    return 0;
+                                  if (a.transferTime == null) return 1;
+                                  if (b.transferTime == null) return -1;
+                                  return b.transferTime!.compareTo(
+                                    a.transferTime!,
+                                  );
+                                });
 
                             final allFiltered = _filteredLeads(allTransfers);
                             final totalCount = allFiltered.length;
@@ -667,27 +678,24 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

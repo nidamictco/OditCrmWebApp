@@ -114,7 +114,7 @@ class _DashboardCardState extends State<DashboardCard> {
                     break;
 
                   case 'TOTAL':
-                    count = state.dashboardTotalCalledCount;
+                    count = state.totalCalledCount;
                     break;
 
                   case 'MISSED':
@@ -144,11 +144,13 @@ class _DashboardCardState extends State<DashboardCard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
+                            settings: const RouteSettings(name: '/new_leads'),
                             builder: (context) => MainScreen(
                               selectedIndex: 12,
                               fromCard: widget.fromCard,
                               staff: user,
                               selectedDate: state.selectedDashboardDate,
+                              goToDashboardOnBack: true,
                             ),
                           ),
                         );
@@ -181,7 +183,7 @@ class _DashboardCardState extends State<DashboardCard> {
                         break;
 
                       case 'TOTAL':
-                        count = state.dashboardTotalCalledCount;
+                        count = state.totalCalledCount;
                         break;
 
                       case 'MISSED':

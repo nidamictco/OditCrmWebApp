@@ -1,4 +1,4 @@
-﻿import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/dropdown.dart';
 import '../../../../core/utils/footer.dart';

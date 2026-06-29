@@ -144,10 +144,10 @@ class AppSidebar extends StatelessWidget {
                       child: Image.asset("assets/icon/logout.png", scale: 2),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Logout',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppThemeColors.textPrimary,
@@ -251,7 +251,7 @@ class _SidebarNavItem extends StatelessWidget {
           leading: Icon(item.icon, color: Colors.white, size: 20),
           title: Text(
             item.label,
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -286,7 +286,7 @@ class _SidebarNavItem extends StatelessWidget {
 
         title: Text(
           item.label,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             color: AppThemeColors.sidebarInactiveText,
             fontSize: 13,
             fontWeight: FontWeight.w500,

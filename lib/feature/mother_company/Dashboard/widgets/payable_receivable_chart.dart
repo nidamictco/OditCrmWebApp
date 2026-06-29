@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 
@@ -15,8 +16,7 @@ class PayableReceivableChart extends StatefulWidget {
   final double payable;
 
   @override
-  State<PayableReceivableChart> createState() =>
-      _PayableReceivableChartState();
+  State<PayableReceivableChart> createState() => _PayableReceivableChartState();
 }
 
 class _PayableReceivableChartState extends State<PayableReceivableChart>
@@ -68,9 +68,9 @@ class _PayableReceivableChartState extends State<PayableReceivableChart>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'RECEIVABLE',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,
@@ -80,7 +80,7 @@ class _PayableReceivableChartState extends State<PayableReceivableChart>
                     const SizedBox(height: 4),
                     Text(
                       _formatK(widget.receivable),
-                      style: const TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: AppThemeColors.textPrimary,
@@ -133,15 +133,10 @@ class _LegendRow extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: AppTextStyle.bodySmall(),
-          ),
-        ),
+        Expanded(child: Text(label, style: AppTextStyle.bodySmall)),
         Text(
           value,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.textPrimary,
@@ -163,7 +158,10 @@ class _DonutPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2;
     const strokeWidth = 28.0;
-    final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+    final rect = Rect.fromCircle(
+      center: center,
+      radius: radius - strokeWidth / 2,
+    );
 
     final bgPaint = Paint()
       ..color = AppThemeColors.borderLight.withOpacity(0.4)

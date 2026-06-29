@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool showExitAlert = false;
 
   @override
   void initState() {
@@ -114,7 +116,75 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, state) {
         final isLoading = state is AuthLoading;
 
-        return Scaffold(
+        Widget _buildExitDialogOverlay() {
+          if (!showExitAlert) return const SizedBox.shrink();
+          return Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  showExitAlert = false;
+                });
+              },
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () {}, // Prevent taps inside dialog from closing it
+                    child: AlertDialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      title: const Row(
+                        children: [
+                          Icon(Icons.exit_to_app, color: Colors.red, size: 24),
+                          SizedBox(width: 8),
+                          Text(
+                            'Exit Application',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      content: const Text(
+                        'Are you sure you want to exit from the app?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () =>
+                              setState(() => showExitAlert = false),
+                          child: const Text(
+                            'No',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            SystemNavigator.pop();
+                          },
+                          child: const Text(
+                            'Yes',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        final scaffold = Scaffold(
           backgroundColor: AppColors.background,
           body: Stack(
             children: [
@@ -137,8 +207,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+              _buildExitDialogOverlay(),
             ],
           ),
+        );
+
+        if (kIsWeb) {
+          return scaffold;
+        }
+
+        return PopScope(
+          canPop: !showExitAlert,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (showExitAlert) {
+              setState(() {
+                showExitAlert = false;
+              });
+            } else {
+              setState(() {
+                showExitAlert = true;
+              });
+            }
+          },
+          child: scaffold,
         );
       },
     );

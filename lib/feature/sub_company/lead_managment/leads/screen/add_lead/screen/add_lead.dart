@@ -63,7 +63,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       'dd-MM-yyyy hh:mm a',
     ).format(DateTime.now().add(const Duration(days: 1))),
   );
-  DateTime nextFollowUpDate = DateTime.now().add(const Duration(hours: 1));
+  DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
   DateTime calledDateValue = DateTime.now();
 
   // ── FocusNodes — fixed fields ────────────────────────────────────────────────
@@ -221,9 +221,15 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
     _leadPriority = lead.priority;
-    nextFollowUpDate =
-        lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
-    nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
+    // nextFollowUpDate =
+    //     lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
+    // nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
+    if (lead.followUpDate != null) {
+      nextFollowUpDate = lead.followUpDate!;
+      nextFollowUpCtrl.text = DateFormat(
+        'dd-MM-yyyy hh:mm a',
+      ).format(nextFollowUpDate!);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<AddLeadCubit>();
@@ -395,6 +401,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
       }
     }
 
+    final tag = _leadTag;
+    if (tag == null && _leadStage!.toUpperCase() == "REJECTED") {
+      _showError('Tag is required.');
+      return;
+    }
+
+    final callResult = _callResult;
+    if (callResult == null && _leadStage!.toUpperCase() == "REJECTED") {
+      _showError('Call Result is required.');
+      return;
+    }
+
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;
 
@@ -529,17 +547,17 @@ class _AddLeadPageState extends State<AddLeadPage> {
             //     builder: (context) => MainScreen(selectedIndex: 2),
             //   ),
             // );
-            Navigator.pop(context,true);
+            Navigator.pop(context, true);
           } else {
             context.read<AddLeadCubit>().fetchLeads();
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MainScreen(selectedIndex: 2),
               ),
             );
-    //          context.read<AddLeadCubit>().fetchLeads();
-    // Navigator.pop(context, true);
+            //          context.read<AddLeadCubit>().fetchLeads();
+            // Navigator.pop(context, true);
           }
         }
       },
@@ -1121,7 +1139,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     ),
                                     SizedBox(height: 0.5.h),
                                     GestureDetector(
-                                      onTap: () async { final result =
+                                      onTap: () async {
+                                        final result =
                                             await showCalendarDialogUsingTimePicker(
                                               context,
                                               initialDate: nextFollowUpDate,
@@ -1138,7 +1157,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                               'dd-MM-yyyy hh:mm a',
                                             ).format(result.from);
                                           });
-                                        }},
+                                        }
+                                      },
                                       child: Container(
                                         height: 5.2.h,
                                         padding: const EdgeInsets.symmetric(
@@ -1192,6 +1212,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     child: Dropdown(
                                       label: 'Tags',
                                       hint: 'Select Tags',
+                                      showStar: true,
                                       focusNode: _tagsFocus,
                                       nextFocusNode: _callResultFocus,
                                       items: const [
@@ -1212,7 +1233,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                   SizedBox(width: 1.w),
                                 ],
                               ),
-                            
+
                             SizedBox(
                               width: 24.w,
                               child: Dropdown(

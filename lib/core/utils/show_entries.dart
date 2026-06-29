@@ -41,8 +41,9 @@ class _ShowEntriesState extends State<ShowEntries> {
 
   @override
   void dispose() {
-     _overlayEntry?.remove();   // ← if you have an OverlayEntry, remove it directly
-  _overlayEntry = null;
+    _overlayEntry
+        ?.remove(); // ← if you have an OverlayEntry, remove it directly
+    _overlayEntry = null;
     super.dispose();
   }
 
@@ -53,10 +54,12 @@ class _ShowEntriesState extends State<ShowEntries> {
   }
 
   void _closeDropdown() {
-    if (!mounted) return;   // ← guard before setState
-  setState(() {
-    _isOpen = false;
-  });
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    if (!mounted) return; // ← guard before setState
+    setState(() {
+      _isOpen = false;
+    });
   }
 
   // ── Build ──────────────────────────────────────────────────────────

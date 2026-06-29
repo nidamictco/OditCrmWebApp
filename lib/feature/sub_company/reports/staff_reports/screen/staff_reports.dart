@@ -128,6 +128,7 @@ class _StaffReportsState extends State<StaffReports> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
+                                    settings: const RouteSettings(name: '/add_staff'),
                                     builder: (context) =>
                                         MainScreen(selectedIndex: 15),
                                   ),
@@ -295,6 +296,7 @@ class _StaffReportsState extends State<StaffReports> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
+                                      settings: const RouteSettings(name: '/staff_profile'),
                                       builder: (context) => MainScreen(
                                         selectedIndex: 29,
                                         staff: staff,
@@ -336,6 +338,7 @@ class _StaffReportsState extends State<StaffReports> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
+                                            settings: const RouteSettings(name: '/staff_profile'),
                                             builder: (context) => MainScreen(
                                               selectedIndex: 29,
                                               staff: staff,

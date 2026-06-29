@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +11,7 @@ import 'package:Odit_CRM/feature/sub_company/dashboard/widget/add_leads_button.d
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/dashboard_card.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/social_connect_card.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:Odit_CRM/main.dart';
 import 'package:sizer/sizer.dart';
 
 import '../lead_managment/leads/cubit/add_lead_cubit.dart';
@@ -21,7 +24,7 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   final TextEditingController _dateController = TextEditingController();
 
   @override
@@ -33,10 +36,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _dateController.text = DateFormat('dd-MM-yyyy').format(today);
 
     // context.read<AddLeadCubit>().fetchDashboardCounts(today);
-     WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!mounted) return;
-    context.read<AddLeadCubit>().fetchDashboardCounts(today);
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      log("hhhhhhhhhhhhhhhhhhhhh");
+      context.read<AddLeadCubit>().fetchDashboardCounts(today);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    final today = _dateController.text.isNotEmpty
+        ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
+        : DateTime.now();
+    context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
   }
 
   @override
@@ -101,9 +125,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               top: 20.h,
                                               right: 5.w,
                                               child: CustomCalendar(
-                                                 initialSelectedDate: _dateController.text.isNotEmpty
-      ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
-      : null,
+                                                initialSelectedDate:
+                                                    _dateController
+                                                        .text
+                                                        .isNotEmpty
+                                                    ? DateFormat(
+                                                        'dd-MM-yyyy',
+                                                      ).parse(
+                                                        _dateController.text,
+                                                      )
+                                                    : null,
                                                 onDateSelected: (date) {
                                                   /// SET SELECTED DATE
                                                   _dateController.text =
@@ -118,6 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   addLeadCubit
                                                       .fetchDashboardCounts(
                                                         date,
+                                                        forceFetch: true,
                                                       );
 
                                                   /// CLOSE DIALOG ONLY
@@ -186,6 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           /// CALL count function
                                           addLeadCubit.fetchDashboardCounts(
                                             selectedDate,
+                                            forceFetch: true,
                                           );
                                         },
                                         child: Container(
@@ -286,13 +319,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         //     ),
                         //   );
                         // }
-                         if (state.isLoadingCounts) {
-      return Wrap(
-        spacing: 2.w,
-        runSpacing: 2.h,
-        children: List.generate(6, (_) => const _SkeletonCard()),
-      );
-    }
+                        if (state.isLoadingCounts) {
+                          return Wrap(
+                            spacing: 2.w,
+                            runSpacing: 2.h,
+                            children: List.generate(
+                              6,
+                              (_) => const _SkeletonCard(),
+                            ),
+                          );
+                        }
                         return Wrap(
                           spacing: 2.w,
                           runSpacing: 2.h,
@@ -364,7 +400,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-
 
 class _SkeletonCard extends StatelessWidget {
   const _SkeletonCard();

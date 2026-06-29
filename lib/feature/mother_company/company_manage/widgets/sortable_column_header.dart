@@ -34,7 +34,7 @@ class SortableColumnHeader extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTextStyle.tableHeader().copyWith(
+            style: AppTextStyle.tableHeader.copyWith(
               color: _isActive
                   ? AppThemeColors.primary
                   : AppThemeColors.textSecondary,

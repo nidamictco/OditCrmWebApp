@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -28,54 +29,50 @@ class _DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {},
-      child: Scaffold(
-        backgroundColor: AppThemeColors.scaffoldBg,
-        body: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  DashboardTopBar(
-                    screen: 'dashboard',
-                    onSearchChanged: (value) {
-                      context.read<DashboardCubit>().updateSearchQuery(value);
+    return Scaffold(
+      backgroundColor: AppThemeColors.scaffoldBg,
+      body: Row(
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                DashboardTopBar(
+                  screen: 'dashboard',
+                  onSearchChanged: (value) {
+                    context.read<DashboardCubit>().updateSearchQuery(value);
+                  },
+                ),
+                Expanded(
+                  child: BlocBuilder<DashboardCubit, DashboardState>(
+                    builder: (context, state) {
+                      if (state.status == DashboardStatus.loading ||
+                          state.status == DashboardStatus.initial) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: AppThemeColors.primary,
+                            strokeWidth: 2,
+                          ),
+                        );
+                      }
+                      if (state.status == DashboardStatus.error) {
+                        return Center(
+                          child: Text(
+                            state.error ?? 'An error occurred',
+                            style: GoogleFonts.poppins(color: Colors.red),
+                          ),
+                        );
+                      }
+                      return _DashboardContent(
+                        state: state,
+                        onViewAllTap: onViewAllTap,
+                      );
                     },
                   ),
-                  Expanded(
-                    child: BlocBuilder<DashboardCubit, DashboardState>(
-                      builder: (context, state) {
-                        if (state.status == DashboardStatus.loading ||
-                            state.status == DashboardStatus.initial) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppThemeColors.primary,
-                              strokeWidth: 2,
-                            ),
-                          );
-                        }
-                        if (state.status == DashboardStatus.error) {
-                          return Center(
-                            child: Text(
-                              state.error ?? 'An error occurred',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-                        return _DashboardContent(
-                          state: state,
-                          onViewAllTap: onViewAllTap,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -102,11 +99,11 @@ class _DashboardContent extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('System Overview', style: AppTextStyle.heading1()),
+                  Text('System Overview', style: AppTextStyle.heading1),
                   SizedBox(height: 3),
                   Text(
                     'Welcome back, Super Admin. Here is what\'s happening today.',
-                    style: AppTextStyle.bodySmall(),
+                    style: AppTextStyle.bodySmall,
                   ),
                 ],
               ),
@@ -125,57 +122,60 @@ class _DashboardContent extends StatelessWidget {
               Expanded(
                 child: StatCard(
                   title: 'Total Companies',
-                  value: state.stats.totalCompanies.toString().padLeft(2, '0'),
-                  icon: Icons.business_rounded,
-                  iconBg: AppThemeColors.statCompanyBg,
-                  iconColor: AppThemeColors.statCompanyIcon,
-                  cardBg: Color(0xFF4C3F77).withValues(alpha: .06),
+                  value: state.stats.totalCompanies.toString(),
+                  icon: Icons.apartment,
+                  iconBg: AppThemeColors.statCompanyIcon,
+                  iconColor: AppThemeColors.statCompanyBg,
+                  cardBg: AppThemeColors.statCompanyIcon.withValues(alpha: .06),
                   growth: state.stats.companiesGrowth,
+                  valueColor: AppThemeColors.statCompanyIcon,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: StatCard(
                   title: 'Active Companies',
-                  value: state.stats.activeCompanies.toString().padLeft(2, '0'),
-                  icon: Icons.people_alt_rounded,
-                  iconBg: AppThemeColors
-                      .statLeadsIcon, //AppThemeColors.statLeadsBg,
+                  value: state.stats.activeCompanies.toString(),
+                  icon: Icons.business,
+                  iconBg:
+                      AppThemeColors.statusActive, //AppThemeColors.statLeadsBg,
                   iconColor: AppThemeColors.statLeadsBg,
-                  cardBg: AppThemeColors
-                      .statLeadsBg, //Color(0xFF4FC3CE).withValues(alpha: .06),
+                  cardBg: AppThemeColors.statusActive.withValues(
+                    alpha: .06,
+                  ), //Color(0xFF4FC3CE).withValues(alpha: .06),
                   growth: state.stats.leadsGrowth,
-                  valueColor: const Color(0xFF00B4D8),
+                  valueColor: AppThemeColors.statusActive,
                 ),
               ),
-              // const SizedBox(width: 16),
-              // Expanded(
-              //   child: StatCard(
-              //     title: 'Staff Members',
-              //     value: '890',
-              //     icon: Icons.manage_accounts_rounded,
-              //     iconBg: AppThemeColors.statStaffBg,
-              //     iconColor: AppThemeColors.statStaffIcon,
-              //     cardBg: Colors.white,
-              //     statusLabel: state.stats.staffStatus,
-              //     statusColor: AppThemeColors.statusPending,
-              //     valueColor: AppThemeColors.statStaffIcon,
-              //   ),
-              // ),
-              // const SizedBox(width: 16),
-              // Expanded(
-              //   child: StatCard(
-              //     title: 'System Uptime',
-              //     value: '99.9%',
-              //     icon: Icons.sync_alt_rounded,
-              //     iconBg: AppThemeColors.statUptimeBg,
-              //     iconColor: AppThemeColors.statUptimeIcon,
-              //     cardBg: Colors.white,
-              //     statusLabel: state.stats.uptimeStatus,
-              //     statusColor: AppThemeColors.statUptimeIcon,
-              //     valueColor: AppThemeColors.statUptimeIcon,
-              //   ),
-              // ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatCard(
+                  title: 'Pending Companies',
+                  value: state.stats.pendingCompanies.toString(),
+                  icon: Icons.manage_accounts_rounded,
+                  iconBg: AppThemeColors.statusPending,
+                  iconColor: AppThemeColors.statStaffBg,
+                  cardBg: Color(0xFFD97706).withValues(alpha: .1),
+                  statusLabel: state.stats.staffStatus,
+                  statusColor: AppThemeColors.statusPending,
+                  valueColor: AppThemeColors.statusPending,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatCard(
+                  title: 'Suspended Companies',
+                  value: state.stats.suspendedCompanies.toString(),
+                  icon: Icons.block,
+                  iconBg: AppThemeColors.statusSuspended,
+                  iconColor: AppThemeColors
+                      .statStaffBg, //AppThemeColors.statUptimeIcon,
+                  cardBg: AppThemeColors.statusSuspended.withValues(alpha: .06),
+                  statusLabel: state.stats.uptimeStatus,
+                  statusColor: AppThemeColors.statusSuspended,
+                  valueColor: AppThemeColors.statusSuspended,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 22),

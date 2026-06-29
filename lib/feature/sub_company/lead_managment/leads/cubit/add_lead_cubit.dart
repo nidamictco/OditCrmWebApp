@@ -16,6 +16,7 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/data/lea
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_stage_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
+import 'package:intl/intl.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
@@ -108,35 +109,30 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   void _watchCategories() {
     _categorySubscription?.cancel();
-    _categorySubscription = _categoryRepository.watchCategories().listen(
-      (cats) {
-        if (isClosed) return;
-        emit(state.copyWith(categories: [...cats]));
-      },
-      onError: (_) {},
-    );
+    _categorySubscription = _categoryRepository.watchCategories().listen((
+      cats,
+    ) {
+      if (isClosed) return;
+      emit(state.copyWith(categories: [...cats]));
+    }, onError: (_) {});
   }
 
   void _watchSources() {
     _sourceSubscription?.cancel();
-    _sourceSubscription = _sourceRepository.watchSource().listen(
-      (srcs) {
-        if (isClosed) return;
-        emit(state.copyWith(sources: [...srcs]));
-      },
-      onError: (_) {},
-    );
+    _sourceSubscription = _sourceRepository.watchSource().listen((srcs) {
+      if (isClosed) return;
+      emit(state.copyWith(sources: [...srcs]));
+    }, onError: (_) {});
   }
 
   void _watchLeadStages() {
     _leadStageSubscription?.cancel();
-    _leadStageSubscription = _leadStageRepository.watchCategories().listen(
-      (stages) {
-        if (isClosed) return;
-        emit(state.copyWith(stages: [...stages]));
-      },
-      onError: (_) {},
-    );
+    _leadStageSubscription = _leadStageRepository.watchCategories().listen((
+      stages,
+    ) {
+      if (isClosed) return;
+      emit(state.copyWith(stages: [...stages]));
+    }, onError: (_) {});
   }
 
   @override
@@ -237,7 +233,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required String staffId,
     required String role,
     required String fromCard,
-    required DateTime selectedDate,
+    DateTime? selectedDate,
     DateTime? toDate,
   }) async {
     emit(
@@ -359,6 +355,16 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //   }
   // }
 
+  String _generateDateId(String prefix) {
+    final now = DateTime.now();
+    final datePart = DateFormat('yyyyMMdd').format(now);
+    final timePart = DateFormat('HHmmss').format(now);
+    final ms =
+        now.millisecondsSinceEpoch % 1000; // last 3 digits for uniqueness
+    final id = now.millisecondsSinceEpoch.toString();
+    return '$prefix-$datePart-$id';
+  }
+
   // ── Submit (add) ──────────────────────────────────────────────────────────
 
   Future<void> submitLead({
@@ -375,6 +381,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required DateTime nextFollowUpDate,
     Map<String, String> additionalFieldValues = const {},
   }) async {
+    final now = DateTime.now();
     if (state.isSubmitting) return;
 
     if (clientName.trim().isEmpty) {
@@ -425,7 +432,15 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           ? state.assignedStaffName
           : user?.name ?? '';
 
+      final calledDate =
+          state.selectedLeadStage.toString().toUpperCase() != "NEW"
+          ? now
+          : null;
+
+      final String leadId = _generateDateId('LEAD');
+
       final lead = AddLeadModel(
+        id: leadId,
         clientName: clientName,
         contactNumber: contactNumber,
         contactDialCode: contactDialCode,
@@ -450,9 +465,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         leadTag: state.selectedLeadTag ?? '',
         followUpDate: nextFollowUpDate,
         additionalFields: additionalFieldValues,
+        calledDate: calledDate,
       );
 
       final newId = await _leadRepository.addLead(lead);
+
       if (isClosed) return;
       // ✅ Log lead creation activity
       await _leadRepository.logLeadCreated(
@@ -473,6 +490,32 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
         excludeStaffId: user?.id,
       );
+
+      if (isClosed) return;
+      if (state.selectedLeadStage.toString().toUpperCase() != 'NEW') {
+        final followup = FollowUpModel(
+          id: now.millisecondsSinceEpoch.toString(),
+          leadId: leadId,
+          leadName: clientName,
+          leadWhatsappNo: whatsappNumber,
+          leadWhatsappDialCode: whatsappDialCode,
+          nextFollowUpDate: nextFollowUpDate,
+          leadTag: state.selectedLeadTag ?? '',
+          calledStatus: state.selectedCallResult ?? '',
+          calledDate: calledDate!,
+          leadStage: state.selectedLeadStage.toString(),
+          leadCategory: state.selectedCategory ?? '',
+          priority: state.selectedPriority ?? '',
+          remarks: remarks,
+          adress: address,
+          email: email,
+          assignedStaff: resolvedStaffName,
+          assignedStaffId: resolvedStaffId,
+          createdById: user?.id ?? '',
+          createdAt: now,
+        );
+        await _leadRepository.addFollowUp(leadId, followup);
+      }
 
       if (isClosed) return;
 
@@ -733,6 +776,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         id = DateTime.now().millisecondsSinceEpoch.toString();
       }
 
+      log("state.selectedLeadStage : ${state.selectedLeadStage}");
+      log("state.selectedLeadTag : ${state.selectedLeadTag}");
+
       final followUp = FollowUpModel(
         id: id,
         leadId: leadId,
@@ -754,7 +800,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaff: user!.name,
         assignedStaffId: user.id ?? '',
       );
-      log('followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp');
+      log(
+        'followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp',
+      );
 
       await _leadRepository.addFollowUp(
         leadId,
@@ -950,9 +998,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     DateTime selectedDate, {
     String? staffId,
     String? role,
+    bool forceFetch = false,
   }) async {
     // Skip re-fetch if same date and we already have counts
-    if (_lastCountDate != null &&
+    if (!forceFetch &&
+        _lastCountDate != null &&
         _lastCountDate!.year == selectedDate.year &&
         _lastCountDate!.month == selectedDate.month &&
         _lastCountDate!.day == selectedDate.day &&
@@ -999,7 +1049,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       _cachedTotalCalled = totalCalled;
 
       log(
-        '[fetchDashboardCounts] closed=${counts.closedLeadCount} '
+        '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
         'total=${counts.totalCalledCount} totalCalled=$totalCalled',
       );
 
@@ -1015,6 +1065,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           transferredCount: counts.transferredCount.toString(),
         ),
       );
+      log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
     } catch (e) {
       log('[fetchDashboardCounts] Error: $e');
       if (!isClosed) emit(state.copyWith(isLoadingCounts: false));

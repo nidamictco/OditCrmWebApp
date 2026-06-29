@@ -259,7 +259,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
     required String hint,
     TextInputType? keyboardType,
     FormFieldValidator<String>? validator,
-    bool isphone=false,
+    bool isphone = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,10 +277,12 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
-          inputFormatters: isphone? [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(10),
-          ]:[],
+          inputFormatters: isphone
+              ? [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ]
+              : [],
           style: AppTextStyle.body(fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
@@ -549,6 +551,7 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
         domain: widget.company.domain,
         location: _locationController.text.trim(),
         industry: _selectedIndustry ?? '',
+        adminId: widget.company.adminId,
         adminName: _adminNameController.text.trim(),
         adminEmail: _adminEmailController.text.trim(),
         adminMobile: _adminMobileController.text.trim(),

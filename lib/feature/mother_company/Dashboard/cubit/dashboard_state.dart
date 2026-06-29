@@ -92,6 +92,8 @@ class DashboardStats extends Equatable {
     this.totalCompanies = 1276,
     this.companiesGrowth = 12.5,
     this.activeCompanies = 8,
+    this.pendingCompanies = 890,
+    this.suspendedCompanies = 99,
     this.leadsGrowth = 12.5,
     this.staffMembers = 890,
     this.staffStatus = 'Stables',
@@ -104,6 +106,8 @@ class DashboardStats extends Equatable {
   final int totalCompanies;
   final double companiesGrowth;
   final int activeCompanies;
+  final int pendingCompanies;
+  final int suspendedCompanies;
   final double leadsGrowth;
   final int staffMembers;
   final String staffStatus;
@@ -117,6 +121,8 @@ class DashboardStats extends Equatable {
         totalCompanies,
         companiesGrowth,
         activeCompanies,
+        pendingCompanies,
+        suspendedCompanies,
         leadsGrowth,
         staffMembers,
         staffStatus,

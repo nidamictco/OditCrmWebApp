@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../cubit/dashboard_cubit.dart';
 
@@ -42,7 +43,7 @@ class DateFilterDropdown extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               value.label,
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppThemeColors.textPrimary,
@@ -82,7 +83,7 @@ class DateFilterDropdown extends StatelessWidget {
           value: f,
           child: Text(
             f.label,
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight:
                   f == value ? FontWeight.w600 : FontWeight.w400,

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/shared_preference/session_service.dart';
@@ -46,6 +46,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    _appliedFromDate = DateTime.now();
+    _appliedToDate = DateTime.now();
   }
 
   DateTime? _appliedFromDate;

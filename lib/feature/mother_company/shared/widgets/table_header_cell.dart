@@ -19,7 +19,7 @@ class TableHeaderCell extends StatelessWidget {
       label,
       textAlign:
       centered ? TextAlign.center : TextAlign.start,
-      style: AppTextStyle.tableHeader(),
+      style: AppTextStyle.tableHeader,
     );
   }
 }

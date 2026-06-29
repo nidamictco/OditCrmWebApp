@@ -41,6 +41,7 @@ class CompanyActivity extends Equatable {
     required this.sl,
     required this.companyId,
     required this.companyName,
+    required this.adminId,
     required this.adminName,
     required this.subscriptionStartDate,
     required this.subscriptionEndDate,
@@ -57,6 +58,7 @@ class CompanyActivity extends Equatable {
   final int sl;
   final String companyId;
   final String companyName;
+  final String adminId;
   final String adminName;
   final DateTime subscriptionStartDate;
   final DateTime subscriptionEndDate;
@@ -71,21 +73,22 @@ class CompanyActivity extends Equatable {
 
   @override
   List<Object?> get props => [
-        sl,
-        companyId,
-        companyName,
-        adminName,
-        subscriptionStartDate,
-        subscriptionEndDate,
-        planType,
-        status,
-        domain,
-        industry,
-        adminEmail,
-        adminMobile,
-        yearlyBilling,
-        location,
-      ];
+    sl,
+    companyId,
+    companyName,
+    adminId,
+    adminName,
+    subscriptionStartDate,
+    subscriptionEndDate,
+    planType,
+    status,
+    domain,
+    industry,
+    adminEmail,
+    adminMobile,
+    yearlyBilling,
+    location,
+  ];
 }
 
 // ─── Filter / Sort ────────────────────────────────────────────────────────────

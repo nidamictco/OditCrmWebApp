@@ -1,4 +1,4 @@
-﻿// lib/core/utils/permission_guard.dart
+// lib/core/utils/permission_guard.dart
 
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';

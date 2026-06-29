@@ -50,13 +50,13 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                 child: TextField(
                   controller: searchController,
                   onChanged: onSearchChanged,
-                  style: const TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: AppThemeColors.textPrimary,
                   ),
                   decoration: InputDecoration(
                     hintText: searchHint,
-                    hintStyle: const TextStyle(
+                    hintStyle: GoogleFonts.poppins(
                       fontSize: 13,
                       color: AppThemeColors.textMuted,
                     ),
@@ -146,7 +146,7 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: AppThemeColors.textPrimary,
@@ -154,7 +154,7 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       Text(
                         role,
-                        style: const TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: 11,
                           color: AppThemeColors.textSecondary,
                         ),
@@ -172,7 +172,7 @@ class DashboardTopBar extends StatelessWidget implements PreferredSizeWidget {
                         ? null
                         : Text(
                             initials,
-                            style: const TextStyle(
+                            style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,

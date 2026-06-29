@@ -237,6 +237,7 @@ class _ViewStaffState extends State<ViewStaff> {
                                   onTap: () => Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
+                                      settings: const RouteSettings(name: '/add_staff'),
                                       builder: (_) => MainScreen(
                                         selectedIndex: 15,
                                         staff: null, // pass staff for edit
@@ -539,6 +540,7 @@ class _ViewStaffState extends State<ViewStaff> {
             Navigator.push(
               context,
               MaterialPageRoute(
+                settings: const RouteSettings(name: '/staff_profile'),
                 builder: (context) =>
                     MainScreen(selectedIndex: 29, staff: staff),
               ),
@@ -593,6 +595,7 @@ class _ViewStaffState extends State<ViewStaff> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
+                              settings: const RouteSettings(name: '/add_staff'),
                               builder: (_) =>
                                   MainScreen(selectedIndex: 15, staff: staff),
                             ),
@@ -617,6 +620,7 @@ class _ViewStaffState extends State<ViewStaff> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+                              settings: const RouteSettings(name: '/staff_profile'),
                               builder: (context) =>
                                   MainScreen(selectedIndex: 29, staff: staff),
                             ),
@@ -651,6 +655,7 @@ class _ViewStaffState extends State<ViewStaff> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+                              settings: const RouteSettings(name: '/change_password'),
                               builder: (context) =>
                                   MainScreen(selectedIndex: 32, staff: staff),
                             ),
