@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/sidebar_hover.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 class MiniSidebar extends StatelessWidget {

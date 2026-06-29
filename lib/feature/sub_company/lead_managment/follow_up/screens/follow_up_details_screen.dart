@@ -276,7 +276,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                       child: Row(
                         children: [
                           Text(
-                            // 'Sanidha',
                             _currentLead.clientName ?? '',
                             style: AppTextStyle.heading(
                               size: 20,

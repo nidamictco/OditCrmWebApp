@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/firebase_auth_service.dart';
 import '../../../../core/shared_preference/session_service.dart';
 
-import '../../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import '../../../sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import '../../../sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import '../../../sub_company/staff_managment/staff/model/staff_model.dart';
 import '../../../../core/constant/firebase_const.dart';

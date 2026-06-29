@@ -1308,9 +1308,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   focusNode: _submitFocus,
                   child: ElevatedButton(
                     onPressed: isBusy ? null : _submit,
-                    style: ElevatedButton.styleFrom(
+                    style: ElevatedButton.styleFrom( 
                       backgroundColor: _submitFocus.hasFocus
-                          ? AppColors.primary
+                          ? AppColors.primary     
                           : AppColors.green,
                       disabledBackgroundColor: AppColors.green.withOpacity(0.5),
                       shape: RoundedRectangleBorder(

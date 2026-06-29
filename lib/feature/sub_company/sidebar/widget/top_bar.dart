@@ -13,7 +13,7 @@ import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_cub
 import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_state.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 

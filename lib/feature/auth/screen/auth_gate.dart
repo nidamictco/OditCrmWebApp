@@ -11,7 +11,7 @@ import 'login.dart';
 
 import '../../mother_company/MotherCompanyMainScreen.dart';
 import '../../sub_company/sidebar/main_screen.dart';
-import '../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import '../../sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
