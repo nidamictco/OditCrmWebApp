@@ -297,8 +297,8 @@ class FollowUpModel {
       remarks: data['remarks'] ?? '',
       adress: data['address'] ?? '',
       email: data['email'] ?? '',
-      assignedStaff: data['assignedStaff']??'',
-      assignedStaffId: data['assignedStaffId']??'',
+      assignedStaff: data['assignedStaff'] ?? '',
+      assignedStaffId: data['assignedStaffId'] ?? '',
       createdById: data['createdById'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
@@ -320,8 +320,8 @@ class FollowUpModel {
       'remarks': remarks,
       'address': adress,
       'email': email,
-      'assignedStaff':assignedStaff,
-      'assignedStaffId':assignedStaffId,
+      'assignedStaff': assignedStaff,
+      'assignedStaffId': assignedStaffId,
       'createdById': createdById,
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
@@ -366,8 +366,8 @@ class FollowUpModel {
       remarks: remarks ?? this.remarks,
       adress: adress ?? this.adress,
       email: email ?? this.email,
-      assignedStaff: assignedStaff?? this.assignedStaff,
-      assignedStaffId: assignedStaffId??this.assignedStaffId,
+      assignedStaff: assignedStaff ?? this.assignedStaff,
+      assignedStaffId: assignedStaffId ?? this.assignedStaffId,
       createdById: createdById ?? this.createdById,
       createdAt: createdAt ?? this.createdAt,
     );

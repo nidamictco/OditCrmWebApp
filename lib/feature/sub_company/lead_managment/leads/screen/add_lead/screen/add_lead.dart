@@ -63,7 +63,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       'dd-MM-yyyy hh:mm a',
     ).format(DateTime.now().add(const Duration(days: 1))),
   );
-  DateTime nextFollowUpDate = DateTime.now().add(const Duration(hours: 1));
+  DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
   DateTime calledDateValue = DateTime.now();
 
   // ── FocusNodes — fixed fields ────────────────────────────────────────────────
@@ -221,9 +221,15 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
     _leadPriority = lead.priority;
-    nextFollowUpDate =
-        lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
-    nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
+    // nextFollowUpDate =
+    //     lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
+    // nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
+    if (lead.followUpDate != null) {
+      nextFollowUpDate = lead.followUpDate!;
+      nextFollowUpCtrl.text = DateFormat(
+        'dd-MM-yyyy hh:mm a',
+      ).format(nextFollowUpDate!);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<AddLeadCubit>();
@@ -393,6 +399,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
         _showError('Pin code must be a 6-digit number.');
         return;
       }
+    }
+
+    final tag = _leadTag;
+    if (tag == null && _leadStage!.toUpperCase() == "REJECTED") {
+      _showError('Tag is required.');
+      return;
+    }
+
+    final callResult = _callResult;
+    if (callResult == null && _leadStage!.toUpperCase() == "REJECTED") {
+      _showError('Call Result is required.');
+      return;
     }
 
     final cubit = context.read<AddLeadCubit>();
@@ -1194,6 +1212,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     child: Dropdown(
                                       label: 'Tags',
                                       hint: 'Select Tags',
+                                      showStar: true,
                                       focusNode: _tagsFocus,
                                       nextFocusNode: _callResultFocus,
                                       items: const [

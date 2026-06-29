@@ -133,11 +133,10 @@ class AddLeadRepository implements IAddLeadRepository {
       throw ArgumentError('Contact number cannot be empty.');
     }
 
-    final String id = _generateDateId('LEAD');
-    await _collection.doc(id).set(lead.toFirestore());
-    log('[AddLeadRepository] Lead added with ID: $id');
+    await _collection.doc(lead.id).set(lead.toFirestore());
+    log('[AddLeadRepository] Lead added with ID: ${lead.id}');
 
-    return id;
+    return lead.id!;
   }
 
   @override
