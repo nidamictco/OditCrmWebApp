@@ -54,6 +54,36 @@ class _LeadsReportState extends State<LeadsReport> {
 
   Map<String, List<String>> stateDistrictMap = {};
 
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static bool _staticIsCreatedDate = true;
+  static String? _staticCategory;
+  static String? _staticSource;
+  static String? _staticPriority;
+  static String? _staticLeadStage;
+  static String? _staticStaff;
+  static String? _staticCreatedBy;
+  static String? _staticState;
+  static String? _staticDistrict;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
+
+  // Static variables for applied (active) filter state
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedLeadStage;
+  static String? _staticAppliedPriority;
+  static String? _staticAppliedSource;
+  static String? _staticAppliedStaff;
+  static String? _staticAppliedCreatedBy;
+  static String? _staticAppliedState;
+  static String? _staticAppliedDistrict;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+  static bool _staticAppliedIsCreatedDate = true;
+
   Future<void> _loadLocations() async {
     final map = await IndiaLocationService.loadStateDistricts();
     if (mounted) {
@@ -68,18 +98,138 @@ class _LeadsReportState extends State<LeadsReport> {
     super.initState();
     _loadLocations();
 
-    fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    if (_hasSavedState) {
+      // Restore filter state from static variables
+      fromDate.text = _staticFromDate ?? '';
+      toDate.text = _staticToDate ?? '';
+      _isCreatedDate = _staticIsCreatedDate;
 
-    _appliedFromDate = DateTime.now();
-    _appliedToDate = DateTime.now();
+      selectedCategory = _staticCategory;
+      selectedSource = _staticSource;
+      selectedPriority = _staticPriority;
+      selectedLeadStage = _staticLeadStage;
+      selectedStaff = _staticStaff;
+      selectedCreatedBy = _staticCreatedBy;
+      selectedState = _staticState;
+      selectedDistrict = _staticDistrict;
+      _currentPage = _staticCurrentPage;
+
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+
+      // Restore applied (active) filter state
+      _appliedCategory = _staticAppliedCategory;
+      _appliedLeadStage = _staticAppliedLeadStage;
+      _appliedPriority = _staticAppliedPriority;
+      _appliedSource = _staticAppliedSource;
+      _appliedStaff = _staticAppliedStaff;
+      _appliedCreatedBy = _staticAppliedCreatedBy;
+      _appliedState = _staticAppliedState;
+      _appliedDistrict = _staticAppliedDistrict;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+      _appliedIsCreatedDate = _staticAppliedIsCreatedDate;
+    } else {
+      fromDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      toDate.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+      _appliedFromDate = DateTime.now();
+      _appliedToDate = DateTime.now();
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<AddLeadCubit>();
       cubit.initialize(); // ← loads categories, sources, stages
       cubit.fetchStaff(); // ← loads staffList for staff/createdBy dropdowns
       cubit.fetchLeads();
-      _applyFilters();
+      if (!_hasSavedState) {
+        _applyFilters();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromDate = fromDate.text;
+    _staticToDate = toDate.text;
+    _staticIsCreatedDate = _isCreatedDate;
+
+    _staticCategory = selectedCategory;
+    _staticSource = selectedSource;
+    _staticPriority = selectedPriority;
+    _staticLeadStage = selectedLeadStage;
+    _staticStaff = selectedStaff;
+    _staticCreatedBy = selectedCreatedBy;
+    _staticState = selectedState;
+    _staticDistrict = selectedDistrict;
+    _staticCurrentPage = _currentPage;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedLeadStage = _appliedLeadStage;
+    _staticAppliedPriority = _appliedPriority;
+    _staticAppliedSource = _appliedSource;
+    _staticAppliedStaff = _appliedStaff;
+    _staticAppliedCreatedBy = _appliedCreatedBy;
+    _staticAppliedState = _appliedState;
+    _staticAppliedDistrict = _appliedDistrict;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+    _staticAppliedIsCreatedDate = _appliedIsCreatedDate;
+
+    _hasSavedState = true;
+
+    fromDate.dispose();
+    toDate.dispose();
+    super.dispose();
+  }
+
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedSource != null ||
+        selectedPriority != null ||
+        selectedLeadStage != null ||
+        selectedStaff != null ||
+        selectedCreatedBy != null ||
+        selectedState != null ||
+        selectedDistrict != null ||
+        fromDate.text.isNotEmpty ||
+        toDate.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedSource = null;
+      selectedPriority = null;
+      selectedLeadStage = null;
+      selectedStaff = null;
+      selectedCreatedBy = null;
+      selectedState = null;
+      selectedDistrict = null;
+      fromDate.clear();
+      toDate.clear();
+      _isCreatedDate = true;
+
+      // Clear applied filters immediately so the table updates
+      _appliedCategory = null;
+      _appliedLeadStage = null;
+      _appliedPriority = null;
+      _appliedSource = null;
+      _appliedStaff = null;
+      _appliedCreatedBy = null;
+      _appliedState = null;
+      _appliedDistrict = null;
+      _appliedFromDate = null;
+      _appliedToDate = null;
+      _appliedIsCreatedDate = true;
+
+      _hasSavedState = false;
+
+      _resetPage();
     });
   }
 
@@ -679,26 +829,9 @@ class _LeadsReportState extends State<LeadsReport> {
                                   ),
 
                                   SizedBox(width: 1.w),
-                                  if (selectedCategory != null ||
-                                      selectedSource != null ||
-                                      selectedPriority != null ||
-                                      selectedLeadStage != null ||
-                                      selectedStaff != null ||
-                                      selectedState != null ||
-                                      selectedDistrict != null)
+                                  if (_hasActiveFilters())
                                     InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedSource = null;
-                                          selectedPriority = null;
-                                          selectedLeadStage = null;
-                                          selectedStaff = null;
-                                          selectedState = null;
-                                          selectedDistrict = null;
-                                          _resetPage();
-                                        });
-                                      },
+                                      onTap: _clearFilters,
                                       child: Container(
                                         // width: 7.w,
                                         height: 4.5.h,

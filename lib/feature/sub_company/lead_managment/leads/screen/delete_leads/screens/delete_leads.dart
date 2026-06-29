@@ -38,25 +38,121 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   int _tableKey = 0;
   int _currentPage = 1;
 
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static String? _staticCategory;
+  static String? _staticSource;
+  static String? _staticDeletedBy;
+  static String? _staticAssignedStaff;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
+
+  // Static variables for applied (active) filter state
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedSource;
+  static String? _staticAppliedStaff;
+  static String? _staticAppliedDeletedBy;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+
+  @override
+  void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromDate = _fromDateController.text;
+    _staticToDate = _toDateController.text;
+    _staticCategory = selectedCategory;
+    _staticSource = selectedSource;
+    _staticDeletedBy = selectedDeletedBy;
+    _staticAssignedStaff = selectedAssignedStaff;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+    _staticCurrentPage = _currentPage;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedSource = _appliedSource;
+    _staticAppliedStaff = _appliedStaff;
+    _staticAppliedDeletedBy = _appliedDeletedBy;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+
+    _hasSavedState = true;
+
+    _fromDateController.dispose();
+    _toDateController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     context.read<AddLeadCubit>().fetchDeletedLeads();
     context.read<AddLeadCubit>().fetchStaff();
-    // context.read<AddLeadCubit>().fetchLeads();
     context.read<AddLeadCubit>().initialize();
 
-    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    if (_hasSavedState) {
+      // Restore filter state from static variables
+      _fromDateController.text = _staticFromDate ?? '';
+      _toDateController.text = _staticToDate ?? '';
+      selectedCategory = _staticCategory;
+      selectedSource = _staticSource;
+      selectedDeletedBy = _staticDeletedBy;
+      selectedAssignedStaff = _staticAssignedStaff;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+      _currentPage = _staticCurrentPage;
+
+      _appliedCategory = _staticAppliedCategory;
+      _appliedSource = _staticAppliedSource;
+      _appliedStaff = _staticAppliedStaff;
+      _appliedDeletedBy = _staticAppliedDeletedBy;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+    } else {
+      _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasSavedState) {
+        _applyFilters();
+      }
+    });
   }
 
-  @override
-  void dispose() {
-    _fromDateController.dispose();
-    _toDateController.dispose();
-    super.dispose();
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedSource != null ||
+        selectedAssignedStaff != null ||
+        selectedDeletedBy != null ||
+        _fromDateController.text.isNotEmpty ||
+        _toDateController.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedSource = null;
+      selectedAssignedStaff = null;
+      selectedDeletedBy = null;
+      _fromDateController.clear();
+      _toDateController.clear();
+
+      _appliedCategory = null;
+      _appliedSource = null;
+      _appliedStaff = null;
+      _appliedDeletedBy = null;
+      _appliedFromDate = null;
+      _appliedToDate = null;
+
+      _hasSavedState = false;
+
+      _resetPage();
+    });
   }
 
   String? _appliedCategory;
@@ -438,20 +534,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                         ),
                                       ),
                                       SizedBox(width: 1.w),
-                                      if (selectedCategory != null ||
-                                          selectedSource != null ||
-                                          selectedAssignedStaff != null ||
-                                          selectedDeletedBy != null)
+                                      if (_hasActiveFilters())
                                         InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedCategory = null;
-                                              selectedSource = null;
-                                              selectedAssignedStaff = null;
-                                              selectedDeletedBy = null;
-                                              _resetPage();
-                                            });
-                                          },
+                                          onTap: _clearFilters,
                                           child: Container(
                                             width: 7.w,
                                             height: 4.5.h,

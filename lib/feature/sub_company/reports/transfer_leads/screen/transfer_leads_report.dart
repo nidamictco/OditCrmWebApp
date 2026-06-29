@@ -45,6 +45,26 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
   int _tableKey = 0;
   int _currentPage = 1;
 
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static String? _staticStatus;
+  static String? _staticCategory;
+  static String? _staticFromStaff;
+  static String? _staticToStaff;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
+
+  // Static variables for applied (active) filter state
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedLeadStatus;
+  static String? _staticAppliedFromStaff;
+  static String? _staticAppliedToStaff;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+
   List<TransferDetails> _getTransfersForRole(List<AddLeadModel> leads) {
     final allTransfers = leads
         .where((l) => l.transferLeads != null && l.transferLeads!.isNotEmpty)
@@ -72,20 +92,101 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
   }
 
   @override
+  void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromDate = _fromDateController.text;
+    _staticToDate = _toDateController.text;
+    _staticStatus = selectedStatus;
+    _staticCategory = selectedCategory;
+    _staticFromStaff = selectedfromstaff;
+    _staticToStaff = selectedtostaff;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+    _staticCurrentPage = _currentPage;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedLeadStatus = _appliedLeadStatus;
+    _staticAppliedFromStaff = _appliedfromstaff;
+    _staticAppliedToStaff = _appliedtostaff;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+
+    _hasSavedState = true;
+
+    _fromDateController.dispose();
+    _toDateController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    context.read<AddLeadCubit>().fetchLeads();
     final cubit = context.read<AddLeadCubit>();
     cubit.initialize();
     cubit.fetchLeads();
     cubit.fetchStaff();
 
-    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    if (_hasSavedState) {
+      // Restore filter state from static variables
+      _fromDateController.text = _staticFromDate ?? '';
+      _toDateController.text = _staticToDate ?? '';
+      selectedStatus = _staticStatus;
+      selectedCategory = _staticCategory;
+      selectedfromstaff = _staticFromStaff;
+      selectedtostaff = _staticToStaff;
+
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+      _currentPage = _staticCurrentPage;
+
+      _appliedCategory = _staticAppliedCategory;
+      _appliedLeadStatus = _staticAppliedLeadStatus;
+      _appliedfromstaff = _staticAppliedFromStaff;
+      _appliedtostaff = _staticAppliedToStaff;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+    } else {
+      _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AddLeadCubit>().fetchLeads(); // ← only once
-      _applyFilters();
+      if (!_hasSavedState) {
+        _applyFilters();
+      }
+    });
+  }
+
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedStatus != null ||
+        selectedfromstaff != null ||
+        selectedtostaff != null ||
+        _fromDateController.text.isNotEmpty ||
+        _toDateController.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedStatus = null;
+      selectedfromstaff = null;
+      selectedtostaff = null;
+      _fromDateController.clear();
+      _toDateController.clear();
+
+      _appliedCategory = null;
+      _appliedLeadStatus = null;
+      _appliedfromstaff = null;
+      _appliedtostaff = null;
+      _appliedFromDate = null;
+      _appliedToDate = null;
+
+      _hasSavedState = false;
+
+      _resetPage();
     });
   }
 
@@ -400,21 +501,9 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                     ),
                                   ),
                                   SizedBox(width: 1.w),
-                                  if (selectedCategory != null ||
-                                      selectedStatus != null ||
-                                      selectedfromstaff != null ||
-                                      selectedtostaff != null)
+                                  if (_hasActiveFilters())
                                     InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedStatus = null;
-                                          selectedfromstaff = null;
-                                          selectedtostaff = null;
-
-                                          _resetPage();
-                                        });
-                                      },
+                                      onTap: _clearFilters,
                                       child: Container(
                                         // width: 7.w,
                                         height: 4.5.h,

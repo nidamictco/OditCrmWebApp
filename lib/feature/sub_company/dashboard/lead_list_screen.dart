@@ -96,6 +96,24 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
 
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static String? _staticCategory;
+  static String? _staticPriority;
+  static String? _staticLeadStage;
+  static String? _staticStaff;
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedLeadStage;
+  static String? _staticAppliedPriority;
+  static String? _staticAppliedStaff;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
+
   void _applyFilters() {
     final from = _parseDate(fromDate.text);
     final to = _parseDate(toDate.text);
@@ -433,8 +451,32 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   @override
   void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromDate = fromDate.text;
+    _staticToDate = toDate.text;
+
+    _staticCategory = selectedCategory;
+    _staticPriority = selectedPriority;
+    _staticLeadStage = selectedLeadStage;
+    _staticStaff = selectedStaff;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedLeadStage = _appliedLeadStage;
+    _staticAppliedPriority = _appliedPriority;
+    _staticAppliedStaff = _appliedStaff;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+    _staticCurrentPage = _currentPage;
+
+    _hasSavedState = true;
+
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
+    fromDate.dispose();
+    toDate.dispose();
     super.dispose();
   }
 
@@ -442,20 +484,86 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void initState() {
     super.initState();
 
-    final initialDate = widget.selectedDate ?? DateTime.now();
+    if (_hasSavedState) {
+      // Restore filter state from static variables
+      fromDate.text = _staticFromDate ?? '';
+      toDate.text = _staticToDate ?? '';
 
-    fromDate.text = '';
-    toDate.text = '';
+      selectedCategory = _staticCategory;
+      selectedPriority = _staticPriority;
+      selectedLeadStage = _staticLeadStage;
+      selectedStaff = _staticStaff;
 
-    // ← Initialize applied dates so filter works immediately
-    _appliedFromDate = initialDate;
-    _appliedToDate = initialDate;
+      _appliedCategory = _staticAppliedCategory;
+      _appliedLeadStage = _staticAppliedLeadStage;
+      _appliedPriority = _staticAppliedPriority;
+      _appliedStaff = _staticAppliedStaff;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+      _currentPage = _staticCurrentPage;
+    } else {
+      final initialDate = widget.selectedDate ?? DateTime.now();
+
+      fromDate.text = '';
+      toDate.text = '';
+
+      // Initialize applied dates so filter works immediately
+      _appliedFromDate = initialDate;
+      _appliedToDate = initialDate;
+    }
 
     context.read<AddLeadCubit>().fetchDashboardLeads(
       staffId: widget.staff?.id ?? '',
       role: widget.staff?.staffType ?? 'Admin',
       fromCard: widget.fromCard,
-      selectedDate: initialDate,
+      selectedDate: _appliedFromDate,
+      toDate: _appliedToDate,
+    );
+  }
+
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedPriority != null ||
+        selectedLeadStage != null ||
+        selectedStaff != null ||
+        fromDate.text.isNotEmpty ||
+        toDate.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedPriority = null;
+      selectedLeadStage = null;
+      selectedStaff = null;
+      fromDate.clear();
+      toDate.clear();
+
+      _appliedCategory = null;
+      _appliedLeadStage = null;
+      _appliedPriority = null;
+      _appliedStaff = null;
+
+      // Clear applied dates and reset back to dashboard default date
+      final initialDate = widget.selectedDate ?? DateTime.now();
+      _appliedFromDate = initialDate;
+      _appliedToDate = initialDate;
+
+      _hasSavedState = false;
+
+      _resetPage();
+    });
+
+    // Re-fetch using default/reset dates
+    context.read<AddLeadCubit>().fetchDashboardLeads(
+      staffId: widget.staff?.id ?? '',
+      role: widget.staff?.staffType ?? 'Admin',
+      fromCard: widget.fromCard,
+      selectedDate: _appliedFromDate,
+      toDate: _appliedToDate,
     );
   }
 
@@ -676,20 +784,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                     ),
                                   ),
                                   SizedBox(width: 1.w),
-                                  if (selectedCategory != null ||
-                                      selectedPriority != null ||
-                                      selectedLeadStage != null ||
-                                      selectedStaff != null)
+                                  if (_hasActiveFilters())
                                     InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedPriority = null;
-                                          selectedLeadStage = null;
-                                          selectedStaff = null;
-                                          _resetPage();
-                                        });
-                                      },
+                                      onTap: _clearFilters,
                                       child: Container(
                                         height: 4.5.h,
                                         padding: EdgeInsets.all(1.h),
