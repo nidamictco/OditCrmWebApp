@@ -173,7 +173,7 @@ class AddLeadState {
     String? profileNotConnectedCount,
     Map<String, int>? profileCallResultCounts,
     bool? isLoadingProfileCounts,
-    // ── clear flags ──────────────────────────────────────────────────────────
+    bool clearSelectedDashboardDate = false,
     bool clearError = false,
     bool clearSuccess = false,
     bool clearListError = false,
@@ -242,8 +242,9 @@ class AddLeadState {
       missedLeadCount: missedLeadCount ?? this.missedLeadCount,
       transferredCount: transferredCount ?? this.transferredCount,
       isLoadingCounts: isLoadingCounts ?? this.isLoadingCounts,
-      selectedDashboardDate:
-          selectedDashboardDate ?? this.selectedDashboardDate,
+      selectedDashboardDate: clearSelectedDashboardDate
+          ? null
+          : (selectedDashboardDate ?? this.selectedDashboardDate),
       leadChartCounts: leadChartCounts ?? this.leadChartCounts,
       leadCategoryTableRows:
           leadCategoryTableRows ?? this.leadCategoryTableRows,

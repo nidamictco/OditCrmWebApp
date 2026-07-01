@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   void didPopNext() {
     final today = _dateController.text.isNotEmpty
         ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
-        : DateTime.now();
+        : null;
     context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
   }
 
@@ -137,10 +137,12 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                                     : null,
                                                 onDateSelected: (date) {
                                                   /// SET SELECTED DATE
-                                                  _dateController.text =
-                                                      DateFormat(
-                                                        'dd-MM-yyyy',
-                                                      ).format(date);
+                                                  setState(() {
+                                                    _dateController.text =
+                                                        DateFormat(
+                                                          'dd-MM-yyyy',
+                                                        ).format(date);
+                                                  });
                                                   addLeadCubit
                                                       .updateSelectedDashboardDate(
                                                         date,
@@ -179,36 +181,68 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                             bottomLeft: Radius.circular(4),
                                           ),
                                         ),
-                                        child: Center(
-                                          child: IgnorePointer(
-                                            child: TextField(
-                                              controller: _dateController,
-                                              readOnly: true,
-                                              style: AppTextStyle.small(
-                                                size: 11.sp,
-                                                color: AppColors.grey,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                              decoration: InputDecoration(
-                                                border: InputBorder.none,
-                                                hintStyle: AppTextStyle.small(
-                                                  size: 11.sp,
-                                                  color: AppColors.grey,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Center(
+                                                child: IgnorePointer(
+                                                  child: TextField(
+                                                    controller: _dateController,
+                                                    readOnly: true,
+                                                    style: AppTextStyle.small(
+                                                      size: 11.sp,
+                                                      color: AppColors.grey,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintStyle: AppTextStyle.small(
+                                                        size: 11.sp,
+                                                        color: AppColors.grey,
+                                                      ),
+                                                      isCollapsed: true,
+                                                      contentPadding: EdgeInsets.zero,
+                                                    ),
+                                                  ),
                                                 ),
-                                                isCollapsed: true,
-                                                contentPadding: EdgeInsets.zero,
                                               ),
                                             ),
-                                          ),
+                                            if (_dateController.text.isNotEmpty)
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _dateController.clear();
+                                                  });
+                                                  addLeadCubit
+                                                      .updateSelectedDashboardDate(
+                                                        null,
+                                                      );
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    left: 5,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.close,
+                                                    color: AppColors.grey,
+                                                    size: 12.sp,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                       ),
 
                                       /// SEARCH BUTTON
                                       GestureDetector(
                                         onTap: () {
-                                          /// CHECK EMPTY DATE
-                                          if (_dateController.text.isEmpty)
+                                          if (_dateController.text.isEmpty) {
+                                            addLeadCubit.fetchDashboardCounts(
+                                              null,
+                                              forceFetch: true,
+                                            );
                                             return;
+                                          }
 
                                           /// CONVERT STRING TO DATETIME
                                           final selectedDate = DateFormat(

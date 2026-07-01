@@ -45,7 +45,7 @@ Color getLeadStatusColor(String status) {
 
 class NewLeadsPage extends StatefulWidget {
   String fromCard;
-  final selectedDate;
+  final DateTime? selectedDate;
   final StaffModel? staff;
   NewLeadsPage({
     super.key,
@@ -98,6 +98,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   // Static variables to preserve filter state across screen navigation
   static bool _hasSavedState = false;
+  static String? _staticFromCard;
   static String? _staticFromDate;
   static String? _staticToDate;
   static String? _staticCategory;
@@ -389,7 +390,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         staffId: widget.staff!.id!,
         role: widget.staff?.staffType ?? 'Admin',
         fromCard: widget.fromCard,
-        selectedDate: widget.selectedDate ?? DateTime.now(),
+        selectedDate: widget.selectedDate,
       );
     });
   }
@@ -415,7 +416,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         staffId: widget.staff?.id ?? '',
         role: widget.staff?.staffType ?? 'Admin',
         fromCard: widget.fromCard,
-        selectedDate: widget.selectedDate ?? DateTime.now(),
+        selectedDate: widget.selectedDate,
       );
     }
   }
@@ -452,6 +453,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   @override
   void dispose() {
     // Save current filter state to static variables before widget disposal
+    _staticFromCard = widget.fromCard;
     _staticFromDate = fromDate.text;
     _staticToDate = toDate.text;
 
@@ -484,7 +486,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void initState() {
     super.initState();
 
-    if (_hasSavedState) {
+    final bool cardChanged = _hasSavedState && (_staticFromCard != widget.fromCard);
+    final bool dateChanged = _hasSavedState && (_staticAppliedFromDate != widget.selectedDate);
+
+    if (_hasSavedState && !cardChanged && !dateChanged) {
       // Restore filter state from static variables
       fromDate.text = _staticFromDate ?? '';
       toDate.text = _staticToDate ?? '';
@@ -505,10 +510,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       _selectedEntries = _staticSelectedEntries;
       _currentPage = _staticCurrentPage;
     } else {
-      final initialDate = widget.selectedDate ?? DateTime.now();
+      final initialDate = widget.selectedDate;
 
-      fromDate.text = '';
-      toDate.text = '';
+      fromDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
+      toDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
 
       // Initialize applied dates so filter works immediately
       _appliedFromDate = initialDate;
@@ -548,7 +553,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       _appliedStaff = null;
 
       // Clear applied dates and reset back to dashboard default date
-      final initialDate = widget.selectedDate ?? DateTime.now();
+      final initialDate = widget.selectedDate;
       _appliedFromDate = initialDate;
       _appliedToDate = initialDate;
 
@@ -1170,9 +1175,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                         fromCard:
                                                             widget.fromCard,
                                                         selectedDate:
-                                                            widget
-                                                                .selectedDate ??
-                                                            DateTime.now(),
+                                                            widget.selectedDate,
                                                       );
                                                 }
                                               },
@@ -1555,7 +1558,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     staffId: widget.staff?.id ?? '',
                     role: widget.staff?.staffType ?? 'Admin',
                     fromCard: widget.fromCard,
-                    selectedDate: widget.selectedDate ?? DateTime.now(),
+                    selectedDate: widget.selectedDate,
                   );
                 });
               },

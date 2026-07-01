@@ -53,7 +53,7 @@ abstract class IAddLeadRepository {
   });
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
-    required DateTime selectedDate,
+    DateTime? selectedDate,
     required String role,
     bool forceStaffFilter = false,
   });
@@ -101,6 +101,15 @@ abstract class IAddLeadRepository {
     DateTime? toDate,
   });
   Future<bool> isContactNumberExists(String contactNumber);
+  Future<bool> isWhatsappNumberExists(String whatsappNumber);
+  Future<bool> isContactNumberExistsForOther(
+    String contactNumber,
+    String currentLeadId,
+  );
+  Future<bool> isWhatsappNumberExistsForOther(
+    String whatsappNumber,
+    String currentLeadId,
+  );
 }
 
 class AddLeadRepository implements IAddLeadRepository {
@@ -367,7 +376,9 @@ class AddLeadRepository implements IAddLeadRepository {
       bool isbeforeFromDay(DateTime? date) {
         if (date == null) return false;
         if (selectedDate == null) {
-          return date.isBefore(toDay);
+          final now = DateTime.now();
+          final todayStart = DateTime(now.year, now.month, now.day);
+          return date.isBefore(todayStart);
         }
         return date.isBefore(fromDay!);
       }
@@ -447,9 +458,22 @@ class AddLeadRepository implements IAddLeadRepository {
         /// MISSED / REJECTED
         case 'MISSED':
           return allLeads.where((lead) {
-            return (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
-                    lead.leadStage.toUpperCase() == 'NEW') &&
-                isbeforeFromDay(lead.followUpDate);
+            if (lead.leadStage.toUpperCase() == 'NEW') {
+              if (lead.createdAt == null) return false;
+              return isbeforeFromDay(lead.createdAt);
+            }
+            if (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
+                lead.leadStage.toUpperCase() == 'TRANSFERRED') {
+              if (lead.followUpDate == null) return false;
+              return isbeforeFromDay(lead.followUpDate);
+            }
+            return false;
+            // return (lead.leadStage.toUpperCase() == 'NEW' &&
+            //         isbeforeFromDay(lead.createdAt)) ||
+            // (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
+            //         // lead.leadStage.toUpperCase() == 'NEW' ||
+            //         lead.leadStage.toUpperCase() == 'TRANSFERRED') &&
+            //     isbeforeFromDay(lead.followUpDate);
           }).toList();
 
         /// TRANSFERRED
@@ -963,25 +987,27 @@ class AddLeadRepository implements IAddLeadRepository {
   @override
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
-    required DateTime selectedDate,
+    DateTime? selectedDate,
     required String role,
     bool forceStaffFilter = false,
   }) async {
     final sw = Stopwatch()..start();
 
-    final startOfDay = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    );
-    final endOfDay = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      23,
-      59,
-      59,
-    );
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final startOfDay = selectedDate != null
+        ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+        : null;
+    final endOfDay = selectedDate != null
+        ? DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            23,
+            59,
+            59,
+          )
+        : DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     // ── Single query, no composite index needed ──────────────────────────────
     Query<Map<String, dynamic>> base = _collection;
@@ -1023,7 +1049,10 @@ class AddLeadRepository implements IAddLeadRepository {
         final createdAt = data['createdAt'];
         if (createdAt != null) {
           final createdDate = (createdAt as Timestamp).toDate();
-          if (_isInRange(createdDate, startOfDay, endOfDay)) {
+          final inRange = selectedDate != null
+              ? _isInRange(createdDate, startOfDay!, endOfDay)
+              : !createdDate.isAfter(endOfDay);
+          if (inRange) {
             final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
             if (!hasFollowUp) newLeadCount++;
           }
@@ -1035,7 +1064,10 @@ class AddLeadRepository implements IAddLeadRepository {
         final nextFollowUpDate = data['nextFollowUpDate'];
         if (nextFollowUpDate != null) {
           final followDate = (nextFollowUpDate as Timestamp).toDate();
-          if (_isInRange(followDate, startOfDay, endOfDay)) followUpCount++;
+          final inRange = selectedDate != null
+              ? _isInRange(followDate, startOfDay!, endOfDay)
+              : !followDate.isAfter(endOfDay);
+          if (inRange) followUpCount++;
         }
       }
 
@@ -1045,10 +1077,16 @@ class AddLeadRepository implements IAddLeadRepository {
         final createdAt = data['createdAt'];
         if (lastCalledDate != null) {
           final calledDate = (lastCalledDate as Timestamp).toDate();
-          if (_isInRange(calledDate, startOfDay, endOfDay)) closedLeadCount++;
+          final inRange = selectedDate != null
+              ? _isInRange(calledDate, startOfDay!, endOfDay)
+              : !calledDate.isAfter(endOfDay);
+          if (inRange) closedLeadCount++;
         } else if (createdAt != null) {
           final createdDate = (createdAt as Timestamp).toDate();
-          if (_isInRange(createdDate, startOfDay, endOfDay)) closedLeadCount++;
+          final inRange = selectedDate != null
+              ? _isInRange(createdDate, startOfDay!, endOfDay)
+              : !createdDate.isAfter(endOfDay);
+          if (inRange) closedLeadCount++;
         }
       }
 
@@ -1056,13 +1094,45 @@ class AddLeadRepository implements IAddLeadRepository {
       // Handled outside the loop above to avoid N+1 queries.
 
       // ── MISSED ─────────────────────────────────────────────────────────
-      if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
+      if (leadStage == 'NEW') {
+        final createdAt = data['createdAt'];
+        if (createdAt != null) {
+          final createdDate = (createdAt as Timestamp).toDate();
+          final baseline = selectedDate != null ? startOfDay! : todayStart;
+          if (_isBeforeDay(createdDate, baseline)) {
+            missedLeadCount++;
+          }
+        }
+      }
+      if (leadStage == 'FOLLOWUP') {
         final nextFollowUpDate = data['nextFollowUpDate'];
         if (nextFollowUpDate != null) {
           final followDate = (nextFollowUpDate as Timestamp).toDate();
-          if (_isBeforeDay(followDate, startOfDay)) missedLeadCount++;
+          final baseline = selectedDate != null ? startOfDay! : todayStart;
+          if (_isBeforeDay(followDate, baseline)) {
+            missedLeadCount++;
+          }
         }
       }
+      if (leadStage == 'TRANSFERRED') {
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
+          final baseline = selectedDate != null ? startOfDay! : todayStart;
+          if (_isBeforeDay(followDate, baseline)) {
+            missedLeadCount++;
+          }
+        }
+      }
+
+      // if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
+      //   final nextFollowUpDate = data['nextFollowUpDate'];
+      //   if (nextFollowUpDate != null) {
+      //     final followDate = (nextFollowUpDate as Timestamp).toDate();
+      //     final baseline = selectedDate != null ? startOfDay! : todayStart;
+      //     if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
+      //   }
+      // }
 
       // ── TRANSFERRED ────────────────────────────────────────────────────
       if (leadStage == 'TRANSFERRED') {
@@ -1075,7 +1145,10 @@ class AddLeadRepository implements IAddLeadRepository {
               final t = item['transferTime'];
               if (t != null) {
                 final td = (t as Timestamp).toDate();
-                if (_isInRange(td, startOfDay, endOfDay)) {
+                final inRange = selectedDate != null
+                    ? _isInRange(td, startOfDay!, endOfDay)
+                    : !td.isAfter(endOfDay);
+                if (inRange) {
                   transferredCount++;
                   counted = true;
                 }
@@ -1820,6 +1893,40 @@ class AddLeadRepository implements IAddLeadRepository {
         .limit(1)
         .get();
     return snap.docs.isNotEmpty;
+  }
+
+  @override
+  Future<bool> isWhatsappNumberExists(String whatsappNumber) async {
+    if (whatsappNumber.trim().isEmpty) return false;
+    final snap = await _collection
+        .where('whatsappNumber', isEqualTo: whatsappNumber.trim())
+        .limit(1)
+        .get();
+    return snap.docs.isNotEmpty;
+  }
+
+  @override
+  Future<bool> isContactNumberExistsForOther(
+    String contactNumber,
+    String currentLeadId,
+  ) async {
+    if (contactNumber.trim().isEmpty) return false;
+    final snap = await _collection
+        .where('contactNumber', isEqualTo: contactNumber.trim())
+        .get();
+    return snap.docs.any((doc) => doc.id != currentLeadId);
+  }
+
+  @override
+  Future<bool> isWhatsappNumberExistsForOther(
+    String whatsappNumber,
+    String currentLeadId,
+  ) async {
+    if (whatsappNumber.trim().isEmpty) return false;
+    final snap = await _collection
+        .where('whatsappNumber', isEqualTo: whatsappNumber.trim())
+        .get();
+    return snap.docs.any((doc) => doc.id != currentLeadId);
   }
 }
 

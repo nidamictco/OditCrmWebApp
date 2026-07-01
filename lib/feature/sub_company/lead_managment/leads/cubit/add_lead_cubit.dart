@@ -286,6 +286,45 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   Future<void> updateLead(String id, AddLeadModel updated) async {
     if (state.isUpdating) return;
     emit(state.copyWith(isUpdating: true, clearError: true));
+
+    // ── Duplicate contact check ───────────────────────────────────────────────
+    if (updated.contactNumber.trim().isNotEmpty) {
+      final isContactDuplicate = await _leadRepository.isContactNumberExistsForOther(
+        updated.contactNumber,
+        id,
+      );
+      if (isClosed) return;
+      if (isContactDuplicate) {
+        emit(
+          state.copyWith(
+            isUpdating: false,
+            errorMessage: 'A lead with this contact number already exists.',
+            clearSuccess: true,
+          ),
+        );
+        return;
+      }
+    }
+
+    // ── Duplicate whatsapp check ───────────────────────────────────────────────
+    if (updated.whatsappNumber.trim().isNotEmpty) {
+      final isWhatsappDuplicate = await _leadRepository.isWhatsappNumberExistsForOther(
+        updated.whatsappNumber,
+        id,
+      );
+      if (isClosed) return;
+      if (isWhatsappDuplicate) {
+        emit(
+          state.copyWith(
+            isUpdating: false,
+            errorMessage: 'A lead with this WhatsApp number already exists.',
+            clearSuccess: true,
+          ),
+        );
+        return;
+      }
+    }
+
     try {
       // ✅ Capture previous state before overwriting
       final previous = state.leads.firstWhere(
@@ -405,19 +444,38 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     emit(state.copyWith(isSubmitting: true, clearError: true));
     // ── Duplicate contact check ───────────────────────────────────────────────
-    final isDuplicate = await _leadRepository.isContactNumberExists(
-      contactNumber,
-    );
-    if (isClosed) return;
-    if (isDuplicate) {
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          errorMessage: 'A lead with this contact number already exists.',
-          clearSuccess: true,
-        ),
+    if (contactNumber.trim().isNotEmpty) {
+      final isDuplicate = await _leadRepository.isContactNumberExists(
+        contactNumber,
       );
-      return;
+      if (isClosed) return;
+      if (isDuplicate) {
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            errorMessage: 'A lead with this contact number already exists.',
+            clearSuccess: true,
+          ),
+        );
+        return;
+      }
+    }
+    // ── Duplicate whatsapp check ───────────────────────────────────────────────
+    if (whatsappNumber.trim().isNotEmpty) {
+      final isWhatsappDuplicate = await _leadRepository.isWhatsappNumberExists(
+        whatsappNumber,
+      );
+      if (isClosed) return;
+      if (isWhatsappDuplicate) {
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            errorMessage: 'A lead with this WhatsApp number already exists.',
+            clearSuccess: true,
+          ),
+        );
+        return;
+      }
     }
     try {
       final user = await SessionService().getSavedUser();
@@ -995,17 +1053,22 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   int? _cachedTotalCalled;
 
   Future<void> fetchDashboardCounts(
-    DateTime selectedDate, {
+    DateTime? selectedDate, {
     String? staffId,
     String? role,
     bool forceFetch = false,
   }) async {
     // Skip re-fetch if same date and we already have counts
+    bool isSameDate = false;
+    if (_lastCountDate == null && selectedDate == null) {
+      isSameDate = true;
+    } else if (_lastCountDate != null && selectedDate != null) {
+      isSameDate = _lastCountDate!.year == selectedDate.year &&
+          _lastCountDate!.month == selectedDate.month &&
+          _lastCountDate!.day == selectedDate.day;
+    }
     if (!forceFetch &&
-        _lastCountDate != null &&
-        _lastCountDate!.year == selectedDate.year &&
-        _lastCountDate!.month == selectedDate.month &&
-        _lastCountDate!.day == selectedDate.day &&
+        isSameDate &&
         _cachedCounts != null &&
         _cachedTotalCalled != null) {
       log('[fetchDashboardCounts] Returning cached result');
@@ -1194,8 +1257,12 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  void updateSelectedDashboardDate(DateTime date) {
-    emit(state.copyWith(selectedDashboardDate: date));
+  void updateSelectedDashboardDate(DateTime? date) {
+    if (date == null) {
+      emit(state.copyWith(clearSelectedDashboardDate: true));
+    } else {
+      emit(state.copyWith(selectedDashboardDate: date));
+    }
   }
 
   // Future<void> fetchLeadChartCounts({
