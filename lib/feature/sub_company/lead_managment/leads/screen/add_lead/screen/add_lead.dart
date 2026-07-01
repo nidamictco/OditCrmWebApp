@@ -1242,14 +1242,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                 showStar: true,
                                 focusNode: _callResultFocus,
                                 nextFocusNode: _remarksFocus,
-                                items: const [
-                                  'Busy',
-                                  'Connected',
-                                  'Not Attended',
-                                  'Out of Coverage Area',
-                                  'Rejected',
-                                  'Switched Off',
-                                ],
+                                items: const[
+                    'Connected',
+                    'Busy',
+                    'Not Attended',
+                    'Switched Off',
+                    'Out Of Coverage', 
+                    'Wrong Number',
+                    'Not Reachable',
+                    'Other',
+                  ],
                                 selectedValue: _callResult,
                                 onChanged: (v) {
                                   setState(() => _callResult = v);

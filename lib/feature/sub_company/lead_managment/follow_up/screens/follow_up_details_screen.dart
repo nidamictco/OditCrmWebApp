@@ -872,17 +872,15 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
   final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
   final List<String> _callStatuses = [
-    'Connected',
-    'Not Connected',
-    'Busy',
-    "No Status Updated",
-    "Not Attended",
-    "Out of coverge Area",
-    "Rejected",
-    "Switched Off",
-    "Number Changed",
-    "Not Switched On",
-  ];
+                    'Connected',
+                    'Busy',
+                    'Not Attended',
+                    'Switched Off',
+                    'Out Of Coverage', 
+                    'Wrong Number',
+                    'Not Reachable',
+                    'Other',
+                  ];
 
   String? _leadStage;
   String? _leadCategory;
