@@ -45,7 +45,7 @@ Color getLeadStatusColor(String status) {
 
 class NewLeadsPage extends StatefulWidget {
   String fromCard;
-  final selectedDate;
+  final DateTime? selectedDate;
   final StaffModel? staff;
   NewLeadsPage({
     super.key,
@@ -95,6 +95,25 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
+
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromCard;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static String? _staticCategory;
+  static String? _staticPriority;
+  static String? _staticLeadStage;
+  static String? _staticStaff;
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedLeadStage;
+  static String? _staticAppliedPriority;
+  static String? _staticAppliedStaff;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
 
   void _applyFilters() {
     final from = _parseDate(fromDate.text);
@@ -371,7 +390,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         staffId: widget.staff!.id!,
         role: widget.staff?.staffType ?? 'Admin',
         fromCard: widget.fromCard,
-        selectedDate: widget.selectedDate ?? DateTime.now(),
+        selectedDate: widget.selectedDate,
       );
     });
   }
@@ -397,7 +416,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         staffId: widget.staff?.id ?? '',
         role: widget.staff?.staffType ?? 'Admin',
         fromCard: widget.fromCard,
-        selectedDate: widget.selectedDate ?? DateTime.now(),
+        selectedDate: widget.selectedDate,
       );
     }
   }
@@ -433,8 +452,33 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   @override
   void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromCard = widget.fromCard;
+    _staticFromDate = fromDate.text;
+    _staticToDate = toDate.text;
+
+    _staticCategory = selectedCategory;
+    _staticPriority = selectedPriority;
+    _staticLeadStage = selectedLeadStage;
+    _staticStaff = selectedStaff;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedLeadStage = _appliedLeadStage;
+    _staticAppliedPriority = _appliedPriority;
+    _staticAppliedStaff = _appliedStaff;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+    _staticCurrentPage = _currentPage;
+
+    _hasSavedState = true;
+
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
+    fromDate.dispose();
+    toDate.dispose();
     super.dispose();
   }
 
@@ -442,20 +486,89 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void initState() {
     super.initState();
 
-    final initialDate = widget.selectedDate ?? DateTime.now();
+    final bool cardChanged = _hasSavedState && (_staticFromCard != widget.fromCard);
+    final bool dateChanged = _hasSavedState && (_staticAppliedFromDate != widget.selectedDate);
 
-    fromDate.text = '';
-    toDate.text = '';
+    if (_hasSavedState && !cardChanged && !dateChanged) {
+      // Restore filter state from static variables
+      fromDate.text = _staticFromDate ?? '';
+      toDate.text = _staticToDate ?? '';
 
-    // ← Initialize applied dates so filter works immediately
-    _appliedFromDate = initialDate;
-    _appliedToDate = initialDate;
+      selectedCategory = _staticCategory;
+      selectedPriority = _staticPriority;
+      selectedLeadStage = _staticLeadStage;
+      selectedStaff = _staticStaff;
+
+      _appliedCategory = _staticAppliedCategory;
+      _appliedLeadStage = _staticAppliedLeadStage;
+      _appliedPriority = _staticAppliedPriority;
+      _appliedStaff = _staticAppliedStaff;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+      _currentPage = _staticCurrentPage;
+    } else {
+      final initialDate = widget.selectedDate;
+
+      fromDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
+      toDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
+
+      // Initialize applied dates so filter works immediately
+      _appliedFromDate = initialDate;
+      _appliedToDate = initialDate;
+    }
 
     context.read<AddLeadCubit>().fetchDashboardLeads(
       staffId: widget.staff?.id ?? '',
       role: widget.staff?.staffType ?? 'Admin',
       fromCard: widget.fromCard,
-      selectedDate: initialDate,
+      selectedDate: _appliedFromDate,
+      toDate: _appliedToDate,
+    );
+  }
+
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedPriority != null ||
+        selectedLeadStage != null ||
+        selectedStaff != null ||
+        fromDate.text.isNotEmpty ||
+        toDate.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedPriority = null;
+      selectedLeadStage = null;
+      selectedStaff = null;
+      fromDate.clear();
+      toDate.clear();
+
+      _appliedCategory = null;
+      _appliedLeadStage = null;
+      _appliedPriority = null;
+      _appliedStaff = null;
+
+      // Clear applied dates and reset back to dashboard default date
+      final initialDate = widget.selectedDate;
+      _appliedFromDate = initialDate;
+      _appliedToDate = initialDate;
+
+      _hasSavedState = false;
+
+      _resetPage();
+    });
+
+    // Re-fetch using default/reset dates
+    context.read<AddLeadCubit>().fetchDashboardLeads(
+      staffId: widget.staff?.id ?? '',
+      role: widget.staff?.staffType ?? 'Admin',
+      fromCard: widget.fromCard,
+      selectedDate: _appliedFromDate,
+      toDate: _appliedToDate,
     );
   }
 
@@ -676,20 +789,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                     ),
                                   ),
                                   SizedBox(width: 1.w),
-                                  if (selectedCategory != null ||
-                                      selectedPriority != null ||
-                                      selectedLeadStage != null ||
-                                      selectedStaff != null)
+                                  if (_hasActiveFilters())
                                     InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedPriority = null;
-                                          selectedLeadStage = null;
-                                          selectedStaff = null;
-                                          _resetPage();
-                                        });
-                                      },
+                                      onTap: _clearFilters,
                                       child: Container(
                                         height: 4.5.h,
                                         padding: EdgeInsets.all(1.h),
@@ -1073,9 +1175,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                         fromCard:
                                                             widget.fromCard,
                                                         selectedDate:
-                                                            widget
-                                                                .selectedDate ??
-                                                            DateTime.now(),
+                                                            widget.selectedDate,
                                                       );
                                                 }
                                               },
@@ -1458,7 +1558,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     staffId: widget.staff?.id ?? '',
                     role: widget.staff?.staffType ?? 'Admin',
                     fromCard: widget.fromCard,
-                    selectedDate: widget.selectedDate ?? DateTime.now(),
+                    selectedDate: widget.selectedDate,
                   );
                 });
               },

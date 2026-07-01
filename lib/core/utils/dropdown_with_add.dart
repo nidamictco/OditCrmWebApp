@@ -378,6 +378,14 @@ class _DropdownWithAddState extends State<DropdownWithAdd> {
                     ),
 
                     popupProps: PopupProps.menu(
+                      scrollbarProps: ScrollbarProps(
+                        thumbVisibility: true,
+                        thickness: 10,
+                        trackVisibility: true,
+                        thumbColor: AppColors.grey,
+                        interactive: true,
+                      ),
+
                       showSearchBox: true,
                       showSelectedItems: true,
                       fit: FlexFit.loose,

@@ -533,7 +533,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         // }
         if (state.errorMessage != null) {
           if (state.errorMessage!.contains('already exists')) {
-            _showDuplicateAlert();
+            _showDuplicateAlert(state.errorMessage!);
           } else {
             _showError(state.errorMessage!);
           }
@@ -1794,7 +1794,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-  void _showDuplicateAlert() {
+  void _showDuplicateAlert(String message) {
+    final isWhatsapp = message.toLowerCase().contains('whatsapp');
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1805,7 +1806,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
             SizedBox(width: 8),
             Text(
-              'Duplicate Contact',
+              isWhatsapp ? 'Duplicate WhatsApp' : 'Duplicate Contact',
               style: AppTextStyle.medium(size: 13.sp, weight: FontWeight.w600),
             ),
           ],
@@ -1815,7 +1816,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'A lead with this contact number already exists in the system.',
+              message,
               style: AppTextStyle.medium(size: 11.sp),
             ),
             SizedBox(height: 1.5.h),
@@ -1836,8 +1837,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Please use a different contact number or '
-                      'update the existing lead instead.',
+                      isWhatsapp
+                          ? 'Please use a different WhatsApp number or update the existing lead.'
+                          : 'Please use a different contact number or update the existing lead instead.',
                       style: AppTextStyle.medium(
                         size: 10.sp,
                         color: Colors.orange.shade800,

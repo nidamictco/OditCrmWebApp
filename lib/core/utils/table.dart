@@ -87,7 +87,12 @@ class _CustomTableState extends State<CustomTable> {
   Widget build(BuildContext context) {
     return Container(
       width: 100.w,
-      margin: EdgeInsets.only(right: 2.w, left: 2.w, bottom: 2.w, top:widget.height ?? 2.w),
+      margin: EdgeInsets.only(
+        right: 2.w,
+        left: 2.w,
+        bottom: 2.w,
+        top: widget.height ?? 2.w,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: AppColors.divider),
@@ -124,7 +129,7 @@ class _CustomTableState extends State<CustomTable> {
       child: Row(
         children: [
           SizedBox(width: 1.2.w),
-          SizedBox(width: 1.5.w),
+          // SizedBox(width: 1.5.w),
           // Checkbox header placeholder (keeps alignment)
           if (widget.showCheckboxes)
             SizedBox(
@@ -182,11 +187,11 @@ class _CustomTableState extends State<CustomTable> {
           ),
           child: Row(
             children: [
-              SizedBox(width: 1.5.w),
+              SizedBox(width: 10),
 
               // ── Priority dot ───────────────────────────────────────────────
               Padding(
-                padding: EdgeInsets.only(right: 0.6.w),
+                padding: EdgeInsets.only(right: 0.1.w),
                 child: Container(
                   width: 10,
                   height: 10,

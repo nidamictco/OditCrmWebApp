@@ -44,6 +44,58 @@ class _TransferLeadsState extends State<TransferLeads> {
   int _tableKey = 0;
   int _currentPage = 1;
 
+  // Static variables to preserve filter state across screen navigation
+  static bool _hasSavedState = false;
+  static String? _staticFromDate;
+  static String? _staticToDate;
+  static String? _staticCategory;
+  static String? _staticSource;
+  static String? _staticPriority;
+  static String? _staticLeadStage;
+  static String? _staticStaff;
+  static String _staticSearchQuery = '';
+  static String _staticSelectedEntries = '10';
+  static int _staticCurrentPage = 1;
+
+  // Static variables for applied (active) filter state
+  static String? _staticAppliedCategory;
+  static String? _staticAppliedLeadStage;
+  static String? _staticAppliedPriority;
+  static String? _staticAppliedSource;
+  static String? _staticAppliedStaff;
+  static DateTime? _staticAppliedFromDate;
+  static DateTime? _staticAppliedToDate;
+
+  @override
+  void dispose() {
+    // Save current filter state to static variables before widget disposal
+    _staticFromDate = _fromDateController.text;
+    _staticToDate = _toDateController.text;
+    _staticCategory = selectedCategory;
+    _staticSource = selectedSource;
+    _staticPriority = selectedPriority;
+    _staticLeadStage = selectedLeadStage;
+    _staticStaff = selectedStaff;
+
+    _staticSearchQuery = _searchQuery;
+    _staticSelectedEntries = _selectedEntries;
+    _staticCurrentPage = _currentPage;
+
+    _staticAppliedCategory = _appliedCategory;
+    _staticAppliedLeadStage = _appliedLeadStage;
+    _staticAppliedPriority = _appliedPriority;
+    _staticAppliedSource = _appliedSource;
+    _staticAppliedStaff = _appliedStaff;
+    _staticAppliedFromDate = _appliedFromDate;
+    _staticAppliedToDate = _appliedToDate;
+
+    _hasSavedState = true;
+
+    _fromDateController.dispose();
+    _toDateController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +103,72 @@ class _TransferLeadsState extends State<TransferLeads> {
     cubit.initialize();
     cubit.fetchLeads();
     cubit.fetchStaff();
-    _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilters());
+    if (_hasSavedState) {
+      // Restore filter state from static variables
+      _fromDateController.text = _staticFromDate ?? '';
+      _toDateController.text = _staticToDate ?? '';
+      selectedCategory = _staticCategory;
+      selectedSource = _staticSource;
+      selectedPriority = _staticPriority;
+      selectedLeadStage = _staticLeadStage;
+      selectedStaff = _staticStaff;
+
+      _searchQuery = _staticSearchQuery;
+      _selectedEntries = _staticSelectedEntries;
+      _currentPage = _staticCurrentPage;
+
+      _appliedCategory = _staticAppliedCategory;
+      _appliedLeadStage = _staticAppliedLeadStage;
+      _appliedPriority = _staticAppliedPriority;
+      _appliedSource = _staticAppliedSource;
+      _appliedStaff = _staticAppliedStaff;
+      _appliedFromDate = _staticAppliedFromDate;
+      _appliedToDate = _staticAppliedToDate;
+    } else {
+      _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasSavedState) {
+        _applyFilters();
+      }
+    });
+  }
+
+  bool _hasActiveFilters() {
+    return selectedCategory != null ||
+        selectedSource != null ||
+        selectedPriority != null ||
+        selectedLeadStage != null ||
+        selectedStaff != null ||
+        _fromDateController.text.isNotEmpty ||
+        _toDateController.text.isNotEmpty;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedSource = null;
+      selectedPriority = null;
+      selectedLeadStage = null;
+      selectedStaff = null;
+      _fromDateController.clear();
+      _toDateController.clear();
+
+      _appliedCategory = null;
+      _appliedLeadStage = null;
+      _appliedPriority = null;
+      _appliedSource = null;
+      _appliedStaff = null;
+      _appliedFromDate = null;
+      _appliedToDate = null;
+
+      _hasSavedState = false;
+
+      _resetPage();
+    });
   }
 
   String? _appliedCategory;
@@ -452,22 +566,9 @@ class _TransferLeadsState extends State<TransferLeads> {
                                 children: [
                                   _viewButton(),
                                   SizedBox(width: 1.w),
-                                  if (selectedCategory != null ||
-                                      selectedSource != null ||
-                                      selectedPriority != null ||
-                                      selectedLeadStage != null ||
-                                      selectedStaff != null)
+                                  if (_hasActiveFilters())
                                     InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategory = null;
-                                          selectedSource = null;
-                                          selectedPriority = null;
-                                          selectedLeadStage = null;
-                                          selectedStaff = null;
-                                          _resetPage();
-                                        });
-                                      },
+                                      onTap: _clearFilters,
                                       child: Container(
                                         width: 7.w,
                                         height: 4.5.h,
