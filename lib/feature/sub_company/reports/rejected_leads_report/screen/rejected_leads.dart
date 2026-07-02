@@ -17,6 +17,8 @@ import '../../../lead_managment/leads/cubit/add_lead_state.dart';
 import '../../../lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../sidebar/main_screen.dart';
+
 class RejectedLeads extends StatefulWidget {
   const RejectedLeads({super.key});
 
@@ -798,7 +800,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                       });
                                     },
                                     columns: [
-                                      TableColumn(title: "Sl No.", flex: 3),
+                                      TableColumn(title: "Sl No.", flex: 2),
                                       TableColumn(title: "Name", flex: 4),
                                       TableColumn(
                                         title: "Contact No.",
@@ -806,14 +808,14 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                       ),
                                       TableColumn(
                                         title: "Lead Category",
-                                        flex: 4,
+                                        flex: 5,
                                       ),
                                       TableColumn(title: "Staff ", flex: 4),
                                       TableColumn(title: "Status", flex: 4),
                                       TableColumn(title: "Reason", flex: 4),
                                       TableColumn(
                                         title: "Followup Date",
-                                        flex: 4,
+                                        flex: 5,
                                       ),
                                       TableColumn(
                                         title: "Called Date",
@@ -894,16 +896,24 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            Icon(
-                                              Icons.edit_outlined,
-                                              size: 14.sp,
-                                              color: Colors.blue,
-                                            ),
-                                            SizedBox(width: 0.2.w),
-                                            Icon(
-                                              Icons.delete_outline,
-                                              size: 14.sp,
-                                              color: Colors.red,
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MainScreen(
+                                                          selectedIndex: 31,
+                                                          lead: lead,
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Icon(
+                                                Icons.visibility_outlined,
+                                                size: 13.sp,
+                                                color: Colors.indigo,
+                                              ),
                                             ),
                                           ],
                                         ),

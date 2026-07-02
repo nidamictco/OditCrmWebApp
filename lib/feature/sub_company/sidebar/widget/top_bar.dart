@@ -32,7 +32,8 @@ class TopBar extends StatefulWidget {
 }
 
 class _TopBarState extends State<TopBar> {
-  final TextEditingController _searchController = TextEditingController();
+  static String _lastSearchQuery = '';
+  late final TextEditingController _searchController;
   final FocusNode _searchFocusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
@@ -43,6 +44,7 @@ class _TopBarState extends State<TopBar> {
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController(text: _lastSearchQuery);
     _searchFocusNode.addListener(() {
       if (!_searchFocusNode.hasFocus && !_isHoveringOverlay) {
         Future.delayed(const Duration(milliseconds: 150), () {
@@ -74,6 +76,7 @@ class _TopBarState extends State<TopBar> {
   // ── Search ────────────────────────────────────────────────────────────────
 
   void _onSearchChanged(String query, AddLeadCubit cubit) {
+    _lastSearchQuery = query;
     cubit.searchLeads(query);
     if (query.trim().isNotEmpty) {
       _showDropdown(cubit);
@@ -225,8 +228,8 @@ class _TopBarState extends State<TopBar> {
                                   return InkWell(
                                     onTap: () {
                                       log('Lead tapped: ${lead.clientName}');
-                                      _searchController.clear();
-                                      cubit.searchLeads('');
+                                      // _searchController.clear();
+                                      // cubit.searchLeads('');
                                       _hideDropdown();
                                       navigator.push(
                                         MaterialPageRoute(
@@ -402,7 +405,9 @@ class _TopBarState extends State<TopBar> {
                         children: [
                           Tooltip(
                             message: 'Notifications',
-                            child: HoverIcon(icon: Icons.notifications_none_outlined),
+                            child: HoverIcon(
+                              icon: Icons.notifications_none_outlined,
+                            ),
                           ),
                           if (unread > 0)
                             Positioned(
@@ -501,6 +506,7 @@ class _TopBarState extends State<TopBar> {
                 if (value.text.isEmpty) return const SizedBox.shrink();
                 return GestureDetector(
                   onTap: () {
+                    _lastSearchQuery = '';
                     _searchController.clear();
                     cubit.searchLeads('');
                     _hideDropdown();
@@ -776,7 +782,10 @@ class _TopBarState extends State<TopBar> {
           );
         }
       },
-      child: Tooltip(message: 'Quick Links',child: HoverIcon(icon: Icons.grid_view),),
+      child: Tooltip(
+        message: 'Quick Links',
+        child: HoverIcon(icon: Icons.grid_view),
+      ),
     );
   }
 
