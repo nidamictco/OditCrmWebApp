@@ -9,7 +9,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../Dashboard/screens/dashboard_page.dart';
 import '../enum/mother_company_enum.dart';
 import '../../../auth/cubit/auth/auth_cubit.dart';
-import '../../../sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import '../../../sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 
 class _SidebarItem {
   const _SidebarItem({

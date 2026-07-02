@@ -58,7 +58,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/call_hi
 import 'package:Odit_CRM/feature/sub_company/lead_managment/phone_call_log/phone_call_log.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/screen/transfer_leads/transfer_leads.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/sidebar_item.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/screen/permission_guard.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';

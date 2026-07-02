@@ -1242,14 +1242,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                 showStar: true,
                                 focusNode: _callResultFocus,
                                 nextFocusNode: _remarksFocus,
-                                items: const [
-                                  'Busy',
-                                  'Connected',
-                                  'Not Attended',
-                                  'Out of Coverage Area',
-                                  'Rejected',
-                                  'Switched Off',
-                                ],
+                                items: const[
+                    'Connected',
+                    'Busy',
+                    'Not Attended',
+                    'Switched Off',
+                    'Out Of Coverage', 
+                    'Wrong Number',
+                    'Not Reachable',
+                    'Other',
+                  ],
                                 selectedValue: _callResult,
                                 onChanged: (v) {
                                   setState(() => _callResult = v);
@@ -1329,9 +1331,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   focusNode: _submitFocus,
                   child: ElevatedButton(
                     onPressed: isBusy ? null : _submit,
-                    style: ElevatedButton.styleFrom(
+                    style: ElevatedButton.styleFrom( 
                       backgroundColor: _submitFocus.hasFocus
-                          ? AppColors.primary
+                          ? AppColors.primary     
                           : AppColors.green,
                       disabledBackgroundColor: AppColors.green.withOpacity(0.5),
                       shape: RoundedRectangleBorder(

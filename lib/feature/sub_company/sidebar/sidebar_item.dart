@@ -5,7 +5,7 @@ import '../../../core/theme/app_text_style.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 class SidebarItem extends StatefulWidget {

@@ -12,7 +12,7 @@ import 'package:sizer/sizer.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'feature/sub_company/staff_managment/designation/cubit/cubit/permission_cubit.dart';
+import 'feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'firebase_options.dart';
 
