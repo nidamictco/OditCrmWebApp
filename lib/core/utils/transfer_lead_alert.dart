@@ -75,6 +75,7 @@ import 'popup_msg.dart';
 // }
 
 void showAssignStaffDialog(
+  String fromPage,
   List<AddLeadModel> selectedLeads,
   BuildContext context, {
   required Function(String? selectedStaffId, String? selectedStaffName)
@@ -120,13 +121,14 @@ void showAssignStaffDialog(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "${selectedLeads.length} lead(s) selected",
-                          style: AppTextStyle.medium(
-                            color: AppColors.black,
-                            weight: FontWeight.w500,
+                        if (fromPage != "followup")
+                          Text(
+                            "${selectedLeads.length} lead(s) selected",
+                            style: AppTextStyle.medium(
+                              color: AppColors.black,
+                              weight: FontWeight.w500,
+                            ),
                           ),
-                        ),
                         SizedBox(height: 1.5.h),
                         Dropdown(
                           label: 'Staff',

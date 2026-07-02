@@ -1,4 +1,4 @@
-﻿//
+//
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
@@ -8,8 +8,9 @@ import 'package:sizer/sizer.dart';
 class TableColumn {
   final String title;
   final int flex;
+  final double? width;
 
-  TableColumn({required this.title, this.flex = 1});
+  TableColumn({required this.title, this.flex = 1, this.width});
 }
 
 class CustomTable extends StatefulWidget {
@@ -22,6 +23,7 @@ class CustomTable extends StatefulWidget {
   final void Function(int rowIndex, bool checked)? onCheckChanged;
   final List<Color>? priorityColors;
   final double? height;
+  final double? minWidth;
 
   const CustomTable({
     super.key,
@@ -34,6 +36,7 @@ class CustomTable extends StatefulWidget {
     this.onCheckChanged,
     this.priorityColors,
     this.height,
+    this.minWidth,
   });
 
   @override
@@ -85,6 +88,34 @@ class _CustomTableState extends State<CustomTable> {
 
   @override
   Widget build(BuildContext context) {
+    Widget tableContent = Column(
+      children: [
+        _buildHeader(),
+        if (widget.rows.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            child: Center(
+              child: Text(
+                widget.emptyMessage,
+                style: AppTextStyle.medium(color: Colors.grey),
+              ),
+            ),
+          )
+        else
+          ..._buildRows(),
+      ],
+    );
+
+    if (widget.minWidth != null) {
+      tableContent = SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: widget.minWidth,
+          child: tableContent,
+        ),
+      );
+    }
+
     return Container(
       // width: 100.w,
       margin: EdgeInsets.only(
@@ -98,23 +129,7 @@ class _CustomTableState extends State<CustomTable> {
         border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Column(
-        children: [
-          _buildHeader(),
-          if (widget.rows.isEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.h),
-              child: Center(
-                child: Text(
-                  widget.emptyMessage,
-                  style: AppTextStyle.medium(color: Colors.grey),
-                ),
-              ),
-            )
-          else
-            ..._buildRows(),
-        ],
-      ),
+      child: tableContent,
     );
   }
 
@@ -152,17 +167,26 @@ class _CustomTableState extends State<CustomTable> {
           // Regular column headers
           ...List.generate(widget.columns.length, (index) {
             final col = widget.columns[index];
+            final cellContent = Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(vertical: 2.h),
+              decoration: const BoxDecoration(),
+              child: Text(
+                col.title,
+                style: AppTextStyle.medium(weight: FontWeight.w600),
+              ),
+            );
+
+            if (col.width != null) {
+              return SizedBox(
+                width: col.width,
+                child: cellContent,
+              );
+            }
+
             return Expanded(
               flex: col.flex,
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 2.h),
-                decoration: BoxDecoration(),
-                child: Text(
-                  col.title,
-                  style: AppTextStyle.medium(weight: FontWeight.w600),
-                ),
-              ),
+              child: cellContent,
             );
           }),
         ],
@@ -229,20 +253,24 @@ class _CustomTableState extends State<CustomTable> {
 
               // 🔹 Regular data cells
               ...List.generate(widget.rows[rowIndex].length, (colIndex) {
+                final col = widget.columns[colIndex];
+                final cellContent = Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(vertical: 2.h),
+                  decoration: const BoxDecoration(),
+                  child: widget.rows[rowIndex][colIndex],
+                );
+
+                if (col.width != null) {
+                  return SizedBox(
+                    width: col.width,
+                    child: cellContent,
+                  );
+                }
+
                 return Expanded(
-                  flex: widget.columns[colIndex].flex,
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 2.h),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        // right: colIndex == widget.columns.length - 1
-                        //     ? BorderSide.none
-                        //     : BorderSide(color: AppColors.divider),
-                      ),
-                    ),
-                    child: widget.rows[rowIndex][colIndex],
-                  ),
+                  flex: col.flex,
+                  child: cellContent,
                 );
               }),
             ],

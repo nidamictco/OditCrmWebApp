@@ -348,6 +348,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             Icons.swap_horiz,
                             onTap: () {
                               showAssignStaffDialog(
+                                "followup",
                                 [_currentLead],
                                 context,
                                 onSubmit:
@@ -872,15 +873,15 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
   final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
   final List<String> _callStatuses = [
-                    'Connected',
-                    'Busy',
-                    'Not Attended',
-                    'Switched Off',
-                    'Out Of Coverage', 
-                    'Wrong Number',
-                    'Not Reachable',
-                    'Other',
-                  ];
+    'Connected',
+    'Busy',
+    'Not Attended',
+    'Switched Off',
+    'Out Of Coverage',
+    'Wrong Number',
+    'Not Reachable',
+    'Other',
+  ];
 
   String? _leadStage;
   String? _leadCategory;

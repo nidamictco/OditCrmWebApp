@@ -486,8 +486,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void initState() {
     super.initState();
 
-    final bool cardChanged = _hasSavedState && (_staticFromCard != widget.fromCard);
-    final bool dateChanged = _hasSavedState && (_staticAppliedFromDate != widget.selectedDate);
+    final bool cardChanged =
+        _hasSavedState && (_staticFromCard != widget.fromCard);
+    final bool dateChanged =
+        _hasSavedState && (_staticAppliedFromDate != widget.selectedDate);
 
     if (_hasSavedState && !cardChanged && !dateChanged) {
       // Restore filter state from static variables
@@ -512,8 +514,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     } else {
       final initialDate = widget.selectedDate;
 
-      fromDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
-      toDate.text = initialDate != null ? DateFormat('dd-MM-yyyy').format(initialDate) : '';
+      fromDate.text = initialDate != null
+          ? DateFormat('dd-MM-yyyy').format(initialDate)
+          : '';
+      toDate.text = initialDate != null
+          ? DateFormat('dd-MM-yyyy').format(initialDate)
+          : '';
 
       // Initialize applied dates so filter works immediately
       _appliedFromDate = initialDate;
@@ -1033,6 +1039,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                 GestureDetector(
                                   onTap: hasSelection
                                       ? () => showAssignStaffDialog(
+                                          "",
                                           selectedLeads,
                                           context,
                                           onSubmit:
@@ -1322,15 +1329,27 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
         // ── Build columns ──────────────────────────────────────
 
+        // final columns = [
+        //   TableColumn(title: 'Sl No.', flex: 2),
+        //   TableColumn(title: 'NAME', flex: isNew ? 4 : 2),
+        //   TableColumn(title: 'CONTACT NO.', flex: isNew ? 5 : 3),
+        //   TableColumn(title: 'LEAD CATEGORY', flex: isNew ? 5 : 3),
+        //   TableColumn(title: 'STAFF', flex: isNew ? 4 : 2),
+        //   TableColumn(title: 'STATUS', flex: isNew ? 4 : 2),
+        //   if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 3),
+        //   if (!isNew) TableColumn(title: 'CALLED DATE', flex: 3),
+        //   TableColumn(title: 'ACTION', flex: 2),
+        // ];
+
         final columns = [
           TableColumn(title: 'Sl No.', flex: 2),
-          TableColumn(title: 'NAME', flex: isNew ? 4 : 2),
-          TableColumn(title: 'CONTACT NO.', flex: isNew ? 5 : 3),
-          TableColumn(title: 'LEAD CATEGORY', flex: isNew ? 5 : 3),
-          TableColumn(title: 'STAFF', flex: isNew ? 4 : 2),
-          TableColumn(title: 'STATUS', flex: isNew ? 4 : 2),
-          if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 3),
-          if (!isNew) TableColumn(title: 'CALLED DATE', flex: 3),
+          TableColumn(title: 'NAME', flex: 5),
+          TableColumn(title: 'CONTACT NO.', width: 100),
+          TableColumn(title: 'LEAD CATEGORY', width: 150),
+          TableColumn(title: 'STAFF', flex: 5),
+          TableColumn(title: 'STATUS', flex: 4),
+          if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 4),
+          if (!isNew) TableColumn(title: 'CALLED DATE', flex: 4),
           TableColumn(title: 'ACTION', flex: 2),
         ];
 
@@ -1537,6 +1556,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             CustomTable(
               key: ValueKey(_tableKey),
               height: 0,
+              minWidth: MediaQuery.of(context).size.width,
               columns: columns,
               rows: rows,
               showCheckboxes: true,
@@ -1811,8 +1831,9 @@ class _StatusBadge extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        // alignment: Alignment.centerLeft,
+        width: 100,
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: getLeadStatusColor(status).withOpacity(0.12),
           borderRadius: BorderRadius.circular(20),

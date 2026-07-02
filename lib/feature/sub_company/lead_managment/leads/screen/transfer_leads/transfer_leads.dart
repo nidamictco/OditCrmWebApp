@@ -126,7 +126,9 @@ class _TransferLeadsState extends State<TransferLeads> {
       _appliedFromDate = _staticAppliedFromDate;
       _appliedToDate = _staticAppliedToDate;
     } else {
-      _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      _fromDateController.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateTime.now());
       _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
 
@@ -961,6 +963,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                             child: GestureDetector(
                               onTap: hasSelection
                                   ? () => showAssignStaffDialog(
+                                      "",
                                       selectedLeads,
                                       context,
                                       onSubmit:
