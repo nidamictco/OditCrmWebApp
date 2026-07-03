@@ -314,7 +314,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                 Tooltip(
                                   textAlign: TextAlign.center,
                                   message:
-                                      "Lead Category is the type of\nproduct, service, or solution a\npotential customer is\ninterested in, helping\nbusinesses identify and\nclassify inquiries for better\nfollow-up.",
+                                      "Lead Category is the type of\nproduct, service, or solution a\npotential customer is\ninterested in, helping\nbusinesses identify and\nclassify inquiries for better\nFOLLOWUP.",
                                   decoration: BoxDecoration(
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(6),
@@ -727,28 +727,25 @@ class _LeadCategoryState extends State<LeadCategory> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

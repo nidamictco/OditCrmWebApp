@@ -254,7 +254,7 @@ class _ImportLeadsState extends State<ImportLeads> {
           DropdownWithAdd(
             showHelp: true,
             message:
-                'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better follow-up.',
+                'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better FOLLOWUP.',
             label: 'Lead Category',
             icon: Icons.layers_outlined,
             items: categoryNames,
@@ -276,20 +276,20 @@ class _ImportLeadsState extends State<ImportLeads> {
           //       ),
           // SizedBox(height: 2.h),
           if (state.isAdmin) ...[
-  state.isLoading
-      ? _loadingDropdown('Staff')
-      : Dropdown(
-          label: 'Staff',
-          hint: 'Select Staff',
-          items: staffNames,
-          showStar: true,
-          selectedValue: state.assignedStaffName.isNotEmpty
-              ? state.assignedStaffName
-              : state.selectedStaff,
-          onChanged: cubit.selectStaff,
-        ),
-  SizedBox(height: 2.h),
-],
+            state.isLoading
+                ? _loadingDropdown('Staff')
+                : Dropdown(
+                    label: 'Staff',
+                    hint: 'Select Staff',
+                    items: staffNames,
+                    showStar: true,
+                    selectedValue: state.assignedStaffName.isNotEmpty
+                        ? state.assignedStaffName
+                        : state.selectedStaff,
+                    onChanged: cubit.selectStaff,
+                  ),
+            SizedBox(height: 2.h),
+          ],
 
           DropdownWithAdd(
             showHelp: true,
@@ -712,109 +712,128 @@ class _ImportLeadsState extends State<ImportLeads> {
   }
 
   Future<void> _confirmAndImport(
-  BuildContext context,
-  ImportLeadsState state,
-  ImportLeadsCubit cubit,
-) async {
-  // ── Client-side validation: Admin must pick a staff member ───────────────
-  if (state.isAdmin &&
-      (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Please select a staff member before importing leads.'),
-        backgroundColor: Colors.red.shade600,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return; // stop here — don't even open the loading dialog
-  }
+    BuildContext context,
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) async {
+    // ── Client-side validation: Admin must pick a staff member ───────────────
+    if (state.isAdmin &&
+        (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Please select a staff member before importing leads.',
+          ),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return; // stop here — don't even open the loading dialog
+    }
 
-  // Show loading while checking duplicates
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const Center(child: CircularProgressIndicator()),
-  );
-
-  final duplicateCount = await cubit.checkDuplicates(csvBytes: _pickedCsvBytes!);
-
-  if (!mounted) return;
-  Navigator.pop(context); // close loading
-
-  if (duplicateCount > 0) {
-    final confirmed = await showDialog<bool>(
+    // Show loading while checking duplicates
+    showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
-            SizedBox(width: 8),
-            Text(
-              'Duplicates Found',
-              style: AppTextStyle.medium(size: 13.sp, weight: FontWeight.w600),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your file contains $duplicateCount existing '
-              'lead${duplicateCount == 1 ? '' : 's'} with phone '
-              'numbers already in the system.',
-              style: AppTextStyle.medium(size: 11.sp),
-            ),
-            SizedBox(height: 1.5.h),
-            Container(
-              padding: EdgeInsets.all(1.w),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Duplicates will be skipped. Only unique leads will be imported.',
-                      style: AppTextStyle.medium(
-                          size: 10.sp, color: Colors.orange.shade800),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel',
-                style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Import Anyway',
-                style:
-                    AppTextStyle.medium(size: 11.sp, color: AppColors.white)),
-          ),
-        ],
-      ),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    if (confirmed != true) return;
-  }
+    final duplicateCount = await cubit.checkDuplicates(
+      csvBytes: _pickedCsvBytes!,
+    );
 
-  cubit.importLeads(csvBytes: _pickedCsvBytes!);
-}
+    if (!mounted) return;
+    Navigator.pop(context); // close loading
+
+    if (duplicateCount > 0) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+              SizedBox(width: 8),
+              Text(
+                'Duplicates Found',
+                style: AppTextStyle.medium(
+                  size: 13.sp,
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your file contains $duplicateCount existing '
+                'lead${duplicateCount == 1 ? '' : 's'} with phone '
+                'numbers already in the system.',
+                style: AppTextStyle.medium(size: 11.sp),
+              ),
+              SizedBox(height: 1.5.h),
+              Container(
+                padding: EdgeInsets.all(1.w),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.orange.shade700,
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Duplicates will be skipped. Only unique leads will be imported.',
+                        style: AppTextStyle.medium(
+                          size: 10.sp,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(
+                'Cancel',
+                style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                'Import Anyway',
+                style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return;
+    }
+
+    cubit.importLeads(csvBytes: _pickedCsvBytes!);
+  }
 }

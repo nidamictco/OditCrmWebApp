@@ -121,7 +121,7 @@ void showAssignStaffDialog(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (fromPage != "FOLLOW-UP")
+                        if (fromPage != "FOLLOWUP")
                           Text(
                             "${selectedLeads.length} lead(s) selected",
                             style: AppTextStyle.medium(

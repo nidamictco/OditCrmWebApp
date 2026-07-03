@@ -1,10 +1,9 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum ActivityType {
   leadCreated,
   statusChanged,
-  FOLLOW-UPAdded,
+  FOLLOWUPAdded,
   categoryChanged,
   priorityChanged,
   staffAssigned,
@@ -12,22 +11,21 @@ enum ActivityType {
   remarkUpdated,
   leadDeleted,
   unknown,
-  FOLLOW-UPDeleted,
+  FOLLOWUPDeleted,
 }
 
 class ActivityModel {
   final String id;
   final ActivityType type;
-  final String changedBy;      
+  final String changedBy;
   final String changedById;
   final DateTime changedAt;
   final String? previousValue;
   final String? newValue;
-  final String description; 
+  final String description;
   final String? leadId;
   final String? leadName;
   final String? leadPhone;
-    
 
   const ActivityModel({
     required this.id,
@@ -67,14 +65,14 @@ class ActivityModel {
     'previousValue': previousValue,
     'newValue': newValue,
     'description': description,
-    'leadId':leadId,
+    'leadId': leadId,
     'leadName': leadName,
     'leadPhone': leadPhone,
   };
 
   static ActivityType _parseType(String raw) {
     return ActivityType.values.firstWhere(
-          (e) => e.name == raw,
+      (e) => e.name == raw,
       orElse: () => ActivityType.unknown,
     );
   }

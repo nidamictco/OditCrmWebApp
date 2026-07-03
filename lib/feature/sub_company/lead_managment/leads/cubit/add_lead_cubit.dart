@@ -289,10 +289,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     // ── Duplicate contact check ───────────────────────────────────────────────
     if (updated.contactNumber.trim().isNotEmpty) {
-      final isContactDuplicate = await _leadRepository.isContactNumberExistsForOther(
-        updated.contactNumber,
-        id,
-      );
+      final isContactDuplicate = await _leadRepository
+          .isContactNumberExistsForOther(updated.contactNumber, id);
       if (isClosed) return;
       if (isContactDuplicate) {
         emit(
@@ -308,10 +306,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     // ── Duplicate whatsapp check ───────────────────────────────────────────────
     if (updated.whatsappNumber.trim().isNotEmpty) {
-      final isWhatsappDuplicate = await _leadRepository.isWhatsappNumberExistsForOther(
-        updated.whatsappNumber,
-        id,
-      );
+      final isWhatsappDuplicate = await _leadRepository
+          .isWhatsappNumberExistsForOther(updated.whatsappNumber, id);
       if (isClosed) return;
       if (isWhatsappDuplicate) {
         emit(
@@ -417,7 +413,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required String pinCode,
     required String postOffice,
     required String remarks,
-    required DateTime nextFOLLOW-UPDate,
+    required DateTime nextFOLLOWUPDate,
     Map<String, String> additionalFieldValues = const {},
   }) async {
     final now = DateTime.now();
@@ -521,7 +517,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         createdById: user?.id ?? '',
         callResult: state.selectedCallResult ?? '',
         leadTag: state.selectedLeadTag ?? '',
-        FOLLOW-UPDate: nextFOLLOW-UPDate,
+        FOLLOWUPDate: nextFOLLOWUPDate,
         additionalFields: additionalFieldValues,
         calledDate: calledDate,
       );
@@ -551,13 +547,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
       if (isClosed) return;
       if (state.selectedLeadStage.toString().toUpperCase() != 'NEW') {
-        final FOLLOW-UP = FOLLOW-UPModel(
+        final FOLLOWUP = FOLLOWUPModel(
           id: now.millisecondsSinceEpoch.toString(),
           leadId: leadId,
           leadName: clientName,
           leadWhatsappNo: whatsappNumber,
           leadWhatsappDialCode: whatsappDialCode,
-          nextFOLLOW-UPDate: nextFOLLOW-UPDate,
+          nextFOLLOWUPDate: nextFOLLOWUPDate,
           leadTag: state.selectedLeadTag ?? '',
           calledStatus: state.selectedCallResult ?? '',
           calledDate: calledDate!,
@@ -572,7 +568,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           createdById: user?.id ?? '',
           createdAt: now,
         );
-        await _leadRepository.addFOLLOW-UP(leadId, FOLLOW-UP);
+        await _leadRepository.addFOLLOWUP(leadId, FOLLOWUP);
       }
 
       if (isClosed) return;
@@ -712,13 +708,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // --------------add follow up--------------------------------
 
-  Future<void> submitFOLLOW-UPOld({
+  Future<void> submitFOLLOWUPOld({
     required String leadId,
     required String leadName,
     required String leadWhatsappNo,
     required String leadWhatsappDialCode,
     required DateTime calledDate,
-    required DateTime nextFOLLOW-UPDate,
+    required DateTime nextFOLLOWUPDate,
     required String calledStatus,
     required String remarks,
     required String address,
@@ -741,13 +737,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     try {
       final user = await SessionService().getSavedUser();
 
-      final FOLLOW-UP = FOLLOW-UPModel(
+      final FOLLOWUP = FOLLOWUPModel(
         leadId: leadId,
         leadName: leadName,
         leadWhatsappNo: leadWhatsappNo,
         leadWhatsappDialCode: leadWhatsappDialCode,
         calledDate: calledDate,
-        nextFOLLOW-UPDate: nextFOLLOW-UPDate,
+        nextFOLLOWUPDate: nextFOLLOWUPDate,
         leadTag: state.selectedLeadTag ?? '',
         calledStatus: calledStatus,
         leadStage: state.selectedLeadStage ?? '',
@@ -762,13 +758,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaffId: user?.id ?? '',
       );
 
-      await _leadRepository.addFOLLOW-UP(leadId, FOLLOW-UP);
+      await _leadRepository.addFOLLOWUP(leadId, FOLLOWUP);
 
       emit(
         state.copyWith(
           isSubmitting: false,
           status: AddLeadStatus.success,
-          successMessage: 'Follow-up added successfully.',
+          successMessage: 'FOLLOWUP added successfully.',
           clearError: true,
           clearCategory: true,
           clearPriority: true,
@@ -787,14 +783,14 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> submitFOLLOW-UP({
+  Future<void> submitFOLLOWUP({
     required String leadId,
     required String leadName,
     required String leadPhone,
     required String leadWhatsappNo,
     required String leadWhatsappDialCode,
     required DateTime calledDate,
-    required DateTime nextFOLLOW-UPDate,
+    required DateTime nextFOLLOWUPDate,
     required String leadTag,
     required String calledStatus,
     required String remarks,
@@ -837,14 +833,14 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       log("state.selectedLeadStage : ${state.selectedLeadStage}");
       log("state.selectedLeadTag : ${state.selectedLeadTag}");
 
-      final FOLLOW-UP = FOLLOW-UPModel(
+      final FOLLOWUP = FOLLOWUPModel(
         id: id,
         leadId: leadId,
         leadName: leadName,
         leadWhatsappNo: leadWhatsappNo,
         leadWhatsappDialCode: leadWhatsappDialCode,
         calledDate: calledDate,
-        nextFOLLOW-UPDate: nextFOLLOW-UPDate,
+        nextFOLLOWUPDate: nextFOLLOWUPDate,
         calledStatus: calledStatus,
         leadTag: state.selectedLeadTag ?? '',
         leadStage: state.selectedLeadStage ?? '',
@@ -859,12 +855,12 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaffId: user.id ?? '',
       );
       log(
-        'FOLLOW-UP date : ${FOLLOW-UP.nextFOLLOW-UPDate}, called date : ${FOLLOW-UP.calledDate},FOLLOW-UP datail: $FOLLOW-UP',
+        'FOLLOWUP date : ${FOLLOWUP.nextFOLLOWUPDate}, called date : ${FOLLOWUP.calledDate},FOLLOWUP datail: $FOLLOWUP',
       );
 
-      await _leadRepository.addFOLLOW-UP(
+      await _leadRepository.addFOLLOWUP(
         leadId,
-        FOLLOW-UP,
+        FOLLOWUP,
         previousStage: previousStage,
         previousCategory: previousCategory,
         previousPriority: previousPriority,
@@ -877,7 +873,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         state.copyWith(
           isSubmitting: false,
           status: AddLeadStatus.success,
-          successMessage: 'Follow-up added successfully.',
+          successMessage: 'FOLLOWUP added successfully.',
           clearError: true,
           clearCategory: true,
           clearPriority: true,
@@ -992,7 +988,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //       state.copyWith(
   //          isLoadingCounts: false,
   //         newLeadCount: counts.newLeadCount.toString(),
-  //         FOLLOW-UPCount: counts.FOLLOW-UPCount.toString(),
+  //         FOLLOWUPCount: counts.FOLLOWUPCount.toString(),
   //         closedLeadCount: counts.closedLeadCount.toString(),
   //         totalCalledCount: counts.totalCalledCount.toString(),
   //         missedLeadCount: counts.missedLeadCount.toString(),
@@ -1036,7 +1032,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //     emit(state.copyWith(
   //       isLoadingCounts:  false,
   //       newLeadCount:     counts.newLeadCount.toString(),
-  //       FOLLOW-UPCount:    counts.FOLLOW-UPCount.toString(),
+  //       FOLLOWUPCount:    counts.FOLLOWUPCount.toString(),
   //       closedLeadCount:  counts.closedLeadCount.toString(),
   //       totalCalledCount: counts.totalCalledCount.toString(),
   //       missedLeadCount:  counts.missedLeadCount.toString(),
@@ -1063,7 +1059,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (_lastCountDate == null && selectedDate == null) {
       isSameDate = true;
     } else if (_lastCountDate != null && selectedDate != null) {
-      isSameDate = _lastCountDate!.year == selectedDate.year &&
+      isSameDate =
+          _lastCountDate!.year == selectedDate.year &&
           _lastCountDate!.month == selectedDate.month &&
           _lastCountDate!.day == selectedDate.day;
     }
@@ -1120,7 +1117,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         state.copyWith(
           isLoadingCounts: false,
           newLeadCount: counts.newLeadCount.toString(),
-          FOLLOW-UPCount: counts.FOLLOW-UPCount.toString(),
+          FOLLOWUPCount: counts.FOLLOWUPCount.toString(),
           closedLeadCount: counts.closedLeadCount.toString(),
           totalCalledCount: counts.totalCalledCount.toString(),
           dashboardTotalCalledCount: totalCalled.toString(),
@@ -1358,9 +1355,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> deleteFOLLOW-UP({
+  Future<void> deleteFOLLOWUP({
     required String leadId,
-    required String FOLLOW-UPId,
+    required String FOLLOWUPId,
     required String changedByName,
     required String changedById,
     required String leadName,
@@ -1369,9 +1366,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     try {
       emit(state.copyWith(status: AddLeadStatus.loading, clearError: true));
 
-      await _leadRepository.deleteFOLLOW-UP(
+      await _leadRepository.deleteFOLLOWUP(
         leadId: leadId,
-        FOLLOW-UPId: FOLLOW-UPId,
+        FOLLOWUPId: FOLLOWUPId,
         changedByName: changedByName,
         changedById: changedById,
         leadName: leadName,
@@ -1381,7 +1378,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       emit(
         state.copyWith(
           status: AddLeadStatus.success,
-          successMessage: 'Follow-up deleted successfully.',
+          successMessage: 'FOLLOWUP deleted successfully.',
         ),
       );
     } catch (e) {
@@ -1394,7 +1391,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  // void setFOLLOW-UP4Edit(){
+  // void setFOLLOWUP4Edit(){
   //   emit(state.copyWith(
   //     status: AddLeadStatus.loading,
   //     clearError: true,
@@ -1403,7 +1400,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //   ));
 
   // }
-  void setFOLLOW-UP4Edit() {
+  void setFOLLOWUP4Edit() {
     emit(
       state.copyWith(
         status: AddLeadStatus.loading,
@@ -1423,8 +1420,8 @@ Future<void> migrateCallResults() async {
   final leadsSnap = await db.collection('LEADS').get();
 
   for (final leadDoc in leadsSnap.docs) {
-    // Get the latest follow-up for this lead
-    final FOLLOW-UPsSnap = await db
+    // Get the latest FOLLOWUP for this lead
+    final FOLLOWUPsSnap = await db
         .collection('LEADS')
         .doc(leadDoc.id)
         .collection('FOLLOW_UPS')
@@ -1432,10 +1429,10 @@ Future<void> migrateCallResults() async {
         .limit(1)
         .get();
 
-    if (FOLLOW-UPsSnap.docs.isEmpty) continue;
+    if (FOLLOWUPsSnap.docs.isEmpty) continue;
 
     final latestCalledStatus =
-        FOLLOW-UPsSnap.docs.first.data()['calledStatus'] as String? ?? '';
+        FOLLOWUPsSnap.docs.first.data()['calledStatus'] as String? ?? '';
 
     if (latestCalledStatus.isEmpty) continue;
 

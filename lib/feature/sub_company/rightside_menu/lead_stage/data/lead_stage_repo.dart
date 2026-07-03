@@ -32,7 +32,7 @@ class LeadStageRepository implements ILeadStageRepository {
 
       const List<String> defaultStagesOrder = [
         'NEW',
-        'FOLLOW-UP',
+        'FOLLOWUP',
         'CLOSED',
         'REJECTED',
         'TRANSFERRED',
@@ -69,7 +69,7 @@ class LeadStageRepository implements ILeadStageRepository {
         final batch = _firestore.batch();
         final defaultStages = [
           'New',
-          'FOLLOW-UP',
+          'FOLLOWUP',
           'Closed',
           'Rejected',
           'Transferred',

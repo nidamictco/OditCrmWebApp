@@ -383,10 +383,10 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                             Material(
                               color: Colors.transparent,
                               child: DashboardCard(
-                                title: "FOLLOW-UP LEADS",
+                                title: "FOLLOWUP LEADS",
                                 message:
-                                    'The current count of leads assigned \nfor today, including missed follow-up leads.',
-                                fromCard: 'FOLLOW-UP',
+                                    'The current count of leads assigned \nfor today, including missed FOLLOWUP leads.',
+                                fromCard: 'FOLLOWUP',
                               ),
                             ),
                             Material(

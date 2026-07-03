@@ -18,10 +18,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void initState() {
     super.initState();
 
-    /// Sample event (like FOLLOW-UP: 44)
+    /// Sample event (like FOLLOWUP: 44)
     _controller.add(
       CalendarEventData(
-        title: "FOLLOW-UP: 44",
+        title: "FOLLOWUP: 44",
         date: DateTime.now(),
         color: Colors.green,
       ),
@@ -156,7 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  /// 🔷 EVENT UI (Green FOLLOW-UP bar like your screenshot)
+  /// 🔷 EVENT UI (Green FOLLOWUP bar like your screenshot)
   Widget _eventTile(
     DateTime date,
     List<CalendarEventData> events,

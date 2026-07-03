@@ -105,8 +105,8 @@ class _DashboardCardState extends State<DashboardCard> {
                     count = state.newLeadCount;
                     break;
 
-                  case 'FOLLOW-UP':
-                    count = state.FOLLOW - UPCount;
+                  case 'FOLLOWUP':
+                    count = state.FOLLOWUPCount;
                     break;
 
                   case 'CLOSED':
@@ -174,8 +174,8 @@ class _DashboardCardState extends State<DashboardCard> {
                         count = state.newLeadCount;
                         break;
 
-                      case 'FOLLOW-UP':
-                        count = state.FOLLOW - UPCount;
+                      case 'FOLLOWUP':
+                        count = state.FOLLOWUPCount;
                         break;
 
                       case 'CLOSED':

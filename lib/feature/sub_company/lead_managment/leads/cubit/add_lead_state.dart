@@ -155,7 +155,7 @@ class AddLeadState {
     List<StaffModel>? staffList,
     bool? isLoadingAdditionalFields,
     String? newLeadCount,
-    String? FOLLOW-UPCount,
+    String? FOLLOWUPCount,
     String? closedLeadCount,
     String? totalCalledCount,
     String? dashboardTotalCalledCount,

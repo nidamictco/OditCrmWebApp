@@ -1,4 +1,4 @@
-class FOLLOW-UPEntry {
+class FOLLOWUPEntry {
   final String date;
   final String time;
   final String agent;
@@ -9,7 +9,7 @@ class FOLLOW-UPEntry {
   final String status;
   final String products;
 
-  const FOLLOW-UPEntry({
+  const FOLLOWUPEntry({
     required this.date,
     required this.time,
     required this.agent,

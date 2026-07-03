@@ -26,8 +26,8 @@ class AddLeadModel {
   final String createdById;
   final Map<String, String>? additionalFields;
   final DateTime? deletedAt;
-  final List<FOLLOW-UPModel>? FOLLOW-UP;
-  final DateTime? FOLLOW-UPDate;
+  final List<FOLLOWUPModel>? FOLLOWUP;
+  final DateTime? FOLLOWUPDate;
   final DateTime? calledDate;
   final String? leadTag;
   final String? callResult;
@@ -59,10 +59,10 @@ class AddLeadModel {
     required this.createdById,
     this.additionalFields,
     this.deletedAt,
-    this.FOLLOW-UPDate,
+    this.FOLLOWUPDate,
     this.calledDate,
 
-    this.FOLLOW-UP,
+    this.FOLLOWUP,
     this.leadTag = '',
     this.callResult = '',
     this.transferLeads,
@@ -95,13 +95,13 @@ class AddLeadModel {
       'updatedAt': null,
       'additionalFields': additionalFields,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
-      'nextFOLLOW-UPDate': FOLLOW-UPDate != null
-          ? Timestamp.fromDate(FOLLOW-UPDate!)
+      'nextFOLLOWUPDate': FOLLOWUPDate != null
+          ? Timestamp.fromDate(FOLLOWUPDate!)
           : null,
       'lastCalledDate': calledDate != null
           ? Timestamp.fromDate(calledDate!)
           : null,
-      // 'FOLLOW-UP': FOLLOW-UP != null ? FOLLOW-UP!.map((e) => e.toFirestore()).toList() : [],
+      // 'FOLLOWUP': FOLLOWUP != null ? FOLLOWUP!.map((e) => e.toFirestore()).toList() : [],
       'leadTag': leadTag,
       'callResult': callResult,
       'transferLeads': transferLeads != null
@@ -139,11 +139,11 @@ class AddLeadModel {
           ? Map<String, String>.from(data['additionalFields'])
           : null,
       deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
-      FOLLOW-UPDate: (data['nextFOLLOW-UPDate'] as Timestamp?)?.toDate(),
+      FOLLOWUPDate: (data['nextFOLLOWUPDate'] as Timestamp?)?.toDate(),
       calledDate: (data['lastCalledDate'] as Timestamp?)?.toDate(),
-      FOLLOW-UP: data['FOLLOW-UP'] != null
-          ? (data['FOLLOW-UP'] as List<dynamic>)
-                .map((e) => FOLLOW-UPModel.fromFirestore(e, ''))
+      FOLLOWUP: data['FOLLOWUP'] != null
+          ? (data['FOLLOWUP'] as List<dynamic>)
+                .map((e) => FOLLOWUPModel.fromFirestore(e, ''))
                 .toList()
           : null,
       leadTag: data['leadTag'] ?? '',
@@ -182,9 +182,9 @@ class AddLeadModel {
     String? createdById,
     Map<String, String>? additionalFields,
     DateTime? deletedAt,
-    DateTime? FOLLOW-UPDate,
+    DateTime? FOLLOWUPDate,
     DateTime? calledDate,
-    List<FOLLOW-UPModel>? FOLLOW-UP,
+    List<FOLLOWUPModel>? FOLLOWUP,
     String? leadTag,
     String? callResult,
     List<TransferDetails>? transferLeads,
@@ -215,9 +215,9 @@ class AddLeadModel {
       createdById: createdById ?? this.createdById,
       additionalFields: additionalFields ?? this.additionalFields,
       deletedAt: deletedAt ?? this.deletedAt,
-      FOLLOW-UPDate: FOLLOW-UPDate ?? this.FOLLOW-UPDate,
+      FOLLOWUPDate: FOLLOWUPDate ?? this.FOLLOWUPDate,
       calledDate: calledDate ?? this.calledDate,
-      FOLLOW-UP: FOLLOW-UP ?? this.FOLLOW-UP,
+      FOLLOWUP: FOLLOWUP ?? this.FOLLOWUP,
       leadTag: leadTag ?? this.leadTag,
       callResult: callResult ?? this.callResult,
       transferLeads: transferLeads ?? this.transferLeads,
@@ -234,13 +234,13 @@ class AddLeadModel {
   }
 }
 
-class FOLLOW-UPModel {
+class FOLLOWUPModel {
   final String? id;
   final String leadId;
   final String leadName;
   final String leadWhatsappNo;
   final String leadWhatsappDialCode;
-  final DateTime nextFOLLOW-UPDate;
+  final DateTime nextFOLLOWUPDate;
   final String leadTag;
   final String calledStatus;
   final DateTime calledDate;
@@ -256,13 +256,13 @@ class FOLLOW-UPModel {
   final String createdById;
   final DateTime? createdAt;
 
-  const FOLLOW-UPModel({
+  const FOLLOWUPModel({
     this.id,
     required this.leadId,
     required this.leadName,
     required this.leadWhatsappNo,
     required this.leadWhatsappDialCode,
-    required this.nextFOLLOW-UPDate,
+    required this.nextFOLLOWUPDate,
     required this.leadTag,
     required this.calledStatus,
     required this.calledDate,
@@ -278,15 +278,15 @@ class FOLLOW-UPModel {
     this.createdAt,
   });
 
-  factory FOLLOW-UPModel.fromFirestore(Map<String, dynamic> data, String docId) {
-    return FOLLOW-UPModel(
+  factory FOLLOWUPModel.fromFirestore(Map<String, dynamic> data, String docId) {
+    return FOLLOWUPModel(
       id: docId,
       leadId: data['leadId'] ?? '',
       leadName: data['leadName'] ?? '',
       leadWhatsappNo: data['leadWhatsappNo'] ?? '',
       leadWhatsappDialCode: data['leadWhatsappDialCode'] ?? '',
-      nextFOLLOW-UPDate:
-          (data['nextFOLLOW-UPDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      nextFOLLOWUPDate:
+          (data['nextFOLLOWUPDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       leadTag: data['leadTag'] ?? '',
       calledStatus: data['calledStatus'] ?? '',
       calledDate:
@@ -310,7 +310,7 @@ class FOLLOW-UPModel {
       'leadName': leadName,
       'leadWhatsappNo': leadWhatsappNo,
       'leadWhatsappDialCode': leadWhatsappDialCode,
-      'nextFOLLOW-UPDate': Timestamp.fromDate(nextFOLLOW-UPDate),
+      'nextFOLLOWUPDate': Timestamp.fromDate(nextFOLLOWUPDate),
       'leadTag': leadTag,
       'calledStatus': calledStatus,
       'calledDate': Timestamp.fromDate(calledDate),
@@ -329,13 +329,13 @@ class FOLLOW-UPModel {
     };
   }
 
-  FOLLOW-UPModel copyWith({
+  FOLLOWUPModel copyWith({
     String? id,
     String? leadId,
     String? leadName,
     String? leadWhatsappNo,
     String? leadWhatsappDialCode,
-    DateTime? nextFOLLOW-UPDate,
+    DateTime? nextFOLLOWUPDate,
     String? leadTag,
     String? calledStatus,
     DateTime? calledDate,
@@ -350,13 +350,13 @@ class FOLLOW-UPModel {
     String? createdById,
     DateTime? createdAt,
   }) {
-    return FOLLOW-UPModel(
+    return FOLLOWUPModel(
       id: id ?? this.id,
       leadId: leadId ?? this.leadId,
       leadName: leadName ?? this.leadName,
       leadWhatsappNo: leadWhatsappNo ?? this.leadWhatsappNo,
       leadWhatsappDialCode: leadWhatsappDialCode ?? this.leadWhatsappDialCode,
-      nextFOLLOW-UPDate: nextFOLLOW-UPDate ?? this.nextFOLLOW-UPDate,
+      nextFOLLOWUPDate: nextFOLLOWUPDate ?? this.nextFOLLOWUPDate,
       leadTag: leadTag ?? this.leadTag,
       calledStatus: calledStatus ?? this.calledStatus,
       calledDate: calledDate ?? this.calledDate,

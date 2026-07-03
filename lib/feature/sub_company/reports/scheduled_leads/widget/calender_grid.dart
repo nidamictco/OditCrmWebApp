@@ -9,7 +9,7 @@ class CalendarGrid extends StatelessWidget {
   final List<Map<String, dynamic>> data = List.generate(35, (index) {
     return {
       "day": index + 1,
-      "event": index % 5 == 0 ? "FOLLOW-UP: ${index + 1}" : null,
+      "event": index % 5 == 0 ? "FOLLOWUP: ${index + 1}" : null,
     };
   });
 

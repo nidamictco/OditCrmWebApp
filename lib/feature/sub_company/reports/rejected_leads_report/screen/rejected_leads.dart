@@ -814,7 +814,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                       TableColumn(title: "Status", flex: 4),
                                       TableColumn(title: "Reason", flex: 4),
                                       TableColumn(
-                                        title: "FOLLOW-UP Date",
+                                        title: "FOLLOWUP Date",
                                         flex: 5,
                                       ),
                                       TableColumn(
@@ -868,10 +868,10 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         Text(
-                                          lead.FOLLOW - UPDate != null
+                                          lead.FOLLOWUPDate != null
                                               ? DateFormat(
                                                   'dd-MM-yyyy',
-                                                ).format(lead.FOLLOW - UPDate!)
+                                                ).format(lead.FOLLOWUPDate!)
                                               : '--',
                                           style: AppTextStyle.medium(),
                                         ),

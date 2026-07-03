@@ -93,7 +93,7 @@ class MainScreen extends StatefulWidget {
   ///   • Every sidebar-menu navigation  (sidebar → any screen)
   ///   • Every in-app flow that should "bottom out" at Dashboard
   ///     e.g. Dashboard card → LeadListing (index 12)
-  ///          LeadListing → FOLLOW-UP (index 31)
+  ///          LeadListing → FOLLOWUP (index 31)
   ///          ViewStaff → StaffProfile (index 29)
   final bool goToDashboardOnBack;
 
@@ -561,7 +561,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             ),
             BlocProvider(create: (_) => LeadCategoryCubit()),
           ],
-          child: FOLLOW - UPDetailsScreen(currentLead: widget.lead!),
+          child: FOLLOWUPDetailsScreen(currentLead: widget.lead!),
         );
       case 32:
         if (widget.staff == null) return const SizedBox();
@@ -838,7 +838,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //   ///   • Every sidebar-menu navigation  (sidebar → any screen)
 //   ///   • Every in-app navigation that should "bottom out" at Dashboard
 //   ///     e.g. Dashboard card → LeadListing (index 12), or
-//   ///          LeadListing → FOLLOW-UP (index 31)
+//   ///          LeadListing → FOLLOWUP (index 31)
 //   final bool goToDashboardOnBack;
 
 //   const MainScreen({
@@ -1313,7 +1313,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //             ),
 //             BlocProvider(create: (context) => LeadCategoryCubit()),
 //           ],
-//           child: FOLLOW-UPDetailsScreen(currentLead: widget.lead!),
+//           child: FOLLOWUPDetailsScreen(currentLead: widget.lead!),
 //         );
 //       case 32:
 //         if (widget.staff == null) return const SizedBox();
@@ -1405,7 +1405,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //     //    → block native pop; show exit alert instead.
 //     //
 //     // 2. Any screen with goToDashboardOnBack == true
-//     //    (sidebar screens, LeadListing from dashboard card, FOLLOW-UP, etc.)
+//     //    (sidebar screens, LeadListing from dashboard card, FOLLOWUP, etc.)
 //     //    → block native pop; manually pop to root (Dashboard).
 //     //
 //     // 3. Sub-screens that are genuine OS-level pushes on top of another route
@@ -2020,7 +2020,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //             ),
 //             BlocProvider(create: (context) => LeadCategoryCubit()),
 //           ],
-//           child: FOLLOW-UPDetailsScreen(currentLead: widget.lead!),
+//           child: FOLLOWUPDetailsScreen(currentLead: widget.lead!),
 //         );
 //       case 32:
 //         if (widget.staff == null) return const SizedBox();
