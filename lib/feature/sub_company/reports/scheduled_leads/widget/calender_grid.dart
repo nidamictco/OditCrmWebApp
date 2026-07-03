@@ -9,7 +9,7 @@ class CalendarGrid extends StatelessWidget {
   final List<Map<String, dynamic>> data = List.generate(35, (index) {
     return {
       "day": index + 1,
-      "event": index % 5 == 0 ? "FollowUp: ${index + 1}" : null
+      "event": index % 5 == 0 ? "FOLLOW-UP: ${index + 1}" : null,
     };
   });
 
@@ -32,8 +32,6 @@ class CalendarGrid extends StatelessWidget {
     );
   }
 }
-
-
 
 class CalendarCell extends StatelessWidget {
   final int day;
@@ -62,10 +60,7 @@ class CalendarCell extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "$day",
-              style: AppTextStyle.small(),
-            ),
+            Text("$day", style: AppTextStyle.small()),
             const Spacer(),
 
             if (event != null)

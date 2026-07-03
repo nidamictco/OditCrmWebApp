@@ -28,7 +28,7 @@ import '../staff_managment/staff/model/staff_model.dart';
 
 Color getLeadStatusColor(String status) {
   switch (status) {
-    case 'FOLLOWUP':
+    case 'FOLLOW-UP':
       return const Color(0xFFF59E0B);
     case 'NEW':
       return const Color(0xFF10B981);
@@ -212,8 +212,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           case 'NEW':
             dateToCheck = lead.createdAt;
             break;
-          case 'FOLLOWUP':
-            dateToCheck = lead.followUpDate;
+          case 'FOLLOW-UP':
+            dateToCheck = lead.FOLLOW - UPDate;
             break;
           case 'TOTAL':
             dateToCheck = lead.calledDate;
@@ -1336,7 +1336,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         //   TableColumn(title: 'LEAD CATEGORY', flex: isNew ? 5 : 3),
         //   TableColumn(title: 'STAFF', flex: isNew ? 4 : 2),
         //   TableColumn(title: 'STATUS', flex: isNew ? 4 : 2),
-        //   if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 3),
+        //   if (!isNew) TableColumn(title: 'FOLLOW-UP DATE', flex: 3),
         //   if (!isNew) TableColumn(title: 'CALLED DATE', flex: 3),
         //   TableColumn(title: 'ACTION', flex: 2),
         // ];
@@ -1348,7 +1348,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           TableColumn(title: 'LEAD CATEGORY', width: 150),
           TableColumn(title: 'STAFF', flex: 5),
           TableColumn(title: 'STATUS', flex: 4),
-          if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 4),
+          if (!isNew) TableColumn(title: 'FOLLOW-UP DATE', flex: 4),
           if (!isNew) TableColumn(title: 'CALLED DATE', flex: 4),
           TableColumn(title: 'ACTION', flex: 2),
         ];
@@ -1436,8 +1436,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
             if (!isNew)
               Text(
-                lead.followUpDate != null
-                    ? _fmt.format(lead.followUpDate!)
+                lead.FOLLOW - UPDate != null
+                    ? _fmt.format(lead.FOLLOW - UPDate!)
                     : '',
                 style: _dateStyle,
               ),

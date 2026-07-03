@@ -1599,7 +1599,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   //       children: [
   //         _row(true, 'Category', 'New', 'Follow Up', 'Rejected', 'Closed'),
   //         _row(false, 'Uncategorized', '0', '1', '0', '0'),
-  //         _row(false, 'Need Followup', '0', '57', '2', '0'),
+  //         _row(false, 'Need FOLLOW-UP', '0', '57', '2', '0'),
   //         _row(false, 'Not Contacted', '0', '67', '19', '0'),
   //         _row(false, 'Fake', '0', '5', '2', '0'),
   //         _row(false, 'Visited', '0', '3', '0', '0'),
@@ -1633,7 +1633,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
                 false,
                 r.category,
                 '${r.newCount}',
-                '${r.followUpCount}',
+                '${r.FOLLOW-UPCount}',
                 '${r.rejectedCount}',
                 '${r.closedCount}',
               ),
@@ -1776,14 +1776,14 @@ class _GridPatternPainter extends CustomPainter {
 class LeadCategoryTableRow {
   final String category;
   final int newCount;
-  final int followUpCount;
+  final int FOLLOW-UPCount;
   final int rejectedCount;
   final int closedCount;
 
   const LeadCategoryTableRow({
     required this.category,
     this.newCount = 0,
-    this.followUpCount = 0,
+    this.FOLLOW-UPCount = 0,
     this.rejectedCount = 0,
     this.closedCount = 0,
   });

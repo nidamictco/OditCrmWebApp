@@ -58,12 +58,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final TextEditingController _postOfficeCtrl = TextEditingController();
   final TextEditingController _remarksCtrl = TextEditingController();
   final TextEditingController _dialogNameCtrl = TextEditingController();
-  final TextEditingController nextFollowUpCtrl = TextEditingController(
+  final TextEditingController nextFOLLOW-UPCtrl = TextEditingController(
     text: DateFormat(
       'dd-MM-yyyy hh:mm a',
     ).format(DateTime.now().add(const Duration(days: 1))),
   );
-  DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
+  DateTime nextFOLLOW-UPDate = DateTime.now().add(const Duration(days: 1));
   DateTime calledDateValue = DateTime.now();
 
   // ── FocusNodes — fixed fields ────────────────────────────────────────────────
@@ -221,14 +221,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
     _leadPriority = lead.priority;
-    // nextFollowUpDate =
-    //     lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
-    // nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(nextFollowUpDate);
-    if (lead.followUpDate != null) {
-      nextFollowUpDate = lead.followUpDate!;
-      nextFollowUpCtrl.text = DateFormat(
+    // nextFOLLOW-UPDate =
+    //     lead.FOLLOW-UPDate ?? DateTime.now().add(const Duration(days: 1));
+    // nextFOLLOW-UPCtrl.text = DateFormat('dd-MM-yyyy').format(nextFOLLOW-UPDate);
+    if (lead.FOLLOW-UPDate != null) {
+      nextFOLLOW-UPDate = lead.FOLLOW-UPDate!;
+      nextFOLLOW-UPCtrl.text = DateFormat(
         'dd-MM-yyyy hh:mm a',
-      ).format(nextFollowUpDate!);
+      ).format(nextFOLLOW-UPDate!);
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -276,7 +276,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _postOfficeCtrl.dispose();
     _remarksCtrl.dispose();
     _dialogNameCtrl.dispose();
-    nextFollowUpCtrl.dispose();
+    nextFOLLOW-UPCtrl.dispose();
     for (final c in _additionalCtrlMap.values) c.dispose();
 
     // Focus nodes — fixed
@@ -448,7 +448,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             : widget.lead!.additionalFields,
         callResult: state.selectedCallResult ?? widget.lead!.callResult,
         leadTag: state.selectedLeadTag ?? widget.lead!.leadTag,
-        followUpDate: nextFollowUpDate,
+        FOLLOW-UPDate: nextFOLLOW-UPDate,
       );
       cubit.updateLead(widget.lead!.id!, updated);
     } else {
@@ -463,7 +463,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         pinCode: _pinCtrl.text,
         postOffice: _postOfficeCtrl.text,
         remarks: _remarksCtrl.text,
-        nextFollowUpDate: nextFollowUpDate,
+        nextFOLLOW-UPDate: nextFOLLOW-UPDate,
         additionalFieldValues: additionalValues,
       );
     }
@@ -1125,7 +1125,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     Column(
                       children: [
                         SizedBox(height: 1.5.h),
-                        if (_leadStage == 'FOLLOWUP')
+                        if (_leadStage == 'FOLLOW-UP')
                           Row(
                             children: [
                               SizedBox(
@@ -1143,7 +1143,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                         final result =
                                             await showCalendarDialogUsingTimePicker(
                                               context,
-                                              initialDate: nextFollowUpDate,
+                                              initialDate: nextFOLLOW-UPDate,
                                               mode: CalendarMode.single,
                                               showTimePicker:
                                                   true, // ← shows time picker
@@ -1152,8 +1152,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                             );
                                         if (result != null) {
                                           setState(() {
-                                            nextFollowUpDate = result.from;
-                                            nextFollowUpCtrl.text = DateFormat(
+                                            nextFOLLOW-UPDate = result.from;
+                                            nextFOLLOW-UPCtrl.text = DateFormat(
                                               'dd-MM-yyyy hh:mm a',
                                             ).format(result.from);
                                           });
@@ -1177,7 +1177,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                         ),
                                         child: IgnorePointer(
                                           child: TextField(
-                                            controller: nextFollowUpCtrl,
+                                            controller: nextFOLLOW-UPCtrl,
                                             readOnly: true,
                                             style: AppTextStyle.small(
                                               size: 11.sp,
@@ -1185,7 +1185,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                             ),
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              hintText: nextFollowUpCtrl.text,
+                                              hintText: nextFOLLOW-UPCtrl.text,
                                               hintStyle: AppTextStyle.small(
                                                 size: 11.sp,
                                                 color: AppColors.black,
@@ -1278,7 +1278,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-  void _pickFollowUpDate(BuildContext context) {
+  void _pickFOLLOW-UPDate(BuildContext context) {
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.4),
@@ -1287,11 +1287,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
         child: SizedBox(
           width: 28.w,
           child: CustomCalendarPickOne(
-            initialDate: nextFollowUpDate,
+            initialDate: nextFOLLOW-UPDate,
             onDateSelected: (date) {
               setState(() {
-                nextFollowUpDate = date;
-                nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(date);
+                nextFOLLOW-UPDate = date;
+                nextFOLLOW-UPCtrl.text = DateFormat('dd-MM-yyyy').format(date);
               });
               Navigator.pop(context);
             },

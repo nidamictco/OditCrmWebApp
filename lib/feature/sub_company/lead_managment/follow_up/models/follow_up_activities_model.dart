@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum ActivityType {
   leadCreated,
   statusChanged,
-  followupAdded,
+  FOLLOW-UPAdded,
   categoryChanged,
   priorityChanged,
   staffAssigned,
@@ -12,7 +12,7 @@ enum ActivityType {
   remarkUpdated,
   leadDeleted,
   unknown,
-  followupDeleted,
+  FOLLOW-UPDeleted,
 }
 
 class ActivityModel {

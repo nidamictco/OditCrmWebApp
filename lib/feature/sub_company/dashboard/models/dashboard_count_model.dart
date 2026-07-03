@@ -1,6 +1,6 @@
 class DashboardCountModel {
   final int newLeadCount;
-  final int followUpCount;
+  final int FOLLOW-UPCount;
   final int closedLeadCount;
   final int totalCalledCount;
   final int missedLeadCount;
@@ -8,7 +8,7 @@ class DashboardCountModel {
 
   const DashboardCountModel({
     required this.newLeadCount,
-    required this.followUpCount,
+    required this.FOLLOW-UPCount,
     required this.closedLeadCount,
     required this.totalCalledCount,
     required this.missedLeadCount,

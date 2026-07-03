@@ -417,7 +417,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     required String pinCode,
     required String postOffice,
     required String remarks,
-    required DateTime nextFollowUpDate,
+    required DateTime nextFOLLOW-UPDate,
     Map<String, String> additionalFieldValues = const {},
   }) async {
     final now = DateTime.now();
@@ -521,7 +521,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         createdById: user?.id ?? '',
         callResult: state.selectedCallResult ?? '',
         leadTag: state.selectedLeadTag ?? '',
-        followUpDate: nextFollowUpDate,
+        FOLLOW-UPDate: nextFOLLOW-UPDate,
         additionalFields: additionalFieldValues,
         calledDate: calledDate,
       );
@@ -551,13 +551,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
       if (isClosed) return;
       if (state.selectedLeadStage.toString().toUpperCase() != 'NEW') {
-        final followup = FollowUpModel(
+        final FOLLOW-UP = FOLLOW-UPModel(
           id: now.millisecondsSinceEpoch.toString(),
           leadId: leadId,
           leadName: clientName,
           leadWhatsappNo: whatsappNumber,
           leadWhatsappDialCode: whatsappDialCode,
-          nextFollowUpDate: nextFollowUpDate,
+          nextFOLLOW-UPDate: nextFOLLOW-UPDate,
           leadTag: state.selectedLeadTag ?? '',
           calledStatus: state.selectedCallResult ?? '',
           calledDate: calledDate!,
@@ -572,7 +572,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           createdById: user?.id ?? '',
           createdAt: now,
         );
-        await _leadRepository.addFollowUp(leadId, followup);
+        await _leadRepository.addFOLLOW-UP(leadId, FOLLOW-UP);
       }
 
       if (isClosed) return;
@@ -712,13 +712,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // --------------add follow up--------------------------------
 
-  Future<void> submitFollowUpOld({
+  Future<void> submitFOLLOW-UPOld({
     required String leadId,
     required String leadName,
     required String leadWhatsappNo,
     required String leadWhatsappDialCode,
     required DateTime calledDate,
-    required DateTime nextFollowUpDate,
+    required DateTime nextFOLLOW-UPDate,
     required String calledStatus,
     required String remarks,
     required String address,
@@ -741,13 +741,13 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     try {
       final user = await SessionService().getSavedUser();
 
-      final followUp = FollowUpModel(
+      final FOLLOW-UP = FOLLOW-UPModel(
         leadId: leadId,
         leadName: leadName,
         leadWhatsappNo: leadWhatsappNo,
         leadWhatsappDialCode: leadWhatsappDialCode,
         calledDate: calledDate,
-        nextFollowUpDate: nextFollowUpDate,
+        nextFOLLOW-UPDate: nextFOLLOW-UPDate,
         leadTag: state.selectedLeadTag ?? '',
         calledStatus: calledStatus,
         leadStage: state.selectedLeadStage ?? '',
@@ -762,7 +762,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaffId: user?.id ?? '',
       );
 
-      await _leadRepository.addFollowUp(leadId, followUp);
+      await _leadRepository.addFOLLOW-UP(leadId, FOLLOW-UP);
 
       emit(
         state.copyWith(
@@ -787,14 +787,14 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> submitFollowUp({
+  Future<void> submitFOLLOW-UP({
     required String leadId,
     required String leadName,
     required String leadPhone,
     required String leadWhatsappNo,
     required String leadWhatsappDialCode,
     required DateTime calledDate,
-    required DateTime nextFollowUpDate,
+    required DateTime nextFOLLOW-UPDate,
     required String leadTag,
     required String calledStatus,
     required String remarks,
@@ -837,14 +837,14 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       log("state.selectedLeadStage : ${state.selectedLeadStage}");
       log("state.selectedLeadTag : ${state.selectedLeadTag}");
 
-      final followUp = FollowUpModel(
+      final FOLLOW-UP = FOLLOW-UPModel(
         id: id,
         leadId: leadId,
         leadName: leadName,
         leadWhatsappNo: leadWhatsappNo,
         leadWhatsappDialCode: leadWhatsappDialCode,
         calledDate: calledDate,
-        nextFollowUpDate: nextFollowUpDate,
+        nextFOLLOW-UPDate: nextFOLLOW-UPDate,
         calledStatus: calledStatus,
         leadTag: state.selectedLeadTag ?? '',
         leadStage: state.selectedLeadStage ?? '',
@@ -859,12 +859,12 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaffId: user.id ?? '',
       );
       log(
-        'followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp',
+        'FOLLOW-UP date : ${FOLLOW-UP.nextFOLLOW-UPDate}, called date : ${FOLLOW-UP.calledDate},FOLLOW-UP datail: $FOLLOW-UP',
       );
 
-      await _leadRepository.addFollowUp(
+      await _leadRepository.addFOLLOW-UP(
         leadId,
-        followUp,
+        FOLLOW-UP,
         previousStage: previousStage,
         previousCategory: previousCategory,
         previousPriority: previousPriority,
@@ -992,7 +992,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //       state.copyWith(
   //          isLoadingCounts: false,
   //         newLeadCount: counts.newLeadCount.toString(),
-  //         followUpCount: counts.followUpCount.toString(),
+  //         FOLLOW-UPCount: counts.FOLLOW-UPCount.toString(),
   //         closedLeadCount: counts.closedLeadCount.toString(),
   //         totalCalledCount: counts.totalCalledCount.toString(),
   //         missedLeadCount: counts.missedLeadCount.toString(),
@@ -1036,7 +1036,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //     emit(state.copyWith(
   //       isLoadingCounts:  false,
   //       newLeadCount:     counts.newLeadCount.toString(),
-  //       followUpCount:    counts.followUpCount.toString(),
+  //       FOLLOW-UPCount:    counts.FOLLOW-UPCount.toString(),
   //       closedLeadCount:  counts.closedLeadCount.toString(),
   //       totalCalledCount: counts.totalCalledCount.toString(),
   //       missedLeadCount:  counts.missedLeadCount.toString(),
@@ -1120,7 +1120,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         state.copyWith(
           isLoadingCounts: false,
           newLeadCount: counts.newLeadCount.toString(),
-          followUpCount: counts.followUpCount.toString(),
+          FOLLOW-UPCount: counts.FOLLOW-UPCount.toString(),
           closedLeadCount: counts.closedLeadCount.toString(),
           totalCalledCount: counts.totalCalledCount.toString(),
           dashboardTotalCalledCount: totalCalled.toString(),
@@ -1358,9 +1358,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> deleteFollowUp({
+  Future<void> deleteFOLLOW-UP({
     required String leadId,
-    required String followUpId,
+    required String FOLLOW-UPId,
     required String changedByName,
     required String changedById,
     required String leadName,
@@ -1369,9 +1369,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     try {
       emit(state.copyWith(status: AddLeadStatus.loading, clearError: true));
 
-      await _leadRepository.deleteFollowUp(
+      await _leadRepository.deleteFOLLOW-UP(
         leadId: leadId,
-        followUpId: followUpId,
+        FOLLOW-UPId: FOLLOW-UPId,
         changedByName: changedByName,
         changedById: changedById,
         leadName: leadName,
@@ -1394,7 +1394,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  // void setFollowup4Edit(){
+  // void setFOLLOW-UP4Edit(){
   //   emit(state.copyWith(
   //     status: AddLeadStatus.loading,
   //     clearError: true,
@@ -1403,7 +1403,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //   ));
 
   // }
-  void setFollowup4Edit() {
+  void setFOLLOW-UP4Edit() {
     emit(
       state.copyWith(
         status: AddLeadStatus.loading,
@@ -1424,7 +1424,7 @@ Future<void> migrateCallResults() async {
 
   for (final leadDoc in leadsSnap.docs) {
     // Get the latest follow-up for this lead
-    final followUpsSnap = await db
+    final FOLLOW-UPsSnap = await db
         .collection('LEADS')
         .doc(leadDoc.id)
         .collection('FOLLOW_UPS')
@@ -1432,10 +1432,10 @@ Future<void> migrateCallResults() async {
         .limit(1)
         .get();
 
-    if (followUpsSnap.docs.isEmpty) continue;
+    if (FOLLOW-UPsSnap.docs.isEmpty) continue;
 
     final latestCalledStatus =
-        followUpsSnap.docs.first.data()['calledStatus'] as String? ?? '';
+        FOLLOW-UPsSnap.docs.first.data()['calledStatus'] as String? ?? '';
 
     if (latestCalledStatus.isEmpty) continue;
 

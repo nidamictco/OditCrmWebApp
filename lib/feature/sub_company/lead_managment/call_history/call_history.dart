@@ -75,7 +75,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
       case 0:
         return const CloudCallTab();
       case 1:
-        return const FollowUpTab();
+        return const FOLLOW-UPTab();
       case 2:
         return const PhoneLogTab();
       default:

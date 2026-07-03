@@ -54,7 +54,7 @@ class AddLeadState {
 
   // ── Dashboard lead counts ──────────────────────────────────────────────────────────
   final String newLeadCount;
-  final String followUpCount;
+  final String FOLLOWUPCount;
   final String closedLeadCount;
   final String totalCalledCount;
   final String dashboardTotalCalledCount;
@@ -104,7 +104,7 @@ class AddLeadState {
     this.staffList = const [],
     this.closedLeadCount = '0',
     this.newLeadCount = '0',
-    this.followUpCount = '0',
+    this.FOLLOWUPCount = '0',
     this.totalCalledCount = '0',
     this.dashboardTotalCalledCount = '0',
     this.connectedCount = '0',
@@ -155,7 +155,7 @@ class AddLeadState {
     List<StaffModel>? staffList,
     bool? isLoadingAdditionalFields,
     String? newLeadCount,
-    String? followUpCount,
+    String? FOLLOW-UPCount,
     String? closedLeadCount,
     String? totalCalledCount,
     String? dashboardTotalCalledCount,
@@ -232,7 +232,7 @@ class AddLeadState {
           isLoadingAdditionalFields ?? this.isLoadingAdditionalFields,
       staffList: staffList ?? this.staffList,
       newLeadCount: newLeadCount ?? this.newLeadCount,
-      followUpCount: followUpCount ?? this.followUpCount,
+      FOLLOWUPCount: FOLLOWUPCount ?? this.FOLLOWUPCount,
       closedLeadCount: closedLeadCount ?? this.closedLeadCount,
       totalCalledCount: totalCalledCount ?? this.totalCalledCount,
       dashboardTotalCalledCount:

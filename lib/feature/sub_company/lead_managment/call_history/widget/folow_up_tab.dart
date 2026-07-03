@@ -7,14 +7,14 @@ import '../../../../../core/utils/input_date.dart';
 import '../../../../../core/utils/table.dart';
 import 'package:sizer/sizer.dart';
 
-class FollowUpTab extends StatefulWidget {
-  const FollowUpTab({super.key});
+class FOLLOW-UPTab extends StatefulWidget {
+  const FOLLOW-UPTab({super.key});
 
   @override
-  State<FollowUpTab> createState() => _FollowUpTabState();
+  State<FOLLOW-UPTab> createState() => _FOLLOW-UPTabState();
 }
 
-class _FollowUpTabState extends State<FollowUpTab> {
+class _FOLLOW-UPTabState extends State<FOLLOW-UPTab> {
 
 final TextEditingController fromDateController = TextEditingController();
 final TextEditingController toDateController = TextEditingController();
