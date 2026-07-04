@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -74,7 +75,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
       case 0:
         return const CloudCallTab();
       case 1:
-        return const FOLLOWUPTab();
+        return const FollowUpTab();
       case 2:
         return const PhoneLogTab();
       default:

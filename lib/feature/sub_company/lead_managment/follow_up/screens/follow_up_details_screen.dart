@@ -35,17 +35,17 @@ import '../../../../../core/theme/app_text_style.dart';
 
 import '../models/staff_handler_model.dart';
 
-class FOLLOWUPDetailsScreen extends StatefulWidget {
+class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
-  FOLLOWUPDetailsScreen({super.key, required this.currentLead});
+  FollowUpDetailsScreen({super.key, required this.currentLead});
   // final AddLeadModel? lead;
-  // const FOLLOWUPDetailsScreen({super.key, this.lead});
+  // const FollowUpDetailsScreen({super.key, this.lead});
 
   @override
-  State<FOLLOWUPDetailsScreen> createState() => _FOLLOWUPDetailsScreenState();
+  State<FollowUpDetailsScreen> createState() => _FollowUpDetailsScreenState();
 }
 
-class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
+class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0;
@@ -62,7 +62,7 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
     ActivityEntry(
       agent: 'Shahid',
       description:
-          'Status changed to Follow Up. Next FOLLOWUP scheduled to 20-04-2026 10:38\nCost Updated from to 0',
+          'Status changed to Follow Up. Next followup scheduled to 20-04-2026 10:38\nCost Updated from to 0',
       dateTime: '19-04-2026 08:39 PM',
     ),
     ActivityEntry(
@@ -85,7 +85,7 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
     });
     context.read<AddLeadCubit>().initialize();
 
-    // log("widget.currentLead.FOLLOWUPDate njutrdgghj ${_currentLead.FOLLOWUP?.first.calledStatus}");
+    // log("widget.currentLead.followUpDate njutrdgghj ${_currentLead.followUp?.first.calledStatus}");
   }
 
   @override
@@ -94,8 +94,8 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
     super.dispose();
   }
 
-  Future<void> _reloadFOLLOWUPs() async {
-    log("_reloadFOLLOWUPs called");
+  Future<void> _reloadFollowUps() async {
+    log("_reloadFollowUps called");
     try {
       final snap = await FirebaseFirestore.instance
           .collection('LEADS')
@@ -104,17 +104,17 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
           .orderBy('createdAt', descending: true)
           .get();
 
-      final FOLLOWUPs = snap.docs
-          .map((d) => FOLLOWUPModel.fromFirestore(d.data(), d.id))
+      final followUps = snap.docs
+          .map((d) => FollowUpModel.fromFirestore(d.data(), d.id))
           .toList();
 
       if (mounted) {
         setState(() {
-          _currentLead = _currentLead.copyWith(FOLLOWUP: FOLLOWUPs);
+          _currentLead = _currentLead.copyWith(followUp: followUps);
         });
       }
     } catch (e) {
-      debugPrint('[FOLLOWUPDetailsScreen] Failed to reload FOLLOWUPs: $e');
+      debugPrint('[FollowUpDetailsScreen] Failed to reload follow-ups: $e');
     }
     setState(() {});
   }
@@ -234,21 +234,21 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
   Widget _buildTabContent() {
     switch (_selectedTab) {
       case 0:
-        return _FOLLOWUPTabContent(
-          FOLLOWUPs: _currentLead.FOLLOWUP ?? [], // ← use _currentLead
+        return _FollowupTabContent(
+          followups: _currentLead.followUp ?? [], // ← use _currentLead
           leadId: _currentLead.id ?? '',
           leadName: _currentLead.clientName ?? '',
           lead: _currentLead,
-          // onFOLLOWUPAdded: _reloadFOLLOWUPs,           // ✅ pass callback
-          onFOLLOWUPAdded: _reloadLead,
+          // onFollowUpAdded: _reloadFollowUps,           // ✅ pass callback
+          onFollowUpAdded: _reloadLead,
           leadCategoryCubit: context.read<LeadCategoryCubit>(),
         );
       case 1:
         return _ActivitiesTabContent(lead: _currentLead);
       case 2:
         return _DetailsTabContent(lead: _currentLead);
-      // return _FOLLOWUPTabContent(
-      //   FOLLOWUPs: widget.currentLead.FOLLOWUP??[],
+      // return _FollowupTabContent(
+      //   followups: widget.currentLead.followUp??[],
       //   leadId: widget.currentLead.id ?? '',
       //   leadName: widget.currentLead.clientName ?? '',
       //   lead: widget.currentLead,
@@ -348,7 +348,7 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
                             Icons.swap_horiz,
                             onTap: () {
                               showAssignStaffDialog(
-                                "FOLLOWUP",
+                                'followup',
                                 [_currentLead],
                                 context,
                                 onSubmit:
@@ -390,7 +390,7 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
                                       // }
 
                                       print("oooooooooooooo");
-                                      // await _reloadFOLLOWUPs();
+                                      // await _reloadFollowUps();
                                       await _reloadLead();
                                       setState(() {
                                         _currentLead = _currentLead.copyWith(
@@ -501,7 +501,7 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
             unselectedLabelStyle: AppTextStyle.small(size: 12),
             onTap: (i) => setState(() => _selectedTab = i),
             tabs: const [
-              Tab(text: 'FOLLOWUP'),
+              Tab(text: 'Followup'),
               Tab(text: 'Activities'),
               Tab(text: 'Details'),
             ],
@@ -546,39 +546,39 @@ class _FOLLOWUPDetailsScreenState extends State<FOLLOWUPDetailsScreen>
 }
 
 // ─────────────────────────────────────────────────────────
-// Tab 1 – FOLLOWUP content (shrink-wraps inside ScrollView)
+// Tab 1 – Followup content (shrink-wraps inside ScrollView)
 // ─────────────────────────────────────────────────────────
 
-class _FOLLOWUPTabContent extends StatefulWidget {
-  final List<FOLLOWUPModel> FOLLOWUPs;
+class _FollowupTabContent extends StatefulWidget {
+  final List<FollowUpModel> followups;
   final String leadId;
   final String leadName;
   final String? leadWhatsappNo;
   final String? leadWhatsappDialCode;
   final AddLeadModel lead;
-  final VoidCallback onFOLLOWUPAdded;
+  final VoidCallback onFollowUpAdded;
   final LeadCategoryCubit leadCategoryCubit;
 
-  const _FOLLOWUPTabContent({
-    required this.FOLLOWUPs,
+  const _FollowupTabContent({
+    required this.followups,
     required this.leadId,
     required this.leadName,
     this.leadWhatsappNo,
     this.leadWhatsappDialCode,
     required this.lead,
-    required this.onFOLLOWUPAdded,
+    required this.onFollowUpAdded,
     required this.leadCategoryCubit,
   });
 
   @override
-  State<_FOLLOWUPTabContent> createState() => _FOLLOWUPTabContentState();
+  State<_FollowupTabContent> createState() => _FollowupTabContentState();
 }
 
-// class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
+// class _FollowupTabContentState extends State<_FollowupTabContent> {
 //   final TextEditingController _calledDateCtrl = TextEditingController();
 //   final TextEditingController _callStatusCtrl = TextEditingController();
 //   // final TextEditingController _leadStagetCtrl = TextEditingController();
-//   final TextEditingController _nextFOLLOWUPDateCtrl = TextEditingController();
+//   final TextEditingController _nextFollowUpDateCtrl = TextEditingController();
 //   final TextEditingController _costCtrl = TextEditingController();
 //   final TextEditingController _WhtsppNoCtrl = TextEditingController();
 //   final TextEditingController _emailCtrl = TextEditingController();
@@ -605,12 +605,12 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //   String? _leadCategory;
 //   String? _leadPriority;
 
-//   void _confirmDeleteFOLLOWUP(BuildContext context, FOLLOWUPModel FOLLOWUP) {
+//   void _confirmDeleteFollowUp(BuildContext context, FollowUpModel followUp) {
 //     showDialog(
 //       context: context,
 //       builder: (_) => AlertDialog(
-//         title: const Text('Delete FOLLOWUP'),
-//         content: const Text('Are you sure you want to delete this FOLLOWUP?'),
+//         title: const Text('Delete Follow-up'),
+//         content: const Text('Are you sure you want to delete this follow-up?'),
 //         actions: [
 //           TextButton(
 //             onPressed: () => Navigator.pop(context),
@@ -620,21 +620,21 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //             onPressed: () async {
 //               Navigator.pop(context);
 
-//               await context.read<AddLeadCubit>().deleteFOLLOWUP(
+//               await context.read<AddLeadCubit>().deleteFollowUp(
 //                 leadId: widget.leadId,
-//                 FOLLOWUPId: FOLLOWUP.id!,
+//                 followUpId: followUp.id!,
 //                 changedByName: widget.lead.assignedStaff,
 //                 changedById: widget.lead.assignedStaffId,
 //                 leadName: widget.leadName,
 //                 leadPhone: widget.lead.contactNumber,
 //               );
 
-//               widget.onFOLLOWUPAdded();
+//               widget.onFollowUpAdded();
 
 //               if (mounted) {
 //                 ScaffoldMessenger.of(context).showSnackBar(
 //                   const SnackBar(
-//                     content: Text('FOLLOWUP deleted successfully'),
+//                     content: Text('Follow-up deleted successfully'),
 //                     backgroundColor: Colors.green,
 //                   ),
 //                 );
@@ -650,24 +650,24 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //   @override
 //   void initState() {
 //     super.initState();
-//     log("widget.FOLLOWUPs.isEmpty ${widget.FOLLOWUPs.length}");
+//     log("widget.followups.isEmpty ${widget.followups.length}");
 //     _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-//     // widget.onFOLLOWUPAdded();
+//     // widget.onFollowUpAdded();
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     final Widget divider = SizedBox(width: 1.w);
 
-//     Future<FOLLOWUPModel> createLeadFOLLOWUP() async {
+//     Future<FollowUpModel> createLeadFollowup() async {
 
 //       final user = await SessionService().getSavedUser();
-//       return FOLLOWUPModel(
+//       return FollowUpModel(
 //         leadId: widget.leadId,
 //         leadName: widget.leadName,
 //         leadWhatsappNo: widget.leadWhatsappNo ?? "",
 //         leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//         nextFOLLOWUPDate: widget.lead.FOLLOWUPDate ?? DateTime.now(),
+//         nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
 //         leadTag: widget.lead.leadTag ?? '',
 //         calledStatus: widget.lead.callResult ?? "",
 //         calledDate:
@@ -683,41 +683,41 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //     }
 
 //     // Group entries by date
-//     final Map<String, List<FOLLOWUPModel>> grouped = {};
+//     final Map<String, List<FollowUpModel>> grouped = {};
 
-//     final Map<String, FOLLOWUPModel> FOLLOWUPGroup = {};
+//     final Map<String, FollowUpModel> followupGroup = {};
 
-//     log("jhhhhhhhhhhhhh ${widget.lead.FOLLOWUPDate}");
+//     log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
 
-//     if (widget.lead.FOLLOWUPDate != null &&
+//     if (widget.lead.followUpDate != null &&
 //         widget.lead.leadStage.toLowerCase() != 'closed' &&
 //         widget.lead.leadStage.toLowerCase() != 'rejected' &&
 //         widget.lead.leadStage.toLowerCase() != 'new') {
-//       // FOLLOWUPGroup[DateFormat('dd-MM-yyyy').format(widget.lead.FOLLOWUPDate!)] = createLeadFOLLOWUP();
-//       FOLLOWUPGroup[DateFormat(
+//       // followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
+//       followupGroup[DateFormat(
 //             'dd-MM-yyyy hh:mm',
-//           ).format(widget.lead.FOLLOWUPDate!)] =
-//           createLeadFOLLOWUP();
+//           ).format(widget.lead.followUpDate!)] =
+//           createLeadFollowup();
 //     }
 
-//     for (final f in widget.FOLLOWUPs) {
-//       FOLLOWUPGroup[DateFormat('dd-MM-yyyy hh:mm').format(f.calledDate)] = f;
+//     for (final f in widget.followups) {
+//       followupGroup[DateFormat('dd-MM-yyyy hh:mm').format(f.calledDate)] = f;
 //     }
 
-//     // if(widget.FOLLOWUPs.isEmpty) {
-//     FOLLOWUPGroup[DateFormat(
+//     // if(widget.followups.isEmpty) {
+//     followupGroup[DateFormat(
 //           'dd-MM-yyyy hh:mm',
 //         ).format(widget.lead.createdAt!)] =
-//         createLeadFOLLOWUP();
+//         createLeadFollowup();
 //     // }
 
 //     ///---------------------------------------------------------------
-//     // grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.FOLLOWUPDate!), () => []).add(FOLLOWUPModel(
+//     // grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
 //     //     leadId: widget.leadId,
 //     //     leadName: widget.leadName,
 //     //     leadWhatsappNo: widget.leadWhatsappNo ?? "",
 //     //     leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//     //     nextFOLLOWUPDate: widget.lead.FOLLOWUPDate ?? DateTime.now(),
+//     //     nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
 //     //     calledStatus: widget.lead.callResult ?? "",
 //     //     calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
 //     //     leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
@@ -725,18 +725,18 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //     //
 //     // ));
 //     //
-//     // for (final f in widget.FOLLOWUPs) {
+//     // for (final f in widget.followups) {
 //     //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
 //     // }
 //     //
 //     //
-//     // if(widget.FOLLOWUPs.isEmpty) {
-//     //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FOLLOWUPModel(
+//     // if(widget.followups.isEmpty) {
+//     //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
 //     //       leadId: widget.leadId,
 //     //       leadName: widget.leadName,
 //     //       leadWhatsappNo: widget.leadWhatsappNo ?? "",
 //     //       leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//     //       nextFOLLOWUPDate: widget.lead.FOLLOWUPDate ?? DateTime.now(),
+//     //       nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
 //     //       calledStatus: widget.lead.callResult ?? "",
 //     //       calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
 //     //       leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
@@ -749,7 +749,7 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 
 //     ///--------------------------------------------------------------------------
 
-//     final dates = FOLLOWUPGroup.keys.toList();
+//     final dates = followupGroup.keys.toList();
 //     log(dates.length.toString());
 
 //     return Container(
@@ -764,7 +764,7 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //             child: Row(
 //               children: [
 //                 Text(
-//                   'FOLLOWUP Details',
+//                   'Followup Details',
 //                   style: AppTextStyle.heading(
 //                     size: 18,
 //                     // weight: FontWeight.w700,
@@ -801,7 +801,7 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //                 // const SizedBox(width: 8),
 //                 ElevatedButton(
 //                   onPressed: () {
-//                     _addFOLLOWUPBottom(context, null, "NEW", widget.lead);
+//                     _addFollowUpBottom(context, null, "NEW", widget.lead);
 //                   },
 //                   style: ElevatedButton.styleFrom(
 //                     backgroundColor: AppColors.primary,
@@ -816,7 +816,7 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //                     ),
 //                   ),
 //                   child: Text(
-//                     'Add FOLLOWUP',
+//                     'Add Follow-up',
 //                     style: AppTextStyle.small(size: 13, color: AppColors.white),
 //                   ),
 //                   // TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
@@ -830,18 +830,18 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //             (date) => _DateGroup(
 //               // date: date,
 //               date: date.substring(0, 10),
-//               entry: FOLLOWUPGroup[date]!,
+//               entry: followupGroup[date]!,
 //               time: DateFormat(
 //                 'hh:mm a',
-//               ).format(FOLLOWUPGroup[date]!.calledDate),
+//               ).format(followupGroup[date]!.calledDate),
 //               lead: widget.lead,
 //               index: dates.indexOf(date),
 //               dateCount: dates.length,
-//               onEdit: (FOLLOWUP) {
-//                 _addFOLLOWUPBottom(context, FOLLOWUP, "EDIT", widget.lead);
+//               onEdit: (followup) {
+//                 _addFollowUpBottom(context, followup, "EDIT", widget.lead);
 //               },
-//               onDelete: (FOLLOWUP) {
-//                 _confirmDeleteFOLLOWUP(context, FOLLOWUP);
+//               onDelete: (followup) {
+//                 _confirmDeleteFollowUp(context, followup);
 //               },
 //             ),
 //           ),
@@ -860,10 +860,10 @@ class _FOLLOWUPTabContent extends StatefulWidget {
 //       ),
 //     );
 //   }
-class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
+class _FollowupTabContentState extends State<_FollowupTabContent> {
   final TextEditingController _calledDateCtrl = TextEditingController();
   final TextEditingController _callStatusCtrl = TextEditingController();
-  final TextEditingController _nextFOLLOWUPDateCtrl = TextEditingController();
+  final TextEditingController _nextFollowUpDateCtrl = TextEditingController();
   final TextEditingController _costCtrl = TextEditingController();
   final TextEditingController _WhtsppNoCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
@@ -873,29 +873,29 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
 
   final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
   final List<String> _callStatuses = [
-    'Connected',
-    'Busy',
-    'Not Attended',
-    'Switched Off',
-    'Out Of Coverage',
-    'Wrong Number',
-    'Not Reachable',
-    'Other',
-  ];
+                    'Connected',
+                    'Busy',
+                    'Not Attended',
+                    'Switched Off',
+                    'Out Of Coverage', 
+                    'Wrong Number',
+                    'Not Reachable',
+                    'Other',
+                  ];
 
   String? _leadStage;
   String? _leadCategory;
   String? _leadPriority;
 
   // ── Cached logged-in user ──────────────────────────────────────────────────
-  // Loaded once in initState so createLeadFOLLOWUP() can stay synchronous.
+  // Loaded once in initState so createLeadFollowup() can stay synchronous.
   String _currentUserName = '';
   String _currentUserId = '';
 
   @override
   void initState() {
     super.initState();
-    log("widget.FOLLOWUPs.isEmpty ${widget.FOLLOWUPs.length}");
+    log("widget.followups.isEmpty ${widget.followups.length}");
     _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     _loadCurrentUser();
   }
@@ -911,13 +911,13 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
   }
 
   // ── Now synchronous — no async/await needed ────────────────────────────────
-  FOLLOWUPModel _createLeadFOLLOWUP() {
-    return FOLLOWUPModel(
+  FollowUpModel _createLeadFollowup() {
+    return FollowUpModel(
       leadId: widget.leadId,
       leadName: widget.leadName,
       leadWhatsappNo: widget.leadWhatsappNo ?? '',
       leadWhatsappDialCode: widget.leadWhatsappDialCode ?? '',
-      nextFOLLOWUPDate: widget.lead.FOLLOWUPDate ?? DateTime.now(),
+      nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
       leadTag: widget.lead.leadTag ?? '',
       calledStatus: widget.lead.callResult ?? '',
       calledDate:
@@ -934,12 +934,12 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
     );
   }
 
-  void _confirmDeleteFOLLOWUP(BuildContext context, FOLLOWUPModel FOLLOWUP) {
+  void _confirmDeleteFollowUp(BuildContext context, FollowUpModel followUp) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete FOLLOWUP'),
-        content: const Text('Are you sure you want to delete this FOLLOWUP?'),
+        title: const Text('Delete Follow-up'),
+        content: const Text('Are you sure you want to delete this follow-up?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -948,19 +948,19 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await context.read<AddLeadCubit>().deleteFOLLOWUP(
+              await context.read<AddLeadCubit>().deleteFollowUp(
                 leadId: widget.leadId,
-                FOLLOWUPId: FOLLOWUP.id!,
+                followUpId: followUp.id!,
                 changedByName: widget.lead.assignedStaff,
                 changedById: widget.lead.assignedStaffId,
                 leadName: widget.leadName,
                 leadPhone: widget.lead.contactNumber,
               );
-              widget.onFOLLOWUPAdded();
+              widget.onFollowUpAdded();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('FOLLOWUP deleted successfully'),
+                    content: Text('Follow-up deleted successfully'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -975,38 +975,38 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, FOLLOWUPModel> FOLLOWUPGroup = {};
+    final Map<String, FollowUpModel> followupGroup = {};
 
     log(
-      "FOLLOWUPDate: ${widget.lead.FOLLOWUPDate}   widget.FOLLOWUPs: ${widget.FOLLOWUPs.length}",
+      "followUpDate: ${widget.lead.followUpDate}   widget.followups: ${widget.followups.length}",
     );
 
-    // Pending FOLLOWUP node (only when stage is active)
-    if (widget.lead.FOLLOWUPDate != null &&
+    // Pending follow-up node (only when stage is active)
+    if (widget.lead.followUpDate != null &&
         widget.lead.leadStage.toLowerCase() != 'closed' &&
         widget.lead.leadStage.toLowerCase() != 'rejected' &&
         widget.lead.leadStage.toLowerCase() != 'new') {
-      FOLLOWUPGroup[DateFormat(
+      followupGroup[DateFormat(
             'dd-MM-yyyy hh:mm',
-          ).format(widget.lead.FOLLOWUPDate!)] =
-          _createLeadFOLLOWUP(); // ✅ sync
+          ).format(widget.lead.followUpDate!)] =
+          _createLeadFollowup(); // ✅ sync
     }
 
-    // Existing FOLLOWUP records
-    for (final f in widget.FOLLOWUPs) {
-      FOLLOWUPGroup[DateFormat('dd-MM-yyyy hh:mm:ss').format(f.calledDate)] = f;
+    // Existing follow-up records
+    for (final f in widget.followups) {
+      followupGroup[DateFormat('dd-MM-yyyy hh:mm:ss').format(f.calledDate)] = f;
     }
 
-    log("FOLLOWUPGroup keys: ${FOLLOWUPGroup.keys.toList()}");
+    log("followupGroup keys: ${followupGroup.keys.toList()}");
     log("widget.lead.createdAt! : ${widget.lead.createdAt!}");
 
     // Lead creation node (always last)
-    FOLLOWUPGroup[DateFormat(
+    followupGroup[DateFormat(
           'dd-MM-yyyy hh:mm',
         ).format(widget.lead.createdAt!)] =
-        _createLeadFOLLOWUP(); // ✅ sync
+        _createLeadFollowup(); // ✅ sync
 
-    final dates = FOLLOWUPGroup.keys.toList();
+    final dates = followupGroup.keys.toList();
     log(dates.length.toString());
 
     return Container(
@@ -1021,7 +1021,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
             child: Row(
               children: [
                 Text(
-                  'FOLLOWUP Details',
+                  'Followup Details',
                   style: AppTextStyle.heading(
                     size: 18,
                     color: const Color(0xFF495057),
@@ -1030,7 +1030,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () {
-                    _addFOLLOWUPBottom(context, null, "NEW", widget.lead);
+                    _addFollowUpBottom(context, null, "NEW", widget.lead);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -1045,7 +1045,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                     ),
                   ),
                   child: Text(
-                    'Add FOLLOWUP',
+                    'Add Follow-up',
                     style: AppTextStyle.small(size: 13, color: AppColors.white),
                   ),
                 ),
@@ -1057,18 +1057,18 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
           ...dates.map(
             (date) => _DateGroup(
               date: date.substring(0, 10),
-              entry: FOLLOWUPGroup[date]!,
+              entry: followupGroup[date]!,
               time: DateFormat(
                 'hh:mm a',
-              ).format(FOLLOWUPGroup[date]!.calledDate),
+              ).format(followupGroup[date]!.calledDate),
               lead: widget.lead,
               index: dates.indexOf(date),
               dateCount: dates.length,
-              onEdit: (FOLLOWUP) {
-                _addFOLLOWUPBottom(context, FOLLOWUP, "EDIT", widget.lead);
+              onEdit: (followup) {
+                _addFollowUpBottom(context, followup, "EDIT", widget.lead);
               },
-              onDelete: (FOLLOWUP) {
-                _confirmDeleteFOLLOWUP(context, FOLLOWUP);
+              onDelete: (followup) {
+                _confirmDeleteFollowUp(context, followup);
               },
             ),
           ),
@@ -1128,54 +1128,54 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
     );
   }
 
-  void _addFOLLOWUPBottom(
+  void _addFollowUpBottom(
     BuildContext context,
-    FOLLOWUPModel? leadFOLLOWUP,
+    FollowUpModel? leadFollowup,
     String from,
     AddLeadModel lead,
   ) {
     final cubit = context.read<AddLeadCubit>();
 
-    cubit.setFOLLOWUP4Edit();
+    cubit.setFollowup4Edit();
     cubit.selectLeadStage(null);
     cubit.selectCategory(null);
     cubit.selectPriority(null);
     cubit.resetStatus();
 
-    final TextEditingController nextFOLLOWUPCtrl = TextEditingController(
+    final TextEditingController nextFollowUpCtrl = TextEditingController(
       text: DateFormat(
         'dd-MM-yyyy hh:mm a',
       ).format(DateTime.now().add(const Duration(days: 1))),
     );
 
-    DateTime nextFOLLOWUPDate = DateTime.now().add(const Duration(days: 1));
+    DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
     DateTime calledDateValue = DateTime.now();
 
     if (from == 'EDIT') {
-      cubit.selectLeadStage(leadFOLLOWUP!.leadStage);
-      cubit.selectCategory(leadFOLLOWUP.leadCategory);
-      cubit.selectPriority(leadFOLLOWUP.leadTag);
-      cubit.selectPriority(leadFOLLOWUP.priority);
-      cubit.selectCallResult(leadFOLLOWUP.calledStatus);
+      cubit.selectLeadStage(leadFollowup!.leadStage);
+      cubit.selectCategory(leadFollowup.leadCategory);
+      cubit.selectPriority(leadFollowup.leadTag);
+      cubit.selectPriority(leadFollowup.priority);
+      cubit.selectCallResult(leadFollowup.calledStatus);
       cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
 
-      final editStage = (leadFOLLOWUP.leadStage.toUpperCase() == 'NEW')
+      final editStage = (leadFollowup.leadStage.toUpperCase() == 'NEW')
           ? 'FOLLOWUP'
-          : leadFOLLOWUP.leadStage;
+          : leadFollowup.leadStage;
       cubit.selectLeadStage(editStage);
-      nextFOLLOWUPCtrl.text = DateFormat(
+      nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
-      ).format(leadFOLLOWUP.nextFOLLOWUPDate);
+      ).format(leadFollowup.nextFollowUpDate);
       _calledDateCtrl.text = DateFormat(
         'dd-MM-yyyy',
-      ).format(leadFOLLOWUP.calledDate);
-      _callStatusCtrl.text = leadFOLLOWUP.calledStatus;
-      _remarksCtrl.text = leadFOLLOWUP.remarks;
+      ).format(leadFollowup.calledDate);
+      _callStatusCtrl.text = leadFollowup.calledStatus;
+      _remarksCtrl.text = leadFollowup.remarks;
       _emailCtrl.text = lead.email;
       _addressm.text = lead.address;
       _WhtsppNoCtrl.text = lead.whatsappNumber;
-      nextFOLLOWUPDate = leadFOLLOWUP.nextFOLLOWUPDate;
-      calledDateValue = leadFOLLOWUP.calledDate;
+      nextFollowUpDate = leadFollowup.nextFollowUpDate;
+      calledDateValue = leadFollowup.calledDate;
       _leadPriority = lead.priority;
       _leadCategory = lead.leadCategory;
     } else {
@@ -1205,18 +1205,18 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
 
             // ── Success ──────────────────────────────────────────────────────
             if (state.status == AddLeadStatus.success &&
-                state.successMessage == 'FOLLOWUP added successfully.' &&
+                state.successMessage == 'Follow-up added successfully.' &&
                 !_dialogShown) {
               _dialogShown = true;
 
               // 1️⃣ Reload parent data
-              widget.onFOLLOWUPAdded();
+              widget.onFollowUpAdded();
               await cubit.fetchDashboardCounts(
                 DateTime.now(),
                 forceFetch: true,
               );
 
-              // 2️⃣ Close the FOLLOWUP form dialog first
+              // 2️⃣ Close the follow-up form dialog first
               Navigator.pop(dialogContext);
 
               // 3️⃣ Show success alert AFTER form is closed
@@ -1225,7 +1225,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                   _showAlertDialog(
                     context,
                     title: 'Success',
-                    message: 'FOLLOWUP added successfully!',
+                    message: 'Follow-up added successfully!',
                     icon: Icons.check_circle_outline,
                     iconColor: Colors.green,
                     titleColor: Colors.green.shade700,
@@ -1309,7 +1309,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
             return StatefulBuilder(
               builder: (sbContext, sbSetState) {
                 return AppDialog(
-                  title: 'Add FOLLOWUP',
+                  title: 'Add Follow-Up',
                   width: 60.w,
                   onSubmit: state.isSubmitting
                       ? null
@@ -1356,13 +1356,13 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                             return;
                           }
 
-                          await cubit.submitFOLLOWUP(
+                          await cubit.submitFollowUp(
                             leadId: widget.leadId,
                             leadName: widget.leadName,
                             leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
                             leadWhatsappDialCode: '+91',
                             calledDate: calledDateValue,
-                            nextFOLLOWUPDate: nextFOLLOWUPDate,
+                            nextFollowUpDate: nextFollowUpDate,
                             calledStatus: _callStatusCtrl.text,
                             leadTag: widget.lead.leadTag ?? '',
                             remarks: _remarksCtrl.text.trim(),
@@ -1373,8 +1373,8 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                             previousPriority: widget.lead.priority ?? '',
                             leadPhone: widget.lead.contactNumber ?? '',
                             fromPage: from,
-                            editId: leadFOLLOWUP != null
-                                ? leadFOLLOWUP.id ?? ""
+                            editId: leadFollowup != null
+                                ? leadFollowup.id ?? ""
                                 : "",
                           );
                         },
@@ -1519,7 +1519,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                           ],
                         ),
 
-                        // ── Conditional: Next FOLLOWUP Date ──────────
+                        // ── Conditional: Next Follow-Up Date ──────────
                         if (state.selectedLeadStage == 'FOLLOWUP') ...[
                           SizedBox(height: 1.h),
                           Row(
@@ -1529,7 +1529,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Next FOLLOWUP Date',
+                                      'Next Follow-Up Date',
                                       style: AppTextStyle.medium(),
                                     ),
                                     SizedBox(height: 0.5.h),
@@ -1538,15 +1538,15 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                                         final result =
                                             await showCalendarDialogUsingTimePicker(
                                               sbContext,
-                                              initialDate: nextFOLLOWUPDate,
+                                              initialDate: nextFollowUpDate,
                                               mode: CalendarMode.single,
                                               showTimePicker: true,
                                               minDate: calledDateValue,
                                             );
                                         if (result != null) {
                                           sbSetState(() {
-                                            nextFOLLOWUPDate = result.from;
-                                            nextFOLLOWUPCtrl.text = DateFormat(
+                                            nextFollowUpDate = result.from;
+                                            nextFollowUpCtrl.text = DateFormat(
                                               'dd-MM-yyyy hh:mm a',
                                             ).format(result.from);
                                           });
@@ -1570,7 +1570,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                                         ),
                                         child: IgnorePointer(
                                           child: TextField(
-                                            controller: nextFOLLOWUPCtrl,
+                                            controller: nextFollowUpCtrl,
                                             readOnly: true,
                                             style: AppTextStyle.small(
                                               size: 11.sp,
@@ -1578,7 +1578,7 @@ class _FOLLOWUPTabContentState extends State<_FOLLOWUPTabContent> {
                                             ),
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              hintText: nextFOLLOWUPCtrl.text,
+                                              hintText: nextFollowUpCtrl.text,
                                               hintStyle: AppTextStyle.small(
                                                 size: 11.sp,
                                                 color: AppColors.black,
@@ -1912,11 +1912,11 @@ class _DateGroup extends StatelessWidget {
   final int index;
   final String date;
   final String time;
-  // final List<FOLLOWUPModel> entries;
-  final FOLLOWUPModel entry;
+  // final List<FollowUpModel> entries;
+  final FollowUpModel entry;
   final AddLeadModel lead;
-  final Function(FOLLOWUPModel) onEdit;
-  final Function(FOLLOWUPModel) onDelete;
+  final Function(FollowUpModel) onEdit;
+  final Function(FollowUpModel) onDelete;
   const _DateGroup({
     required this.date,
     // required this.entries,
@@ -2008,29 +2008,29 @@ class _DateGroup extends StatelessWidget {
                           dateCount > 1 &&
                           lead.leadStage.toLowerCase() != 'rejected' &&
                           lead.leadStage.toLowerCase() != "closed" &&
-                          //  lead.FOLLOWUP!.isEmpty
+                          //  lead.followUp!.isEmpty
                           lead.leadStage.toLowerCase() != "new"
-                      ? _LastFOLLOWUPCard(lead: lead)
-                      : lead.FOLLOWUP!.isNotEmpty && index < dateCount - 1
-                      ? _FOLLOWUPCard(
+                      ? _LastFollowupCard(lead: lead)
+                      : lead.followUp!.isNotEmpty && index < dateCount - 1
+                      ? _FollowupCard(
                           entry: entry,
                           lead: lead,
                           index: index,
                           onEdit: () => onEdit(entry),
                           onDelete: () => onDelete(entry),
                         )
-                      : _FirstFOLLOWUPCard(
+                      : _FirstFollowupCard(
                           lead: lead,
                           needEdit: dateCount == 2,
                           onEdit: () => onEdit(entry),
                         ),
-                  // if(index == dateCount - 1 && lead.FOLLOWUP!.isNotEmpty)
-                  //   _FirstFOLLOWUPCard(lead: lead,)
+                  // if(index == dateCount - 1 && lead.followUp!.isNotEmpty)
+                  //   _FirstFollowupCard(lead: lead,)
 
                   // SizedBox(height: 20),
-                  //   _LastFOLLOWUPCard(lead: lead,),
+                  //   _LastFollowupCard(lead: lead,),
                   // ...entries.map((e) =>
-                  //     _FOLLOWUPCard(entry: e, lead: lead, entries : entries)),
+                  //     _FollowupCard(entry: e, lead: lead, entries : entries)),
                 ],
               ),
             ),
@@ -2041,14 +2041,14 @@ class _DateGroup extends StatelessWidget {
   }
 }
 
-class _FOLLOWUPCard extends StatelessWidget {
-  final FOLLOWUPModel entry;
+class _FollowupCard extends StatelessWidget {
+  final FollowUpModel entry;
   final AddLeadModel lead;
   final int index;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  const _FOLLOWUPCard({
+  const _FollowupCard({
     required this.entry,
     required this.lead,
     required this.index,
@@ -2100,7 +2100,7 @@ class _FOLLOWUPCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // ✅ Show who created this FOLLOWUP.
+                        // ✅ Show who created this follow-up.
                         // Falls back to lead.assignedStaff for older records
                         // that were saved before assignedStaff was added.
                         Text(
@@ -2151,7 +2151,7 @@ class _FOLLOWUPCard extends StatelessWidget {
                             'Scheduled Date',
                             DateFormat(
                               'dd-MM-yyyy hh:mm a',
-                            ).format(entry.nextFOLLOWUPDate),
+                            ).format(entry.nextFollowUpDate),
                           ),
                         const SizedBox(height: 4),
                         _cardRow(
@@ -2259,11 +2259,11 @@ class _FOLLOWUPCard extends StatelessWidget {
   }
 }
 
-class _FirstFOLLOWUPCard extends StatelessWidget {
+class _FirstFollowupCard extends StatelessWidget {
   final bool needEdit;
   final AddLeadModel lead;
   final VoidCallback onEdit;
-  const _FirstFOLLOWUPCard({
+  const _FirstFollowupCard({
     required this.lead,
     required this.needEdit,
     required this.onEdit,
@@ -2435,9 +2435,9 @@ class _FirstFOLLOWUPCard extends StatelessWidget {
   }
 }
 
-class _LastFOLLOWUPCard extends StatelessWidget {
+class _LastFollowupCard extends StatelessWidget {
   final AddLeadModel lead;
-  const _LastFOLLOWUPCard({required this.lead});
+  const _LastFollowupCard({required this.lead});
 
   @override
   Widget build(BuildContext context) {
@@ -2519,7 +2519,7 @@ class _LastFOLLOWUPCard extends StatelessWidget {
                           'Scheduled Date',
                           DateFormat(
                             'dd-MM-yyyy hh:mm a',
-                          ).format(lead.FOLLOWUPDate!),
+                          ).format(lead.followUpDate!),
                         ),
 
                         // const SizedBox(height: 6),
@@ -2691,7 +2691,7 @@ class _ActivityItem extends StatelessWidget {
         return Icons.add_circle_outline;
       case ActivityType.statusChanged:
         return Icons.swap_horiz;
-      case ActivityType.FOLLOWUPAdded:
+      case ActivityType.followupAdded:
         return Icons.phone_callback_outlined;
       case ActivityType.categoryChanged:
         return Icons.layers_outlined;
@@ -2714,7 +2714,7 @@ class _ActivityItem extends StatelessWidget {
         return const Color(0xFF4CAF50);
       case ActivityType.statusChanged:
         return const Color(0xFF2196F3);
-      case ActivityType.FOLLOWUPAdded:
+      case ActivityType.followupAdded:
         return const Color(0xFFFF9800);
       case ActivityType.categoryChanged:
         return const Color(0xFF9C27B0);
@@ -3374,7 +3374,7 @@ class _StatusChip extends StatelessWidget {
         return const Color(0xFFFF5722);
       case 'follow up':
         return const Color(0xFFF59E0B);
-      case 'FOLLOWUP':
+      case 'followup':
         return const Color(0xFFF59E0B);
       case 'connected':
         return const Color(0xFF4CAF50);

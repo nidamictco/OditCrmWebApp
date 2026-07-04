@@ -7,21 +7,22 @@ import '../../../../../core/utils/input_date.dart';
 import '../../../../../core/utils/table.dart';
 import 'package:sizer/sizer.dart';
 
-class FOLLOWUPTab extends StatefulWidget {
-  const FOLLOWUPTab({super.key});
+class FollowUpTab extends StatefulWidget {
+  const FollowUpTab({super.key});
 
   @override
-  State<FOLLOWUPTab> createState() => _FOLLOWUPTabState();
+  State<FollowUpTab> createState() => _FollowUpTabState();
 }
 
-class _FOLLOWUPTabState extends State<FOLLOWUPTab> {
-  final TextEditingController fromDateController = TextEditingController();
-  final TextEditingController toDateController = TextEditingController();
+class _FollowUpTabState extends State<FollowUpTab> {
+
+final TextEditingController fromDateController = TextEditingController();
+final TextEditingController toDateController = TextEditingController();
 
   String selectedValue = "10";
 
   final List<String> dropdownItems = ["10", "100", "1200", "3000"];
-  final List<String> staff = [
+ final List<String> staff = [
     "Select Staff",
     "John Doe",
     "Jane Smith",
@@ -29,7 +30,7 @@ class _FOLLOWUPTabState extends State<FOLLOWUPTab> {
     "Alice Williams",
   ];
   String? selectedStaff;
-
+ 
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -40,37 +41,33 @@ class _FOLLOWUPTabState extends State<FOLLOWUPTab> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(
-                child: InputDate(
-                  label: "From Date",
-                  fromController: fromDateController,
-                  toController: toDateController,
-                  isFrom: true, // shows fromDate value
-                ),
-              ),
-              SizedBox(width: 2.w),
-              Expanded(
-                child: InputDate(
-                  label: "To Date",
-                  fromController: fromDateController,
-                  toController: toDateController,
-                  isFrom: false, // shows toDate value
-                ),
-              ),
-              SizedBox(width: 2.w),
-              Expanded(
-                child: Dropdown(
-                  items: staff,
-                  selectedValue: selectedStaff,
-                  onChanged: (val) {
-                    setState(() {
-                      selectedStaff = val;
-                    });
-                  },
-                  label: "Staff",
-                  hint: "Select Staff",
-                ),
-              ),
+             Expanded(
+  child: InputDate(
+    label: "From Date",
+    fromController: fromDateController,
+    toController: toDateController,
+    isFrom: true,  // shows fromDate value
+  ),
+),
+SizedBox(width: 2.w),
+Expanded(
+  child: InputDate(
+    label: "To Date",
+    fromController: fromDateController,
+    toController: toDateController,
+    isFrom: false, // shows toDate value
+  ),
+),
+SizedBox(width: 2.w),
+              Expanded(child:  Dropdown(
+                              items: staff,
+                              selectedValue: selectedStaff,
+                              onChanged: (val) {
+                                setState(() {
+                                  selectedStaff = val;
+                                });
+                              }, label: "Staff", hint: "Select Staff",
+                            ),),
               SizedBox(width: 2.w),
               _viewButton(),
             ],
@@ -81,86 +78,100 @@ class _FOLLOWUPTabState extends State<FOLLOWUPTab> {
 
         _tableControls(),
 
-        SizedBox(
-          child: CustomTable(
-            columns: [
-              TableColumn(title: "Sl No.", flex: 1),
-              TableColumn(title: "Client Name", flex: 4),
-              TableColumn(title: "Contact No", flex: 4),
-              TableColumn(title: "Lead Category", flex: 4),
-              TableColumn(title: "Staff", flex: 4),
-              TableColumn(title: "Status", flex: 4),
-              TableColumn(title: "Called Date", flex: 4),
-            ],
-            rows:
-                [
-                  [
-                    "1",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                  [
-                    "2",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                  [
-                    "3",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                  [
-                    "4",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                  [
-                    "5",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                  [
-                    "6",
-                    "name",
-                    "1234567890",
-                    "category",
-                    "Last Updated",
-                    "Staff",
-                    "Status",
-                  ],
-                ].map((row) {
-                  return [
-                    Text(row[0], style: AppTextStyle.medium()),
-                    Text(row[1], style: AppTextStyle.medium()),
-                    Text(row[2], style: AppTextStyle.medium()),
-                    Text(row[3], style: AppTextStyle.medium()),
-                    Text(row[4], style: AppTextStyle.medium()),
-                    Text(row[5], style: AppTextStyle.medium()),
-                    Text(row[6], style: AppTextStyle.medium()),
-                  ];
-                }).toList(),
-          ),
-        ),
+
+         SizedBox(
+                      child: CustomTable(
+                        columns: [
+                          TableColumn(title: "Sl No.", flex: 1),
+                          TableColumn(title: "Client Name", flex: 4),
+                          TableColumn(title: "Contact No", flex: 4),
+                          TableColumn(title: "Lead Category", flex: 4),
+                          TableColumn(title: "Staff", flex: 4),
+                          TableColumn(title: "Status", flex: 4),
+                          TableColumn(title: "Called Date", flex: 4),
+                        ],
+                        rows:
+                            [
+                              [
+                                "1",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                              ],
+                              [
+                                "2",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                                
+                              ],
+                              [
+                                "3",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                                
+                              ],
+                              [
+                                "4",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                                
+                              ],
+                              [
+                                "5",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                                
+                              ],
+                              [
+                                "6",
+                                "name",
+                                "1234567890",
+                                "category",
+                                "Last Updated",
+                                "Staff",
+                                "Status",
+                                
+                                
+                              ],
+                            ].map((row) {
+                              return [
+                                Text(row[0], style: AppTextStyle.medium()),
+                                Text(row[1], style: AppTextStyle.medium()),
+                                Text(row[2], style: AppTextStyle.medium()),
+                                Text(row[3], style: AppTextStyle.medium()),
+                                Text(row[4], style: AppTextStyle.medium()),
+                                Text(row[5], style: AppTextStyle.medium()),
+                                Text(row[6], style: AppTextStyle.medium()),
+                                
+
+                              ];
+                            }).toList(),
+                      ),
+                    ),
 
         _footer(),
       ],

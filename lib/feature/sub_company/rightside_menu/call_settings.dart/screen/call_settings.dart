@@ -38,7 +38,7 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
 
   final List<String> _accessibleUsers = ['User 1', 'User 2', 'User 3'];
   final List<String> _leadCategories = [
-    'Need Further FOLLOWUP',
+    'Need Further Followup',
     'Not Contacted',
     'Fake',
     'Visited',

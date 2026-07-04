@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Odit_CRM/core/constant/firebase_const.dart';
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
@@ -6,7 +7,7 @@ import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_m
 
 abstract class ILeadStageRepository {
   Stream<List<LeadsModel>> watchCategories();
-  Future<void> addCategory({required String name});
+  Future<void> addCategory({required String name, });
   Future<void> updateCategory({required String id, required String name});
   Future<void> deleteCategory({required String id});
 }
@@ -19,47 +20,51 @@ class LeadStageRepository implements ILeadStageRepository {
       FirestorePath.companyCollection('LEADS STAGE');
 
   LeadStageRepository({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// 🔹 Stream all categories ordered by creation date (with default stages first in specific order)
   @override
   Stream<List<LeadsModel>> watchCategories() {
     _checkAndSeedDefaultStages();
-    return _collection.snapshots().map((snapshot) {
-      final stages = snapshot.docs
-          .map((doc) => LeadsModel.fromFirestore(doc.data(), doc.id))
-          .toList();
+    return _collection
+        .snapshots()
+        .map(
+          (snapshot) {
+            final stages = snapshot.docs
+                .map((doc) => LeadsModel.fromFirestore(doc.data(), doc.id))
+                .toList();
 
-      const List<String> defaultStagesOrder = [
-        'NEW',
-        'FOLLOWUP',
-        'CLOSED',
-        'REJECTED',
-        'TRANSFERRED',
-      ];
+            const List<String> defaultStagesOrder = [
+              'NEW',
+              'FOLLOWUP',
+              'CLOSED',
+              'REJECTED',
+              'TRANSFERRED'
+            ];
 
-      stages.sort((a, b) {
-        final aUpper = a.name.toUpperCase();
-        final bUpper = b.name.toUpperCase();
-        final aIsDefault = a.isDefault || defaultStagesOrder.contains(aUpper);
-        final bIsDefault = b.isDefault || defaultStagesOrder.contains(bUpper);
+            stages.sort((a, b) {
+              final aUpper = a.name.toUpperCase();
+              final bUpper = b.name.toUpperCase();
+              final aIsDefault = a.isDefault || defaultStagesOrder.contains(aUpper);
+              final bIsDefault = b.isDefault || defaultStagesOrder.contains(bUpper);
 
-        if (aIsDefault && bIsDefault) {
-          final aIdx = defaultStagesOrder.indexOf(aUpper);
-          final bIdx = defaultStagesOrder.indexOf(bUpper);
-          final normalizedAIdx = aIdx == -1 ? 99 : aIdx;
-          final normalizedBIdx = bIdx == -1 ? 99 : bIdx;
-          return normalizedAIdx.compareTo(normalizedBIdx);
-        } else if (aIsDefault) {
-          return -1;
-        } else if (bIsDefault) {
-          return 1;
-        } else {
-          return a.createdAt.compareTo(b.createdAt);
-        }
-      });
-      return stages;
-    });
+              if (aIsDefault && bIsDefault) {
+                final aIdx = defaultStagesOrder.indexOf(aUpper);
+                final bIdx = defaultStagesOrder.indexOf(bUpper);
+                final normalizedAIdx = aIdx == -1 ? 99 : aIdx;
+                final normalizedBIdx = bIdx == -1 ? 99 : bIdx;
+                return normalizedAIdx.compareTo(normalizedBIdx);
+              } else if (aIsDefault) {
+                return -1;
+              } else if (bIsDefault) {
+                return 1;
+              } else {
+                return a.createdAt.compareTo(b.createdAt);
+              }
+            });
+            return stages;
+          },
+        );
   }
 
   Future<void> _checkAndSeedDefaultStages() async {
@@ -67,13 +72,7 @@ class LeadStageRepository implements ILeadStageRepository {
       final snapshot = await _collection.limit(1).get();
       if (snapshot.docs.isEmpty) {
         final batch = _firestore.batch();
-        final defaultStages = [
-          'New',
-          'FOLLOWUP',
-          'Closed',
-          'Rejected',
-          'Transferred',
-        ];
+        final defaultStages = ['New', 'Followup', 'Closed', 'Rejected', 'Transferred'];
         for (var stageName in defaultStages) {
           final docRef = _collection.doc();
           batch.set(docRef, {
@@ -91,7 +90,9 @@ class LeadStageRepository implements ILeadStageRepository {
 
   /// 🔹 Add a new category
   @override
-  Future<void> addCategory({required String name}) async {
+  Future<void> addCategory({
+    required String name,
+  }) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
       throw ArgumentError('Category name cannot be empty.');
@@ -99,12 +100,12 @@ class LeadStageRepository implements ILeadStageRepository {
     final StaffModel? user = await SessionService().getSavedUser();
     await _collection.add({
       'name': trimmedName,
-      'createdBy': user?.name,
+      'createdBy': user?.name, 
       'idOfCreator': user?.id,
       'createdAt': FieldValue.serverTimestamp(),
       'isDefault': false,
     });
-  }
+  } 
 
   /// 🔹 Update an existing category's name
   @override
@@ -116,9 +117,7 @@ class LeadStageRepository implements ILeadStageRepository {
     if (doc.exists) {
       final isDefault = doc.data()?['isDefault'] as bool? ?? false;
       if (isDefault) {
-        throw Exception(
-          'This is a default lead stage and cannot be edited or deleted.',
-        );
+        throw Exception('This is a default lead stage and cannot be edited or deleted.');
       }
     }
 
@@ -137,9 +136,7 @@ class LeadStageRepository implements ILeadStageRepository {
     if (doc.exists) {
       final isDefault = doc.data()?['isDefault'] as bool? ?? false;
       if (isDefault) {
-        throw Exception(
-          'This is a default lead stage and cannot be edited or deleted.',
-        );
+        throw Exception('This is a default lead stage and cannot be edited or deleted.');
       }
     }
     await _collection.doc(id).delete();

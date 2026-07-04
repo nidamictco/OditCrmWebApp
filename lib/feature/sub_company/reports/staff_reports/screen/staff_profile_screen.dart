@@ -243,7 +243,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
       listener: (context, leadState) {
         if (leadState.status == AddLeadStatus.success &&
             leadState.successMessage != null &&
-            leadState.successMessage!.toLowerCase().contains('FOLLOWUP')) {
+            leadState.successMessage!.toLowerCase().contains('follow-up')) {
           _refreshCounts();
         }
       },
@@ -1599,7 +1599,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
   //       children: [
   //         _row(true, 'Category', 'New', 'Follow Up', 'Rejected', 'Closed'),
   //         _row(false, 'Uncategorized', '0', '1', '0', '0'),
-  //         _row(false, 'Need FOLLOWUP', '0', '57', '2', '0'),
+  //         _row(false, 'Need Followup', '0', '57', '2', '0'),
   //         _row(false, 'Not Contacted', '0', '67', '19', '0'),
   //         _row(false, 'Fake', '0', '5', '2', '0'),
   //         _row(false, 'Visited', '0', '3', '0', '0'),
@@ -1633,7 +1633,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
                 false,
                 r.category,
                 '${r.newCount}',
-                '${r.FOLLOWUPCount}',
+                '${r.followUpCount}',
                 '${r.rejectedCount}',
                 '${r.closedCount}',
               ),
@@ -1776,14 +1776,14 @@ class _GridPatternPainter extends CustomPainter {
 class LeadCategoryTableRow {
   final String category;
   final int newCount;
-  final int FOLLOWUPCount;
+  final int followUpCount;
   final int rejectedCount;
   final int closedCount;
 
   const LeadCategoryTableRow({
     required this.category,
     this.newCount = 0,
-    this.FOLLOWUPCount = 0,
+    this.followUpCount = 0,
     this.rejectedCount = 0,
     this.closedCount = 0,
   });

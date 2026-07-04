@@ -196,15 +196,12 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                                     textAlign: TextAlign.center,
                                                     decoration: InputDecoration(
                                                       border: InputBorder.none,
-                                                      hintStyle:
-                                                          AppTextStyle.small(
-                                                            size: 11.sp,
-                                                            color:
-                                                                AppColors.grey,
-                                                          ),
+                                                      hintStyle: AppTextStyle.small(
+                                                        size: 11.sp,
+                                                        color: AppColors.grey,
+                                                      ),
                                                       isCollapsed: true,
-                                                      contentPadding:
-                                                          EdgeInsets.zero,
+                                                      contentPadding: EdgeInsets.zero,
                                                     ),
                                                   ),
                                                 ),
@@ -222,10 +219,9 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                                       );
                                                 },
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 5,
-                                                      ),
+                                                  padding: const EdgeInsets.only(
+                                                    left: 5,
+                                                  ),
                                                   child: Icon(
                                                     Icons.close,
                                                     color: AppColors.grey,
@@ -385,7 +381,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                               child: DashboardCard(
                                 title: "FOLLOWUP LEADS",
                                 message:
-                                    'The current count of leads assigned \nfor today, including missed FOLLOWUP leads.',
+                                    'The current count of leads assigned \nfor today, including missed follow-up leads.',
                                 fromCard: 'FOLLOWUP',
                               ),
                             ),

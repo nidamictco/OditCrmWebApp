@@ -213,7 +213,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             dateToCheck = lead.createdAt;
             break;
           case 'FOLLOWUP':
-            dateToCheck = lead.FOLLOWUPDate;
+            dateToCheck = lead.followUpDate;
             break;
           case 'TOTAL':
             dateToCheck = lead.calledDate;
@@ -1436,8 +1436,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
             if (!isNew)
               Text(
-                lead.FOLLOWUPDate != null
-                    ? _fmt.format(lead.FOLLOWUPDate!)
+                lead.followUpDate != null
+                    ? _fmt.format(lead.followUpDate!)
                     : '',
                 style: _dateStyle,
               ),

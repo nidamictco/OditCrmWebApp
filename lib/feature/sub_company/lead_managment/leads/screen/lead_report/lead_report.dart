@@ -647,7 +647,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       hint: 'select category',
                                       showHelp: true,
                                       message:
-                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better FOLLOWUP.',
+                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {

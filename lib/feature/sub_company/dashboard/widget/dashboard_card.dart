@@ -106,7 +106,7 @@ class _DashboardCardState extends State<DashboardCard> {
                     break;
 
                   case 'FOLLOWUP':
-                    count = state.FOLLOWUPCount;
+                    count = state.followUpCount;
                     break;
 
                   case 'CLOSED':
@@ -175,7 +175,7 @@ class _DashboardCardState extends State<DashboardCard> {
                         break;
 
                       case 'FOLLOWUP':
-                        count = state.FOLLOWUPCount;
+                        count = state.followUpCount;
                         break;
 
                       case 'CLOSED':

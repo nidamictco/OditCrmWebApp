@@ -32,17 +32,17 @@ abstract class IAddLeadRepository {
   Future<void> permanentlyDeleteLead(String id);
   Future<void> assignStaff(String leadId, String staffId, String staffName);
   Future<AddLeadModel> getLeadById(String leadId);
-  Future<void> deleteFOLLOWUP({
+  Future<void> deleteFollowUp({
     required String leadId,
-    required String FOLLOWUPId,
+    required String followUpId,
     required String changedByName,
     required String changedById,
     required String leadName,
     required String leadPhone,
   });
-  Future<void> addFOLLOWUP(
+  Future<void> addFollowUp(
     String leadId,
-    FOLLOWUPModel FOLLOWUP, {
+    FollowUpModel followUp, {
     String? previousStage, // pass current lead's stage before update
     String? previousCategory,
     String? previousPriority,
@@ -172,19 +172,19 @@ class AddLeadRepository implements IAddLeadRepository {
           final lead = AddLeadModel.fromFirestore(leadDoc.data(), leadDoc.id);
 
           /// FETCH FOLLOWUP SUBCOLLECTION
-          final FOLLOWUPSnap = await _collection
+          final followUpSnap = await _collection
               .doc(leadDoc.id)
               .collection('FOLLOW_UPS')
               .orderBy('createdAt', descending: true)
               .get();
 
           /// CONVERT FOLLOWUPS
-          final FOLLOWUPs = FOLLOWUPSnap.docs.map((fupDoc) {
-            return FOLLOWUPModel.fromFirestore(fupDoc.data(), fupDoc.id);
+          final followUps = followUpSnap.docs.map((fupDoc) {
+            return FollowUpModel.fromFirestore(fupDoc.data(), fupDoc.id);
           }).toList();
 
           /// RETURN LEAD WITH FOLLOWUPS
-          return lead.copyWith(FOLLOWUP: FOLLOWUPs);
+          return lead.copyWith(followUp: followUps);
         }),
       );
       return allLeads;
@@ -244,7 +244,7 @@ class AddLeadRepository implements IAddLeadRepository {
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
           return allLeads.where((lead) {
-            return isSameDay(lead.FOLLOWUPDate);
+            return isSameDay(lead.followUpDate);
           }).toList();
 
         /// CLOSED LEADS
@@ -327,19 +327,19 @@ class AddLeadRepository implements IAddLeadRepository {
           final lead = AddLeadModel.fromFirestore(leadDoc.data(), leadDoc.id);
 
           /// FETCH FOLLOWUP SUBCOLLECTION
-          final FOLLOWUPSnap = await _collection
+          final followUpSnap = await _collection
               .doc(leadDoc.id)
               .collection('FOLLOW_UPS')
               .orderBy('createdAt', descending: true)
               .get();
 
           /// CONVERT FOLLOWUPS
-          final FOLLOWUPs = FOLLOWUPSnap.docs.map((fupDoc) {
-            return FOLLOWUPModel.fromFirestore(fupDoc.data(), fupDoc.id);
+          final followUps = followUpSnap.docs.map((fupDoc) {
+            return FollowUpModel.fromFirestore(fupDoc.data(), fupDoc.id);
           }).toList();
 
           /// RETURN LEAD WITH FOLLOWUPS
-          return lead.copyWith(FOLLOWUP: FOLLOWUPs);
+          return lead.copyWith(followUp: followUps);
         }),
       );
 
@@ -395,14 +395,14 @@ class AddLeadRepository implements IAddLeadRepository {
           return allLeads.where((lead) {
             return isInRange(lead.createdAt) &&
                 lead.leadStage.toUpperCase() == 'NEW' &&
-                // lead.FOLLOWUP!.isEmpty;
-                (lead.FOLLOWUP == null || lead.FOLLOWUP!.isEmpty);
+                // lead.followUp!.isEmpty;
+                (lead.followUp == null || lead.followUp!.isEmpty);
           }).toList();
 
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
           return allLeads.where((lead) {
-            return isInRange(lead.FOLLOWUPDate) &&
+            return isInRange(lead.followUpDate) &&
                 lead.leadStage.toUpperCase() == 'FOLLOWUP'; // &&
             // lead.leadStage.toUpperCase() != 'CLOSED'&&
             // lead.leadStage.toUpperCase() != 'REJECTED'&& ;
@@ -419,8 +419,8 @@ class AddLeadRepository implements IAddLeadRepository {
         case 'TOTAL':
           final List<AddLeadModel> result = [];
           for (final lead in allLeads) {
-            final matchingFOLLOWUPs =
-                lead.FOLLOWUP?.where((fup) {
+            final matchingFollowUps =
+                lead.followUp?.where((fup) {
                   final inRange = isInRange(fup.calledDate);
                   if (role.toLowerCase() != 'admin') {
                     return inRange && fup.createdById == staffId;
@@ -428,15 +428,15 @@ class AddLeadRepository implements IAddLeadRepository {
                   return inRange;
                 }).toList() ??
                 [];
-            if (matchingFOLLOWUPs.isNotEmpty) {
-              for (final fup in matchingFOLLOWUPs) {
+            if (matchingFollowUps.isNotEmpty) {
+              for (final fup in matchingFollowUps) {
                 result.add(
                   lead.copyWith(
                     calledDate: fup.calledDate,
                     leadStage: fup.leadStage,
                     leadCategory: fup.leadCategory,
                     priority: fup.priority,
-                    FOLLOWUPDate: fup.nextFOLLOWUPDate,
+                    followUpDate: fup.nextFollowUpDate,
                     remarks: fup.remarks,
                     callResult: fup.calledStatus,
                   ),
@@ -464,8 +464,8 @@ class AddLeadRepository implements IAddLeadRepository {
             }
             if (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
                 lead.leadStage.toUpperCase() == 'TRANSFERRED') {
-              if (lead.FOLLOWUPDate == null) return false;
-              return isbeforeFromDay(lead.FOLLOWUPDate);
+              if (lead.followUpDate == null) return false;
+              return isbeforeFromDay(lead.followUpDate);
             }
             return false;
             // return (lead.leadStage.toUpperCase() == 'NEW' &&
@@ -473,7 +473,7 @@ class AddLeadRepository implements IAddLeadRepository {
             // (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
             //         // lead.leadStage.toUpperCase() == 'NEW' ||
             //         lead.leadStage.toUpperCase() == 'TRANSFERRED') &&
-            //     isbeforeFromDay(lead.FOLLOWUPDate);
+            //     isbeforeFromDay(lead.followUpDate);
           }).toList();
 
         /// TRANSFERRED
@@ -577,32 +577,32 @@ class AddLeadRepository implements IAddLeadRepository {
   }
 
   @override
-  Future<void> addFOLLOWUPOld(String leadId, FOLLOWUPModel FOLLOWUP) async {
+  Future<void> addFollowUpOld(String leadId, FollowUpModel followUp) async {
     if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
-    final String FOLLOWUPId = _generateDateId('FUP');
+    final String followUpId = _generateDateId('FUP');
     await _collection
         .doc(leadId)
         .collection('FOLLOW_UPS')
-        .doc(FOLLOWUPId)
-        .set(FOLLOWUP.toFirestore());
+        .doc(followUpId)
+        .set(followUp.toFirestore());
 
     await _collection.doc(leadId).update({
-      'leadStage': FOLLOWUP.leadStage,
-      'priority': FOLLOWUP.priority,
-      'leadCategory': FOLLOWUP.leadCategory,
-      'nextFOLLOWUPDate': FOLLOWUP.nextFOLLOWUPDate,
-      'lastCalledDate': FOLLOWUP.calledDate,
+      'leadStage': followUp.leadStage,
+      'priority': followUp.priority,
+      'leadCategory': followUp.leadCategory,
+      'nextFollowUpDate': followUp.nextFollowUpDate,
+      'lastCalledDate': followUp.calledDate,
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    log('[AddLeadRepository] FOLLOWUP added for lead: $leadId');
+    log('[AddLeadRepository] FollowUp added for lead: $leadId');
   }
 
   @override
-  Future<void> addFOLLOWUP(
+  Future<void> addFollowUp(
     String leadId,
-    FOLLOWUPModel FOLLOWUP, {
+    FollowUpModel followUp, {
     String? previousStage, // pass current lead's stage before update
     String? previousCategory,
     String? previousPriority,
@@ -616,46 +616,46 @@ class AddLeadRepository implements IAddLeadRepository {
     final batch = FirebaseFirestore.instance.batch();
     final activityRef = _collection.doc(leadId).collection('ACTIVITIES');
 
-    // 1. Write the FOLLOWUP document
-    final String FOLLOWUPId = FOLLOWUP.id ?? _generateDateId('FUP');
+    // 1. Write the follow-up document
+    final String followUpId = followUp.id ?? _generateDateId('FUP');
     final fupRef = _collection
         .doc(leadId)
         .collection('FOLLOW_UPS')
-        .doc(FOLLOWUPId);
-    batch.set(fupRef, FOLLOWUP.toFirestore(), SetOptions(merge: true));
+        .doc(followUpId);
+    batch.set(fupRef, followUp.toFirestore(), SetOptions(merge: true));
 
     // 2. Update lead document
     final leadRef = _collection.doc(leadId);
     // batch.update(leadRef, {
-    //   'leadStage': FOLLOWUP.leadStage,
-    //   'priority': FOLLOWUP.priority,
-    //   'leadCategory': FOLLOWUP.leadCategory,
-    //   'nextFOLLOWUPDate': FOLLOWUP.nextFOLLOWUPDate,
-    //   'lastCalledDate': FOLLOWUP.calledDate,
-    //   'callResult': FOLLOWUP.calledStatus,
-    //   'leadTag': FOLLOWUP.leadTag,
+    //   'leadStage': followUp.leadStage,
+    //   'priority': followUp.priority,
+    //   'leadCategory': followUp.leadCategory,
+    //   'nextFollowUpDate': followUp.nextFollowUpDate,
+    //   'lastCalledDate': followUp.calledDate,
+    //   'callResult': followUp.calledStatus,
+    //   'leadTag': followUp.leadTag,
     //   'updatedAt': FieldValue.serverTimestamp(),
-    //   // 'remarks' : FOLLOWUP.remarks,
+    //   // 'remarks' : followUp.remarks,
     // });
     final Map<String, dynamic> leadUpdates = {
-      'leadStage': FOLLOWUP.leadStage,
-      'priority': FOLLOWUP.priority,
-      'leadCategory': FOLLOWUP.leadCategory,
-      'nextFOLLOWUPDate': FOLLOWUP.nextFOLLOWUPDate,
-      'lastCalledDate': FOLLOWUP.calledDate,
-      'callResult': FOLLOWUP.calledStatus,
-      'leadTag': FOLLOWUP.leadTag,
+      'leadStage': followUp.leadStage,
+      'priority': followUp.priority,
+      'leadCategory': followUp.leadCategory,
+      'nextFollowUpDate': followUp.nextFollowUpDate,
+      'lastCalledDate': followUp.calledDate,
+      'callResult': followUp.calledStatus,
+      'leadTag': followUp.leadTag,
       'updatedAt': FieldValue.serverTimestamp(),
-      'hasFOLLOWUP': true,
+      'hasFollowUp': true,
     };
-    if ((FOLLOWUP.adress ?? '').isNotEmpty) {
-      leadUpdates['address'] = FOLLOWUP.adress;
+    if ((followUp.adress ?? '').isNotEmpty) {
+      leadUpdates['address'] = followUp.adress;
     }
-    if ((FOLLOWUP.email ?? '').isNotEmpty) {
-      leadUpdates['email'] = FOLLOWUP.email;
+    if ((followUp.email ?? '').isNotEmpty) {
+      leadUpdates['email'] = followUp.email;
     }
-    if ((FOLLOWUP.remarks ?? '').isNotEmpty) {
-      leadUpdates['remarks'] = FOLLOWUP.remarks;
+    if ((followUp.remarks ?? '').isNotEmpty) {
+      leadUpdates['remarks'] = followUp.remarks;
     }
     batch.update(leadRef, leadUpdates);
 
@@ -666,32 +666,32 @@ class AddLeadRepository implements IAddLeadRepository {
       batch.set(activityRef.doc(), activity.toFirestore());
     }
 
-    // 3. Always log the FOLLOWUP added activity
+    // 3. Always log the follow-up added activity
     logActivity(
       ActivityModel(
         id: '',
-        type: ActivityType.FOLLOWUPAdded,
+        type: ActivityType.followupAdded,
         changedBy: changedByName,
         changedById: changedById,
         changedAt: now,
-        previousValue: FOLLOWUP.calledStatus,
+        previousValue: followUp.calledStatus,
         leadId: leadId, // ← add
         leadName: leadName, // ← add
         leadPhone: leadPhone, // ← add
         newValue: DateFormat(
           'dd-MM-yyyy HH:mm',
-        ).format(FOLLOWUP.nextFOLLOWUPDate),
+        ).format(followUp.nextFollowUpDate),
         description:
-            'FOLLOWUP added. Call status: ${FOLLOWUP.calledStatus}. '
-            'Next FOLLOWUP scheduled to '
-            '${DateFormat('dd-MM-yyyy HH:mm').format(FOLLOWUP.nextFOLLOWUPDate)}.',
+            'Follow-up added. Call status: ${followUp.calledStatus}. '
+            'Next follow-up scheduled to '
+            '${DateFormat('dd-MM-yyyy HH:mm').format(followUp.nextFollowUpDate)}.',
       ),
     );
 
     // 4. Log status change only if it actually changed
     if (previousStage != null &&
         previousStage.isNotEmpty &&
-        previousStage != FOLLOWUP.leadStage) {
+        previousStage != followUp.leadStage) {
       logActivity(
         ActivityModel(
           id: '',
@@ -700,9 +700,9 @@ class AddLeadRepository implements IAddLeadRepository {
           changedById: changedById,
           changedAt: now,
           previousValue: previousStage,
-          newValue: FOLLOWUP.leadStage,
+          newValue: followUp.leadStage,
           description:
-              'Status changed from $previousStage to ${FOLLOWUP.leadStage}.',
+              'Status changed from $previousStage to ${followUp.leadStage}.',
         ),
       );
     }
@@ -710,8 +710,8 @@ class AddLeadRepository implements IAddLeadRepository {
     // 5. Log category change only if it changed
     if (previousCategory != null &&
         previousCategory.isNotEmpty &&
-        previousCategory != FOLLOWUP.leadCategory &&
-        FOLLOWUP.leadCategory.isNotEmpty) {
+        previousCategory != followUp.leadCategory &&
+        followUp.leadCategory.isNotEmpty) {
       logActivity(
         ActivityModel(
           id: '',
@@ -720,9 +720,9 @@ class AddLeadRepository implements IAddLeadRepository {
           changedById: changedById,
           changedAt: now,
           previousValue: previousCategory,
-          newValue: FOLLOWUP.leadCategory,
+          newValue: followUp.leadCategory,
           description:
-              'Lead category updated from $previousCategory to ${FOLLOWUP.leadCategory}.',
+              'Lead category updated from $previousCategory to ${followUp.leadCategory}.',
         ),
       );
     }
@@ -730,8 +730,8 @@ class AddLeadRepository implements IAddLeadRepository {
     // 6. Log priority change only if it changed
     if (previousPriority != null &&
         previousPriority.isNotEmpty &&
-        previousPriority != FOLLOWUP.priority &&
-        FOLLOWUP.priority.isNotEmpty) {
+        previousPriority != followUp.priority &&
+        followUp.priority.isNotEmpty) {
       logActivity(
         ActivityModel(
           id: '',
@@ -740,15 +740,15 @@ class AddLeadRepository implements IAddLeadRepository {
           changedById: changedById,
           changedAt: now,
           previousValue: previousPriority,
-          newValue: FOLLOWUP.priority,
+          newValue: followUp.priority,
           description:
-              'Priority updated from $previousPriority to ${FOLLOWUP.priority}.',
+              'Priority updated from $previousPriority to ${followUp.priority}.',
         ),
       );
     }
 
     await batch.commit();
-    log('[AddLeadRepository] FOLLOWUP + activities written for lead: $leadId');
+    log('[AddLeadRepository] FollowUp + activities written for lead: $leadId');
   }
 
   @override
@@ -872,7 +872,7 @@ class AddLeadRepository implements IAddLeadRepository {
   //     log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
 
   //     int newLeadCount = 0;
-  //     int FOLLOWUPCount = 0;
+  //     int followUpCount = 0;
   //     int closedLeadCount = 0;
   //     int totalCalledCount = 0;
   //     int missedLeadCount = 0;
@@ -881,7 +881,7 @@ class AddLeadRepository implements IAddLeadRepository {
   //     for (final doc in snap.docs) {
   //       final data = doc.data();
   //       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-  //       final FOLLOWUPs =
+  //       final followUps =
   //           (await doc.reference.collection('FOLLOW_UPS').get()).docs;
 
   //       // NEW
@@ -890,29 +890,29 @@ class AddLeadRepository implements IAddLeadRepository {
   //         final createdDate = (createdAt as Timestamp).toDate();
   //         // if (_isSameDay(createdDate, selectedDate) &&
   //         //     leadStage == 'NEW' &&
-  //         //     FOLLOWUPs.isEmpty) {
+  //         //     followUps.isEmpty) {
   //         //   newLeadCount++;
   //         // }
   // //         if (leadStage == 'NEW' && createdDate != null && _isSameDay(createdDate, selectedDate)) {
-  // //   // only fetch FOLLOWUPs when the lead is actually a candidate
-  // //   final FOLLOWUPs = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
-  // //   if (FOLLOWUPs.isEmpty) newLeadCount++;
+  // //   // only fetch follow-ups when the lead is actually a candidate
+  // //   final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
+  // //   if (followUps.isEmpty) newLeadCount++;
   // // }
-  // final hasFOLLOWUP = data['hasFOLLOWUP'] as bool? ?? false;
+  // final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
   // if (leadStage == 'NEW' && _isSameDay(createdDate, selectedDate)) {
-  //   if (!hasFOLLOWUP) newLeadCount++;
+  //   if (!hasFollowUp) newLeadCount++;
   // }
   //       }
 
   //       // FOLLOWUP
-  //       final nextFOLLOWUPDate = data['nextFOLLOWUPDate'];
-  //       if (nextFOLLOWUPDate != null) {
-  //         final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+  //       final nextFollowUpDate = data['nextFollowUpDate'];
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
   //         if (_isSameDay(followDate, selectedDate) &&
   //             leadStage != 'CLOSED' &&
   //             leadStage != 'REJECTED' &&
   //             leadStage != 'NEW') {
-  //           FOLLOWUPCount++;
+  //           followUpCount++;
   //         }
   //       }
 
@@ -935,8 +935,8 @@ class AddLeadRepository implements IAddLeadRepository {
   //       //&& _isSameDay(calledDate, selectedDate)) closedLeadCount++;
 
   //       // MISSED / REJECTED
-  //       if (nextFOLLOWUPDate != null) {
-  //         final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
   //         if ((leadStage == 'FOLLOWUP' || leadStage == 'NEW') &&
   //             _isBeforeDay(followDate, selectedDate)) {
   //           missedLeadCount++;
@@ -970,14 +970,14 @@ class AddLeadRepository implements IAddLeadRepository {
   //     }
 
   //     log(
-  //       '[fetchLeadCounts] Results — new:$newLeadCount FOLLOWUP:$FOLLOWUPCount '
+  //       '[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
   //       'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
   //       'transferred:$transferredCount',
   //     );
 
   //     return DashboardCountModel(
   //       newLeadCount: newLeadCount,
-  //       FOLLOWUPCount: FOLLOWUPCount,
+  //       followUpCount: followUpCount,
   //       closedLeadCount: closedLeadCount,
   //       totalCalledCount: totalCalledCount,
   //       missedLeadCount: missedLeadCount,
@@ -1023,7 +1023,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     final activeLeadIds = snap.docs.map((doc) => doc.id).toSet();
     int newLeadCount = 0;
-    int FOLLOWUPCount = 0;
+    int followUpCount = 0;
     int closedLeadCount = 0;
     // int totalCalledCount = await getTotalCalledCount(
     //   startOfDay,
@@ -1053,21 +1053,21 @@ class AddLeadRepository implements IAddLeadRepository {
               ? _isInRange(createdDate, startOfDay!, endOfDay)
               : !createdDate.isAfter(endOfDay);
           if (inRange) {
-            final hasFOLLOWUP = data['hasFOLLOWUP'] as bool? ?? false;
-            if (!hasFOLLOWUP) newLeadCount++;
+            final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+            if (!hasFollowUp) newLeadCount++;
           }
         }
       }
 
       // ── FOLLOWUP ───────────────────────────────────────────────────────
       if (leadStage == 'FOLLOWUP') {
-        final nextFOLLOWUPDate = data['nextFOLLOWUPDate'];
-        if (nextFOLLOWUPDate != null) {
-          final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
           final inRange = selectedDate != null
               ? _isInRange(followDate, startOfDay!, endOfDay)
               : !followDate.isAfter(endOfDay);
-          if (inRange) FOLLOWUPCount++;
+          if (inRange) followUpCount++;
         }
       }
 
@@ -1105,9 +1105,9 @@ class AddLeadRepository implements IAddLeadRepository {
         }
       }
       if (leadStage == 'FOLLOWUP') {
-        final nextFOLLOWUPDate = data['nextFOLLOWUPDate'];
-        if (nextFOLLOWUPDate != null) {
-          final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
           final baseline = selectedDate != null ? startOfDay! : todayStart;
           if (_isBeforeDay(followDate, baseline)) {
             missedLeadCount++;
@@ -1115,9 +1115,9 @@ class AddLeadRepository implements IAddLeadRepository {
         }
       }
       if (leadStage == 'TRANSFERRED') {
-        final nextFOLLOWUPDate = data['nextFOLLOWUPDate'];
-        if (nextFOLLOWUPDate != null) {
-          final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+        final nextFollowUpDate = data['nextFollowUpDate'];
+        if (nextFollowUpDate != null) {
+          final followDate = (nextFollowUpDate as Timestamp).toDate();
           final baseline = selectedDate != null ? startOfDay! : todayStart;
           if (_isBeforeDay(followDate, baseline)) {
             missedLeadCount++;
@@ -1126,9 +1126,9 @@ class AddLeadRepository implements IAddLeadRepository {
       }
 
       // if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
-      //   final nextFOLLOWUPDate = data['nextFOLLOWUPDate'];
-      //   if (nextFOLLOWUPDate != null) {
-      //     final followDate = (nextFOLLOWUPDate as Timestamp).toDate();
+      //   final nextFollowUpDate = data['nextFollowUpDate'];
+      //   if (nextFollowUpDate != null) {
+      //     final followDate = (nextFollowUpDate as Timestamp).toDate();
       //     final baseline = selectedDate != null ? startOfDay! : todayStart;
       //     if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
       //   }
@@ -1161,7 +1161,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     sw.stop();
     log(
-      '[fetchLeadCounts] new:$newLeadCount FOLLOWUP:$FOLLOWUPCount '
+      '[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
       'closed:$closedLeadCount total:$totalCalledCount '
       'missed:$missedLeadCount transferred:$transferredCount '
       '— ${sw.elapsedMilliseconds}ms',
@@ -1169,7 +1169,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     return DashboardCountModel(
       newLeadCount: newLeadCount,
-      FOLLOWUPCount: FOLLOWUPCount,
+      followUpCount: followUpCount,
       closedLeadCount: closedLeadCount,
       totalCalledCount: totalCalledCount,
       missedLeadCount: missedLeadCount,
@@ -1205,19 +1205,19 @@ class AddLeadRepository implements IAddLeadRepository {
           final lead = AddLeadModel.fromFirestore(leadDoc.data(), leadDoc.id);
 
           /// FETCH FOLLOWUP SUBCOLLECTION
-          final FOLLOWUPSnap = await _collection
+          final followUpSnap = await _collection
               .doc(leadDoc.id)
               .collection('FOLLOW_UPS')
               .orderBy('createdAt', descending: true)
               .get();
 
           /// CONVERT FOLLOWUPS
-          final FOLLOWUPs = FOLLOWUPSnap.docs.map((fupDoc) {
-            return FOLLOWUPModel.fromFirestore(fupDoc.data(), fupDoc.id);
+          final followUps = followUpSnap.docs.map((fupDoc) {
+            return FollowUpModel.fromFirestore(fupDoc.data(), fupDoc.id);
           }).toList();
 
           /// RETURN LEAD WITH FOLLOWUPS
-          return lead.copyWith(FOLLOWUP: FOLLOWUPs);
+          return lead.copyWith(followUp: followUps);
         }),
       );
 
@@ -1246,8 +1246,8 @@ class AddLeadRepository implements IAddLeadRepository {
 
       int totalCount = 0;
       for (final lead in allLeads) {
-        final matchingFOLLOWUPs =
-            lead.FOLLOWUP?.where((fup) {
+        final matchingFollowUps =
+            lead.followUp?.where((fup) {
               final inRange = isInRange(fup.calledDate);
               if (role.toLowerCase() != 'admin') {
                 return inRange && fup.createdById == staffId;
@@ -1255,8 +1255,8 @@ class AddLeadRepository implements IAddLeadRepository {
               return inRange;
             }).toList() ??
             [];
-        if (matchingFOLLOWUPs.isNotEmpty) {
-          for (final fup in matchingFOLLOWUPs) {
+        if (matchingFollowUps.isNotEmpty) {
+          for (final fup in matchingFollowUps) {
             totalCount++;
           }
         } else if (isInRange(lead.calledDate)) {
@@ -1288,7 +1288,7 @@ class AddLeadRepository implements IAddLeadRepository {
       Query<Map<String, dynamic>> fupQuery = _firestore.collectionGroup(
         'FOLLOW_UPS',
       );
-      // Query on calledDate to match exactly how leadlistscreen filters FOLLOWUPs.
+      // Query on calledDate to match exactly how leadlistscreen filters follow-ups.
       // Use single-field query to avoid requiring composite indexes on Firestore.
       fupQuery = fupQuery
           .where('calledDate', isGreaterThanOrEqualTo: startTs)
@@ -1308,7 +1308,7 @@ class AddLeadRepository implements IAddLeadRepository {
       }
       totalCalledCount = count;
     } catch (e) {
-      log('Error fetching FOLLOWUP counts in fetchLeadCounts: $e');
+      log('Error fetching follow-up counts in fetchLeadCounts: $e');
     }
     return totalCalledCount;
   }
@@ -1458,7 +1458,7 @@ class AddLeadRepository implements IAddLeadRepository {
       if (toId.isNotEmpty) staffMap.putIfAbsent(toId, () => toName);
     }
 
-    // 4. Count FOLLOWUPs per staff (activity count)
+    // 4. Count follow-ups per staff (activity count)
     final fupSnap = await _collection
         .doc(lead.id)
         .collection('FOLLOW_UPS')
@@ -1643,7 +1643,7 @@ class AddLeadRepository implements IAddLeadRepository {
           (e) => LeadCategoryTableRow(
             category: e.key,
             newCount: e.value['NEW'] ?? 0,
-            FOLLOWUPCount: e.value['FOLLOW UP'] ?? 0,
+            followUpCount: e.value['FOLLOW UP'] ?? 0,
             rejectedCount: e.value['REJECTED'] ?? 0,
             closedCount: e.value['CLOSED'] ?? 0,
           ),
@@ -1652,9 +1652,9 @@ class AddLeadRepository implements IAddLeadRepository {
 
     rows.sort((a, b) {
       final totalA =
-          a.newCount + a.FOLLOWUPCount + a.rejectedCount + a.closedCount;
+          a.newCount + a.followUpCount + a.rejectedCount + a.closedCount;
       final totalB =
-          b.newCount + b.FOLLOWUPCount + b.rejectedCount + b.closedCount;
+          b.newCount + b.followUpCount + b.rejectedCount + b.closedCount;
       return totalB.compareTo(totalA);
     });
 
@@ -1777,43 +1777,43 @@ class AddLeadRepository implements IAddLeadRepository {
         throw Exception('Lead not found');
       }
 
-      final FOLLOWUPSnap = await _collection
+      final followUpSnap = await _collection
           .doc(leadId)
           .collection('FOLLOW_UPS')
           .orderBy('createdAt', descending: true)
           .get();
 
-      final FOLLOWUPs = FOLLOWUPSnap.docs
-          .map((e) => FOLLOWUPModel.fromFirestore(e.data(), e.id))
+      final followUps = followUpSnap.docs
+          .map((e) => FollowUpModel.fromFirestore(e.data(), e.id))
           .toList();
 
       final lead = AddLeadModel.fromFirestore(leadDoc.data()!, leadDoc.id);
 
-      return lead.copyWith(FOLLOWUP: FOLLOWUPs);
+      return lead.copyWith(followUp: followUps);
     } catch (e) {
       throw Exception('Failed to fetch lead: $e');
     }
   }
 
-  // Future<void> deleteFOLLOWUP({
+  // Future<void> deleteFollowUp({
   //   required String leadId,
-  //   required String FOLLOWUPId,
+  //   required String followUpId,
   // }) async {
   //   try {
   //     await FirebaseFirestore.instance
   //         .collection('LEADS')
   //         .doc(leadId)
   //         .collection('FOLLOW_UPS')
-  //         .doc(FOLLOWUPId)
+  //         .doc(followUpId)
   //         .delete();
   //   } catch (e) {
-  //     throw Exception('Failed to delete FOLLOWUP: $e');
+  //     throw Exception('Failed to delete follow-up: $e');
   //   }
   // }
 
-  Future<void> deleteFOLLOWUP({
+  Future<void> deleteFollowUp({
     required String leadId,
-    required String FOLLOWUPId,
+    required String followUpId,
     required String changedByName,
     required String changedById,
     required String leadName,
@@ -1823,25 +1823,25 @@ class AddLeadRepository implements IAddLeadRepository {
 
     final activityRef = leadRef.collection('ACTIVITIES');
 
-    // Read FOLLOWUP BEFORE deleting
+    // Read followup BEFORE deleting
     final deletedDoc = await leadRef
         .collection('FOLLOW_UPS')
-        .doc(FOLLOWUPId)
+        .doc(followUpId)
         .get();
 
     if (!deletedDoc.exists) {
-      throw Exception('FOLLOWUP not found');
+      throw Exception('Follow-up not found');
     }
 
-    final deletedFOLLOWUP = FOLLOWUPModel.fromFirestore(
+    final deletedFollowup = FollowUpModel.fromFirestore(
       deletedDoc.data()!,
       deletedDoc.id,
     );
 
-    // Delete FOLLOWUP
+    // Delete followup
     await deletedDoc.reference.delete();
 
-    // Find the next latest FOLLOWUP
+    // Find the next latest followup
     final remaining = await leadRef
         .collection('FOLLOW_UPS')
         .orderBy('calledDate', descending: true)
@@ -1849,7 +1849,7 @@ class AddLeadRepository implements IAddLeadRepository {
         .get();
 
     if (remaining.docs.isNotEmpty) {
-      final latest = FOLLOWUPModel.fromFirestore(
+      final latest = FollowUpModel.fromFirestore(
         remaining.docs.first.data(),
         remaining.docs.first.id,
       );
@@ -1858,7 +1858,7 @@ class AddLeadRepository implements IAddLeadRepository {
         'leadStage': latest.leadStage,
         'priority': latest.priority,
         'leadCategory': latest.leadCategory,
-        'FOLLOWUPDate': latest.nextFOLLOWUPDate,
+        'followUpDate': latest.nextFollowUpDate,
         'calledDate': latest.calledDate,
         'callResult': latest.calledStatus,
         'remarks': latest.remarks,
@@ -1869,19 +1869,19 @@ class AddLeadRepository implements IAddLeadRepository {
     await activityRef.add(
       ActivityModel(
         id: '',
-        type: ActivityType.FOLLOWUPDeleted,
+        type: ActivityType.followupDeleted,
         changedBy: changedByName,
         changedById: changedById,
         changedAt: DateTime.now(),
         leadId: leadId,
         leadName: leadName,
         leadPhone: leadPhone,
-        previousValue: deletedFOLLOWUP.calledStatus,
+        previousValue: deletedFollowup.calledStatus,
         newValue: '',
         description:
-            'Deleted FOLLOWUP. Status: ${deletedFOLLOWUP.leadStage}, '
-            'Call Result: ${deletedFOLLOWUP.calledStatus}, '
-            'Scheduled Date: ${DateFormat('dd-MM-yyyy HH:mm').format(deletedFOLLOWUP.nextFOLLOWUPDate)}',
+            'Deleted follow-up. Status: ${deletedFollowup.leadStage}, '
+            'Call Result: ${deletedFollowup.calledStatus}, '
+            'Scheduled Date: ${DateFormat('dd-MM-yyyy HH:mm').format(deletedFollowup.nextFollowUpDate)}',
       ).toFirestore(),
     );
   }
@@ -1930,7 +1930,7 @@ class AddLeadRepository implements IAddLeadRepository {
   }
 }
 
-Future<void> migrateHasFOLLOWUP() async {
+Future<void> migrateHasFollowUp() async {
   final db = FirebaseFirestore.instance;
   final leadsSnap = await db.collection('LEADS').get();
 
@@ -1941,27 +1941,27 @@ Future<void> migrateHasFOLLOWUP() async {
     final data = leadDoc.data();
 
     // Skip if already set
-    if (data.containsKey('hasFOLLOWUP')) {
+    if (data.containsKey('hasFollowUp')) {
       skipped++;
       continue;
     }
 
-    // Check if this lead has any FOLLOWUPs
-    final FOLLOWUPsSnap = await db
+    // Check if this lead has any follow-ups
+    final followUpsSnap = await db
         .collection('LEADS')
         .doc(leadDoc.id)
         .collection('FOLLOW_UPS')
         .limit(1)
         .get();
 
-    final hasFOLLOWUP = FOLLOWUPsSnap.docs.isNotEmpty;
+    final hasFollowUp = followUpsSnap.docs.isNotEmpty;
 
     await db.collection('LEADS').doc(leadDoc.id).update({
-      'hasFOLLOWUP': hasFOLLOWUP,
+      'hasFollowUp': hasFollowUp,
     });
 
     updated++;
-    print('Updated ${leadDoc.id} → hasFOLLOWUP: $hasFOLLOWUP');
+    print('Updated ${leadDoc.id} → hasFollowUp: $hasFollowUp');
   }
 
   print('Migration complete. Updated: $updated, Skipped: $skipped');

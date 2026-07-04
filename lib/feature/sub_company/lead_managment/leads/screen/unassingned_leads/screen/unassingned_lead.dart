@@ -295,8 +295,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                   Expanded(
                                     child: Dropdown(
                                       showHelp: true,
-                                      message:
-                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better FOLLOWUP.',
+                                       message: 'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
                                       items: categoryItems,
                                       selectedValue: selectedCategory,
                                       onChanged: (val) {
@@ -315,9 +314,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       label: "Lead Status",
                                       hint: 'select status',
                                       showHelp: true,
-                                      message:
-                                          'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
-                                      items: stageItems,
+                                       message: 'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                     items: stageItems,
                                       selectedValue: selectedStatus,
                                       onChanged: (val) {
                                         setState(() {
@@ -339,9 +337,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       label: "Lead Source",
                                       hint: 'select source',
                                       showHelp: true,
-                                      message:
-                                          'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                      items: sourceItems,
+                                       message:'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                     items: sourceItems,
                                       selectedValue: selectedSource,
                                       onChanged: (val) {
                                         setState(() {
@@ -655,8 +652,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                             ? state.leads
                             : [];
                         final filteredList = _filteredLeads(rawList);
-                        if (filteredList.isEmpty)
-                          return const SizedBox.shrink();
+if (filteredList.isEmpty) return const SizedBox.shrink();
 
                         // 🔹 Map selected indices → actual lead objects
                         final selectedLeads = _selectedIndices
@@ -684,7 +680,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                                   weight: FontWeight.w400,
                                                 ),
                                               ),
-                                              backgroundColor: AppColors.red,
+                                              backgroundColor:
+                                                  AppColors.red,
                                               behavior:
                                                   SnackBarBehavior.floating,
                                               shape: RoundedRectangleBorder(
@@ -726,7 +723,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                                   color: AppColors.white,
                                                   weight: FontWeight.w400,
                                                 ),
-                                              ),
+                                              ), 
                                               backgroundColor:
                                                   AppColors.primary,
                                               behavior:
@@ -828,7 +825,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                       if (selectedStaffId == null || selectedStaffName == null)
                         return;
 
-                      Navigator.pop(dialogContext);
+Navigator.pop(dialogContext);
                       for (final lead in selectedLeads) {
                         await context.read<AddLeadCubit>().assignStaff(
                           leadId: lead.id!,
@@ -885,25 +882,28 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
   }
 
   // ── Page number chips ───────────────────────
-  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
+ List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+  if (totalPages <= 1) return [];
 
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
-          ),
-          child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+  return [
+    GestureDetector(
+      onTap: () {}, // already on this page
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          border: Border.all(color: AppColors.lightGrey),
+        ),
+        child: Text(
+          '$_currentPage',
+          style: AppTextStyle.small(
+            size: 11.sp,
+            color: AppColors.white,
           ),
         ),
       ),
-    ];
-  }
+    ),
+  ];
+}
 }
