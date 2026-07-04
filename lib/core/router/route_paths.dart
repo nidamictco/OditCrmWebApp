@@ -59,8 +59,8 @@ class RoutePaths {
       '/designations/${Uri.encodeComponent(designationId)}/permissions';
   static String staffProfilePath(String staffId) =>
       '/staff/${Uri.encodeComponent(staffId)}';
-  static String followUpPath(String leadId) =>
-      '/follow_up/${Uri.encodeComponent(leadId)}';
+  static String followUpPath(String leadId, String fromCard) =>
+      '/follow_up/${Uri.encodeComponent(leadId)}?from_card=$fromCard';
   static String changePasswordPath(String staffId) =>
       '/staff/${Uri.encodeComponent(staffId)}/change_password';
 }

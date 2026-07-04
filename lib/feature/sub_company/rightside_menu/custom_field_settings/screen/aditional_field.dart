@@ -20,16 +20,11 @@ class AdditionalFieldsSection extends StatefulWidget {
 }
 
 class _AdditionalFieldsSectionState extends State<AdditionalFieldsSection> {
- 
- 
   String _searchQuery = '';
-  String _selectedEntries = '1';
- 
+  String _selectedEntries = '10';
 
   /// Local text controllers for the dynamic input rows
   final List<TextEditingController> _controllers = [TextEditingController()];
-
-  
 
   // ─── Submit — delegates to Cubit ──────────────────────────────────────────
 
@@ -67,7 +62,7 @@ class _AdditionalFieldsSectionState extends State<AdditionalFieldsSection> {
   }
 
   // ─── Filtered list based on search + entries limit ────────────────────────
-   List<AdditionalFieldModel> _filtered(List<AdditionalFieldModel> all) {
+  List<AdditionalFieldModel> _filtered(List<AdditionalFieldModel> all) {
     final q = _searchQuery.trim().toLowerCase();
     final limit = int.tryParse(_selectedEntries) ?? 10;
     final filtered = q.isEmpty

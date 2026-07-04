@@ -132,22 +132,22 @@ class _LeadCategoryState extends State<LeadCategory> {
                 SizedBox(height: 1.5.h),
 
                 /// Cost
-                Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
-                SizedBox(height: 0.5.h),
-                TextField(
-                  style: AppTextStyle.medium(weight: FontWeight.w400),
-                  controller: costController,
-                  decoration: InputDecoration(
-                    hintText: "Enter Cost",
-                    hintStyle: AppTextStyle.medium(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
+                // Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
+                // SizedBox(height: 0.5.h),
+                // TextField(
+                //   style: AppTextStyle.medium(weight: FontWeight.w400),
+                //   controller: costController,
+                //   decoration: InputDecoration(
+                //     hintText: "Enter Cost",
+                //     hintStyle: AppTextStyle.medium(
+                //       size: 11.sp,
+                //       color: AppColors.grey,
+                //     ),
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(4),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -364,123 +364,123 @@ class _LeadCategoryState extends State<LeadCategory> {
                                       isLoading: state.isSubmitting,
                                     ),
                                     SizedBox(width: 1.w),
-                                    _actionBtn(
-                                      1,
-                                      "Import",
-                                      AppColors.blueLight,
-                                      AppColors.primary,
-                                      () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AppDialog(
-                                              title: 'Bulk Upload',
-                                              body: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    "Import CSV File",
-                                                    style: AppTextStyle.medium(
-                                                      size: 11.sp,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 2.h),
-                                                  Container(
-                                                    height: 5.h,
-                                                    width: 50.w,
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.white,
-                                                      border: Border.all(
-                                                        color:
-                                                            AppColors.divider,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.file_upload,
-                                                        ),
-                                                        SizedBox(width: 1.h),
-                                                        Text(
-                                                          "Upload CSV File",
-                                                          style:
-                                                              AppTextStyle.medium(),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  Text(
-                                                    'Simple File',
-                                                    style: AppTextStyle.small(
-                                                      color: Colors.indigo,
-                                                      size: 11.sp,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              onSubmit: () =>
-                                                  Navigator.pop(context),
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    _actionBtn(
-                                      2,
-                                      "Bulk Add",
-                                      AppColors.orangeLight,
-                                      AppColors.orange,
-                                      () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AppDialog(
-                                              title: 'Bulk Add Category',
-                                              body: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Text("Lead Category"),
-                                                  const SizedBox(height: 8),
-                                                  TextField(
-                                                    controller:
-                                                        categoryController,
-                                                    decoration: InputDecoration(
-                                                      hintText:
-                                                          "Enter Category",
-                                                      hintStyle:
-                                                          AppTextStyle.medium(
-                                                            size: 11.sp,
-                                                            color:
-                                                                AppColors.grey,
-                                                          ),
-                                                      border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              4,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                ],
-                                              ),
-                                              onSubmit: () =>
-                                                  Navigator.pop(context),
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
+                                    // _actionBtn(
+                                    //   1,
+                                    //   "Import",
+                                    //   AppColors.blueLight,
+                                    //   AppColors.primary,
+                                    //   () {
+                                    //     showDialog(
+                                    //       context: context,
+                                    //       builder: (context) {
+                                    //         return AppDialog(
+                                    //           title: 'Bulk Upload',
+                                    //           body: Column(
+                                    //             crossAxisAlignment:
+                                    //                 CrossAxisAlignment.start,
+                                    //             mainAxisSize: MainAxisSize.min,
+                                    //             children: [
+                                    //               Text(
+                                    //                 "Import CSV File",
+                                    //                 style: AppTextStyle.medium(
+                                    //                   size: 11.sp,
+                                    //                 ),
+                                    //               ),
+                                    //               SizedBox(height: 2.h),
+                                    //               Container(
+                                    //                 height: 5.h,
+                                    //                 width: 50.w,
+                                    //                 decoration: BoxDecoration(
+                                    //                   color: AppColors.white,
+                                    //                   border: Border.all(
+                                    //                     color:
+                                    //                         AppColors.divider,
+                                    //                   ),
+                                    //                   borderRadius:
+                                    //                       BorderRadius.circular(
+                                    //                         4,
+                                    //                       ),
+                                    //                 ),
+                                    //                 child: Row(
+                                    //                   children: [
+                                    //                     const Icon(
+                                    //                       Icons.file_upload,
+                                    //                     ),
+                                    //                     SizedBox(width: 1.h),
+                                    //                     Text(
+                                    //                       "Upload CSV File",
+                                    //                       style:
+                                    //                           AppTextStyle.medium(),
+                                    //                     ),
+                                    //                   ],
+                                    //                 ),
+                                    //               ),
+                                    //               const SizedBox(height: 16),
+                                    //               Text(
+                                    //                 'Simple File',
+                                    //                 style: AppTextStyle.small(
+                                    //                   color: Colors.indigo,
+                                    //                   size: 11.sp,
+                                    //                 ),
+                                    //               ),
+                                    //             ],
+                                    //           ),
+                                    //           onSubmit: () =>
+                                    //               Navigator.pop(context),
+                                    //         );
+                                    //       },
+                                    //     );
+                                    //   },
+                                    // ),
+                                    // SizedBox(width: 1.w),
+                                    // _actionBtn(
+                                    //   2,
+                                    //   "Bulk Add",
+                                    //   AppColors.orangeLight,
+                                    //   AppColors.orange,
+                                    //   () {
+                                    //     showDialog(
+                                    //       context: context,
+                                    //       builder: (context) {
+                                    //         return AppDialog(
+                                    //           title: 'Bulk Add Category',
+                                    //           body: Column(
+                                    //             crossAxisAlignment:
+                                    //                 CrossAxisAlignment.start,
+                                    //             mainAxisSize: MainAxisSize.min,
+                                    //             children: [
+                                    //               const Text("Lead Category"),
+                                    //               const SizedBox(height: 8),
+                                    //               TextField(
+                                    //                 controller:
+                                    //                     categoryController,
+                                    //                 decoration: InputDecoration(
+                                    //                   hintText:
+                                    //                       "Enter Category",
+                                    //                   hintStyle:
+                                    //                       AppTextStyle.medium(
+                                    //                         size: 11.sp,
+                                    //                         color:
+                                    //                             AppColors.grey,
+                                    //                       ),
+                                    //                   border: OutlineInputBorder(
+                                    //                     borderRadius:
+                                    //                         BorderRadius.circular(
+                                    //                           4,
+                                    //                         ),
+                                    //                   ),
+                                    //                 ),
+                                    //               ),
+                                    //               const SizedBox(height: 16),
+                                    //             ],
+                                    //           ),
+                                    //           onSubmit: () =>
+                                    //               Navigator.pop(context),
+                                    //         );
+                                    //       },
+                                    //     );
+                                    //   },
+                                    // ),
                                   ],
                                 );
                               },
@@ -727,28 +727,25 @@ class _LeadCategoryState extends State<LeadCategory> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

@@ -1024,7 +1024,9 @@ class _LeadsReportState extends State<LeadsReport> {
                                     .toList(),
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
-                                  context.push(RoutePaths.followUpPath(lead.id!));
+                                  context.push(
+                                    RoutePaths.followUpPath(lead.id!, "NEW"),
+                                  );
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
@@ -1086,7 +1088,12 @@ class _LeadsReportState extends State<LeadsReport> {
                                       children: [
                                         GestureDetector(
                                           onTap: () {
-                                            context.push(RoutePaths.followUpPath(lead.id!));
+                                            context.push(
+                                              RoutePaths.followUpPath(
+                                                lead.id!,
+                                                "NEW",
+                                              ),
+                                            );
                                           },
                                           child: Icon(
                                             Icons.visibility_outlined,
@@ -1097,10 +1104,18 @@ class _LeadsReportState extends State<LeadsReport> {
                                         SizedBox(width: 0.1.h),
                                         GestureDetector(
                                           onTap: () async {
-                                            final didUpdate = await context.push<bool>(RoutePaths.leadEditPath(lead.id!));
-                                             if (didUpdate == true && context.mounted) {
-                                               context.read<AddLeadCubit>().fetchLeads();
-                                             }
+                                            final didUpdate = await context
+                                                .push<bool>(
+                                                  RoutePaths.leadEditPath(
+                                                    lead.id!,
+                                                  ),
+                                                );
+                                            if (didUpdate == true &&
+                                                context.mounted) {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .fetchLeads();
+                                            }
                                           },
                                           child: Icon(
                                             Icons.edit,

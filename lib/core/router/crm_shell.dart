@@ -265,7 +265,10 @@ class _CrmShellState extends State<CrmShell> {
                     Expanded(
                       child: Container(
                         color: AppColors.background,
-                        child: widget.child,
+                        child: BlocProvider.value(
+                          value: _notificationCubit,
+                          child: widget.child,
+                        ),
                       ),
                     ),
                     const BottomBar(),

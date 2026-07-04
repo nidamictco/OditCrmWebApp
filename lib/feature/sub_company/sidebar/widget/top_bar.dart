@@ -232,7 +232,12 @@ class _TopBarState extends State<TopBar> {
                                       // _searchController.clear();
                                       // cubit.searchLeads('');
                                       _hideDropdown();
-                                      context.push(RoutePaths.followUpPath(lead.id!));
+                                      context.push(
+                                        RoutePaths.followUpPath(
+                                          lead.id!,
+                                          "NEW",
+                                        ),
+                                      );
                                     },
                                     hoverColor: Colors.grey.shade50,
                                     child: Padding(

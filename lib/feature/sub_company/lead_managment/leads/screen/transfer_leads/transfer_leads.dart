@@ -853,7 +853,12 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         children: [
                                           GestureDetector(
                                             onTap: () {
-                                              context.push(RoutePaths.followUpPath(lead.id!));
+                                              context.push(
+                                                RoutePaths.followUpPath(
+                                                  lead.id!,
+                                                  "TRANSFERED",
+                                                ),
+                                              );
                                             },
                                             child: Icon(
                                               Icons.visibility_outlined,
@@ -978,7 +983,9 @@ class _TransferLeadsState extends State<TransferLeads> {
                                             context
                                                 .read<AddLeadCubit>()
                                                 .fetchLeads();
-                                            Navigator.pop(context);
+                                            // Navigator.pop(context);
+                                            context.pop();
+
                                             // ── Only transfer leads not already assigned to the selected staff ──
                                             final leadsToTransfer =
                                                 selectedLeads
@@ -990,7 +997,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                     .toList();
 
                                             if (leadsToTransfer.isEmpty) {
-                                              Navigator.pop(context);
+                                              // Navigator.pop(context);
+                                              context.pop();
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
