@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/staff_top_bar.dart';
-import '../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import '../cubit/designation_cubit.dart';
 import '../model/designation_model.dart';
 import 'package:sizer/sizer.dart';
@@ -546,12 +547,7 @@ class _DesignationPermissionsScreenState
               parent2True: true,
               parent2: 'Designation',
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MainScreen(selectedIndex: 17),
-                  ),
-                );
+                context.go(RoutePaths.designation);
               },
               current: isEditMode ? 'Edit Designation' : 'Add Designation',
             ),

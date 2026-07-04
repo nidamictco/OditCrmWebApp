@@ -3,7 +3,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/asset_resources.dart';
 import 'login.dart';
-import '../../sub_company/sidebar/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {

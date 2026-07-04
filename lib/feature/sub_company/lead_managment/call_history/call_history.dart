@@ -6,7 +6,8 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/widget/cloud_call_tab.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/widget/folow_up_tab.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/widget/phone_log_tab.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 
 class CallHistoryPage extends StatefulWidget {
@@ -114,12 +115,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                   size: 15,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainScreen(selectedIndex: 26),
-                    ),
-                  );
+                  context.push(RoutePaths.outgoingCallHistory);
                 },
               ),
             ),

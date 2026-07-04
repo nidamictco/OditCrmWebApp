@@ -6,20 +6,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'feature/auth/data/firebase_auth_service.dart';
 import 'core/shared_preference/session_service.dart';
 import 'feature/auth/cubit/auth/auth_cubit.dart';
-import 'feature/auth/screen/auth_gate.dart';
-import 'feature/auth/screen/login.dart';
 import 'package:sizer/sizer.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'firebase_options.dart';
 
+import 'package:go_router/go_router.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_colors.dart';
+
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
 
   // await windowManager.ensureInitialized();
   try {
@@ -33,6 +37,7 @@ void main() async {
     // print(
     //   'Notification permission: ${settings.authorizationStatus}',
     // );
+
     runApp(const OxdoApp());
   } catch (e) {
     // Fallback UI or log error
@@ -49,26 +54,52 @@ class ErrorApp extends StatelessWidget {
   );
 }
 
-class OxdoApp extends StatelessWidget {
+class OxdoApp extends StatefulWidget {
   const OxdoApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<OxdoApp> createState() => _OxdoAppState();
+}
+
+class _OxdoAppState extends State<OxdoApp> {
+  late final AuthCubit _authCubit;
+  late final PermissionCubit _permissionCubit;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _authCubit = AuthCubit(
+      authService: FirebaseAuthService(),
+      sessionService: SessionService(),
+      staffRepository: StaffRepository(),
+    );
+    _permissionCubit = PermissionCubit();
+    _router = AppRouter.createRouter(
+      _authCubit,
+      observers: [routeObserver],
+    );
+    
+    // Kick off auth session restoration on app start
+    _authCubit.checkSession(permissionCubit: _permissionCubit);
+  }
+
+  @override
+  void dispose() {
+    _authCubit.close();
+    _permissionCubit.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(
-            authService: FirebaseAuthService(),
-            sessionService: SessionService(),
-            staffRepository: StaffRepository(),
-          ),
-        ),
-        BlocProvider<PermissionCubit>(create: (_) => PermissionCubit()),
+        BlocProvider<AuthCubit>.value(value: _authCubit),
+        BlocProvider<PermissionCubit>.value(value: _permissionCubit),
       ],
-      child: MaterialApp(
-        navigatorKey: appNavigatorKey,
-        navigatorObservers: [routeObserver],
+      child: MaterialApp.router(
+        routerConfig: _router,
         supportedLocales: const [Locale('en')],
         localizationsDelegates: const [CountryLocalizations.delegate],
         debugShowCheckedModeBanner: false,
@@ -76,12 +107,82 @@ class OxdoApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: Sizer(
-          // ✅ Sizer gets MediaQuery from MaterialApp above it
-          builder: (context, orientation, deviceType) {
-            return AuthGate();
-          },
-        ),
+        builder: (context, child) {
+          return Sizer(
+            builder: (context, orientation, deviceType) {
+              return BlocListener<AuthCubit, AuthState>(
+                bloc: _authCubit,
+                listener: (context, state) {
+                  if (state is AuthError) {
+                    if (state.message.toLowerCase().contains('suspended') ||
+                        state.message.toLowerCase().contains('upgrade plan')) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Row(
+                              children: const [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: Colors.orange,
+                                  size: 28,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Account Suspended',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: Text(
+                              state.message,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }
+                },
+                child: BlocBuilder<AuthCubit, AuthState>(
+                  bloc: _authCubit,
+                  builder: (context, state) {
+                    if (state is AuthInitial || state is AuthLoading) {
+                      return const Scaffold(
+                        backgroundColor: AppColors.background,
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    return child ?? const SizedBox.shrink();
+                  },
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -21,9 +22,9 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../core/router/route_paths.dart';
 import '../../../core/shared_preference/session_service.dart';
 import '../lead_managment/leads/model/add_lead_model.dart';
-import '../sidebar/main_screen.dart';
 import '../staff_managment/staff/model/staff_model.dart';
 
 Color getLeadStatusColor(String status) {
@@ -378,13 +379,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onView(AddLeadModel lead) {
     _showSnackBar('Viewing ${lead.clientName}', AppTheme.actionView);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        settings: const RouteSettings(name: '/follow_up'),
-        builder: (context) => MainScreen(selectedIndex: 31, lead: lead),
-      ),
-    ).then((_) {
+    context.push(RoutePaths.followUpPath(lead.id!)).then((_) {
       // Reload leads from cubit after returning from detail screen
       context.read<AddLeadCubit>().fetchDashboardLeads(
         staffId: widget.staff!.id!,
@@ -405,11 +400,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   //   );
   // }
   void _onEdit(AddLeadModel lead) async {
-    final didUpdate = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(selectedIndex: 1, lead: lead),
-      ),
+    final didUpdate = await context.push<bool>(
+      RoutePaths.leadEditPath(lead.id!),
     );
     if (didUpdate == true && mounted) {
       context.read<AddLeadCubit>().fetchDashboardLeads(
@@ -1564,16 +1556,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               // ── Row tap → lead details ──────────────────────
               onRowTap: (rowIndex) {
                 final lead = pagedList[rowIndex];
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MainScreen(
-                      selectedIndex: 31,
-                      lead: lead,
-                      // goToDashboardOnBack: true,
-                    ),
-                  ),
-                ).then((_) {
+                context.push(RoutePaths.followUpPath(lead.id!)).then((_) {
                   context.read<AddLeadCubit>().fetchDashboardLeads(
                     staffId: widget.staff?.id ?? '',
                     role: widget.staff?.staffType ?? 'Admin',

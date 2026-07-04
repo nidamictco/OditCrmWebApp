@@ -21,7 +21,8 @@ import 'package:Odit_CRM/core/utils/dropdown_with_add.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
@@ -550,12 +551,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             Navigator.pop(context, true);
           } else {
             context.read<AddLeadCubit>().fetchLeads();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainScreen(selectedIndex: 2),
-              ),
-            );
+            context.go(RoutePaths.leadsReport);
             //          context.read<AddLeadCubit>().fetchLeads();
             // Navigator.pop(context, true);
           }

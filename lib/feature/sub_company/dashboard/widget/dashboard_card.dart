@@ -4,7 +4,8 @@ import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/tool_tips.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
@@ -141,19 +142,17 @@ class _DashboardCardState extends State<DashboardCard> {
                     return GestureDetector(
                       onTap: () async {
                         final user = await SessionService().getSavedUser();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            settings: const RouteSettings(name: '/new_leads'),
-                            builder: (context) => MainScreen(
-                              selectedIndex: 12,
-                              fromCard: widget.fromCard,
-                              staff: user,
-                              selectedDate: state.selectedDashboardDate,
-                              goToDashboardOnBack: true,
-                            ),
-                          ),
-                        );
+                        final staffId = user?.id;
+                        final dateStr = state.selectedDashboardDate?.toIso8601String();
+                        final path = Uri(
+                          path: RoutePaths.newLeads,
+                          queryParameters: {
+                            if (widget.fromCard.isNotEmpty) 'fromCard': widget.fromCard,
+                            if (dateStr != null) 'selectedDate': dateStr,
+                            if (staffId != null) 'staffId': staffId,
+                          },
+                        ).toString();
+                        context.push(path);
                       },
                       child: Text(
                         "View Details",

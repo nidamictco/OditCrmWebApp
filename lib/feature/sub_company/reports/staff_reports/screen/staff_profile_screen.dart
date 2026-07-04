@@ -19,7 +19,8 @@ import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/donut_
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/note_dialog.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/notes_drawer.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/recent_activity_items.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -431,13 +432,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
               size: 18,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      MainScreen(selectedIndex: 15, staff: liveModel),
-                ),
-              );
+              context.push(RoutePaths.staffEditPath(liveModel.id!));
             },
           ),
         ),
@@ -1411,12 +1406,7 @@ class __CallStatusCardState extends State<_CallStatusCard> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainScreen(selectedIndex: 30),
-                    ),
-                  );
+                  context.push(RoutePaths.timeline);
                 },
                 child: Text(
                   'View',

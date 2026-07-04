@@ -11,7 +11,8 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_text_style.dart';
@@ -852,15 +853,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         children: [
                                           GestureDetector(
                                             onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) => MainScreen(
-                                                    selectedIndex: 31,
-                                                    lead: lead,
-                                                  ),
-                                                ),
-                                              );
+                                              context.push(RoutePaths.followUpPath(lead.id!));
                                             },
                                             child: Icon(
                                               Icons.visibility_outlined,

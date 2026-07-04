@@ -9,7 +9,8 @@ import 'package:Odit_CRM/core/utils/page_button.dart';
 import 'package:Odit_CRM/core/utils/show_entries.dart';
 import 'package:Odit_CRM/core/utils/staff_top_bar.dart';
 import 'package:Odit_CRM/core/utils/table.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -125,14 +126,7 @@ class _StaffReportsState extends State<StaffReports> {
                             onExit: (_) => setState(() => isHovering = false),
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    settings: const RouteSettings(name: '/add_staff'),
-                                    builder: (context) =>
-                                        MainScreen(selectedIndex: 15),
-                                  ),
-                                );
+                                context.push(RoutePaths.addStaff);
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -293,16 +287,7 @@ class _StaffReportsState extends State<StaffReports> {
                                 onRowTap: (rowIndex) {
                                   final staff = pagedList[rowIndex];
                                   log('stafff........$staff');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      settings: const RouteSettings(name: '/staff_profile'),
-                                      builder: (context) => MainScreen(
-                                        selectedIndex: 29,
-                                        staff: staff,
-                                      ),
-                                    ),
-                                  );
+                                  context.push(RoutePaths.staffProfilePath(staff.id!));
                                 },
                                 columns: [
                                   TableColumn(title: "Sl No.", flex: 1),
@@ -335,16 +320,7 @@ class _StaffReportsState extends State<StaffReports> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            settings: const RouteSettings(name: '/staff_profile'),
-                                            builder: (context) => MainScreen(
-                                              selectedIndex: 29,
-                                              staff: staff,
-                                            ),
-                                          ),
-                                        );
+                                        context.push(RoutePaths.staffProfilePath(staff.id!));
                                       },
                                       child: Container(
                                         padding: EdgeInsets.all(0.1.w),

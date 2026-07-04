@@ -14,7 +14,8 @@ import '../../../../../../../core/utils/inputfield_for_psswrd.dart';
 import '../../../../../../../core/utils/staff_top_bar.dart';
 import '../../../../../../../core/utils/dropdown_with_add.dart';
 import '../../../../../../auth/cubit/auth/auth_cubit.dart';
-import '../../../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import '../../../cubit/add_staff_cubit.dart';
 import '../../../cubit/add_staff_state.dart';
 import '../../../model/staff_model.dart';
@@ -387,10 +388,7 @@ class _AddStaffState extends State<AddStaff> {
               }
             }
           }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 16)),
-          );
+          context.go(RoutePaths.viewStaff);
         }
         if (state is StaffError) {
           final rawMsg = state.message;
@@ -424,13 +422,7 @@ class _AddStaffState extends State<AddStaff> {
                         // );
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  MainScreen(selectedIndex: 16),
-                            ),
-                          );
+                          context.go(RoutePaths.viewStaff);
                         });
                       }
                     : null,
