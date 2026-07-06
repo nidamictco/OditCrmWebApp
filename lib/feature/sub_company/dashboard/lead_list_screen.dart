@@ -23,6 +23,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:sizer/sizer.dart';
 
 import '../../../core/router/route_paths.dart';
+import '../../../core/router/browser_aware_link.dart';
 import '../../../core/shared_preference/session_service.dart';
 import '../lead_managment/leads/model/add_lead_model.dart';
 import '../staff_managment/staff/model/staff_model.dart';
@@ -1445,17 +1446,29 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               // mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _ActionButton(
-                  icon: Icons.visibility_rounded,
-                  color: AppTheme.actionView,
-                  tooltip: 'View',
+                BrowserAwareLink(
+                  destination: RoutePaths.followUpPath(lead.id!, widget.fromCard),
                   onTap: () => _onView(lead),
+                  usePush: true,
+                  enableInkWell: false,
+                  child: _ActionButton(
+                    icon: Icons.visibility_rounded,
+                    color: AppTheme.actionView,
+                    tooltip: 'View',
+                    onTap: () {},
+                  ),
                 ),
-                _ActionButton(
-                  icon: Icons.edit_rounded,
-                  color: AppTheme.actionEdit,
-                  tooltip: 'Edit',
+                BrowserAwareLink(
+                  destination: RoutePaths.leadEditPath(lead.id!),
                   onTap: () => _onEdit(lead),
+                  usePush: true,
+                  enableInkWell: false,
+                  child: _ActionButton(
+                    icon: Icons.edit_rounded,
+                    color: AppTheme.actionEdit,
+                    tooltip: 'Edit',
+                    onTap: () {},
+                  ),
                 ),
                 _ActionButton(
                   icon: Icons.delete_rounded,
@@ -1554,6 +1567,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               rows: rows,
               showCheckboxes: true,
               priorityColors: priorityColors,
+              getRowDestination: (rowIndex) {
+                final lead = pagedList[rowIndex];
+                return RoutePaths.followUpPath(lead.id!, widget.fromCard);
+              },
               // ── Row tap → lead details ──────────────────────
               onRowTap: (rowIndex) {
                 final lead = pagedList[rowIndex];

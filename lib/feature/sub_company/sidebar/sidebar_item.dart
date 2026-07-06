@@ -7,6 +7,8 @@ import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:sizer/sizer.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 
 class SidebarItem extends StatefulWidget {
   final int selectedIndex;
@@ -205,14 +207,10 @@ class _SidebarItemState extends State<SidebarItem> {
 
   Widget sidebarItem(IconData icon, String title, int index) {
     final isSelected = widget.selectedIndex == index;
-    return InkWell(
-      onTap: () {
-        // if (index == 0) {
-        //   final today = DateTime.now();
-        //   context.read<AddLeadCubit>().fetchDashboardCounts(today);
-        // }
-        widget.onItemSelected(index);
-      },
+    final path = RoutePaths.sidebarPaths[index] ?? '/';
+    return BrowserAwareLink(
+      destination: path,
+      onTap: () => widget.onItemSelected(index),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
@@ -238,7 +236,9 @@ class _SidebarItemState extends State<SidebarItem> {
 
   Widget subMenuItem(String title, int index) {
     final isSelected = widget.selectedIndex == index;
-    return InkWell(
+    final path = RoutePaths.sidebarPaths[index] ?? '/';
+    return BrowserAwareLink(
+      destination: path,
       onTap: () => widget.onItemSelected(index),
       child: Padding(
         padding: const EdgeInsets.only(top: 14, bottom: 14, left: 20),

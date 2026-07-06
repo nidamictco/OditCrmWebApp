@@ -13,6 +13,7 @@ import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_cub
 import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -391,10 +392,10 @@ class _TopBarState extends State<TopBar> {
                     final unread = state is NotificationLoaded
                         ? state.unreadCount
                         : 0;
-                    return GestureDetector(
-                      onTap: () {
-                        context.push(RoutePaths.notifications);
-                      },
+                    return BrowserAwareLink(
+                      destination: RoutePaths.notifications,
+                      usePush: true,
+                      enableInkWell: false,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
