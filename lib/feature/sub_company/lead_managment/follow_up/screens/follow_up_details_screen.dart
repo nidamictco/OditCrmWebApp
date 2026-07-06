@@ -38,7 +38,9 @@ import '../models/staff_handler_model.dart';
 
 class FollowUpDetailsScreen extends StatefulWidget {
   AddLeadModel currentLead;
-  FollowUpDetailsScreen({super.key, required this.currentLead});
+  final String? fromCard;
+
+  FollowUpDetailsScreen({super.key, required this.currentLead, this.fromCard});
   // final AddLeadModel? lead;
   // const FollowUpDetailsScreen({super.key, this.lead});
 
@@ -149,7 +151,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => context.pop(ctx),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -158,14 +160,24 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
           TextButton(
             onPressed: () async {
               await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+
+              context.pop(ctx);
+
               final user = await SessionService().getSavedUser();
+              context.read<AddLeadCubit>().fetchDashboardLeads(
+                staffId: user?.id! ?? "",
+                role: user?.staffType ?? "",
+                fromCard: widget.fromCard ?? "NEW",
+              );
+
               final path = Uri(
                 path: RoutePaths.newLeads,
                 queryParameters: {
-                  'fromCard': 'NEW',
+                  'fromCard': widget.fromCard ?? "NEW",
                   if (user?.id != null) 'staffId': user?.id!,
                 },
               ).toString();
+
               context.go(path);
             },
             child: Text(
@@ -390,6 +402,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                       // Navigator.pop(context);
                                       context.pop();
                                       context.pop();
+                                      context.read<AddLeadCubit>().fetchLeads();
                                       // 🔹 Clear selection — assigned leads auto-disappear
                                       // because _filteredLeads filters out assignedStaffId != ''
                                       // setState(() {

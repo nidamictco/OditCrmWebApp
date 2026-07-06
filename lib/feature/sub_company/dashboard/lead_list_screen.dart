@@ -379,7 +379,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onView(AddLeadModel lead) {
     _showSnackBar('Viewing ${lead.clientName}', AppTheme.actionView);
-    context.push(RoutePaths.followUpPath(lead.id!)).then((_) {
+    context.push(RoutePaths.followUpPath(lead.id!, widget.fromCard)).then((_) {
       // Reload leads from cubit after returning from detail screen
       context.read<AddLeadCubit>().fetchDashboardLeads(
         staffId: widget.staff!.id!,
@@ -1113,7 +1113,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                       );
                                                 }
 
-                                                Navigator.pop(context);
+                                                // context.read<AddLeadCubit>().fetchLeads();
+                                                context.pop();
 
                                                 // ── Show how many were transferred vs skipped ──
                                                 final skippedCount =
@@ -1556,14 +1557,16 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               // ── Row tap → lead details ──────────────────────
               onRowTap: (rowIndex) {
                 final lead = pagedList[rowIndex];
-                context.push(RoutePaths.followUpPath(lead.id!)).then((_) {
-                  context.read<AddLeadCubit>().fetchDashboardLeads(
-                    staffId: widget.staff?.id ?? '',
-                    role: widget.staff?.staffType ?? 'Admin',
-                    fromCard: widget.fromCard,
-                    selectedDate: widget.selectedDate,
-                  );
-                });
+                context
+                    .push(RoutePaths.followUpPath(lead.id!, widget.fromCard))
+                    .then((_) {
+                      context.read<AddLeadCubit>().fetchDashboardLeads(
+                        staffId: widget.staff?.id ?? '',
+                        role: widget.staff?.staffType ?? 'Admin',
+                        fromCard: widget.fromCard,
+                        selectedDate: widget.selectedDate,
+                      );
+                    });
               },
               // ── Per-row checkbox ────────────────────────────
               onCheckChanged: (rowIndex, isChecked) {

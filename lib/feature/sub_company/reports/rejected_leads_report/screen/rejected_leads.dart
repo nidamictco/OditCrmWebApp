@@ -899,7 +899,12 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
-                                                context.push(RoutePaths.followUpPath(lead.id!));
+                                                context.push(
+                                                  RoutePaths.followUpPath(
+                                                    lead.id!,
+                                                    "NEW",
+                                                  ),
+                                                );
                                               },
                                               child: Icon(
                                                 Icons.visibility_outlined,

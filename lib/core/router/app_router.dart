@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../feature/sub_company/notification/data/notification_repo.dart';
+import '../../feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'route_paths.dart';
 import 'router_refresh_notifier.dart';
 import 'crm_shell.dart';
@@ -260,15 +262,17 @@ class AppRouter {
               builder: (context, state) {
                 final perm = context.watch<PermissionCubit>();
                 return PermissionGuard(
-                  hasPermission: perm.canTransferLeads || perm.canViewTransferLeads,
+                  hasPermission:
+                      perm.canTransferLeads || perm.canViewTransferLeads,
                   child: BlocProvider(
-                    create: (_) => AddLeadCubit(
-                      leadRepository: AddLeadRepository(),
-                      categoryRepository: LeadCategoryRepository(),
-                      sourceRepository: LeadSourceRepository(),
-                    )
-                      ..fetchLeads()
-                      ..fetchStaff(),
+                    create: (_) =>
+                        AddLeadCubit(
+                            leadRepository: AddLeadRepository(),
+                            categoryRepository: LeadCategoryRepository(),
+                            sourceRepository: LeadSourceRepository(),
+                          )
+                          ..fetchLeads()
+                          ..fetchStaff(),
                     child: TransferLeads(),
                   ),
                 );
@@ -346,7 +350,8 @@ class AppRouter {
               path: RoutePaths.newLeads,
               builder: (context, state) {
                 final fromCard = state.uri.queryParameters['fromCard'];
-                final selectedDateStr = state.uri.queryParameters['selectedDate'];
+                final selectedDateStr =
+                    state.uri.queryParameters['selectedDate'];
                 final staffId = state.uri.queryParameters['staffId'];
 
                 DateTime? selectedDate;
@@ -383,7 +388,9 @@ class AppRouter {
                   child: MultiBlocProvider(
                     providers: [
                       BlocProvider(
-                        create: (_) => ImportLeadsCubit(repository: ImportLeadsRepository()),
+                        create: (_) => ImportLeadsCubit(
+                          repository: ImportLeadsRepository(),
+                        ),
                       ),
                       BlocProvider(
                         create: (_) => AddLeadCubit(
@@ -410,7 +417,9 @@ class AppRouter {
                   child: MultiBlocProvider(
                     providers: [
                       BlocProvider(create: (_) => StaffCubit()),
-                      BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
+                      BlocProvider(
+                        create: (_) => DesignationCubit()..fetchAll(),
+                      ),
                     ],
                     child: const AddStaff(
                       key: ValueKey('add_staff'),
@@ -484,10 +493,13 @@ class AppRouter {
                   hasPermission: perm.canViewGeneralSettings,
                   child: BlocProvider(
                     create: (blocContext) {
-                      final cubit = GeneralSettingsCubit()..loadForCurrentUser();
+                      final cubit = GeneralSettingsCubit()
+                        ..loadForCurrentUser();
                       cubit.onSettingsChanged = (updated) {
                         try {
-                          blocContext.read<NotificationCubit>().refreshSettings(updated);
+                          blocContext.read<NotificationCubit>().refreshSettings(
+                            updated,
+                          );
                         } catch (_) {}
                       };
                       return cubit;
@@ -576,14 +588,19 @@ class AppRouter {
             GoRoute(
               path: RoutePaths.designationPermissions,
               builder: (context, state) {
-                final designationId = state.pathParameters['designationId'] ?? '';
-                return DesignationPermissionsWrapper(designationId: designationId);
+                final designationId =
+                    state.pathParameters['designationId'] ?? '';
+                return DesignationPermissionsWrapper(
+                  designationId: designationId,
+                );
               },
             ),
             GoRoute(
               path: RoutePaths.cloudCallSettings,
               builder: (context, state) => BlocProvider(
-                create: (_) => CallSettingsCubit(repository: CallSettingsRepository())..init(),
+                create: (_) =>
+                    CallSettingsCubit(repository: CallSettingsRepository())
+                      ..init(),
                 child: CloudCallSettingsScreen(),
               ),
             ),
@@ -602,7 +619,8 @@ class AppRouter {
               path: RoutePaths.followUp,
               builder: (context, state) {
                 final leadId = state.pathParameters['leadId'] ?? '';
-                return FollowUpWrapper(leadId: leadId);
+                final fromCard = state.uri.queryParameters['fromCard'];
+                return FollowUpWrapper(leadId: leadId, fromCard: fromCard);
               },
             ),
             GoRoute(
@@ -619,14 +637,27 @@ class AppRouter {
                 child: PersonalProfile(),
               ),
             ),
+            // GoRoute(
+            //   path: RoutePaths.notifications,
+            //   builder: (context, state) {
+            //     return BlocProvider.value(
+            //       value: context.read<NotificationCubit>(),
+            //       child: NotificationScreen(),
+            //     );
+            //   },
+            // ),
             GoRoute(
               path: RoutePaths.notifications,
-              builder: (context, state) {
-                return BlocProvider.value(
-                  value: context.read<NotificationCubit>(),
-                  child: NotificationScreen(),
-                );
-              },
+              builder: (context, state) => const NotificationScreen(),
+              // builder: (context, state) => BlocProvider(
+              //   create: (_) => NotificationCubit(
+              //     NotificationRepo(),
+              //     GeneralSettingsRepository(
+              //       staffId: state.pathParameters['staffId'] ?? '',
+              //     ),
+              //   ),
+              //   child: NotificationScreen(),
+              // ),
             ),
           ],
         ),
@@ -639,7 +670,9 @@ class AppRouter {
 
 class FollowUpWrapper extends StatefulWidget {
   final String leadId;
-  const FollowUpWrapper({super.key, required this.leadId});
+  final String? fromCard;
+
+  const FollowUpWrapper({super.key, required this.leadId, this.fromCard});
 
   @override
   State<FollowUpWrapper> createState() => _FollowUpWrapperState();
@@ -678,9 +711,7 @@ class _FollowUpWrapperState extends State<FollowUpWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null || _lead == null) {
       return Scaffold(
@@ -698,7 +729,10 @@ class _FollowUpWrapperState extends State<FollowUpWrapper> {
         ),
         BlocProvider(create: (_) => LeadCategoryCubit()),
       ],
-      child: FollowUpDetailsScreen(currentLead: _lead!),
+      child: FollowUpDetailsScreen(
+        currentLead: _lead!,
+        fromCard: widget.fromCard,
+      ),
     );
   }
 }
@@ -744,9 +778,7 @@ class _EditLeadWrapperState extends State<EditLeadWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null || _lead == null) {
       return Scaffold(
@@ -818,9 +850,7 @@ class _StaffProfileWrapperState extends State<StaffProfileWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null || _staff == null) {
       return Scaffold(
@@ -833,9 +863,7 @@ class _StaffProfileWrapperState extends State<StaffProfileWrapper> {
       providers: [
         BlocProvider(create: (_) => StaffCubit()),
         BlocProvider(create: (_) => AddLeadCubit()),
-        BlocProvider(
-          create: (_) => StaffActivityCubit(ActivityRepository()),
-        ),
+        BlocProvider(create: (_) => StaffActivityCubit(ActivityRepository())),
       ],
       child: StaffProfileScreen(staff: _staff!),
     );
@@ -883,9 +911,7 @@ class _EditStaffWrapperState extends State<EditStaffWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null || _staff == null) {
       return Scaffold(
@@ -952,9 +978,7 @@ class _ChangePasswordWrapperState extends State<ChangePasswordWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null || _staff == null) {
       return Scaffold(
@@ -975,10 +999,12 @@ class DesignationPermissionsWrapper extends StatefulWidget {
   const DesignationPermissionsWrapper({super.key, required this.designationId});
 
   @override
-  State<DesignationPermissionsWrapper> createState() => _DesignationPermissionsWrapperState();
+  State<DesignationPermissionsWrapper> createState() =>
+      _DesignationPermissionsWrapperState();
 }
 
-class _DesignationPermissionsWrapperState extends State<DesignationPermissionsWrapper> {
+class _DesignationPermissionsWrapperState
+    extends State<DesignationPermissionsWrapper> {
   DesignationModel? _designation;
   String? _error;
   bool _loading = true;
@@ -1000,7 +1026,9 @@ class _DesignationPermissionsWrapperState extends State<DesignationPermissionsWr
       return;
     }
     try {
-      final designation = await DesignationRepository().getDesignation(widget.designationId);
+      final designation = await DesignationRepository().getDesignation(
+        widget.designationId,
+      );
       if (mounted) {
         setState(() {
           _designation = designation;
@@ -1020,14 +1048,15 @@ class _DesignationPermissionsWrapperState extends State<DesignationPermissionsWr
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (widget.designationId != 'new' && (_error != null || _designation == null)) {
+    if (widget.designationId != 'new' &&
+        (_error != null || _designation == null)) {
       return Scaffold(
         body: Center(
-          child: Text('Failed to load designation: ${_error ?? "Designation not found"}'),
+          child: Text(
+            'Failed to load designation: ${_error ?? "Designation not found"}',
+          ),
         ),
       );
     }
@@ -1107,9 +1136,7 @@ class _NewLeadsWrapperState extends State<NewLeadsWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return BlocProvider(
       create: (_) => AddLeadCubit()
