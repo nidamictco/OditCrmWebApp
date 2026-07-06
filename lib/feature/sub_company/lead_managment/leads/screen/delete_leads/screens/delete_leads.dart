@@ -113,7 +113,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       _appliedFromDate = _staticAppliedFromDate;
       _appliedToDate = _staticAppliedToDate;
     } else {
-      _fromDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      _fromDateController.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateTime.now());
       _toDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
 
@@ -353,16 +355,19 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                 ),
                               ),
                               GestureDetector(
-                                 onTap: () {
-                              final leads = context
-                                  .read<AddLeadCubit>()
-                                  .state
-                                  .leads;
-                              final filtered = _filteredLeads(
-                                leads,
-                              ); // exports only filtered data
-                              exportLeadsToExcel(filtered,'deleted_leads_');
-                            },
+                                onTap: () {
+                                  final leads = context
+                                      .read<AddLeadCubit>()
+                                      .state
+                                      .leads;
+                                  final filtered = _filteredLeads(
+                                    leads,
+                                  ); // exports only filtered data
+                                  exportLeadsToExcel(
+                                    filtered,
+                                    'deleted_leads_',
+                                  );
+                                },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 1.4.w,
@@ -455,7 +460,8 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                                           label: "Lead Source",
                                           hint: 'Select Lead Source',
                                           showHelp: true,
-                                          message: 'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                          message:
+                                              'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
                                           items: sourceItems,
                                           selectedValue: selectedSource,
                                           onChanged: (val) {
@@ -770,70 +776,109 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 
   // ─── Restore confirmation dialog ───────────────────────────────────────────
   void _confirmRestore(BuildContext ctx, AddLeadModel lead) {
+    final addLeadCubit = ctx.read<AddLeadCubit>();
+
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Restore Lead', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
-          'Restore "${lead.clientName}" back to leads reports?',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: Text('Restore Lead', style: AppTextStyle.medium(size: 14.sp)),
+          content: Text(
+            'Restore "${lead.clientName}" back to leads reports?',
+            style: AppTextStyle.medium(),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              ctx.read<AddLeadCubit>().restoreLead(lead);
-            },
-            child: Text(
-              'Restore',
-              style: AppTextStyle.medium(color: Colors.green),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: AppTextStyle.medium(color: AppColors.grey),
+              ),
             ),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+
+                addLeadCubit.restoreLead(lead);
+              },
+              child: Text(
+                'Restore',
+                style: AppTextStyle.medium(color: Colors.green),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
+  // void _confirmRestore(BuildContext ctx, AddLeadModel lead) {
+  //   showDialog(
+  //     context: ctx,
+  //     builder: (_) => AlertDialog(
+  //       backgroundColor: AppColors.white,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  //       title: Text('Restore Lead', style: AppTextStyle.medium(size: 14.sp)),
+  //       content: Text(
+  //         'Restore "${lead.clientName}" back to leads reports?',
+  //         style: AppTextStyle.medium(),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(ctx),
+  //           child: Text(
+  //             'Cancel',
+  //             style: AppTextStyle.medium(color: AppColors.grey),
+  //           ),
+  //         ),
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.pop(ctx);
+  //             ctx.read<AddLeadCubit>().restoreLead(lead);
+  //           },
+  //           child: Text(
+  //             'Restore',
+  //             style: AppTextStyle.medium(color: Colors.green),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
+    final addLeadCubit = ctx.read<AddLeadCubit>();
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
@@ -843,7 +888,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -851,8 +896,8 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
-              ctx.read<AddLeadCubit>().permanentlyDeleteLead(
+              Navigator.pop(dialogContext);
+              addLeadCubit.permanentlyDeleteLead(
                 lead.id ?? '',
               ); // see cubit addition below
             },
@@ -868,36 +913,36 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
   // -------------export to excel function (filtered)-------------
   void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
-  exportToExcel<AddLeadModel>(
-    fileName: fileName,
-    wrapColumnIndices: [2],
-    rows: leads,
-    columns: [
-      ExcelColumn(header: 'SL No.',              value: (l) => '${leads.indexOf(l) + 1}'),
-      ExcelColumn(header: 'Client Name',    value: (l) => l.clientName),
-      ExcelColumn(header: 'Phone No',       value: (l) => l.contactNumber),
-      ExcelColumn(header: 'WhatsApp No',    value: (l) => l.whatsappNumber),
-      ExcelColumn(header: 'Email',          value: (l) => l.email),
-      ExcelColumn(header: 'Address',        value: (l) => l.address),
-      ExcelColumn(header: 'Pin Code',       value: (l) => l.pinCode),
-      ExcelColumn(header: 'Post Office',    value: (l) => l.postOffice),
-      ExcelColumn(header: 'State',          value: (l) => l.state),
-      ExcelColumn(header: 'District',       value: (l) => l.district),
-      ExcelColumn(header: 'Lead Category',  value: (l) => l.leadCategory),
-      ExcelColumn(header: 'Lead Source',    value: (l) => l.leadSource),
-      ExcelColumn(header: 'Lead Stage',     value: (l) => l.leadStage),
-      ExcelColumn(header: 'Priority',       value: (l) => l.priority),
-      ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
-      ExcelColumn(header: 'Created By',     value: (l) => l.createdBy),
-      ExcelColumn(header: 'Call Result',    value: (l) => l.callResult),
-      ExcelColumn(header: 'Remarks',        value: (l) => l.remarks),
-      ExcelColumn(
-        header: 'Created Date',
-        value: (l) => l.createdAt != null
-            ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
-            : '-',
-      ),
-    ],
-  );
-}
+    exportToExcel<AddLeadModel>(
+      fileName: fileName,
+      wrapColumnIndices: [2],
+      rows: leads,
+      columns: [
+        ExcelColumn(header: 'SL No.', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
+        ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
+        ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),
+        ExcelColumn(header: 'Email', value: (l) => l.email),
+        ExcelColumn(header: 'Address', value: (l) => l.address),
+        ExcelColumn(header: 'Pin Code', value: (l) => l.pinCode),
+        ExcelColumn(header: 'Post Office', value: (l) => l.postOffice),
+        ExcelColumn(header: 'State', value: (l) => l.state),
+        ExcelColumn(header: 'District', value: (l) => l.district),
+        ExcelColumn(header: 'Lead Category', value: (l) => l.leadCategory),
+        ExcelColumn(header: 'Lead Source', value: (l) => l.leadSource),
+        ExcelColumn(header: 'Lead Stage', value: (l) => l.leadStage),
+        ExcelColumn(header: 'Priority', value: (l) => l.priority),
+        ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
+        ExcelColumn(header: 'Created By', value: (l) => l.createdBy),
+        ExcelColumn(header: 'Call Result', value: (l) => l.callResult),
+        ExcelColumn(header: 'Remarks', value: (l) => l.remarks),
+        ExcelColumn(
+          header: 'Created Date',
+          value: (l) => l.createdAt != null
+              ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
+              : '-',
+        ),
+      ],
+    );
+  }
 }

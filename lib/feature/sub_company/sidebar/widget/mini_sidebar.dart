@@ -6,6 +6,7 @@ import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/sidebar_hover.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 
 class MiniSidebar extends StatelessWidget {
@@ -51,6 +52,7 @@ class MiniSidebar extends StatelessWidget {
             isExpandable: false,
             isSelected: selectedIndex == 0,
             onTap: () => onItemSelected(0),
+            destination: RoutePaths.dashboard,
           ),
 
           /// LEAD MANAGEMENT
@@ -63,14 +65,18 @@ class MiniSidebar extends StatelessWidget {
              if(perm.canViewLeadsReport) "Leads Report",
               if (perm.canImportLeads) 'Import Leads',
              if (perm.canViewDeletedLeads) 'Deleted Leads',
-              // "Call History",
-              // 'Unassigned Leads',
-             if (perm.canTransferLeads || perm.canViewTransferLeads) "Transfer Leads",
-              // "Phone Call Log",
+              if (perm.canTransferLeads || perm.canViewTransferLeads) "Transfer Leads",
             ],
-            isSelected: _isGroupSelected([1, 2, 14, 4 /*,3*/, 13, 5 /*6*/]),
+            destinations: [
+              if(perm.canAddLead) RoutePaths.addLead,
+              if(perm.canViewLeadsReport) RoutePaths.leadsReport,
+              if (perm.canImportLeads) RoutePaths.importLeads,
+              if (perm.canViewDeletedLeads) RoutePaths.deletedLeads,
+              if (perm.canTransferLeads || perm.canViewTransferLeads) RoutePaths.transferLeads,
+            ],
+            isSelected: _isGroupSelected([1, 2, 14, 4, 13, 5]),
             onItemTap: (index) {
-              const map = [1, 2, 14, 4 /*,3*/, 13, 5 /*6*/];
+              const map = [1, 2, 14, 4, 13, 5];
               onItemSelected(map[index]);
             },
           ),
@@ -80,8 +86,9 @@ class MiniSidebar extends StatelessWidget {
             icon: Icons.settings,
             title: "Settings",
             isExpandable: false,
-            isSelected: _isGroupSelected([20 /*21*/]),
+            isSelected: _isGroupSelected([20]),
             onTap: () => onItemSelected(20),
+            destination: RoutePaths.generalSettings,
           ),
 
           /// STAFF MANAGEMENT
@@ -96,25 +103,18 @@ class MiniSidebar extends StatelessWidget {
              if (perm.canViewDesignation) "Designations",
              if (perm.canViewDeletedStaff) "Deleted Staff",
             ],
+            destinations: [
+              if (perm.canAddStaff)  RoutePaths.addStaff,
+              if (perm.canViewStaff) RoutePaths.viewStaff,
+              if (perm.canViewDesignation) RoutePaths.designation,
+              if (perm.canViewDeletedStaff) RoutePaths.deletedStaff,
+            ],
             isSelected: _isGroupSelected([15, 16, 17, 18]),
             onItemTap: (index) {
               const map = [15, 16, 17, 18];
               onItemSelected(map[index]);
             },
           ),
-
-          // /// FILES MANAGEMENT
-          // HoverSidebarItem(
-          //   icon: Icons.folder,
-          //   title: "Files Manager",
-          //   isExpandable: true,
-          //   children: ["View"],
-          //   isSelected: _isGroupSelected([19]),
-          //   onItemTap: (index) {
-          //     const map = [19];
-          //     onItemSelected(map[index]);
-          //   },
-          // ),
 
           /// REPORTS
           if(perm.canViewStaffReport || perm.canViewTransferReport || perm.canViewTotalReport || perm.canViewRejectedReport)
@@ -126,8 +126,13 @@ class MiniSidebar extends StatelessWidget {
               if (perm.canViewStaffReport) "Staff Report",
               if (perm.canViewTransferReport) "Transfer Leads Reports",
               if (perm.canViewTotalReport)"Total Leads Reports",
-              // "Scheduled Leads Reports",
              if (perm.canViewRejectedReport)"Rejected leads Reports",
+            ],
+            destinations: [
+              if (perm.canViewStaffReport) RoutePaths.staffReports,
+              if (perm.canViewTransferReport) RoutePaths.transferReport,
+              if (perm.canViewTotalReport) RoutePaths.leadsReport,
+              if (perm.canViewRejectedReport) RoutePaths.rejectedReport,
             ],
             isSelected: _isGroupSelected([22, 23, 2, 24, 25]),
             onItemTap: (index) {

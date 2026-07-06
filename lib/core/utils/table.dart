@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
+import '../router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 
 class TableColumn {
@@ -24,6 +25,7 @@ class CustomTable extends StatefulWidget {
   final List<Color>? priorityColors;
   final double? height;
   final double? minWidth;
+  final String Function(int rowIndex)? getRowDestination;
 
   const CustomTable({
     super.key,
@@ -37,6 +39,7 @@ class CustomTable extends StatefulWidget {
     this.priorityColors,
     this.height,
     this.minWidth,
+    this.getRowDestination,
   });
 
   @override
@@ -202,80 +205,85 @@ class _CustomTableState extends State<CustomTable> {
               rowIndex < widget.priorityColors!.length)
           ? widget.priorityColors![rowIndex]
           : Colors.transparent;
-      return GestureDetector(
-        onTap: () => widget.onRowTap?.call(rowIndex),
-        child: Container(
-          decoration: BoxDecoration(
-            color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
-            border: Border(bottom: BorderSide(color: AppColors.divider)),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: 10),
+      final childWidget = Container(
+        decoration: BoxDecoration(
+          color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
+          border: Border(bottom: BorderSide(color: AppColors.divider)),
+        ),
+        child: Row(
+          children: [
+            SizedBox(width: 10),
 
-              // ── Priority dot ───────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.only(right: 0.1.w),
+            // ── Priority dot ───────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.only(right: 0.1.w),
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+
+            // 🔹 Checkbox cell
+            if (widget.showCheckboxes)
+              SizedBox(
+                width: 3.8.w,
                 child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(vertical: 1.h),
+                  child: Checkbox(
+                    value: _checkedStates[rowIndex],
+                    activeColor: AppColors.primary, // use your brand color
+                    onChanged: (val) {
+                      setState(() => _checkedStates[rowIndex] = val ?? false);
+                      widget.onCheckChanged?.call(rowIndex, val ?? false);
+                    },
                   ),
                 ),
               ),
 
-              // 🔹 Checkbox cell
-              // Row(
-              //   children: [
-              if (widget.showCheckboxes)
-                SizedBox(
-                  width: 3.8.w,
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 1.h),
-                    decoration: BoxDecoration(
-                      // border: Border(right: BorderSide(color: AppColors.divider)),
-                    ),
-                    child: Checkbox(
-                      value: _checkedStates[rowIndex],
-                      activeColor: AppColors.primary, // use your brand color
-                      onChanged: (val) {
-                        setState(() => _checkedStates[rowIndex] = val ?? false);
-                        widget.onCheckChanged?.call(rowIndex, val ?? false);
-                      },
-                    ),
-                  ),
-                ),
-              //   ],
-              // ),
+            // 🔹 Regular data cells
+            ...List.generate(widget.rows[rowIndex].length, (colIndex) {
+              final col = widget.columns[colIndex];
+              final cellContent = Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(vertical: 2.h),
+                decoration: const BoxDecoration(),
+                child: widget.rows[rowIndex][colIndex],
+              );
 
-              // 🔹 Regular data cells
-              ...List.generate(widget.rows[rowIndex].length, (colIndex) {
-                final col = widget.columns[colIndex];
-                final cellContent = Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 2.h),
-                  decoration: const BoxDecoration(),
-                  child: widget.rows[rowIndex][colIndex],
-                );
-
-                if (col.width != null) {
-                  return SizedBox(
-                    width: col.width,
-                    child: cellContent,
-                  );
-                }
-
-                return Expanded(
-                  flex: col.flex,
+              if (col.width != null) {
+                return SizedBox(
+                  width: col.width,
                   child: cellContent,
                 );
-              }),
-            ],
-          ),
+              }
+
+              return Expanded(
+                flex: col.flex,
+                child: cellContent,
+              );
+            }),
+          ],
         ),
+      );
+
+      final rowDest = widget.getRowDestination?.call(rowIndex);
+      if (rowDest != null && rowDest.isNotEmpty) {
+        return BrowserAwareLink(
+          destination: rowDest,
+          onTap: () => widget.onRowTap?.call(rowIndex),
+          enableInkWell: false,
+          child: childWidget,
+        );
+      }
+
+      return GestureDetector(
+        onTap: () => widget.onRowTap?.call(rowIndex),
+        child: childWidget,
       );
     });
   }

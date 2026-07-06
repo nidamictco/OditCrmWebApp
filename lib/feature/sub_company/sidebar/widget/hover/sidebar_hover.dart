@@ -1,6 +1,7 @@
-﻿
+
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/router/browser_aware_link.dart';
 
 class HoverSidebarItem extends StatefulWidget {
   final IconData icon;
@@ -10,6 +11,8 @@ class HoverSidebarItem extends StatefulWidget {
   final List<String>? children;
   final Function(int)? onItemTap;
   final bool isSelected;
+  final String? destination;
+  final List<String>? destinations;
 
   const HoverSidebarItem({
     super.key,
@@ -20,6 +23,8 @@ class HoverSidebarItem extends StatefulWidget {
     this.children,
     this.onItemTap,
     this.isSelected = false,
+    this.destination,
+    this.destinations,
   });
 
   @override
@@ -119,6 +124,9 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                 return StatefulBuilder(
                   builder: (context, setChildState) {
                     final isHovered = _hoveredChildIndex == index;
+                    final childDest = widget.destinations != null && index < widget.destinations!.length
+                        ? widget.destinations![index]
+                        : '';
                     return MouseRegion(
                       onEnter: (_) {
                         setChildState(() => _hoveredChildIndex = index);
@@ -126,7 +134,8 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                       onExit: (_) {
                         setChildState(() => _hoveredChildIndex = null);
                       },
-                      child: InkWell(
+                      child: BrowserAwareLink(
+                        destination: childDest,
                         onTap: () {
                           widget.onItemTap?.call(index);
                           _popupHovered = false;
@@ -181,6 +190,34 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
 
   @override
   Widget build(BuildContext context) {
+    final container = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      height: 60,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: widget.isSelected
+            ? AppColors.primary.withOpacity(0.12)
+            : _iconHovered
+                ? AppColors.primary.withOpacity(0.07)
+                : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        border: widget.isSelected
+            ? Border.all(
+                color: AppColors.primary.withOpacity(0.25), width: 1)
+            : null,
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        widget.icon,
+        size: 22,
+        color: widget.isSelected
+            ? AppColors.primary
+            : _iconHovered
+                ? AppColors.primary
+                : Colors.grey[600],
+      ),
+    );
+
     return MouseRegion(
       onEnter: (_) {
         setState(() => _iconHovered = true);
@@ -196,36 +233,17 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
           _maybeHide();
         }
       },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 60,
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: widget.isSelected
-                ? AppColors.primary.withOpacity(0.12)
-                : _iconHovered
-                    ? AppColors.primary.withOpacity(0.07)
-                    : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: widget.isSelected
-                ? Border.all(
-                    color: AppColors.primary.withOpacity(0.25), width: 1)
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            widget.icon,
-            size: 22,
-            color: widget.isSelected
-                ? AppColors.primary
-                : _iconHovered
-                    ? AppColors.primary
-                    : Colors.grey[600],
-          ),
-        ),
-      ),
+      child: widget.isExpandable
+          ? GestureDetector(
+              onTap: widget.onTap,
+              child: container,
+            )
+          : BrowserAwareLink(
+              destination: widget.destination ?? '',
+              onTap: widget.onTap,
+              enableInkWell: false,
+              child: container,
+            ),
     );
   }
 

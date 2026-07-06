@@ -50,6 +50,40 @@ class RoutePaths {
   static const personalProfile = '/personal_profile';
   static const notifications = '/notifications';
 
+  // Central map from sidebar index to route path
+  static const Map<int, String> sidebarPaths = {
+    0: dashboard,
+    1: addLead,
+    2: leadsReport,
+    3: callHistory,
+    4: deletedLeads,
+    5: transferLeads,
+    6: phoneCallLog,
+    7: leadCategory,
+    8: customFields,
+    9: leadSource,
+    10: leadStages,
+    11: leadDistribution,
+    12: newLeads,
+    13: unassignedLeads,
+    14: importLeads,
+    15: addStaff,
+    16: viewStaff,
+    17: designation,
+    18: deletedStaff,
+    19: fileManager,
+    20: generalSettings,
+    21: facebookSettings,
+    22: staffReports,
+    23: transferReport,
+    24: scheduledReport,
+    25: rejectedReport,
+    26: outgoingCallHistory,
+    30: timeline,
+    33: personalProfile,
+    34: notifications,
+  };
+
   // Helper methods to generate parameterized paths
   static String leadEditPath(String leadId) =>
       '/leads/edit/${Uri.encodeComponent(leadId)}';

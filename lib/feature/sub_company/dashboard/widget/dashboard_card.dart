@@ -6,6 +6,7 @@ import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/tool_tips.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:sizer/sizer.dart';
 
@@ -36,6 +37,14 @@ class _DashboardCardState extends State<DashboardCard> {
   bool isHovering = false;
 
   StaffModel? staff;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser().then((_) {
+      if (mounted) setState(() {});
+    });
+  }
 
   Future<void> getCurrentUser() async {
     final user = await SessionService().getSavedUser();
@@ -137,33 +146,32 @@ class _DashboardCardState extends State<DashboardCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BlocBuilder<AddLeadCubit, AddLeadState>(
-                  builder: (context, state) {
-                    return GestureDetector(
-                      onTap: () async {
-                        final user = await SessionService().getSavedUser();
-                        final staffId = user?.id;
-                        final dateStr = state.selectedDashboardDate?.toIso8601String();
-                        final path = Uri(
-                          path: RoutePaths.newLeads,
-                          queryParameters: {
-                            if (widget.fromCard.isNotEmpty) 'fromCard': widget.fromCard,
-                            if (dateStr != null) 'selectedDate': dateStr,
-                            if (staffId != null) 'staffId': staffId,
-                          },
-                        ).toString();
-                        context.push(path);
-                      },
-                      child: Text(
-                        "View Details",
-                        style: AppTextStyle.link(
-                          color: AppColors.grey,
-                          decorationColor: AppColors.grey,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                 BlocBuilder<AddLeadCubit, AddLeadState>(
+                   builder: (context, state) {
+                     final staffId = staff?.id;
+                     final dateStr = state.selectedDashboardDate?.toIso8601String();
+                     final path = Uri(
+                       path: RoutePaths.newLeads,
+                       queryParameters: {
+                         if (widget.fromCard.isNotEmpty) 'fromCard': widget.fromCard,
+                         if (dateStr != null) 'selectedDate': dateStr,
+                         if (staffId != null) 'staffId': staffId,
+                       },
+                     ).toString();
+                     return BrowserAwareLink(
+                       destination: path,
+                       usePush: true,
+                       enableInkWell: false,
+                       child: Text(
+                         "View Details",
+                         style: AppTextStyle.link(
+                           color: AppColors.grey,
+                           decorationColor: AppColors.grey,
+                         ),
+                       ),
+                     );
+                   },
+                 ),
                 BlocBuilder<AddLeadCubit, AddLeadState>(
                   builder: (context, state) {
                     String count = "0";

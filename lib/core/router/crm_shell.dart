@@ -115,40 +115,7 @@ class _CrmShellState extends State<CrmShell> {
   }
 
   void _onItemSelected(BuildContext context, int index) {
-    const paths = {
-      0: RoutePaths.dashboard,
-      1: RoutePaths.addLead,
-      2: RoutePaths.leadsReport,
-      3: RoutePaths.callHistory,
-      4: RoutePaths.deletedLeads,
-      5: RoutePaths.transferLeads,
-      6: RoutePaths.phoneCallLog,
-      7: RoutePaths.leadCategory,
-      8: RoutePaths.customFields,
-      9: RoutePaths.leadSource,
-      10: RoutePaths.leadStages,
-      11: RoutePaths.leadDistribution,
-      12: RoutePaths.newLeads,
-      13: RoutePaths.unassignedLeads,
-      14: RoutePaths.importLeads,
-      15: RoutePaths.addStaff,
-      16: RoutePaths.viewStaff,
-      17: RoutePaths.designation,
-      18: RoutePaths.deletedStaff,
-      19: RoutePaths.fileManager,
-      20: RoutePaths.generalSettings,
-      21: RoutePaths.facebookSettings,
-      22: RoutePaths.staffReports,
-      23: RoutePaths.transferReport,
-      24: RoutePaths.scheduledReport,
-      25: RoutePaths.rejectedReport,
-      26: RoutePaths.outgoingCallHistory,
-      30: RoutePaths.timeline,
-      33: RoutePaths.personalProfile,
-      34: RoutePaths.notifications,
-    };
-
-    final path = paths[index];
+    final path = RoutePaths.sidebarPaths[index];
     if (path != null) {
       context.go(path);
     }
