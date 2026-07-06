@@ -18,7 +18,8 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/sample_file.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 
 class ImportLeads extends StatefulWidget {
@@ -130,10 +131,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         ),
       );
       setState(() => _pickedCsvBytes = null);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 2)),
-      );
+      context.go(RoutePaths.leadsReport);
     }
 
     if (state.status == ImportLeadsStatus.failure &&

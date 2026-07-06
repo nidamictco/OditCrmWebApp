@@ -25,7 +25,8 @@ import '../../../../../core/shared_preference/session_service.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/top_bread_crumb_bar.dart';
 import '../../../../../core/utils/transfer_lead_alert.dart';
-import '../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
@@ -158,16 +159,14 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
             onPressed: () async {
               await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
               final user = await SessionService().getSavedUser();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MainScreen(
-                    selectedIndex: 12,
-                    staff: user,
-                    fromCard: 'NEW',
-                  ),
-                ),
-              );
+              final path = Uri(
+                path: RoutePaths.newLeads,
+                queryParameters: {
+                  'fromCard': 'NEW',
+                  if (user?.id != null) 'staffId': user?.id!,
+                },
+              ).toString();
+              context.go(path);
             },
             child: Text(
               'Delete',
@@ -218,12 +217,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(selectedIndex: 0),
-            ),
-          );
+          context.go(RoutePaths.dashboard);
         }
       },
       child: scaffold,
@@ -327,14 +321,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             Icons.edit_outlined,
                             onTap: () async {
                               // ← async
-                              final didUpdate = await Navigator.push<bool>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainScreen(
-                                    selectedIndex: 1,
-                                    lead: _currentLead,
-                                  ),
-                                ),
+                              final didUpdate = await context.push<bool>(
+                                RoutePaths.leadEditPath(_currentLead.id!),
                               );
 
                               // ✅ Reload the lead data when edit completes
@@ -398,8 +386,10 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                           assignedStaff: selectedStaffName,
                                         );
                                       });
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
+                                      // Navigator.pop(context);
+                                      // Navigator.pop(context);
+                                      context.pop();
+                                      context.pop();
                                       // 🔹 Clear selection — assigned leads auto-disappear
                                       // because _filteredLeads filters out assignedStaffId != ''
                                       // setState(() {
@@ -415,13 +405,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           _headerIcon(
                             Icons.add_box_outlined,
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      MainScreen(selectedIndex: 1),
-                                ),
-                              );
+                              context.push(RoutePaths.addLead);
                             },
                           ),
                           const SizedBox(width: 10),

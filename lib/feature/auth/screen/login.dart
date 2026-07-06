@@ -14,7 +14,6 @@ import 'forget_psswrd.dart';
 
 import 'package:sizer/sizer.dart';
 
-import '../../sub_company/sidebar/main_screen.dart';
 import '../../sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import '../cubit/auth/auth_cubit.dart';
 
@@ -85,17 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is Authenticated) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (_) => state.user.companyType == 'mother_company'
-                  ? const MotherCompanyMainScreen()
-                  : const MainScreen(),
-            ),
-            (_) => false,
-          );
-        } else if (state is AuthError) {
+        if (state is AuthError) {
           if (!state.message.toLowerCase().contains('suspended') &&
               !state.message.toLowerCase().contains('upgrade plan')) {
             ScaffoldMessenger.of(context)

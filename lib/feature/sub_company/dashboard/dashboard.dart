@@ -10,7 +10,6 @@ import 'package:Odit_CRM/core/utils/menu_hover_bottun.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/add_leads_button.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/dashboard_card.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/social_connect_card.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
 import 'package:Odit_CRM/main.dart';
 import 'package:sizer/sizer.dart';
 

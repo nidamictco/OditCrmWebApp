@@ -7,7 +7,8 @@ import '../../../../../core/utils/page_button.dart';
 import '../../../../../core/utils/show_entries.dart';
 import '../../../../../core/utils/staff_top_bar.dart';
 import '../../../../../core/utils/table.dart';
-import '../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import '../cubit/designation_cubit.dart';
 import '../model/designation_model.dart';
 import 'package:sizer/sizer.dart';
@@ -117,13 +118,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                             onExit: (_) => setState(() => isHovering = false),
                             child: GestureDetector(
                               onTap: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        MainScreen(selectedIndex: 27),
-                                  ),
-                                );
+                                await context.push(RoutePaths.designationPermissionsPath("new"));
                                 if (context.mounted) {
                                   context.read<DesignationCubit>().fetchAll();
                                 }
@@ -236,19 +231,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                     /// ✏️ Edit
                                     GestureDetector(
                                       onTap: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => BlocProvider.value(
-                                              value: context
-                                                  .read<DesignationCubit>(),
-                                              child: MainScreen(
-                                                selectedIndex: 27,
-                                                designation: designation,
-                                              ),
-                                            ),
-                                          ),
-                                        );
+                                        await context.push(RoutePaths.designationPermissionsPath(designation.id!));
                                         if (context.mounted) {
                                           context
                                               .read<DesignationCubit>()

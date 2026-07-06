@@ -17,7 +17,8 @@ import '../../../lead_managment/leads/cubit/add_lead_state.dart';
 import '../../../lead_managment/leads/model/add_lead_model.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../core/router/route_paths.dart';
 
 class RejectedLeads extends StatefulWidget {
   const RejectedLeads({super.key});
@@ -898,16 +899,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        MainScreen(
-                                                          selectedIndex: 31,
-                                                          lead: lead,
-                                                        ),
-                                                  ),
-                                                );
+                                                context.push(RoutePaths.followUpPath(lead.id!));
                                               },
                                               child: Icon(
                                                 Icons.visibility_outlined,

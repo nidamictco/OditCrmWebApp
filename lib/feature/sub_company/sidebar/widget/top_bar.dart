@@ -11,7 +11,8 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_state.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -231,14 +232,7 @@ class _TopBarState extends State<TopBar> {
                                       // _searchController.clear();
                                       // cubit.searchLeads('');
                                       _hideDropdown();
-                                      navigator.push(
-                                        MaterialPageRoute(
-                                          builder: (_) => MainScreen(
-                                            selectedIndex: 31,
-                                            lead: lead,
-                                          ),
-                                        ),
-                                      );
+                                      context.push(RoutePaths.followUpPath(lead.id!));
                                     },
                                     hoverColor: Colors.grey.shade50,
                                     child: Padding(
@@ -394,11 +388,7 @@ class _TopBarState extends State<TopBar> {
                         : 0;
                     return GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => MainScreen(selectedIndex: 34),
-                          ),
-                        );
+                        context.push(RoutePaths.notifications);
                       },
                       child: Stack(
                         clipBehavior: Clip.none,
@@ -606,23 +596,15 @@ class _TopBarState extends State<TopBar> {
           }
         }
         if (selected == "Settings" && context.mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 20)),
-          );
+          context.go(RoutePaths.generalSettings);
         }
         if (selected == "Profile" && context.mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => MainScreen(selectedIndex: 33, staff: user),
-            ),
-          );
+          context.go(RoutePaths.personalProfile);
         }
         if (selected == "Change Password" && context.mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => MainScreen(selectedIndex: 32, staff: user),
-            ),
-          );
+          if (user?.id != null) {
+            context.push(RoutePaths.changePasswordPath(user!.id!));
+          }
         }
       },
       child: Container(
@@ -777,9 +759,7 @@ class _TopBarState extends State<TopBar> {
 
         if (!context.mounted) return;
         if (selected == 'new_lead') {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 1)),
-          );
+          context.push(RoutePaths.addLead);
         }
       },
       child: Tooltip(

@@ -12,7 +12,8 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/core/utils/indian_location_service.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
@@ -1023,15 +1024,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                     .toList(),
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MainScreen(
-                                        selectedIndex: 31,
-                                        lead: lead,
-                                      ),
-                                    ),
-                                  );
+                                  context.push(RoutePaths.followUpPath(lead.id!));
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
@@ -1093,16 +1086,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       children: [
                                         GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MainScreen(
-                                                      selectedIndex: 31,
-                                                      lead: lead,
-                                                    ),
-                                              ),
-                                            );
+                                            context.push(RoutePaths.followUpPath(lead.id!));
                                           },
                                           child: Icon(
                                             Icons.visibility_outlined,
@@ -1110,49 +1094,13 @@ class _LeadsReportState extends State<LeadsReport> {
                                             color: Colors.indigo,
                                           ),
                                         ),
-                                        // ── EDIT — await pop then re-fetch ──
-                                        // GestureDetector(
-                                        //   onTap: () async {
-                                        //     await Navigator.push(
-                                        //       context,
-                                        //       MaterialPageRoute(
-                                        //         builder: (_) => MainScreen(
-                                        //           selectedIndex: 1,
-                                        //           lead: lead,
-                                        //         ),
-                                        //       ),
-                                        //     );
-                                        //     if (context.mounted) {
-                                        //       context
-                                        //           .read<AddLeadCubit>()
-                                        //           .fetchLeads();
-                                        //     }
-                                        //   },
-                                        //   child: Icon(
-                                        //     Icons.edit,
-                                        //     size: 14.sp,
-                                        //     color: Colors.blue,
-                                        //   ),
-                                        // ),
                                         SizedBox(width: 0.1.h),
                                         GestureDetector(
                                           onTap: () async {
-                                            final didUpdate =
-                                                await Navigator.push<bool>(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) => MainScreen(
-                                                      selectedIndex: 1,
-                                                      lead: lead,
-                                                    ),
-                                                  ),
-                                                );
-                                            if (didUpdate == true &&
-                                                context.mounted) {
-                                              context
-                                                  .read<AddLeadCubit>()
-                                                  .fetchLeads();
-                                            }
+                                            final didUpdate = await context.push<bool>(RoutePaths.leadEditPath(lead.id!));
+                                             if (didUpdate == true && context.mounted) {
+                                               context.read<AddLeadCubit>().fetchLeads();
+                                             }
                                           },
                                           child: Icon(
                                             Icons.edit,

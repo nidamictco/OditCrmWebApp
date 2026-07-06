@@ -13,7 +13,8 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 
 class UnassingnedLead extends StatefulWidget {
@@ -220,13 +221,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      MainScreen(selectedIndex: 14),
-                                ),
-                              );
+                              context.push(RoutePaths.importLeads);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -566,15 +561,7 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       /// ACTION
                                       GestureDetector(
                                         onTap: () async {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => MainScreen(
-                                                selectedIndex: 1,
-                                                lead: lead,
-                                              ),
-                                            ),
-                                          );
+                                          await context.push(RoutePaths.leadEditPath(lead.id!));
                                           if (context.mounted) {
                                             context
                                                 .read<AddLeadCubit>()

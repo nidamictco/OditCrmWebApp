@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../feature/sub_company/sidebar/main_screen.dart';
 import '../theme/app_colors.dart';
 
 class MenuHoverButton extends StatefulWidget {
@@ -31,39 +31,19 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
             onSelected: (value) {
               switch (value) {
                 case "Leads Category":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MainScreen(selectedIndex: 7),
-                    ),
-                  );
+                  context.go(RoutePaths.leadCategory);
                   break;
 
                 case "Custom Field Settings":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MainScreen(selectedIndex: 8),
-                    ),
-                  );
+                  context.go(RoutePaths.customFields);
                   break;
 
                 case "Lead Source":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MainScreen(selectedIndex: 9),
-                    ),
-                  );
+                  context.go(RoutePaths.leadSource);
                   break;
 
                 case "Lead Stage":
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MainScreen(selectedIndex: 10),
-                    ),
-                  );
+                  context.go(RoutePaths.leadStages);
                   break;
 
                 // case "Call Settings":

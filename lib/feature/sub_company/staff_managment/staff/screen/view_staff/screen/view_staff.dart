@@ -7,7 +7,8 @@ import '../../../../../../../core/utils/page_button.dart';
 import '../../../../../../../core/utils/show_entries.dart';
 import '../../../../../../../core/utils/staff_top_bar.dart';
 import '../../../../../../../core/utils/table.dart';
-import '../../../../../sidebar/main_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import '../../../cubit/add_staff_cubit.dart';
 import '../../../cubit/add_staff_state.dart';
 import '../../../model/staff_model.dart';
@@ -234,16 +235,7 @@ class _ViewStaffState extends State<ViewStaff> {
                                 onExit: (_) =>
                                     setState(() => isHovering = false),
                                 child: GestureDetector(
-                                  onTap: () => Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      settings: const RouteSettings(name: '/add_staff'),
-                                      builder: (_) => MainScreen(
-                                        selectedIndex: 15,
-                                        staff: null, // pass staff for edit
-                                      ),
-                                    ),
-                                  ),
+                                  onTap: () => context.go(RoutePaths.addStaff),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,
@@ -537,14 +529,7 @@ class _ViewStaffState extends State<ViewStaff> {
           onRowTap: (rowIndex) {
             final staff = pagedList[rowIndex];
             // log('stafff........$staff');
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                settings: const RouteSettings(name: '/staff_profile'),
-                builder: (context) =>
-                    MainScreen(selectedIndex: 29, staff: staff),
-              ),
-            );
+            context.push(RoutePaths.staffProfilePath(staff.id!));
           },
           columns: [
             TableColumn(title: "#", flex: 1),
@@ -592,14 +577,7 @@ class _ViewStaffState extends State<ViewStaff> {
                     if(staff.designation != "Company_Admin")
                     GestureDetector( 
                       onTap: () =>
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              settings: const RouteSettings(name: '/add_staff'),
-                              builder: (_) =>
-                                  MainScreen(selectedIndex: 15, staff: staff),
-                            ),
-                          ).then((_) {
+                          context.push(RoutePaths.staffEditPath(staff.id!)).then((_) {
                             if (context.mounted) {
                               context.read<StaffCubit>().fetchAll();
                             }
@@ -617,14 +595,7 @@ class _ViewStaffState extends State<ViewStaff> {
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              settings: const RouteSettings(name: '/staff_profile'),
-                              builder: (context) =>
-                                  MainScreen(selectedIndex: 29, staff: staff),
-                            ),
-                          ).then((_) {
+                          context.push(RoutePaths.staffProfilePath(staff.id!)).then((_) {
                             // ✅ Refresh the list when returning from profile screen
                             if (context.mounted) {
                               context.read<StaffCubit>().fetchAll();
@@ -652,14 +623,7 @@ class _ViewStaffState extends State<ViewStaff> {
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              settings: const RouteSettings(name: '/change_password'),
-                              builder: (context) =>
-                                  MainScreen(selectedIndex: 32, staff: staff),
-                            ),
-                          ).then((_) {
+                          context.push(RoutePaths.changePasswordPath(staff.id!)).then((_) {
                             if (context.mounted) {
                               context.read<StaffCubit>().fetchAll();
                             }
