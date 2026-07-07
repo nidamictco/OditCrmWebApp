@@ -299,13 +299,18 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                         vertical: 10,
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _currentLead.clientName ?? '',
-                            style: AppTextStyle.heading(
-                              size: 20,
-                              weight: FontWeight.w700,
-                              color: Color(0xFF222222),
+                          Flexible(
+                            child: Text(
+                              _currentLead.clientName ?? '',
+                              style: AppTextStyle.heading(
+                                size: 20,
+                                weight: FontWeight.w700,
+                                color: Color(0xFF222222),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 5,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -525,9 +530,13 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
       children: [
         Icon(icon, size: 14, color: const Color(0xFF777777)),
         const SizedBox(width: 3),
-        Text(
-          text,
-          style: AppTextStyle.small(size: 12, color: Color(0xFF555555)),
+        Flexible(
+          child: Text(
+            text,
+            style: AppTextStyle.small(size: 12, color: Color(0xFF555555)),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 3,
+          ),
         ),
       ],
     );
@@ -870,15 +879,15 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
 
   final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
   final List<String> _callStatuses = [
-                    'Connected',
-                    'Busy',
-                    'Not Attended',
-                    'Switched Off',
-                    'Out Of Coverage', 
-                    'Wrong Number',
-                    'Not Reachable',
-                    'Other',
-                  ];
+    'Connected',
+    'Busy',
+    'Not Attended',
+    'Switched Off',
+    'Out Of Coverage',
+    'Wrong Number',
+    'Not Reachable',
+    'Other',
+  ];
 
   String? _leadStage;
   String? _leadCategory;

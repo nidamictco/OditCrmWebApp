@@ -96,7 +96,6 @@
 //   List<String> selectedLeadStages = [];
 //   List<String> selectedStaffs = [];
 
-
 //    static List<String> _staticCategories = [];
 //   static List<String> _staticSources = [];
 //   static List<String> _staticPriorities = [];
@@ -1975,7 +1974,6 @@
 //   }
 // }
 
-
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
@@ -3376,7 +3374,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 BrowserAwareLink(
-                  destination: RoutePaths.followUpPath(lead.id!, widget.fromCard),
+                  destination: RoutePaths.followUpPath(
+                    lead.id!,
+                    widget.fromCard,
+                  ),
                   onTap: () => _onView(lead),
                   usePush: true,
                   enableInkWell: false,
@@ -3418,7 +3419,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             case 'normal':
               return const Color(0xFF22C55E);
             case 'low':
-              return const Color(0xFFF97316);
+              return const Color.fromARGB(255, 226, 249, 22);
             case 'negative':
               return const Color(0xFF9CA3AF);
             default:
