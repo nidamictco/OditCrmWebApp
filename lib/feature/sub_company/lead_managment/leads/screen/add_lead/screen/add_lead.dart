@@ -529,9 +529,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
           _syncAdditionalControllers(state.additionalFields);
         }
 
-        // if (state.errorMessage != null) {
-        //   _showError(state.errorMessage!);
-        // }
         if (state.errorMessage != null) {
           if (state.errorMessage!.contains('already exists')) {
             _showDuplicateAlert(state.errorMessage!);
@@ -540,20 +537,80 @@ class _AddLeadPageState extends State<AddLeadPage> {
           }
         }
 
-        if (state.successMessage != null) {
-          if (_isEditMode) {
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => MainScreen(selectedIndex: 2),
-            //   ),
-            // );
-            Navigator.pop(context, true);
-          } else {
-            context.read<AddLeadCubit>().fetchLeads();
-            context.go(RoutePaths.leadsReport);
-            //          context.read<AddLeadCubit>().fetchLeads();
-            // Navigator.pop(context, true);
+        if (state.successMessage != null && state.successMessage!.isNotEmpty) {
+          log(
+            "Success state: status = ${state.status}, message = ${state.successMessage}",
+          );
+          if (state.status == AddLeadStatus.success) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline,
+                      color: AppColors.green,
+                      size: 35,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Success',
+                      style: AppTextStyle.medium(
+                        size: 15.sp,
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+
+                content: Text(
+                  state.successMessage!,
+                  style: AppTextStyle.medium(size: 12.sp),
+                  textAlign: TextAlign.center,
+                ),
+                actionsAlignment: MainAxisAlignment.center,
+                actions: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      if (_isEditMode) {
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => MainScreen(selectedIndex: 2),
+                        //   ),
+                        // );
+                        Navigator.pop(context, true);
+                      } else {
+                        context.read<AddLeadCubit>().fetchLeads();
+                        context.go(RoutePaths.leadsReport);
+                      }
+                    },
+                    child: Text(
+                      'OK',
+                      style: AppTextStyle.medium(
+                        size: 11.sp,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
         }
       },
@@ -1235,16 +1292,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                 showStar: true,
                                 focusNode: _callResultFocus,
                                 nextFocusNode: _remarksFocus,
-                                items: const[
-                    'Connected',
-                    'Busy',
-                    'Not Attended',
-                    'Switched Off',
-                    'Out Of Coverage', 
-                    'Wrong Number',
-                    'Not Reachable',
-                    'Other',
-                  ],
+                                items: const [
+                                  'Connected',
+                                  'Busy',
+                                  'Not Attended',
+                                  'Switched Off',
+                                  'Out Of Coverage',
+                                  'Wrong Number',
+                                  'Not Reachable',
+                                  'Other',
+                                ],
                                 selectedValue: _callResult,
                                 onChanged: (v) {
                                   setState(() => _callResult = v);
@@ -1324,9 +1381,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   focusNode: _submitFocus,
                   child: ElevatedButton(
                     onPressed: isBusy ? null : _submit,
-                    style: ElevatedButton.styleFrom( 
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: _submitFocus.hasFocus
-                          ? AppColors.primary     
+                          ? AppColors.primary
                           : AppColors.green,
                       disabledBackgroundColor: AppColors.green.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
@@ -1810,10 +1867,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message,
-              style: AppTextStyle.medium(size: 11.sp),
-            ),
+            Text(message, style: AppTextStyle.medium(size: 11.sp)),
             SizedBox(height: 1.5.h),
             Container(
               padding: EdgeInsets.all(1.w),

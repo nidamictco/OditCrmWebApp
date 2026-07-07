@@ -27,6 +27,7 @@ class BrowserAwareLink extends StatefulWidget {
   final Color? hoverColor;
   final Color? focusColor;
   final BorderRadius? borderRadius;
+  final VoidCallback? onNewTabOpened;
 
   const BrowserAwareLink({
     super.key,
@@ -41,6 +42,7 @@ class BrowserAwareLink extends StatefulWidget {
     this.hoverColor,
     this.focusColor,
     this.borderRadius,
+    this.onNewTabOpened,
   });
 
   @override
@@ -71,6 +73,7 @@ class _BrowserAwareLinkState extends State<BrowserAwareLink> {
     } else {
       debugPrint('Opening in new tab: $url');
     }
+    widget.onNewTabOpened?.call();
   }
 
   void _openInCurrentTab() {
