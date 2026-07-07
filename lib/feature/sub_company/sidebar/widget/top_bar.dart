@@ -227,20 +227,19 @@ class _TopBarState extends State<TopBar> {
                                 ),
                                 itemBuilder: (_, i) {
                                   final lead = state.searchResults[i];
-                                  return InkWell(
+                                  final path = RoutePaths.followUpPath(lead.id!, "NEW");
+                                  return BrowserAwareLink(
+                                    destination: path,
+                                    usePush: true,
+                                    hoverColor: Colors.grey.shade50,
+                                    onNewTabOpened: () {
+                                      _hideDropdown();
+                                    },
                                     onTap: () {
                                       log('Lead tapped: ${lead.clientName}');
-                                      // _searchController.clear();
-                                      // cubit.searchLeads('');
                                       _hideDropdown();
-                                      context.push(
-                                        RoutePaths.followUpPath(
-                                          lead.id!,
-                                          "NEW",
-                                        ),
-                                      );
+                                      context.push(path);
                                     },
-                                    hoverColor: Colors.grey.shade50,
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: 1.w,
