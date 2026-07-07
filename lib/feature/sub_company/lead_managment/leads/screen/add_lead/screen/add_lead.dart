@@ -826,10 +826,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     selectedValue: state.selectedDistrict,
                     enabled: state.selectedState != null,
                     focusNode: _districtFocus,
-                    // After district, go to assign-staff (admin) or category.
-                    // _buildOrderedNodes keeps the ordered list in sync; here we
-                    // provide the explicit next so the dropdown's onSelected
-                    // callback moves focus correctly.
+                    
                     nextFocusNode:
                         (!_isEditMode &&
                             _currentUser != null &&
