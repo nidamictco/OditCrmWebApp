@@ -641,6 +641,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'leadStage': followUp.leadStage,
       'priority': followUp.priority,
       'leadCategory': followUp.leadCategory,
+      'leadSubCategory':followUp.leadSubCategory,
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
       'callResult': followUp.calledStatus,

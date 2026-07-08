@@ -384,6 +384,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                                 _currentLead.contactNumber,
                                             leadCategory:
                                                 _currentLead.leadCategory,
+                                            leadSubCategory: _currentLead.leadSubCategory,
                                             leadStage: _currentLead.leadStage,
                                             fromStaffId:
                                                 _currentLead.assignedStaffId,
@@ -461,7 +462,11 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                             'Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt ?? DateTime.now())}',
                           ),
                           _divider(),
-                          _metaText('category : ${_currentLead.leadCategory}'),
+                          _metaText(
+                            _currentLead.leadSubCategory.isNotEmpty
+                                ? 'category : ${_currentLead.leadCategory} - ${_currentLead.leadSubCategory}'
+                                : 'category : ${_currentLead.leadCategory}',
+                          ),
                           _divider(),
                           _metaText('Staff : ${_currentLead.assignedStaff}'),
                           _divider(),
@@ -892,6 +897,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   String? _leadStage;
   String? _leadCategory;
   String? _leadPriority;
+  String? _leadSubCategory;
 
   // ── Cached logged-in user ──────────────────────────────────────────────────
   // Loaded once in initState so createLeadFollowup() can stay synchronous.
@@ -930,6 +936,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
       leadStage: widget.lead.leadStage,
       leadCategory: widget.lead.leadCategory,
+      leadSubCategory: widget.lead.leadSubCategory,
       priority: widget.lead.priority,
       remarks: widget.lead.remarks,
       createdById: widget.lead.createdById,
@@ -1036,7 +1043,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () {
-                    _addFollowUpBottom(context, null, "NEW", widget.lead);
+                    _addFollowUpButton(context, null, "NEW", widget.lead);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -1071,7 +1078,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
               index: dates.indexOf(date),
               dateCount: dates.length,
               onEdit: (followup) {
-                _addFollowUpBottom(context, followup, "EDIT", widget.lead);
+                _addFollowUpButton(context, followup, "EDIT", widget.lead);
               },
               onDelete: (followup) {
                 _confirmDeleteFollowUp(context, followup);
@@ -1134,7 +1141,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     );
   }
 
-  void _addFollowUpBottom(
+  void _addFollowUpButton(
     BuildContext context,
     FollowUpModel? leadFollowup,
     String from,
@@ -1145,6 +1152,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     cubit.setFollowup4Edit();
     cubit.selectLeadStage(null);
     cubit.selectCategory(null);
+    cubit.selectSubCategory(null);
     cubit.selectPriority(null);
     cubit.resetStatus();
 
@@ -1160,6 +1168,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     if (from == 'EDIT') {
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
+      cubit.selectSubCategory(leadFollowup.leadSubCategory);
       cubit.selectPriority(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
@@ -1184,6 +1193,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       calledDateValue = leadFollowup.calledDate;
       _leadPriority = lead.priority;
       _leadCategory = lead.leadCategory;
+      _leadSubCategory = lead.leadSubCategory;
     } else {
       _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
       _callStatusCtrl.text = '';
@@ -1194,6 +1204,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       cubit.selectLeadStage('FOLLOWUP');
       cubit.selectCategory(
         lead.leadCategory.isEmpty ? null : lead.leadCategory,
+      );
+      cubit.selectSubCategory(
+        lead.leadSubCategory.isEmpty ? null : lead.leadSubCategory,
       );
       cubit.selectPriority(lead.priority.isEmpty ? null : lead.priority);
     }
@@ -1306,6 +1319,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           },
           builder: (ctx, state) {
             final categoryNames = state.categories.map((e) => e.name).toList();
+            final subCategoryName = state.subCategories
+                .map((e) => e.name)
+                .toList();
             final stagesNames = state.stages
                 .map((e) => e.name)
                 .where((name) => name.toUpperCase() != 'NEW')
@@ -1518,6 +1534,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                   setState(() => _leadCategory = v);
                                   cubit.selectCategory(v);
                                   sbSetState(() {});
+                                  cubit.selectSubCategory(null);
                                 },
                                 onTap: () => _showAddCategoryDialog(),
                               ),
@@ -1525,112 +1542,243 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                           ],
                         ),
 
-                        // ── Conditional: Next Follow-Up Date ──────────
-                        if (state.selectedLeadStage == 'FOLLOWUP') ...[
-                          SizedBox(height: 1.h),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Next Follow-Up Date',
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    SizedBox(height: 0.5.h),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final result =
-                                            await showCalendarDialogUsingTimePicker(
-                                              sbContext,
-                                              initialDate: nextFollowUpDate,
-                                              mode: CalendarMode.single,
-                                              showTimePicker: true,
-                                              minDate: calledDateValue,
-                                            );
-                                        if (result != null) {
-                                          sbSetState(() {
-                                            nextFollowUpDate = result.from;
-                                            nextFollowUpCtrl.text = DateFormat(
-                                              'dd-MM-yyyy hh:mm a',
-                                            ).format(result.from);
-                                          });
-                                        }
-                                      },
-                                      child: Container(
-                                        height: 5.2.h,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.greyCard,
-                                          border: Border.all(
-                                            color: AppColors.divider,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: IgnorePointer(
-                                          child: TextField(
-                                            controller: nextFollowUpCtrl,
-                                            readOnly: true,
-                                            style: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.black,
-                                            ),
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText: nextFollowUpCtrl.text,
-                                              hintStyle: AppTextStyle.small(
-                                                size: 11.sp,
-                                                color: AppColors.black,
-                                              ),
-                                              isCollapsed: true,
-                                              contentPadding: EdgeInsets.zero,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 1.w),
-                              const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ],
+                        // // ── Conditional: Next Follow-Up Date ──────────
+                        // if (state.selectedLeadStage == 'FOLLOWUP' ||
+                        //     (state.selectedSubCategory ?? '').isNotEmpty)
+                        //      ...[
+                        //   SizedBox(height: 1.h),
+                        //   Row(
+                        //     children: [
+                        //       Expanded(
+                        //         child: Column(
+                        //           crossAxisAlignment: CrossAxisAlignment.start,
+                        //           children: [
+                        //             Text(
+                        //               'Next Follow-Up Date',
+                        //               style: AppTextStyle.medium(),
+                        //             ),
+                        //             SizedBox(height: 0.5.h),
+                        //             GestureDetector(
+                        //               onTap: () async {
+                        //                 final result =
+                        //                     await showCalendarDialogUsingTimePicker(
+                        //                       sbContext,
+                        //                       initialDate: nextFollowUpDate,
+                        //                       mode: CalendarMode.single,
+                        //                       showTimePicker: true,
+                        //                       minDate: calledDateValue,
+                        //                     );
+                        //                 if (result != null) {
+                        //                   sbSetState(() {
+                        //                     nextFollowUpDate = result.from;
+                        //                     nextFollowUpCtrl.text = DateFormat(
+                        //                       'dd-MM-yyyy hh:mm a',
+                        //                     ).format(result.from);
+                        //                   });
+                        //                 }
+                        //               },
+                        //               child: Container(
+                        //                 height: 5.2.h,
+                        //                 padding: const EdgeInsets.symmetric(
+                        //                   horizontal: 10,
+                        //                   vertical: 5,
+                        //                 ),
+                        //                 decoration: BoxDecoration(
+                        //                   color: AppColors.greyCard,
+                        //                   border: Border.all(
+                        //                     color: AppColors.divider,
+                        //                     width: 1,
+                        //                   ),
+                        //                   borderRadius: BorderRadius.circular(
+                        //                     4,
+                        //                   ),
+                        //                 ),
+                        //                 child: IgnorePointer(
+                        //                   child: TextField(
+                        //                     controller: nextFollowUpCtrl,
+                        //                     readOnly: true,
+                        //                     style: AppTextStyle.small(
+                        //                       size: 11.sp,
+                        //                       color: AppColors.black,
+                        //                     ),
+                        //                     decoration: InputDecoration(
+                        //                       border: InputBorder.none,
+                        //                       hintText: nextFollowUpCtrl.text,
+                        //                       hintStyle: AppTextStyle.small(
+                        //                         size: 11.sp,
+                        //                         color: AppColors.black,
+                        //                       ),
+                        //                       isCollapsed: true,
+                        //                       contentPadding: EdgeInsets.zero,
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //       SizedBox(width: 1.w),
+                        //      (state.selectedSubCategory ?? '').isNotEmpty
+                        //           ? Expanded(
+                        //             child: Dropdown(
+                        //               label: 'Lead Sub Type',
+                        //               hint: 'Select Lead Sub Type',
+                        //               items: subCategoryName,
+                        //               selectedValue:
+                        //                   state.selectedSubCategory,
+                        //               onChanged: (v) => context
+                        //                   .read<AddLeadCubit>()
+                        //                   .selectSubCategory(v),
+                        //             ),
+                        //           )
+                        //           : SizedBox(),
+                        //     // ],
+                        //   // ),
+                        // // ],
 
-                        // ── Conditional: Tags (Rejected) ───────────────
-                        if (state.selectedLeadStage == 'REJECTED') ...[
-                          SizedBox(height: 1.h),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Dropdown(
-                                  label: 'Tags',
-                                  hint: 'Select Tags',
-                                  showStar: true,
-                                  items: [
-                                    'Costly',
-                                    'Not intrested',
-                                    'Not Responding',
-                                    'No Budget',
-                                    'Wrong Lead',
-                                  ],
-                                  selectedValue: state.selectedLeadTag,
-                                  onChanged: (v) => cubit.selectLeadTag(v),
-                                ),
-                              ),
-                              SizedBox(width: 1.w),
-                              const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ],
+                        // // ── Conditional: Tags (Rejected) ───────────────
+                        // if (state.selectedLeadStage == 'REJECTED') ...[
+                        //   SizedBox(height: 1.h),
+                        //   Row(
+                        //     children: [
+                        //       Expanded(
+                        //         child: Dropdown(
+                        //           label: 'Tags',
+                        //           hint: 'Select Tags',
+                        //           showStar: true,
+                        //           items: [
+                        //             'Costly',
+                        //             'Not intrested',
+                        //             'Not Responding',
+                        //             'No Budget',
+                        //             'Wrong Lead',
+                        //           ],
+                        //           selectedValue: state.selectedLeadTag,
+                        //           onChanged: (v) => cubit.selectLeadTag(v),
+                        //         ),
+                        //       ),
+                        //       SizedBox(width: 1.w),
+                        //       const Expanded(child: SizedBox()),
+                        //     ],
+                        //   ),
+                        // ],
+                        // ])],
+
+// ── Conditional Row: Stage-specific field (left) + Sub Category (right) ──────
+Builder(
+  builder: (_) {
+    // ── Left container: driven by Lead Stage ─────────────────────────────
+    Widget leftContainer;
+    if (state.selectedLeadStage == 'FOLLOWUP') {
+      leftContainer = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Next Follow-Up Date',
+            style: AppTextStyle.medium(),
+          ),
+          SizedBox(height: 0.5.h),
+          GestureDetector(
+            onTap: () async {
+              final result = await showCalendarDialogUsingTimePicker(
+                sbContext,
+                initialDate: nextFollowUpDate,
+                mode: CalendarMode.single,
+                showTimePicker: true,
+                minDate: calledDateValue,
+              );
+              if (result != null) {
+                sbSetState(() {
+                  nextFollowUpDate = result.from;
+                  nextFollowUpCtrl.text =
+                      DateFormat('dd-MM-yyyy hh:mm a').format(result.from);
+                });
+              }
+            },
+            child: Container(
+              height: 5.2.h,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 5,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.greyCard,
+                border: Border.all(color: AppColors.divider, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: IgnorePointer(
+                child: TextField(
+                  controller: nextFollowUpCtrl,
+                  readOnly: true,
+                  style: AppTextStyle.small(
+                    size: 11.sp,
+                    color: AppColors.black,
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: nextFollowUpCtrl.text,
+                    hintStyle: AppTextStyle.small(
+                      size: 11.sp,
+                      color: AppColors.black,
+                    ),
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (state.selectedLeadStage == 'REJECTED') {
+      leftContainer = Dropdown(
+        label: 'Tags',
+        hint: 'Select Tags',
+        showStar: true,
+        items: const [
+          'Costly',
+          'Not intrested',
+          'Not Responding',
+          'No Budget',
+          'Wrong Lead',
+        ],
+        selectedValue: state.selectedLeadTag,
+        onChanged: (v) => cubit.selectLeadTag(v),
+      );
+    } else {
+      leftContainer = const SizedBox();
+    }
+
+    // ── Right container: driven by Sub Category availability ─────────────
+    final hasSubCategories = state.subCategories.isNotEmpty;
+    final rightContainer = hasSubCategories
+        ? Dropdown(
+            label: 'Lead Sub Type',
+            hint: 'Select Lead Sub Type',
+            items: subCategoryName,
+            selectedValue: state.selectedSubCategory,
+            onChanged: (v) =>
+                context.read<AddLeadCubit>().selectSubCategory(v),
+          )
+        : const SizedBox();
+
+    // ── Row: always exactly two Expanded children ─────────────────────────
+    return Column(
+      children: [
+        SizedBox(height: 1.h),
+        Row(
+          children: [
+            Expanded(child: leftContainer),
+            SizedBox(width: 1.w),
+            Expanded(child: rightContainer),
+          ],
+        ),
+      ],
+    );
+  },
+),
+
                         SizedBox(height: 1.h),
 
                         // ── Row 4: Priority + WhatsApp ─────────────────

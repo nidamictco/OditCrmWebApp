@@ -1459,7 +1459,10 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                             style: AppTextStyle.medium(),
                                           ),
                                           Text(
-                                            transfer.leadCategory,
+                                            // transfer.leadCategory,
+                                            transfer.leadSubCategory.isEmpty
+                                            ? transfer.leadCategory
+                                            : '${transfer.leadCategory} - ${transfer.leadSubCategory}',
                                             style: AppTextStyle.medium(),
                                           ),
                                           Text(

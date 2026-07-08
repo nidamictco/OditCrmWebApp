@@ -423,7 +423,7 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                                             )
                                           : Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(

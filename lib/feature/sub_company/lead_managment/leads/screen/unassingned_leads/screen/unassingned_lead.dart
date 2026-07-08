@@ -542,7 +542,9 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
-                                        lead.leadCategory,
+                                        lead.leadSubCategory.isEmpty
+                                            ? lead.leadCategory
+                                            : '${lead.leadCategory} - ${lead.leadSubCategory}',
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(

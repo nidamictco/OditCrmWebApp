@@ -587,51 +587,48 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                 color: Colors.red,
                                               ),
                                             )
-                                          : Align(
-                                              alignment: Alignment.center,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      context.push(
-                                                        RoutePaths.subCategoryPath(
-                                                          cat.name,
-                                                          cat.id,
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Icon(
-                                                      Icons.list,
-                                                      size: 14.sp,
-                                                      color: Colors.lightGreen,
+                                          : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceEvenly,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  context.push(
+                                                    RoutePaths.subCategoryPath(
+                                                      cat.name,
+                                                      cat.id,
                                                     ),
-                                                  ),
-                                                  // 🔹 Edit — opens edit dialog
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        _showEditDialog(cat),
-                                                    child: Icon(
-                                                      Icons.edit_outlined,
-                                                      size: 14.sp,
-                                                      color: Colors.blue,
-                                                    ),
-                                                  ),
-                                                  // 🔹 Delete — opens confirm dialog
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        _confirmDelete(cat),
-                                                    child: Icon(
-                                                      Icons.delete_outline,
-                                                      size: 14.sp,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.list,
+                                                  size: 14.sp,
+                                                  color: Colors.lightGreen,
+                                                ),
                                               ),
-                                            ),
+                                              // 🔹 Edit — opens edit dialog
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    _showEditDialog(cat),
+                                                child: Icon(
+                                                  Icons.edit_outlined,
+                                                  size: 14.sp,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                              // 🔹 Delete — opens confirm dialog
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    _confirmDelete(cat),
+                                                child: Icon(
+                                                  Icons.delete_outline,
+                                                  size: 14.sp,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                     ];
                                   }).toList(),
                                 ),
