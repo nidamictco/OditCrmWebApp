@@ -27,6 +27,8 @@ import '../../feature/sub_company/lead_managment/leads/screen/delete_leads/scree
 import '../../feature/sub_company/lead_managment/leads/screen/transfer_leads/transfer_leads.dart';
 import '../../feature/sub_company/lead_managment/phone_call_log/phone_call_log.dart';
 import '../../feature/sub_company/rightside_menu/lead_category/screen/lead_category.dart';
+import '../../feature/sub_company/rightside_menu/lead_category/screen/sub_category.dart';
+import '../../feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
 import '../../feature/sub_company/rightside_menu/custom_field_settings/screen/aditional_field.dart';
 import '../../feature/sub_company/rightside_menu/lead_source/lead_source_screen.dart';
 import '../../feature/sub_company/rightside_menu/lead_stage/screen/lead_stage.dart';
@@ -297,6 +299,21 @@ class AppRouter {
                   child: BlocProvider(
                     create: (_) => LeadCategoryCubit()..watchCategories(),
                     child: LeadCategory(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              path: RoutePaths.subCategory,
+              builder: (context, state) {
+                final perm = context.watch<PermissionCubit>();
+                final categoryName = state.uri.queryParameters['categoryName'] ?? '';
+                final categoryId=state.uri.queryParameters['categoryId'] ?? '';
+                return PermissionGuard(
+                  hasPermission: perm.canViewLeadCategory,
+                  child: BlocProvider(
+                    create: (_) => SubCategoryCubit(categoryId: categoryId)..watchSubCategories(),
+                    child: LeaSubCategoryScreen(categoryName: categoryName, categoryId: categoryId),
                   ),
                 );
               },
