@@ -1997,7 +1997,9 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           style: AppTextStyle.medium(),
                                         ),
                                         Text(
-                                          lead.leadCategory,
+                                          lead.leadSubCategory.isEmpty
+                                            ? lead.leadCategory
+                                            : '${lead.leadCategory} - ${lead.leadSubCategory}',
                                           style: AppTextStyle.medium(),
                                         ),
                                         Text(

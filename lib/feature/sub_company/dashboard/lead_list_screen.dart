@@ -3047,6 +3047,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                             lead.contactNumber,
                                                         leadCategory:
                                                             lead.leadCategory,
+                                                        leadSubCategory: lead.leadSubCategory,
                                                         leadStage:
                                                             lead.leadStage,
                                                         fromStaffId: lead

@@ -13,20 +13,20 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_mo
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 
-class LeaSubCategoryScreen extends StatefulWidget {
+class LeaTagScreen extends StatefulWidget {
   final String categoryName;
   final String categoryId;
-  const LeaSubCategoryScreen({
+  const LeaTagScreen({
     super.key,
     required this.categoryName,
     required this.categoryId,
   });
 
   @override
-  State<LeaSubCategoryScreen> createState() => _LeaSubCategoryScreenState();
+  State<LeaTagScreen> createState() => _LeaTagScreenState();
 }
 
-class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
+class _LeaTagScreenState extends State<LeaTagScreen> {
   int? hoveringIndex;
 
   final TextEditingController categoryController = TextEditingController();

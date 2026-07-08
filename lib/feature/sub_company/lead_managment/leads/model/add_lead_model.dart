@@ -252,6 +252,7 @@ class FollowUpModel {
   final DateTime calledDate;
   final String leadStage;
   final String leadCategory;
+  final String leadSubCategory;
   final String priority;
   final String remarks;
   final String adress;
@@ -274,6 +275,7 @@ class FollowUpModel {
     required this.calledDate,
     required this.leadStage,
     required this.leadCategory,
+    required this.leadSubCategory,
     required this.priority,
     required this.remarks,
     required this.adress,
@@ -299,6 +301,7 @@ class FollowUpModel {
           (data['calledDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       leadStage: data['leadStage'] ?? '',
       leadCategory: data['leadCategory'] ?? '',
+      leadSubCategory: data['leadSubCategory'] ?? '',
       priority: data['priority'] ?? '',
       remarks: data['remarks'] ?? '',
       adress: data['address'] ?? '',
@@ -322,6 +325,7 @@ class FollowUpModel {
       'calledDate': Timestamp.fromDate(calledDate),
       'leadStage': leadStage,
       'leadCategory': leadCategory,
+      'leadSubCategory':leadSubCategory,
       'priority': priority,
       'remarks': remarks,
       'address': adress,
@@ -347,6 +351,7 @@ class FollowUpModel {
     DateTime? calledDate,
     String? leadStage,
     String? leadCategory,
+    String? leadSubCategory,
     String? priority,
     String? remarks,
     String? adress,
@@ -368,6 +373,7 @@ class FollowUpModel {
       calledDate: calledDate ?? this.calledDate,
       leadStage: leadStage ?? this.leadStage,
       leadCategory: leadCategory ?? this.leadCategory,
+      leadSubCategory: leadSubCategory ?? this.leadSubCategory,
       priority: priority ?? this.priority,
       remarks: remarks ?? this.remarks,
       adress: adress ?? this.adress,
@@ -386,6 +392,7 @@ class TransferDetails {
   final String leadName;
   final String contactNumber;
   final String leadCategory;
+  final String leadSubCategory;
   final String leadStage;
   final String fromStaffId;
   final String fromStaff;
@@ -399,6 +406,7 @@ class TransferDetails {
     required this.leadName,
     required this.contactNumber,
     required this.leadCategory,
+    required this.leadSubCategory,
     required this.leadStage,
     required this.fromStaffId,
     required this.fromStaff,
@@ -417,6 +425,7 @@ class TransferDetails {
       leadName: data['leadName'] ?? '',
       contactNumber: data['contactNumber'] ?? '',
       leadCategory: data['leadCategory'] ?? '',
+      leadSubCategory: data['leadSubCategory'] ?? '',
       leadStage: data['leadStage'] ?? '',
       fromStaffId: data['fromStaffId'] ?? '',
       fromStaff: data['fromStaff'] ?? '',
@@ -433,6 +442,7 @@ class TransferDetails {
       'leadName': leadName,
       'contactNumber': contactNumber,
       'leadCategory': leadCategory,
+      'leadSubCategory':leadSubCategory,
       'leadStage': leadStage,
       'fromStaffId': fromStaffId,
       'fromStaff': fromStaff,
@@ -451,6 +461,7 @@ class TransferDetails {
     String? contactNumber,
     String? leadCategory,
     String? leadStage,
+    String? leadSubCategory,
     String? fromStaffId,
     String? fromStaff,
     String? toStaffId,
@@ -463,6 +474,7 @@ class TransferDetails {
       leadName: leadName ?? this.leadName,
       contactNumber: contactNumber ?? this.contactNumber,
       leadCategory: leadCategory ?? this.leadCategory,
+      leadSubCategory: leadSubCategory ?? this.leadSubCategory,
       leadStage: leadStage ?? this.leadStage,
       fromStaffId: fromStaffId ?? this.fromStaffId,
       fromStaff: fromStaff ?? this.fromStaff,
