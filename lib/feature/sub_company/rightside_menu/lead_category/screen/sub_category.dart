@@ -1,4 +1,3 @@
-import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,18 +9,24 @@ import '../../../../../core/utils/popup_msg.dart';
 import 'package:sizer/sizer.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_state.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 
-class LeadCategory extends StatefulWidget {
-  const LeadCategory({super.key});
+class LeaSubCategoryScreen extends StatefulWidget {
+  final String categoryName;
+  final String categoryId;
+  const LeaSubCategoryScreen({
+    super.key,
+    required this.categoryName,
+    required this.categoryId,
+  });
 
   @override
-  State<LeadCategory> createState() => _LeadCategoryState();
+  State<LeaSubCategoryScreen> createState() => _LeaSubCategoryScreenState();
 }
 
-class _LeadCategoryState extends State<LeadCategory> {
+class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
   int? hoveringIndex;
 
   final TextEditingController categoryController = TextEditingController();
@@ -39,7 +44,7 @@ class _LeadCategoryState extends State<LeadCategory> {
   void initState() {
     super.initState();
     // Start the real-time Firestore listener
-    context.read<LeadCategoryCubit>().watchCategories();
+    context.read<SubCategoryCubit>().watchSubCategories();
   }
 
   @override
@@ -105,7 +110,7 @@ class _LeadCategoryState extends State<LeadCategory> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Add Lead Category',
+          title: 'Add Lead Sub Category- ${widget.categoryName}',
           width: 35.w,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.w),
@@ -114,7 +119,7 @@ class _LeadCategoryState extends State<LeadCategory> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 /// Lead Category
-                const Text("Lead Category"),
+                const Text("Lead Sub Category"),
                 const SizedBox(height: 8),
                 TextField(
                   style: AppTextStyle.medium(weight: FontWeight.w400),
@@ -132,24 +137,6 @@ class _LeadCategoryState extends State<LeadCategory> {
                 ),
 
                 SizedBox(height: 1.5.h),
-
-                /// Cost
-                // Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
-                // SizedBox(height: 0.5.h),
-                // TextField(
-                //   style: AppTextStyle.medium(weight: FontWeight.w400),
-                //   controller: costController,
-                //   decoration: InputDecoration(
-                //     hintText: "Enter Cost",
-                //     hintStyle: AppTextStyle.medium(
-                //       size: 11.sp,
-                //       color: AppColors.grey,
-                //     ),
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(4),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -159,7 +146,7 @@ class _LeadCategoryState extends State<LeadCategory> {
 
             Navigator.pop(ctx);
 
-            await context.read<LeadCategoryCubit>().addCategory(name: name);
+            await context.read<SubCategoryCubit>().addSubCategory(name: name);
           },
         );
       },
@@ -174,7 +161,7 @@ class _LeadCategoryState extends State<LeadCategory> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Edit Lead Category',
+          title: 'Edit Lead Sub Category',
           width: 35.w,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 1.w),
@@ -182,12 +169,15 @@ class _LeadCategoryState extends State<LeadCategory> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Lead Category", style: AppTextStyle.medium(size: 11.sp)),
+                Text(
+                  "Lead Sub Category",
+                  style: AppTextStyle.medium(size: 11.sp),
+                ),
                 SizedBox(height: 0.5.h),
                 TextField(
                   controller: categoryController,
                   decoration: InputDecoration(
-                    hintText: "Enter Category",
+                    hintText: "Enter Sub Category",
                     hintStyle: AppTextStyle.medium(
                       size: 11.sp,
                       color: AppColors.grey,
@@ -198,21 +188,6 @@ class _LeadCategoryState extends State<LeadCategory> {
                   ),
                 ),
                 SizedBox(height: 1.5.h),
-                Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
-                SizedBox(height: 0.5.h),
-                TextField(
-                  controller: costController,
-                  decoration: InputDecoration(
-                    hintText: "Enter Cost",
-                    hintStyle: AppTextStyle.medium(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -226,7 +201,7 @@ class _LeadCategoryState extends State<LeadCategory> {
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
-            await context.read<LeadCategoryCubit>().updateCategory(
+            await context.read<SubCategoryCubit>().updateSubCategory(
               id: id,
               name: name,
             );
@@ -240,7 +215,7 @@ class _LeadCategoryState extends State<LeadCategory> {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
-        title: 'Delete Category',
+        title: 'Delete Sub Category',
         width: 30.w,
         submitText: 'Delete',
         body: Padding(
@@ -255,7 +230,7 @@ class _LeadCategoryState extends State<LeadCategory> {
         ),
         onSubmit: () {
           Navigator.pop(ctx);
-          context.read<LeadCategoryCubit>().deleteCategory(id: category.id);
+          context.read<SubCategoryCubit>().deleteSubCategory(id: category.id);
         },
       ),
     );
@@ -265,7 +240,7 @@ class _LeadCategoryState extends State<LeadCategory> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LeadCategoryCubit, LeadCategoryState>(
+    return BlocListener<SubCategoryCubit, SubCategoryState>(
       listenWhen: (prev, cur) =>
           cur.errorMessage != null && cur.errorMessage != prev.errorMessage,
       listener: (context, state) {
@@ -282,7 +257,13 @@ class _LeadCategoryState extends State<LeadCategory> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              TopBreadcrumbBar(subTitle: 'Lead Category', title: 'Dashboard'),
+              TopBreadcrumbBar(
+                title: "Lead Management",
+                subTitle: "Lead Sub Category ",
+                subTitle2: 'Category',
+                show2ndTitle: true,
+                onPressed: () => context.pop(),
+              ),
 
               /// 🔹 MAIN CONTENT
               Padding(
@@ -305,7 +286,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                             Row(
                               children: [
                                 Text(
-                                  "Lead Category",
+                                  "Lead Sub Category - ${widget.categoryName}",
                                   style: AppTextStyle.medium(
                                     size: 13.6.sp,
                                     color: AppColors.black.withOpacity(0.77),
@@ -313,43 +294,11 @@ class _LeadCategoryState extends State<LeadCategory> {
                                   ),
                                 ),
                                 SizedBox(width: 0.2.w),
-                                Tooltip(
-                                  textAlign: TextAlign.center,
-                                  message:
-                                      "Lead Category is the type of\nproduct, service, or solution a\npotential customer is\ninterested in, helping\nbusinesses identify and\nclassify inquiries for better\nfollow-up.",
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  textStyle: AppTextStyle.medium(
-                                    color: Colors.white,
-                                    size: 11.sp,
-                                  ),
-                                  waitDuration: const Duration(
-                                    milliseconds: 200,
-                                  ),
-                                  child: Container(
-                                    height: 2.h,
-                                    width: 2.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.green,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.question_mark_rounded,
-                                      size: 10.sp,
-                                      color: AppColors.green,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
 
-                            // 🔹 Add New button — shows loader while submitting
-                            BlocBuilder<LeadCategoryCubit, LeadCategoryState>(
+                            // 🔹 Add New button
+                            BlocBuilder<SubCategoryCubit, SubCategoryState>(
                               buildWhen: (p, c) =>
                                   p.isSubmitting != c.isSubmitting,
                               builder: (context, state) {
@@ -366,123 +315,6 @@ class _LeadCategoryState extends State<LeadCategory> {
                                       isLoading: state.isSubmitting,
                                     ),
                                     SizedBox(width: 1.w),
-                                    // _actionBtn(
-                                    //   1,
-                                    //   "Import",
-                                    //   AppColors.blueLight,
-                                    //   AppColors.primary,
-                                    //   () {
-                                    //     showDialog(
-                                    //       context: context,
-                                    //       builder: (context) {
-                                    //         return AppDialog(
-                                    //           title: 'Bulk Upload',
-                                    //           body: Column(
-                                    //             crossAxisAlignment:
-                                    //                 CrossAxisAlignment.start,
-                                    //             mainAxisSize: MainAxisSize.min,
-                                    //             children: [
-                                    //               Text(
-                                    //                 "Import CSV File",
-                                    //                 style: AppTextStyle.medium(
-                                    //                   size: 11.sp,
-                                    //                 ),
-                                    //               ),
-                                    //               SizedBox(height: 2.h),
-                                    //               Container(
-                                    //                 height: 5.h,
-                                    //                 width: 50.w,
-                                    //                 decoration: BoxDecoration(
-                                    //                   color: AppColors.white,
-                                    //                   border: Border.all(
-                                    //                     color:
-                                    //                         AppColors.divider,
-                                    //                   ),
-                                    //                   borderRadius:
-                                    //                       BorderRadius.circular(
-                                    //                         4,
-                                    //                       ),
-                                    //                 ),
-                                    //                 child: Row(
-                                    //                   children: [
-                                    //                     const Icon(
-                                    //                       Icons.file_upload,
-                                    //                     ),
-                                    //                     SizedBox(width: 1.h),
-                                    //                     Text(
-                                    //                       "Upload CSV File",
-                                    //                       style:
-                                    //                           AppTextStyle.medium(),
-                                    //                     ),
-                                    //                   ],
-                                    //                 ),
-                                    //               ),
-                                    //               const SizedBox(height: 16),
-                                    //               Text(
-                                    //                 'Simple File',
-                                    //                 style: AppTextStyle.small(
-                                    //                   color: Colors.indigo,
-                                    //                   size: 11.sp,
-                                    //                 ),
-                                    //               ),
-                                    //             ],
-                                    //           ),
-                                    //           onSubmit: () =>
-                                    //               Navigator.pop(context),
-                                    //         );
-                                    //       },
-                                    //     );
-                                    //   },
-                                    // ),
-                                    // SizedBox(width: 1.w),
-                                    // _actionBtn(
-                                    //   2,
-                                    //   "Bulk Add",
-                                    //   AppColors.orangeLight,
-                                    //   AppColors.orange,
-                                    //   () {
-                                    //     showDialog(
-                                    //       context: context,
-                                    //       builder: (context) {
-                                    //         return AppDialog(
-                                    //           title: 'Bulk Add Category',
-                                    //           body: Column(
-                                    //             crossAxisAlignment:
-                                    //                 CrossAxisAlignment.start,
-                                    //             mainAxisSize: MainAxisSize.min,
-                                    //             children: [
-                                    //               const Text("Lead Category"),
-                                    //               const SizedBox(height: 8),
-                                    //               TextField(
-                                    //                 controller:
-                                    //                     categoryController,
-                                    //                 decoration: InputDecoration(
-                                    //                   hintText:
-                                    //                       "Enter Category",
-                                    //                   hintStyle:
-                                    //                       AppTextStyle.medium(
-                                    //                         size: 11.sp,
-                                    //                         color:
-                                    //                             AppColors.grey,
-                                    //                       ),
-                                    //                   border: OutlineInputBorder(
-                                    //                     borderRadius:
-                                    //                         BorderRadius.circular(
-                                    //                           4,
-                                    //                         ),
-                                    //                   ),
-                                    //                 ),
-                                    //               ),
-                                    //               const SizedBox(height: 16),
-                                    //             ],
-                                    //           ),
-                                    //           onSubmit: () =>
-                                    //               Navigator.pop(context),
-                                    //         );
-                                    //       },
-                                    //     );
-                                    //   },
-                                    // ),
                                   ],
                                 );
                               },
@@ -510,8 +342,8 @@ class _LeadCategoryState extends State<LeadCategory> {
                       ),
                       SizedBox(height: 2.h),
 
-                      /// 🔹 TABLE — driven by Firestore via cubit
-                      BlocBuilder<LeadCategoryCubit, LeadCategoryState>(
+                      /// 🔹 TABLE
+                      BlocBuilder<SubCategoryCubit, SubCategoryState>(
                         builder: (context, state) {
                           // Loading skeleton
                           if (state.isLoading) {
@@ -523,16 +355,18 @@ class _LeadCategoryState extends State<LeadCategory> {
                             );
                           }
 
-                          final rows = _filtered(state.categories);
+                          final rows = _filtered(state.subCategories);
                           final allFiltered = _filtered(rows);
                           final totalCount = allFiltered.length;
                           final totalPages = _totalPages(totalCount);
                           final limit = int.tryParse(_selectedEntries) ?? 10;
-                          if (_currentPage > totalPages) {
+
+                          if (_currentPage > totalPages && totalPages > 0) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() => _currentPage = totalPages);
                             });
                           }
+
                           final pagedList = _pagedLeads(allFiltered);
 
                           // "Showing X to Y of Z entries"
@@ -587,50 +421,32 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                 color: Colors.red,
                                               ),
                                             )
-                                          : Align(
-                                              alignment: Alignment.center,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      context.push(
-                                                        RoutePaths.subCategoryPath(
-                                                          cat.name,
-                                                          cat.id,
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Icon(
-                                                      Icons.list,
-                                                      size: 14.sp,
-                                                      color: Colors.lightGreen,
-                                                    ),
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                // 🔹 Edit — opens edit dialog
+                                                GestureDetector(
+                                                  onTap: () =>
+                                                      _showEditDialog(cat),
+                                                  child: Icon(
+                                                    Icons.edit_outlined,
+                                                    size: 14.sp,
+                                                    color: Colors.blue,
                                                   ),
-                                                  // 🔹 Edit — opens edit dialog
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        _showEditDialog(cat),
-                                                    child: Icon(
-                                                      Icons.edit_outlined,
-                                                      size: 14.sp,
-                                                      color: Colors.blue,
-                                                    ),
+                                                ),
+                                                SizedBox(width: 1.w),
+                                                // 🔹 Delete — opens confirm dialog
+                                                GestureDetector(
+                                                  onTap: () =>
+                                                      _confirmDelete(cat),
+                                                  child: Icon(
+                                                    Icons.delete_outline,
+                                                    size: 14.sp,
+                                                    color: Colors.red,
                                                   ),
-                                                  // 🔹 Delete — opens confirm dialog
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        _confirmDelete(cat),
-                                                    child: Icon(
-                                                      Icons.delete_outline,
-                                                      size: 14.sp,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
                                     ];
                                   }).toList(),

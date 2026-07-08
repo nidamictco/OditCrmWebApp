@@ -30,6 +30,9 @@ class AddLeadState {
   final List<LeadsModel> sources;
   final List<LeadsModel> stages;
 
+  final List<LeadsModel> subCategories;
+final String? selectedSubCategory;
+
   // ── Form selections ───────────────────────────────────────────────────────
   final String? selectedCategory;
   final String? selectedSource;
@@ -101,6 +104,8 @@ class AddLeadState {
     this.assignedStaffId,
     this.additionalFields = const [],
     this.isLoadingAdditionalFields = false,
+    this.subCategories = const [],
+    this.selectedSubCategory,
     this.staffList = const [],
     this.closedLeadCount = '0',
     this.newLeadCount = '0',
@@ -141,6 +146,8 @@ class AddLeadState {
     List<LeadsModel>? categories,
     List<LeadsModel>? sources,
     List<LeadsModel>? stages,
+    List<LeadsModel>? subCategories,
+String? selectedSubCategory,
     String? selectedCategory,
     String? selectedSource,
     String? selectedPriority,
@@ -185,6 +192,7 @@ class AddLeadState {
     bool clearLeadStage = false,
     bool clearCallResult = false,
     bool clearLeadTag = false,
+    bool clearSubCategory = false,
   }) {
     return AddLeadState(
       status: status ?? this.status,
@@ -203,6 +211,10 @@ class AddLeadState {
       categories: categories ?? this.categories,
       sources: sources ?? this.sources,
       stages: stages ?? this.stages,
+      subCategories: subCategories ?? this.subCategories,
+      selectedSubCategory: clearSubCategory
+          ? null
+          : (selectedSubCategory ?? this.selectedSubCategory),
       selectedCategory: clearCategory
           ? null
           : (selectedCategory ?? this.selectedCategory),

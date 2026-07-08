@@ -3389,7 +3389,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     icon: Icons.visibility_rounded,
                     color: AppTheme.actionView,
                     tooltip: 'View',
-                    onTap: () {},
+                    onTap: () {
+                      _onView(lead);
+                    },
                   ),
                 ),
                 BrowserAwareLink(
@@ -3401,12 +3403,14 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     icon: Icons.edit_rounded,
                     color: AppTheme.actionEdit,
                     tooltip: 'Edit',
-                    onTap: () {},
+                    onTap: () {
+                      _onEdit(lead);
+                    },
                   ),
                 ),
                 _ActionButton(
                   icon: Icons.delete_rounded,
-                  color: AppTheme.actionDelete,
+                  color: AppColors.red,
                   tooltip: 'Delete',
                   onTap: () => _onDelete(lead),
                 ),
@@ -3880,6 +3884,23 @@ class _DeleteConfirmDialog extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
             onConfirm();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '$leadName deleted successfully.',
+                  style: AppTextStyle.medium(
+                    color: AppColors.white,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                backgroundColor: AppColors.red,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                duration: const Duration(seconds: 3),
+              ),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.actionDelete,

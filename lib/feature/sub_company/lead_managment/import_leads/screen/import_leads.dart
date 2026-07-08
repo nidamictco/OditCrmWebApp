@@ -733,7 +733,8 @@ class _ImportLeadsState extends State<ImportLeads> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (dialogContext) =>
+          const Center(child: CircularProgressIndicator()),
     );
 
     final duplicateCount = await cubit.checkDuplicates(
@@ -741,7 +742,8 @@ class _ImportLeadsState extends State<ImportLeads> {
     );
 
     if (!mounted) return;
-    Navigator.pop(context); // close loading
+    context.pop();
+    // Navigator.pop(context); // close loading
 
     if (duplicateCount > 0) {
       final confirmed = await showDialog<bool>(

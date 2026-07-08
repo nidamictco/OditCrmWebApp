@@ -16,6 +16,7 @@ class AddLeadModel {
   final String assignedStaff;
   final String assignedStaffId;
   final String leadCategory;
+  final String leadSubCategory;
   final String leadSource;
   final String priority;
   final String leadStage;
@@ -49,6 +50,7 @@ class AddLeadModel {
     required this.assignedStaff,
     required this.assignedStaffId,
     this.leadCategory = '',
+    this.leadSubCategory = '',
     this.leadSource = '',
     this.priority = '',
     this.leadStage = '',
@@ -84,6 +86,7 @@ class AddLeadModel {
       'assignedStaff': assignedStaff,
       'assignedStaffId': assignedStaffId,
       'leadCategory': leadCategory.toString().toUpperCase(),
+      'leadSubCategory':leadSubCategory.toString().toUpperCase(),
       'leadSource': leadSource.toString().toUpperCase(),
       'priority': priority,
       'leadStage': leadStage.toString().toUpperCase(),
@@ -127,6 +130,7 @@ class AddLeadModel {
       assignedStaff: data['assignedStaff'] ?? '',
       assignedStaffId: data['assignedStaffId'] ?? '',
       leadCategory: data['leadCategory'] ?? '',
+      leadSubCategory: data['leadSubCategory'] ?? '',
       leadSource: data['leadSource'] ?? '',
       priority: data['priority'] ?? '',
       leadStage: data['leadStage'] ?? '',
@@ -172,6 +176,7 @@ class AddLeadModel {
     String? assignedStaff,
     String? assignedStaffId,
     String? leadCategory,
+    String? leadSubCategory,
     String? leadSource,
     String? priority,
     String? leadStage,
@@ -205,6 +210,7 @@ class AddLeadModel {
       assignedStaff: assignedStaff ?? this.assignedStaff,
       assignedStaffId: assignedStaffId ?? this.assignedStaffId,
       leadCategory: leadCategory ?? this.leadCategory,
+      leadSubCategory: leadSubCategory ?? this.leadSubCategory,
       leadSource: leadSource ?? this.leadSource,
       priority: priority ?? this.priority,
       leadStage: leadStage ?? this.leadStage,

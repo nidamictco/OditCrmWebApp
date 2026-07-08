@@ -81,6 +81,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final FocusNode _districtFocus = FocusNode();
   final FocusNode _assignStaffFocus = FocusNode();
   final FocusNode _categoryFocus = FocusNode();
+  final FocusNode _subCategoryFocus = FocusNode();
   final FocusNode _sourceFocus = FocusNode();
   final FocusNode _priorityFocus = FocusNode();
   final FocusNode _stageFocus = FocusNode();
@@ -98,6 +99,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   String? _leadStage;
   String? _leadSource;
   String? _leadCategory;
+  String? _leadSubCategory;
   String? _leadPriority;
   String? _callResult;
   String? _leadTag;
@@ -221,6 +223,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     _leadStage = lead.leadStage;
     _leadSource = lead.leadSource;
     _leadCategory = lead.leadCategory;
+    _leadSubCategory = lead.leadSubCategory;
     _leadPriority = lead.priority;
     // nextFollowUpDate =
     //     lead.followUpDate ?? DateTime.now().add(const Duration(days: 1));
@@ -439,6 +442,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
         postOffice: _postOfficeCtrl.text,
         remarks: _remarksCtrl.text,
         leadCategory: state.selectedCategory ?? widget.lead!.leadCategory,
+        leadSubCategory:
+            state.selectedSubCategory ?? widget.lead!.leadSubCategory,
         leadSource: state.selectedSource ?? widget.lead!.leadSource,
         priority: state.selectedPriority ?? widget.lead!.priority,
         leadStage: _leadStage ?? widget.lead!.leadStage,
@@ -498,6 +503,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       _leadSource = null;
       _leadStage = null;
       _leadPriority = null;
+      _leadSubCategory = null;
       _contactDialCode = '+91';
       _whatsappDialCode = '+91';
     });
@@ -883,7 +889,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     selectedValue: state.selectedDistrict,
                     enabled: state.selectedState != null,
                     focusNode: _districtFocus,
-                    
+
                     nextFocusNode:
                         (!_isEditMode &&
                             _currentUser != null &&
@@ -977,6 +983,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       builder: (context, state) {
         final cubit = context.read<AddLeadCubit>();
         final categoryNames = state.categories.map((e) => e.name).toList();
+        final subCategoryName = state.subCategories.map((e) => e.name).toList();
         final sourceNames = state.sources.map((e) => e.name).toList();
         final stagesNames = state.stages.map((e) => e.name).toList();
         final staffList = state.staffList;
@@ -1014,6 +1021,27 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 1.5.h),
+                  if (state.subCategories.isNotEmpty)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Dropdown(
+                            label: 'Lead Sub Type',
+                            hint: 'Select Lead Sub Type',
+                            items: subCategoryName,
+                            selectedValue: state.selectedSubCategory,
+                            focusNode: _subCategoryFocus,
+                            nextFocusNode: _priorityFocus,
+                            onChanged: (v) => context
+                                .read<AddLeadCubit>()
+                                .selectSubCategory(v),
+                          ),
+                        ),
+                        SizedBox(width: 1.w),
+                        Expanded(child: SizedBox()),
+                      ],
+                    ),
                   SizedBox(height: 1.5.h),
                   Row(
                     children: [
@@ -1093,12 +1121,33 @@ class _AddLeadPageState extends State<AddLeadPage> {
                           onChanged: (v) {
                             setState(() => _leadCategory = v);
                             cubit.selectCategory(v);
+                            cubit.selectSubCategory(null);
                           },
                           onTap: _showAddCategoryDialog,
                         ),
                       ),
                     ],
                   ),
+                   if (state.subCategories.isNotEmpty)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Dropdown(
+                            label: 'Lead Sub Type',
+                            hint: 'Select Lead Sub Type',
+                            items: subCategoryName,
+                            selectedValue: state.selectedSubCategory,
+                            focusNode: _subCategoryFocus,
+                            nextFocusNode: _priorityFocus,
+                            onChanged: (v) => context
+                                .read<AddLeadCubit>()
+                                .selectSubCategory(v),
+                          ),
+                        ),
+                        SizedBox(width: 1.w),
+                        Expanded(child: SizedBox()),
+                      ],
+                    ),
                   SizedBox(height: 1.5.h),
                   Row(
                     children: [

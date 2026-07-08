@@ -49,6 +49,7 @@ class RoutePaths {
   static const changePassword = '/staff/:staffId/change_password';
   static const personalProfile = '/personal_profile';
   static const notifications = '/notifications';
+  static const subCategory = '/sub_category';
 
   // Central map from sidebar index to route path
   static const Map<int, String> sidebarPaths = {
@@ -97,4 +98,6 @@ class RoutePaths {
       '/follow_up/${Uri.encodeComponent(leadId)}?from_card=$fromCard';
   static String changePasswordPath(String staffId) =>
       '/staff/${Uri.encodeComponent(staffId)}/change_password';
+  static String subCategoryPath(String categoryName, String categoryId) =>
+      '/sub_category?categoryName=${Uri.encodeComponent(categoryName)}&categoryId=${Uri.encodeComponent(categoryId)}';
 }
