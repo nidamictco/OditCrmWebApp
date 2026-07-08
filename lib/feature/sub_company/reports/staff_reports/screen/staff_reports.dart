@@ -11,6 +11,7 @@ import 'package:Odit_CRM/core/utils/staff_top_bar.dart';
 import 'package:Odit_CRM/core/utils/table.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -124,10 +125,10 @@ class _StaffReportsState extends State<StaffReports> {
                           child: MouseRegion(
                             onEnter: (_) => setState(() => isHovering = true),
                             onExit: (_) => setState(() => isHovering = false),
-                            child: GestureDetector(
-                              onTap: () {
-                                context.push(RoutePaths.addStaff);
-                              },
+                            child: BrowserAwareLink(
+                              destination: RoutePaths.addStaff,
+                              usePush: true,
+                              enableInkWell: false,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 curve: Curves.easeInOut,
@@ -322,10 +323,10 @@ class _StaffReportsState extends State<StaffReports> {
                                       staff.designation ?? '---',
                                       style: AppTextStyle.medium(),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        context.push(RoutePaths.staffProfilePath(staff.id!));
-                                      },
+                                    BrowserAwareLink(
+                                      destination: RoutePaths.staffProfilePath(staff.id!),
+                                      usePush: true,
+                                      enableInkWell: false,
                                       child: Container(
                                         padding: EdgeInsets.all(0.1.w),
                                         decoration: BoxDecoration(

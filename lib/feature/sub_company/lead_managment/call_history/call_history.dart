@@ -8,6 +8,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/widget/
 import 'package:Odit_CRM/feature/sub_company/lead_managment/call_history/widget/phone_log_tab.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 
 class CallHistoryPage extends StatefulWidget {
@@ -108,15 +109,18 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
-              child: IconButton(
-                icon: Icon(
-                  Icons.contact_phone_rounded,
-                  color: Colors.white,
-                  size: 15,
+              child: BrowserAwareLink(
+                destination: RoutePaths.outgoingCallHistory,
+                usePush: true,
+                enableInkWell: false,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.contact_phone_rounded,
+                    color: Colors.white,
+                    size: 15,
+                  ),
                 ),
-                onPressed: () {
-                  context.push(RoutePaths.outgoingCallHistory);
-                },
               ),
             ),
           ),

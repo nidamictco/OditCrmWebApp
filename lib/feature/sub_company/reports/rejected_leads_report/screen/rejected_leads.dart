@@ -1166,7 +1166,7 @@
 //   }
 // }
 
-
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
@@ -1306,8 +1306,9 @@ class _RejectedLeadsState extends State<RejectedLeads> {
       _appliedPriorities = List<String>.from(_staticAppliedPriorities);
       _appliedSources = List<String>.from(_staticAppliedSources);
       _appliedStaffs = List<String>.from(_staticAppliedStaffs);
-      _appliedRejectedReasons =
-          List<String>.from(_staticAppliedRejectedReasons);
+      _appliedRejectedReasons = List<String>.from(
+        _staticAppliedRejectedReasons,
+      );
       _appliedCallStatuses = List<String>.from(_staticAppliedCallStatuses);
       _appliedFromDate = _staticAppliedFromDate;
       _appliedToDate = _staticAppliedToDate;
@@ -1468,8 +1469,9 @@ class _RejectedLeadsState extends State<RejectedLeads> {
 
     // 6. Assigned Staff Filter — match ANY selected
     if (_appliedStaffs.isNotEmpty) {
-      final staffSet =
-          _appliedStaffs.map((e) => e.trim().toLowerCase()).toSet();
+      final staffSet = _appliedStaffs
+          .map((e) => e.trim().toLowerCase())
+          .toSet();
       result = result
           .where((l) => staffSet.contains(l.assignedStaff.toLowerCase()))
           .toList();
@@ -2040,15 +2042,14 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            GestureDetector(
-                                              onTap: () {
-                                                context.push(
+                                            BrowserAwareLink(
+                                              destination:
                                                   RoutePaths.followUpPath(
                                                     lead.id!,
                                                     "NEW",
                                                   ),
-                                                );
-                                              },
+                                              usePush: true,
+                                              enableInkWell: false,
                                               child: Icon(
                                                 Icons.visibility_outlined,
                                                 size: 13.sp,

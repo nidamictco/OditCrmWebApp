@@ -13,6 +13,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_text_style.dart';
@@ -851,15 +852,13 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              context.push(
-                                                RoutePaths.followUpPath(
-                                                  lead.id!,
-                                                  "TRANSFERED",
-                                                ),
-                                              );
-                                            },
+                                          BrowserAwareLink(
+                                            destination: RoutePaths.followUpPath(
+                                              lead.id!,
+                                              "TRANSFERED",
+                                            ),
+                                            usePush: true,
+                                            enableInkWell: false,
                                             child: Icon(
                                               Icons.visibility_outlined,
                                               size: 13.sp,

@@ -97,7 +97,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   void _confirmRestore(BuildContext ctx, StaffModel staff) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Restore Staff', style: AppTextStyle.medium(size: 14.sp)),
@@ -107,7 +107,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -115,7 +115,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               ctx.read<StaffCubit>().restoreStaff(staff);
             },
             child: Text(
@@ -131,7 +131,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   void _confirmDelete(BuildContext ctx, StaffModel staff) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
@@ -141,7 +141,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -149,7 +149,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               ctx.read<StaffCubit>().deleteStaffPermanently(
                 staff.id ?? '',
               ); // see cubit addition below
@@ -427,28 +427,25 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 }

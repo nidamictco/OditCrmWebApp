@@ -1497,6 +1497,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/utils/indian_location_service.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
@@ -2506,7 +2507,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                     .toList(),
                                 getRowDestination: (rowIndex) {
                                   final lead = pagedList[rowIndex];
-                                  return RoutePaths.followUpPath(lead.id!, "NEW");
+                                  return RoutePaths.followUpPath(
+                                    lead.id!,
+                                    "NEW",
+                                  );
                                 },
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
@@ -2572,15 +2576,13 @@ class _LeadsReportState extends State<LeadsReport> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            context.push(
-                                              RoutePaths.followUpPath(
-                                                lead.id!,
-                                                "NEW",
-                                              ),
-                                            );
-                                          },
+                                        BrowserAwareLink(
+                                          destination: RoutePaths.followUpPath(
+                                            lead.id!,
+                                            "NEW",
+                                          ),
+                                          usePush: true,
+                                          enableInkWell: false,
                                           child: Icon(
                                             Icons.visibility_outlined,
                                             size: 13.sp,
@@ -2588,7 +2590,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                           ),
                                         ),
                                         SizedBox(width: 0.1.h),
-                                        GestureDetector(
+                                        BrowserAwareLink(
+                                          destination: RoutePaths.leadEditPath(
+                                            lead.id!,
+                                          ),
                                           onTap: () async {
                                             final didUpdate = await context
                                                 .push<bool>(
@@ -2603,6 +2608,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                                   .fetchLeads();
                                             }
                                           },
+                                          usePush: true,
+                                          enableInkWell: false,
                                           child: Icon(
                                             Icons.edit,
                                             size: 14.sp,

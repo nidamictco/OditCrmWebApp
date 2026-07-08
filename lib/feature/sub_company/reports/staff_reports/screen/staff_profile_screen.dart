@@ -21,6 +21,7 @@ import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/notes_
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/recent_activity_items.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
@@ -425,15 +426,18 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
             color: const Color(0xFFF59E0B),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: Colors.white,
-              size: 18,
+          child: BrowserAwareLink(
+            destination: RoutePaths.staffEditPath(liveModel.id!),
+            usePush: true,
+            enableInkWell: false,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: const Icon(
+                Icons.edit_outlined,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
-            onPressed: () {
-              context.push(RoutePaths.staffEditPath(liveModel.id!));
-            },
           ),
         ),
       ],

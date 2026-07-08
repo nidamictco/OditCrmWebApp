@@ -15,6 +15,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 
 class UnassingnedLead extends StatefulWidget {
@@ -559,7 +560,10 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                       ),
 
                                       /// ACTION
-                                      GestureDetector(
+                                      BrowserAwareLink(
+                                        destination: RoutePaths.leadEditPath(
+                                          lead.id!,
+                                        ),
                                         onTap: () async {
                                           await context.push(RoutePaths.leadEditPath(lead.id!));
                                           if (context.mounted) {
@@ -568,6 +572,8 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                                 .fetchLeads();
                                           }
                                         },
+                                        usePush: true,
+                                        enableInkWell: false,
                                         child: Icon(
                                           Icons.edit,
                                           size: 14.sp,

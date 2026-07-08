@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -594,15 +595,14 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                     MainAxisAlignment
                                                         .spaceEvenly,
                                                 children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      context.push(
+                                                  BrowserAwareLink(
+                                                    destination:
                                                         RoutePaths.subCategoryPath(
                                                           cat.name,
                                                           cat.id,
                                                         ),
-                                                      );
-                                                    },
+                                                    usePush: true,
+                                                    enableInkWell: false,
                                                     child: Icon(
                                                       Icons.list,
                                                       size: 14.sp,
