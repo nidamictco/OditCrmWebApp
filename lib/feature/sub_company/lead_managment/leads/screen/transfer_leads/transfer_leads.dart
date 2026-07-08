@@ -1196,7 +1196,7 @@ class _TransferLeadsState extends State<TransferLeads> {
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
@@ -1206,7 +1206,7 @@ class _TransferLeadsState extends State<TransferLeads> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -1214,8 +1214,25 @@ class _TransferLeadsState extends State<TransferLeads> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${lead.clientName} deleted successfully.',
+                    style: AppTextStyle.medium(
+                      color: AppColors.white,
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  backgroundColor: AppColors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
             },
             child: Text(
               'Delete',

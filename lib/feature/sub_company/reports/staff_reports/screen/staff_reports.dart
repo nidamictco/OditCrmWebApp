@@ -284,6 +284,10 @@ class _StaffReportsState extends State<StaffReports> {
                           children: [
                             SizedBox(
                               child: CustomTable(
+                                getRowDestination: (rowIndex) {
+                                  final staff = pagedList[rowIndex];
+                                  return RoutePaths.staffProfilePath(staff.id!);
+                                },
                                 onRowTap: (rowIndex) {
                                   final staff = pagedList[rowIndex];
                                   log('stafff........$staff');

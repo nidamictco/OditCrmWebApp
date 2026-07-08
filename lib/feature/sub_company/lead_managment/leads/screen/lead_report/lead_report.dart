@@ -1478,6 +1478,8 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -2502,12 +2504,16 @@ class _LeadsReportState extends State<LeadsReport> {
                                       (lead) => getPriorityColor(lead.priority),
                                     )
                                     .toList(),
+                                getRowDestination: (rowIndex) {
+                                  final lead = pagedList[rowIndex];
+                                  return RoutePaths.followUpPath(lead.id!, "NEW");
+                                },
                                 onRowTap: (rowIndex) {
                                   final lead = pagedList[rowIndex];
+                                  log('Row $rowIndex tapped');
                                   context.push(
                                     RoutePaths.followUpPath(lead.id!, "NEW"),
                                   );
-                                  print('Row $rowIndex tapped');
                                 },
                                 columns: [
                                   TableColumn(title: "Sl No.", flex: 1),
