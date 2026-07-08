@@ -64,7 +64,9 @@ class FirebaseAuthService {
             .get();
 
         if (staffQuery.docs.isEmpty) {
-          throw AuthException('No account found.');
+          throw AuthException(
+            'No account found. Check mobile number and password.',
+          );
         }
 
         final doc = staffQuery.docs.first;

@@ -2496,6 +2496,7 @@ class _LeadsReportState extends State<LeadsReport> {
                               CustomTable(
                                 key: ValueKey(_tableKey),
                                 height: 0,
+                                minWidth: MediaQuery.of(context).size.width,
                                 priorityColors: pagedList
                                     .map(
                                       (lead) => getPriorityColor(lead.priority),
@@ -2509,8 +2510,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
-                                  TableColumn(title: "Sl No.", flex: 2),
-                                  TableColumn(title: "Name", flex: 4),
+                                  TableColumn(title: "Sl No.", flex: 1),
+                                  TableColumn(title: "  Name", flex: 4),
                                   TableColumn(title: "Phone No", flex: 4),
                                   TableColumn(title: "Category", flex: 4),
                                   TableColumn(title: "Staff", flex: 4),

@@ -34,34 +34,44 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchAndPrintRegisteredUsers();
+    // _fetchAndPrintRegisteredUsers();
   }
 
-  void _fetchAndPrintRegisteredUsers() async {
-    try {
-      final usersSnap = await FirebaseFirestore.instance
-          .collection('USERS')
-          .get();
-      print('=== REGISTERED USERS ===');
-      for (var doc in usersSnap.docs) {
-        print(
-          'User: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
-        );
-      }
-
-      final staffSnap = await FirebaseFirestore.instance
-          .collectionGroup('STAFF')
-          .get();
-      print('=== REGISTERED STAFF ===');
-      for (var doc in staffSnap.docs) {
-        print(
-          'Staff: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
-        );
-      }
-    } catch (e) {
-      print('Error fetching registered users: $e');
-    }
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: const Color.fromARGB(255, 180, 27, 24),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
+
+  // void _fetchAndPrintRegisteredUsers() async {
+  //   try {
+  //     final usersSnap = await FirebaseFirestore.instance
+  //         .collection('USERS')
+  //         .get();
+  //     print('=== REGISTERED USERS ===');
+  //     for (var doc in usersSnap.docs) {
+  //       print(
+  //         'User: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
+  //       );
+  //     }
+
+  //     final staffSnap = await FirebaseFirestore.instance
+  //         .collectionGroup('STAFF')
+  //         .get();
+  //     print('=== REGISTERED STAFF ===');
+  //     for (var doc in staffSnap.docs) {
+  //       print(
+  //         'Staff: ${doc.data()['phone']} | Pwd: ${doc.data()['password']} | Name: ${doc.data()['name']}',
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching registered users: $e');
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -84,21 +94,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
+        // if (state is AuthInitial || state is AuthLoading) {
+        //               return const Scaffold(
+        //                 backgroundColor: AppColors.background,
+        //                 body: Center(child: CircularProgressIndicator()),
+        //               );
+        //             }
         if (state is AuthError) {
           if (!state.message.toLowerCase().contains('suspended') &&
               !state.message.toLowerCase().contains('upgrade plan')) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.redAccent,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              );
+            _showError(state.message);
+            // ScaffoldMessenger.of(context)
+            //   ..hideCurrentSnackBar()
+            //   ..showSnackBar(
+            //     SnackBar(
+            //       content: Text(state.message),
+            //       backgroundColor: Colors.redAccent,
+            //       behavior: SnackBarBehavior.floating,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(8),
+            //       ),
+            //     ),
+            //   );
           }
         }
       },
