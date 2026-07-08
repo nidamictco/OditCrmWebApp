@@ -1016,6 +1016,7 @@ class _LeadsReportState extends State<LeadsReport> {
                               CustomTable(
                                 key: ValueKey(_tableKey),
                                 height: 0,
+                                minWidth: MediaQuery.of(context).size.width,
                                 priorityColors: pagedList
                                     .map(
                                       (lead) => getPriorityColor(lead.priority),
@@ -1029,8 +1030,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                   print('Row $rowIndex tapped');
                                 },
                                 columns: [
-                                  TableColumn(title: "Sl No.", flex: 2),
-                                  TableColumn(title: "Name", flex: 4),
+                                  TableColumn(title: "Sl No.", flex: 1),
+                                  TableColumn(title: "  Name", flex: 4),
                                   TableColumn(title: "Phone No", flex: 4),
                                   TableColumn(title: "Category", flex: 4),
                                   TableColumn(title: "Staff", flex: 4),
@@ -1329,7 +1330,7 @@ class _LeadsReportState extends State<LeadsReport> {
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
@@ -1339,7 +1340,7 @@ class _LeadsReportState extends State<LeadsReport> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -1347,8 +1348,25 @@ class _LeadsReportState extends State<LeadsReport> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${lead.clientName} deleted successfully.',
+                    style: AppTextStyle.medium(
+                      color: AppColors.white,
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  backgroundColor: AppColors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
               if (mounted) {
                 setState(() {
                   _selectedIndices.clear();
@@ -1388,6 +1406,23 @@ class _LeadsReportState extends State<LeadsReport> {
                 await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
               }
               Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${selectedLeads.length} lead(s) deleted successfully.',
+                    style: AppTextStyle.medium(
+                      color: AppColors.white,
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  backgroundColor: AppColors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
               setState(() => _selectedIndices = []);
               context.read<AddLeadCubit>().fetchLeads();
             },

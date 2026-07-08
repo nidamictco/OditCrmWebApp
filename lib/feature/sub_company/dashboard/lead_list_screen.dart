@@ -2372,7 +2372,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void _onDelete(AddLeadModel lead) {
     showDialog(
       context: context,
-      builder: (_) => _DeleteConfirmDialog(
+      builder: (dialogContext) => _DeleteConfirmDialog(
         leadName: lead.clientName,
         onConfirm: () async {
           await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
@@ -2825,7 +2825,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                       ? () {
                                           showDialog(
                                             context: context,
-                                            builder: (_) => AlertDialog(
+                                            builder: (dialogContext) => AlertDialog(
                                               backgroundColor: AppColors.white,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
@@ -2849,7 +2849,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                               actions: [
                                                 TextButton(
                                                   onPressed: () =>
-                                                      Navigator.pop(context),
+                                                      Navigator.pop(
+                                                        dialogContext,
+                                                      ),
                                                   style: TextButton.styleFrom(
                                                     foregroundColor:
                                                         AppTheme.textSecondary,
@@ -2858,7 +2860,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                 ),
                                                 ElevatedButton(
                                                   onPressed: () async {
-                                                    Navigator.pop(context);
+                                                    Navigator.pop(
+                                                      dialogContext,
+                                                    );
                                                     for (final lead
                                                         in selectedLeads) {
                                                       await context
@@ -3265,11 +3269,11 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         );
 
         final columns = [
-          TableColumn(title: 'Sl No.', flex: 2),
-          TableColumn(title: 'NAME', flex: 5),
-          TableColumn(title: 'CONTACT NO.', width: 100),
-          TableColumn(title: 'LEAD CATEGORY', width: 150),
-          TableColumn(title: 'STAFF', flex: 5),
+          TableColumn(title: 'Sl No.', flex: 1),
+          TableColumn(title: 'NAME', flex: 4),
+          TableColumn(title: 'CONTACT NO.', flex: 3),
+          TableColumn(title: 'LEAD CATEGORY', flex: 4),
+          TableColumn(title: 'STAFF', flex: 4),
           TableColumn(title: 'STATUS', flex: 4),
           if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 4),
           if (!isNew) TableColumn(title: 'CALLED DATE', flex: 4),
@@ -3302,7 +3306,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 color: AppTheme.primary,
                 fontWeight: FontWeight.w600,
               ),
-              overflow: TextOverflow.ellipsis,
+              // overflow: TextOverflow.ellipsis,
             ),
             // Contact
             GestureDetector(
@@ -3386,7 +3390,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     icon: Icons.visibility_rounded,
                     color: AppTheme.actionView,
                     tooltip: 'View',
-                    onTap: () {},
+                    onTap: () {
+                      _onView(lead);
+                    },
                   ),
                 ),
                 BrowserAwareLink(
@@ -3398,12 +3404,14 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     icon: Icons.edit_rounded,
                     color: AppTheme.actionEdit,
                     tooltip: 'Edit',
-                    onTap: () {},
+                    onTap: () {
+                      _onEdit(lead);
+                    },
                   ),
                 ),
                 _ActionButton(
                   icon: Icons.delete_rounded,
-                  color: AppTheme.actionDelete,
+                  color: AppColors.red,
                   tooltip: 'Delete',
                   onTap: () => _onDelete(lead),
                 ),
@@ -3877,6 +3885,23 @@ class _DeleteConfirmDialog extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
             onConfirm();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '$leadName deleted successfully.',
+                  style: AppTextStyle.medium(
+                    color: AppColors.white,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                backgroundColor: AppColors.red,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                duration: const Duration(seconds: 3),
+              ),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.actionDelete,

@@ -75,11 +75,8 @@ class _OxdoAppState extends State<OxdoApp> {
       staffRepository: StaffRepository(),
     );
     _permissionCubit = PermissionCubit();
-    _router = AppRouter.createRouter(
-      _authCubit,
-      observers: [routeObserver],
-    );
-    
+    _router = AppRouter.createRouter(_authCubit, observers: [routeObserver]);
+
     // Kick off auth session restoration on app start
     _authCubit.checkSession(permissionCubit: _permissionCubit);
   }
@@ -170,12 +167,12 @@ class _OxdoAppState extends State<OxdoApp> {
                 child: BlocBuilder<AuthCubit, AuthState>(
                   bloc: _authCubit,
                   builder: (context, state) {
-                    if (state is AuthInitial || state is AuthLoading) {
-                      return const Scaffold(
-                        backgroundColor: AppColors.background,
-                        body: Center(child: CircularProgressIndicator()),
-                      );
-                    }
+                    // if (state is AuthInitial || state is AuthLoading) {
+                    //   return const Scaffold(
+                    //     backgroundColor: AppColors.background,
+                    //     body: Center(child: CircularProgressIndicator()),
+                    //   );
+                    // }
                     return child ?? const SizedBox.shrink();
                   },
                 ),

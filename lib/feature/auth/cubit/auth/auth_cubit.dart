@@ -126,7 +126,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(Authenticated(user: user));
     } on AuthException catch (e) {
-      log('[AuthCubit] AuthException: ${e.message}');
+      log('[AuthCubit.....] AuthException: ${e.message}');
       emit(AuthError(message: e.message));
     } catch (e, st) {
       log('[AuthCubit] Unexpected login error: $e', stackTrace: st);

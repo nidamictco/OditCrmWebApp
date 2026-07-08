@@ -112,10 +112,7 @@ class _CustomTableState extends State<CustomTable> {
     if (widget.minWidth != null) {
       tableContent = SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: widget.minWidth,
-          child: tableContent,
-        ),
+        child: SizedBox(width: widget.minWidth, child: tableContent),
       );
     }
 
@@ -172,7 +169,7 @@ class _CustomTableState extends State<CustomTable> {
             final col = widget.columns[index];
             final cellContent = Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 2.h),
+              padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4),
               decoration: const BoxDecoration(),
               child: Text(
                 col.title,
@@ -181,16 +178,10 @@ class _CustomTableState extends State<CustomTable> {
             );
 
             if (col.width != null) {
-              return SizedBox(
-                width: col.width,
-                child: cellContent,
-              );
+              return SizedBox(width: col.width, child: cellContent);
             }
 
-            return Expanded(
-              flex: col.flex,
-              child: cellContent,
-            );
+            return Expanded(flex: col.flex, child: cellContent);
           }),
         ],
       ),
@@ -250,22 +241,16 @@ class _CustomTableState extends State<CustomTable> {
               final col = widget.columns[colIndex];
               final cellContent = Container(
                 alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 2.h),
+                padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5),
                 decoration: const BoxDecoration(),
                 child: widget.rows[rowIndex][colIndex],
               );
 
               if (col.width != null) {
-                return SizedBox(
-                  width: col.width,
-                  child: cellContent,
-                );
+                return SizedBox(width: col.width, child: cellContent);
               }
 
-              return Expanded(
-                flex: col.flex,
-                child: cellContent,
-              );
+              return Expanded(flex: col.flex, child: cellContent);
             }),
           ],
         ),
