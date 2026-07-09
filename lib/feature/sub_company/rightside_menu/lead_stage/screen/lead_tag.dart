@@ -1,4 +1,6 @@
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -241,7 +243,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SubCategoryCubit, SubCategoryState>(
+    return BlocListener<LeadTagCubit, LeadTagState>(
       listenWhen: (prev, cur) =>
           cur.errorMessage != null && cur.errorMessage != prev.errorMessage,
       listener: (context, state) {
@@ -263,7 +265,14 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                 subTitle: "Lead Tag",
                 subTitle2: 'Lead Stage',
                 show2ndTitle: true,
-                onPressed: () => context.pop(),
+                // onPressed: () => context.pop(),
+                 onPressed: () {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(RoutePaths.leadStages);
+    }
+  },
               ),
 
               /// 🔹 MAIN CONTENT
@@ -299,7 +308,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                             ),
 
                             // 🔹 Add New button
-                            BlocBuilder<SubCategoryCubit, SubCategoryState>(
+                            BlocBuilder<LeadTagCubit, LeadTagState>(
                               buildWhen: (p, c) =>
                                   p.isSubmitting != c.isSubmitting,
                               builder: (context, state) {
@@ -344,7 +353,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                       SizedBox(height: 2.h),
 
                       /// 🔹 TABLE
-                      BlocBuilder<SubCategoryCubit, SubCategoryState>(
+                      BlocBuilder<LeadTagCubit, LeadTagState>(
                         builder: (context, state) {
                           // Loading skeleton
                           if (state.isLoading) {
@@ -356,7 +365,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                             );
                           }
 
-                          final rows = _filtered(state.subCategories);
+                          final rows = _filtered(state.leadTags);
                           final allFiltered = _filtered(rows);
                           final totalCount = allFiltered.length;
                           final totalPages = _totalPages(totalCount);

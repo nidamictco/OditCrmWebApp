@@ -30,7 +30,7 @@ class AddLeadModel {
   final List<FollowUpModel>? followUp;
   final DateTime? followUpDate;
   final DateTime? calledDate;
-  final String? leadTag;
+  final String leadTag;
   final String? callResult;
   final List<TransferDetails>? transferLeads;
 
@@ -105,7 +105,7 @@ class AddLeadModel {
           ? Timestamp.fromDate(calledDate!)
           : null,
       // 'followUp': followUp != null ? followUp!.map((e) => e.toFirestore()).toList() : [],
-      'leadTag': leadTag,
+      'leadTag': leadTag.toString(),
       'callResult': callResult,
       'transferLeads': transferLeads != null
           ? transferLeads!.map((e) => e.toFirestore()).toList()

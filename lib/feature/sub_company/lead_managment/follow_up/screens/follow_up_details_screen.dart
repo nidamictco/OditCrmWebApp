@@ -337,7 +337,9 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           // CHANGE TO:
                           _headerIcon(
                             Icons.edit_outlined,
-                            destination: RoutePaths.leadEditPath(_currentLead.id!),
+                            destination: RoutePaths.leadEditPath(
+                              _currentLead.id!,
+                            ),
                             onTap: () async {
                               // ← async
                               final didUpdate = await context.push<bool>(
@@ -386,7 +388,8 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                                 _currentLead.contactNumber,
                                             leadCategory:
                                                 _currentLead.leadCategory,
-                                            leadSubCategory: _currentLead.leadSubCategory,
+                                            leadSubCategory:
+                                                _currentLead.leadSubCategory,
                                             leadStage: _currentLead.leadStage,
                                             fromStaffId:
                                                 _currentLead.assignedStaffId,
@@ -537,10 +540,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
         child: child,
       );
     }
-    return GestureDetector(
-      onTap: onTap,
-      child: child,
-    );
+    return GestureDetector(onTap: onTap, child: child);
   }
 
   Widget _metaItem(IconData icon, String text) {
@@ -1183,7 +1183,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       cubit.selectLeadStage(leadFollowup!.leadStage);
       cubit.selectCategory(leadFollowup.leadCategory);
       cubit.selectSubCategory(leadFollowup.leadSubCategory);
-      cubit.selectPriority(leadFollowup.leadTag);
+      cubit.selectLeadTag(leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
       cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
@@ -1378,9 +1378,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                           }
 
                           // ── Validation: tag for rejected lead ───────────────────
-                          if (state.selectedLeadStage!.toUpperCase() ==
-                                  'REJECTED' &&
-                              state.selectedLeadTag == null) {
+                          if (state.selectedLeadTag == null) {
                             _showAlertDialog(
                               sbContext,
                               title: 'Validation',
@@ -1529,7 +1527,14 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                                 items: stagesNames,
                                 showClear: false,
                                 selectedValue: state.selectedLeadStage,
-                                onChanged: (v) => cubit.selectLeadStage(v),
+                                onChanged: (v) {
+                                  setState(() {
+                                    _leadStage = v;
+                                    // state.selectedLeadTag = null; // ← add this
+                                  });
+                                  cubit.selectLeadStage(v);
+                                  cubit.selectLeadTag(null);
+                                },
                                 label: 'Lead Stage',
                                 hint: stagesNames.isEmpty
                                     ? 'Loading...'
@@ -1679,119 +1684,125 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                         // ],
                         // ])],
 
-// ── Conditional Row: Stage-specific field (left) + Sub Category (right) ──────
-Builder(
-  builder: (_) {
-    // ── Left container: driven by Lead Stage ─────────────────────────────
-    Widget leftContainer;
-    if (state.selectedLeadStage == 'FOLLOWUP') {
-      leftContainer = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Next Follow-Up Date',
-            style: AppTextStyle.medium(),
-          ),
-          SizedBox(height: 0.5.h),
-          GestureDetector(
-            onTap: () async {
-              final result = await showCalendarDialogUsingTimePicker(
-                sbContext,
-                initialDate: nextFollowUpDate,
-                mode: CalendarMode.single,
-                showTimePicker: true,
-                minDate: calledDateValue,
-              );
-              if (result != null) {
-                sbSetState(() {
-                  nextFollowUpDate = result.from;
-                  nextFollowUpCtrl.text =
-                      DateFormat('dd-MM-yyyy hh:mm a').format(result.from);
-                });
-              }
-            },
-            child: Container(
-              height: 5.2.h,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.greyCard,
-                border: Border.all(color: AppColors.divider, width: 1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: IgnorePointer(
-                child: TextField(
-                  controller: nextFollowUpCtrl,
-                  readOnly: true,
-                  style: AppTextStyle.small(
-                    size: 11.sp,
-                    color: AppColors.black,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: nextFollowUpCtrl.text,
-                    hintStyle: AppTextStyle.small(
-                      size: 11.sp,
-                      color: AppColors.black,
-                    ),
-                    isCollapsed: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    } else if (state.selectedLeadStage == 'REJECTED') {
-      leftContainer = Dropdown(
-        label: 'Tags',
-        hint: 'Select Tags',
-        showStar: true,
-        items: const [
-          'Costly',
-          'Not intrested',
-          'Not Responding',
-          'No Budget',
-          'Wrong Lead',
-        ],
-        selectedValue: state.selectedLeadTag,
-        onChanged: (v) => cubit.selectLeadTag(v),
-      );
-    } else {
-      leftContainer = const SizedBox();
-    }
+                        // ── Conditional Row: Stage-specific field (left) + Sub Category (right) ──────
+                        Builder(
+                          builder: (_) {
+                            // ── Left container: driven by Lead Stage ─────────────────────────────
+                            Widget leftContainer;
+                            if (state.selectedLeadStage == 'FOLLOWUP') {
+                              leftContainer = Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Next Follow-Up Date',
+                                    style: AppTextStyle.medium(),
+                                  ),
+                                  SizedBox(height: 0.5.h),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final result =
+                                          await showCalendarDialogUsingTimePicker(
+                                            sbContext,
+                                            initialDate: nextFollowUpDate,
+                                            mode: CalendarMode.single,
+                                            showTimePicker: true,
+                                            minDate: calledDateValue,
+                                          );
+                                      if (result != null) {
+                                        sbSetState(() {
+                                          nextFollowUpDate = result.from;
+                                          nextFollowUpCtrl.text = DateFormat(
+                                            'dd-MM-yyyy hh:mm a',
+                                          ).format(result.from);
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 5.2.h,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.greyCard,
+                                        border: Border.all(
+                                          color: AppColors.divider,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: IgnorePointer(
+                                        child: TextField(
+                                          controller: nextFollowUpCtrl,
+                                          readOnly: true,
+                                          style: AppTextStyle.small(
+                                            size: 11.sp,
+                                            color: AppColors.black,
+                                          ),
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: nextFollowUpCtrl.text,
+                                            hintStyle: AppTextStyle.small(
+                                              size: 11.sp,
+                                              color: AppColors.black,
+                                            ),
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else if (state.leadTag.isNotEmpty) {
+                              leftContainer = Dropdown(
+                                label: 'Tags',
+                                hint: 'Select Tags',
+                                showStar: true,
+                                items: state.leadTag
+                                    .map((e) => e.name)
+                                    .toList(),
+                                selectedValue: state.selectedLeadTag,
+                                onChanged: (v) {
+                                  // setState(() => state.selectedLeadTag = v);
+                                  cubit.selectLeadTag(v);
+                                },
+                              );
+                            } else {
+                              leftContainer = const SizedBox();
+                            }
 
-    // ── Right container: driven by Sub Category availability ─────────────
-    final hasSubCategories = state.subCategories.isNotEmpty;
-    final rightContainer = hasSubCategories
-        ? Dropdown(
-            label: 'Lead Sub Type',
-            hint: 'Select Lead Sub Type',
-            items: subCategoryName,
-            selectedValue: state.selectedSubCategory,
-            onChanged: (v) =>
-                context.read<AddLeadCubit>().selectSubCategory(v),
-          )
-        : const SizedBox();
+                            // ── Right container: driven by Sub Category availability ─────────────
+                            final hasSubCategories =
+                                state.subCategories.isNotEmpty;
+                            final rightContainer = hasSubCategories
+                                ? Dropdown(
+                                    label: 'Lead Sub Type',
+                                    hint: 'Select Lead Sub Type',
+                                    items: subCategoryName,
+                                    selectedValue: state.selectedSubCategory,
+                                    onChanged: (v) => context
+                                        .read<AddLeadCubit>()
+                                        .selectSubCategory(v),
+                                  )
+                                : const SizedBox();
 
-    // ── Row: always exactly two Expanded children ─────────────────────────
-    return Column(
-      children: [
-        SizedBox(height: 1.h),
-        Row(
-          children: [
-            Expanded(child: leftContainer),
-            SizedBox(width: 1.w),
-            Expanded(child: rightContainer),
-          ],
-        ),
-      ],
-    );
-  },
-),
+                            // ── Row: always exactly two Expanded children ─────────────────────────
+                            return Column(
+                              children: [
+                                SizedBox(height: 1.h),
+                                Row(
+                                  children: [
+                                    Expanded(child: leftContainer),
+                                    SizedBox(width: 1.w),
+                                    Expanded(child: rightContainer),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        ),
 
                         SizedBox(height: 1.h),
 
@@ -2331,7 +2342,8 @@ class _FollowupCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         _cardRow('Call Status', entry.calledStatus),
                         const SizedBox(height: 4),
-                        if (entry.leadStage.toLowerCase() == 'rejected')
+                        // if (entry.leadStage.toLowerCase() == 'rejected')
+                        if(lead.leadTag!.isNotEmpty)
                           _cardRow('Tags', lead.leadTag!),
                         if (entry.leadStage.toLowerCase() == 'rejected')
                           const SizedBox(height: 4),
@@ -3546,6 +3558,8 @@ class _StatusChip extends StatelessWidget {
         return const Color(0xFFF59E0B);
       case 'connected':
         return const Color(0xFF4CAF50);
+      case 'closed':
+      return const Color(0xFF4CAF50);
       case 'new':
         return const Color(0xFF10B981);
       case 'transferred':

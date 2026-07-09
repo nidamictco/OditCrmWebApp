@@ -1197,13 +1197,21 @@ class _AddLeadPageState extends State<AddLeadPage> {
                           focusNode: _stageFocus,
                           nextFocusNode:
                               _leadStage != 'NEW' && _leadStage != null
-                              ? (_leadStage == 'REJECTED'
+                              ? (
+                                // _leadStage == 'REJECTED'
+                               state.leadTag.isNotEmpty
                                     ? _tagsFocus
                                     : _callResultFocus)
                               : _remarksFocus,
                           onChanged: (v) {
-                            setState(() => _leadStage = v);
+                            // setState(() => _leadStage = v);
+                             setState(() {
+    _leadStage = v;
+    _leadTag = null;        // ← add this
+    _callResult = null;     // optional but usually desired too — see below
+  });
                             cubit.selectLeadStage(v);
+                            cubit.selectLeadTag(null);
                             // Rebuild node order when stage changes conditional fields
                             _buildOrderedNodes(
                               context
@@ -1303,7 +1311,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                           ),
                         Row(
                           children: [
-                            if (_leadStage == 'REJECTED')
+                            if (state.leadTag.isNotEmpty)
                               Row(
                                 children: [
                                   SizedBox(
@@ -1314,14 +1322,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                       showStar: true,
                                       focusNode: _tagsFocus,
                                       nextFocusNode: _callResultFocus,
-                                      items: const [
-                                        'Costly',
-                                        'Not interested',
-                                        'Bad Quality',
-                                        'Pending',
-                                        'Rejected',
-                                        'Switched Off',
-                                      ],
+                                      items: state.leadTag.map((e) => e.name).toList(),
                                       selectedValue: _leadTag,
                                       onChanged: (v) {
                                         setState(() => _leadTag = v);
