@@ -413,6 +413,12 @@ class AppTextStyle {
     color: AppThemeColors.textSecondary,
   );
 
+  static TextStyle subText = GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppThemeColors.subText,
+  );
+
   static TextStyle caption = GoogleFonts.poppins(
     fontSize: 11,
     fontWeight: FontWeight.w400,

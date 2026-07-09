@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:Odit_CRM/feature/mother_company/MotherCompanyMainScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
@@ -30,11 +31,28 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool showExitAlert = false;
+  LottieComposition? _composition;
 
   @override
   void initState() {
     super.initState();
     // _fetchAndPrintRegisteredUsers();
+    _loadLottie();
+  }
+
+  void _loadLottie() async {
+    try {
+      final composition = await AssetLottie(AssetResources.loginBg).load();
+      if (mounted) {
+        setState(() {
+          _composition = composition;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading lottie: $e');
+      }
+    }
   }
 
   void _showError(String msg) {
@@ -94,6 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
+        if (state is Authenticated) {
+          TextInput.finishAutofillContext();
+        }
         // if (state is AuthInitial || state is AuthLoading) {
         //               return const Scaffold(
         //                 backgroundColor: AppColors.background,
@@ -120,6 +141,15 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       },
       builder: (context, state) {
+        if (_composition == null) {
+          return const Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
         final isLoading = state is AuthLoading;
 
         Widget _buildExitDialogOverlay() {
@@ -194,28 +224,196 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: AppColors.background,
           body: Stack(
             children: [
-              _buildBackground(),
-              Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildLoginCard(context, isLoading),
-                      SizedBox(height: 1.h),
-                      Text(
-                        '© 2026. Crafted with ❤️ by Mictco It Solutions',
-                        style: AppTextStyle.small(
-                          color: Colors.grey,
-                          size: 10.sp,
-                        ),
-                      ),
-                    ],
-                  ),
+               Positioned.fill(
+                child: Lottie(
+                  composition: _composition,
+                  fit: BoxFit.cover,
                 ),
               ),
-              _buildExitDialogOverlay(),
-            ],
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 40,
+                      left: 40,
+                      bottom: 5,
+                    ),
+                    child: SizedBox(
+                      height: 50,
+                      width: 200,
+                      child: Image.asset(AssetResources.horz_white_logo),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 450,
+                      // height: 500,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 50,
+                        vertical: 50,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: AutofillGroup(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Image.asset(
+                                AssetResources.iconLogo,
+                                height: 50,
+                                width: 45,
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Welcome back, ',
+                                    style: AppTextStyle.medium(
+                                      size: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Odit CRM',
+                                    style: AppTextStyle.title(
+                                      size: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'Please enter your details to access your dashboard.',
+                                style: AppTextStyle.subText,
+                              ),
+                              const SizedBox(height: 30),
+                              // Username
+                              Text(
+                                'Username',
+                                style: AppTextStyle.medium(fontSize: 12),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildUsernameField(),
+  
+                              const SizedBox(height: 16),
+  
+                              // Password
+                              Text(
+                                'Password',
+                                style: AppTextStyle.medium(fontSize: 12),
+                              ),
+                              SizedBox(height: 0.5.h),
+                              _buildPasswordField(),
+  
+                              SizedBox(height: 35),
+  
+                              // Sign In button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 40,
+                                child: ElevatedButton(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () => _handleLogin(context),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    backgroundColor:
+                                        AppThemeColors.appPrimaryColor,
+                                    disabledBackgroundColor: AppThemeColors
+                                        .appPrimaryColor
+                                        .withValues(alpha: .6),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Sign In',
+                                          style: AppTextStyle.medium(
+                                            size: 12.sp,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '© 2026 CRAFTED BY ',
+                                    style: AppTextStyle.small(
+                                      size: 10,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppThemeColors.subText,
+                                    ),
+                                  ),
+                                  Text(
+                                    'MICTCO IT SOLUTIONS PVT LTD.',
+                                    style: AppTextStyle.title(
+                                      size: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppThemeColors.tableHeader,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+        ],
+      ),
+          // body: Stack(
+          //   children: [
+          //     _buildBackground(),
+          //     Center(
+          //       child: SingleChildScrollView(
+          //         child: Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             _buildLoginCard(context, isLoading),
+          //             SizedBox(height: 1.h),
+          //             Text(
+          //               '© 2026. Crafted with ❤️ by Mictco It Solutions',
+          //               style: AppTextStyle.small(
+          //                 color: Colors.grey,
+          //                 size: 10.sp,
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //     _buildExitDialogOverlay(),
+          //   ],
+          // ),
         );
 
         if (kIsWeb) {
@@ -285,103 +483,105 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Logo
-            Center(
-              // child: Column(
-              //   children: [
-              //     Text(
-              //       'OXDO',
-              //       style: AppTextStyle.heading(
-              //         weight: FontWeight.bold,
-              //         color: Colors.blue,
+        child: AutofillGroup(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Logo
+              Center(
+                // child: Column(
+                //   children: [
+                //     Text(
+                //       'OXDO',
+                //       style: AppTextStyle.heading(
+                //         weight: FontWeight.bold,
+                //         color: Colors.blue,
+                //       ),
+                //     ),
+                //     Text(
+                //       'Technology Pvt Ltd.',
+                //       style: AppTextStyle.heading(color: Colors.grey, size: 14),
+                //     ),
+                //   ],
+                // ),
+                child: Image.asset(AssetResources.logo, scale: 7),
+              ),
+  
+              const SizedBox(height: 20),
+  
+              // Username
+              Text('Phone Number', style: AppTextStyle.medium()),
+              const SizedBox(height: 8),
+              _buildUsernameField(),
+  
+              const SizedBox(height: 16),
+  
+              // Password
+              Text('Password', style: AppTextStyle.medium()),
+              SizedBox(height: 0.5.h),
+              _buildPasswordField(),
+  
+              SizedBox(height: 1.5.h),
+  
+              // Align(
+              //   alignment: Alignment.centerRight,
+              //   child: GestureDetector(
+              //     onTap: () {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (_) => const ForgotPasswordScreen(),
+              //         ),
+              //       );
+              //     },
+              //     child: Text(
+              //       'Forgot password?',
+              //       style: AppTextStyle.medium(
+              //         size: 10.sp,
+              //         color: Colors.grey,
+              //         weight: FontWeight.w400,
               //       ),
               //     ),
-              //     Text(
-              //       'Technology Pvt Ltd.',
-              //       style: AppTextStyle.heading(color: Colors.grey, size: 14),
-              //     ),
-              //   ],
+              //   ),
               // ),
-              child: Image.asset(AssetResources.logo, scale: 7),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Username
-            Text('Phone Number', style: AppTextStyle.medium()),
-            const SizedBox(height: 8),
-            _buildUsernameField(),
-
-            const SizedBox(height: 16),
-
-            // Password
-            Text('Password', style: AppTextStyle.medium()),
-            SizedBox(height: 0.5.h),
-            _buildPasswordField(),
-
-            SizedBox(height: 1.5.h),
-
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: GestureDetector(
-            //     onTap: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (_) => const ForgotPasswordScreen(),
-            //         ),
-            //       );
-            //     },
-            //     child: Text(
-            //       'Forgot password?',
-            //       style: AppTextStyle.medium(
-            //         size: 10.sp,
-            //         color: Colors.grey,
-            //         weight: FontWeight.w400,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            SizedBox(height: 1.3.h),
-
-            // Sign In button
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : () => _handleLogin(context),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: const Color(0xFF002660),
-                  disabledBackgroundColor: const Color(
-                    0xFF002660,
-                  ).withOpacity(0.6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              SizedBox(height: 1.3.h),
+  
+              // Sign In button
+              SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : () => _handleLogin(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: const Color(0xFF002660),
+                    disabledBackgroundColor: const Color(
+                      0xFF002660,
+                    ).withOpacity(0.6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Sign In',
+                          style: AppTextStyle.medium(
+                            size: 12.sp,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
-                child: isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        'Sign In',
-                        style: AppTextStyle.medium(
-                          size: 12.sp,
-                          color: Colors.white,
-                        ),
-                      ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -392,6 +592,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildUsernameField() {
     return TextFormField(
       controller: _phoneNoController,
+      autofillHints: const [AutofillHints.username],
       textInputAction: TextInputAction.next,
       autocorrect: false,
       inputFormatters: [
@@ -400,17 +601,33 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter your phone number';
+          return 'Please enter your username';
         }
         return null;
       },
       keyboardType: TextInputType.phone,
       decoration: InputDecoration(
-        hintText: 'Enter phone number',
-        hintStyle: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+        prefixIcon: Icon(
+          Icons.person_2_outlined,
+          color: AppThemeColors.appPrimaryColor,
+          size: 18,
+        ),
+        hintText: 'Enter username',
+        hintStyle: AppTextStyle.medium(size: 12, color: AppColors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),
@@ -421,6 +638,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
+      autofillHints: const [AutofillHints.password],
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _handleLogin(context),
       validator: (value) {
@@ -433,20 +651,27 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
       decoration: InputDecoration(
-        hintText: 'Enter password',
-        hintStyle: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
-            color: Colors.grey,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        prefixIcon: Icon(
+          Icons.lock_outline,
+          color: AppThemeColors.appPrimaryColor,
+          size: 18,
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+        hintText: 'Enter password',
+        hintStyle: AppTextStyle.medium(size: 12, color: AppColors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+        ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),
