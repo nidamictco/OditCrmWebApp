@@ -1,5 +1,7 @@
 // lib/core/router/app_router.dart
 
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/screen/lead_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -314,6 +316,21 @@ class AppRouter {
                   child: BlocProvider(
                     create: (_) => SubCategoryCubit(categoryId: categoryId)..watchSubCategories(),
                     child: LeaSubCategoryScreen(categoryName: categoryName, categoryId: categoryId),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              path: RoutePaths.leadTag,
+              builder: (context, state) {
+                final perm = context.watch<PermissionCubit>();
+                final leadStageName = state.uri.queryParameters['leadStageName'] ?? '';
+                final leadStageId=state.uri.queryParameters['leadStageId'] ?? '';
+                return PermissionGuard(
+                  hasPermission: perm.canViewLeadStages,
+                  child: BlocProvider(
+                    create: (_) => LeadTagCubit(leadStageId: leadStageId,)..watchLeadTags(),
+                    child: LeaTagScreen(leadStageName: leadStageName, leadStageId: leadStageId),
                   ),
                 );
               },

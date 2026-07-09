@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,12 +15,12 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 
 class LeaTagScreen extends StatefulWidget {
-  final String categoryName;
-  final String categoryId;
+  final String leadStageName;
+  final String leadStageId;
   const LeaTagScreen({
     super.key,
-    required this.categoryName,
-    required this.categoryId,
+    required this.leadStageName,
+    required this.leadStageId,
   });
 
   @override
@@ -44,7 +45,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
   void initState() {
     super.initState();
     // Start the real-time Firestore listener
-    context.read<SubCategoryCubit>().watchSubCategories();
+    context.read<LeadTagCubit>().watchLeadTags();
   }
 
   @override
@@ -110,7 +111,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Add Lead Tags- ${widget.categoryName}',
+          title: 'Add Lead Tags- ${widget.leadStageName}',
           width: 35.w,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.w),
@@ -146,7 +147,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
             Navigator.pop(ctx);
 
-            await context.read<SubCategoryCubit>().addSubCategory(name: name);
+            await context.read<LeadTagCubit>().addLeadTag(name: name);
           },
         );
       },
@@ -201,7 +202,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
-            await context.read<SubCategoryCubit>().updateSubCategory(
+            await context.read<LeadTagCubit>().updateLeadTag(
               id: id,
               name: name,
             );
@@ -230,7 +231,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
         ),
         onSubmit: () {
           Navigator.pop(ctx);
-          context.read<SubCategoryCubit>().deleteSubCategory(id: category.id);
+          context.read<LeadTagCubit>().deleteLeadTag(id: category.id);
         },
       ),
     );
@@ -286,7 +287,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                             Row(
                               children: [
                                 Text(
-                                  "Lead Tag - ${widget.categoryName}",
+                                  "Lead Tag - ${widget.leadStageName}",
                                   style: AppTextStyle.medium(
                                     size: 13.6.sp,
                                     color: AppColors.black.withOpacity(0.77),
