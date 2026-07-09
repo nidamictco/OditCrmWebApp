@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
@@ -19,6 +22,7 @@ class DashboardCard extends StatefulWidget {
   final String title;
   final String message;
   final String fromCard;
+  final String? dateText;
   // final DateTime selectedDate;
 
   const DashboardCard({
@@ -26,6 +30,7 @@ class DashboardCard extends StatefulWidget {
     required this.title,
     required this.message,
     required this.fromCard,
+    this.dateText,
     // required this.selectedDate,
   });
 
@@ -146,32 +151,52 @@ class _DashboardCardState extends State<DashboardCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                 BlocBuilder<AddLeadCubit, AddLeadState>(
-                   builder: (context, state) {
-                     final staffId = staff?.id;
-                     final dateStr = state.selectedDashboardDate?.toIso8601String();
-                     final path = Uri(
-                       path: RoutePaths.newLeads,
-                       queryParameters: {
-                         if (widget.fromCard.isNotEmpty) 'fromCard': widget.fromCard,
-                         if (dateStr != null) 'selectedDate': dateStr,
-                         if (staffId != null) 'staffId': staffId,
-                       },
-                     ).toString();
-                     return BrowserAwareLink(
-                       destination: path,
-                       usePush: true,
-                       enableInkWell: false,
-                       child: Text(
-                         "View Details",
-                         style: AppTextStyle.link(
-                           color: AppColors.grey,
-                           decorationColor: AppColors.grey,
-                         ),
-                       ),
-                     );
-                   },
-                 ),
+                BlocBuilder<AddLeadCubit, AddLeadState>(
+                  builder: (context, state) {
+                    final staffId = staff?.id;
+                    String? dateStr;
+                    if (widget.fromCard == "TOTAL") {
+                      if (widget.dateText != null &&
+                          widget.dateText!.isNotEmpty) {
+                        try {
+                          final parsedDate = DateFormat(
+                            'dd-MM-yyyy',
+                          ).parse(widget.dateText!);
+                          dateStr = parsedDate.toIso8601String();
+                        } catch (_) {
+                          dateStr = state.selectedDashboardDate
+                              ?.toIso8601String();
+                        }
+                      } else {
+                        dateStr = null;
+                      }
+                    } else {
+                      dateStr = state.selectedDashboardDate?.toIso8601String();
+                    }
+                    final path = Uri(
+                      path: RoutePaths.newLeads,
+                      queryParameters: {
+                        if (widget.fromCard.isNotEmpty)
+                          'fromCard': widget.fromCard,
+                        if (dateStr != null) 'selectedDate': dateStr,
+                        if (staffId != null) 'staffId': staffId,
+                      },
+                    ).toString();
+
+                    return BrowserAwareLink(
+                      destination: path,
+                      usePush: true,
+                      enableInkWell: false,
+                      child: Text(
+                        "View Details",
+                        style: AppTextStyle.link(
+                          color: AppColors.grey,
+                          decorationColor: AppColors.grey,
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 BlocBuilder<AddLeadCubit, AddLeadState>(
                   builder: (context, state) {
                     String count = "0";

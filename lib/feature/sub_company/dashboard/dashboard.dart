@@ -365,7 +365,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                         return Wrap(
                           spacing: 2.w,
                           runSpacing: 2.h,
-                          children: const [
+                          children: [
                             Material(
                               color: Colors.transparent,
                               child: DashboardCard(
@@ -400,6 +400,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                 message:
                                     'Total called can be filtered \nusing a specific date range to determine \nthe count of total leads within that period.',
                                 fromCard: 'TOTAL',
+                                dateText: _dateController.text,
                               ),
                             ),
                             Material(

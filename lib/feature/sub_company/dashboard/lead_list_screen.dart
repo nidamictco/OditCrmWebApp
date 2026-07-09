@@ -2439,6 +2439,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     final bool dateChanged =
         _hasSavedState && (_staticAppliedFromDate != widget.selectedDate);
 
+    log("jhdsgadgjagdjsagd ${widget.selectedDate}");
+
     if (_hasSavedState && !cardChanged && !dateChanged) {
       // Restore filter state from static variables
       fromDate.text = _staticFromDate ?? '';
@@ -3047,7 +3049,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                             lead.contactNumber,
                                                         leadCategory:
                                                             lead.leadCategory,
-                                                        leadSubCategory: lead.leadSubCategory,
+                                                        leadSubCategory: lead
+                                                            .leadSubCategory,
                                                         leadStage:
                                                             lead.leadStage,
                                                         fromStaffId: lead
