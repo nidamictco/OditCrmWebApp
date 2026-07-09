@@ -110,7 +110,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Add Lead Sub Category- ${widget.categoryName}',
+          title: 'Add Lead Tags- ${widget.categoryName}',
           width: 35.w,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 0.5.w),
@@ -119,13 +119,13 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 /// Lead Category
-                const Text("Lead Sub Category"),
+                const Text("Lead Tags"),
                 const SizedBox(height: 8),
                 TextField(
                   style: AppTextStyle.medium(weight: FontWeight.w400),
                   controller: categoryController,
                   decoration: InputDecoration(
-                    hintText: "Enter Category",
+                    hintText: "Enter Tag",
                     hintStyle: AppTextStyle.medium(
                       size: 11.sp,
                       color: AppColors.grey,
@@ -161,7 +161,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
       context: context,
       builder: (ctx) {
         return AppDialog(
-          title: 'Edit Lead Sub Category',
+          title: 'Edit Lead Tags',
           width: 35.w,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 1.w),
@@ -170,14 +170,14 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Lead Sub Category",
+                  "Lead Tags",
                   style: AppTextStyle.medium(size: 11.sp),
                 ),
                 SizedBox(height: 0.5.h),
                 TextField(
                   controller: categoryController,
                   decoration: InputDecoration(
-                    hintText: "Enter Sub Category",
+                    hintText: "Enter Tag",
                     hintStyle: AppTextStyle.medium(
                       size: 11.sp,
                       color: AppColors.grey,
@@ -215,7 +215,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
-        title: 'Delete Sub Category',
+        title: 'Delete Lead Tag',
         width: 30.w,
         submitText: 'Delete',
         body: Padding(
@@ -259,8 +259,8 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
             children: [
               TopBreadcrumbBar(
                 title: "Lead Management",
-                subTitle: "Lead Sub Category ",
-                subTitle2: 'Category',
+                subTitle: "Lead Tag",
+                subTitle2: 'Lead Stage',
                 show2ndTitle: true,
                 onPressed: () => context.pop(),
               ),
@@ -286,7 +286,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                             Row(
                               children: [
                                 Text(
-                                  "Lead Sub Category - ${widget.categoryName}",
+                                  "Lead Tag - ${widget.categoryName}",
                                   style: AppTextStyle.medium(
                                     size: 13.6.sp,
                                     color: AppColors.black.withOpacity(0.77),
@@ -383,7 +383,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                   columns: [
                                     TableColumn(title: "Sl No.", flex: 1),
                                     TableColumn(
-                                      title: "Category Name",
+                                      title: "Lead Tag",
                                       flex: 4,
                                     ),
                                     TableColumn(title: "Created By", flex: 4),
