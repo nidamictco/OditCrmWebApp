@@ -1,3 +1,5 @@
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
+import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -490,19 +492,47 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                               ),
                                             )
                                           : cat.isDefault
-                                          ? Tooltip(
-                                              message:
-                                                  "Default stage cannot be modified.",
-                                              child: Icon(
-                                                Icons.lock_outline,
-                                                size: 14.sp,
-                                                color: AppColors.grey,
-                                              ),
-                                            )
+                                          // ? Tooltip(
+                                          //     message:
+                                          //         "Default stage cannot be modified.",
+                                          //     child: Icon(
+                                          //       Icons.lock_outline,
+                                          //       size: 14.sp,
+                                          //       color: AppColors.grey,
+                                          //     ),
+                                          //   )
+                                          ?BrowserAwareLink(
+                                                    destination:
+                                                        RoutePaths.leadTagPath(
+                                                          cat.name,
+                                                          cat.id,
+                                                        ),
+                                                    usePush: true,
+                                                    enableInkWell: false,
+                                                    child: Icon(
+                                                      Icons.list,
+                                                      size: 14.sp,
+                                                      color: Colors.lightGreen,
+                                                    ),
+                                                  )
                                           : Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               children: [
+                                                BrowserAwareLink(
+                                                    destination:
+                                                        RoutePaths.leadTagPath(
+                                                          cat.name,
+                                                          cat.id,
+                                                        ),
+                                                    usePush: true,
+                                                    enableInkWell: false,
+                                                    child: Icon(
+                                                      Icons.list,
+                                                      size: 14.sp,
+                                                      color: Colors.lightGreen,
+                                                    ),
+                                                  ),
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
                                                   onTap: () =>
@@ -524,6 +554,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                     color: Colors.red,
                                                   ),
                                                 ),
+
                                               ],
                                             ),
                                     ];

@@ -44,7 +44,7 @@
 //      ISubCategoryRepository Function(String categoryId)? subCategoryRepositoryFactory,
 //     AdditionalFieldsRepository? additionalFieldsRepo,
 //     StaffRepository? staffRepository,
-    
+
 //   }) : _leadRepository = leadRepository ?? AddLeadRepository(),
 //        _categoryRepository = categoryRepository ?? LeadCategoryRepository(),
 //        _sourceRepository = sourceRepository ?? LeadSourceRepository(),
@@ -1463,10 +1463,10 @@
 //   ///),
 // }
 
-
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_tag_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
@@ -1502,10 +1502,15 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   final ISubCategoryRepository Function(String categoryId)?
   _subCategoryRepositoryFactory;
 
+  ILeadTagRepository? _leadTagRepository;
+  final ILeadTagRepository Function(String leadTagId)?
+  _leadTagRepositoryFactory;
+
   StreamSubscription? _categorySubscription;
   StreamSubscription? _sourceSubscription;
   StreamSubscription? _leadStageSubscription;
   StreamSubscription? _subCategorySubscription; // NEW
+  StreamSubscription? _leadTagSubscription;
   GeneralSettingsRepository? _settingsRepo;
 
   AddLeadCubit({
@@ -1515,6 +1520,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     ILeadStageRepository? leadStageRepository,
     ISubCategoryRepository Function(String categoryId)?
     subCategoryRepositoryFactory, // NEW — optional, for tests/DI only
+    ILeadTagRepository Function(String leadTagId)? leadTagRepositoryFactory,
     AdditionalFieldsRepository? additionalFieldsRepo,
     StaffRepository? staffRepository,
   }) : _leadRepository = leadRepository ?? AddLeadRepository(),
@@ -1522,6 +1528,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
        _sourceRepository = sourceRepository ?? LeadSourceRepository(),
        _leadStageRepository = leadStageRepository ?? LeadStageRepository(),
        _subCategoryRepositoryFactory = subCategoryRepositoryFactory, // NEW
+       _leadTagRepositoryFactory = leadTagRepositoryFactory,
        _additionalFieldsRepo =
            additionalFieldsRepo ?? AdditionalFieldsRepositoryImpl(),
        _staffRepository = staffRepository ?? StaffRepository(),
@@ -1625,11 +1632,24 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         ? _subCategoryRepositoryFactory!(categoryId)
         : SubCategoryRepository(categoryId: categoryId);
 
-    _subCategorySubscription = _subCategoryRepository!.watchSubCategories().listen((
-      subs,
+    _subCategorySubscription = _subCategoryRepository!
+        .watchSubCategories()
+        .listen((subs) {
+          if (isClosed) return;
+          emit(state.copyWith(subCategories: [...subs]));
+        }, onError: (_) {});
+  }
+
+  void _watchLeadTagForLeadStage(String leadTagId) {
+    _leadTagSubscription?.cancel();
+    _leadTagRepository = _leadTagRepositoryFactory != null
+        ? _leadTagRepositoryFactory!(leadTagId)
+        : LeadTagRepository(tagId: leadTagId);
+    _leadTagSubscription = _leadTagRepository!.watchLeadTags().listen((
+      leadTags,
     ) {
       if (isClosed) return;
-      emit(state.copyWith(subCategories: [...subs]));
+      emit(state.copyWith(leadTag: [...leadTags]));
     }, onError: (_) {});
   }
 
@@ -1639,6 +1659,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     _sourceSubscription?.cancel();
     _leadStageSubscription?.cancel();
     _subCategorySubscription?.cancel(); // NEW
+    _leadTagSubscription?.cancel();
     return super.close();
   }
 
@@ -1664,29 +1685,41 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   }
 
   void selectSubCategory(String? value) => emit(
-    state.copyWith(
-      selectedSubCategory: value,
-      clearSubCategory: value == null,
-    ),
+    state.copyWith(selectedSubCategory: value, clearSubCategory: value == null),
   );
 
   void selectSource(String? value) =>
       emit(state.copyWith(selectedSource: value, clearSource: value == null));
 
-  void selectLeadStage(String? value) => emit(
-    state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
-  );
+  void selectLeadStage(String? value) {
+    emit(
+      state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+    );
+    _leadStageSubscription?.cancel();
+    if (value == null) return;
+
+    final match = state.stages.where((s) => s.name == value);
+    if (match.isEmpty) return;
+
+    final leadTagId = match.first.id;
+    if (leadTagId == null || leadTagId.isEmpty) return;
+
+    _watchLeadTagForLeadStage(leadTagId);
+  }
+
+  void selectLeadTag(String? value) =>
+      emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
 
   void selectPriority(String? value) => emit(
     state.copyWith(selectedPriority: value, clearPriority: value == null),
   );
 
-  void selectLeadTag(String? value) => emit(
-    state.copyWith(
-      selectedLeadTag: value,
-      clearLeadTag: value == null, // add this flag if missing
-    ),
-  );
+  // void selectLeadTag(String? value) => emit(
+  //   state.copyWith(
+  //     selectedLeadTag: value,
+  //     clearLeadTag: value == null, // add this flag if missing
+  //   ),
+  // );
 
   void selectState(String? value) => emit(
     state.copyWith(
@@ -1796,10 +1829,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     // ── Duplicate contact check ───────────────────────────────────────────────
     if (updated.contactNumber.trim().isNotEmpty) {
-      final isContactDuplicate = await _leadRepository.isContactNumberExistsForOther(
-        updated.contactNumber,
-        id,
-      );
+      final isContactDuplicate = await _leadRepository
+          .isContactNumberExistsForOther(updated.contactNumber, id);
       if (isClosed) return;
       if (isContactDuplicate) {
         emit(
@@ -1815,10 +1846,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     // ── Duplicate whatsapp check ───────────────────────────────────────────────
     if (updated.whatsappNumber.trim().isNotEmpty) {
-      final isWhatsappDuplicate = await _leadRepository.isWhatsappNumberExistsForOther(
-        updated.whatsappNumber,
-        id,
-      );
+      final isWhatsappDuplicate = await _leadRepository
+          .isWhatsappNumberExistsForOther(updated.whatsappNumber, id);
       if (isClosed) return;
       if (isWhatsappDuplicate) {
         emit(
@@ -1993,7 +2022,9 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         assignedStaff: resolvedStaffName,
         assignedStaffId: resolvedStaffId,
         leadCategory: state.selectedCategory ?? '',
-        leadSubCategory: state.selectedSubCategory ?? '', // NEW — requires field on AddLeadModel
+        leadSubCategory:
+            state.selectedSubCategory ??
+            '', // NEW — requires field on AddLeadModel
         leadSource: state.selectedSource ?? '',
         priority: state.selectedPriority ?? '',
         leadStage: state.selectedLeadStage ?? '',
@@ -2073,6 +2104,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           clearState: true,
           clearDistrict: true,
           clearSubCategory: true, // NEW
+          clearLeadTag: true,
         ),
       );
     } catch (e) {
@@ -2471,7 +2503,8 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     if (_lastCountDate == null && selectedDate == null) {
       isSameDate = true;
     } else if (_lastCountDate != null && selectedDate != null) {
-      isSameDate = _lastCountDate!.year == selectedDate.year &&
+      isSameDate =
+          _lastCountDate!.year == selectedDate.year &&
           _lastCountDate!.month == selectedDate.month &&
           _lastCountDate!.day == selectedDate.day;
     }
