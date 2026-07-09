@@ -24,6 +24,7 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
 
   // await windowManager.ensureInitialized();
   try {

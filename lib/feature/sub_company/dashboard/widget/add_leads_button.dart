@@ -4,6 +4,7 @@ import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/data/add_lead_repo.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 
 class AddLeadsButton extends StatefulWidget {
@@ -22,11 +23,10 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
 
-      child: GestureDetector(
-        onTap: () {
-          context.push(RoutePaths.addLead);
-        },
-
+      child: BrowserAwareLink(
+        destination: RoutePaths.addLead,
+        usePush: true,
+        enableInkWell: false,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,

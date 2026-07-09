@@ -27,6 +27,7 @@ import '../../../../../core/utils/top_bread_crumb_bar.dart';
 import '../../../../../core/utils/transfer_lead_alert.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import '../../leads/data/add_lead_repo.dart';
 import '../../leads/model/add_lead_model.dart';
 import '../data/activity_repo.dart';
@@ -336,6 +337,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           // CHANGE TO:
                           _headerIcon(
                             Icons.edit_outlined,
+                            destination: RoutePaths.leadEditPath(_currentLead.id!),
                             onTap: () async {
                               // ← async
                               final didUpdate = await context.push<bool>(
@@ -423,6 +425,7 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           const SizedBox(width: 10),
                           _headerIcon(
                             Icons.add_box_outlined,
+                            destination: RoutePaths.addLead,
                             onTap: () {
                               context.push(RoutePaths.addLead);
                             },
@@ -522,10 +525,21 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
     IconData icon, {
     Color color = const Color(0xFF555555),
     VoidCallback? onTap,
+    String? destination,
   }) {
+    final child = Icon(icon, size: 22, color: color);
+    if (destination != null) {
+      return BrowserAwareLink(
+        destination: destination,
+        onTap: onTap,
+        usePush: true,
+        enableInkWell: false,
+        child: child,
+      );
+    }
     return GestureDetector(
       onTap: onTap,
-      child: Icon(icon, size: 22, color: color),
+      child: child,
     );
   }
 

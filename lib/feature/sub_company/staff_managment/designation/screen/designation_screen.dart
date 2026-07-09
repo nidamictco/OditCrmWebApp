@@ -9,6 +9,7 @@ import '../../../../../core/utils/staff_top_bar.dart';
 import '../../../../../core/utils/table.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import '../cubit/designation_cubit.dart';
 import '../model/designation_model.dart';
 import 'package:sizer/sizer.dart';
@@ -116,13 +117,16 @@ class _DesignationScreenState extends State<DesignationScreen> {
                           child: MouseRegion(
                             onEnter: (_) => setState(() => isHovering = true),
                             onExit: (_) => setState(() => isHovering = false),
-                            child: GestureDetector(
+                            child: BrowserAwareLink(
+                              destination: RoutePaths.designationPermissionsPath("new"),
                               onTap: () async {
                                 await context.push(RoutePaths.designationPermissionsPath("new"));
                                 if (context.mounted) {
                                   context.read<DesignationCubit>().fetchAll();
                                 }
                               },
+                              usePush: true,
+                              enableInkWell: false,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 curve: Curves.easeInOut,
@@ -229,7 +233,8 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     /// ✏️ Edit
-                                    GestureDetector(
+                                    BrowserAwareLink(
+                                      destination: RoutePaths.designationPermissionsPath(designation.id!),
                                       onTap: () async {
                                         await context.push(RoutePaths.designationPermissionsPath(designation.id!));
                                         if (context.mounted) {
@@ -238,6 +243,8 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                               .fetchAll();
                                         }
                                       },
+                                      usePush: true,
+                                      enableInkWell: false,
                                       child: Icon(
                                         Icons.edit_outlined,
                                         size: 14.sp,

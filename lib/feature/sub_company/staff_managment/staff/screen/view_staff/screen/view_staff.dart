@@ -9,6 +9,7 @@ import '../../../../../../../core/utils/staff_top_bar.dart';
 import '../../../../../../../core/utils/table.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import '../../../cubit/add_staff_cubit.dart';
 import '../../../cubit/add_staff_state.dart';
 import '../../../model/staff_model.dart';
@@ -107,7 +108,7 @@ class _ViewStaffState extends State<ViewStaff> {
   void _confirmDelete(BuildContext ctx, StaffModel staff) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
@@ -117,7 +118,7 @@ class _ViewStaffState extends State<ViewStaff> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -125,7 +126,7 @@ class _ViewStaffState extends State<ViewStaff> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               // ctx.read<StaffCubit>().restoreStaff(staff);
               ctx.read<StaffCubit>().deleteStaff(staff.id!, staff);
             },
@@ -234,8 +235,10 @@ class _ViewStaffState extends State<ViewStaff> {
                                     setState(() => isHovering = true),
                                 onExit: (_) =>
                                     setState(() => isHovering = false),
-                                child: GestureDetector(
-                                  onTap: () => context.go(RoutePaths.addStaff),
+                                child: BrowserAwareLink(
+                                  destination: RoutePaths.addStaff,
+                                  usePush: false,
+                                  enableInkWell: false,
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,
@@ -526,13 +529,18 @@ class _ViewStaffState extends State<ViewStaff> {
     return Column(
       children: [
         CustomTable(
+          minWidth: MediaQuery.of(context).size.width,
+          getRowDestination: (rowIndex) {
+            final staff = pagedList[rowIndex];
+            return RoutePaths.staffProfilePath(staff.id!);
+          },
           onRowTap: (rowIndex) {
             final staff = pagedList[rowIndex];
             // log('stafff........$staff');
             context.push(RoutePaths.staffProfilePath(staff.id!));
           },
           columns: [
-            TableColumn(title: "#", flex: 1),
+            TableColumn(title: "Sl No.", flex: 1),
             TableColumn(title: "Name", flex: 4),
             TableColumn(title: "Staff Type", flex: 4),
             TableColumn(title: "Status", flex: 4),
@@ -574,34 +582,43 @@ class _ViewStaffState extends State<ViewStaff> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    if(staff.designation != "Company_Admin")
-                    GestureDetector( 
-                      onTap: () =>
-                          context.push(RoutePaths.staffEditPath(staff.id!)).then((_) {
-                            if (context.mounted) {
-                              context.read<StaffCubit>().fetchAll();
-                            }
-                          }),
-                      child: Tooltip(
-                        message: 'Edit',
-                        child: Icon(
-                          Icons.edit_outlined,
-                          size: 13.sp,
-                          color: Colors.blue,
+                    if (staff.designation != "Company_Admin")
+                      BrowserAwareLink(
+                        destination: RoutePaths.staffEditPath(staff.id!),
+                        onTap: () => context
+                            .push(RoutePaths.staffEditPath(staff.id!))
+                            .then((_) {
+                              if (context.mounted) {
+                                context.read<StaffCubit>().fetchAll();
+                              }
+                            }),
+                        usePush: true,
+                        enableInkWell: false,
+                        child: Tooltip(
+                          message: 'Edit',
+                          child: Icon(
+                            Icons.edit_outlined,
+                            size: 13.sp,
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
-                    ),
 
                     Center(
-                      child: GestureDetector(
+                      child: BrowserAwareLink(
+                        destination: RoutePaths.staffProfilePath(staff.id!),
                         onTap: () {
-                          context.push(RoutePaths.staffProfilePath(staff.id!)).then((_) {
-                            // ✅ Refresh the list when returning from profile screen
-                            if (context.mounted) {
-                              context.read<StaffCubit>().fetchAll();
-                            }
-                          });
+                          context
+                              .push(RoutePaths.staffProfilePath(staff.id!))
+                              .then((_) {
+                                // ✅ Refresh the list when returning from profile screen
+                                if (context.mounted) {
+                                  context.read<StaffCubit>().fetchAll();
+                                }
+                              });
                         },
+                        usePush: true,
+                        enableInkWell: false,
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),
                           decoration: BoxDecoration(
@@ -623,11 +640,13 @@ class _ViewStaffState extends State<ViewStaff> {
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          context.push(RoutePaths.changePasswordPath(staff.id!)).then((_) {
-                            if (context.mounted) {
-                              context.read<StaffCubit>().fetchAll();
-                            }
-                          });
+                          context
+                              .push(RoutePaths.changePasswordPath(staff.id!))
+                              .then((_) {
+                                if (context.mounted) {
+                                  context.read<StaffCubit>().fetchAll();
+                                }
+                              });
                         },
                         child: Container(
                           padding: EdgeInsets.all(0.1.w),

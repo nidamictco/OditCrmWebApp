@@ -13,6 +13,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_text_style.dart';
@@ -852,15 +853,13 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              context.push(
-                                                RoutePaths.followUpPath(
-                                                  lead.id!,
-                                                  "TRANSFERED",
-                                                ),
-                                              );
-                                            },
+                                          BrowserAwareLink(
+                                            destination: RoutePaths.followUpPath(
+                                              lead.id!,
+                                              "TRANSFERED",
+                                            ),
+                                            usePush: true,
+                                            enableInkWell: false,
                                             child: Icon(
                                               Icons.visibility_outlined,
                                               size: 13.sp,
@@ -1198,7 +1197,7 @@ class _TransferLeadsState extends State<TransferLeads> {
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
@@ -1208,7 +1207,7 @@ class _TransferLeadsState extends State<TransferLeads> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
               style: AppTextStyle.medium(color: AppColors.grey),
@@ -1216,8 +1215,25 @@ class _TransferLeadsState extends State<TransferLeads> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${lead.clientName} deleted successfully.',
+                    style: AppTextStyle.medium(
+                      color: AppColors.white,
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  backgroundColor: AppColors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
             },
             child: Text(
               'Delete',

@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -587,48 +588,50 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                 color: Colors.red,
                                               ),
                                             )
-                                          : Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceEvenly,
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  context.push(
-                                                    RoutePaths.subCategoryPath(
-                                                      cat.name,
-                                                      cat.id,
+                                          : Align(
+                                              alignment: Alignment.center,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  BrowserAwareLink(
+                                                    destination:
+                                                        RoutePaths.subCategoryPath(
+                                                          cat.name,
+                                                          cat.id,
+                                                        ),
+                                                    usePush: true,
+                                                    enableInkWell: false,
+                                                    child: Icon(
+                                                      Icons.list,
+                                                      size: 14.sp,
+                                                      color: Colors.lightGreen,
                                                     ),
-                                                  );
-                                                },
-                                                child: Icon(
-                                                  Icons.list,
-                                                  size: 14.sp,
-                                                  color: Colors.lightGreen,
-                                                ),
+                                                  ),
+                                                  // 🔹 Edit — opens edit dialog
+                                                  GestureDetector(
+                                                    onTap: () =>
+                                                        _showEditDialog(cat),
+                                                    child: Icon(
+                                                      Icons.edit_outlined,
+                                                      size: 14.sp,
+                                                      color: Colors.blue,
+                                                    ),
+                                                  ),
+                                                  // 🔹 Delete — opens confirm dialog
+                                                  GestureDetector(
+                                                    onTap: () =>
+                                                        _confirmDelete(cat),
+                                                    child: Icon(
+                                                      Icons.delete_outline,
+                                                      size: 14.sp,
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              // 🔹 Edit — opens edit dialog
-                                              GestureDetector(
-                                                onTap: () =>
-                                                    _showEditDialog(cat),
-                                                child: Icon(
-                                                  Icons.edit_outlined,
-                                                  size: 14.sp,
-                                                  color: Colors.blue,
-                                                ),
-                                              ),
-                                              // 🔹 Delete — opens confirm dialog
-                                              GestureDetector(
-                                                onTap: () =>
-                                                    _confirmDelete(cat),
-                                                child: Icon(
-                                                  Icons.delete_outline,
-                                                  size: 14.sp,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                            ),
                                     ];
                                   }).toList(),
                                 ),

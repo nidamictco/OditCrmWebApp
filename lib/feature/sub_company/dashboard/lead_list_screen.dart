@@ -3378,37 +3378,63 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // BrowserAwareLink(
+                //   destination: RoutePaths.followUpPath(
+                //     lead.id!,
+                //     widget.fromCard,
+                //   ),
+                //   onTap: () => _onView(lead),
+                //   usePush: true,
+                //   enableInkWell: false,
+                //   child: _ActionButton(
+                //     icon: Icons.visibility_rounded,
+                //     color: AppTheme.actionView,
+                //     tooltip: 'View',
+                //     onTap: () {
+                //       // _onView(lead);
+                //     },
+                //   ),
+                // ),
+                // BrowserAwareLink(
+                //   destination: RoutePaths.leadEditPath(lead.id!),
+                //   onTap: () => _onEdit(lead),
+                //   usePush: true,
+                //   enableInkWell: false,
+                //   child: _ActionButton(
+                //     icon: Icons.edit_rounded,
+                //     color: AppTheme.actionEdit,
+                //     tooltip: 'Edit',
+                //     onTap: () {
+                //       _onEdit(lead);
+                //     },
+                //   ),
+                // ),
                 BrowserAwareLink(
-                  destination: RoutePaths.followUpPath(
-                    lead.id!,
-                    widget.fromCard,
-                  ),
-                  onTap: () => _onView(lead),
+                  destination: RoutePaths.followUpPath(lead.id!, "NEW"),
                   usePush: true,
                   enableInkWell: false,
-                  child: _ActionButton(
-                    icon: Icons.visibility_rounded,
-                    color: AppTheme.actionView,
-                    tooltip: 'View',
-                    onTap: () {
-                      _onView(lead);
-                    },
+                  child: Icon(
+                    Icons.visibility_outlined,
+                    size: 13.sp,
+                    color: Colors.indigo,
                   ),
                 ),
+                SizedBox(width: 0.1.h),
                 BrowserAwareLink(
                   destination: RoutePaths.leadEditPath(lead.id!),
-                  onTap: () => _onEdit(lead),
+                  onTap: () async {
+                    final didUpdate = await context.push<bool>(
+                      RoutePaths.leadEditPath(lead.id!),
+                    );
+                    if (didUpdate == true && context.mounted) {
+                      context.read<AddLeadCubit>().fetchLeads();
+                    }
+                  },
                   usePush: true,
                   enableInkWell: false,
-                  child: _ActionButton(
-                    icon: Icons.edit_rounded,
-                    color: AppTheme.actionEdit,
-                    tooltip: 'Edit',
-                    onTap: () {
-                      _onEdit(lead);
-                    },
-                  ),
+                  child: Icon(Icons.edit, size: 14.sp, color: Colors.blue),
                 ),
+                SizedBox(width: 0.1.w),
                 _ActionButton(
                   icon: Icons.delete_rounded,
                   color: AppColors.red,
