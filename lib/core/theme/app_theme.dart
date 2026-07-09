@@ -35,6 +35,7 @@ class AppThemeColors {
   static const Color textSecondary = Color(0xFF718096);
   static const Color textMuted = Color(0xFFA0AEC0);
   static const Color tableHeader = Color(0xFF002660);
+  static const Color subText = Color(0xff747474);
 
   // Status
   static const Color statusActive = Color(0xff00B16E); //Color(0xFF38A169);
@@ -64,6 +65,13 @@ class AppThemeColors {
   // Plan badges
   static const Color planBorder = Color(0xFFCBD5E0);
   static const Color planText = Color(0xFF4A5568);
+
+  // Button color
+  static const Color appPrimaryColor = Color(0xff002660);
+
+  static const Color hintColor = Color(0xff747474);
+
+  static Color textfieldBorder = Color(0xff8798B0).withValues(alpha: 0.12);
 }
 
 // class AppTextStyles {

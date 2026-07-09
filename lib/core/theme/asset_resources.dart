@@ -3,4 +3,6 @@ class AssetResources {
   static const String logo = "assets/logo/Odit_logo_vert.png";
   static const String iconLogo = "assets/logo/Oditbiz icon.png";
   static const String sidebar_logo = "assets/logo/Odit_logo_horz.png";
+  static const String loginBg = "assets/data/Login Json.json";
+  static const String horz_white_logo = "assets/logo/logo_horz_white.png";
 }

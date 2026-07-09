@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -176,16 +177,10 @@ class AppSidebar extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Text(
-            'Confirm Logout',
-            style: AppTextStyle.body(
-              fontWeight: FontWeight.bold,
-              color: AppThemeColors.textPrimary,
-            ),
-          ),
+          title: Text('Confirm Logout', style: AppTextStyle.heading2),
           content: Text(
             'Are you sure you want to log out of your account?',
-            style: AppTextStyle.body(color: AppThemeColors.textSecondary),
+            style: AppTextStyle.bodySmall,
           ),
           actionsPadding: const EdgeInsets.only(right: 25, bottom: 25),
           actions: [
@@ -194,6 +189,7 @@ class AppSidebar extends StatelessWidget {
               child: Text(
                 'Cancel',
                 style: AppTextStyle.body(
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppThemeColors.textSecondary,
                 ),
@@ -201,14 +197,13 @@ class AppSidebar extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                 context.read<AuthCubit>().logout(
+                context.read<AuthCubit>().logout(
                   permissionCubit: context.read<PermissionCubit>(),
                 );
                 Navigator.pop(context); // Close the dialog
-               
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppThemeColors.statusSuspended,
+                backgroundColor: AppTheme.actionDelete,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -216,7 +211,11 @@ class AppSidebar extends StatelessWidget {
               ),
               child: Text(
                 'Log Out',
-                style: AppTextStyle.body(fontWeight: FontWeight.w600),
+                style: AppTextStyle.body(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.white,
+                ),
               ),
             ),
           ],
