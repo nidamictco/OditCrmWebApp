@@ -54,13 +54,13 @@ class LeadStageCubit extends Cubit<LeadStageState> {
 
   /// Add a new category.
   Future<void> addCategory({
-    required String name,
+    required String name,required bool tagMandatory
   }) async {
     if (state.isSubmitting) return;
     emit(state.copyWith(isSubmitting: true, clearError: true));
 
     try {
-      await _repository.addCategory(name: name, );
+      await _repository.addCategory(name: name,  tagMandatory: tagMandatory);
       emit(state.copyWith(isSubmitting: false));
     } catch (e) {
       emit(
@@ -102,6 +102,17 @@ class LeadStageCubit extends Cubit<LeadStageState> {
       );
     }
   }
+
+  Future<void> updateTagMandatory({
+  required String id,
+  required bool tagMandatory,
+}) async {
+  try {
+    await _repository.updateTagMandatory(id: id, tagMandatory: tagMandatory);
+  } catch (e) {
+    emit(state.copyWith(errorMessage: _friendlyError(e)));
+  }
+}
 
   /// Delete a category by its Firestore document ID.
   Future<void> deleteStage({required String id}) async {

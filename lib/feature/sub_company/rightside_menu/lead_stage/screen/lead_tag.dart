@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_state.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +20,12 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/
 class LeaTagScreen extends StatefulWidget {
   final String leadStageName;
   final String leadStageId;
+  final bool tagMandatory;
   const LeaTagScreen({
     super.key,
     required this.leadStageName,
     required this.leadStageId,
+    required this.tagMandatory,
   });
 
   @override
@@ -31,6 +34,7 @@ class LeaTagScreen extends StatefulWidget {
 
 class _LeaTagScreenState extends State<LeaTagScreen> {
   int? hoveringIndex;
+  late bool _tagMandatory;
 
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController costController = TextEditingController();
@@ -46,6 +50,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
   @override
   void initState() {
     super.initState();
+    _tagMandatory = widget.tagMandatory;
     // Start the real-time Firestore listener
     context.read<LeadTagCubit>().watchLeadTags();
   }
@@ -172,10 +177,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  "Lead Tags",
-                  style: AppTextStyle.medium(size: 11.sp),
-                ),
+                Text("Lead Tags", style: AppTextStyle.medium(size: 11.sp)),
                 SizedBox(height: 0.5.h),
                 TextField(
                   controller: categoryController,
@@ -266,13 +268,13 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                 subTitle2: 'Lead Stage',
                 show2ndTitle: true,
                 // onPressed: () => context.pop(),
-                 onPressed: () {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(RoutePaths.leadStages);
-    }
-  },
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(RoutePaths.leadStages);
+                  }
+                },
               ),
 
               /// 🔹 MAIN CONTENT
@@ -335,6 +337,46 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
                       SizedBox(height: 1.h),
                       Divider(color: AppColors.divider),
+                      SizedBox(height: 1.h),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Tags are Mandatory',
+                              style: AppTextStyle.medium(
+                                size: 11.sp,
+                                color: AppColors.black.withOpacity(0.77),
+                              ),
+                            ),
+                            SizedBox(width: 0.5.w),
+                            SizedBox(
+                              height: 24,
+                              child: Transform.scale(
+                                scale: 0.65,
+                                child: Switch(
+                                  value: _tagMandatory,
+                                  activeColor: AppColors.green,
+                                  trackColor: MaterialStateProperty.all(
+                                    AppColors.greenLight,
+                                  ),
+                                  onChanged: (value) async {
+                                    setState(
+                                      () => _tagMandatory = value,
+                                    ); // optimistic update
+                                    await context
+                                        .read<LeadStageCubit>()
+                                        .updateTagMandatory(
+                                          id: widget.leadStageId,
+                                          tagMandatory: value,
+                                        );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(height: 3.h),
 
                       /// 🔹 FILTER ROW
@@ -392,10 +434,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                 child: CustomTable(
                                   columns: [
                                     TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(
-                                      title: "Lead Tag",
-                                      flex: 4,
-                                    ),
+                                    TableColumn(title: "Lead Tag", flex: 4),
                                     TableColumn(title: "Created By", flex: 4),
                                     TableColumn(title: "Action", flex: 2),
                                   ],

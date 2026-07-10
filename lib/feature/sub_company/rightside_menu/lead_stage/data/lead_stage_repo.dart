@@ -7,8 +7,9 @@ import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_m
 
 abstract class ILeadStageRepository {
   Stream<List<LeadsModel>> watchCategories();
-  Future<void> addCategory({required String name, });
+  Future<void> addCategory({required String name, required bool tagMandatory });
   Future<void> updateCategory({required String id, required String name});
+   Future<void> updateTagMandatory({required String id, required bool tagMandatory});
   Future<void> deleteCategory({required String id});
 }
 
@@ -92,6 +93,7 @@ class LeadStageRepository implements ILeadStageRepository {
   @override
   Future<void> addCategory({
     required String name,
+    required bool tagMandatory,
   }) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
@@ -104,6 +106,7 @@ class LeadStageRepository implements ILeadStageRepository {
       'idOfCreator': user?.id,
       'createdAt': FieldValue.serverTimestamp(),
       'isDefault': false,
+      'tagMandatory': tagMandatory,
     });
   } 
 
@@ -128,6 +131,14 @@ class LeadStageRepository implements ILeadStageRepository {
 
     await _collection.doc(id).update({'name': trimmedName});
   }
+
+  @override
+Future<void> updateTagMandatory({
+  required String id,
+  required bool tagMandatory,
+}) async {
+  await _collection.doc(id).update({'tagMandatory': tagMandatory});
+}
 
   /// 🔹 Delete a category
   @override

@@ -405,9 +405,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
       }
     }
 
-    final tag = _leadTag;
-    if (tag == null && _leadStage!.toUpperCase() == "REJECTED") {
-      _showError('Tag is required.');
+final tag = _leadTag;
+if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
+  _showError('Tag is required.');
+  return;
+}
+
+    if(_callResult == null ){
+      _showError('Call Result is required.');
       return;
     }
 
@@ -1319,7 +1324,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                     child: Dropdown(
                                       label: 'Tags',
                                       hint: 'Select Tags',
-                                      showStar: true,
+                                      showStar: state.tagMandatory,
                                       focusNode: _tagsFocus,
                                       nextFocusNode: _callResultFocus,
                                       items: state.leadTag.map((e) => e.name).toList(),

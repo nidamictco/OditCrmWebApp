@@ -101,6 +101,7 @@ class RoutePaths {
       '/staff/${Uri.encodeComponent(staffId)}/change_password';
   static String subCategoryPath(String categoryName, String categoryId) =>
       '/sub_category?categoryName=${Uri.encodeComponent(categoryName)}&categoryId=${Uri.encodeComponent(categoryId)}';
-  static String leadTagPath(String leadStageName, String leadStageId) =>
-      '/lead_tag?leadStageName=${Uri.encodeComponent(leadStageName)}&leadStageId=${Uri.encodeComponent(leadStageId)}';
+  static String leadTagPath(String leadStageName, String leadStageId, bool tagMandatory) =>
+      '/lead_tag?leadStageName=${Uri.encodeComponent(leadStageName)}&leadStageId=${Uri.encodeComponent(leadStageId)}&tagMandatory=${Uri.encodeComponent(tagMandatory.toString())}';
+      
 }

@@ -1691,21 +1691,42 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   void selectSource(String? value) =>
       emit(state.copyWith(selectedSource: value, clearSource: value == null));
 
+  // void selectLeadStage(String? value) {
+  //   emit(
+  //     state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+  //   );
+  //   _leadStageSubscription?.cancel();
+  //   if (value == null) return;
+
+  //   final match = state.stages.where((s) => s.name == value);
+  //   if (match.isEmpty) return;
+
+  //   final leadTagId = match.first.id;
+  //   if (leadTagId == null || leadTagId.isEmpty) return;
+
+  //   _watchLeadTagForLeadStage(leadTagId);
+  //   emit(state.copyWith(tagMandatory: match.first.tagMandatory));
+  // }
+
   void selectLeadStage(String? value) {
-    emit(
-      state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
-    );
-    _leadStageSubscription?.cancel();
-    if (value == null) return;
+  emit(state.copyWith(selectedLeadStage: value, clearLeadStage: value == null));
 
-    final match = state.stages.where((s) => s.name == value);
-    if (match.isEmpty) return;
-
-    final leadTagId = match.first.id;
-    if (leadTagId == null || leadTagId.isEmpty) return;
-
-    _watchLeadTagForLeadStage(leadTagId);
+  if (value == null) {
+    _leadTagSubscription?.cancel();
+    emit(state.copyWith(leadTag: [], tagMandatory: false));
+    return;
   }
+
+  final match = state.stages.where((s) => s.name == value);
+  if (match.isEmpty) {
+    _leadTagSubscription?.cancel();
+    emit(state.copyWith(leadTag: [], tagMandatory: false));
+    return;
+  }
+
+  _watchLeadTagForLeadStage(match.first.id);
+  emit(state.copyWith(tagMandatory: match.first.tagMandatory));
+}
 
   void selectLeadTag(String? value) =>
       emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));

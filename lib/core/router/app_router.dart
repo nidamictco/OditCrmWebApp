@@ -309,13 +309,20 @@ class AppRouter {
               path: RoutePaths.subCategory,
               builder: (context, state) {
                 final perm = context.watch<PermissionCubit>();
-                final categoryName = state.uri.queryParameters['categoryName'] ?? '';
-                final categoryId=state.uri.queryParameters['categoryId'] ?? '';
+                final categoryName =
+                    state.uri.queryParameters['categoryName'] ?? '';
+                final categoryId =
+                    state.uri.queryParameters['categoryId'] ?? '';
                 return PermissionGuard(
                   hasPermission: perm.canViewLeadCategory,
                   child: BlocProvider(
-                    create: (_) => SubCategoryCubit(categoryId: categoryId)..watchSubCategories(),
-                    child: LeaSubCategoryScreen(categoryName: categoryName, categoryId: categoryId),
+                    create: (_) =>
+                        SubCategoryCubit(categoryId: categoryId)
+                          ..watchSubCategories(),
+                    child: LeaSubCategoryScreen(
+                      categoryName: categoryName,
+                      categoryId: categoryId,
+                    ),
                   ),
                 );
               },
@@ -324,13 +331,28 @@ class AppRouter {
               path: RoutePaths.leadTag,
               builder: (context, state) {
                 final perm = context.watch<PermissionCubit>();
-                final leadStageName = state.uri.queryParameters['leadStageName'] ?? '';
-                final leadStageId=state.uri.queryParameters['leadStageId'] ?? '';
+                final leadStageName =
+                    state.uri.queryParameters['leadStageName'] ?? '';
+                final leadStageId =
+                    state.uri.queryParameters['leadStageId'] ?? '';
+                final leadTagMandatory =
+                    state.uri.queryParameters['tagMandatory'] == 'true';
                 return PermissionGuard(
                   hasPermission: perm.canViewLeadStages,
-                  child: BlocProvider(
-                    create: (_) => LeadTagCubit(leadStageId: leadStageId,)..watchLeadTags(),
-                    child: LeaTagScreen(leadStageName: leadStageName, leadStageId: leadStageId),
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) =>
+                            LeadTagCubit(leadStageId: leadStageId)
+                              ..watchLeadTags(),
+                      ),
+                      BlocProvider(create: (_) => LeadStageCubit()),
+                    ],
+                    child: LeaTagScreen(
+                      leadStageName: leadStageName,
+                      leadStageId: leadStageId,
+                      tagMandatory: leadTagMandatory,
+                    ),
                   ),
                 );
               },
