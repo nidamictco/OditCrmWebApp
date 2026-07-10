@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
@@ -77,43 +78,81 @@ class _SidebarItemState extends State<SidebarItem> {
     ];
 
     return Container(
-      width: 240,
+      width: 235,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: BoxBorder.fromLTRB(right: BorderSide(color: Colors.black12)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 10,
-            offset: const Offset(20, 3),
-          ),
-        ],
+        color: AppThemeColors.sidebarBg,
+        border: Border(
+          right: BorderSide(color: AppThemeColors.borderLight, width: 1),
+        ),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black,
+        //     blurRadius: 10,
+        //     offset: const Offset(20, 3),
+        //   ),
+        // ],
       ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.w),
-                // padding: EdgeInsets.zero,
-                // child: Text(
-                //   "Oxdo Leads",
-                //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
-                // ),
-                child: Image.asset(
-                  AssetResources.sidebar_logo,
-                  // width: 8.w,
-                  scale: 10,
-                ),
+            // Logo
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
+              child: Row(
+                children: [
+                  Container(
+                    // width: 37,
+                    // height: 40,
+                    decoration: BoxDecoration(
+                      // color: AppThemeColors.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Image.asset(AssetResources.iconLogo, scale: 40),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Odit CRM',
+                    style: AppTextStyle.body(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppThemeColors.sidebarLogoTxtClr,
+                    ),
+                  ),
+                  Spacer(),
+                  Icon(
+                    Icons.keyboard_double_arrow_left_sharp,
+                    color: AppThemeColors.hintColor,
+                  ),
+                ],
               ),
             ),
+            // Align(
+            //   alignment: Alignment.topLeft,
+            //   child: Padding(
+            //     padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.w),
+            //     // padding: EdgeInsets.zero,
+            //     // child: Text(
+            //     //   "Oxdo Leads",
+            //     //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
+            //     // ),
+            //     child: Image.asset(
+            //       AssetResources.sidebar_logo,
+            //       // width: 8.w,
+            //       scale: 10,
+            //     ),
+            //   ),
+            // ),
             //  SizedBox(height: 2.h),
 
             /// DASHBOARD — always visible
-            sidebarItem(Icons.dashboard, "Dashboard", 0),
+            sidebarItem(
+              Icons.dashboard,
+              "Dashboard",
+              0,
+              Image.asset(AssetResources.dashboard_icon, scale: 2),
+            ),
 
             /// LEAD MANAGEMENT — only show if any child is visible
             if (leadChildren.isNotEmpty)
@@ -205,7 +244,12 @@ class _SidebarItemState extends State<SidebarItem> {
     );
   }
 
-  Widget sidebarItem(IconData icon, String title, int index) {
+  Widget sidebarItem(
+    IconData icon,
+    String title,
+    int index,
+    Widget? iconWidget,
+  ) {
     final isSelected = widget.selectedIndex == index;
     final path = RoutePaths.sidebarPaths[index] ?? '/';
     return BrowserAwareLink(
@@ -215,7 +259,12 @@ class _SidebarItemState extends State<SidebarItem> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.primary : AppColors.grey),
+            if (iconWidget != null) iconWidget,
+            if (iconWidget == null)
+              Icon(
+                icon,
+                color: isSelected ? AppColors.primary : AppColors.grey,
+              ),
             SizedBox(width: 0.6.w),
             Expanded(
               child: Text(
