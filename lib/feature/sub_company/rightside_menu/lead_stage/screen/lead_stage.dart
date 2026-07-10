@@ -535,6 +535,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                       color: Colors.lightGreen,
                                                     ),
                                                   ),
+                                                  SizedBox(width: 1.w),
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
                                                   onTap: () =>

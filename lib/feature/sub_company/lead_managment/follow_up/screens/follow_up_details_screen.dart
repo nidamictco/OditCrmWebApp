@@ -1378,7 +1378,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                           }
 
                           // ── Validation: tag for rejected lead ───────────────────
-                          if (state.selectedLeadTag == null) {
+                          if (state.selectedLeadTag == null && state.tagMandatory) {
                             _showAlertDialog(
                               sbContext,
                               title: 'Validation',
