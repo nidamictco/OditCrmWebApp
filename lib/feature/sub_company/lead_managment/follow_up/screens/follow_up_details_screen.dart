@@ -1759,7 +1759,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
                               leftContainer = Dropdown(
                                 label: 'Tags',
                                 hint: 'Select Tags',
-                                showStar: true,
+                                showStar: state.tagMandatory,
                                 items: state.leadTag
                                     .map((e) => e.name)
                                     .toList(),
