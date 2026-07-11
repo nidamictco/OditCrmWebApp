@@ -1,6 +1,7 @@
 import 'dart:html' as html;
 import 'dart:async';
 import 'dart:developer';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -16,6 +17,9 @@ import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/cubit/general_settings_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/cubit/general_settings_state.dart';
+import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
@@ -227,7 +231,10 @@ class _TopBarState extends State<TopBar> {
                                 ),
                                 itemBuilder: (_, i) {
                                   final lead = state.searchResults[i];
-                                  final path = RoutePaths.followUpPath(lead.id!, "NEW");
+                                  final path = RoutePaths.followUpPath(
+                                    lead.id!,
+                                    "NEW",
+                                  );
                                   return BrowserAwareLink(
                                     destination: path,
                                     usePush: true,
@@ -338,119 +345,251 @@ class _TopBarState extends State<TopBar> {
             bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
           ),
         ),
-        child: Row(
-          children: [
-            // LEFT SIDE
-            Row(
-              children: [
-                IconButton(
-                  onPressed: widget.onMenuTap,
-                  icon: Icon(
-                    widget.isSidebarOpen
-                        ? Icons.menu_open_outlined
-                        : Icons.menu_outlined,
-                    size: 16.sp,
-                  ),
-                ),
-                SizedBox(width: 1.w),
-                _buildSearchBox(),
-              ],
-            ),
+        child: Builder(
+          builder: (context) {
+            final location = GoRouterState.of(context).uri.path;
+            final isDashboard =
+                location == RoutePaths.dashboard || location == '/';
 
-            const Spacer(),
-
-            // RIGHT SIDE
-            Row(
-              children: [
-                _buildQuickLinksButton(),
-                SizedBox(width: 0.5.w),
-                GestureDetector(
-                  onTap: _toggleFullscreen,
-                  child: Tooltip(
-                    message: 'Toggle Fullscreen',
-                    child: HoverIcon(
-                      icon: _isFullscreen
-                          ? Icons.fullscreen_exit
-                          : Icons.fullscreen,
+            if (isDashboard) {
+              return Row(
+                children: [
+                  // Back button
+                  GestureDetector(
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 12.sp,
+                        color: AppColors.grey,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 0.5.w),
-
-                // GestureDetector(
-                //   onTap: () {
-                //     Navigator.of(context).push(
-                //       MaterialPageRoute(
-                //           builder: (_) => MainScreen(selectedIndex: 34)),
-                //     );
-                //   },
-                //   child: HoverIcon(icon: Icons.notifications_none_outlined)),
-                // in your RIGHT SIDE Row, replace the notification GestureDetector:
-                BlocBuilder<NotificationCubit, NotificationState>(
-                  builder: (context, state) {
-                    final unread = state is NotificationLoaded
-                        ? state.unreadCount
-                        : 0;
-                    return BrowserAwareLink(
-                      destination: RoutePaths.notifications,
-                      usePush: true,
-                      enableInkWell: false,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Tooltip(
-                            message: 'Notifications',
-                            child: HoverIcon(
-                              icon: Icons.notifications_none_outlined,
-                            ),
-                          ),
-                          if (unread > 0)
-                            Positioned(
-                              top: 3,
-                              right: 5.5,
-                              child: Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 16,
-                                  minHeight: 16,
-                                ),
-                                child: Text(
-                                  unread > 99 ? '99+' : '$unread',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                  const SizedBox(width: 4),
+                  // Forward button (visual shell)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12.sp,
+                      color: AppColors.grey.withOpacity(0.3),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Breadcrumbs
+                  Text(
+                    'Pages',
+                    style: AppTextStyle.medium(
+                      size: 13,
+                      color: AppColors.grey.withOpacity(0.8),
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    ' / ',
+                    style: AppTextStyle.medium(
+                      size: 13,
+                      color: AppColors.grey.withOpacity(0.5),
+                      weight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    'Dashboard',
+                    style: AppTextStyle.medium(
+                      size: 13,
+                      color: AppColors.black,
+                      weight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  // Right side actions
+                  _buildSearchBox(),
+                  const SizedBox(width: 16),
+                  BlocBuilder<NotificationCubit, NotificationState>(
+                    builder: (context, state) {
+                      final unread = state is NotificationLoaded
+                          ? state.unreadCount
+                          : 0;
+                      return BrowserAwareLink(
+                        destination: RoutePaths.notifications,
+                        usePush: true,
+                        enableInkWell: false,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Tooltip(
+                              message: 'Notifications',
+                              child: HoverIcon(
+                                icon: Icons.notifications_none_outlined,
                               ),
                             ),
-                        ],
+                            if (unread > 0)
+                              Positioned(
+                                top: 3,
+                                right: 5.5,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    unread > 99 ? '99+' : '$unread',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => _showSettingsDialog(context),
+                    child: Tooltip(
+                      message: 'Settings',
+                      child: HoverIcon(icon: Icons.settings_outlined),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _toggleFullscreen,
+                    child: Tooltip(
+                      message: 'Toggle Fullscreen',
+                      child: HoverIcon(
+                        icon: _isFullscreen
+                            ? Icons.fullscreen_exit
+                            : Icons.fullscreen,
                       ),
-                    );
-                  },
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // Default layout
+            return Row(
+              children: [
+                // LEFT SIDE
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: widget.onMenuTap,
+                      icon: Icon(
+                        widget.isSidebarOpen
+                            ? Icons.menu_open_outlined
+                            : Icons.menu_outlined,
+                        size: 16.sp,
+                      ),
+                    ),
+                    SizedBox(width: 1.w),
+                    _buildSearchBox(),
+                  ],
                 ),
-                SizedBox(width: 0.3.w),
-                BlocBuilder<AuthCubit, AuthState>(
-                  builder: (context, state) {
-                    if (state is! Authenticated) return const SizedBox.shrink();
-                    final user = state.user;
-                    return _profileAvatar(
-                      context,
-                      user.name,
-                      user.staffType ?? '',
-                      user,
-                    );
-                  },
+
+                const Spacer(),
+
+                // RIGHT SIDE
+                Row(
+                  children: [
+                    _buildQuickLinksButton(),
+                    SizedBox(width: 0.5.w),
+                    GestureDetector(
+                      onTap: _toggleFullscreen,
+                      child: Tooltip(
+                        message: 'Toggle Fullscreen',
+                        child: HoverIcon(
+                          icon: _isFullscreen
+                              ? Icons.fullscreen_exit
+                              : Icons.fullscreen,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 0.5.w),
+                    BlocBuilder<NotificationCubit, NotificationState>(
+                      builder: (context, state) {
+                        final unread = state is NotificationLoaded
+                            ? state.unreadCount
+                            : 0;
+                        return BrowserAwareLink(
+                          destination: RoutePaths.notifications,
+                          usePush: true,
+                          enableInkWell: false,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Tooltip(
+                                message: 'Notifications',
+                                child: HoverIcon(
+                                  icon: Icons.notifications_none_outlined,
+                                ),
+                              ),
+                              if (unread > 0)
+                                Positioned(
+                                  top: 3,
+                                  right: 5.5,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                      minHeight: 16,
+                                    ),
+                                    child: Text(
+                                      unread > 99 ? '99+' : '$unread',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(width: 0.3.w),
+                    BlocBuilder<AuthCubit, AuthState>(
+                      builder: (context, state) {
+                        if (state is! Authenticated)
+                          return const SizedBox.shrink();
+                        final user = state.user;
+                        return _profileAvatar(
+                          context,
+                          user.name,
+                          user.staffType ?? '',
+                          user,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -601,7 +740,7 @@ class _TopBarState extends State<TopBar> {
           }
         }
         if (selected == "Settings" && context.mounted) {
-          context.go(RoutePaths.generalSettings);
+          _showSettingsDialog(context);
         }
         if (selected == "Profile" && context.mounted) {
           context.go(RoutePaths.personalProfile);
@@ -801,6 +940,357 @@ class _TopBarState extends State<TopBar> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return BlocProvider(
+          create: (_) {
+            final cubit = GeneralSettingsCubit()..loadForCurrentUser();
+            cubit.onSettingsChanged = (updated) {
+              try {
+                context.read<NotificationCubit>().refreshSettings(updated);
+              } catch (_) {}
+            };
+            return cubit;
+          },
+          child: const PushNotificationSettingsDialog(),
+        );
+      },
+    );
+  }
+}
+
+class PushNotificationSettingsDialog extends StatefulWidget {
+  const PushNotificationSettingsDialog({super.key});
+
+  @override
+  State<PushNotificationSettingsDialog> createState() =>
+      _PushNotificationSettingsDialogState();
+}
+
+class _PushNotificationSettingsDialogState
+    extends State<PushNotificationSettingsDialog> {
+  bool? _newLead;
+  bool? _transferLead;
+  GeneralSettingsModel? _originalSettings;
+  bool _isInitialized = false;
+  int selectedTab = 0;
+
+  Widget _tabs() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            _tabItem("Push Notifications", 0),
+            SizedBox(width: 6.w),
+            // _tabItem("Other Settings", 1),
+          ],
+        ),
+        Divider(height: 1, thickness: 1, color: AppColors.divider),
+      ],
+    );
+  }
+
+  Widget _tabItem(String title, int index) {
+    final isSelected = selectedTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => selectedTab = index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.medium(
+              color: isSelected ? AppColors.primary : AppColors.grey,
+              weight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 0.7.h),
+          Container(
+            height: 2,
+            width: 15.w,
+            color: isSelected ? AppColors.primary : Colors.transparent,
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<GeneralSettingsCubit, GeneralSettingsState>(
+      listener: (context, state) {
+        if (state is GeneralSettingsError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        GeneralSettingsModel? settings;
+        if (state is GeneralSettingsLoaded) {
+          settings = state.settings;
+        } else if (state is GeneralSettingsUpdating) {
+          settings = state.settings;
+        }
+
+        if (settings != null && !_isInitialized) {
+          _originalSettings = settings;
+          _newLead = settings.newLead;
+          _transferLead = settings.transferLead;
+          _isInitialized = true;
+        }
+
+        final isLoading = state is GeneralSettingsLoading || !_isInitialized;
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 8,
+          backgroundColor: Colors.white,
+          child: Container(
+            width: 600,
+            constraints: const BoxConstraints(maxWidth: 600),
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header (Push Notifications)
+                Stack(
+                  children: [
+                    Divider(height: 1, thickness: 1, color: Colors.transparent),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(height: 1, color: AppColors.divider),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Push Notifications',
+                            style: AppTextStyle.medium(
+                              size: 16,
+                              color: const Color(0xFF0F172A),
+                              weight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 3,
+                          width: 150, // width of text approximate
+                          color: const Color(0xFF0D3E6E),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // _tabs(),
+                const SizedBox(height: 24),
+
+                if (isLoading)
+                  const SizedBox(
+                    height: 180,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else ...[
+                  // New Lead Assigned row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'New Lead Assigned',
+                              style: AppTextStyle.medium(
+                                size: 14,
+                                color: const Color(0xFF0F3A66),
+                                weight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Send a push notification to the staff when a new lead is assigned.',
+                              style: AppTextStyle.medium(
+                                size: 12,
+                                color: AppThemeColors.hintColor,
+                                weight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 45,
+                        height: 28,
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: Switch(
+                            value: _newLead ?? false,
+                            activeColor: Colors.white,
+                            activeTrackColor: const Color(0xFF0D3E6E),
+                            // inactiveThumbColor: Colors.white,
+                            // inactiveTrackColor: const Color(0xFFE2E8F0),
+                            onChanged: (val) {
+                              setState(() {
+                                _newLead = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Transfer Leads row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Transfer Leads',
+                              style: AppTextStyle.medium(
+                                size: 14,
+                                color: const Color(0xFF0F3A66),
+                                weight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Send a push notification to the staff member to whom the lead is transferred.',
+                              style: AppTextStyle.medium(
+                                size: 12,
+                                color: AppThemeColors.hintColor,
+                                weight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 45,
+                        height: 28,
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: Switch(
+                            value: _transferLead ?? false,
+                            activeColor: Colors.white,
+                            activeTrackColor: const Color(0xFF0D3E6E),
+                            // inactiveThumbColor: Colors.white,
+                            // inactiveTrackColor: const Color(0xFFE2E8F0),
+                            onChanged: (val) {
+                              setState(() {
+                                _transferLead = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Footer buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF475569),
+                          side: const BorderSide(color: Color(0xFFCBD5E1)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: AppTextStyle.medium(
+                            size: 11.5.sp,
+                            color: const Color(0xFF475569),
+                            weight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: state is GeneralSettingsUpdating
+                            ? null
+                            : () async {
+                                final updated = _originalSettings!.copyWith(
+                                  newLead: _newLead,
+                                  transferLead: _transferLead,
+                                );
+                                await context
+                                    .read<GeneralSettingsCubit>()
+                                    .saveSettings(updated);
+                                if (mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                        icon: state is GeneralSettingsUpdating
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.save_outlined,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                        label: Text(
+                          'Save Changes',
+                          style: AppTextStyle.medium(
+                            size: 11.5.sp,
+                            color: Colors.white,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppThemeColors.basicGreen,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

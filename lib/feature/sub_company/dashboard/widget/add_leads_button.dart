@@ -22,7 +22,6 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
     return MouseRegion(
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
-
       child: BrowserAwareLink(
         destination: RoutePaths.addLead,
         usePush: true,
@@ -30,30 +29,33 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-
-          height: 6.h,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-
+          height: 35,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: isHovering
-                ? AppColors.green
-                : AppColors.green.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(4),
+                ? const Color(0xff059669) // darker emerald green on hover
+                : const Color(0xff10b981), // emerald green
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              if (isHovering)
+                BoxShadow(
+                  color: const Color(0xff10b981).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+            ],
           ),
-
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: isHovering ? Colors.white : AppColors.green,
-                size: 2.5.h,
-              ),
-              const SizedBox(width: 5),
+              const Icon(Icons.add, color: Colors.white, size: 18),
+              const SizedBox(width: 6),
               Text(
                 "Add Leads",
-                style: AppTextStyle.small(
-                  color: isHovering ? Colors.white : AppColors.green,
-                  size: 11.sp,
+                style: AppTextStyle.medium(
+                  color: Colors.white,
+                  size: 13,
+                  weight: FontWeight.w600,
                 ),
               ),
             ],

@@ -110,6 +110,11 @@ abstract class IAddLeadRepository {
     String whatsappNumber,
     String currentLeadId,
   );
+  Future<List<ActivityModel>> fetchRecentActivities({
+    required String staffId,
+    required String role,
+    int limit = 5,
+  });
 }
 
 class AddLeadRepository implements IAddLeadRepository {
@@ -1928,6 +1933,88 @@ class AddLeadRepository implements IAddLeadRepository {
         .where('whatsappNumber', isEqualTo: whatsappNumber.trim())
         .get();
     return snap.docs.any((doc) => doc.id != currentLeadId);
+  }
+
+  @override
+  Future<List<ActivityModel>> fetchRecentActivities({
+    required String staffId,
+    required String role,
+    int limit = 5,
+  }) async {
+    try {
+      Query<Map<String, dynamic>> query = _collection;
+      if (role.toLowerCase() != 'admin') {
+        query = query.where('assignedStaffId', isEqualTo: staffId);
+      }
+      final snap = await query.get();
+
+      final List<AddLeadModel> leads = snap.docs
+          .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+          .toList();
+
+      if (leads.isEmpty) {
+        return [];
+      }
+
+      DateTime getLatestTime(AddLeadModel lead) {
+        DateTime latest = lead.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        if (lead.calledDate != null && lead.calledDate!.isAfter(latest)) {
+          latest = lead.calledDate!;
+        }
+        if (lead.updatedAt != null && lead.updatedAt!.isAfter(latest)) {
+          latest = lead.updatedAt!;
+        }
+        return latest;
+      }
+
+      leads.sort((a, b) => getLatestTime(b).compareTo(getLatestTime(a)));
+
+      final List<ActivityModel> allActivities = [];
+      final topLeads = leads.take(10).toList();
+
+      final activityFutures = topLeads.map((lead) async {
+        try {
+          final activitySnap = await _collection
+              .doc(lead.id)
+              .collection('ACTIVITIES')
+              .orderBy('changedAt', descending: true)
+              .limit(limit)
+              .get();
+
+          return activitySnap.docs.map((d) {
+            final data = d.data();
+            final act = ActivityModel.fromFirestore(data, d.id);
+            return ActivityModel(
+              id: act.id,
+              type: act.type,
+              changedBy: act.changedBy,
+              changedById: act.changedById,
+              changedAt: act.changedAt,
+              previousValue: act.previousValue,
+              newValue: act.newValue,
+              description: act.description,
+              leadId: lead.id,
+              leadName: lead.clientName,
+              leadPhone: lead.contactNumber,
+            );
+          }).toList();
+        } catch (e) {
+          log('Error fetching activities for lead ${lead.id}: $e');
+          return <ActivityModel>[];
+        }
+      });
+
+      final results = await Future.wait(activityFutures);
+      for (final acts in results) {
+        allActivities.addAll(acts);
+      }
+
+      allActivities.sort((a, b) => b.changedAt.compareTo(a.changedAt));
+      return allActivities.take(limit).toList();
+    } catch (e) {
+      log('Error in fetchRecentActivities: $e');
+      return [];
+    }
   }
 }
 

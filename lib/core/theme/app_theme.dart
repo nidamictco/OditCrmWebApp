@@ -15,7 +15,7 @@ class AppThemeColors {
   static const Color sidebarInactiveText = Color(0xFF4A5568);
 
   // Background
-  static const Color scaffoldBg = Color(0xFFF4F6FA);
+  static const Color scaffoldBg = Color(0xffFEFEFE); //Color(0xFFF4F6FA);
   static const Color cardBg = Color(0xFFFFFFFF);
   static const Color contentBg = Color(0xFFFFFFFF);
 
@@ -74,6 +74,9 @@ class AppThemeColors {
   static Color textfieldBorder = Color(0xff8798B0).withValues(alpha: 0.12);
 
   static const Color sidebarLogoTxtClr = Color(0xff2D2D2D);
+  static const Color basicGreen = Color(0xff00B16E);
+  static const Color dashboardCard = Color(0xffFEFEFE);
+  static const Color cardText = Color(0xff2D2D2D);
 }
 
 // class AppTextStyles {

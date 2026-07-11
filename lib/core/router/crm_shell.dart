@@ -102,9 +102,11 @@ class _CrmShellState extends State<CrmShell> {
     if (path == RoutePaths.scheduledReport) return 24;
     if (path == RoutePaths.rejectedReport) return 25;
     if (path == RoutePaths.outgoingCallHistory) return 26;
-    if (path.startsWith('/designations/') && path.endsWith('/permissions')) return 27;
+    if (path.startsWith('/designations/') && path.endsWith('/permissions'))
+      return 27;
     if (path == RoutePaths.cloudCallSettings) return 28;
-    if (path.startsWith('/staff/') && path.endsWith('/change_password')) return 32;
+    if (path.startsWith('/staff/') && path.endsWith('/change_password'))
+      return 32;
     if (path.startsWith('/staff/')) return 29;
     if (path == RoutePaths.timeline) return 30;
     if (path.startsWith('/follow_up/')) return 31;
@@ -204,11 +206,15 @@ class _CrmShellState extends State<CrmShell> {
                   child: isSidebarOpen
                       ? SidebarItem(
                           selectedIndex: selectedIndex,
-                          onItemSelected: (idx) => _onItemSelected(context, idx),
+                          onItemSelected: (idx) =>
+                              _onItemSelected(context, idx),
+                          onBackArrowTap: toggleSidebar,
                         )
                       : MiniSidebar(
                           selectedIndex: selectedIndex,
-                          onItemSelected: (idx) => _onItemSelected(context, idx),
+                          onItemSelected: (idx) =>
+                              _onItemSelected(context, idx),
+                          onBackArrowTap: toggleSidebar,
                         ),
                 ),
               ),
@@ -238,7 +244,7 @@ class _CrmShellState extends State<CrmShell> {
                         ),
                       ),
                     ),
-                    const BottomBar(),
+                    // const BottomBar(),
                   ],
                 ),
               ),

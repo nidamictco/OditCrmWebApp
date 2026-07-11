@@ -3,6 +3,7 @@ import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/staff_
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/model/custom_field_model.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/models/follow_up_activities_model.dart';
 
 enum AddLeadStatus { initial, loading, success, failure }
 
@@ -79,6 +80,17 @@ class AddLeadState {
   final Map<String, int> profileCallResultCounts;
   final bool isLoadingProfileCounts;
 
+  // Subscription package details (for Admin)
+  final String subscriptionPlan;
+  final String subscriptionStartDate;
+  final String subscriptionEndDate;
+  final String companyUserCount;
+
+  // Recent Lead Activities
+  final List<ActivityModel> recentActivities;
+  final bool isLoadingActivities;
+  final String? activityError;
+
   const AddLeadState({
     this.status = AddLeadStatus.initial,
     this.isSubmitting = false,
@@ -129,6 +141,13 @@ class AddLeadState {
     this.profileNotConnectedCount = '0',
     this.profileCallResultCounts = const {},
     this.isLoadingProfileCounts = false,
+    this.subscriptionPlan = 'ACTIVE PACKAGE',
+    this.subscriptionStartDate = '',
+    this.subscriptionEndDate = '',
+    this.companyUserCount = '0',
+    this.recentActivities = const [],
+    this.isLoadingActivities = false,
+    this.activityError,
   });
 
   bool get isLoading => status == AddLeadStatus.loading;
@@ -184,6 +203,13 @@ class AddLeadState {
     String? profileNotConnectedCount,
     Map<String, int>? profileCallResultCounts,
     bool? isLoadingProfileCounts,
+    String? subscriptionPlan,
+    String? subscriptionStartDate,
+    String? subscriptionEndDate,
+    String? companyUserCount,
+    List<ActivityModel>? recentActivities,
+    bool? isLoadingActivities,
+    String? activityError,
     bool clearSelectedDashboardDate = false,
     bool clearError = false,
     bool clearSuccess = false,
@@ -276,6 +302,13 @@ class AddLeadState {
           profileCallResultCounts ?? this.profileCallResultCounts,
       isLoadingProfileCounts:
           isLoadingProfileCounts ?? this.isLoadingProfileCounts,
+      subscriptionPlan: subscriptionPlan ?? this.subscriptionPlan,
+      subscriptionStartDate: subscriptionStartDate ?? this.subscriptionStartDate,
+      subscriptionEndDate: subscriptionEndDate ?? this.subscriptionEndDate,
+      companyUserCount: companyUserCount ?? this.companyUserCount,
+      recentActivities: recentActivities ?? this.recentActivities,
+      isLoadingActivities: isLoadingActivities ?? this.isLoadingActivities,
+      activityError: activityError ?? this.activityError,
     );
   }
 }

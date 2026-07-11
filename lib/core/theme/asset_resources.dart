@@ -6,4 +6,5 @@ class AssetResources {
   static const String loginBg = "assets/data/Login Json.json";
   static const String horz_white_logo = "assets/logo/logo_horz_white.png";
   static const String dashboard_icon = "assets/icon/dashboard_icon.png";
+  static const String dashboard_banner = "assets/images/dshbd_banner.png";
 }

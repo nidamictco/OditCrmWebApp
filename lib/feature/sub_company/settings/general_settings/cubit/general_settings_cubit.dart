@@ -90,8 +90,29 @@ class GeneralSettingsCubit extends Cubit<GeneralSettingsState> {
     }
   }
 
+  Future<void> saveSettings(GeneralSettingsModel updated) async {
+    log('[saveSettings] Saving updated settings model');
+    if (_repo == null) return;
 
- GeneralSettingsModel? _currentSettings() {
+    final current = _currentSettings() ?? _lastKnownSettings;
+    emit(GeneralSettingsLoaded(updated));
+    _lastKnownSettings = updated;
+
+    try {
+      await _repo!.saveSettings(updated);
+      log('[saveSettings] Saved settings successfully ✅');
+      onSettingsChanged?.call(updated);
+    } catch (e) {
+      log('[saveSettings] Save failed, rolling back: $e');
+      if (current != null) {
+        _lastKnownSettings = current;
+        emit(GeneralSettingsLoaded(current));
+      }
+      emit(GeneralSettingsError('Failed to save settings: $e'));
+    }
+  }
+
+  GeneralSettingsModel? _currentSettings() {
   final s = state;
   if (s is GeneralSettingsLoaded) return s.settings;
   if (s is GeneralSettingsUpdating) return s.settings;
