@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -29,7 +30,7 @@ class MiniSidebar extends StatelessWidget {
     final perm = context.watch<PermissionCubit>();
     return Container(
       width: 70,
-      color: Colors.white,
+      color: AppThemeColors.sidebarBg,
       child: Column(
         children: [
           SizedBox(height: 3.h),

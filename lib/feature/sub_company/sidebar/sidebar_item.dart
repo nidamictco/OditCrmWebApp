@@ -78,7 +78,7 @@ class _SidebarItemState extends State<SidebarItem> {
     ];
 
     return Container(
-      width: 200,
+      // width: 150,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         color: AppThemeColors.sidebarBg,
@@ -306,8 +306,8 @@ class _SidebarItemState extends State<SidebarItem> {
       onTap: () => widget.onItemSelected(index),
       enableInkWell: false,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
               ? AppThemeColors.appPrimaryColor.withAlpha(15)
@@ -381,8 +381,8 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
             });
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             decoration: BoxDecoration(
               color: isTileSelected
                   ? const Color(0xff002b66)
@@ -420,7 +420,7 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
         ),
         if (_isExpanded && widget.children.isNotEmpty)
           Container(
-            margin: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
+            margin: const EdgeInsets.only(left: 25, top: 4, bottom: 4),
             decoration: const BoxDecoration(
               border: Border(
                 left: BorderSide(color: Color(0xffe2e8f0), width: 1.5),

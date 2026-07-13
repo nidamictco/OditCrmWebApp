@@ -1,12 +1,10 @@
 // lib/core/router/crm_shell.dart
 
-import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sizer/sizer.dart';
 
 import '../theme/app_colors.dart';
 import 'route_paths.dart';
@@ -15,7 +13,6 @@ import 'route_paths.dart';
 import '../../feature/sub_company/sidebar/sidebar_item.dart';
 import '../../feature/sub_company/sidebar/widget/mini_sidebar.dart';
 import '../../feature/sub_company/sidebar/widget/top_bar.dart';
-import '../../feature/sub_company/sidebar/widget/bottom_bar.dart';
 
 // Cubits and resources
 import '../../feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
@@ -200,7 +197,7 @@ class _CrmShellState extends State<CrmShell> {
             children: [
               // ── SIDEBAR ────────────────────────────────────────────────
               SizedBox(
-                width: isSidebarOpen ? 250 : 70,
+                width: isSidebarOpen ? 225 : 70,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   child: isSidebarOpen

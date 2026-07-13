@@ -15,12 +15,9 @@ import 'package:Odit_CRM/feature/sub_company/notification/cubit/notification_sta
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
-import 'package:Odit_CRM/feature/sub_company/sidebar/widget/hover/hover_icon.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/permition_cubit/permission_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/cubit/general_settings_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/cubit/general_settings_state.dart';
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/model/general_settings_model.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import 'package:sizer/sizer.dart';
 
 class TopBar extends StatefulWidget {
@@ -97,8 +94,6 @@ class _TopBarState extends State<TopBar> {
     if (_isDropdownVisible) return;
     _isDropdownVisible = true;
     _removeOverlay();
-
-    final navigator = Navigator.of(context);
 
     _overlayEntry = OverlayEntry(
       builder: (_) => Positioned(
@@ -351,241 +346,144 @@ class _TopBarState extends State<TopBar> {
             final isDashboard =
                 location == RoutePaths.dashboard || location == '/';
 
-            if (isDashboard) {
-              return Row(
-                children: [
-                  // Back button
-                  GestureDetector(
-                    onTap: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 12.sp,
-                        color: AppColors.grey,
-                      ),
+            final breadcrumbs = _getBreadcrumbs(location);
+
+            return Row(
+              children: [
+                // LEFT SIDE: Back and Forward buttons, and Breadcrumbs
+                GestureDetector(
+                  onTap: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Forward button (visual shell)
-                  Container(
-                    padding: const EdgeInsets.all(8),
                     child: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 12.sp,
-                      color: AppColors.grey.withOpacity(0.3),
+                      Icons.chevron_left,
+                      size: 14.sp,
+                      color: AppColors.grey,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  // Breadcrumbs
-                  Text(
-                    'Pages',
-                    style: AppTextStyle.medium(
-                      size: 13,
-                      color: AppColors.grey.withOpacity(0.8),
-                      weight: FontWeight.w400,
-                    ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 14.sp,
+                    color: const Color(0xFF94A3B8).withOpacity(0.5),
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // Breadcrumbs: Parent Category / Current Category
+                Text(
+                  breadcrumbs.parent,
+                  style: AppTextStyle.medium(
+                    size: 11.sp,
+                    color: const Color(0xFF94A3B8),
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                if (breadcrumbs.current.isNotEmpty) ...[
                   Text(
                     ' / ',
                     style: AppTextStyle.medium(
-                      size: 13,
-                      color: AppColors.grey.withOpacity(0.5),
+                      size: 11.sp,
+                      color: const Color(0xFFCBD5E1),
                       weight: FontWeight.w400,
                     ),
                   ),
                   Text(
-                    'Dashboard',
+                    breadcrumbs.current,
                     style: AppTextStyle.medium(
-                      size: 13,
-                      color: AppColors.black,
+                      size: 11.sp,
+                      color: const Color(0xFF0F172A),
                       weight: FontWeight.w600,
                     ),
                   ),
-                  const Spacer(),
-                  // Right side actions
-                  _buildSearchBox(),
-                  const SizedBox(width: 16),
-                  BlocBuilder<NotificationCubit, NotificationState>(
-                    builder: (context, state) {
-                      final unread = state is NotificationLoaded
-                          ? state.unreadCount
-                          : 0;
-                      return BrowserAwareLink(
-                        destination: RoutePaths.notifications,
-                        usePush: true,
-                        enableInkWell: false,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Tooltip(
-                              message: 'Notifications',
-                              child: HoverIcon(
-                                icon: Icons.notifications_none_outlined,
-                              ),
-                            ),
-                            if (unread > 0)
-                              Positioned(
-                                top: 3,
-                                right: 5.5,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                    minHeight: 16,
-                                  ),
-                                  child: Text(
-                                    unread > 99 ? '99+' : '$unread',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () => _showSettingsDialog(context),
-                    child: Tooltip(
-                      message: 'Settings',
-                      child: HoverIcon(icon: Icons.settings_outlined),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: _toggleFullscreen,
-                    child: Tooltip(
-                      message: 'Toggle Fullscreen',
-                      child: HoverIcon(
-                        icon: _isFullscreen
-                            ? Icons.fullscreen_exit
-                            : Icons.fullscreen,
-                      ),
-                    ),
-                  ),
                 ],
-              );
-            }
-
-            // Default layout
-            return Row(
-              children: [
-                // LEFT SIDE
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: widget.onMenuTap,
-                      icon: Icon(
-                        widget.isSidebarOpen
-                            ? Icons.menu_open_outlined
-                            : Icons.menu_outlined,
-                        size: 16.sp,
-                      ),
-                    ),
-                    SizedBox(width: 1.w),
-                    _buildSearchBox(),
-                  ],
-                ),
 
                 const Spacer(),
 
-                // RIGHT SIDE
-                Row(
-                  children: [
-                    _buildQuickLinksButton(),
-                    SizedBox(width: 0.5.w),
-                    GestureDetector(
-                      onTap: _toggleFullscreen,
-                      child: Tooltip(
-                        message: 'Toggle Fullscreen',
-                        child: HoverIcon(
-                          icon: _isFullscreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 0.5.w),
-                    BlocBuilder<NotificationCubit, NotificationState>(
-                      builder: (context, state) {
-                        final unread = state is NotificationLoaded
-                            ? state.unreadCount
-                            : 0;
-                        return BrowserAwareLink(
-                          destination: RoutePaths.notifications,
-                          usePush: true,
-                          enableInkWell: false,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Tooltip(
-                                message: 'Notifications',
-                                child: HoverIcon(
-                                  icon: Icons.notifications_none_outlined,
-                                ),
+                // RIGHT SIDE: Search Box, Hamburger (Menu), Bell, Settings, Fullscreen
+                _buildSearchBox(),
+                SizedBox(width: 0.8.w),
+
+                // Hamburger / Sidebar Toggle Menu button
+                _TopBarIconButton(
+                  icon: Icons.notes,
+                  tooltip: 'Menu',
+                  onTap: widget.onMenuTap,
+                ),
+                SizedBox(width: 0.6.w),
+
+                // Notification Bell with Badge
+                BlocBuilder<NotificationCubit, NotificationState>(
+                  builder: (context, state) {
+                    final unread = state is NotificationLoaded
+                        ? state.unreadCount
+                        : 0;
+                    return _TopBarIconButton(
+                      icon: Icons.notifications_none_outlined,
+                      tooltip: 'Notifications',
+                      onTap: () {
+                        context.push(RoutePaths.notifications);
+                      },
+                      badge: unread > 0
+                          ? Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
                               ),
-                              if (unread > 0)
-                                Positioned(
-                                  top: 3,
-                                  right: 5.5,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 16,
-                                      minHeight: 16,
-                                    ),
-                                    child: Text(
-                                      unread > 99 ? '99+' : '$unread',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                unread > 99 ? '99+' : '$unread',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1,
                                 ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(width: 0.3.w),
-                    BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                        if (state is! Authenticated)
-                          return const SizedBox.shrink();
-                        final user = state.user;
-                        return _profileAvatar(
-                          context,
-                          user.name,
-                          user.staffType ?? '',
-                          user,
-                        );
-                      },
-                    ),
-                  ],
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : null,
+                    );
+                  },
+                ),
+                SizedBox(width: 0.6.w),
+
+                // Settings Cog
+                _TopBarIconButton(
+                  icon: Icons.settings_outlined,
+                  tooltip: 'Settings',
+                  onTap: () => _showSettingsDialog(context),
+                ),
+                SizedBox(width: 0.6.w),
+
+                // Fullscreen Toggle
+                _TopBarIconButton(
+                  icon: _isFullscreen
+                      ? Icons.fullscreen_exit
+                      : Icons.fullscreen,
+                  tooltip: 'Toggle Fullscreen',
+                  onTap: _toggleFullscreen,
                 ),
               ],
             );
@@ -602,16 +500,17 @@ class _TopBarState extends State<TopBar> {
     return CompositedTransformTarget(
       link: _layerLink,
       child: Container(
-        height: 6.h,
-        width: 18.w,
+        height: 5.2.h,
+        width: 25.w,
         padding: EdgeInsets.symmetric(horizontal: 1.w),
         decoration: BoxDecoration(
-          color: const Color(0xfff3f3f9),
-          borderRadius: BorderRadius.circular(3),
+          color: Colors.white,
+          border: Border.all(color: const Color(0xFFCBD5E1)),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(Icons.search, size: 13.sp, color: AppColors.grey),
+            Icon(Icons.search, size: 13.sp, color: const Color(0xFF94A3B8)),
             SizedBox(width: 0.5.w),
             Expanded(
               child: TextField(
@@ -626,7 +525,7 @@ class _TopBarState extends State<TopBar> {
                   hintText: 'Search...',
                   hintStyle: AppTextStyle.small(
                     size: 11.5.sp,
-                    color: AppColors.grey,
+                    color: const Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
                   isDense: true,
@@ -645,300 +544,16 @@ class _TopBarState extends State<TopBar> {
                     cubit.searchLeads('');
                     _hideDropdown();
                   },
-                  child: Icon(Icons.cancel, size: 12.sp, color: AppColors.grey),
+                  child: Icon(
+                    Icons.cancel,
+                    size: 12.sp,
+                    color: const Color(0xFF94A3B8),
+                  ),
                 );
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ── Profile avatar ────────────────────────────────────────────────────────
-
-  Widget _profileAvatar(
-    BuildContext context,
-    String name,
-    String role,
-    StaffModel user,
-  ) {
-    final hasImage = user.imageUrl != null && user.imageUrl!.trim().isNotEmpty;
-
-    return GestureDetector(
-      onTapDown: (details) async {
-        final position = RelativeRect.fromLTRB(
-          details.globalPosition.dx,
-          details.globalPosition.dy + 10,
-          details.globalPosition.dx,
-          0,
-        );
-
-        final selected = await showMenu<String>(
-          color: AppColors.white,
-          context: context,
-          position: position,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          items: [
-            _buildMenuItem(Icons.person_outline, "Profile"),
-            _buildMenuItem(Icons.lock_outline, "Change Password"),
-            _buildMenuItem(Icons.settings_outlined, "Settings"),
-            const PopupMenuDivider(),
-            _buildMenuItem(Icons.logout, "Logout", isLogout: true),
-          ],
-        );
-
-        if (selected == "Logout" && context.mounted) {
-          final confirmed = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: AppColors.background,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: const Row(
-                children: [
-                  Icon(Icons.logout, color: Colors.red, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Confirm Logout',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              content: const Text('Are you sure you want to logout?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(false),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          );
-          if (confirmed == true && context.mounted) {
-            context.read<AuthCubit>().logout(
-              permissionCubit: context.read<PermissionCubit>(),
-            );
-          }
-        }
-        if (selected == "Settings" && context.mounted) {
-          _showSettingsDialog(context);
-        }
-        if (selected == "Profile" && context.mounted) {
-          context.go(RoutePaths.personalProfile);
-        }
-        if (selected == "Change Password" && context.mounted) {
-          if (user?.id != null) {
-            context.push(RoutePaths.changePasswordPath(user!.id!));
-          }
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.all(0.5.w),
-        color: AppColors.greenCard,
-        child: Row(
-          children: [
-            // ── Profile image (web-safe) ───────────────────────────
-            _buildProfileImage(hasImage, user),
-            SizedBox(width: 0.6.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  name,
-                  style: AppTextStyle.small(
-                    size: 11.sp,
-                    color: AppColors.black,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  role,
-                  style: AppTextStyle.small(
-                    size: 11.sp,
-                    color: AppColors.black,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Web-safe profile image: uses Image.network inside CircleAvatar
-  /// so we can attach loadingBuilder and errorBuilder.
-  Widget _buildProfileImage(bool hasImage, StaffModel user) {
-    if (!hasImage) {
-      return CircleAvatar(
-        radius: 3.h,
-        backgroundColor: Colors.grey.shade200,
-        child: Icon(Icons.person, size: 12.sp, color: Colors.grey),
-      );
-    }
-
-    return CircleAvatar(
-      radius: 3.h,
-      backgroundColor: Colors.grey.shade200,
-      child: ClipOval(
-        child: Image.network(
-          user.imageUrl!,
-          width: 6.h,
-          height: 6.h,
-          fit: BoxFit.cover,
-          // Shows a subtle shimmer/spinner while loading on web
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return Center(
-              child: SizedBox(
-                width: 14,
-                height: 14,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.grey.shade400,
-                ),
-              ),
-            );
-          },
-          // Falls back to person icon if URL is broken or CORS fails
-          errorBuilder: (context, error, stack) {
-            return Icon(Icons.person, size: 12.sp, color: Colors.grey);
-          },
-        ),
-      ),
-    );
-  }
-
-  PopupMenuItem<String> _buildMenuItem(
-    IconData icon,
-    String text, {
-    bool isLogout = false,
-  }) {
-    return PopupMenuItem<String>(
-      value: text,
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: isLogout ? Colors.red : Colors.grey[700]),
-          const SizedBox(width: 10),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 13,
-              color: isLogout ? Colors.red : Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Quick links ───────────────────────────────────────────────────────────
-
-  Widget _buildQuickLinksButton() {
-    return GestureDetector(
-      onTapDown: (details) async {
-        final position = RelativeRect.fromLTRB(
-          details.globalPosition.dx - 150,
-          details.globalPosition.dy + 10,
-          details.globalPosition.dx,
-          0,
-        );
-
-        final selected = await showMenu<String>(
-          context: context,
-          position: position,
-          color: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          items: [
-            PopupMenuItem<String>(
-              enabled: false,
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Quick Links',
-                    style: AppTextStyle.small(
-                      size: 12.sp,
-                      color: AppColors.black,
-                      weight: FontWeight.w600,
-                    ),
-                  ),
-                  Divider(color: Colors.grey.shade200, height: 1.5.h),
-                ],
-              ),
-            ),
-            _buildQuickLinkItem(
-              icon: Icons.person_add_outlined,
-              label: 'New Lead',
-              value: 'new_lead',
-              iconColor: Colors.blue,
-              bgColor: Colors.blue.shade50,
-            ),
-          ],
-        );
-
-        if (!context.mounted) return;
-        if (selected == 'new_lead') {
-          context.push(RoutePaths.addLead);
-        }
-      },
-      child: Tooltip(
-        message: 'Quick Links',
-        child: HoverIcon(icon: Icons.grid_view),
-      ),
-    );
-  }
-
-  PopupMenuItem<String> _buildQuickLinkItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color iconColor,
-    required Color bgColor,
-  }) {
-    return PopupMenuItem<String>(
-      value: value,
-      padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 18, color: iconColor),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 13, color: Colors.black87),
-          ),
-        ],
       ),
     );
   }
@@ -1291,6 +906,187 @@ class _PushNotificationSettingsDialogState
           ),
         );
       },
+    );
+  }
+}
+
+class _BreadcrumbsData {
+  final String parent;
+  final String current;
+
+  _BreadcrumbsData(this.parent, this.current);
+}
+
+_BreadcrumbsData _getBreadcrumbs(String path) {
+  if (path == RoutePaths.dashboard || path == '/') {
+    return _BreadcrumbsData('Pages', 'Dashboard');
+  }
+  if (path == RoutePaths.addLead) {
+    return _BreadcrumbsData('Lead Management', 'Add Lead');
+  }
+  if (path == RoutePaths.leadsReport) {
+    return _BreadcrumbsData('Lead Management', 'Leads Report');
+  }
+  if (path == RoutePaths.deletedLeads) {
+    return _BreadcrumbsData('Lead Management', 'Deleted Leads');
+  }
+  if (path == RoutePaths.importLeads) {
+    return _BreadcrumbsData('Lead Management', 'Import Leads');
+  }
+  if (path == RoutePaths.transferLeads) {
+    return _BreadcrumbsData('Lead Management', 'Transfer Leads');
+  }
+  if (path == RoutePaths.leadCategory) {
+    return _BreadcrumbsData('Lead Management', 'Lead Category');
+  }
+  if (path == RoutePaths.leadSource) {
+    return _BreadcrumbsData('Lead Management', 'Lead Source');
+  }
+  if (path == RoutePaths.customFields) {
+    return _BreadcrumbsData('Lead Management', 'Custom Fields');
+  }
+  if (path == RoutePaths.leadStages) {
+    return _BreadcrumbsData('Lead Management', 'Lead Stages');
+  }
+  if (path == RoutePaths.leadDistribution) {
+    return _BreadcrumbsData('Lead Management', 'Lead Distribution');
+  }
+  if (path == RoutePaths.unassignedLeads) {
+    return _BreadcrumbsData('Lead Management', 'Unassigned Leads');
+  }
+  if (path == RoutePaths.newLeads || path == '/leads') {
+    return _BreadcrumbsData('Lead Management', 'New Leads');
+  }
+
+  if (path == RoutePaths.addStaff) {
+    return _BreadcrumbsData('Staff Management', 'Add Staff');
+  }
+  if (path == RoutePaths.viewStaff) {
+    return _BreadcrumbsData('Staff Management', 'View Staff');
+  }
+  if (path == RoutePaths.designation) {
+    return _BreadcrumbsData('Staff Management', 'Designations');
+  }
+  if (path == RoutePaths.deletedStaff) {
+    return _BreadcrumbsData('Staff Management', 'Deleted Staff');
+  }
+
+  if (path == RoutePaths.staffReports) {
+    return _BreadcrumbsData('Reports', 'Staff Reports');
+  }
+  if (path == RoutePaths.transferReport) {
+    return _BreadcrumbsData('Reports', 'Transfer Reports');
+  }
+  if (path == RoutePaths.scheduledReport) {
+    return _BreadcrumbsData('Reports', 'Scheduled Reports');
+  }
+  if (path == RoutePaths.rejectedReport) {
+    return _BreadcrumbsData('Reports', 'Rejected Reports');
+  }
+  if (path == RoutePaths.outgoingCallHistory) {
+    return _BreadcrumbsData('Reports', 'Outgoing Call History');
+  }
+
+  if (path == RoutePaths.personalProfile) {
+    return _BreadcrumbsData('Profile', 'Personal Profile');
+  }
+  if (path == RoutePaths.notifications) {
+    return _BreadcrumbsData('Notifications', 'View Notifications');
+  }
+
+  // Parameterized routes check
+  if (path.contains('/leads/edit/')) {
+    return _BreadcrumbsData('Lead Management', 'Edit Lead');
+  }
+  if (path.contains('/staff/edit/')) {
+    return _BreadcrumbsData('Staff Management', 'Edit Staff');
+  }
+  if (path.contains('/follow_up/')) {
+    return _BreadcrumbsData('Lead Management', 'Follow Up');
+  }
+  if (path.contains('/staff/') && path.contains('/change_password')) {
+    return _BreadcrumbsData('Staff Management', 'Change Password');
+  }
+  if (path.contains('/staff/')) {
+    return _BreadcrumbsData('Staff Management', 'Staff Profile');
+  }
+
+  // Default fallback: parse path segments
+  final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+  if (segments.length >= 2) {
+    final parent = segments[0].replaceAll('_', ' ').replaceAll('-', ' ');
+    final current = segments[1].replaceAll('_', ' ').replaceAll('-', ' ');
+    return _BreadcrumbsData(
+      parent.substring(0, 1).toUpperCase() + parent.substring(1),
+      current.substring(0, 1).toUpperCase() + current.substring(1),
+    );
+  } else if (segments.length == 1) {
+    final current = segments[0].replaceAll('_', ' ').replaceAll('-', ' ');
+    return _BreadcrumbsData(
+      'Pages',
+      current.substring(0, 1).toUpperCase() + current.substring(1),
+    );
+  }
+
+  return _BreadcrumbsData('Pages', 'Odit CRM');
+}
+
+class _TopBarIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
+  final Widget? badge;
+
+  const _TopBarIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.tooltip,
+    this.badge,
+  });
+
+  @override
+  State<_TopBarIconButton> createState() => _TopBarIconButtonState();
+}
+
+class _TopBarIconButtonState extends State<_TopBarIconButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: widget.tooltip,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: _isHovered
+                      ? const Color(0xFFE2E8F0)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  widget.icon,
+                  size: 13.sp,
+                  color: const Color(0xFF475569),
+                ),
+              ),
+              if (widget.badge != null)
+                Positioned(top: -2, right: -2, child: widget.badge!),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

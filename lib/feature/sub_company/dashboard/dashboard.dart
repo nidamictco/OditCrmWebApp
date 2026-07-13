@@ -254,11 +254,11 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                             final totalWidth = constraints.maxWidth;
                             double cardWidth;
                             if (totalWidth > 1200) {
-                              cardWidth = (totalWidth - 5 * 16) / 5;
-                            } else if (totalWidth > 800) {
-                              cardWidth = (totalWidth - 2 * 16) / 6;
+                              cardWidth = (totalWidth - 5 * 16) / 6;
                             } else if (totalWidth > 500) {
-                              cardWidth = (totalWidth - 1 * 16) / 9;
+                              cardWidth = (totalWidth - 2 * 16) / 6.5;
+                              // } else if (totalWidth > 500) {
+                              //   cardWidth = (totalWidth - 1 * 16) / 9;
                             } else {
                               cardWidth = totalWidth;
                             }
@@ -289,7 +289,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                 width: cardWidth,
                               ),
                               DashboardCard(
-                                title: "Follow-up Leads",
+                                title: "Follow-up",
                                 message:
                                     'The current count of leads assigned \nfor today, including missed follow-up leads.',
                                 fromCard: 'FOLLOWUP',
@@ -317,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                 width: cardWidth,
                               ),
                               DashboardCard(
-                                title: "Transferred Leads",
+                                title: "Transferred",
                                 message:
                                     'Count of total leads \ntransferred to you.',
                                 fromCard: 'TRANSFERRED',
