@@ -1078,14 +1078,67 @@ class _AddLeadPageState extends State<AddLeadPage> {
 
         // Add Mode
         List<Widget> conditionalRowChildren = [];
+        if (state.subCategories.isNotEmpty) {
+          conditionalRowChildren.add(
+            Expanded(
+              child: _CustomDropdown(
+                label: 'Lead Sub Category',
+                hint: 'select sub category',
+                items: subCategoryName,
+                selectedValue: state.selectedSubCategory,
+                focusNode: _subCategoryFocus,
+                nextFocusNode: _stageFocus,
+                onChanged: (v) =>
+                    context.read<AddLeadCubit>().selectSubCategory(v),
+              ),
+            ),
+          );
+        }
+
+        // Lead Stage (Unconditional in the second row)
+        if (conditionalRowChildren.isNotEmpty) {
+          conditionalRowChildren.add(SizedBox(width: 1.5.w));
+        }
+        conditionalRowChildren.add(
+          Expanded(
+            child: _CustomDropdown(
+              icon: Icons.check_box_outlined,
+              showIcon: true,
+              items: stagesNames,
+              selectedValue: _leadStage,
+              showClear: false,
+              focusNode: _stageFocus,
+              nextFocusNode: _leadStage != 'NEW' && _leadStage != null
+                  ? (state.leadTag.isNotEmpty ? _tagsFocus : _callResultFocus)
+                  : _remarksFocus,
+              onChanged: (v) {
+                setState(() {
+                  _leadStage = v;
+                  _leadTag = null;
+                  _callResult = null;
+                });
+                cubit.selectLeadStage(v);
+                cubit.selectLeadTag(null);
+                _buildOrderedNodes(cubit.state.additionalFields);
+              },
+              label: 'Lead Stage',
+              hint: 'Select Stages',
+            ),
+          ),
+        );
+
         if (_leadStage == 'FOLLOWUP') {
+          if (conditionalRowChildren.isNotEmpty) {
+            conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
           conditionalRowChildren.add(
             Expanded(child: _buildNextFollowUpDateField(context)),
           );
         }
         if (state.leadTag.isNotEmpty) {
-          if (conditionalRowChildren.isNotEmpty)
+          if (conditionalRowChildren.isNotEmpty) {
             conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
           conditionalRowChildren.add(
             Expanded(
               child: _CustomDropdown(
@@ -1105,8 +1158,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
           );
         }
         if (_leadStage != 'NEW' && _leadStage != null) {
-          if (conditionalRowChildren.isNotEmpty)
+          if (conditionalRowChildren.isNotEmpty) {
             conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
           conditionalRowChildren.add(
             Expanded(
               child: _CustomDropdown(
@@ -1136,8 +1190,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
         }
 
         if (conditionalRowChildren.isNotEmpty) {
-          int row1ColumnsCount = 5 + (state.subCategories.isNotEmpty ? 1 : 0);
+          int row1ColumnsCount = 4;
           int activeFieldsCount =
+              (state.subCategories.isNotEmpty ? 1 : 0) +
+              1 +
               (_leadStage == 'FOLLOWUP' ? 1 : 0) +
               (state.leadTag.isNotEmpty ? 1 : 0) +
               ((_leadStage != 'NEW' && _leadStage != null) ? 1 : 0);
@@ -1193,7 +1249,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: _CustomDropdownWithAdd(
                     label: 'Lead Category',
                     icon: Icons.layers_outlined,
-                    showIcon: true,
+                    showIcon: false,
                     items: categoryNames,
                     selectedValue: _leadCategory,
                     focusNode: _categoryFocus,
@@ -1209,26 +1265,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     hint: 'select category',
                   ),
                 ),
-                if (state.subCategories.isNotEmpty) ...[
-                  SizedBox(width: 1.5.w),
-                  Expanded(
-                    child: _CustomDropdown(
-                      label: 'Lead Sub Category',
-                      hint: 'select sub category',
-                      items: subCategoryName,
-                      selectedValue: state.selectedSubCategory,
-                      focusNode: _subCategoryFocus,
-                      nextFocusNode: _sourceFocus,
-                      onChanged: (v) =>
-                          context.read<AddLeadCubit>().selectSubCategory(v),
-                    ),
-                  ),
-                ],
                 SizedBox(width: 1.5.w),
                 Expanded(
                   child: _CustomDropdownWithAdd(
                     label: 'Lead Source',
-                    showIcon: true,
+                    showIcon: false,
                     icon: Icons.layers_rounded,
                     items: sourceNames,
                     selectedValue: _leadSource,
@@ -1258,34 +1299,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     label: 'Priority',
                     hint: 'Select Priority',
                     showClear: false,
-                  ),
-                ),
-                SizedBox(width: 1.5.w),
-                Expanded(
-                  child: _CustomDropdown(
-                    icon: Icons.check_box_outlined,
-                    showIcon: true,
-                    items: stagesNames,
-                    selectedValue: _leadStage,
-                    showClear: false,
-                    focusNode: _stageFocus,
-                    nextFocusNode: _leadStage != 'NEW' && _leadStage != null
-                        ? (state.leadTag.isNotEmpty
-                              ? _tagsFocus
-                              : _callResultFocus)
-                        : _remarksFocus,
-                    onChanged: (v) {
-                      setState(() {
-                        _leadStage = v;
-                        _leadTag = null;
-                        _callResult = null;
-                      });
-                      cubit.selectLeadStage(v);
-                      cubit.selectLeadTag(null);
-                      _buildOrderedNodes(cubit.state.additionalFields);
-                    },
-                    label: 'Lead Stage',
-                    hint: 'Select Stages',
                   ),
                 ),
               ],
@@ -1418,8 +1431,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _submitFocus.hasFocus
                         ? AppColors.primary
-                        : AppColors.green,
-                    disabledBackgroundColor: AppColors.green.withOpacity(0.5),
+                        : AppThemeColors.basicGreen,
+                    disabledBackgroundColor: AppThemeColors.basicGreen
+                        .withOpacity(0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -2319,6 +2333,21 @@ class _CustomDropdownState extends State<_CustomDropdown> {
     return KeyEventResult.ignored;
   }
 
+  Widget _wrapWithTooltip({required Widget child, required String? message}) {
+    if (message == null || message.isEmpty) {
+      return child;
+    }
+    return Tooltip(
+      message: message,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -2351,27 +2380,54 @@ class _CustomDropdownState extends State<_CustomDropdown> {
           focusNode: widget.focusNode,
           onFocusChange: (focused) => setState(() => _hasFocus = focused),
           onKeyEvent: _handleOuterKeyEvent,
-          child: Container(
-            height: 5.2.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: _hasFocus ? AppColors.primary : const Color(0xFFCBD5E1),
-                width: _hasFocus ? 1.5 : 1.0,
+          child: _wrapWithTooltip(
+            message: widget.selectedValue,
+            child: Container(
+              height: 5.2.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: _hasFocus
+                      ? AppColors.primary
+                      : const Color(0xFFCBD5E1),
+                  width: _hasFocus ? 1.5 : 1.0,
+                ),
+                borderRadius: BorderRadius.circular(8),
               ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownSearch<String>(
-                    key: _dropdownKey,
-                    enabled: widget.enabled,
-                    items: (filter, _) => _filteredItems(filter),
-                    selectedItem: widget.selectedValue,
-                    itemAsString: (item) => item,
-                    dropdownBuilder: (context, selectedItem) {
-                      if (selectedItem == null) {
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      key: _dropdownKey,
+                      enabled: widget.enabled,
+                      items: (filter, _) => _filteredItems(filter),
+                      selectedItem: widget.selectedValue,
+                      itemAsString: (item) => item,
+                      dropdownBuilder: (context, selectedItem) {
+                        if (selectedItem == null) {
+                          return Row(
+                            children: [
+                              if (widget.showIcon) ...[
+                                Icon(
+                                  widget.icon,
+                                  size: 12.sp,
+                                  color: const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 6.0),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  widget.hint,
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
                         return Row(
                           children: [
                             if (widget.showIcon) ...[
@@ -2380,200 +2436,181 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                                 size: 12.sp,
                                 color: const Color(0xFF64748B),
                               ),
-                              SizedBox(width: 0.5.w),
+                              // SizedBox(width: 0.5.w),
                             ],
                             Expanded(
                               child: Text(
-                                widget.hint,
-                                style: AppTextStyle.small(
+                                selectedItem,
+                                style: AppTextStyle.medium(
                                   size: 11.sp,
-                                  color: const Color(0xFF94A3B8),
+                                  weight: FontWeight.w400,
+                                  color: const Color(0xFF0F172A),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         );
-                      }
-                      return Row(
-                        children: [
-                          if (widget.showIcon) ...[
-                            Icon(
-                              widget.icon,
-                              size: 12.sp,
-                              color: const Color(0xFF64748B),
+                      },
+                      suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                          constraints:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const BoxConstraints.tightFor(
+                                  width: 0,
+                                  height: 0,
+                                )
+                              : const BoxConstraints(),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          iconClosed:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 0),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                          iconOpened:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 0),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_up,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      popupProps: PopupProps.menu(
+                        scrollbarProps: ScrollbarProps(
+                          thumbVisibility: true,
+                          thickness: 6,
+                          trackVisibility: true,
+                          thumbColor: AppColors.grey,
+                          interactive: true,
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        fit: FlexFit.loose,
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        onDismissed: () {
+                          if (!mounted) return;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() => _popupOpen = false);
+                            _highlightedIndexNotifier.value = -1;
+                            _searchController.clear();
+                          });
+                        },
+                        itemBuilder: (context, item, isDisabled, isSelected) {
+                          final visible = _filteredItems(_searchText);
+                          final currentIndex = visible.indexOf(item);
+                          return ValueListenableBuilder<int>(
+                            valueListenable: _highlightedIndexNotifier,
+                            builder: (_, highlightedIndex, __) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 1.w,
+                                  vertical: 1.h,
+                                ),
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : (currentIndex == highlightedIndex
+                                          ? AppColors.primary.withOpacity(0.12)
+                                          : Colors.white),
+                                child: Text(
+                                  item,
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        menuProps: MenuProps(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        searchFieldProps: TextFieldProps(
+                          focusNode: _popupSearchFocusNode,
+                          controller: _searchController,
+                          style: AppTextStyle.small(
+                            size: 11.sp,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: AppTextStyle.small(
+                              size: 11.sp,
+                              color: const Color(0xFF94A3B8),
                             ),
-                            // SizedBox(width: 0.5.w),
-                          ],
-                          Expanded(
-                            child: Text(
-                              selectedItem,
-                              style: AppTextStyle.medium(
-                                size: 11.sp,
-                                weight: FontWeight.w400,
-                                color: const Color(0xFF0F172A),
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                    suffixProps: DropdownSuffixProps(
-                      dropdownButtonProps: DropdownButtonProps(
-                        constraints:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const BoxConstraints.tightFor(width: 0, height: 0)
-                            : const BoxConstraints(),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        iconClosed:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 0),
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                        iconOpened:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 0),
-                                child: const Icon(
-                                  Icons.keyboard_arrow_up,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
+                        ),
                       ),
-                    ),
-                    popupProps: PopupProps.menu(
-                      scrollbarProps: ScrollbarProps(
-                        thumbVisibility: true,
-                        thickness: 6,
-                        trackVisibility: true,
-                        thumbColor: AppColors.grey,
-                        interactive: true,
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                        ),
                       ),
-                      showSearchBox: true,
-                      showSelectedItems: true,
-                      fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      onDismissed: () {
+                      onSelected: (value) {
                         if (!mounted) return;
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
                           setState(() => _popupOpen = false);
                           _highlightedIndexNotifier.value = -1;
                           _searchController.clear();
+                          widget.onChanged?.call(value);
+                          if (widget.nextFocusNode != null) {
+                            widget.nextFocusNode!.requestFocus();
+                          }
                         });
                       },
-                      itemBuilder: (context, item, isDisabled, isSelected) {
-                        final visible = _filteredItems(_searchText);
-                        final currentIndex = visible.indexOf(item);
-                        return ValueListenableBuilder<int>(
-                          valueListenable: _highlightedIndexNotifier,
-                          builder: (_, highlightedIndex, __) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 1.w,
-                                vertical: 1.h,
-                              ),
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : (currentIndex == highlightedIndex
-                                        ? AppColors.primary.withOpacity(0.12)
-                                        : Colors.white),
-                              child: Text(
-                                item,
-                                style: AppTextStyle.medium(
-                                  size: 11.sp,
-                                  weight: FontWeight.w400,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      menuProps: MenuProps(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      searchFieldProps: TextFieldProps(
-                        focusNode: _popupSearchFocusNode,
-                        controller: _searchController,
-                        style: AppTextStyle.small(
-                          size: 11.sp,
-                          color: const Color(0xFF0F172A),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Search...',
-                          hintStyle: AppTextStyle.small(
-                            size: 11.sp,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                      ),
-                    ),
-                    decoratorProps: const DropDownDecoratorProps(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                    onSelected: (value) {
-                      if (!mounted) return;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (!mounted) return;
-                        setState(() => _popupOpen = false);
-                        _highlightedIndexNotifier.value = -1;
-                        _searchController.clear();
-                        widget.onChanged?.call(value);
-                        if (widget.nextFocusNode != null) {
-                          widget.nextFocusNode!.requestFocus();
-                        }
-                      });
-                    },
-                  ),
-                ),
-                if (widget.selectedValue != null && widget.showClear == true)
-                  Padding(
-                    padding: EdgeInsets.only(right: 1.w),
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: const Icon(
-                          Icons.close,
-                          size: 16,
-                          color: Color(0xFF64748B),
-                        ),
-                        onPressed: () => widget.onChanged?.call(null),
-                      ),
                     ),
                   ),
-              ],
+                  if (widget.selectedValue != null && widget.showClear == true)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6.0, left: 2.0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Color(0xFF64748B),
+                          ),
+                          onPressed: () => widget.onChanged?.call(null),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -2772,6 +2809,21 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
     return KeyEventResult.ignored;
   }
 
+  Widget _wrapWithTooltip({required Widget child, required String? message}) {
+    if (message == null || message.isEmpty) {
+      return child;
+    }
+    return Tooltip(
+      message: message,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -2804,40 +2856,71 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
           focusNode: widget.focusNode,
           onFocusChange: (focused) => setState(() => _hasFocus = focused),
           onKeyEvent: _handleOuterKeyEvent,
-          child: Container(
-            height: 5.2.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: _hasFocus ? AppColors.primary : const Color(0xFFCBD5E1),
-                width: _hasFocus ? 1.5 : 1.0,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: widget.onTap,
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 6, top: 4, bottom: 4),
-                    width: 32,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.green,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 16),
-                  ),
+          child: _wrapWithTooltip(
+            message: widget.selectedValue,
+            child: Container(
+              height: 5.2.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: _hasFocus
+                      ? AppColors.primary
+                      : const Color(0xFFCBD5E1),
+                  width: _hasFocus ? 1.5 : 1.0,
                 ),
-                // SizedBox(width: 0.5.w),
-                Expanded(
-                  child: DropdownSearch<String>(
-                    key: _dropdownKey,
-                    items: (filter, _) => _filteredItems(filter),
-                    selectedItem: widget.selectedValue,
-                    itemAsString: (item) => item,
-                    dropdownBuilder: (context, selectedItem) {
-                      if (selectedItem == null) {
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: AppThemeColors.basicGreen,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  // SizedBox(width: 0.5.w),
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      key: _dropdownKey,
+                      items: (filter, _) => _filteredItems(filter),
+                      selectedItem: widget.selectedValue,
+                      itemAsString: (item) => item,
+                      dropdownBuilder: (context, selectedItem) {
+                        if (selectedItem == null) {
+                          return Row(
+                            children: [
+                              if (widget.showIcon && widget.icon != null) ...[
+                                Icon(
+                                  widget.icon,
+                                  size: 12.sp,
+                                  color: const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 6.0),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  widget.hint,
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
                         return Row(
                           children: [
                             if (widget.showIcon && widget.icon != null) ...[
@@ -2846,195 +2929,179 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                                 size: 12.sp,
                                 color: const Color(0xFF64748B),
                               ),
-                              SizedBox(width: 0.5.w),
+                              const SizedBox(width: 6.0),
                             ],
                             Expanded(
                               child: Text(
-                                widget.hint,
-                                style: AppTextStyle.small(
+                                selectedItem,
+                                style: AppTextStyle.medium(
                                   size: 11.sp,
-                                  color: const Color(0xFF94A3B8),
+                                  weight: FontWeight.w400,
+                                  color: const Color(0xFF0F172A),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         );
-                      }
-                      return Row(
-                        children: [
-                          if (widget.showIcon && widget.icon != null) ...[
-                            Icon(
-                              widget.icon,
-                              size: 12.sp,
-                              color: const Color(0xFF64748B),
+                      },
+                      suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                          constraints:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const BoxConstraints.tightFor(
+                                  width: 0,
+                                  height: 0,
+                                )
+                              : const BoxConstraints(),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          iconClosed:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                          iconOpened:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_up,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      popupProps: PopupProps.menu(
+                        scrollbarProps: ScrollbarProps(
+                          thumbVisibility: true,
+                          thickness: 6,
+                          trackVisibility: true,
+                          thumbColor: AppColors.grey,
+                          interactive: true,
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        fit: FlexFit.loose,
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        onDismissed: () {
+                          if (!mounted) return;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() => _popupOpen = false);
+                            _highlightedIndexNotifier.value = -1;
+                            _searchController.clear();
+                          });
+                        },
+                        itemBuilder: (context, item, isDisabled, isSelected) {
+                          final visible = _filteredItems(_searchText);
+                          final currentIndex = visible.indexOf(item);
+                          return ValueListenableBuilder<int>(
+                            valueListenable: _highlightedIndexNotifier,
+                            builder: (_, highlightedIndex, __) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 1.w,
+                                  vertical: 1.h,
+                                ),
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : (currentIndex == highlightedIndex
+                                          ? AppColors.primary.withOpacity(0.12)
+                                          : Colors.white),
+                                child: Text(
+                                  item,
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        menuProps: MenuProps(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        searchFieldProps: TextFieldProps(
+                          focusNode: _popupSearchFocusNode,
+                          controller: _searchController,
+                          style: AppTextStyle.small(
+                            size: 11.sp,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: AppTextStyle.small(
+                              size: 11.sp,
+                              color: const Color(0xFF94A3B8),
                             ),
-                            SizedBox(width: 0.5.w),
-                          ],
-                          Expanded(
-                            child: Text(
-                              selectedItem,
-                              style: AppTextStyle.medium(
-                                size: 11.sp,
-                                weight: FontWeight.w400,
-                                color: const Color(0xFF0F172A),
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                    suffixProps: DropdownSuffixProps(
-                      dropdownButtonProps: DropdownButtonProps(
-                        constraints:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const BoxConstraints.tightFor(width: 0, height: 0)
-                            : const BoxConstraints(),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        iconClosed:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 1),
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                        iconOpened:
-                            (widget.showClear && widget.selectedValue != null)
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 1),
-                                child: const Icon(
-                                  Icons.keyboard_arrow_up,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
+                        ),
                       ),
-                    ),
-                    popupProps: PopupProps.menu(
-                      scrollbarProps: ScrollbarProps(
-                        thumbVisibility: true,
-                        thickness: 6,
-                        trackVisibility: true,
-                        thumbColor: AppColors.grey,
-                        interactive: true,
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.only(
+                            left: 8,
+                            top: 6,
+                            bottom: 6,
+                            // horizontal: 8,
+                            // vertical: 6,
+                          ),
+                        ),
                       ),
-                      showSearchBox: true,
-                      showSelectedItems: true,
-                      fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      onDismissed: () {
+                      onSelected: (value) {
                         if (!mounted) return;
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
                           setState(() => _popupOpen = false);
                           _highlightedIndexNotifier.value = -1;
                           _searchController.clear();
+                          widget.onChanged(value);
+                          if (widget.nextFocusNode != null) {
+                            widget.nextFocusNode!.requestFocus();
+                          }
                         });
                       },
-                      itemBuilder: (context, item, isDisabled, isSelected) {
-                        final visible = _filteredItems(_searchText);
-                        final currentIndex = visible.indexOf(item);
-                        return ValueListenableBuilder<int>(
-                          valueListenable: _highlightedIndexNotifier,
-                          builder: (_, highlightedIndex, __) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 1.w,
-                                vertical: 1.h,
-                              ),
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : (currentIndex == highlightedIndex
-                                        ? AppColors.primary.withOpacity(0.12)
-                                        : Colors.white),
-                              child: Text(
-                                item,
-                                style: AppTextStyle.medium(
-                                  size: 11.sp,
-                                  weight: FontWeight.w400,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      menuProps: MenuProps(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      searchFieldProps: TextFieldProps(
-                        focusNode: _popupSearchFocusNode,
-                        controller: _searchController,
-                        style: AppTextStyle.small(
-                          size: 11.sp,
-                          color: const Color(0xFF0F172A),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Search...',
-                          hintStyle: AppTextStyle.small(
-                            size: 11.sp,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                      ),
-                    ),
-                    decoratorProps: const DropDownDecoratorProps(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                    onSelected: (value) {
-                      if (!mounted) return;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (!mounted) return;
-                        setState(() => _popupOpen = false);
-                        _highlightedIndexNotifier.value = -1;
-                        _searchController.clear();
-                        widget.onChanged(value);
-                        if (widget.nextFocusNode != null) {
-                          widget.nextFocusNode!.requestFocus();
-                        }
-                      });
-                    },
-                  ),
-                ),
-                if (widget.selectedValue != null)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => widget.onChanged(null),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0.8.w),
-                      child: const Icon(
-                        Icons.close,
-                        size: 16,
-                        color: Color(0xFF64748B),
-                      ),
                     ),
                   ),
-              ],
+                  if (widget.selectedValue != null)
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => widget.onChanged(null),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
