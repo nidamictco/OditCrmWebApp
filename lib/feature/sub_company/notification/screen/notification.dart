@@ -155,7 +155,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void _deleteSelected(List<NotificationModel> notifications) {
   showDialog(
     context: context,
-    builder: (_) => AlertDialog(
+    builder: (dialogContext) => AlertDialog(
       backgroundColor: AppColors.white,
       title: const Text('Delete Selected'),
       content: Text(
@@ -163,12 +163,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(dialogContext),
           child: const Text('Cancel'),
         ),
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(dialogContext);
             final cubit = context.read<NotificationCubit>();
             for (final index in _selectedIndices) {
               cubit.deleteOne(notifications[index].id);
@@ -520,7 +520,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           ? null
                                           : () => showDialog(
                                               context: context,
-                                              builder: (_) => AlertDialog(
+                                              builder: (dialogContext) => AlertDialog(
                                                 title: const Text('Clear All'),
                                                 content: const Text(
                                                   'Are you sure you want to delete all notifications?',
@@ -528,12 +528,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () =>
-                                                        Navigator.pop(context),
+                                                        Navigator.pop(dialogContext),
                                                     child: const Text('Cancel'),
                                                   ),
                                                   TextButton(
                                                     onPressed: () {
-                                                      Navigator.pop(context);
+                                                      Navigator.pop(dialogContext);
                                                       _deleteAll();
                                                     },
                                                     child: const Text(

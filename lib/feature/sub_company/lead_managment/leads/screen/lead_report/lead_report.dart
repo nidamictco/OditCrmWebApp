@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +47,8 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> selectedSources = [];
   List<String> selectedPriorities = [];
   List<String> selectedLeadStages = [];
+  List<String> selectedSubCategories = [];
+  List<String> selectedTags = [];
   List<String> selectedStaff = [];
   List<String> selectedCreatedBy = [];
   List<String> selectedStates = [];
@@ -85,6 +89,8 @@ class _LeadsReportState extends State<LeadsReport> {
   static List<String> _staticAppliedCreatedBy = [];
   static List<String> _staticAppliedStates = [];
   static List<String> _staticAppliedDistricts = [];
+  static List<String> _staticAppliedTags = [];
+  static List<String> _staticAppliedSubCategories = [];
   static DateTime? _staticAppliedFromDate;
   static DateTime? _staticAppliedToDate;
   static bool _staticAppliedIsCreatedDate = true;
@@ -131,6 +137,8 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedCreatedBy = List<String>.from(_staticAppliedCreatedBy);
       _appliedStates = List<String>.from(_staticAppliedStates);
       _appliedDistricts = List<String>.from(_staticAppliedDistricts);
+      _appliedTags = List<String>.from(_staticAppliedTags);
+      _appliedSubCategories = List<String>.from(_staticAppliedSubCategories);
       _appliedFromDate = _staticAppliedFromDate;
       _appliedToDate = _staticAppliedToDate;
       _appliedIsCreatedDate = _staticAppliedIsCreatedDate;
@@ -181,6 +189,8 @@ class _LeadsReportState extends State<LeadsReport> {
     _staticAppliedCreatedBy = List<String>.from(_appliedCreatedBy);
     _staticAppliedStates = List<String>.from(_appliedStates);
     _staticAppliedDistricts = List<String>.from(_appliedDistricts);
+    _staticAppliedTags = List<String>.from(_appliedTags);
+    _staticAppliedSubCategories = List<String>.from(_appliedSubCategories);
     _staticAppliedFromDate = _appliedFromDate;
     _staticAppliedToDate = _appliedToDate;
     _staticAppliedIsCreatedDate = _appliedIsCreatedDate;
@@ -211,6 +221,8 @@ class _LeadsReportState extends State<LeadsReport> {
       selectedSources = [];
       selectedPriorities = [];
       selectedLeadStages = [];
+      selectedSubCategories = [];
+      selectedTags = [];
       selectedStaff = [];
       selectedCreatedBy = [];
       selectedStates = [];
@@ -224,6 +236,8 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedLeadStages = [];
       _appliedPriorities = [];
       _appliedSources = [];
+      _appliedTags = [];
+      _appliedSubCategories = [];
       _appliedStaff = [];
       _appliedCreatedBy = [];
       _appliedStates = [];
@@ -243,6 +257,8 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> _appliedLeadStages = [];
   List<String> _appliedPriorities = [];
   List<String> _appliedSources = [];
+  List<String> _appliedTags = [];
+  List<String> _appliedSubCategories = [];
   List<String> _appliedStaff = [];
   List<String> _appliedCreatedBy = [];
   List<String> _appliedStates = [];
@@ -259,6 +275,8 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedLeadStages = List<String>.from(selectedLeadStages);
       _appliedPriorities = List<String>.from(selectedPriorities);
       _appliedSources = List<String>.from(selectedSources);
+      _appliedTags = List<String>.from(selectedTags);
+      _appliedSubCategories = List<String>.from(selectedSubCategories);
       _appliedStaff = List<String>.from(selectedStaff);
       _appliedCreatedBy = List<String>.from(selectedCreatedBy);
       _appliedStates = List<String>.from(selectedStates);
@@ -431,6 +449,26 @@ class _LeadsReportState extends State<LeadsReport> {
           .toList();
     }
 
+    // ── Lead Tag — stored as-is — match ANY selected ──────────────────────────
+    if (_appliedTags.isNotEmpty) {
+      final tagSet = _appliedTags
+          .map((e) => e.trim().toLowerCase())
+          .toSet();
+      result = result
+          .where((l) => tagSet.contains(l.leadTag.trim().toLowerCase()))
+          .toList();
+    }
+
+    // ── Lead Sub Category — stored as-is — match ANY selected ────────────────
+    if (_appliedSubCategories.isNotEmpty) {
+      final subCatSet = _appliedSubCategories
+          .map((e) => e.trim().toLowerCase())
+          .toSet();
+      result = result
+          .where((l) => subCatSet.contains(l.leadSubCategory.trim().toLowerCase()))
+          .toList();
+    }
+
     // ── Search (live, no View button needed) ──────────────────────────────────
     final q = _searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
@@ -573,10 +611,20 @@ class _LeadsReportState extends State<LeadsReport> {
                         final categoryItems = state.categories
                             .map((e) => e.name)
                             .toList();
+                        // Sub-category is populated by the per-category Firestore
+                        // watcher (triggered below when exactly 1 category is selected).
+                        final subCategoryItems = state.subCategories
+                            .map((e) => e.name)
+                            .toList();
                         final sourceItems = state.sources
                             .map((e) => e.name)
                             .toList();
                         final stageItems = state.stages
+                            .map((e) => e.name)
+                            .toList();
+                        // Tag is populated by the per-stage Firestore watcher
+                        // (triggered below when exactly 1 stage is selected).
+                        final tagItems = state.leadTag
                             .map((e) => e.name)
                             .toList();
                         final staffItems = state.staffList
@@ -652,8 +700,21 @@ class _LeadsReportState extends State<LeadsReport> {
                                       onChanged: (vals) {
                                         setState(() {
                                           selectedCategories = vals;
+                                          // Clear sub-category whenever the
+                                          // category selection changes.
+                                          selectedSubCategories = [];
                                           _resetPage();
                                         });
+                                        final cubit =
+                                            context.read<AddLeadCubit>();
+                                        if (vals.length == 1) {
+                                          // Exactly one category → start the
+                                          // sub-category Firestore watcher.
+                                          cubit.selectCategory(vals.first);
+                                        } else {
+                                          // Zero or many → clear sub-categories.
+                                          cubit.selectCategory(null);
+                                        }
                                       },
                                       label: "Lead Category",
                                     ),
@@ -671,10 +732,80 @@ class _LeadsReportState extends State<LeadsReport> {
                                       onChanged: (vals) {
                                         setState(() {
                                           selectedLeadStages = vals;
+                                          // Clear tag whenever the stage
+                                          // selection changes.
+                                          selectedTags = [];
                                           _resetPage();
                                         });
+                                        final cubit =
+                                            context.read<AddLeadCubit>();
+                                        if (vals.length == 1) {
+                                          // Exactly one stage → start the
+                                          // tag Firestore watcher.
+                                          cubit.selectLeadStage(vals.first);
+                                        } else {
+                                          // Zero or many → clear tags.
+                                          cubit.selectLeadStage(null);
+                                        }
                                       },
                                     ),
+                                  ),
+                                ],
+                              ),
+// Show the dependent row when at least one watcher has data:
+// - Tag section appears only when exactly 1 stage is selected and tags exist.
+// - Sub Category section appears only when exactly 1 category is selected and sub-cats exist.
+if (selectedLeadStages.length == 1 && tagItems.isNotEmpty ||
+    selectedCategories.length == 1 && subCategoryItems.isNotEmpty)
+                              Column(
+                                children: [
+                                  SizedBox(height: 1.h),
+                                  Row(
+                                    children: [
+                                      Expanded(child: SizedBox()),
+                                      SizedBox(width: 2.w),
+                                      Expanded(child: SizedBox()),
+                                      SizedBox(width: 2.w),
+                                      if (selectedCategories.length == 1 &&
+                                          subCategoryItems.isNotEmpty)
+                                        Expanded(
+                                          child: MultiSelectDropdown(
+                                            label: "Lead Sub Category",
+                                            hint: 'select sub category',
+                                            items: subCategoryItems,
+                                            selectedValues: selectedSubCategories,
+                                            onChanged: (vals) {
+                                              setState(() {
+                                                selectedSubCategories = vals;
+                                                _resetPage();
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        const Expanded(child: SizedBox()),
+                                      SizedBox(width: 2.w),
+                                      if (selectedLeadStages.length == 1 &&
+                                          tagItems.isNotEmpty)
+                                        Expanded(
+                                          child: MultiSelectDropdown(
+                                            label: "Tag",
+                                            hint: 'select Tag',
+                                            items: tagItems,
+                                            selectedValues: selectedTags,
+                                            onChanged: (vals) {
+                                              setState(() {
+                                                selectedTags = vals;
+                                                _resetPage();
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        const Expanded(child: SizedBox()),
+                                      // SizedBox(width: 2.w),
+                                      
+                                    ],
                                   ),
                                 ],
                               ),
