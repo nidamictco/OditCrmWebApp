@@ -2,6 +2,7 @@ import 'dart:html' as html;
 import 'dart:async';
 import 'dart:developer';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/menu_hover_bottun.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -332,13 +333,13 @@ class _TopBarState extends State<TopBar> {
         }
       },
       child: Container(
-        height: 11.h,
+        height: 10.h,
         padding: EdgeInsets.symmetric(horizontal: 1.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(
-            bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
-          ),
+          // border: Border(
+          //   bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
+          // ),
         ),
         child: Builder(
           builder: (context) {
@@ -371,20 +372,20 @@ class _TopBarState extends State<TopBar> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 14.sp,
-                    color: const Color(0xFF94A3B8).withOpacity(0.5),
-                  ),
-                ),
+                // const SizedBox(width: 6),
+                // Container(
+                //   width: 32,
+                //   height: 32,
+                //   decoration: BoxDecoration(
+                //     color: const Color(0xFFF1F5F9),
+                //     borderRadius: BorderRadius.circular(8),
+                //   ),
+                //   child: Icon(
+                //     Icons.chevron_right,
+                //     size: 14.sp,
+                //     color: const Color(0xFF94A3B8).withOpacity(0.5),
+                //   ),
+                // ),
                 const SizedBox(width: 12),
 
                 // Breadcrumbs: Parent Category / Current Category
@@ -392,8 +393,12 @@ class _TopBarState extends State<TopBar> {
                   breadcrumbs.parent,
                   style: AppTextStyle.medium(
                     size: 11.sp,
-                    color: const Color(0xFF94A3B8),
-                    weight: FontWeight.w400,
+                    color: breadcrumbs.current.isEmpty
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF94A3B8),
+                    weight: breadcrumbs.current.isEmpty
+                        ? FontWeight.w600
+                        : FontWeight.w400,
                   ),
                 ),
                 if (breadcrumbs.current.isNotEmpty) ...[
@@ -421,12 +426,12 @@ class _TopBarState extends State<TopBar> {
                 _buildSearchBox(),
                 SizedBox(width: 0.8.w),
 
-                // Hamburger / Sidebar Toggle Menu button
-                _TopBarIconButton(
-                  icon: Icons.notes,
-                  tooltip: 'Menu',
-                  onTap: widget.onMenuTap,
-                ),
+                // _TopBarIconButton(
+                //   icon: Icons.notes,
+                //   tooltip: 'Menu',
+                //   onTap: widget.onMenuTap,
+                // ),
+                const MenuHoverButton(),
                 SizedBox(width: 0.6.w),
 
                 // Notification Bell with Badge
@@ -919,7 +924,7 @@ class _BreadcrumbsData {
 
 _BreadcrumbsData _getBreadcrumbs(String path) {
   if (path == RoutePaths.dashboard || path == '/') {
-    return _BreadcrumbsData('Pages', 'Dashboard');
+    return _BreadcrumbsData('Dashboard', '');
   }
   if (path == RoutePaths.addLead) {
     return _BreadcrumbsData('Lead Management', 'Add Lead');

@@ -214,6 +214,15 @@ class _InputDateState extends State<InputDate> {
             padding: EdgeInsets.symmetric(horizontal: 1.w),
             child: Row(
               children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                  child: Icon(
+                    Icons.calendar_month_outlined,
+                    size: 16,
+                    color: const Color(0xff4a5d9e),
+                  ),
+                ),
+                SizedBox(width: 0.3.w),
                 Expanded(
                   child: Text(
                     _displayText,
@@ -224,7 +233,9 @@ class _InputDateState extends State<InputDate> {
                     ),
                   ),
                 ),
-                if (widget.isFrom ? widget.fromController.text.isNotEmpty : widget.toController.text.isNotEmpty)
+                if (widget.isFrom
+                    ? widget.fromController.text.isNotEmpty
+                    : widget.toController.text.isNotEmpty)
                   GestureDetector(
                     onTap: () {
                       if (widget.isFrom) {
@@ -234,14 +245,21 @@ class _InputDateState extends State<InputDate> {
                       }
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Icon(
-                        Icons.clear,
-                        size: 16,
-                        color: AppColors.grey,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0,
+                        vertical: 4.0,
                       ),
+                      child: Icon(Icons.clear, size: 16, color: AppColors.grey),
                     ),
                   ),
+                Padding(
+                  padding: EdgeInsets.only(right: 0.5.w),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.grey,
+                    size: 18,
+                  ),
+                ),
               ],
             ),
           ),

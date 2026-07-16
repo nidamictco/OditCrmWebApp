@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
@@ -29,6 +28,7 @@ class MultiSelectDropdown extends StatefulWidget {
   final bool showClear;
   final bool enabled;
   final String? Function(List<String>)? validator;
+  final bool showChips;
 
   const MultiSelectDropdown({
     super.key,
@@ -42,6 +42,7 @@ class MultiSelectDropdown extends StatefulWidget {
     this.showClear = true,
     this.enabled = true,
     this.validator,
+    this.showChips = true,
   });
 
   @override
@@ -63,15 +64,15 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
   // list + chips inside it) when selection changes, without rebuilding
   // the whole screen. Always driven by widget.selectedValues.
   StateSetter? _overlaySetState;
-   late List<String> _selected;
+  late List<String> _selected;
 
-     @override
+  @override
   void initState() {
     super.initState();
     _selected = List<String>.from(widget.selectedValues);
   }
 
-@override
+  @override
   void didUpdateWidget(covariant MultiSelectDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Only re-sync when the parent's value actually differs from ours —
@@ -123,10 +124,10 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
 
   /// Single mutation point for selection changes. Always reads/writes
   /// widget.selectedValues — no local copy is kept anywhere.
-   void _setSelection(List<String> updated) {
-    setState(() => _selected = updated);       // instant local rebuild
-    _overlaySetState?.call(() {});             // instant popup rebuild
-    widget.onChanged(updated);                 // tell parent (async rebuild, fine)
+  void _setSelection(List<String> updated) {
+    setState(() => _selected = updated); // instant local rebuild
+    _overlaySetState?.call(() {}); // instant popup rebuild
+    widget.onChanged(updated); // tell parent (async rebuild, fine)
   }
 
   void _toggleItem(String item) {
@@ -139,8 +140,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
     _setSelection(current);
   }
 
-
-   void _removeItem(String item) {
+  void _removeItem(String item) {
     if (!_selected.contains(item)) return;
     final updated = List<String>.from(_selected)..remove(item);
     _setSelection(updated);
@@ -195,13 +195,15 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                         //   }
                         //   _setSelection(current);
                         // }
-void selectAll() {
-  final current = List<String>.from(_selected);   // ⬅ was widget.selectedValues
-  for (final item in filteredItems) {
-    if (!current.contains(item)) current.add(item);
-  }
-  _setSelection(current);
-}
+                        void selectAll() {
+                          final current = List<String>.from(
+                            _selected,
+                          ); // ⬅ was widget.selectedValues
+                          for (final item in filteredItems) {
+                            if (!current.contains(item)) current.add(item);
+                          }
+                          _setSelection(current);
+                        }
 
                         return Container(
                           width: size.width,
@@ -271,7 +273,6 @@ void selectAll() {
                               //       }).toList(),
                               //     ),
                               //   ),
-
                               Divider(height: 1, color: AppColors.divider),
                               Padding(
                                 padding: EdgeInsets.symmetric(
@@ -301,7 +302,9 @@ void selectAll() {
                                       ),
                                     ),
                                     InkWell(
-                                      onTap: _selected.isEmpty ? null : _clearAll,
+                                      onTap: _selected.isEmpty
+                                          ? null
+                                          : _clearAll,
                                       child: Text(
                                         'Clear All',
                                         style: AppTextStyle.small(
@@ -344,7 +347,9 @@ void selectAll() {
                                           // final isChecked = widget
                                           //     .selectedValues
                                           //     .contains(item);
-                                          final isChecked = _selected.contains(item);
+                                          final isChecked = _selected.contains(
+                                            item,
+                                          );
                                           const highlightColor = Color(
                                             0xff4A5D9E,
                                           );
@@ -393,14 +398,16 @@ void selectAll() {
                                                     Expanded(
                                                       child: Text(
                                                         item,
-                                                        style: AppTextStyle.medium(
-                                                          size: 11.sp,
-                                                          weight:
-                                                              FontWeight.w400,
-                                                          color: isChecked
-                                                              ? Colors.white
-                                                              : Colors.black87,
-                                                        ),
+                                                        style:
+                                                            AppTextStyle.medium(
+                                                              size: 11.sp,
+                                                              weight: FontWeight
+                                                                  .w400,
+                                                              color: isChecked
+                                                                  ? Colors.white
+                                                                  : Colors
+                                                                        .black87,
+                                                            ),
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
@@ -478,36 +485,42 @@ void selectAll() {
                               ),
                             ),
                           )
-                        // : Wrap(
-                        //     spacing: 1.w,
-                        //     runSpacing: 0.5.h,
-                        //     crossAxisAlignment: WrapCrossAlignment.center,
-                        //     children: _selected.map((value) {
-                        //       return _SelectedChip(
-                        //         label: value,
-                        //         onRemove: () => _removeItem(value),
-                        //       );
-                        //     }).toList(),
-                        //   ),
-                        : ClipRect(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                for (int i = 0; i < _selected.length; i++) ...[
-                                  if (i != 0) SizedBox(width: 1.w),
-                                  _SelectedChip(
-                                    label: _selected[i],
-                                    onRemove: () => _removeItem(_selected[i]),
+                        : widget.showChips
+                            ? ClipRect(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      for (
+                                        int i = 0;
+                                        i < _selected.length;
+                                        i++
+                                      ) ...[
+                                        if (i != 0) SizedBox(width: 1.w),
+                                        _SelectedChip(
+                                          label: _selected[i],
+                                          onRemove: () => _removeItem(_selected[i]),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 5.0),
+                                child: Text(
+                                  _selected.join(', '),
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: AppColors.black,
+                                    weight: FontWeight.w400,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                   ),
                   if (widget.showClear && _selected.isNotEmpty)
                     SizedBox(

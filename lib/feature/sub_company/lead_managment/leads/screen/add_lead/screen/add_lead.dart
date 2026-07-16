@@ -657,7 +657,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        SizedBox(height: 2.h),
+                        // SizedBox(height: 2.h),
 
                         // ── Customer Details ────────────────────────────────
                         Padding(
@@ -1593,6 +1593,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
         color: AppColors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
       ),
       padding: EdgeInsets.all(2.w),
       child: Column(

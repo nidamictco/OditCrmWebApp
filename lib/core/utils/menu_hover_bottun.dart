@@ -22,7 +22,6 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
 
-      /// 👇 IMPORTANT: Builder gives fresh context
       child: Builder(
         builder: (context) {
           return PopupMenuButton<String>(
@@ -83,18 +82,28 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
             ],
 
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 6.h,
-              width: 6.h,
+              // duration: const Duration(milliseconds: 200),
+              // height: 6.h,
+              // width: 6.h,
+              // decoration: BoxDecoration(
+              //   color: isHovering
+              //       ? Colors.blue.shade100
+              //       : const Color(0xffE5E7EB),
+              //   borderRadius: BorderRadius.circular(4),
+              // ),
+              duration: const Duration(milliseconds: 150),
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: isHovering
-                    ? Colors.blue.shade100
-                    : const Color(0xffE5E7EB),
-                borderRadius: BorderRadius.circular(4),
+                    ? const Color(0xFFE2E8F0)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(8),
               ),
+              alignment: Alignment.center,
               child: Icon(
-                Icons.menu,
-                size: 18,
+                Icons.notes,
+                size: 13.sp,
                 color: isHovering ? Colors.blue : Colors.black54,
               ),
             ),

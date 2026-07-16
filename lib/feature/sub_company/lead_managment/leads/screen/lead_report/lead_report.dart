@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,9 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> selectedCreatedBy = [];
   List<String> selectedStates = [];
   List<String> selectedDistricts = [];
+  List<String> selectedSubCategories = [];
+  List<String> selectedTags = [];
+  List<String> selectedCallResults = [];
 
   String _searchQuery = '';
   String _selectedEntries = '10';
@@ -72,6 +76,9 @@ class _LeadsReportState extends State<LeadsReport> {
   static List<String> _staticCreatedBy = [];
   static List<String> _staticStates = [];
   static List<String> _staticDistricts = [];
+  static List<String> _staticSubCategories = [];
+  static List<String> _staticTags = [];
+  static List<String> _staticCallResults = [];
   static String _staticSearchQuery = '';
   static String _staticSelectedEntries = '10';
   static int _staticCurrentPage = 1;
@@ -85,6 +92,9 @@ class _LeadsReportState extends State<LeadsReport> {
   static List<String> _staticAppliedCreatedBy = [];
   static List<String> _staticAppliedStates = [];
   static List<String> _staticAppliedDistricts = [];
+  static List<String> _staticAppliedSubCategories = [];
+  static List<String> _staticAppliedTags = [];
+  static List<String> _staticAppliedCallResults = [];
   static DateTime? _staticAppliedFromDate;
   static DateTime? _staticAppliedToDate;
   static bool _staticAppliedIsCreatedDate = true;
@@ -117,6 +127,9 @@ class _LeadsReportState extends State<LeadsReport> {
       selectedCreatedBy = List<String>.from(_staticCreatedBy);
       selectedStates = List<String>.from(_staticStates);
       selectedDistricts = List<String>.from(_staticDistricts);
+      selectedSubCategories = List<String>.from(_staticSubCategories);
+      selectedTags = List<String>.from(_staticTags);
+      selectedCallResults = List<String>.from(_staticCallResults);
       _currentPage = _staticCurrentPage;
 
       _searchQuery = _staticSearchQuery;
@@ -131,6 +144,9 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedCreatedBy = List<String>.from(_staticAppliedCreatedBy);
       _appliedStates = List<String>.from(_staticAppliedStates);
       _appliedDistricts = List<String>.from(_staticAppliedDistricts);
+      _appliedSubCategories = List<String>.from(_staticAppliedSubCategories);
+      _appliedTags = List<String>.from(_staticAppliedTags);
+      _appliedCallResults = List<String>.from(_staticAppliedCallResults);
       _appliedFromDate = _staticAppliedFromDate;
       _appliedToDate = _staticAppliedToDate;
       _appliedIsCreatedDate = _staticAppliedIsCreatedDate;
@@ -168,6 +184,9 @@ class _LeadsReportState extends State<LeadsReport> {
     _staticCreatedBy = List<String>.from(selectedCreatedBy);
     _staticStates = List<String>.from(selectedStates);
     _staticDistricts = List<String>.from(selectedDistricts);
+    _staticSubCategories = List<String>.from(selectedSubCategories);
+    _staticTags = List<String>.from(selectedTags);
+    _staticCallResults = List<String>.from(selectedCallResults);
     _staticCurrentPage = _currentPage;
 
     _staticSearchQuery = _searchQuery;
@@ -181,6 +200,9 @@ class _LeadsReportState extends State<LeadsReport> {
     _staticAppliedCreatedBy = List<String>.from(_appliedCreatedBy);
     _staticAppliedStates = List<String>.from(_appliedStates);
     _staticAppliedDistricts = List<String>.from(_appliedDistricts);
+    _staticAppliedSubCategories = List<String>.from(_appliedSubCategories);
+    _staticAppliedTags = List<String>.from(_appliedTags);
+    _staticAppliedCallResults = List<String>.from(_appliedCallResults);
     _staticAppliedFromDate = _appliedFromDate;
     _staticAppliedToDate = _appliedToDate;
     _staticAppliedIsCreatedDate = _appliedIsCreatedDate;
@@ -201,6 +223,9 @@ class _LeadsReportState extends State<LeadsReport> {
         selectedCreatedBy.isNotEmpty ||
         selectedStates.isNotEmpty ||
         selectedDistricts.isNotEmpty ||
+        selectedSubCategories.isNotEmpty ||
+        selectedTags.isNotEmpty ||
+        selectedCallResults.isNotEmpty ||
         fromDate.text.isNotEmpty ||
         toDate.text.isNotEmpty;
   }
@@ -215,6 +240,9 @@ class _LeadsReportState extends State<LeadsReport> {
       selectedCreatedBy = [];
       selectedStates = [];
       selectedDistricts = [];
+      selectedSubCategories = [];
+      selectedTags = [];
+      selectedCallResults = [];
       fromDate.clear();
       toDate.clear();
       _isCreatedDate = true;
@@ -228,6 +256,9 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedCreatedBy = [];
       _appliedStates = [];
       _appliedDistricts = [];
+      _appliedSubCategories = [];
+      _appliedTags = [];
+      _appliedCallResults = [];
       _appliedFromDate = null;
       _appliedToDate = null;
       _appliedIsCreatedDate = true;
@@ -236,6 +267,9 @@ class _LeadsReportState extends State<LeadsReport> {
 
       _resetPage();
     });
+    final cubit = context.read<AddLeadCubit>();
+    cubit.selectCategory(null);
+    cubit.selectLeadStage(null);
   }
 
   // ── Snapshot fields (applied only when "View" is tapped) ────────────────────
@@ -247,6 +281,9 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> _appliedCreatedBy = [];
   List<String> _appliedStates = [];
   List<String> _appliedDistricts = [];
+  List<String> _appliedSubCategories = [];
+  List<String> _appliedTags = [];
+  List<String> _appliedCallResults = [];
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
   bool _appliedIsCreatedDate = true;
@@ -263,6 +300,9 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedCreatedBy = List<String>.from(selectedCreatedBy);
       _appliedStates = List<String>.from(selectedStates);
       _appliedDistricts = List<String>.from(selectedDistricts);
+      _appliedSubCategories = List<String>.from(selectedSubCategories);
+      _appliedTags = List<String>.from(selectedTags);
+      _appliedCallResults = List<String>.from(selectedCallResults);
       _appliedFromDate = fromDate.text.trim().isEmpty
           ? null
           : _parseDate(fromDate.text);
@@ -431,6 +471,38 @@ class _LeadsReportState extends State<LeadsReport> {
           .toList();
     }
 
+    // ── Sub Category ─────────────────────────────────────────────────────────
+    if (_appliedSubCategories.isNotEmpty) {
+      final subCats = _appliedSubCategories
+          .map((e) => e.trim().toUpperCase())
+          .toSet();
+      result = result
+          .where((l) => subCats.contains(l.leadSubCategory.toUpperCase()))
+          .toList();
+    }
+
+    // ── Lead Tag ─────────────────────────────────────────────────────────────
+    if (_appliedTags.isNotEmpty) {
+      final tags = _appliedTags.map((e) => e.trim().toUpperCase()).toSet();
+      result = result
+          .where((l) => tags.contains(l.leadTag.toUpperCase()))
+          .toList();
+    }
+
+    // ── Call Result ──────────────────────────────────────────────────────────
+    if (_appliedCallResults.isNotEmpty) {
+      final callRes = _appliedCallResults
+          .map((e) => e.trim().toUpperCase())
+          .toSet();
+      result = result
+          .where(
+            (l) =>
+                l.callResult != null &&
+                callRes.contains(l.callResult!.toUpperCase()),
+          )
+          .toList();
+    }
+
     // ── Search (live, no View button needed) ──────────────────────────────────
     final q = _searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
@@ -497,805 +569,884 @@ class _LeadsReportState extends State<LeadsReport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            TopBreadcrumbBar(
-              subTitle: 'Leads Report',
-              title: 'Lead Management',
-            ),
+            // TopBreadcrumbBar(
+            //   subTitle: 'Leads Report',
+            //   title: 'Lead Management',
+            // ),
             Padding(
               padding: EdgeInsets.all(2.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: Column(
-                  children: [
-                    /// 🔹 TITLE BAR
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                        vertical: 2.h,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Leads Report",
-                            style: AppTextStyle.medium(
-                              size: 13.6.sp,
-                              color: AppColors.black.withOpacity(0.77),
-                              weight: FontWeight.w600,
-                            ),
+              child: Column(
+                children: [
+                  // ── CARD 1: FILTERS CARD ───────────────────────────────────
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0x14000000,
+                          ), // #00000014 (8% opacity)
+                          offset: const Offset(0, 1),
+                          blurRadius: 8,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        /// 🔹 TITLE BAR
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2.w,
+                            vertical: 2.h,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              final leads = context
-                                  .read<AddLeadCubit>()
-                                  .state
-                                  .leads;
-                              final filtered = _filteredLeads(
-                                leads,
-                              ); // exports only filtered data
-                              exportLeadsToExcel(filtered, 'leads_report_');
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 1.4.w,
-                                vertical: 1.2.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffE5E7EB),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                "Export",
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Leads Report",
                                 style: AppTextStyle.medium(
-                                  color: Colors.indigo[900],
-                                  weight: FontWeight.w400,
+                                  size: 13.6.sp,
+                                  color: AppColors.black.withOpacity(0.77),
+                                  weight: FontWeight.w600,
                                 ),
                               ),
-                            ),
+                              GestureDetector(
+                                onTap: () {
+                                  final leads = context
+                                      .read<AddLeadCubit>()
+                                      .state
+                                      .leads;
+                                  final filtered = _filteredLeads(
+                                    leads,
+                                  ); // exports only filtered data
+                                  exportLeadsToExcel(filtered, 'leads_report_');
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 1.4.w,
+                                    vertical: 1.2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffE5E7EB),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    "Export",
+                                    style: AppTextStyle.medium(
+                                      color: Colors.indigo[900],
+                                      weight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Divider(color: AppColors.divider),
+                        ),
+                        Divider(color: AppColors.divider),
 
-                    /// 🔹 FILTERS
-                    BlocBuilder<AddLeadCubit, AddLeadState>(
-                      builder: (context, state) {
-                        // ── Build dynamic lists from Firestore streams ──
-                        final categoryItems = state.categories
-                            .map((e) => e.name)
-                            .toList();
-                        final sourceItems = state.sources
-                            .map((e) => e.name)
-                            .toList();
-                        final stageItems = state.stages
-                            .map((e) => e.name)
-                            .toList();
-                        final staffItems = state.staffList
-                            .map((e) => e.name)
-                            .toList();
-                        // createdBy uses staff list too (same people create leads)
-                        final createdByItems = state.staffList
-                            .map((e) => e.name)
-                            .toList();
-                        // Priority is still static (not stored in Firestore)
-                        const priorityItems = [
-                          "High",
-                          "Low",
-                          "Negative",
-                          "Normal",
-                        ];
+                        /// 🔹 FILTERS
+                        BlocBuilder<AddLeadCubit, AddLeadState>(
+                          builder: (context, state) {
+                            final categoryItems = state.categories
+                                .map((e) => e.name)
+                                .toList();
+                            final sourceItems = state.sources
+                                .map((e) => e.name)
+                                .toList();
+                            final stageItems = state.stages
+                                .map((e) => e.name)
+                                .toList();
+                            final staffItems = state.staffList
+                                .map((e) => e.name)
+                                .toList();
+                            final createdByItems = state.staffList
+                                .map((e) => e.name)
+                                .toList();
+                            const priorityItems = [
+                              "High",
+                              "Low",
+                              "Negative",
+                              "Normal",
+                            ];
 
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            left: 2.w,
-                            right: 2.w,
-                            top: 2.w,
-                            bottom: 1.h,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
+                            return Padding(
+                              padding: EdgeInsets.all(2.w),
+                              child: Column(
                                 children: [
-                                  _radio(
-                                    "Created Date",
-                                    _isCreatedDate,
-                                    'Created Date allows you to \nfilter leads based on when they \nwere added to the system.',
+                                  // ── ROW 1: 5 Columns
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: InputDate(
+                                          label: "From Date",
+                                          fromController: fromDate,
+                                          toController: toDate,
+                                          isFrom: true,
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: InputDate(
+                                          label: "To Date",
+                                          fromController: fromDate,
+                                          toController: toDate,
+                                          isFrom: false,
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          showClear: true,
+                                          hint: 'select category',
+                                          showHelp: true,
+                                          message:
+                                              'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
+                                          items: categoryItems,
+                                          selectedValues: selectedCategories,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedCategories = vals;
+                                              selectedSubCategories = [];
+                                              _resetPage();
+                                            });
+                                            if (vals.isNotEmpty) {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .selectCategory(vals.last);
+                                            } else {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .selectCategory(null);
+                                            }
+                                          },
+                                          label: "Lead Category",
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Lead Stage",
+                                          hint: 'select stage',
+                                          showHelp: true,
+                                          message:
+                                              'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                          items: stageItems,
+                                          selectedValues: selectedLeadStages,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedLeadStages = vals;
+                                              selectedTags = [];
+                                              _resetPage();
+                                            });
+                                            if (vals.isNotEmpty) {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .selectLeadStage(vals.last);
+                                            } else {
+                                              context
+                                                  .read<AddLeadCubit>()
+                                                  .selectLeadStage(null);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Priority",
+                                          hint: 'select priority',
+                                          items: priorityItems,
+                                          selectedValues: selectedPriorities,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedPriorities = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 3.w),
-                                  _radio(
-                                    "Updated Date",
-                                    !_isCreatedDate,
-                                    'Updated Date allows you to \nfilter leads based on the most \nrecent changes made to them.',
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 1.h),
+                                  SizedBox(height: 1.h),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: InputDate(
-                                      label: "From Date",
-                                      fromController: fromDate,
-                                      toController: toDate,
-                                      isFrom: true,
-                                    ),
+                                  // ── ROW 2: 5 Columns
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Lead Source",
+                                          hint: 'select source',
+                                          showHelp: true,
+                                          message:
+                                              'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                          items: sourceItems,
+                                          selectedValues: selectedSources,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedSources = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Staff",
+                                          hint: 'select staff',
+                                          items: staffItems,
+                                          selectedValues: selectedStaff,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedStaff = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                          message: ".",
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Created By",
+                                          hint: 'select creator',
+                                          items: createdByItems,
+                                          selectedValues: selectedCreatedBy,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedCreatedBy = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "State",
+                                          hint: "select state",
+                                          items: stateDistrictMap.keys.toList(),
+                                          selectedValues: selectedStates,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedStates = vals;
+                                              final validDistricts =
+                                                  _availableDistricts();
+                                              selectedDistricts =
+                                                  selectedDistricts
+                                                      .where(
+                                                        (d) => validDistricts
+                                                            .contains(d),
+                                                      )
+                                                      .toList();
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 2.w),
+                                      Expanded(
+                                        child: MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "District",
+                                          hint: "select district",
+                                          items: _availableDistricts(),
+                                          selectedValues: selectedDistricts,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedDistricts = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: InputDate(
-                                      label: "To Date",
-                                      fromController: fromDate,
-                                      toController: toDate,
-                                      isFrom: false,
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      showClear: true,
-                                      hint: 'select category',
-                                      showHelp: true,
-                                      message:
-                                          'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
-                                      items: categoryItems,
-                                      selectedValues: selectedCategories,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedCategories = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                      label: "Lead Category",
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "Lead Stage",
-                                      hint: 'select stage',
-                                      showHelp: true,
-                                      message:
-                                          'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
-                                      items: stageItems,
-                                      selectedValues: selectedLeadStages,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedLeadStages = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
 
-                              SizedBox(height: 1.h),
+                                  // ── ROW 3: Conditional Extra Fields
+                                  (() {
+                                    final showSubCategory =
+                                        selectedCategories.isNotEmpty &&
+                                        state.subCategories.isNotEmpty;
+                                    final showTags =
+                                        selectedLeadStages.isNotEmpty &&
+                                        state.leadTag.isNotEmpty;
+                                    final showCallResult =
+                                        selectedLeadStages.isNotEmpty &&
+                                        selectedLeadStages.any(
+                                          (s) => s.toUpperCase() != 'NEW',
+                                        );
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "Priority",
-                                      hint: 'select priority',
-                                      items: priorityItems,
-                                      selectedValues: selectedPriorities,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedPriorities = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "Lead Source",
-                                      hint: 'select source',
-                                      showHelp: true,
-                                      message:
-                                          'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                      items: sourceItems,
-                                      selectedValues: selectedSources,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedSources = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "Staff",
-                                      hint: 'select staff',
-                                      items: staffItems,
-                                      selectedValues: selectedStaff,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedStaff = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                      message: ".",
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "Created By",
-                                      hint: 'select creator',
-                                      items: createdByItems,
-                                      selectedValues: selectedCreatedBy,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedCreatedBy = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                    final List<Widget> row3Cols = [];
 
-                              SizedBox(height: 1.h),
+                                    if (showSubCategory) {
+                                      final subCategoryItems = state
+                                          .subCategories
+                                          .map((e) => e.name)
+                                          .toList();
+                                      row3Cols.add(
+                                        MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Lead Sub Category",
+                                          hint: "select sub category",
+                                          items: subCategoryItems,
+                                          selectedValues: selectedSubCategories,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedSubCategories = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    }
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "State",
-                                      hint: "select state",
-                                      items: stateDistrictMap.keys.toList(),
-                                      selectedValues: selectedStates,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedStates = vals;
-                                          // Keep only districts still valid
-                                          // for the newly selected states.
-                                          final validDistricts =
-                                              _availableDistricts();
-                                          selectedDistricts = selectedDistricts
-                                              .where(
-                                                (d) =>
-                                                    validDistricts.contains(d),
-                                              )
-                                              .toList();
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(
-                                    child: MultiSelectDropdown(
-                                      label: "District",
-                                      hint: "select district",
-                                      items: _availableDistricts(),
-                                      selectedValues: selectedDistricts,
-                                      onChanged: (vals) {
-                                        setState(() {
-                                          selectedDistricts = vals;
-                                          _resetPage();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Expanded(child: SizedBox()),
-                                  SizedBox(width: 2.w),
-                                  Expanded(child: SizedBox()),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  /// 🔥 VIEW BUTTON
-                                  InkWell(
-                                    onTap: () {
-                                      _applyFilters();
-                                    },
-                                    child: Padding(
-                                      padding: EdgeInsets.only(top: 2.h),
-                                      child: SizedBox(
-                                        width: 7.w,
-                                        height: 4.5.h,
-                                        child: DecoratedBox(
+                                    if (showTags) {
+                                      final tagItems = state.leadTag
+                                          .map((e) => e.name)
+                                          .toList();
+                                      row3Cols.add(
+                                        MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Tag",
+                                          hint: "select tag",
+                                          items: tagItems,
+                                          selectedValues: selectedTags,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedTags = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    }
+
+                                    if (showCallResult) {
+                                      row3Cols.add(
+                                        MultiSelectDropdown(
+                                          showChips: false,
+                                          label: "Call Result",
+                                          hint: "select call result",
+                                          items: const [
+                                            'Connected',
+                                            'Answered',
+                                            'Busy',
+                                            'Not Attended',
+                                            'Out of Coverage Area',
+                                            'Rejected',
+                                            'Switched Off',
+                                            'No Answer',
+                                          ],
+                                          selectedValues: selectedCallResults,
+                                          onChanged: (vals) {
+                                            setState(() {
+                                              selectedCallResults = vals;
+                                              _resetPage();
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    }
+
+                                    if (row3Cols.isEmpty)
+                                      return const SizedBox.shrink();
+
+                                    return Column(
+                                      children: [
+                                        SizedBox(height: 1.h),
+                                        Row(
+                                          children: [
+                                            for (int i = 0; i < 5; i++) ...[
+                                              if (i > 0) SizedBox(width: 2.w),
+                                              Expanded(
+                                                child: i < row3Cols.length
+                                                    ? row3Cols[i]
+                                                    : const SizedBox(),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ],
+                                    );
+                                  })(),
+
+                                  SizedBox(height: 2.h),
+
+                                  // ── ROW 4: ACTIONS ROW
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          _applyFilters();
+                                        },
+                                        child: Container(
+                                          height: 4.h,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 1.5.w,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xff1BAA90),
+                                            color: const Color(0xff00b087),
                                             borderRadius: BorderRadius.circular(
-                                              6,
+                                              4,
                                             ),
                                           ),
-                                          child: Center(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            "View Report",
+                                            style: AppTextStyle.small(
+                                              size: 10.sp,
+                                              color: Colors.white,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (_hasActiveFilters()) ...[
+                                        SizedBox(width: 1.w),
+                                        InkWell(
+                                          onTap: _clearFilters,
+                                          child: Container(
+                                            height: 4.h,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 1.5.w,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xffe95757),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            alignment: Alignment.center,
                                             child: Text(
-                                              "View",
+                                              'Reset Filters',
                                               style: AppTextStyle.small(
                                                 size: 10.sp,
                                                 color: Colors.white,
+                                                weight: FontWeight.w500,
                                               ),
                                             ),
                                           ),
                                         ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 2.h),
+
+                  // ── CARD 2: TABLE & DATA CARD ──────────────────────────────
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Column(
+                      children: [
+                        BlocBuilder<AddLeadCubit, AddLeadState>(
+                          builder: (context, state) {
+                            if (state.listStatus == LeadListStatus.loading) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 6.h),
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+
+                            if (state.listStatus == LeadListStatus.failure) {
+                              return Padding(
+                                padding: EdgeInsets.all(4.w),
+                                child: Text(
+                                  state.listError ?? 'Something went wrong.',
+                                  style: AppTextStyle.medium(color: Colors.red),
+                                ),
+                              );
+                            }
+
+                            final List<AddLeadModel> rawList =
+                                state.listStatus == LeadListStatus.loaded
+                                ? state.leads.toList()
+                                : [];
+
+                            final allFiltered = _filteredLeads(rawList);
+                            final totalCount = allFiltered.length;
+                            final totalPages = _totalPages(totalCount);
+                            final limit = int.tryParse(_selectedEntries) ?? 10;
+                            if (_currentPage > totalPages) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                setState(() => _currentPage = totalPages);
+                              });
+                            }
+                            final pagedList = _pagedLeads(allFiltered);
+
+                            final showFrom = totalCount == 0
+                                ? 0
+                                : (_currentPage - 1) * limit + 1;
+                            final showTo = (showFrom + pagedList.length - 1)
+                                .clamp(0, totalCount);
+
+                            return Column(
+                              children: [
+                                ShowEntries(
+                                  initialSearch: _searchQuery,
+                                  initialEntries: _selectedEntries,
+                                  onSearchChanged: (v) => setState(() {
+                                    _searchQuery = v;
+                                    _resetPage();
+                                  }),
+                                  onEntriesChanged: (v) => setState(() {
+                                    _selectedEntries = v;
+                                    _resetPage();
+                                  }),
+                                  middleWidget: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 1.w,
+                                      vertical: 0.5.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.greyCard,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: AppColors.divider,
                                       ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _legendDot(const Color(0xffEF4444)),
+                                        SizedBox(width: 0.3.w),
+                                        Text(
+                                          'High',
+                                          style: AppTextStyle.small(size: 9.sp),
+                                        ),
+                                        SizedBox(width: 0.8.w),
+                                        _legendDot(const Color(0xff22C55E)),
+                                        SizedBox(width: 0.3.w),
+                                        Text(
+                                          'Normal',
+                                          style: AppTextStyle.small(size: 9.sp),
+                                        ),
+                                        SizedBox(width: 0.8.w),
+                                        _legendDot(const Color(0xffE2F916)),
+                                        SizedBox(width: 0.3.w),
+                                        Text(
+                                          'Low',
+                                          style: AppTextStyle.small(size: 9.sp),
+                                        ),
+                                        SizedBox(width: 0.8.w),
+                                        _legendDot(const Color(0xff9CA3AF)),
+                                        SizedBox(width: 0.3.w),
+                                        Text(
+                                          'Negative',
+                                          style: AppTextStyle.small(size: 9.sp),
+                                        ),
+                                      ],
                                     ),
                                   ),
-
-                                  SizedBox(width: 1.w),
-                                  if (_hasActiveFilters())
-                                    InkWell(
-                                      onTap: _clearFilters,
-                                      child: Container(
-                                        // width: 7.w,
-                                        height: 4.5.h,
-                                        padding: EdgeInsets.all(1.h),
-                                        margin: EdgeInsets.only(top: 2.h),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.orange,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Reset Filters',
-                                          style: AppTextStyle.small(
-                                            size: 10.sp,
-                                            color: Colors.white,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-
-                    Divider(color: AppColors.divider),
-
-                    /// 🔹 TABLE CONTROLS
-                    ShowEntries(
-                      initialSearch: _searchQuery,
-                      initialEntries: _selectedEntries,
-                      onSearchChanged: (v) => setState(() {
-                        _searchQuery = v;
-                        _resetPage();
-                      }),
-                      onEntriesChanged: (v) => setState(() {
-                        _selectedEntries = v;
-                        _resetPage();
-                      }),
-                    ),
-
-                    /// 🔹 TABLE
-                    BlocBuilder<AddLeadCubit, AddLeadState>(
-                      builder: (context, state) {
-                        // Loading
-                        if (state.listStatus == LeadListStatus.loading) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 6.h),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-
-                        // Error
-                        if (state.listStatus == LeadListStatus.failure) {
-                          return Padding(
-                            padding: EdgeInsets.all(4.w),
-                            child: Text(
-                              state.listError ?? 'Something went wrong.',
-                              style: AppTextStyle.medium(color: Colors.red),
-                            ),
-                          );
-                        }
-
-                        final List<AddLeadModel> rawList =
-                            state.listStatus == LeadListStatus.loaded
-                            ? state.leads.toList()
-                            : [];
-
-                        final allFiltered = _filteredLeads(rawList);
-                        final totalCount = allFiltered.length;
-                        final totalPages = _totalPages(totalCount);
-                        final limit = int.tryParse(_selectedEntries) ?? 10;
-                        if (_currentPage > totalPages) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() => _currentPage = totalPages);
-                          });
-                        }
-                        final pagedList = _pagedLeads(allFiltered);
-
-                        // "Showing X to Y of Z entries"
-                        final showFrom = totalCount == 0
-                            ? 0
-                            : (_currentPage - 1) * limit + 1;
-                        final showTo = (showFrom + pagedList.length - 1).clamp(
-                          0,
-                          totalCount,
-                        );
-                        // Loaded with data
-                        if (state.listStatus == LeadListStatus.loaded) {
-                          return Column(
-                            children: [
-                              SizedBox(height: 2.w),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  left: 2.w,
-                                  bottom: 0.5.h,
                                 ),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 0.6.w,
-                                        right: 0.3.w,
-                                      ),
-                                      child: Container(
-                                        width: 8.5,
-                                        height: 8.5,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xffEF4444),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                    Text('High', style: AppTextStyle.small()),
-                                    SizedBox(width: 0.5.w),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 0.6.w,
-                                        right: 0.3.w,
-                                      ),
-                                      child: Container(
-                                        width: 8.5,
-                                        height: 8.5,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xff22C55E),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                    Text('Normal', style: AppTextStyle.small()),
-                                    SizedBox(width: 0.5.w),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 0.6.w,
-                                        right: 0.3.w,
-                                      ),
-                                      child: Container(
-                                        width: 8.5,
-                                        height: 8.5,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            226,
-                                            249,
-                                            22,
-                                          ),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                    Text('Low', style: AppTextStyle.small()),
-                                    SizedBox(width: 0.5.w),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 0.6.w,
-                                        right: 0.3.w,
-                                      ),
-                                      child: Container(
-                                        width: 8.5,
-                                        height: 8.5,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xff9CA3AF),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      'Negative',
-                                      style: AppTextStyle.small(),
-                                    ),
-                                    SizedBox(width: 0.5.w),
+                                CustomTable(
+                                  key: ValueKey(_tableKey),
+                                  height: 0,
+                                  minWidth: MediaQuery.of(context).size.width,
+                                  priorityColors: pagedList
+                                      .map(
+                                        (lead) =>
+                                            getPriorityColor(lead.priority),
+                                      )
+                                      .toList(),
+                                  getRowDestination: (rowIndex) {
+                                    final lead = pagedList[rowIndex];
+                                    return RoutePaths.followUpPath(
+                                      lead.id!,
+                                      "NEW",
+                                    );
+                                  },
+                                  onRowTap: (rowIndex) {
+                                    final lead = pagedList[rowIndex];
+                                    context.push(
+                                      RoutePaths.followUpPath(lead.id!, "NEW"),
+                                    );
+                                  },
+                                  columns: [
+                                    TableColumn(title: "Sl No.", flex: 1),
+                                    TableColumn(title: "  Name", flex: 4),
+                                    TableColumn(title: "Phone No", flex: 4),
+                                    TableColumn(title: "Category", flex: 4),
+                                    TableColumn(title: "Staff", flex: 4),
+                                    TableColumn(title: "Status", flex: 4),
+                                    TableColumn(title: "Created Date", flex: 4),
+                                    TableColumn(title: "Lead Source", flex: 4),
+                                    TableColumn(title: "Action", flex: 2),
                                   ],
-                                ),
-                              ),
-
-                              CustomTable(
-                                key: ValueKey(_tableKey),
-                                height: 0,
-                                minWidth: MediaQuery.of(context).size.width,
-                                priorityColors: pagedList
-                                    .map(
-                                      (lead) => getPriorityColor(lead.priority),
-                                    )
-                                    .toList(),
-                                getRowDestination: (rowIndex) {
-                                  final lead = pagedList[rowIndex];
-                                  return RoutePaths.followUpPath(
-                                    lead.id!,
-                                    "NEW",
-                                  );
-                                },
-                                onRowTap: (rowIndex) {
-                                  final lead = pagedList[rowIndex];
-                                  // log('Row $rowIndex tapped');
-                                  context.push(
-                                    RoutePaths.followUpPath(lead.id!, "NEW"),
-                                  );
-                                },
-                                columns: [
-                                  TableColumn(title: "Sl No.", flex: 1),
-                                  TableColumn(title: "  Name", flex: 4),
-                                  TableColumn(title: "Phone No", flex: 4),
-                                  TableColumn(title: "Category", flex: 4),
-                                  TableColumn(title: "Staff", flex: 4),
-                                  TableColumn(title: "Status", flex: 4),
-                                  TableColumn(title: "Created Date", flex: 4),
-                                  TableColumn(title: "Lead Source", flex: 4),
-                                  TableColumn(title: "Action", flex: 2),
-                                ],
-                                rows: pagedList.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final lead = entry.value;
-                                  final serial =
-                                      (_currentPage - 1) * limit + index + 1;
-                                  return [
-                                    Text(
-                                      '$serial',
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.clientName,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.contactNumber,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.leadSubCategory.isNotEmpty
-                                          ? '${lead.leadCategory} - ${lead.leadSubCategory}'
-                                          : lead.leadCategory,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.assignedStaff,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.leadStage,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.createdAt != null
-                                          ? DateFormat(
-                                              'dd-MM-yyyy',
-                                            ).format(lead.createdAt!)
-                                          : '-',
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Text(
-                                      lead.leadSource,
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        BrowserAwareLink(
-                                          destination: RoutePaths.followUpPath(
-                                            lead.id!,
-                                            "NEW",
+                                  rows: pagedList.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final lead = entry.value;
+                                    final serial =
+                                        (_currentPage - 1) * limit + index + 1;
+                                    return [
+                                      Text(
+                                        '$serial',
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.clientName,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.contactNumber,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.leadSubCategory.isNotEmpty
+                                            ? '${lead.leadCategory} - ${lead.leadSubCategory}'
+                                            : lead.leadCategory,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.assignedStaff,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.leadStage,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.createdAt != null
+                                            ? DateFormat(
+                                                'dd-MM-yyyy',
+                                              ).format(lead.createdAt!)
+                                            : '-',
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Text(
+                                        lead.leadSource,
+                                        style: AppTextStyle.medium(),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          BrowserAwareLink(
+                                            destination:
+                                                RoutePaths.followUpPath(
+                                                  lead.id!,
+                                                  "NEW",
+                                                ),
+                                            usePush: true,
+                                            enableInkWell: false,
+                                            child: Icon(
+                                              Icons.visibility_outlined,
+                                              size: 13.sp,
+                                              color: Colors.indigo,
+                                            ),
                                           ),
-                                          usePush: true,
-                                          enableInkWell: false,
-                                          child: Icon(
-                                            Icons.visibility_outlined,
-                                            size: 13.sp,
-                                            color: Colors.indigo,
+                                          SizedBox(width: 0.1.h),
+                                          BrowserAwareLink(
+                                            destination:
+                                                RoutePaths.leadEditPath(
+                                                  lead.id!,
+                                                ),
+                                            onTap: () async {
+                                              final didUpdate = await context
+                                                  .push<bool>(
+                                                    RoutePaths.leadEditPath(
+                                                      lead.id!,
+                                                    ),
+                                                  );
+                                              if (didUpdate == true &&
+                                                  context.mounted) {
+                                                context
+                                                    .read<AddLeadCubit>()
+                                                    .fetchLeads();
+                                              }
+                                            },
+                                            usePush: true,
+                                            enableInkWell: false,
+                                            child: Icon(
+                                              Icons.edit,
+                                              size: 14.sp,
+                                              color: Colors.blue,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 0.1.h),
-                                        BrowserAwareLink(
-                                          destination: RoutePaths.leadEditPath(
-                                            lead.id!,
+                                          SizedBox(width: 0.1.w),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _confirmDelete(context, lead),
+                                            child: Icon(
+                                              Icons.delete_outline,
+                                              size: 13.sp,
+                                              color: Colors.red,
+                                            ),
                                           ),
-                                          onTap: () async {
-                                            final didUpdate = await context
-                                                .push<bool>(
-                                                  RoutePaths.leadEditPath(
-                                                    lead.id!,
-                                                  ),
-                                                );
-                                            if (didUpdate == true &&
-                                                context.mounted) {
-                                              context
-                                                  .read<AddLeadCubit>()
-                                                  .fetchLeads();
-                                            }
-                                          },
-                                          usePush: true,
-                                          enableInkWell: false,
-                                          child: Icon(
-                                            Icons.edit,
-                                            size: 14.sp,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                        SizedBox(width: 0.1.w),
-                                        // ── DELETE ──
-                                        GestureDetector(
-                                          onTap: () =>
-                                              _confirmDelete(context, lead),
-                                          child: Icon(
-                                            Icons.delete_outline,
-                                            size: 13.sp,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ];
-                                }).toList(),
-                                showCheckboxes: true,
-                                // key: ValueKey(filteredList.length),
-                                onCheckChanged: (rowIndex, isChecked) {
-                                  setState(() {
-                                    if (isChecked) {
-                                      if (!_selectedIndices.contains(
-                                        rowIndex,
-                                      )) {
-                                        _selectedIndices.add(rowIndex);
+                                        ],
+                                      ),
+                                    ];
+                                  }).toList(),
+                                  showCheckboxes: true,
+                                  onCheckChanged: (rowIndex, isChecked) {
+                                    setState(() {
+                                      if (isChecked) {
+                                        if (!_selectedIndices.contains(
+                                          rowIndex,
+                                        )) {
+                                          _selectedIndices.add(rowIndex);
+                                        }
+                                      } else {
+                                        _selectedIndices.remove(rowIndex);
                                       }
-                                    } else {
-                                      _selectedIndices.remove(rowIndex);
-                                    }
-                                  });
-                                },
-                              ),
-
-                              /// 🔹 FOOTER
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
+                                    });
+                                  },
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Showing $showFrom to $showTo of $totalCount entries",
-                                      style: AppTextStyle.medium(
-                                        weight: FontWeight.w400,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2.w,
+                                    vertical: 1.5.h,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Showing $showFrom to $showTo of $totalCount entries",
+                                        style: AppTextStyle.medium(
+                                          weight: FontWeight.w400,
+                                        ),
                                       ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
+                                      Row(
+                                        children: [
+                                          PageButton(
+                                            label: 'Previous',
+                                            enabled: _currentPage > 1,
+                                            isLeft: true,
+                                            onTap: () => _goToPage(
+                                              _currentPage - 1,
+                                              totalCount,
+                                            ),
+                                          ),
+                                          ..._buildPageNumbers(
+                                            totalPages,
                                             totalCount,
                                           ),
-                                        ),
-                                        ..._buildPageNumbers(
-                                          totalPages,
-                                          totalCount,
-                                        ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
+                                          PageButton(
+                                            label: 'Next',
+                                            enabled: _currentPage < totalPages,
+                                            isRight: true,
+                                            onTap: () => _goToPage(
+                                              _currentPage + 1,
+                                              totalCount,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        }
+                              ],
+                            );
+                          },
+                        ),
+                        SizedBox(height: 2.h),
+                        BlocBuilder<AddLeadCubit, AddLeadState>(
+                          builder: (context, state) {
+                            final List<AddLeadModel> rawList =
+                                state.listStatus == LeadListStatus.loaded
+                                ? state.leads
+                                : [];
+                            final filteredList = _filteredLeads(rawList);
 
-                        return const SizedBox();
-                      },
-                    ),
-                    SizedBox(height: 2.h),
-                    BlocBuilder<AddLeadCubit, AddLeadState>(
-                      builder: (context, state) {
-                        final List<AddLeadModel> rawList =
-                            state.listStatus == LeadListStatus.loaded
-                            ? state.leads
-                            : [];
-                        final filteredList = _filteredLeads(rawList);
+                            if (filteredList.isEmpty)
+                              return const SizedBox.shrink();
 
-                        if (filteredList.isEmpty)
-                          return const SizedBox.shrink();
+                            final selectedLeads = _selectedIndices
+                                .where((i) => i < filteredList.length)
+                                .map((i) => filteredList[i])
+                                .toList();
 
-                        // 🔹 Map selected indices → actual lead objects
-                        final selectedLeads = _selectedIndices
-                            .where((i) => i < filteredList.length)
-                            .map((i) => filteredList[i])
-                            .toList();
-
-                        final hasSelection = selectedLeads.isNotEmpty;
-                        // final staff=state.assignedStaffName.map((e) => e.name).toList();
-                        return Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: hasSelection
-                                    ? () => _deleteSelectedLeads(selectedLeads)
-                                    : () => ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Please select at least one lead before deleting.',
-                                                style: AppTextStyle.medium(
-                                                  color: AppColors.white,
-                                                  weight: FontWeight.w400,
+                            final hasSelection = selectedLeads.isNotEmpty;
+                            return Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: hasSelection
+                                        ? () => _deleteSelectedLeads(
+                                            selectedLeads,
+                                          )
+                                        : () => ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Please select at least one lead before deleting.',
+                                                    style: AppTextStyle.medium(
+                                                      color: AppColors.white,
+                                                      weight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                  backgroundColor:
+                                                      AppColors.red,
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
                                                 ),
                                               ),
-                                              backgroundColor: AppColors.red,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 1.w,
-                                    vertical: 1.h,
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 1.w,
+                                        vertical: 1.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.red.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Icon(
+                                        Icons.delete_forever,
+                                        size: 14.sp,
+                                        color: AppColors.red,
+                                      ),
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.red.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Icon(
-                                    Icons.delete_forever,
-                                    size: 14.sp,
-                                    color: AppColors.red,
-                                  ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                        SizedBox(height: 2.h),
+                      ],
                     ),
-                    SizedBox(height: 2.h),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1467,6 +1618,15 @@ class _LeadsReportState extends State<LeadsReport> {
         ),
       ),
     ];
+  }
+
+  // ── Legend Dot ──────────────────────────────
+  Widget _legendDot(Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
   }
 
   // --------------export to excel----------------

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'package:sizer/sizer.dart';
@@ -8,6 +8,7 @@ class ShowEntries extends StatefulWidget {
   final ValueChanged<String>? onEntriesChanged;
   final String initialSearch;
   final String initialEntries;
+  final Widget? middleWidget;
 
   const ShowEntries({
     super.key,
@@ -15,6 +16,7 @@ class ShowEntries extends StatefulWidget {
     this.onEntriesChanged,
     this.initialSearch = '',
     this.initialEntries = '1',
+    this.middleWidget,
   });
 
   @override
@@ -89,6 +91,10 @@ class _ShowEntriesState extends State<ShowEntries> {
                   weight: FontWeight.w400,
                 ),
               ),
+              if (widget.middleWidget != null) ...[
+                SizedBox(width: 2.w),
+                widget.middleWidget!,
+              ],
             ],
           ),
 
