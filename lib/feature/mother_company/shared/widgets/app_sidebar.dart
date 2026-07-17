@@ -70,7 +70,7 @@ class AppSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 240,
+      width: 245,
       decoration: const BoxDecoration(
         color: AppThemeColors.sidebarBg,
         border: Border(
@@ -252,14 +252,14 @@ class _SidebarNavItem extends StatelessWidget {
             item.label,
             style: GoogleFonts.poppins(
               color: Colors.white,
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
           trailing: const Icon(
             Icons.chevron_right_rounded,
             color: Colors.white,
-            size: 18,
+            size: 16,
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,
@@ -287,11 +287,11 @@ class _SidebarNavItem extends StatelessWidget {
           item.label,
           style: GoogleFonts.poppins(
             color: AppThemeColors.sidebarInactiveText,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         hoverColor: AppThemeColors.scaffoldBg,
