@@ -407,16 +407,21 @@ class _AddLeadPageState extends State<AddLeadPage> {
     }
 
     final tag = _leadTag;
-    if (tag == null && _leadStage!.toUpperCase() == "REJECTED") {
+    if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
       _showError('Tag is required.');
       return;
     }
 
-    final callResult = _callResult;
-    if (callResult == null && _leadStage!.toUpperCase() == "REJECTED") {
+    if (_callResult == null && _leadStage!.toUpperCase() != "NEW") {
       _showError('Call Result is required.');
       return;
     }
+
+    // final callResult = _callResult;
+    // if (callResult == null && _leadStage!.toUpperCase() == "REJECTED") {
+    //   _showError('Call Result is required.');
+    //   return;
+    // }
 
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;

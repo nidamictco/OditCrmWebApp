@@ -17,6 +17,7 @@ import 'package:sizer/sizer.dart';
 
 import '../lead_managment/leads/cubit/add_lead_cubit.dart';
 import '../lead_managment/leads/cubit/add_lead_state.dart';
+import 'leads_migration_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -607,6 +608,59 @@ class _SkeletonCard extends StatelessWidget {
           const SizedBox(height: 8),
           Container(height: 24, width: 40, color: Colors.grey[200]),
         ],
+      ),
+    );
+  }
+}
+
+class MigrateLeadsButton extends StatefulWidget {
+  const MigrateLeadsButton({super.key});
+
+  @override
+  State<MigrateLeadsButton> createState() => _MigrateLeadsButtonState();
+}
+
+class _MigrateLeadsButtonState extends State<MigrateLeadsButton> {
+  bool isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: GestureDetector(
+        onTap: () => LeadsMigrationHelper.migrateLeads(context),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          height: 6.h,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isHovering
+                ? Colors.amber[800]
+                : Colors.amber[800]!.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.amber[800]!, width: 1),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.settings_backup_restore,
+                color: isHovering ? Colors.white : Colors.amber[800],
+                size: 2.5.h,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                "Migrate Leads",
+                style: AppTextStyle.small(
+                  color: isHovering ? Colors.white : Colors.amber[800],
+                  size: 11.sp,
+                  weight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

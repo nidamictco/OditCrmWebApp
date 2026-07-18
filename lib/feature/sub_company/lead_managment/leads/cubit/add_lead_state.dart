@@ -35,6 +35,7 @@ class AddLeadState {
   final String? selectedSubCategory;
 
   final List<LeadsModel> leadTag;
+  final bool tagMandatory; 
 
   // ── Form selections ───────────────────────────────────────────────────────
   final String? selectedCategory;
@@ -121,6 +122,7 @@ class AddLeadState {
     this.subCategories = const [],
     this.selectedSubCategory,
     this.leadTag=const [],
+    this.tagMandatory=false,
     this.staffList = const [],
     this.closedLeadCount = '0',
     this.newLeadCount = '0',
@@ -170,6 +172,7 @@ class AddLeadState {
     List<LeadsModel>? stages,
     List<LeadsModel>? subCategories,
     List<LeadsModel>? leadTag,
+    bool? tagMandatory,
     String? selectedSubCategory,
     String? selectedCategory,
     String? selectedSource,
@@ -243,6 +246,7 @@ class AddLeadState {
       stages: stages ?? this.stages,
       subCategories: subCategories ?? this.subCategories,
       leadTag: leadTag ?? this.leadTag, 
+      tagMandatory: tagMandatory ?? this.tagMandatory,
       selectedSubCategory: clearSubCategory
           ? null
           : (selectedSubCategory ?? this.selectedSubCategory),

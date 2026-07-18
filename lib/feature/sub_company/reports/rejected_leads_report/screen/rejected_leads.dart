@@ -1185,6 +1185,8 @@ import '../../../../../core/utils/table.dart';
 import '../../../lead_managment/leads/cubit/add_lead_cubit.dart';
 import '../../../lead_managment/leads/cubit/add_lead_state.dart';
 import '../../../lead_managment/leads/model/add_lead_model.dart';
+import '../../../rightside_menu/lead_stage/data/lead_tag_repo.dart';
+import '../../../rightside_menu/common_model/lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:go_router/go_router.dart';
@@ -1641,6 +1643,15 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                           final staffItems = state.staffList
                               .map((e) => e.name)
                               .toList();
+
+                          // Find the REJECTED lead stage from the loaded stages list
+                          final rejectedStage = state.stages
+                              .where(
+                                (s) =>
+                                    s.name.trim().toUpperCase() == 'REJECTED',
+                              )
+                              .firstOrNull;
+
                           const priorityItems = [
                             "High",
                             "Low",
@@ -1656,15 +1667,23 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                             "Rejected",
                             "Out of Coverage",
                           ];
-                          const rejectedReasonItems = [
-                            "Costly",
-                            "Not Interested",
-                            "Not Responding",
-                            "Wrong Lead",
-                            "Other",
-                          ];
-                          return Padding(
-                            padding: EdgeInsets.only(
+                          return StreamBuilder<List<LeadsModel>>(
+                            stream: rejectedStage != null
+                                ? LeadTagRepository(
+                                    tagId: rejectedStage.id,
+                                  ).watchLeadTags()
+                                : const Stream.empty(),
+                            builder: (context, tagSnapshot) {
+                              final rejectedReasonItems =
+                                  (tagSnapshot.data ?? [])
+                                      .map((tag) => tag.name.trim())
+                                      .where((name) => name.isNotEmpty)
+                                      .toSet()
+                                      .toList()
+                                    ..sort();
+
+                              return Padding(
+                                padding: EdgeInsets.only(
                               left: 2.w,
                               right: 2.w,
                               top: 2.w,
@@ -1851,6 +1870,8 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                 ),
                               ],
                             ),
+                          );
+                            },
                           );
                         },
                       ),

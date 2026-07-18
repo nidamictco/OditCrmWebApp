@@ -25,7 +25,7 @@ class DashboardPage extends StatelessWidget {
 
 class _DashboardView extends StatelessWidget {
   final VoidCallback? onViewAllTap;
-  const _DashboardView({this.onViewAllTap});
+  const _DashboardView({super.key, this.onViewAllTap});
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,12 +48,14 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> selectedSources = [];
   List<String> selectedPriorities = [];
   List<String> selectedLeadStages = [];
+  List<String> selectedSubCategories = [];
+  List<String> selectedTags = [];
   List<String> selectedStaff = [];
   List<String> selectedCreatedBy = [];
   List<String> selectedStates = [];
   List<String> selectedDistricts = [];
-  List<String> selectedSubCategories = [];
-  List<String> selectedTags = [];
+  // List<String> selectedSubCategories = [];
+  // List<String> selectedTags = [];
   List<String> selectedCallResults = [];
 
   String _searchQuery = '';
@@ -236,6 +240,8 @@ class _LeadsReportState extends State<LeadsReport> {
       selectedSources = [];
       selectedPriorities = [];
       selectedLeadStages = [];
+      selectedSubCategories = [];
+      selectedTags = [];
       selectedStaff = [];
       selectedCreatedBy = [];
       selectedStates = [];
@@ -252,6 +258,8 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedLeadStages = [];
       _appliedPriorities = [];
       _appliedSources = [];
+      _appliedTags = [];
+      _appliedSubCategories = [];
       _appliedStaff = [];
       _appliedCreatedBy = [];
       _appliedStates = [];
@@ -277,12 +285,14 @@ class _LeadsReportState extends State<LeadsReport> {
   List<String> _appliedLeadStages = [];
   List<String> _appliedPriorities = [];
   List<String> _appliedSources = [];
+  List<String> _appliedTags = [];
+  List<String> _appliedSubCategories = [];
   List<String> _appliedStaff = [];
   List<String> _appliedCreatedBy = [];
   List<String> _appliedStates = [];
   List<String> _appliedDistricts = [];
-  List<String> _appliedSubCategories = [];
-  List<String> _appliedTags = [];
+  // List<String> _appliedSubCategories = [];
+  // List<String> _appliedTags = [];
   List<String> _appliedCallResults = [];
   DateTime? _appliedFromDate;
   DateTime? _appliedToDate;
@@ -296,6 +306,8 @@ class _LeadsReportState extends State<LeadsReport> {
       _appliedLeadStages = List<String>.from(selectedLeadStages);
       _appliedPriorities = List<String>.from(selectedPriorities);
       _appliedSources = List<String>.from(selectedSources);
+      _appliedTags = List<String>.from(selectedTags);
+      _appliedSubCategories = List<String>.from(selectedSubCategories);
       _appliedStaff = List<String>.from(selectedStaff);
       _appliedCreatedBy = List<String>.from(selectedCreatedBy);
       _appliedStates = List<String>.from(selectedStates);
@@ -654,7 +666,11 @@ class _LeadsReportState extends State<LeadsReport> {
                         /// 🔹 FILTERS
                         BlocBuilder<AddLeadCubit, AddLeadState>(
                           builder: (context, state) {
+                            // ── Build dynamic lists from Firestore streams ──
                             final categoryItems = state.categories
+                                .map((e) => e.name)
+                                .toList();
+                            final subCategoryItems = state.subCategories
                                 .map((e) => e.name)
                                 .toList();
                             final sourceItems = state.sources
@@ -666,9 +682,11 @@ class _LeadsReportState extends State<LeadsReport> {
                             final staffItems = state.staffList
                                 .map((e) => e.name)
                                 .toList();
+                            // createdBy uses staff list too (same people create leads)
                             final createdByItems = state.staffList
                                 .map((e) => e.name)
                                 .toList();
+                            // Priority is still static (not stored in Firestore)
                             const priorityItems = [
                               "High",
                               "Low",

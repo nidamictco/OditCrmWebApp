@@ -134,7 +134,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
             Navigator.pop(ctx);
 
             await context.read<LeadStageCubit>().addCategory(
-              name: name,
+              name: name,tagMandatory: false
               // createdBy: '-',
             );
           },
@@ -506,6 +506,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                         RoutePaths.leadTagPath(
                                                           cat.name,
                                                           cat.id,
+                                                          cat.tagMandatory
                                                         ),
                                                     usePush: true,
                                                     enableInkWell: false,
@@ -524,6 +525,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                         RoutePaths.leadTagPath(
                                                           cat.name,
                                                           cat.id,
+                                                          cat.tagMandatory
                                                         ),
                                                     usePush: true,
                                                     enableInkWell: false,
@@ -533,6 +535,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                       color: Colors.lightGreen,
                                                     ),
                                                   ),
+                                                  SizedBox(width: 1.w),
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
                                                   onTap: () =>
