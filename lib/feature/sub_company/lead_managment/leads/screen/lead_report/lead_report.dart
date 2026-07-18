@@ -613,55 +613,55 @@ class _LeadsReportState extends State<LeadsReport> {
                     child: Column(
                       children: [
                         /// 🔹 TITLE BAR
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            vertical: 2.h,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Leads Report",
-                                style: AppTextStyle.medium(
-                                  size: 13.6.sp,
-                                  color: AppColors.black.withOpacity(0.77),
-                                  weight: FontWeight.w600,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  final leads = context
-                                      .read<AddLeadCubit>()
-                                      .state
-                                      .leads;
-                                  final filtered = _filteredLeads(
-                                    leads,
-                                  ); // exports only filtered data
-                                  exportLeadsToExcel(filtered, 'leads_report_');
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 1.4.w,
-                                    vertical: 1.2.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xffE5E7EB),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    "Export",
-                                    style: AppTextStyle.medium(
-                                      color: Colors.indigo[900],
-                                      weight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(color: AppColors.divider),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //     horizontal: 2.w,
+                        //     vertical: 2.h,
+                        //   ),
+                        //   child: Row(
+                        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //     children: [
+                        //       Text(
+                        //         "Leads Report",
+                        //         style: AppTextStyle.medium(
+                        //           size: 13.6.sp,
+                        //           color: AppColors.black.withOpacity(0.77),
+                        //           weight: FontWeight.w600,
+                        //         ),
+                        //       ),
+                        //       // GestureDetector(
+                        //       //   onTap: () {
+                        //       //     final leads = context
+                        //       //         .read<AddLeadCubit>()
+                        //       //         .state
+                        //       //         .leads;
+                        //       //     final filtered = _filteredLeads(
+                        //       //       leads,
+                        //       //     ); // exports only filtered data
+                        //       //     exportLeadsToExcel(filtered, 'leads_report_');
+                        //       //   },
+                        //       //   child: Container(
+                        //       //     padding: EdgeInsets.symmetric(
+                        //       //       horizontal: 1.4.w,
+                        //       //       vertical: 1.2.h,
+                        //       //     ),
+                        //       //     decoration: BoxDecoration(
+                        //       //       color: const Color(0xffE5E7EB),
+                        //       //       borderRadius: BorderRadius.circular(4),
+                        //       //     ),
+                        //       //     child: Text(
+                        //       //       "Export",
+                        //       //       style: AppTextStyle.medium(
+                        //       //         color: Colors.indigo[900],
+                        //       //         weight: FontWeight.w400,
+                        //       //       ),
+                        //       //     ),
+                        //       //   ),
+                        //       // ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // Divider(color: AppColors.divider),
 
                         /// 🔹 FILTERS
                         BlocBuilder<AddLeadCubit, AddLeadState>(
@@ -670,9 +670,9 @@ class _LeadsReportState extends State<LeadsReport> {
                             final categoryItems = state.categories
                                 .map((e) => e.name)
                                 .toList();
-                            final subCategoryItems = state.subCategories
-                                .map((e) => e.name)
-                                .toList();
+                            // final subCategoryItems = state.subCategories
+                            //     .map((e) => e.name)
+                            //     .toList();
                             final sourceItems = state.sources
                                 .map((e) => e.name)
                                 .toList();
@@ -1074,12 +1074,131 @@ class _LeadsReportState extends State<LeadsReport> {
 
                   SizedBox(height: 2.h),
 
+                  ShowEntries(
+                    initialSearch: _searchQuery,
+                    initialEntries: _selectedEntries,
+                    onSearchChanged: (v) => setState(() {
+                      _searchQuery = v;
+                      _resetPage();
+                    }),
+                    onEntriesChanged: (v) => setState(() {
+                      _selectedEntries = v;
+                      _resetPage();
+                    }),
+                    middleWidget: Container(
+                      height: 4.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.w,
+                        // vertical: 0.5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppThemeColors.appPrimaryColor,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: AppColors.divider),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _legendDot(const Color(0xffEF4444)),
+                          SizedBox(width: 0.3.w),
+                          Text(
+                            'High',
+                            style: AppTextStyle.small(
+                              size: 9.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 0.8.w),
+                          _legendDot(const Color(0xff22C55E)),
+                          SizedBox(width: 0.3.w),
+                          Text(
+                            'Normal',
+                            style: AppTextStyle.small(
+                              size: 9.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 0.8.w),
+                          _legendDot(const Color(0xffE2F916)),
+                          SizedBox(width: 0.3.w),
+                          Text(
+                            'Low',
+                            style: AppTextStyle.small(
+                              size: 9.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 0.8.w),
+                          _legendDot(const Color(0xff9CA3AF)),
+                          SizedBox(width: 0.3.w),
+                          Text(
+                            'Negative',
+                            style: AppTextStyle.small(
+                              size: 9.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    exportWidget: GestureDetector(
+                      onTap: () {
+                        final leads = context.read<AddLeadCubit>().state.leads;
+                        final filtered = _filteredLeads(
+                          leads,
+                        ); // exports only filtered data
+                        exportLeadsToExcel(filtered, 'leads_report_');
+                      },
+                      child: Container(
+                        height: 5.h,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 1.4.w,
+                          // vertical: 1.2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppThemeColors.appPrimaryColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            Text(
+                              "Export",
+                              style: AppTextStyle.medium(
+                                color: Colors.white,
+                                weight: FontWeight.w500,
+                                size: 11.sp,
+                              ),
+                            ),
+                            SizedBox(width: 0.3.w),
+                            Icon(
+                              Icons.file_download_outlined,
+                              color: Colors.white,
+                              size: 3.h,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+
                   // ── CARD 2: TABLE & DATA CARD ──────────────────────────────
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.divider),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0x14000000,
+                          ), // #00000014 (8% opacity)
+                          offset: const Offset(0, 1),
+                          blurRadius: 8,
+                          spreadRadius: 0,
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -1128,63 +1247,6 @@ class _LeadsReportState extends State<LeadsReport> {
 
                             return Column(
                               children: [
-                                ShowEntries(
-                                  initialSearch: _searchQuery,
-                                  initialEntries: _selectedEntries,
-                                  onSearchChanged: (v) => setState(() {
-                                    _searchQuery = v;
-                                    _resetPage();
-                                  }),
-                                  onEntriesChanged: (v) => setState(() {
-                                    _selectedEntries = v;
-                                    _resetPage();
-                                  }),
-                                  middleWidget: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 1.w,
-                                      vertical: 0.5.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.greyCard,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: AppColors.divider,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        _legendDot(const Color(0xffEF4444)),
-                                        SizedBox(width: 0.3.w),
-                                        Text(
-                                          'High',
-                                          style: AppTextStyle.small(size: 9.sp),
-                                        ),
-                                        SizedBox(width: 0.8.w),
-                                        _legendDot(const Color(0xff22C55E)),
-                                        SizedBox(width: 0.3.w),
-                                        Text(
-                                          'Normal',
-                                          style: AppTextStyle.small(size: 9.sp),
-                                        ),
-                                        SizedBox(width: 0.8.w),
-                                        _legendDot(const Color(0xffE2F916)),
-                                        SizedBox(width: 0.3.w),
-                                        Text(
-                                          'Low',
-                                          style: AppTextStyle.small(size: 9.sp),
-                                        ),
-                                        SizedBox(width: 0.8.w),
-                                        _legendDot(const Color(0xff9CA3AF)),
-                                        SizedBox(width: 0.3.w),
-                                        Text(
-                                          'Negative',
-                                          style: AppTextStyle.small(size: 9.sp),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                                 CustomTable(
                                   key: ValueKey(_tableKey),
                                   height: 0,
