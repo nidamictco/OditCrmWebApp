@@ -223,34 +223,34 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.all(1.5.w),
-                                child: TextField(
-                                  controller: _searchController,
-                                  style: AppTextStyle.small(
-                                    size: 11.sp,
-                                    color: AppColors.black,
-                                  ),
-                                  cursorHeight: 10.sp,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'Search...',
-                                    hintStyle: AppTextStyle.small(
-                                      size: 11.sp,
-                                      color: AppColors.grey,
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 10,
-                                    ),
-                                    visualDensity: VisualDensity.comfortable,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                  ),
-                                  onChanged: (_) => setPanelState(() {}),
-                                ),
-                              ),
+                              // Padding(
+                              //   padding: EdgeInsets.all(1.5.w),
+                              //   child: TextField(
+                              //     controller: _searchController,
+                              //     style: AppTextStyle.small(
+                              //       size: 11.sp,
+                              //       color: AppColors.black,
+                              //     ),
+                              //     cursorHeight: 10.sp,
+                              //     decoration: InputDecoration(
+                              //       isDense: true,
+                              //       hintText: 'Search...',
+                              //       hintStyle: AppTextStyle.small(
+                              //         size: 11.sp,
+                              //         color: AppColors.grey,
+                              //       ),
+                              //       contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 10,
+                              //         vertical: 10,
+                              //       ),
+                              //       visualDensity: VisualDensity.comfortable,
+                              //       border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(6),
+                              //       ),
+                              //     ),
+                              //     onChanged: (_) => setPanelState(() {}),
+                              //   ),
+                              // ),
 
                               // // ── Selected chips (inside the popup, always
                               // // in sync with widget.selectedValues) ────────
@@ -276,7 +276,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                               Divider(height: 1, color: AppColors.divider),
                               Padding(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
+                                  horizontal: 0.5.w,
                                   vertical: 0.6.h,
                                 ),
                                 child: Row(
@@ -299,21 +299,22 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                       style: AppTextStyle.small(
                                         size: 10.sp,
                                         color: AppColors.grey,
+                                        weight: FontWeight.w600,
                                       ),
                                     ),
-                                    InkWell(
-                                      onTap: _selected.isEmpty
-                                          ? null
-                                          : _clearAll,
-                                      child: Text(
-                                        'Clear All',
-                                        style: AppTextStyle.small(
-                                          size: 10.5.sp,
-                                          color: AppColors.red,
-                                          weight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
+                                    // InkWell(
+                                    //   onTap: _selected.isEmpty
+                                    //       ? null
+                                    //       : _clearAll,
+                                    //   child: Text(
+                                    //     'Clear All',
+                                    //     style: AppTextStyle.small(
+                                    //       size: 10.5.sp,
+                                    //       color: AppColors.red,
+                                    //       weight: FontWeight.w600,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -366,34 +367,34 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                                 ),
                                                 child: Row(
                                                   children: [
-                                                    SizedBox(
-                                                      width: 18,
-                                                      height: 18,
-                                                      child: Checkbox(
-                                                        value: isChecked,
-                                                        materialTapTargetSize:
-                                                            MaterialTapTargetSize
-                                                                .shrinkWrap,
-                                                        visualDensity:
-                                                            VisualDensity
-                                                                .compact,
-                                                        activeColor:
-                                                            Colors.white,
-                                                        checkColor:
-                                                            highlightColor,
-                                                        side: isChecked
-                                                            ? const BorderSide(
-                                                                color: Colors
-                                                                    .white,
-                                                              )
-                                                            : BorderSide(
-                                                                color: AppColors
-                                                                    .divider,
-                                                              ),
-                                                        onChanged: (_) =>
-                                                            _toggleItem(item),
-                                                      ),
-                                                    ),
+                                                    // SizedBox(
+                                                    //   width: 18,
+                                                    //   height: 18,
+                                                    //   child: Checkbox(
+                                                    //     value: isChecked,
+                                                    //     materialTapTargetSize:
+                                                    //         MaterialTapTargetSize
+                                                    //             .shrinkWrap,
+                                                    //     visualDensity:
+                                                    //         VisualDensity
+                                                    //             .compact,
+                                                    //     activeColor:
+                                                    //         Colors.white,
+                                                    //     checkColor:
+                                                    //         highlightColor,
+                                                    //     side: isChecked
+                                                    //         ? const BorderSide(
+                                                    //             color: Colors
+                                                    //                 .white,
+                                                    //           )
+                                                    //         : BorderSide(
+                                                    //             color: AppColors
+                                                    //                 .divider,
+                                                    //           ),
+                                                    //     onChanged: (_) =>
+                                                    //         _toggleItem(item),
+                                                    //   ),
+                                                    // ),
                                                     SizedBox(width: 2.w),
                                                     Expanded(
                                                       child: Text(
@@ -486,41 +487,41 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                             ),
                           )
                         : widget.showChips
-                            ? ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      for (
-                                        int i = 0;
-                                        i < _selected.length;
-                                        i++
-                                      ) ...[
-                                        if (i != 0) SizedBox(width: 1.w),
-                                        _SelectedChip(
-                                          label: _selected[i],
-                                          onRemove: () => _removeItem(_selected[i]),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: Text(
-                                  _selected.join(', '),
-                                  style: AppTextStyle.small(
-                                    size: 11.sp,
-                                    color: AppColors.black,
-                                    weight: FontWeight.w400,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                        ? ClipRect(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  for (
+                                    int i = 0;
+                                    i < _selected.length;
+                                    i++
+                                  ) ...[
+                                    if (i != 0) SizedBox(width: 1.w),
+                                    _SelectedChip(
+                                      label: _selected[i],
+                                      onRemove: () => _removeItem(_selected[i]),
+                                    ),
+                                  ],
+                                ],
                               ),
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              _selected.join(', '),
+                              style: AppTextStyle.small(
+                                size: 11.sp,
+                                color: AppColors.black,
+                                weight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                   ),
                   if (widget.showClear && _selected.isNotEmpty)
                     SizedBox(

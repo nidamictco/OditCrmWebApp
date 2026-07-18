@@ -578,7 +578,7 @@ class _LeadsReportState extends State<LeadsReport> {
             //   title: 'Lead Management',
             // ),
             Padding(
-              padding: EdgeInsets.all(2.w),
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
               child: Column(
                 children: [
                   // ── CARD 1: FILTERS CARD ───────────────────────────────────
@@ -733,7 +733,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Lead Stage",
                                           hint: 'select stage',
                                           showHelp: true,
