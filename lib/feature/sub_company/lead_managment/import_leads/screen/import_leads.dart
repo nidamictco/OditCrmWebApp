@@ -247,6 +247,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             showClear: false,
             hint: 'Select Lead Stage',
           ),
+         
           SizedBox(height: 2.h),
 
           DropdownWithAdd(
@@ -260,6 +261,16 @@ class _ImportLeadsState extends State<ImportLeads> {
             onChanged: cubit.selectCategory,
             onTap: () => _showAddCategoryDialog(),
           ),
+           if (state.subCategories.isNotEmpty) ...[
+  SizedBox(height: 2.h),
+  Dropdown(
+    label: 'Lead Sub Type',
+    hint: 'Select Lead Sub Type',
+    items: state.subCategories.map((e) => e.name).toList(),
+    selectedValue: state.selectedSubCategory,
+    onChanged: cubit.selectSubCategory,
+  ),
+],
           SizedBox(height: 2.h),
 
           // state.isLoading

@@ -36,6 +36,12 @@ class AddLeadState {
   final List<LeadsModel> leadTag;
   final bool tagMandatory; 
 
+  final String? selectedCategoryId;
+final String? selectedSourceId;
+final String? selectedLeadStageId; 
+final String? selectedLeadTagId;
+final String? selectedSubCategoryId;
+
   // ── Form selections ───────────────────────────────────────────────────────
   final String? selectedCategory;
   final String? selectedSource;
@@ -101,6 +107,11 @@ class AddLeadState {
     this.selectedCallResult,
     this.selectedLeadTag,
     this.selectedLeadStage,
+    this.selectedCategoryId,
+    this.selectedSourceId,
+    this.selectedLeadStageId,
+    this.selectedLeadTagId,
+    this.selectedSubCategoryId,
     this.selectedState,
     this.selectedDistrict,
     this.assignedStaffName = '',
@@ -161,6 +172,11 @@ class AddLeadState {
     String? selectedCallResult,
     String? selectedLeadTag,
     String? selectedLeadStage,
+    String? selectedCategoryId,
+    String? selectedSourceId,
+    String? selectedLeadStageId,
+    String? selectedLeadTagId,
+    String? selectedSubCategoryId,
     String? selectedState,
     String? selectedDistrict,
     String? assignedStaffName,
@@ -246,6 +262,22 @@ class AddLeadState {
       selectedLeadTag: clearLeadTag
           ? null
           : (selectedLeadTag ?? this.selectedLeadTag),
+      
+     selectedCategoryId: clearCategory
+    ? null
+    : (selectedCategoryId ?? this.selectedCategoryId),
+selectedSourceId: clearSource
+    ? null
+    : (selectedSourceId ?? this.selectedSourceId),
+selectedLeadStageId: clearLeadStage
+    ? null
+    : (selectedLeadStageId ?? this.selectedLeadStageId),
+selectedLeadTagId: clearLeadTag
+    ? null
+    : (selectedLeadTagId ?? this.selectedLeadTagId),
+selectedSubCategoryId: clearSubCategory
+    ? null
+    : (selectedSubCategoryId ?? this.selectedSubCategoryId),
       assignedStaffName: assignedStaffName ?? this.assignedStaffName,
       assignedStaffId: assignedStaffId ?? this.assignedStaffId,
       additionalFields: additionalFields ?? this.additionalFields,

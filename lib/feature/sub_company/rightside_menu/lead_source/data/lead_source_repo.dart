@@ -7,7 +7,7 @@ import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_m
 
 abstract class ILeadSourceRepository {
   Stream<List<LeadsModel>> watchSource();
-  Future<void> addSource({required String name, });
+  Future<String> addSource({required String name, });
   Future<void> updateSource({required String id, required String name});
   Future<void> deleteSource({required String id});
 }
@@ -38,7 +38,7 @@ Stream<List<LeadsModel>> watchSource() {
 
   /// 🔹 Add a new category
   @override
-  Future<void> addSource({
+  Future<String> addSource({
     required String name,
   }) async {
     final trimmedName = name.trim();
@@ -46,12 +46,13 @@ Stream<List<LeadsModel>> watchSource() {
       throw ArgumentError('Lead Source name cannot be empty.');
     }
     final StaffModel? user = await SessionService().getSavedUser();
-    await _collection.add({
+   final docRef= await _collection.add({
       'name': trimmedName,
       'createdBy': user?.name, 
       'idOfCreator': user?.id,
       'createdAt': FieldValue.serverTimestamp(),
     });
+    return docRef.id;
   } 
 
   /// 🔹 Update an existing category's name

@@ -15,6 +15,7 @@ abstract class IImportLeadsRepository {
   Future<List<LeadsModel>> fetchSources();
   Future<List<StaffModel>> fetchStaff();
   Future<List<LeadsModel>> fetchLeadStages();
+  Future<List<LeadsModel>> fetchSubCategories(String categoryId);
 
   // ✅ CHANGED: return type is now Map<String, int> instead of int
   Future<Map<String, int>> importFromCsv({
@@ -74,6 +75,22 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       rethrow;
     }
   }
+  @override
+Future<List<LeadsModel>> fetchSubCategories(String categoryId) async {
+  try {
+    final snap = await FirestorePath.companyCollection('LEADS CATEGORY')
+        .doc(categoryId)
+        .collection('SUB_CATEGORY')   // ← match your actual SubCategoryRepository path
+        .orderBy('createdAt', descending: false)
+        .get();
+    return snap.docs
+        .map((d) => LeadsModel.fromFirestore(d.data(), d.id))
+        .toList();
+  } catch (e, st) {
+    log('[ImportLeadsRepo] fetchSubCategories error: $e', stackTrace: st);
+    rethrow;
+  }
+}
 
   @override
   Future<List<LeadsModel>> fetchSources() async {
