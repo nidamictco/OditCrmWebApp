@@ -451,9 +451,7 @@ class _LeadsReportState extends State<LeadsReport> {
 
     // ── Lead Tag — stored as-is — match ANY selected ──────────────────────────
     if (_appliedTags.isNotEmpty) {
-      final tagSet = _appliedTags
-          .map((e) => e.trim().toLowerCase())
-          .toSet();
+      final tagSet = _appliedTags.map((e) => e.trim().toLowerCase()).toSet();
       result = result
           .where((l) => tagSet.contains(l.leadTag.trim().toLowerCase()))
           .toList();
@@ -465,7 +463,9 @@ class _LeadsReportState extends State<LeadsReport> {
           .map((e) => e.trim().toLowerCase())
           .toSet();
       result = result
-          .where((l) => subCatSet.contains(l.leadSubCategory.trim().toLowerCase()))
+          .where(
+            (l) => subCatSet.contains(l.leadSubCategory.trim().toLowerCase()),
+          )
           .toList();
     }
 
@@ -705,8 +705,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                           selectedSubCategories = [];
                                           _resetPage();
                                         });
-                                        final cubit =
-                                            context.read<AddLeadCubit>();
+                                        final cubit = context
+                                            .read<AddLeadCubit>();
                                         if (vals.length == 1) {
                                           // Exactly one category → start the
                                           // sub-category Firestore watcher.
@@ -737,8 +737,8 @@ class _LeadsReportState extends State<LeadsReport> {
                                           selectedTags = [];
                                           _resetPage();
                                         });
-                                        final cubit =
-                                            context.read<AddLeadCubit>();
+                                        final cubit = context
+                                            .read<AddLeadCubit>();
                                         if (vals.length == 1) {
                                           // Exactly one stage → start the
                                           // tag Firestore watcher.
@@ -752,63 +752,66 @@ class _LeadsReportState extends State<LeadsReport> {
                                   ),
                                 ],
                               ),
-// Show the dependent row when at least one watcher has data:
-// - Tag section appears only when exactly 1 stage is selected and tags exist.
-// - Sub Category section appears only when exactly 1 category is selected and sub-cats exist.
-if (selectedLeadStages.length == 1 && tagItems.isNotEmpty ||
-    selectedCategories.length == 1 && subCategoryItems.isNotEmpty)
-                              Column(
-                                children: [
-                                  SizedBox(height: 1.h),
-                                  Row(
-                                    children: [
-                                      Expanded(child: SizedBox()),
-                                      SizedBox(width: 2.w),
-                                      Expanded(child: SizedBox()),
-                                      SizedBox(width: 2.w),
-                                      if (selectedCategories.length == 1 &&
-                                          subCategoryItems.isNotEmpty)
-                                        Expanded(
-                                          child: MultiSelectDropdown(
-                                            label: "Lead Sub Category",
-                                            hint: 'select sub category',
-                                            items: subCategoryItems,
-                                            selectedValues: selectedSubCategories,
-                                            onChanged: (vals) {
-                                              setState(() {
-                                                selectedSubCategories = vals;
-                                                _resetPage();
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        const Expanded(child: SizedBox()),
-                                      SizedBox(width: 2.w),
-                                      if (selectedLeadStages.length == 1 &&
-                                          tagItems.isNotEmpty)
-                                        Expanded(
-                                          child: MultiSelectDropdown(
-                                            label: "Tag",
-                                            hint: 'select Tag',
-                                            items: tagItems,
-                                            selectedValues: selectedTags,
-                                            onChanged: (vals) {
-                                              setState(() {
-                                                selectedTags = vals;
-                                                _resetPage();
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        const Expanded(child: SizedBox()),
-                                      // SizedBox(width: 2.w),
-                                      
-                                    ],
-                                  ),
-                                ],
-                              ),
+                              // Show the dependent row when at least one watcher has data:
+                              // - Tag section appears only when exactly 1 stage is selected and tags exist.
+                              // - Sub Category section appears only when exactly 1 category is selected and sub-cats exist.
+                              if (selectedLeadStages.length == 1 &&
+                                      tagItems.isNotEmpty ||
+                                  selectedCategories.length == 1 &&
+                                      subCategoryItems.isNotEmpty)
+                                Column(
+                                  children: [
+                                    SizedBox(height: 1.h),
+                                    Row(
+                                      children: [
+                                        Expanded(child: SizedBox()),
+                                        SizedBox(width: 2.w),
+                                        Expanded(child: SizedBox()),
+                                        SizedBox(width: 2.w),
+                                        if (selectedCategories.length == 1 &&
+                                            subCategoryItems.isNotEmpty)
+                                          Expanded(
+                                            child: MultiSelectDropdown(
+                                              label: "Lead Sub Category",
+                                              hint: 'select sub category',
+                                              items: subCategoryItems,
+                                              selectedValues:
+                                                  selectedSubCategories,
+                                              onChanged: (vals) {
+                                                setState(() {
+                                                  selectedSubCategories = vals;
+                                                  _resetPage();
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          const Expanded(child: SizedBox()),
+                                        SizedBox(width: 2.w),
+                                        if (selectedLeadStages.length == 1 &&
+                                            tagItems.isNotEmpty)
+                                          Expanded(
+                                            child: MultiSelectDropdown(
+                                              label: "Tag",
+                                              hint: 'select Tag',
+                                              items: tagItems,
+                                              selectedValues: selectedTags,
+                                              onChanged: (vals) {
+                                                setState(() {
+                                                  selectedTags = vals;
+                                                  _resetPage();
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          const Expanded(child: SizedBox()),
+
+                                        // SizedBox(width: 2.w),
+                                      ],
+                                    ),
+                                  ],
+                                ),
 
                               SizedBox(height: 1.h),
 

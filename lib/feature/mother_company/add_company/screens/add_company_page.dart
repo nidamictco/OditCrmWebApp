@@ -45,7 +45,7 @@ class AddCompanyPage extends StatelessWidget {
 }
 
 class _AddCompanyView extends StatefulWidget {
-  const _AddCompanyView();
+  const _AddCompanyView({super.key});
 
   @override
   State<_AddCompanyView> createState() => _AddCompanyViewState();
@@ -126,19 +126,18 @@ class _AddCompanyViewState extends State<_AddCompanyView> {
               adminMobile: state.adminMobile,
             ),
           );
-        } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+        } else if (state.errorMessage != null &&
+            state.errorMessage!.isNotEmpty) {
           final rawMsg = state.errorMessage!;
           var friendlyMsg = rawMsg.startsWith('Exception: ')
               ? rawMsg.substring('Exception: '.length)
               : rawMsg;
           if (friendlyMsg.contains("Phone number already exists.")) {
-            friendlyMsg = "This phone number is already registered. Please use a different phone number.";
+            friendlyMsg =
+                "This phone number is already registered. Please use a different phone number.";
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(friendlyMsg),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(friendlyMsg), backgroundColor: Colors.red),
           );
         }
       },

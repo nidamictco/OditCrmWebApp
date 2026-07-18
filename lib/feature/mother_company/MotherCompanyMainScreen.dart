@@ -31,22 +31,22 @@ class _MotherCompanyMainScreenState extends State<MotherCompanyMainScreen> {
 
   void _navigateToPage(MotherCompanyPage page) {
     if (selectedPage == page) return;
-    if (page == MotherCompanyPage.dashboard) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    // if (page == MotherCompanyPage.dashboard) {
+    //   // Navigator.of(context).popUntil((route) => route.isFirst);
+    // } else {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MotherCompanyMainScreen(initialPage: page),
+        ),
+      );
     } else {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => MotherCompanyMainScreen(initialPage: page),
-          ),
-        );
-      } else {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => MotherCompanyMainScreen(initialPage: page),
-          ),
-        );
-      }
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MotherCompanyMainScreen(initialPage: page),
+        ),
+      );
+      // }
     }
   }
 
