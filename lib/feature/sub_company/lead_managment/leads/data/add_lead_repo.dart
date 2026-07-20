@@ -662,6 +662,9 @@ class AddLeadRepository implements IAddLeadRepository {
     if ((followUp.remarks ?? '').isNotEmpty) {
       leadUpdates['remarks'] = followUp.remarks;
     }
+    if((followUp.leadWhatsappNo ?? '').isNotEmpty) {
+      leadUpdates['whatsapp'] = followUp.leadWhatsappNo;
+    }
     batch.update(leadRef, leadUpdates);
 
     final now = DateTime.now();
