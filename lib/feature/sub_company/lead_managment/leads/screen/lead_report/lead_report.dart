@@ -14,7 +14,6 @@ import 'package:Odit_CRM/core/utils/page_button.dart';
 import 'package:Odit_CRM/core/utils/show_entries.dart';
 import 'package:Odit_CRM/core/utils/table.dart';
 import 'package:Odit_CRM/core/utils/tool_tips.dart';
-import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
@@ -721,7 +720,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           showClear: true,
                                           hint: 'select category',
                                           showHelp: true,
@@ -780,7 +779,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Priority",
                                           hint: 'select priority',
                                           items: priorityItems,
@@ -802,7 +801,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                     children: [
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Lead Source",
                                           hint: 'select source',
                                           showHelp: true,
@@ -821,7 +820,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Staff",
                                           hint: 'select staff',
                                           items: staffItems,
@@ -838,7 +837,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Created By",
                                           hint: 'select creator',
                                           items: createdByItems,
@@ -854,7 +853,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "State",
                                           hint: "select state",
                                           items: stateDistrictMap.keys.toList(),
@@ -879,7 +878,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       SizedBox(width: 2.w),
                                       Expanded(
                                         child: MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "District",
                                           hint: "select district",
                                           items: _availableDistricts(),
@@ -918,7 +917,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                           .toList();
                                       row3Cols.add(
                                         MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Lead Sub Category",
                                           hint: "select sub category",
                                           items: subCategoryItems,
@@ -939,7 +938,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                           .toList();
                                       row3Cols.add(
                                         MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Tag",
                                           hint: "select tag",
                                           items: tagItems,
@@ -957,7 +956,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                     if (showCallResult) {
                                       row3Cols.add(
                                         MultiSelectDropdown(
-                                          showChips: false,
+                                          showChips: true,
                                           label: "Call Result",
                                           hint: "select call result",
                                           items: const [
@@ -981,8 +980,9 @@ class _LeadsReportState extends State<LeadsReport> {
                                       );
                                     }
 
-                                    if (row3Cols.isEmpty)
+                                    if (row3Cols.isEmpty) {
                                       return const SizedBox.shrink();
+                                    }
 
                                     return Column(
                                       children: [
@@ -1028,7 +1028,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                           child: Text(
                                             "View Report",
                                             style: AppTextStyle.small(
-                                              size: 10.sp,
+                                              size: 11.sp,
                                               color: Colors.white,
                                               weight: FontWeight.w500,
                                             ),
@@ -1053,7 +1053,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                             child: Text(
                                               'Reset Filters',
                                               style: AppTextStyle.small(
-                                                size: 10.sp,
+                                                size: 11.sp,
                                                 color: Colors.white,
                                                 weight: FontWeight.w500,
                                               ),
@@ -1104,7 +1104,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'High',
                             style: AppTextStyle.small(
-                              size: 9.sp,
+                              size: 10.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -1114,7 +1114,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Normal',
                             style: AppTextStyle.small(
-                              size: 9.sp,
+                              size: 10.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -1124,7 +1124,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Low',
                             style: AppTextStyle.small(
-                              size: 9.sp,
+                              size: 10.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -1134,7 +1134,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Negative',
                             style: AppTextStyle.small(
-                              size: 9.sp,
+                              size: 10.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -1245,160 +1245,72 @@ class _LeadsReportState extends State<LeadsReport> {
                             final showTo = (showFrom + pagedList.length - 1)
                                 .clamp(0, totalCount);
 
+                            final selectedLeads = _selectedIndices
+                                .where((i) => i < allFiltered.length)
+                                .map((i) => allFiltered[i])
+                                .toList();
+
+                            final allPageIndices = List.generate(
+                              pagedList.length,
+                              (index) => (_currentPage - 1) * limit + index,
+                            );
+                            final isAllPageSelected =
+                                pagedList.isNotEmpty &&
+                                allPageIndices.every(
+                                  (idx) => _selectedIndices.contains(idx),
+                                );
+
                             return Column(
                               children: [
-                                CustomTable(
-                                  key: ValueKey(_tableKey),
-                                  height: 0,
-                                  minWidth: MediaQuery.of(context).size.width,
-                                  priorityColors: pagedList
-                                      .map(
-                                        (lead) =>
-                                            getPriorityColor(lead.priority),
-                                      )
-                                      .toList(),
-                                  getRowDestination: (rowIndex) {
-                                    final lead = pagedList[rowIndex];
-                                    return RoutePaths.followUpPath(
-                                      lead.id!,
-                                      "NEW",
-                                    );
+                                _ReportLeadsTable(
+                                  leads: pagedList,
+                                  selectedIndices: _selectedIndices,
+                                  currentPage: _currentPage,
+                                  limit: limit,
+                                  isAllSelected: isAllPageSelected,
+                                  onCheckChanged: (absoluteIndex) {
+                                    setState(() {
+                                      if (_selectedIndices.contains(
+                                        absoluteIndex,
+                                      )) {
+                                        _selectedIndices.remove(absoluteIndex);
+                                      } else {
+                                        _selectedIndices.add(absoluteIndex);
+                                      }
+                                    });
                                   },
-                                  onRowTap: (rowIndex) {
-                                    final lead = pagedList[rowIndex];
+                                  onToggleSelectAll: () {
+                                    setState(() {
+                                      if (isAllPageSelected) {
+                                        for (final idx in allPageIndices) {
+                                          _selectedIndices.remove(idx);
+                                        }
+                                      } else {
+                                        for (final idx in allPageIndices) {
+                                          if (!_selectedIndices.contains(idx)) {
+                                            _selectedIndices.add(idx);
+                                          }
+                                        }
+                                      }
+                                    });
+                                  },
+                                  onEdit: (lead) async {
+                                    final didUpdate = await context.push<bool>(
+                                      RoutePaths.leadEditPath(lead.id!),
+                                    );
+                                    if (didUpdate == true && context.mounted) {
+                                      context.read<AddLeadCubit>().fetchLeads();
+                                    }
+                                  },
+                                  onDelete: (lead) {
+                                    _confirmDelete(context, lead);
+                                  },
+                                  onTap: (lead) {
                                     context.push(
                                       RoutePaths.followUpPath(lead.id!, "NEW"),
                                     );
                                   },
-                                  columns: [
-                                    TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(title: "  Name", flex: 4),
-                                    TableColumn(title: "Phone No", flex: 4),
-                                    TableColumn(title: "Category", flex: 4),
-                                    TableColumn(title: "Staff", flex: 4),
-                                    TableColumn(title: "Status", flex: 4),
-                                    TableColumn(title: "Created Date", flex: 4),
-                                    TableColumn(title: "Lead Source", flex: 4),
-                                    TableColumn(title: "Action", flex: 2),
-                                  ],
-                                  rows: pagedList.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final lead = entry.value;
-                                    final serial =
-                                        (_currentPage - 1) * limit + index + 1;
-                                    return [
-                                      Text(
-                                        '$serial',
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.clientName,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.contactNumber,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.leadSubCategory.isNotEmpty
-                                            ? '${lead.leadCategory} - ${lead.leadSubCategory}'
-                                            : lead.leadCategory,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.assignedStaff,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.leadStage,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.createdAt != null
-                                            ? DateFormat(
-                                                'dd-MM-yyyy',
-                                              ).format(lead.createdAt!)
-                                            : '-',
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        lead.leadSource,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          BrowserAwareLink(
-                                            destination:
-                                                RoutePaths.followUpPath(
-                                                  lead.id!,
-                                                  "NEW",
-                                                ),
-                                            usePush: true,
-                                            enableInkWell: false,
-                                            child: Icon(
-                                              Icons.visibility_outlined,
-                                              size: 13.sp,
-                                              color: Colors.indigo,
-                                            ),
-                                          ),
-                                          SizedBox(width: 0.1.h),
-                                          BrowserAwareLink(
-                                            destination:
-                                                RoutePaths.leadEditPath(
-                                                  lead.id!,
-                                                ),
-                                            onTap: () async {
-                                              final didUpdate = await context
-                                                  .push<bool>(
-                                                    RoutePaths.leadEditPath(
-                                                      lead.id!,
-                                                    ),
-                                                  );
-                                              if (didUpdate == true &&
-                                                  context.mounted) {
-                                                context
-                                                    .read<AddLeadCubit>()
-                                                    .fetchLeads();
-                                              }
-                                            },
-                                            usePush: true,
-                                            enableInkWell: false,
-                                            child: Icon(
-                                              Icons.edit,
-                                              size: 14.sp,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                          SizedBox(width: 0.1.w),
-                                          GestureDetector(
-                                            onTap: () =>
-                                                _confirmDelete(context, lead),
-                                            child: Icon(
-                                              Icons.delete_outline,
-                                              size: 13.sp,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ];
-                                  }).toList(),
-                                  showCheckboxes: true,
-                                  onCheckChanged: (rowIndex, isChecked) {
-                                    setState(() {
-                                      if (isChecked) {
-                                        if (!_selectedIndices.contains(
-                                          rowIndex,
-                                        )) {
-                                          _selectedIndices.add(rowIndex);
-                                        }
-                                      } else {
-                                        _selectedIndices.remove(rowIndex);
-                                      }
-                                    });
-                                  },
+                                  getPriorityColor: getPriorityColor,
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(
@@ -1410,115 +1322,92 @@ class _LeadsReportState extends State<LeadsReport> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Showing $showFrom to $showTo of $totalCount entries",
+                                        "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
                                         style: AppTextStyle.medium(
-                                          weight: FontWeight.w400,
+                                          weight: FontWeight.w600,
+                                          color: const Color(0xff64748B),
+                                          size: 11.sp,
                                         ),
                                       ),
                                       Row(
                                         children: [
-                                          PageButton(
-                                            label: 'Previous',
+                                          _buildPaginationButton(
                                             enabled: _currentPage > 1,
-                                            isLeft: true,
                                             onTap: () => _goToPage(
                                               _currentPage - 1,
                                               totalCount,
                                             ),
+                                            child: const Icon(
+                                              Icons.chevron_left,
+                                              size: 16,
+                                              color: Color(0xff94A3B8),
+                                            ),
                                           ),
-                                          ..._buildPageNumbers(
+                                          ..._buildCustomPageNumbers(
                                             totalPages,
                                             totalCount,
                                           ),
-                                          PageButton(
-                                            label: 'Next',
+                                          _buildPaginationButton(
                                             enabled: _currentPage < totalPages,
-                                            isRight: true,
                                             onTap: () => _goToPage(
                                               _currentPage + 1,
                                               totalCount,
                                             ),
+                                            child: const Icon(
+                                              Icons.chevron_right,
+                                              size: 16,
+                                              color: Color(0xff94A3B8),
+                                            ),
                                           ),
+                                          if (selectedLeads.isNotEmpty) ...[
+                                            const SizedBox(width: 12),
+                                            GestureDetector(
+                                              onTap: () => _deleteSelectedLeads(
+                                                selectedLeads,
+                                              ),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 1.2.w,
+                                                  vertical: 0.8.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xffEF4444,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      "Selected Item",
+                                                      style:
+                                                          AppTextStyle.medium(
+                                                            color: Colors.white,
+                                                            weight:
+                                                                FontWeight.w500,
+                                                            size: 9.sp,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    const Icon(
+                                                      Icons.delete_outline,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                            );
-                          },
-                        ),
-                        SizedBox(height: 2.h),
-                        BlocBuilder<AddLeadCubit, AddLeadState>(
-                          builder: (context, state) {
-                            final List<AddLeadModel> rawList =
-                                state.listStatus == LeadListStatus.loaded
-                                ? state.leads
-                                : [];
-                            final filteredList = _filteredLeads(rawList);
-
-                            if (filteredList.isEmpty)
-                              return const SizedBox.shrink();
-
-                            final selectedLeads = _selectedIndices
-                                .where((i) => i < filteredList.length)
-                                .map((i) => filteredList[i])
-                                .toList();
-
-                            final hasSelection = selectedLeads.isNotEmpty;
-                            return Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: hasSelection
-                                        ? () => _deleteSelectedLeads(
-                                            selectedLeads,
-                                          )
-                                        : () => ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Please select at least one lead before deleting.',
-                                                    style: AppTextStyle.medium(
-                                                      color: AppColors.white,
-                                                      weight: FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                  backgroundColor:
-                                                      AppColors.red,
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  duration: const Duration(
-                                                    seconds: 2,
-                                                  ),
-                                                ),
-                                              ),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 1.w,
-                                        vertical: 1.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.red.withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Icon(
-                                        Icons.delete_forever,
-                                        size: 14.sp,
-                                        color: AppColors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             );
                           },
                         ),
@@ -1536,38 +1425,6 @@ class _LeadsReportState extends State<LeadsReport> {
   }
 
   /// ---------------- WIDGETS ----------------
-
-  Widget _radio(String text, bool selected, String message) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isCreatedDate = (text == 'Created Date');
-          _appliedIsCreatedDate = _isCreatedDate; // ✅ sync immediately
-        });
-        // ✅ re-apply filters so table updates right away
-        _applyFilters();
-      },
-      child: Row(
-        children: [
-          Icon(
-            selected ? Icons.radio_button_checked : Icons.radio_button_off,
-            size: 13.sp,
-            color: AppColors.green,
-          ),
-          SizedBox(width: 0.5.w),
-          Text(
-            text,
-            style: AppTextStyle.small(
-              size: 11.sp,
-              color: AppColors.black,
-              weight: FontWeight.w500,
-            ),
-          ),
-          ToolTipWidget(message: message),
-        ],
-      ),
-    );
-  }
 
   // ─── Delete confirmation dialog ────────────────────────────────────────────
 
@@ -1592,8 +1449,10 @@ class _LeadsReportState extends State<LeadsReport> {
           ),
           TextButton(
             onPressed: () async {
+              final cubit = context.read<AddLeadCubit>();
               Navigator.pop(dialogContext);
-              await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+              await cubit.deleteLead(lead.id!, lead);
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -1614,7 +1473,6 @@ class _LeadsReportState extends State<LeadsReport> {
               if (mounted) {
                 setState(() {
                   _selectedIndices.clear();
-                  _tableKey++;
                 });
               }
             },
@@ -1646,10 +1504,13 @@ class _LeadsReportState extends State<LeadsReport> {
           ),
           TextButton(
             onPressed: () async {
+              final cubit = context.read<AddLeadCubit>();
               for (final lead in selectedLeads) {
-                await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+                await cubit.deleteLead(lead.id!, lead);
               }
+              if (!dialogContext.mounted) return;
               Navigator.pop(dialogContext);
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -1668,7 +1529,7 @@ class _LeadsReportState extends State<LeadsReport> {
                 ),
               );
               setState(() => _selectedIndices = []);
-              context.read<AddLeadCubit>().fetchLeads();
+              cubit.fetchLeads();
             },
             child: Text("Delete", style: TextStyle(color: AppColors.red)),
           ),
@@ -1677,27 +1538,165 @@ class _LeadsReportState extends State<LeadsReport> {
     );
   }
 
-  // ── Page number chips ───────────────────────
-  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
+  Widget _buildPaginationButton({
+    required Widget child,
+    required bool enabled,
+    required VoidCallback onTap,
+    bool isActive = false,
+    bool hasBorder = true,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        decoration: BoxDecoration(
+          color: isActive
+              ? const Color(0xff002060)
+              : (enabled ? Colors.white : const Color(0xffF8FAFC)),
+          border: hasBorder
+              ? Border.all(
+                  color: isActive
+                      ? const Color(0xff002060)
+                      : const Color(0xffE2E8F0),
+                  width: 1,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
 
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
+  List<Widget> _buildCustomPageNumbers(int totalPages, int totalCount) {
+    final List<Widget> chips = [];
+
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == i,
+            enabled: _currentPage != i,
+            onTap: () => _goToPage(i, totalCount),
+            child: Text(
+              '$i',
+              style: AppTextStyle.medium(
+                color: _currentPage == i
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == i ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
           ),
+        );
+      }
+    } else {
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == 1,
+          enabled: _currentPage != 1,
+          onTap: () => _goToPage(1, totalCount),
           child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            '1',
+            style: AppTextStyle.medium(
+              color: _currentPage == 1 ? Colors.white : const Color(0xff334155),
+              weight: _currentPage == 1 ? FontWeight.w600 : FontWeight.w500,
+              size: 9.sp,
+            ),
           ),
         ),
-      ),
-    ];
+      );
+
+      if (_currentPage > 3) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      final start = (_currentPage - 1).clamp(2, totalPages - 1);
+      final end = (_currentPage + 1).clamp(2, totalPages - 1);
+
+      final List<int> middlePages = [];
+      for (int i = start; i <= end; i++) {
+        if (!middlePages.contains(i)) middlePages.add(i);
+      }
+      if (_currentPage <= 3) {
+        if (!middlePages.contains(2)) middlePages.add(2);
+        if (!middlePages.contains(3)) middlePages.add(3);
+      } else if (_currentPage >= totalPages - 2) {
+        if (!middlePages.contains(totalPages - 2))
+          middlePages.insert(0, totalPages - 2);
+        if (!middlePages.contains(totalPages - 1))
+          middlePages.insert(0, totalPages - 1);
+      }
+      middlePages.sort();
+
+      for (final p in middlePages) {
+        if (p == 1 || p == totalPages) continue;
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == p,
+            enabled: _currentPage != p,
+            onTap: () => _goToPage(p, totalCount),
+            child: Text(
+              '$p',
+              style: AppTextStyle.medium(
+                color: _currentPage == p
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == p ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (_currentPage < totalPages - 2) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == totalPages,
+          enabled: _currentPage != totalPages,
+          onTap: () => _goToPage(totalPages, totalCount),
+          child: Text(
+            '$totalPages',
+            style: AppTextStyle.medium(
+              color: _currentPage == totalPages
+                  ? Colors.white
+                  : const Color(0xff334155),
+              weight: _currentPage == totalPages
+                  ? FontWeight.w600
+                  : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return chips;
   }
 
   // ── Legend Dot ──────────────────────────────
@@ -1741,6 +1740,483 @@ class _LeadsReportState extends State<LeadsReport> {
               : '-',
         ),
       ],
+    );
+  }
+}
+
+class _ReportLeadsTable extends StatefulWidget {
+  final List<AddLeadModel> leads;
+  final List<int> selectedIndices;
+  final int currentPage;
+  final int limit;
+  final ValueChanged<int> onCheckChanged;
+  final VoidCallback onToggleSelectAll;
+  final bool isAllSelected;
+  final void Function(AddLeadModel lead) onEdit;
+  final void Function(AddLeadModel lead) onDelete;
+  final void Function(AddLeadModel lead) onTap;
+  final Color Function(String priority) getPriorityColor;
+
+  const _ReportLeadsTable({
+    required this.leads,
+    required this.selectedIndices,
+    required this.currentPage,
+    required this.limit,
+    required this.onCheckChanged,
+    required this.onToggleSelectAll,
+    required this.isAllSelected,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onTap,
+    required this.getPriorityColor,
+  });
+
+  @override
+  State<_ReportLeadsTable> createState() => _ReportLeadsTableState();
+}
+
+class _ReportLeadsTableState extends State<_ReportLeadsTable> {
+  final ScrollController _hScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _hScrollController.dispose();
+    super.dispose();
+  }
+
+  // Color _getStatusColor(String stage) {
+  //   switch (stage.trim().toLowerCase()) {
+  //     case 'new':
+  //       return const Color(0xff22C55E);
+  //     case 'reject':
+  //     case 'rejected':
+  //       return const Color(0xffEF4444);
+  //     case 'follow up':
+  //     case 'follow-up':
+  //       return const Color(0xff3B82F6);
+  //     default:
+  //       return const Color(0xff3B82F6);
+  //   }
+  // }
+  Color _getStatusColor(String stage) {
+    switch (stage.trim().toUpperCase()) {
+      case 'FOLLOWUP':
+        return const Color(0xFFF59E0B);
+      case 'NEW':
+        return const Color(0xFF10B981);
+      case 'TRANSFERRED':
+        return const Color(0xFF3B82F6);
+      case 'REJECTED':
+        return const Color(0xFFEF4444);
+      case 'CLOSED':
+        return const Color(0xFF0D31E8);
+      default:
+        return const Color(0xFF10B981);
+    }
+  }
+
+  Widget _buildRoundedCheckbox({
+    required bool value,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 18,
+        height: 18,
+        decoration: BoxDecoration(
+          color: value ? const Color(0xff10B981) : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: value ? const Color(0xff10B981) : const Color(0xffCBD5E1),
+            width: 1.5,
+          ),
+        ),
+        child: value
+            ? const Icon(Icons.check, size: 12, color: Colors.white)
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: Icon(icon, size: 13, color: color)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // local aliases so the rest of the build body is unchanged
+    final leads = widget.leads;
+    final selectedIndices = widget.selectedIndices;
+    final currentPage = widget.currentPage;
+    final limit = widget.limit;
+    final onCheckChanged = widget.onCheckChanged;
+    final onToggleSelectAll = widget.onToggleSelectAll;
+    final isAllSelected = widget.isAllSelected;
+    final onEdit = widget.onEdit;
+    final onDelete = widget.onDelete;
+    final onTap = widget.onTap;
+    final getPriorityColor = widget.getPriorityColor;
+
+    if (leads.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 6.h),
+        child: const Center(
+          child: Text(
+            "No data available in table",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final tableWidth = screenWidth > 1100 ? screenWidth - 4.w : 1100.0;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: .5.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xffE2E8F0)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Scrollbar(
+          controller: _hScrollController,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: _hScrollController,
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: tableWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Table Header
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xffF8FAFC),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 1.8.h,
+                      horizontal: 1.5.w,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            "No.",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.radio_button_unchecked,
+                                size: 12,
+                                color: Color(0xff94A3B8),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Name",
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff475569),
+                                  weight: FontWeight.w600,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Phone No.",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Category",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Staff",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Status",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Created Date",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            "Lead Source",
+                            style: AppTextStyle.medium(
+                              color: const Color(0xff475569),
+                              weight: FontWeight.w600,
+                              size: 11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Select All",
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff475569),
+                                  weight: FontWeight.w600,
+                                  size: 11.sp,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              _buildRoundedCheckbox(
+                                value: isAllSelected,
+                                onTap: onToggleSelectAll,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1, color: Color(0xffE2E8F0)),
+                  // Table Body
+                  ...List.generate(leads.length, (index) {
+                    final lead = leads[index];
+                    final serial = (currentPage - 1) * limit + index + 1;
+                    final absoluteIndex = (currentPage - 1) * limit + index;
+                    final isChecked = selectedIndices.contains(absoluteIndex);
+                    final priorityColor = getPriorityColor(lead.priority);
+
+                    return InkWell(
+                      onTap: () => onTap(lead),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 1.h,
+                          horizontal: 1.5.w,
+                        ),
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Color(0xffF1F5F9)),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                '$serial',
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: priorityColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      lead.clientName,
+                                      style: AppTextStyle.medium(
+                                        color: const Color(0xff0F172A),
+                                        weight: FontWeight.w400,
+                                        size: 11.sp,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.contactNumber,
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.leadSubCategory.isNotEmpty
+                                    ? '${lead.leadCategory} - ${lead.leadSubCategory}'
+                                    : lead.leadCategory,
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.assignedStaff,
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.leadStage,
+                                style: AppTextStyle.medium(
+                                  color: _getStatusColor(lead.leadStage),
+                                  weight: FontWeight.w500,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.createdAt != null
+                                    ? DateFormat(
+                                        'dd-MM-yyyy',
+                                      ).format(lead.createdAt!)
+                                    : '-',
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                lead.leadSource,
+                                style: AppTextStyle.medium(
+                                  color: const Color(0xff0F172A),
+                                  weight: FontWeight.w400,
+                                  size: 11.sp,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  _buildActionButton(
+                                    icon: Icons.edit_outlined,
+                                    color: const Color(0xff3B82F6),
+                                    onTap: () => onEdit(lead),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _buildActionButton(
+                                    icon: Icons.delete_outline,
+                                    color: const Color(0xffEF4444),
+                                    onTap: () => onDelete(lead),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _buildRoundedCheckbox(
+                                    value: isChecked,
+                                    onTap: () => onCheckChanged(absoluteIndex),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

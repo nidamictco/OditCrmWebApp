@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -40,16 +41,66 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
       if (!mounted) return;
       context.read<AddLeadCubit>().fetchDashboardCounts(today);
       context.read<AddLeadCubit>().fetchRecentActivities();
+      _loadUser();
     });
-    _loadUser();
   }
 
   Future<void> _loadUser() async {
     final user = await SessionService().getSavedUser();
+    // log("hghghghghghhgghhg wwww ${user?.toJson()}");
     if (mounted) {
       setState(() {
-        _isAdmin = user?.staffType?.toLowerCase() == 'admin';
+        _isAdmin = user?.designation?.toLowerCase() == 'company_admin';
       });
+    }
+  }
+
+  Future<void> addDesignationToSubCompanyUsers() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    try {
+      // Get only users where companyType == "sub_company"
+      final QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .collection('USERS')
+          .where('companyType', isEqualTo: 'sub_company')
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        print('No sub_company users found.');
+        return;
+      }
+
+      // Use batch to update all matching documents
+      WriteBatch batch = firestore.batch();
+
+      int operationCount = 0;
+
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {
+          'designation': 'Company_Admin',
+          'designationId': 'Company_Admin',
+        });
+
+        operationCount++;
+
+        // Commit every 500 operations
+        if (operationCount == 500) {
+          await batch.commit();
+
+          batch = firestore.batch();
+          operationCount = 0;
+        }
+      }
+
+      // Commit remaining updates
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+
+      print('Successfully updated ${snapshot.docs.length} sub_company users.');
+    } catch (e, stackTrace) {
+      print('Error updating users: $e');
+      print(stackTrace);
     }
   }
 
@@ -77,6 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     final addLeadCubit = context.read<AddLeadCubit>();
+    log("ghgghghhhhgh ${_isAdmin}");
 
     return Scaffold(
       backgroundColor: AppThemeColors.scaffoldBg,

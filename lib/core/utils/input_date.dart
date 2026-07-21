@@ -252,14 +252,14 @@ class _InputDateState extends State<InputDate> {
                       child: Icon(Icons.clear, size: 16, color: AppColors.grey),
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(right: 0.5.w),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: AppColors.grey,
-                    size: 18,
-                  ),
-                ),
+                // Padding(
+                //   padding: EdgeInsets.only(right: 0.5.w),
+                //   child: Icon(
+                //     Icons.keyboard_arrow_down,
+                //     color: AppColors.grey,
+                //     size: 18,
+                //   ),
+                // ),
               ],
             ),
           ),
