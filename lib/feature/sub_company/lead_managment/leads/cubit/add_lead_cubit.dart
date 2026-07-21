@@ -20,6 +20,7 @@ import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'package:intl/intl.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/models/follow_up_activities_model.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
@@ -1261,6 +1262,48 @@ void selectLeadTag(String? value) {
         'total=${counts.totalCalledCount} totalCalled=$totalCalled',
       );
 
+      String subscriptionPlan = 'ACTIVE PACKAGE';
+      String startDateStr = '';
+      String endDateStr = '';
+      String userCountStr = '0';
+
+      final userRole = role ?? user.staffType ?? '';
+      if (userRole.toLowerCase() == 'admin') {
+        final companyId = user.companyId ?? '';
+        if (companyId.isNotEmpty) {
+          try {
+            final companySnap = await FirebaseFirestore.instance
+                .collection('COMPANY')
+                .doc(companyId)
+                .get();
+
+            if (companySnap.exists) {
+              final data = companySnap.data();
+              final plan = data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE';
+              subscriptionPlan = plan.toUpperCase();
+
+              final startTs = data?['subscriptionStartDate'] as Timestamp?;
+              final endTs = data?['subscriptionEndDate'] as Timestamp?;
+              if (startTs != null) {
+                startDateStr = DateFormat('dd-MM-yyyy').format(startTs.toDate());
+              }
+              if (endTs != null) {
+                endDateStr = DateFormat('dd-MM-yyyy').format(endTs.toDate());
+              }
+            }
+
+            final staffSnap = await FirebaseFirestore.instance
+                .collection('COMPANY')
+                .doc(companyId)
+                .collection('STAFF')
+                .get();
+            userCountStr = staffSnap.docs.length.toString();
+          } catch (e) {
+            log('[fetchDashboardCounts] Error loading company info: $e');
+          }
+        }
+      }
+
       emit(
         state.copyWith(
           isLoadingCounts: false,
@@ -1271,6 +1314,10 @@ void selectLeadTag(String? value) {
           dashboardTotalCalledCount: totalCalled.toString(),
           missedLeadCount: counts.missedLeadCount.toString(),
           transferredCount: counts.transferredCount.toString(),
+          subscriptionPlan: subscriptionPlan,
+          subscriptionStartDate: startDateStr,
+          subscriptionEndDate: endDateStr,
+          companyUserCount: userCountStr,
         ),
       );
       log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
@@ -1512,6 +1559,37 @@ void selectLeadTag(String? value) {
         clearPriority: true,
       ),
     );
+  }
+
+  Future<void> fetchRecentActivities() async {
+    emit(state.copyWith(isLoadingActivities: true));
+    try {
+      final user = await SessionService().getSavedUser();
+      if (user == null) {
+        emit(state.copyWith(isLoadingActivities: false));
+        return;
+      }
+      final role = user.staffType ?? '';
+      final staffId = user.id ?? '';
+
+      final activities = await _leadRepository.fetchRecentActivities(
+        staffId: staffId,
+        role: role,
+        limit: 5,
+      );
+
+      emit(state.copyWith(
+        isLoadingActivities: false,
+        recentActivities: activities,
+        clearError: true,
+      ));
+    } catch (e) {
+      log('[AddLeadCubit] Error fetching recent activities: $e');
+      emit(state.copyWith(
+        isLoadingActivities: false,
+        activityError: e.toString(),
+      ));
+    }
   }
 }
 

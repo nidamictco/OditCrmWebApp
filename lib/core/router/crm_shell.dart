@@ -1,12 +1,10 @@
 // lib/core/router/crm_shell.dart
 
-import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sizer/sizer.dart';
 
 import '../theme/app_colors.dart';
 import 'route_paths.dart';
@@ -15,7 +13,6 @@ import 'route_paths.dart';
 import '../../feature/sub_company/sidebar/sidebar_item.dart';
 import '../../feature/sub_company/sidebar/widget/mini_sidebar.dart';
 import '../../feature/sub_company/sidebar/widget/top_bar.dart';
-import '../../feature/sub_company/sidebar/widget/bottom_bar.dart';
 
 // Cubits and resources
 import '../../feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
@@ -102,9 +99,11 @@ class _CrmShellState extends State<CrmShell> {
     if (path == RoutePaths.scheduledReport) return 24;
     if (path == RoutePaths.rejectedReport) return 25;
     if (path == RoutePaths.outgoingCallHistory) return 26;
-    if (path.startsWith('/designations/') && path.endsWith('/permissions')) return 27;
+    if (path.startsWith('/designations/') && path.endsWith('/permissions'))
+      return 27;
     if (path == RoutePaths.cloudCallSettings) return 28;
-    if (path.startsWith('/staff/') && path.endsWith('/change_password')) return 32;
+    if (path.startsWith('/staff/') && path.endsWith('/change_password'))
+      return 32;
     if (path.startsWith('/staff/')) return 29;
     if (path == RoutePaths.timeline) return 30;
     if (path.startsWith('/follow_up/')) return 31;
@@ -198,17 +197,21 @@ class _CrmShellState extends State<CrmShell> {
             children: [
               // ── SIDEBAR ────────────────────────────────────────────────
               SizedBox(
-                width: isSidebarOpen ? 250 : 70,
+                width: isSidebarOpen ? 225 : 70,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   child: isSidebarOpen
                       ? SidebarItem(
                           selectedIndex: selectedIndex,
-                          onItemSelected: (idx) => _onItemSelected(context, idx),
+                          onItemSelected: (idx) =>
+                              _onItemSelected(context, idx),
+                          onBackArrowTap: toggleSidebar,
                         )
                       : MiniSidebar(
                           selectedIndex: selectedIndex,
-                          onItemSelected: (idx) => _onItemSelected(context, idx),
+                          onItemSelected: (idx) =>
+                              _onItemSelected(context, idx),
+                          onBackArrowTap: toggleSidebar,
                         ),
                 ),
               ),
@@ -238,7 +241,7 @@ class _CrmShellState extends State<CrmShell> {
                         ),
                       ),
                     ),
-                    const BottomBar(),
+                    // const BottomBar(),
                   ],
                 ),
               ),

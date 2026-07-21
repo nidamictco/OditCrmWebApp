@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/router/browser_aware_link.dart';
 
@@ -37,7 +37,6 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
   bool _popupHovered = false;
   int? _hoveredChildIndex;
 
-  // Only called when isExpandable == true
   void _showOverlay() {
     if (_overlayEntry != null) return;
 
@@ -97,7 +96,7 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: const BoxDecoration(
-                color: AppColors.primary,
+                color: Color(0xff002b66),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
@@ -109,7 +108,7 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                   const SizedBox(width: 10),
                   Text(
                     widget.title,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -124,7 +123,9 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                 return StatefulBuilder(
                   builder: (context, setChildState) {
                     final isHovered = _hoveredChildIndex == index;
-                    final childDest = widget.destinations != null && index < widget.destinations!.length
+                    final childDest =
+                        widget.destinations != null &&
+                            index < widget.destinations!.length
                         ? widget.destinations![index]
                         : '';
                     return MouseRegion(
@@ -151,12 +152,12 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                           ),
                           decoration: BoxDecoration(
                             color: isHovered
-                                ? AppColors.primary.withOpacity(0.08)
+                                ? const Color(0xff002b66).withOpacity(0.08)
                                 : Colors.transparent,
                             border: Border(
                               left: BorderSide(
                                 color: isHovered
-                                    ? AppColors.primary
+                                    ? const Color(0xff002b66)
                                     : Colors.transparent,
                                 width: 3,
                               ),
@@ -164,13 +165,13 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
                           ),
                           child: Text(
                             widget.children![index],
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               fontSize: 13,
                               fontWeight: isHovered
                                   ? FontWeight.w600
                                   : FontWeight.w400,
                               color: isHovered
-                                  ? AppColors.primary
+                                  ? const Color(0xff002b66)
                                   : Colors.black87,
                             ),
                           ),
@@ -192,52 +193,44 @@ class _HoverSidebarItemState extends State<HoverSidebarItem> {
   Widget build(BuildContext context) {
     final container = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      height: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      height: 44,
+      width: 44,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: widget.isSelected
-            ? AppColors.primary.withOpacity(0.12)
+            ? const Color(0xff002b66)
             : _iconHovered
-                ? AppColors.primary.withOpacity(0.07)
-                : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        border: widget.isSelected
-            ? Border.all(
-                color: AppColors.primary.withOpacity(0.25), width: 1)
-            : null,
+            ? const Color(0xff002b66).withOpacity(0.08)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
       child: Icon(
         widget.icon,
-        size: 22,
+        size: 20,
         color: widget.isSelected
-            ? AppColors.primary
+            ? Colors.white
             : _iconHovered
-                ? AppColors.primary
-                : Colors.grey[600],
+            ? const Color(0xff002b66)
+            : Colors.grey[600],
       ),
     );
 
     return MouseRegion(
       onEnter: (_) {
         setState(() => _iconHovered = true);
-        // Only show overlay popup for expandable items
         if (widget.isExpandable) {
           _showOverlay();
         }
       },
       onExit: (_) {
         setState(() => _iconHovered = false);
-        // Only attempt to hide overlay for expandable items
         if (widget.isExpandable) {
           _maybeHide();
         }
       },
       child: widget.isExpandable
-          ? GestureDetector(
-              onTap: widget.onTap,
-              child: container,
-            )
+          ? GestureDetector(onTap: widget.onTap, child: container)
           : BrowserAwareLink(
               destination: widget.destination ?? '',
               onTap: widget.onTap,

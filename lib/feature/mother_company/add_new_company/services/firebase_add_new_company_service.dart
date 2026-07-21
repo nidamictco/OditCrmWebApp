@@ -49,6 +49,8 @@ class FirebaseAddNewCompanyService {
       "companyId": companyId,
       "companyType": "sub_company",
       "staffType": "Admin",
+      "designation": 'Company_Admin',
+      "designationId": "Company_Admin",
       "status": "Active",
       "createdAt": FieldValue.serverTimestamp(),
     });

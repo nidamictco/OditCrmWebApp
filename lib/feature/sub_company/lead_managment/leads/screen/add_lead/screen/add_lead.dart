@@ -1,23 +1,23 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
-import 'package:Odit_CRM/core/utils/dropdown.dart';
 import 'package:Odit_CRM/core/utils/indian_location_service.dart';
-import 'package:Odit_CRM/core/utils/menu_hover_bottun.dart';
 import 'package:Odit_CRM/core/utils/popup_msg.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
-import 'package:Odit_CRM/core/utils/dropdown_with_add.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
@@ -100,6 +100,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   String? _leadSource;
   String? _leadCategory;
   String? _leadSubCategory;
+
   String? _leadPriority;
   String? _callResult;
   String? _leadTag;
@@ -406,13 +407,13 @@ class _AddLeadPageState extends State<AddLeadPage> {
       }
     }
 
-final tag = _leadTag;
-if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
-  _showError('Tag is required.');
-  return;
-}
+    final tag = _leadTag;
+    if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
+      _showError('Tag is required.');
+      return;
+    }
 
-    if(_callResult == null &&  (_leadStage ?? '').toUpperCase() != "NEW"){
+    if (_callResult == null && _leadStage!.toUpperCase() != "NEW") {
       _showError('Call Result is required.');
       return;
     }
@@ -659,15 +660,14 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
             ),
           },
           child: Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: AppThemeColors.scaffoldBg,
             body: Column(
               children: [
-                _buildHeader(),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        SizedBox(height: 2.h),
+                        // SizedBox(height: 2.h),
 
                         // ── Customer Details ────────────────────────────────
                         Padding(
@@ -747,13 +747,13 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
 
   Widget _buildCustomerDetails() {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
-      //buildWhen: (p, c) =>
-      //     p.selectedState != c.selectedState ||
-      //     p.selectedDistrict != c.selectedDistrict,
       builder: (context, state) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Row 1: Client Name, Contact Number, Whatsapp Number, Email
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _field(
@@ -763,9 +763,10 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     controller: _clientNameCtrl,
                     focusNode: _clientNameFocus,
                     nextFocusNode: _contactFocus,
+                    hint: 'Enter full name',
                   ),
                 ),
-                SizedBox(width: 2.w),
+                SizedBox(width: 1.5.w),
                 Expanded(
                   child: _phoneField(
                     'Contact Number',
@@ -776,13 +777,16 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     nextFocusNode: _whatsappFocus,
                     onDialCodeChanged: (c) =>
                         setState(() => _contactDialCode = c),
+                    initialDialCode: _contactDialCode,
+                    hint: 'Enter number',
+                    suffixIcon: const Icon(
+                      Icons.call_outlined,
+                      size: 15,
+                      color: Color(0xFF0F3661),
+                    ),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 1.5.h),
-            Row(
-              children: [
+                SizedBox(width: 1.5.w),
                 Expanded(
                   child: _phoneField(
                     'Whatsapp Number',
@@ -793,31 +797,32 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     nextFocusNode: _emailFocus,
                     onDialCodeChanged: (c) =>
                         setState(() => _whatsappDialCode = c),
+                    initialDialCode: _whatsappDialCode,
+                    suffixIcon: Image.asset(
+                      AssetResources.whatsapp_dark,
+                      // scale: 3,
+                    ),
                   ),
                 ),
-                SizedBox(width: 2.w),
+                SizedBox(width: 1.5.w),
                 Expanded(
                   child: _field(
-                    'Email',
+                    'Email Address',
                     false,
                     Icons.email_outlined,
                     controller: _emailCtrl,
                     focusNode: _emailFocus,
                     nextFocusNode: _addressFocus,
+                    hint: 'example@gmail.com',
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 1.5.h),
-            _multilineField(
-              'Address',
-              Icons.location_on_outlined,
-              controller: _addressCtrl,
-              focusNode: _addressFocus,
-              nextFocusNode: _pinFocus,
-            ),
-            SizedBox(height: 1.5.h),
+            SizedBox(height: 2.h),
+
+            // Row 2: Pin Code, Post Office, State, District
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _field(
@@ -832,9 +837,10 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     controller: _pinCtrl,
                     focusNode: _pinFocus,
                     nextFocusNode: _postOfficeFocus,
+                    hint: 'Enter code',
                   ),
                 ),
-                SizedBox(width: 1.w),
+                SizedBox(width: 1.5.w),
                 Expanded(
                   child: _field(
                     'Post Office',
@@ -843,28 +849,20 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     controller: _postOfficeCtrl,
                     focusNode: _postOfficeFocus,
                     nextFocusNode: _stateFocus,
+                    hint: 'Enter number',
                   ),
                 ),
-                SizedBox(width: 1.w),
-                // Expanded(
-                //   child: Dropdown(
-                //     showIcon: true,
-                //     icon: Icons.location_on_outlined,
-                //     items: stateDistrictMap.keys.toList(),
-                //     selectedValue: state.selectedState,
-                //     onChanged: (v) =>
-                //         context.read<AddLeadCubit>().selectState(v),
-                //     label: 'State',
-                //     hint: 'Select State',
-                //   ),
-                // ),
-                // In AddLeadPage — wrap state dropdown to show loading state
+                SizedBox(width: 1.5.w),
                 Expanded(
                   child: stateDistrictMap.isEmpty
                       ? Container(
-                          height: 5.h,
-                          decoration: _box(),
-                          child: Center(
+                          height: 5.2.h,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: const Color(0xFFCBD5E1)),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                          ),
+                          child: const Center(
                             child: SizedBox(
                               width: 14,
                               height: 14,
@@ -875,7 +873,7 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                             ),
                           ),
                         )
-                      : Dropdown(
+                      : _CustomDropdown(
                           showIcon: true,
                           icon: Icons.location_on_outlined,
                           items: stateDistrictMap.keys.toList(),
@@ -886,11 +884,12 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                               context.read<AddLeadCubit>().selectState(v),
                           label: 'State',
                           hint: 'Select State',
+                          showClear: true,
                         ),
                 ),
-                SizedBox(width: 1.w),
+                SizedBox(width: 1.5.w),
                 Expanded(
-                  child: Dropdown(
+                  child: _CustomDropdown(
                     showIcon: true,
                     icon: Icons.location_on_outlined,
                     items: state.selectedState == null
@@ -899,7 +898,6 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     selectedValue: state.selectedDistrict,
                     enabled: state.selectedState != null,
                     focusNode: _districtFocus,
-
                     nextFocusNode:
                         (!_isEditMode &&
                             _currentUser != null &&
@@ -910,9 +908,21 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                         context.read<AddLeadCubit>().selectDistrict(v),
                     label: 'District',
                     hint: 'Select District',
+                    showClear: true,
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 2.h),
+
+            // Row 3: Address
+            _multilineField(
+              'Address',
+              Icons.location_on_outlined,
+              controller: _addressCtrl,
+              focusNode: _addressFocus,
+              nextFocusNode: _pinFocus,
+              hint: 'Enter detailed address',
             ),
           ],
         );
@@ -929,9 +939,9 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
-        final columnSpacing = 2.w;
-        const rowSpacing = 12.0;
+        final crossAxisCount = constraints.maxWidth >= 600 ? 4 : 1;
+        final columnSpacing = 1.5.w;
+        const rowSpacing = 16.0;
 
         final fieldWidgets = fields.map((field) {
           final id = field.id ?? field.fieldName;
@@ -972,7 +982,7 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
             ),
           );
           if (i + crossAxisCount < fieldWidgets.length) {
-            rows.add(SizedBox(height: rowSpacing));
+            rows.add(const SizedBox(height: rowSpacing));
           }
         }
 
@@ -999,415 +1009,391 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
         final staffList = state.staffList;
         final staffNames = staffList.map((s) => s.name).toList();
 
-        return _isEditMode
-            ? Column(
+        if (_isEditMode) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Dropdown(
-                          label: 'Lead Category',
-                          hint: 'Select Lead Category',
-                          items: categoryNames,
-                          selectedValue: state.selectedCategory,
-                          focusNode: _categoryFocus,
-                          nextFocusNode: _sourceFocus,
-                          onChanged: (v) =>
-                              context.read<AddLeadCubit>().selectCategory(v),
-                        ),
-                      ),
-                      SizedBox(width: 1.w),
-                      Expanded(
-                        child: Dropdown(
-                          label: 'Lead Source',
-                          hint: 'Select Lead Source',
-                          items: sourceNames,
-                          selectedValue: state.selectedSource,
-                          focusNode: _sourceFocus,
-                          nextFocusNode: _priorityFocus,
-                          onChanged: (v) =>
-                              context.read<AddLeadCubit>().selectSource(v),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 1.5.h),
-                  if (state.subCategories.isNotEmpty)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Dropdown(
-                            label: 'Lead Sub Type',
-                            hint: 'Select Lead Sub Type',
-                            items: subCategoryName,
-                            selectedValue: state.selectedSubCategory,
-                            focusNode: _subCategoryFocus,
-                            nextFocusNode: _priorityFocus,
-                            onChanged: (v) => context
-                                .read<AddLeadCubit>()
-                                .selectSubCategory(v),
-                          ),
-                        ),
-                        SizedBox(width: 1.w),
-                        Expanded(child: SizedBox()),
-                      ],
+                  Expanded(
+                    child: _CustomDropdown(
+                      label: 'Lead Category',
+                      hint: 'Select Category',
+                      items: categoryNames,
+                      selectedValue: state.selectedCategory,
+                      focusNode: _categoryFocus,
+                      nextFocusNode: state.subCategories.isNotEmpty
+                          ? _subCategoryFocus
+                          : _sourceFocus,
+                      onChanged: (v) =>
+                          context.read<AddLeadCubit>().selectCategory(v),
                     ),
-                  SizedBox(height: 1.5.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Dropdown(
-                          label: 'Priority',
-                          hint: 'Priority',
-                          items: priority,
-                          selectedValue: state.selectedPriority,
-                          focusNode: _priorityFocus,
-                          nextFocusNode: _remarksFocus,
-                          onChanged: (v) =>
-                              context.read<AddLeadCubit>().selectPriority(v),
-                        ),
-                      ),
-                      SizedBox(width: 0.5.h),
-                      const Expanded(child: SizedBox()),
-                    ],
                   ),
-                  SizedBox(height: 0.5.h),
-                  _multilineField(
-                    'Remarks',
-                    Icons.description_outlined,
-                    controller: _remarksCtrl,
-                    focusNode: _remarksFocus,
-                    nextFocusNode: _submitFocus,
+                  if (state.subCategories.isNotEmpty) ...[
+                    SizedBox(width: 1.5.w),
+                    Expanded(
+                      child: _CustomDropdown(
+                        label: 'Lead Sub Type',
+                        hint: 'Select Lead Sub Type',
+                        items: subCategoryName,
+                        selectedValue: state.selectedSubCategory,
+                        focusNode: _subCategoryFocus,
+                        nextFocusNode: _sourceFocus,
+                        onChanged: (v) =>
+                            context.read<AddLeadCubit>().selectSubCategory(v),
+                      ),
+                    ),
+                  ],
+                  SizedBox(width: 1.5.w),
+                  Expanded(
+                    child: _CustomDropdown(
+                      label: 'Lead Source',
+                      hint: 'Select Lead Source',
+                      items: sourceNames,
+                      selectedValue: state.selectedSource,
+                      focusNode: _sourceFocus,
+                      nextFocusNode: _priorityFocus,
+                      onChanged: (v) =>
+                          context.read<AddLeadCubit>().selectSource(v),
+                    ),
+                  ),
+                  SizedBox(width: 1.5.w),
+                  Expanded(
+                    child: _CustomDropdown(
+                      label: 'Priority',
+                      hint: 'Priority',
+                      items: priority,
+                      selectedValue: state.selectedPriority,
+                      focusNode: _priorityFocus,
+                      nextFocusNode: _remarksFocus,
+                      onChanged: (v) =>
+                          context.read<AddLeadCubit>().selectPriority(v),
+                    ),
                   ),
                 ],
-              )
-            : Column(
-                children: [
-                  Row(
-                    children: [
-                      if (_currentUser != null) ...[
-                        if (_currentUser!.staffType != 'Admin')
-                          Expanded(
-                            child: _readOnlyField(
-                              'Assign Staff',
-                              Icons.person_outline,
-                              state.assignedStaffName,
-                            ),
-                          )
-                        else
-                          Expanded(
-                            child: Dropdown(
-                              icon: Icons.person_outline,
-                              showIcon: true,
-                              items: staffNames,
-                              selectedValue: _selectStaff,
-                              focusNode: _assignStaffFocus,
-                              nextFocusNode: _categoryFocus,
-                              onChanged: (v) {
-                                setState(() => _selectStaff = v);
-                                final selected = staffList.firstWhere(
-                                  (e) => e.name == v,
-                                );
-                                cubit.selectAssignedStaff(
-                                  name: selected.name,
-                                  id: selected.id ?? '',
-                                );
-                              },
-                              label: 'Select Staff',
-                              hint: 'Select Staff',
-                            ),
-                          ),
-                      ],
-                      SizedBox(width: 2.w),
-                      Expanded(
-                        child: DropdownWithAdd(
-                          label: 'Lead Category',
-                          icon: Icons.layers_outlined,
-                          showIcon: true,
-                          items: categoryNames,
-                          selectedValue: _leadCategory,
-                          focusNode: _categoryFocus,
-                          nextFocusNode: _sourceFocus,
-                          onChanged: (v) {
-                            setState(() => _leadCategory = v);
-                            cubit.selectCategory(v);
-                            cubit.selectSubCategory(null);
-                          },
-                          onTap: _showAddCategoryDialog,
-                        ),
-                      ),
-                    ],
-                  ),
-                   if (state.subCategories.isNotEmpty)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Dropdown(
-                            label: 'Lead Sub Type',
-                            hint: 'Select Lead Sub Type',
-                            items: subCategoryName,
-                            selectedValue: state.selectedSubCategory,
-                            focusNode: _subCategoryFocus,
-                            nextFocusNode: _priorityFocus,
-                            onChanged: (v) => context
-                                .read<AddLeadCubit>()
-                                .selectSubCategory(v),
-                          ),
-                        ),
-                        SizedBox(width: 1.w),
-                        Expanded(child: SizedBox()),
-                      ],
-                    ),
-                  SizedBox(height: 1.5.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownWithAdd(
-                          label: 'Lead Source',
-                          showIcon: true,
-                          icon: Icons.layers_rounded,
-                          items: sourceNames,
-                          selectedValue: _leadSource,
-                          focusNode: _sourceFocus,
-                          nextFocusNode: _priorityFocus,
-                          onChanged: (v) {
-                            setState(() => _leadSource = v);
-                            cubit.selectSource(v);
-                          },
-                          onTap: _showAddSourceDialog,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Expanded(
-                        child: Dropdown(
-                          icon: Icons.flag_outlined,
-                          showIcon: true,
+              ),
+              SizedBox(height: 2.h),
+              _multilineField(
+                'Remarks',
+                Icons.description_outlined,
+                controller: _remarksCtrl,
+                focusNode: _remarksFocus,
+                nextFocusNode: _submitFocus,
+                hint: 'Enter remark',
+              ),
+            ],
+          );
+        }
 
-                          items: priority,
-                          selectedValue: _leadPriority,
-                          focusNode: _priorityFocus,
-                          nextFocusNode: _stageFocus,
-                          onChanged: (v) {
-                            setState(() => _leadPriority = v);
-                            cubit.selectPriority(v);
-                          },
-                          label: 'Priority',
-                          hint: 'Select Priority',
-                          showClear: false,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Expanded(
-                        child: Dropdown(
-                          icon: Icons.check_box_outlined,
-                          showIcon: true,
-                          items: stagesNames,
-                          selectedValue: _leadStage,
-                          showClear: false,
-                          focusNode: _stageFocus,
-                          nextFocusNode:
-                              _leadStage != 'NEW' && _leadStage != null
-                              ? (
-                                // _leadStage == 'REJECTED'
-                               state.leadTag.isNotEmpty
-                                    ? _tagsFocus
-                                    : _callResultFocus)
-                              : _remarksFocus,
-                          onChanged: (v) {
-                            // setState(() => _leadStage = v);
-                             setState(() {
-    _leadStage = v;
-    _leadTag = null;        // ← add this
-    _callResult = null;     // optional but usually desired too — see below
-  });
-                            cubit.selectLeadStage(v);
-                            cubit.selectLeadTag(null);
-                            // Rebuild node order when stage changes conditional fields
-                            _buildOrderedNodes(
-                              context
-                                  .read<AddLeadCubit>()
-                                  .state
-                                  .additionalFields,
-                            );
-                          },
-                          label: 'Lead Stage',
-                          hint: 'Select Stages',
-                        ),
-                      ),
-                    ],
-                  ),
+        // Add Mode
+        List<Widget> conditionalRowChildren = [];
+        if (state.subCategories.isNotEmpty) {
+          conditionalRowChildren.add(
+            Expanded(
+              child: _CustomDropdown(
+                label: 'Lead Sub Category',
+                hint: 'select sub category',
+                items: subCategoryName,
+                selectedValue: state.selectedSubCategory,
+                focusNode: _subCategoryFocus,
+                nextFocusNode: _stageFocus,
+                onChanged: (v) =>
+                    context.read<AddLeadCubit>().selectSubCategory(v),
+              ),
+            ),
+          );
+        }
 
-                  // ── Conditional stage fields ─────────────────────────────
-                  if (_leadStage != 'NEW' && _leadStage != null)
-                    Column(
-                      children: [
-                        SizedBox(height: 1.5.h),
-                        if (_leadStage == 'FOLLOWUP')
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 24.w,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Next Follow-Up Date',
-                                      style: AppTextStyle.medium(),
-                                    ),
-                                    SizedBox(height: 0.5.h),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final result =
-                                            await showCalendarDialogUsingTimePicker(
-                                              context,
-                                              initialDate: nextFollowUpDate,
-                                              mode: CalendarMode.single,
-                                              showTimePicker:
-                                                  true, // ← shows time picker
-                                              minDate:
-                                                  calledDateValue, // ← blocks dates before called date
-                                            );
-                                        if (result != null) {
-                                          setState(() {
-                                            nextFollowUpDate = result.from;
-                                            nextFollowUpCtrl.text = DateFormat(
-                                              'dd-MM-yyyy hh:mm a',
-                                            ).format(result.from);
-                                          });
-                                        }
-                                      },
-                                      child: Container(
-                                        height: 5.2.h,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.greyCard,
-                                          border: Border.all(
-                                            color: AppColors.divider,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: IgnorePointer(
-                                          child: TextField(
-                                            controller: nextFollowUpCtrl,
-                                            readOnly: true,
-                                            style: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.black,
-                                            ),
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText: nextFollowUpCtrl.text,
-                                              hintStyle: AppTextStyle.small(
-                                                size: 11.sp,
-                                                color: AppColors.black,
-                                              ),
-                                              isCollapsed: true,
-                                              contentPadding: EdgeInsets.zero,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        Row(
-                          children: [
-                            if (state.leadTag.isNotEmpty)
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 24.w,
-                                    child: Dropdown(
-                                      label: 'Tags',
-                                      hint: 'Select Tags',
-                                      showStar: state.tagMandatory,
-                                      focusNode: _tagsFocus,
-                                      nextFocusNode: _callResultFocus,
-                                      items: state.leadTag.map((e) => e.name).toList(),
-                                      selectedValue: _leadTag,
-                                      onChanged: (v) {
-                                        setState(() => _leadTag = v);
-                                        cubit.selectLeadTag(v);
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 1.w),
-                                ],
-                              ),
+        // Lead Stage (Unconditional in the second row)
+        if (conditionalRowChildren.isNotEmpty) {
+          conditionalRowChildren.add(SizedBox(width: 1.5.w));
+        }
+        conditionalRowChildren.add(
+          Expanded(
+            child: _CustomDropdown(
+              icon: Icons.check_box_outlined,
+              showIcon: true,
+              items: stagesNames,
+              selectedValue: _leadStage,
+              showClear: false,
+              focusNode: _stageFocus,
+              nextFocusNode: _leadStage != 'NEW' && _leadStage != null
+                  ? (state.leadTag.isNotEmpty ? _tagsFocus : _callResultFocus)
+                  : _remarksFocus,
+              onChanged: (v) {
+                setState(() {
+                  _leadStage = v;
+                  _leadTag = null;
+                  _callResult = null;
+                });
+                cubit.selectLeadStage(v);
+                cubit.selectLeadTag(null);
+                _buildOrderedNodes(cubit.state.additionalFields);
+              },
+              label: 'Lead Stage',
+              hint: 'Select Stages',
+            ),
+          ),
+        );
 
-                            SizedBox(
-                              width: 24.w,
-                              child: Dropdown(
-                                label: 'Call Result',
-                                hint: 'Select Call Result',
-                                showStar: true,
-                                focusNode: _callResultFocus,
-                                nextFocusNode: _remarksFocus,
-                                items: const [
-                                  'Connected',
-                                  'Busy',
-                                  'Not Attended',
-                                  'Switched Off',
-                                  'Out Of Coverage',
-                                  'Wrong Number',
-                                  'Not Reachable',
-                                  'Other',
-                                ],
-                                selectedValue: _callResult,
-                                onChanged: (v) {
-                                  setState(() => _callResult = v);
-                                  cubit.selectCallResult(v);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                  SizedBox(height: 1.5.h),
-                  _multilineField(
-                    'Remarks',
-                    Icons.note_alt_outlined,
-                    controller: _remarksCtrl,
-                    focusNode: _remarksFocus,
-                    nextFocusNode: _submitFocus,
-                  ),
+        if (_leadStage == 'FOLLOWUP') {
+          if (conditionalRowChildren.isNotEmpty) {
+            conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
+          conditionalRowChildren.add(
+            Expanded(child: _buildNextFollowUpDateField(context)),
+          );
+        }
+        if (state.leadTag.isNotEmpty) {
+          if (conditionalRowChildren.isNotEmpty) {
+            conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
+          conditionalRowChildren.add(
+            Expanded(
+              child: _CustomDropdown(
+                label: 'Tags',
+                hint: 'Select Tags',
+                showStar: true,
+                focusNode: _tagsFocus,
+                nextFocusNode: _callResultFocus,
+                items: state.leadTag.map((e) => e.name).toList(),
+                selectedValue: _leadTag,
+                onChanged: (v) {
+                  setState(() => _leadTag = v);
+                  cubit.selectLeadTag(v);
+                },
+              ),
+            ),
+          );
+        }
+        if (_leadStage != 'NEW' && _leadStage != null) {
+          if (conditionalRowChildren.isNotEmpty) {
+            conditionalRowChildren.add(SizedBox(width: 1.5.w));
+          }
+          conditionalRowChildren.add(
+            Expanded(
+              child: _CustomDropdown(
+                label: 'Call Result',
+                hint: 'Select Call Result',
+                showStar: true,
+                focusNode: _callResultFocus,
+                nextFocusNode: _remarksFocus,
+                items: const [
+                  'Connected',
+                  'Busy',
+                  'Not Attended',
+                  'Switched Off',
+                  'Out Of Coverage',
+                  'Wrong Number',
+                  'Not Reachable',
+                  'Other',
                 ],
-              );
+                selectedValue: _callResult,
+                onChanged: (v) {
+                  setState(() => _callResult = v);
+                  cubit.selectCallResult(v);
+                },
+              ),
+            ),
+          );
+        }
+
+        if (conditionalRowChildren.isNotEmpty) {
+          int row1ColumnsCount = 4;
+          int activeFieldsCount =
+              (state.subCategories.isNotEmpty ? 1 : 0) +
+              1 +
+              (_leadStage == 'FOLLOWUP' ? 1 : 0) +
+              (state.leadTag.isNotEmpty ? 1 : 0) +
+              ((_leadStage != 'NEW' && _leadStage != null) ? 1 : 0);
+          int spacersNeeded = row1ColumnsCount - activeFieldsCount;
+          for (int i = 0; i < spacersNeeded; i++) {
+            conditionalRowChildren.add(SizedBox(width: 1.5.w));
+            conditionalRowChildren.add(const Expanded(child: SizedBox()));
+          }
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row 1: Staff, Category, Source, Priority, Stage
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_currentUser != null) ...[
+                  if (_currentUser!.staffType != 'Admin')
+                    Expanded(
+                      child: _readOnlyField(
+                        'Assign Staff',
+                        Icons.person_outline,
+                        state.assignedStaffName,
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: _CustomDropdown(
+                        icon: Icons.person_outline,
+                        showIcon: true,
+                        items: staffNames,
+                        selectedValue: _selectStaff,
+                        focusNode: _assignStaffFocus,
+                        nextFocusNode: _categoryFocus,
+                        onChanged: (v) {
+                          setState(() => _selectStaff = v);
+                          final selected = staffList.firstWhere(
+                            (e) => e.name == v,
+                          );
+                          cubit.selectAssignedStaff(
+                            name: selected.name,
+                            id: selected.id ?? '',
+                          );
+                        },
+                        label: 'Select Staff',
+                        hint: 'Select Staff',
+                      ),
+                    ),
+                ],
+                SizedBox(width: 1.5.w),
+                Expanded(
+                  child: _CustomDropdownWithAdd(
+                    label: 'Lead Category',
+                    icon: Icons.layers_outlined,
+                    showIcon: false,
+                    items: categoryNames,
+                    selectedValue: _leadCategory,
+                    focusNode: _categoryFocus,
+                    nextFocusNode: state.subCategories.isNotEmpty
+                        ? _subCategoryFocus
+                        : _sourceFocus,
+                    onChanged: (v) {
+                      setState(() => _leadCategory = v);
+                      cubit.selectCategory(v);
+                      cubit.selectSubCategory(null);
+                    },
+                    onTap: _showAddCategoryDialog,
+                    hint: 'select category',
+                  ),
+                ),
+                SizedBox(width: 1.5.w),
+                Expanded(
+                  child: _CustomDropdownWithAdd(
+                    label: 'Lead Source',
+                    showIcon: false,
+                    icon: Icons.layers_rounded,
+                    items: sourceNames,
+                    selectedValue: _leadSource,
+                    focusNode: _sourceFocus,
+                    nextFocusNode: _priorityFocus,
+                    onChanged: (v) {
+                      setState(() => _leadSource = v);
+                      cubit.selectSource(v);
+                    },
+                    onTap: _showAddSourceDialog,
+                    hint: 'Select Source',
+                  ),
+                ),
+                SizedBox(width: 1.5.w),
+                Expanded(
+                  child: _CustomDropdown(
+                    icon: Icons.flag_outlined,
+                    showIcon: true,
+                    items: priority,
+                    selectedValue: _leadPriority,
+                    focusNode: _priorityFocus,
+                    nextFocusNode: _stageFocus,
+                    onChanged: (v) {
+                      setState(() => _leadPriority = v);
+                      cubit.selectPriority(v);
+                    },
+                    label: 'Priority',
+                    hint: 'Select Priority',
+                    showClear: false,
+                  ),
+                ),
+              ],
+            ),
+            if (conditionalRowChildren.isNotEmpty) ...[
+              SizedBox(height: 2.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: conditionalRowChildren,
+              ),
+            ],
+            SizedBox(height: 2.h),
+            _multilineField(
+              'Remarks',
+              Icons.note_alt_outlined,
+              controller: _remarksCtrl,
+              focusNode: _remarksFocus,
+              nextFocusNode: _submitFocus,
+              hint: 'Enter remark',
+            ),
+          ],
+        );
       },
     );
   }
 
-  void _pickFollowUpDate(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.4),
-      builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: SizedBox(
-          width: 28.w,
-          child: CustomCalendarPickOne(
-            initialDate: nextFollowUpDate,
-            onDateSelected: (date) {
+  Widget _buildNextFollowUpDateField(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label('Next Follow Up Date', false),
+        SizedBox(height: 0.8.h),
+        GestureDetector(
+          onTap: () async {
+            final result = await showCalendarDialogUsingTimePicker(
+              context,
+              initialDate: nextFollowUpDate,
+              mode: CalendarMode.single,
+              showTimePicker: true,
+              minDate: calledDateValue,
+            );
+            if (result != null) {
               setState(() {
-                nextFollowUpDate = date;
-                nextFollowUpCtrl.text = DateFormat('dd-MM-yyyy').format(date);
+                nextFollowUpDate = result.from;
+                nextFollowUpCtrl.text = DateFormat(
+                  'dd-MM-yyyy hh:mm a',
+                ).format(result.from);
               });
-              Navigator.pop(context);
-            },
+            }
+          },
+          child: Container(
+            height: 5.2.h,
+            padding: EdgeInsets.symmetric(horizontal: 1.2.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: const Color(0xFFCBD5E1)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_month_outlined,
+                  color: Color(0xFF64748B),
+                  size: 18,
+                ),
+                SizedBox(width: 0.5.w),
+                Expanded(
+                  child: Text(
+                    nextFollowUpCtrl.text.isEmpty
+                        ? 'Select Date'
+                        : nextFollowUpCtrl.text,
+                    style: AppTextStyle.body(
+                      size: 11.sp,
+                      color: const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -1417,61 +1403,84 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
 
   Widget _buildSubmitButton() {
     return Padding(
-      padding: EdgeInsets.only(right: 2.w),
-      child: Container(
-        margin: EdgeInsets.all(2.w),
-        width: double.infinity,
-        height: 10.h,
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(3),
-        ),
-        padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 2.w),
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: BlocBuilder<AddLeadCubit, AddLeadState>(
+      padding: EdgeInsets.only(right: 2.w, bottom: 2.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Clear All Button
+          OutlinedButton(
+            onPressed: _clearForm,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.red, width: 1.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+            ),
+            child: Text(
+              'Clear All',
+              style: AppTextStyle.medium(
+                size: 11.sp,
+                color: AppColors.red,
+                weight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(width: 1.w),
+          // Save Lead / Update Button
+          BlocBuilder<AddLeadCubit, AddLeadState>(
             buildWhen: (p, c) =>
                 p.isSubmitting != c.isSubmitting ||
                 p.isUpdating != c.isUpdating,
             builder: (context, state) {
               final isBusy = state.isSubmitting || state.isUpdating;
-              return SizedBox(
-                height: 5.h,
-                child: Focus(
-                  focusNode: _submitFocus,
-                  child: ElevatedButton(
-                    onPressed: isBusy ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _submitFocus.hasFocus
-                          ? AppColors.primary
-                          : AppColors.green,
-                      disabledBackgroundColor: AppColors.green.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
+              return Focus(
+                focusNode: _submitFocus,
+                child: ElevatedButton.icon(
+                  onPressed: isBusy ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _submitFocus.hasFocus
+                        ? AppColors.primary
+                        : AppThemeColors.basicGreen,
+                    disabledBackgroundColor: AppThemeColors.basicGreen
+                        .withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: isBusy
-                        ? SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.white,
-                            ),
-                          )
-                        : Text(
-                            _isEditMode ? 'Update' : 'Submit',
-                            style: AppTextStyle.medium(
-                              size: 11.sp,
-                              color: AppColors.white,
-                            ),
-                          ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 2.w,
+                      vertical: 1.5.h,
+                    ),
                   ),
+                  icon: isBusy
+                      ? const SizedBox.shrink()
+                      : const Icon(
+                          Icons.save_outlined,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                  label: isBusy
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.white,
+                          ),
+                        )
+                      : Text(
+                          _isEditMode ? 'Update' : 'Save Lead',
+                          style: AppTextStyle.medium(
+                            size: 11.sp,
+                            color: AppColors.white,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               );
             },
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1607,43 +1616,39 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
   Widget _sectionCard(String title, Widget child, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 2.h),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
       ),
+      padding: EdgeInsets.all(2.w),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
-            decoration: BoxDecoration(
-              color: AppColors.grey.withValues(alpha: 0.3),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(6),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 13.sp, weight: 600, color: AppColors.green),
-                SizedBox(width: 1.w),
-                Text(
-                  title,
-                  style: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.black,
-                  ),
-                ),
-              ],
+          Text(
+            title.toUpperCase(),
+            style: AppTextStyle.medium(
+              size: 12.sp,
+              color: const Color(0xFF0F2C59),
+              weight: FontWeight.w700,
             ),
           ),
-          Padding(padding: EdgeInsets.all(2.w), child: child),
+          SizedBox(height: 2.h),
+          child,
         ],
       ),
     );
   }
 
-  /// Standard single-line text field with Enter-key navigation support.
   Widget _field(
     String label,
     bool required,
@@ -1654,15 +1659,15 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
     String? Function(String?)? validator,
     FocusNode? focusNode,
     FocusNode? nextFocusNode,
+    String? hint,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label, required, icons),
-        SizedBox(height: 0.5.h),
-        Container(
-          height: 5.h,
-          decoration: _box(),
+        _label(label, required),
+        SizedBox(height: 0.8.h),
+        SizedBox(
+          height: 5.2.h,
           child: TextFormField(
             controller: controller,
             focusNode: focusNode,
@@ -1672,14 +1677,47 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
             textInputAction: nextFocusNode != null
                 ? TextInputAction.next
                 : TextInputAction.done,
-            style: AppTextStyle.body(size: 11.sp),
-            decoration: InputDecoration(
-              hintText: label,
-              hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(1.w),
+            style: AppTextStyle.body(
+              size: 11.sp,
+              color: const Color(0xFF0F172A),
             ),
-            // Enter key moves to the next node in _orderedNodes
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: Icon(
+                icons,
+                size: 12.sp,
+                color: const Color(0xFF64748B),
+              ),
+              hintText: hint ?? label,
+              hintStyle: AppTextStyle.small(
+                size: 11.sp,
+                color: const Color(0xFF94A3B8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 1.2.w,
+                vertical: 0,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.red),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.red, width: 1.5),
+              ),
+            ),
             onFieldSubmitted: (_) {
               if (nextFocusNode != null) {
                 nextFocusNode.requestFocus();
@@ -1697,20 +1735,38 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label, false, icons),
-        SizedBox(height: 0.5.h),
+        _label(label, false),
+        SizedBox(height: 0.8.h),
         Container(
-          height: 5.h,
-          decoration: _box(),
-          padding: EdgeInsets.symmetric(horizontal: 1.w),
+          height: 5.2.h,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            border: Border.all(color: const Color(0xFFCBD5E1)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w),
           alignment: Alignment.centerLeft,
-          child: Text(
-            value.isEmpty ? 'Loading...' : value,
-            style: value.isEmpty
-                ? AppTextStyle.small(size: 11.sp, color: AppColors.grey)
-                : AppTextStyle.body(size: 11.sp),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              Icon(icons, size: 12.sp, color: const Color(0xFF64748B)),
+              SizedBox(width: 0.5.w),
+              Expanded(
+                child: Text(
+                  value.isEmpty ? 'Loading...' : value,
+                  style: value.isEmpty
+                      ? AppTextStyle.small(
+                          size: 11.sp,
+                          color: const Color(0xFF94A3B8),
+                        )
+                      : AppTextStyle.body(
+                          size: 11.sp,
+                          color: const Color(0xFF0F172A),
+                        ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1726,62 +1782,70 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
     FocusNode? focusNode,
     FocusNode? nextFocusNode,
     void Function(String)? onDialCodeChanged,
+    String? initialDialCode,
+    String? hint,
+    Widget? suffixIcon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label, required, icons),
-        SizedBox(height: 0.5.h),
+        _label(label, required),
+        SizedBox(height: 0.8.h),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 5.h,
-              width: 7.5.w,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.divider),
-                  borderRadius: BorderRadius.circular(4),
-                  color: AppColors.grey.withValues(alpha: 0.2),
-                ),
-                child: CountryCodePicker(
-                  onChanged: (country) =>
-                      onDialCodeChanged?.call(country.dialCode ?? '+91'),
-                  initialSelection: 'IN',
-                  showCountryOnly: false,
-                  showOnlyCountryWhenClosed: false,
-                  alignLeft: true,
-                  padding: EdgeInsets.zero,
-                  textStyle: AppTextStyle.body(size: 11.sp),
-                  flagWidth: 16,
-                  dialogBackgroundColor: AppColors.white,
-                  dialogSize: Size(30.w, 80.h),
-                  dialogTextStyle: AppTextStyle.body(size: 11.sp),
-                  searchStyle: AppTextStyle.body(size: 11.sp),
-                  searchDecoration: InputDecoration(
-                    hintText: 'Search country',
-                    hintStyle: AppTextStyle.small(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.divider),
-                    ),
-                    contentPadding: EdgeInsets.all(1.w),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 0.25.w),
+            // Container(
+            //   height: 4.h,
+            //   width: 42,
+            //   decoration: BoxDecoration(
+            //     border: Border.all(color: AppColors.green, width: 1.0),
+            //     borderRadius: BorderRadius.circular(8),
+            //     color: Colors.white,
+            //   ),
+            //   // padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+            //   child: CountryCodePicker(
+            //     onChanged: (country) =>
+            //         onDialCodeChanged?.call(country.dialCode ?? '+91'),
+            //     initialSelection: initialDialCode ?? 'IN',
+            //     showFlag: false,
+            //     showCountryOnly: false,
+            //     showOnlyCountryWhenClosed: false,
+            //     alignLeft: false,
+            //     padding: EdgeInsets.all(1),
+            //     textStyle: AppTextStyle.body(
+            //       size: 11.sp,
+            //       color: const Color(0xFF0F172A),
+            //     ),
+            //     flagWidth: 0,
+            //     dialogBackgroundColor: AppColors.white,
+            //     dialogSize: Size(30.w, 80.h),
+            //     dialogTextStyle: AppTextStyle.body(size: 11.sp),
+            //     searchStyle: AppTextStyle.body(size: 11.sp),
+            //     searchDecoration: InputDecoration(
+            //       hintText: 'Search country',
+            //       hintStyle: AppTextStyle.small(
+            //         size: 11.sp,
+            //         color: AppColors.grey,
+            //       ),
+            //       border: OutlineInputBorder(
+            //         borderRadius: BorderRadius.circular(8),
+            //         borderSide: const BorderSide(color: AppColors.divider),
+            //       ),
+            //       // contentPadding: EdgeInsets.all(1.w),
+            //     ),
+            //   ),
+            // ),
+            // SizedBox(width: 0.5.w),
             Expanded(
-              child: Container(
-                height: 5.h,
-                decoration: _box(),
+              child: SizedBox(
+                height: 5.2.h,
                 child: TextFormField(
                   controller: controller,
                   focusNode: focusNode,
-                  style: AppTextStyle.body(size: 11.sp),
+                  style: AppTextStyle.body(
+                    size: 11.sp,
+                    color: const Color(0xFF0F172A),
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(10),
@@ -1791,13 +1855,107 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                       ? TextInputAction.next
                       : TextInputAction.done,
                   decoration: InputDecoration(
-                    hintText: 'Enter number',
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: hint ?? 'Enter number',
                     hintStyle: AppTextStyle.small(
                       size: 11.sp,
-                      color: AppColors.grey,
+                      color: const Color(0xFF94A3B8),
                     ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(1.w),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 0,
+                      minHeight: 0,
+                    ),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(left: 5, right: 6),
+                      child: CountryCodePicker(
+                        onChanged: (country) =>
+                            onDialCodeChanged?.call(country.dialCode ?? '+91'),
+                        initialSelection: initialDialCode ?? 'IN',
+                        showFlag: false,
+                        showCountryOnly: false,
+                        showOnlyCountryWhenClosed: false,
+                        alignLeft: false,
+                        padding: EdgeInsets.zero,
+                        builder: (country) {
+                          return Container(
+                            height: 3.8.h,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: const Color(0xFF10B981),
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  country?.dialCode ?? '+91',
+                                  style: AppTextStyle.body(
+                                    size: 11.sp,
+                                    color: const Color(0xFF0F172A),
+                                    weight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 14,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        dialogBackgroundColor: AppColors.white,
+                        dialogSize: Size(30.w, 80.h),
+                        dialogTextStyle: AppTextStyle.body(size: 11.sp),
+                        searchStyle: AppTextStyle.body(size: 11.sp),
+                        searchDecoration: InputDecoration(
+                          hintText: 'Search country',
+                          hintStyle: AppTextStyle.small(
+                            size: 11.sp,
+                            color: AppColors.grey,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 0,
+                      minHeight: 0,
+                    ),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child:
+                          suffixIcon ??
+                          Icon(icons, size: 15, color: const Color(0xFF64748B)),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 0,
+                      vertical: 0,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
                   ),
                   onFieldSubmitted: (_) {
                     if (nextFocusNode != null) {
@@ -1824,35 +1982,52 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
     TextEditingController? controller,
     FocusNode? focusNode,
     FocusNode? nextFocusNode,
+    String? hint,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label, false, icons),
-        SizedBox(height: 0.5.h),
-        Container(
-          height: 10.h,
-          decoration: _box(),
-          // Override the Shortcuts ancestor for Enter inside multiline fields
-          // so Enter still inserts newlines here.
-          child: Shortcuts(
-            shortcuts: const <ShortcutActivator, Intent>{
-              SingleActivator(LogicalKeyboardKey.enter):
-                  DoNothingAndStopPropagationTextIntent(),
-            },
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              maxLines: null,
-              style: AppTextStyle.body(size: 11.sp),
-              decoration: InputDecoration(
-                hintText: label,
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
+        _label(label, false),
+        SizedBox(height: 0.8.h),
+        Shortcuts(
+          shortcuts: const <ShortcutActivator, Intent>{
+            SingleActivator(LogicalKeyboardKey.enter):
+                DoNothingAndStopPropagationTextIntent(),
+          },
+          child: TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            maxLines: 3,
+            style: AppTextStyle.body(
+              size: 11.sp,
+              color: const Color(0xFF0F172A),
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Icon(icons, size: 12.sp, color: const Color(0xFF64748B)),
+              ),
+              hintText: hint ?? label,
+              hintStyle: AppTextStyle.small(
+                size: 11.sp,
+                color: const Color(0xFF94A3B8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 1.2.w,
+                vertical: 1.5.h,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
                 ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.all(1.w),
               ),
             ),
           ),
@@ -1861,68 +2036,70 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
     );
   }
 
-  Widget _label(String text, bool required, IconData icons) {
+  Widget _label(String text, bool required) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icons, size: 12.sp, color: AppColors.green),
-        SizedBox(width: 0.5.w),
-        Text(text, style: AppTextStyle.medium()),
+        Text(
+          text,
+          style: AppTextStyle.medium(
+            size: 11.sp,
+            color: const Color(0xFF1E293B),
+            weight: FontWeight.w500,
+          ),
+        ),
         if (required)
           Text(
             '*',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+            style: AppTextStyle.medium(
+              size: 11.sp,
+              color: AppColors.red,
+              weight: FontWeight.w600,
+            ),
           ),
       ],
     );
   }
 
-  BoxDecoration _box() {
-    return BoxDecoration(
-      border: Border.all(color: AppColors.divider),
-      borderRadius: BorderRadius.circular(4),
-      color: AppColors.greyCard,
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 2.h),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            _isEditMode ? 'EDIT LEAD' : 'ADD NEW LEAD',
-            style: AppTextStyle.medium(
-              size: 13.sp,
-              color: AppColors.black.withOpacity(0.77),
-              weight: FontWeight.w700,
-            ),
-          ),
-          Row(
-            children: [
-              Row(
-                children: [
-                  Text('Lead Management', style: AppTextStyle.medium()),
-                  Icon(Icons.chevron_right, size: 16.sp),
-                  Text(
-                    _isEditMode ? 'Edit Lead' : 'Add Lead',
-                    style: AppTextStyle.medium(color: AppColors.grey),
-                  ),
-                ],
-              ),
-              SizedBox(width: 1.w),
-              MenuHoverButton(),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildHeader() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 2.h),
+  //     decoration: BoxDecoration(
+  //       color: AppColors.white,
+  //       border: Border(bottom: BorderSide(color: AppColors.divider)),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(
+  //           _isEditMode ? 'EDIT LEAD' : 'ADD NEW LEAD',
+  //           style: AppTextStyle.medium(
+  //             size: 13.sp,
+  //             color: AppColors.black.withOpacity(0.77),
+  //             weight: FontWeight.w700,
+  //           ),
+  //         ),
+  //         Row(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 Text('Lead Management', style: AppTextStyle.medium()),
+  //                 Icon(Icons.chevron_right, size: 16.sp),
+  //                 Text(
+  //                   _isEditMode ? 'Edit Lead' : 'Add Lead',
+  //                   style: AppTextStyle.medium(color: AppColors.grey),
+  //                 ),
+  //               ],
+  //             ),
+  //             SizedBox(width: 1.w),
+  //             MenuHoverButton(),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _showDuplicateAlert(String message) {
     final isWhatsapp = message.toLowerCase().contains('whatsapp');
@@ -1933,8 +2110,12 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
-            SizedBox(width: 8),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.orange,
+              size: 28,
+            ),
+            const SizedBox(width: 8),
             Text(
               isWhatsapp ? 'Duplicate WhatsApp' : 'Duplicate Contact',
               style: AppTextStyle.medium(size: 13.sp, weight: FontWeight.w600),
@@ -1961,7 +2142,7 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
                     color: Colors.orange.shade700,
                     size: 18,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       isWhatsapp
@@ -1994,6 +2175,973 @@ if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CustomDropdown / CustomDropdownWithAdd
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CustomDropdown extends StatefulWidget {
+  final String label;
+  final String hint;
+  final bool showIcon;
+  final IconData icon;
+  final List<String> items;
+  final String? selectedValue;
+  final Function(String?)? onChanged;
+  final bool enabled;
+  final bool showStar;
+  final bool showClear;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+
+  const _CustomDropdown({
+    required this.label,
+    required this.hint,
+    this.showIcon = false,
+    this.items = const [],
+    this.selectedValue,
+    this.onChanged,
+    this.enabled = true,
+    this.showStar = false,
+    this.icon = Icons.person_outline,
+    this.focusNode,
+    this.nextFocusNode,
+    this.showClear = true,
+  });
+
+  @override
+  State<_CustomDropdown> createState() => _CustomDropdownState();
+}
+
+class _CustomDropdownState extends State<_CustomDropdown> {
+  final _dropdownKey = GlobalKey<DropdownSearchState<String>>();
+  final TextEditingController _searchController = TextEditingController();
+  late final FocusNode _popupSearchFocusNode;
+  bool _hasFocus = false;
+  bool _popupOpen = false;
+  final ValueNotifier<int> _highlightedIndexNotifier = ValueNotifier<int>(-1);
+
+  String get _searchText => _searchController.text;
+
+  List<String> _filteredItems(String filter) {
+    return widget.items
+        .where(
+          (item) =>
+              filter.isEmpty ||
+              item.toLowerCase().contains(filter.toLowerCase()),
+        )
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _popupSearchFocusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+          return KeyEventResult.ignored;
+        }
+        return _handlePopupNavKey(event);
+      },
+    );
+    _searchController.addListener(() {
+      final visible = _filteredItems(_searchController.text);
+      final newIdx = visible.isEmpty ? -1 : 0;
+      if (_highlightedIndexNotifier.value != newIdx) {
+        _highlightedIndexNotifier.value = newIdx;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _highlightedIndexNotifier.dispose();
+    _popupSearchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openDropdown() {
+    if (_popupOpen) return;
+    _searchController.clear();
+    final visible = _filteredItems('');
+    final preselect = widget.selectedValue != null
+        ? visible.indexOf(widget.selectedValue!)
+        : -1;
+    setState(() => _popupOpen = true);
+    _highlightedIndexNotifier.value = preselect >= 0
+        ? preselect
+        : (visible.isEmpty ? -1 : 0);
+    _dropdownKey.currentState?.openDropDownSearch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _popupSearchFocusNode.requestFocus();
+    });
+  }
+
+  void _closeDropdown() {
+    _dropdownKey.currentState?.closeDropDownSearch();
+  }
+
+  void _selectHighlighted() {
+    final visible = _filteredItems(_searchText);
+    if (_highlightedIndexNotifier.value >= 0 &&
+        _highlightedIndexNotifier.value < visible.length) {
+      final selected = visible[_highlightedIndexNotifier.value];
+      _closeDropdown();
+      widget.onChanged?.call(selected);
+      if (widget.nextFocusNode != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) widget.nextFocusNode!.requestFocus();
+        });
+      }
+    }
+  }
+
+  KeyEventResult _handleOuterKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (!_popupOpen) {
+      if (event.logicalKey == LogicalKeyboardKey.space ||
+          event.logicalKey == LogicalKeyboardKey.enter ||
+          event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        _openDropdown();
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.tab) {
+        final shift = HardwareKeyboard.instance.isShiftPressed;
+        if (shift) {
+          node.previousFocus();
+        } else if (widget.nextFocusNode != null) {
+          widget.nextFocusNode!.requestFocus();
+        } else {
+          node.nextFocus();
+        }
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    }
+    return _handlePopupNavKey(event);
+  }
+
+  KeyEventResult _handlePopupNavKey(KeyEvent event) {
+    final visible = _filteredItems(_searchText);
+    final count = visible.length;
+    if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      if (count > 0) {
+        _highlightedIndexNotifier.value = (_highlightedIndexNotifier.value + 1)
+            .clamp(0, count - 1);
+      }
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (count > 0) {
+        _highlightedIndexNotifier.value = (_highlightedIndexNotifier.value - 1)
+            .clamp(0, count - 1);
+      }
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      _selectHighlighted();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      _closeDropdown();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.tab) {
+      _closeDropdown();
+      final shift = HardwareKeyboard.instance.isShiftPressed;
+      if (shift) {
+        widget.focusNode?.previousFocus();
+      } else if (widget.nextFocusNode != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) widget.nextFocusNode!.requestFocus();
+        });
+      } else {
+        widget.focusNode?.nextFocus();
+      }
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Widget _wrapWithTooltip({required Widget child, required String? message}) {
+    if (message == null || message.isEmpty) {
+      return child;
+    }
+    return Tooltip(
+      message: message,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.label,
+              style: AppTextStyle.medium(
+                size: 11.sp,
+                color: const Color(0xFF1E293B),
+                weight: FontWeight.w500,
+              ),
+            ),
+            if (widget.showStar)
+              Text(
+                '*',
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.red,
+                  weight: FontWeight.w600,
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: 0.8.h),
+        Focus(
+          focusNode: widget.focusNode,
+          onFocusChange: (focused) => setState(() => _hasFocus = focused),
+          onKeyEvent: _handleOuterKeyEvent,
+          child: _wrapWithTooltip(
+            message: widget.selectedValue,
+            child: Container(
+              height: 5.2.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: _hasFocus
+                      ? AppColors.primary
+                      : const Color(0xFFCBD5E1),
+                  width: _hasFocus ? 1.5 : 1.0,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      key: _dropdownKey,
+                      enabled: widget.enabled,
+                      items: (filter, _) => _filteredItems(filter),
+                      selectedItem: widget.selectedValue,
+                      itemAsString: (item) => item,
+                      dropdownBuilder: (context, selectedItem) {
+                        if (selectedItem == null) {
+                          return Row(
+                            children: [
+                              if (widget.showIcon) ...[
+                                Icon(
+                                  widget.icon,
+                                  size: 12.sp,
+                                  color: const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 6.0),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  widget.hint,
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            if (widget.showIcon) ...[
+                              Icon(
+                                widget.icon,
+                                size: 12.sp,
+                                color: const Color(0xFF64748B),
+                              ),
+                              // SizedBox(width: 0.5.w),
+                            ],
+                            Expanded(
+                              child: Text(
+                                selectedItem,
+                                style: AppTextStyle.medium(
+                                  size: 11.sp,
+                                  weight: FontWeight.w400,
+                                  color: const Color(0xFF0F172A),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                      suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                          constraints:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const BoxConstraints.tightFor(
+                                  width: 0,
+                                  height: 0,
+                                )
+                              : const BoxConstraints(),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          iconClosed:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 0),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                          iconOpened:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 0),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_up,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      popupProps: PopupProps.menu(
+                        scrollbarProps: ScrollbarProps(
+                          thumbVisibility: true,
+                          thickness: 6,
+                          trackVisibility: true,
+                          thumbColor: AppColors.grey,
+                          interactive: true,
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        fit: FlexFit.loose,
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        onDismissed: () {
+                          if (!mounted) return;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() => _popupOpen = false);
+                            _highlightedIndexNotifier.value = -1;
+                            _searchController.clear();
+                          });
+                        },
+                        itemBuilder: (context, item, isDisabled, isSelected) {
+                          final visible = _filteredItems(_searchText);
+                          final currentIndex = visible.indexOf(item);
+                          return ValueListenableBuilder<int>(
+                            valueListenable: _highlightedIndexNotifier,
+                            builder: (_, highlightedIndex, __) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 1.w,
+                                  vertical: 1.h,
+                                ),
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : (currentIndex == highlightedIndex
+                                          ? AppColors.primary.withOpacity(0.12)
+                                          : Colors.white),
+                                child: Text(
+                                  item,
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        menuProps: MenuProps(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        searchFieldProps: TextFieldProps(
+                          focusNode: _popupSearchFocusNode,
+                          controller: _searchController,
+                          style: AppTextStyle.small(
+                            size: 11.sp,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: AppTextStyle.small(
+                              size: 11.sp,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ),
+                      ),
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                        ),
+                      ),
+                      onSelected: (value) {
+                        if (!mounted) return;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          setState(() => _popupOpen = false);
+                          _highlightedIndexNotifier.value = -1;
+                          _searchController.clear();
+                          widget.onChanged?.call(value);
+                          if (widget.nextFocusNode != null) {
+                            widget.nextFocusNode!.requestFocus();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  if (widget.selectedValue != null && widget.showClear == true)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6.0, left: 2.0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Color(0xFF64748B),
+                          ),
+                          onPressed: () => widget.onChanged?.call(null),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CustomDropdownWithAdd extends StatefulWidget {
+  final String label;
+  final String hint;
+  final bool showIcon;
+  final IconData? icon;
+  final List<String> items;
+  final String? selectedValue;
+  final VoidCallback onTap;
+  final Function(String?) onChanged;
+  final bool showStar;
+  final bool showClear;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+
+  const _CustomDropdownWithAdd({
+    required this.label,
+    required this.hint,
+    this.showIcon = false,
+    this.icon,
+    required this.items,
+    required this.onTap,
+    required this.selectedValue,
+    required this.onChanged,
+    this.showStar = false,
+    this.showClear = true,
+    this.focusNode,
+    this.nextFocusNode,
+  });
+
+  @override
+  State<_CustomDropdownWithAdd> createState() => _CustomDropdownWithAddState();
+}
+
+class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
+  final _dropdownKey = GlobalKey<DropdownSearchState<String>>();
+  final TextEditingController _searchController = TextEditingController();
+  late final FocusNode _popupSearchFocusNode;
+  bool _hasFocus = false;
+  bool _popupOpen = false;
+  final ValueNotifier<int> _highlightedIndexNotifier = ValueNotifier<int>(-1);
+
+  String get _searchText => _searchController.text;
+
+  List<String> _filteredItems(String filter) {
+    final list = List<String>.from(widget.items);
+    if (widget.selectedValue != null && !list.contains(widget.selectedValue)) {
+      list.add(widget.selectedValue!);
+    }
+    return list
+        .where(
+          (item) =>
+              filter.isEmpty ||
+              item.toLowerCase().contains(filter.toLowerCase()),
+        )
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _popupSearchFocusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+          return KeyEventResult.ignored;
+        }
+        return _handlePopupNavKey(event);
+      },
+    );
+    _searchController.addListener(() {
+      final visible = _filteredItems(_searchController.text);
+      final newIdx = visible.isEmpty ? -1 : 0;
+      if (_highlightedIndexNotifier.value != newIdx) {
+        _highlightedIndexNotifier.value = newIdx;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _highlightedIndexNotifier.dispose();
+    _popupSearchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openDropdown() {
+    if (_popupOpen) return;
+    _searchController.clear();
+    final visible = _filteredItems('');
+    final preselect = widget.selectedValue != null
+        ? visible.indexOf(widget.selectedValue!)
+        : -1;
+    setState(() => _popupOpen = true);
+    _highlightedIndexNotifier.value = preselect >= 0
+        ? preselect
+        : (visible.isEmpty ? -1 : 0);
+    _dropdownKey.currentState?.openDropDownSearch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _popupSearchFocusNode.requestFocus();
+    });
+  }
+
+  void _closeDropdown() {
+    _dropdownKey.currentState?.closeDropDownSearch();
+  }
+
+  void _selectHighlighted() {
+    final visible = _filteredItems(_searchText);
+    if (_highlightedIndexNotifier.value >= 0 &&
+        _highlightedIndexNotifier.value < visible.length) {
+      final selected = visible[_highlightedIndexNotifier.value];
+      _closeDropdown();
+      widget.onChanged(selected);
+      if (widget.nextFocusNode != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) widget.nextFocusNode!.requestFocus();
+        });
+      }
+    }
+  }
+
+  KeyEventResult _handleOuterKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (!_popupOpen) {
+      if (event.logicalKey == LogicalKeyboardKey.space ||
+          event.logicalKey == LogicalKeyboardKey.enter ||
+          event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        _openDropdown();
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.tab) {
+        final shift = HardwareKeyboard.instance.isShiftPressed;
+        if (shift) {
+          node.previousFocus();
+        } else if (widget.nextFocusNode != null) {
+          widget.nextFocusNode!.requestFocus();
+        } else {
+          node.nextFocus();
+        }
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    }
+    return _handlePopupNavKey(event);
+  }
+
+  KeyEventResult _handlePopupNavKey(KeyEvent event) {
+    final visible = _filteredItems(_searchText);
+    final count = visible.length;
+    if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      if (count > 0) {
+        _highlightedIndexNotifier.value = (_highlightedIndexNotifier.value + 1)
+            .clamp(0, count - 1);
+      }
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (count > 0) {
+        _highlightedIndexNotifier.value = (_highlightedIndexNotifier.value - 1)
+            .clamp(0, count - 1);
+      }
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      _selectHighlighted();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      _closeDropdown();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.tab) {
+      _closeDropdown();
+      final shift = HardwareKeyboard.instance.isShiftPressed;
+      if (shift) {
+        widget.focusNode?.previousFocus();
+      } else if (widget.nextFocusNode != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) widget.nextFocusNode!.requestFocus();
+        });
+      } else {
+        widget.focusNode?.nextFocus();
+      }
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Widget _wrapWithTooltip({required Widget child, required String? message}) {
+    if (message == null || message.isEmpty) {
+      return child;
+    }
+    return Tooltip(
+      message: message,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.label,
+              style: AppTextStyle.medium(
+                size: 11.sp,
+                color: const Color(0xFF1E293B),
+                weight: FontWeight.w500,
+              ),
+            ),
+            if (widget.showStar)
+              Text(
+                '*',
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: AppColors.red,
+                  weight: FontWeight.w600,
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: 0.8.h),
+        Focus(
+          focusNode: widget.focusNode,
+          onFocusChange: (focused) => setState(() => _hasFocus = focused),
+          onKeyEvent: _handleOuterKeyEvent,
+          child: _wrapWithTooltip(
+            message: widget.selectedValue,
+            child: Container(
+              height: 5.2.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: _hasFocus
+                      ? AppColors.primary
+                      : const Color(0xFFCBD5E1),
+                  width: _hasFocus ? 1.5 : 1.0,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: AppThemeColors.basicGreen,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  // SizedBox(width: 0.5.w),
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      key: _dropdownKey,
+                      items: (filter, _) => _filteredItems(filter),
+                      selectedItem: widget.selectedValue,
+                      itemAsString: (item) => item,
+                      dropdownBuilder: (context, selectedItem) {
+                        if (selectedItem == null) {
+                          return Row(
+                            children: [
+                              if (widget.showIcon && widget.icon != null) ...[
+                                Icon(
+                                  widget.icon,
+                                  size: 12.sp,
+                                  color: const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 6.0),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  widget.hint,
+                                  style: AppTextStyle.small(
+                                    size: 11.sp,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            if (widget.showIcon && widget.icon != null) ...[
+                              Icon(
+                                widget.icon,
+                                size: 12.sp,
+                                color: const Color(0xFF64748B),
+                              ),
+                              const SizedBox(width: 6.0),
+                            ],
+                            Expanded(
+                              child: Text(
+                                selectedItem,
+                                style: AppTextStyle.medium(
+                                  size: 11.sp,
+                                  weight: FontWeight.w400,
+                                  color: const Color(0xFF0F172A),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                      suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                          constraints:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const BoxConstraints.tightFor(
+                                  width: 0,
+                                  height: 0,
+                                )
+                              : const BoxConstraints(),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          iconClosed:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                          iconOpened:
+                              (widget.showClear && widget.selectedValue != null)
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: EdgeInsets.only(right: 1),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_up,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      popupProps: PopupProps.menu(
+                        scrollbarProps: ScrollbarProps(
+                          thumbVisibility: true,
+                          thickness: 6,
+                          trackVisibility: true,
+                          thumbColor: AppColors.grey,
+                          interactive: true,
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        fit: FlexFit.loose,
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        onDismissed: () {
+                          if (!mounted) return;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() => _popupOpen = false);
+                            _highlightedIndexNotifier.value = -1;
+                            _searchController.clear();
+                          });
+                        },
+                        itemBuilder: (context, item, isDisabled, isSelected) {
+                          final visible = _filteredItems(_searchText);
+                          final currentIndex = visible.indexOf(item);
+                          return ValueListenableBuilder<int>(
+                            valueListenable: _highlightedIndexNotifier,
+                            builder: (_, highlightedIndex, __) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 1.w,
+                                  vertical: 1.h,
+                                ),
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : (currentIndex == highlightedIndex
+                                          ? AppColors.primary.withOpacity(0.12)
+                                          : Colors.white),
+                                child: Text(
+                                  item,
+                                  style: AppTextStyle.medium(
+                                    size: 11.sp,
+                                    weight: FontWeight.w400,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        menuProps: MenuProps(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        searchFieldProps: TextFieldProps(
+                          focusNode: _popupSearchFocusNode,
+                          controller: _searchController,
+                          style: AppTextStyle.small(
+                            size: 11.sp,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: AppTextStyle.small(
+                              size: 11.sp,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ),
+                      ),
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.only(
+                            left: 8,
+                            top: 6,
+                            bottom: 6,
+                            // horizontal: 8,
+                            // vertical: 6,
+                          ),
+                        ),
+                      ),
+                      onSelected: (value) {
+                        if (!mounted) return;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          setState(() => _popupOpen = false);
+                          _highlightedIndexNotifier.value = -1;
+                          _searchController.clear();
+                          widget.onChanged(value);
+                          if (widget.nextFocusNode != null) {
+                            widget.nextFocusNode!.requestFocus();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  if (widget.selectedValue != null)
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => widget.onChanged(null),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

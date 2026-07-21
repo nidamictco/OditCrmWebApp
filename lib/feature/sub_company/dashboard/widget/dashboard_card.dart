@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +24,7 @@ class DashboardCard extends StatefulWidget {
   final String message;
   final String fromCard;
   final String? dateText;
-  // final DateTime selectedDate;
+  final double? width;
 
   const DashboardCard({
     super.key,
@@ -31,7 +32,7 @@ class DashboardCard extends StatefulWidget {
     required this.message,
     required this.fromCard,
     this.dateText,
-    // required this.selectedDate,
+    this.width,
   });
 
   @override
@@ -40,7 +41,6 @@ class DashboardCard extends StatefulWidget {
 
 class _DashboardCardState extends State<DashboardCard> {
   bool isHovering = false;
-
   StaffModel? staff;
 
   @override
@@ -56,205 +56,221 @@ class _DashboardCardState extends State<DashboardCard> {
     staff = user;
   }
 
+  IconData _getCardIcon() {
+    switch (widget.fromCard) {
+      case 'NEW':
+        return Icons.leaderboard_outlined;
+      case 'FOLLOWUP':
+        return Icons.person_outline_sharp;
+      case 'CLOSED':
+        return Icons.folder_open_outlined;
+      case 'TOTAL':
+        return Icons.phone_in_talk_outlined;
+      case 'MISSED':
+        return Icons.call_missed;
+      case 'TRANSFERRED':
+        return Icons.compare_arrows_outlined;
+      default:
+        return Icons.insert_drive_file_outlined;
+    }
+  }
+
+  Color _getCardBgColor() {
+    switch (widget.fromCard) {
+      case 'NEW':
+        return AppThemeColors.basicGreen;
+      case 'FOLLOWUP':
+        return const Color(0xff6C99F2);
+      case 'CLOSED':
+        return const Color(0xff7A43D2);
+      case 'TOTAL':
+        return const Color(0xff002660);
+      case 'MISSED':
+        return const Color(0xffDF655A);
+      case 'TRANSFERRED':
+        return const Color(0xff5177AE);
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  Color _getCardBgColor1() {
+    switch (widget.fromCard) {
+      case 'NEW':
+        return const Color(0xffe6fbf4);
+      case 'FOLLOWUP':
+        return const Color(0xffeff6ff);
+      case 'CLOSED':
+        return const Color(0xfffaf5ff);
+      case 'TOTAL':
+        return const Color(0xffeff6ff);
+      case 'MISSED':
+        return const Color(0xfffef2f2);
+      case 'TRANSFERRED':
+        return const Color(0xffe0e7ff);
+      default:
+        return AppColors.primary.withOpacity(0.12);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
+    return BlocBuilder<AddLeadCubit, AddLeadState>(
+      builder: (context, state) {
+        String count = "0";
+        switch (widget.fromCard) {
+          case 'NEW':
+            count = state.newLeadCount;
+            break;
+          case 'FOLLOWUP':
+            count = state.followUpCount;
+            break;
+          case 'CLOSED':
+            count = state.closedLeadCount;
+            break;
+          case 'TOTAL':
+            count = state.totalCalledCount;
+            break;
+          case 'MISSED':
+            count = state.missedLeadCount;
+            break;
+          case 'TRANSFERRED':
+            count = state.transferredCount;
+            break;
+        }
 
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
+        final staffId = staff?.id;
+        String? dateStr;
+        if (widget.fromCard == "TOTAL") {
+          if (widget.dateText != null && widget.dateText!.isNotEmpty) {
+            try {
+              final parsedDate = DateFormat(
+                'dd-MM-yyyy',
+              ).parse(widget.dateText!);
+              dateStr = parsedDate.toIso8601String();
+            } catch (_) {
+              dateStr = state.selectedDashboardDate?.toIso8601String();
+            }
+          } else {
+            dateStr = null;
+          }
+        } else {
+          dateStr = state.selectedDashboardDate?.toIso8601String();
+        }
 
-        // 👇 lift effect
-        transform: Matrix4.translationValues(0, isHovering ? -6 : 0, 0),
+        final path = Uri(
+          path: RoutePaths.newLeads,
+          queryParameters: {
+            if (widget.fromCard.isNotEmpty) 'fromCard': widget.fromCard,
+            if (dateStr != null) 'selectedDate': dateStr,
+            if (staffId != null) 'staffId': staffId,
+          },
+        ).toString();
 
-        width: 18.w,
-        padding: const EdgeInsets.all(16),
-
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(5),
-
-          // 👇 shadow change on hover
-          boxShadow: [
-            BoxShadow(
-              color: isHovering
-                  ? Colors.black.withOpacity(0.15)
-                  : AppColors.lightGrey,
-              blurRadius: isHovering ? 20 : 8,
-              offset: Offset(0, isHovering ? 10 : 2),
-            ),
-          ],
-        ),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// TITLE ROW
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.title,
-                  style: AppTextStyle.medium(
-                    color: AppColors.grey,
-                    weight: FontWeight.w600,
+        return MouseRegion(
+          onEnter: (_) => setState(() => isHovering = true),
+          onExit: (_) => setState(() => isHovering = false),
+          child: BrowserAwareLink(
+            destination: path,
+            usePush: true,
+            enableInkWell: false,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              transform: Matrix4.translationValues(0, isHovering ? -6 : 0, 0),
+              width: widget.width ?? 18.w,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.lightGrey.withOpacity(0.5),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isHovering
+                        ? Colors.black.withOpacity(0.08)
+                        : Colors.black.withOpacity(0.02),
+                    blurRadius: isHovering ? 16 : 8,
+                    offset: Offset(0, isHovering ? 8 : 4),
                   ),
-                ),
-
-                ToolTipWidget(message: widget.message),
-              ],
-            ),
-
-            SizedBox(height: 1.5.h),
-
-            /// NUMBER
-            // Text("0", style: AppTextStyle.number(size: 14.sp)),
-            BlocBuilder<AddLeadCubit, AddLeadState>(
-              builder: (context, state) {
-                String count = "0";
-
-                switch (widget.fromCard) {
-                  case 'NEW':
-                    count = state.newLeadCount;
-                    break;
-
-                  case 'FOLLOWUP':
-                    count = state.followUpCount;
-                    break;
-
-                  case 'CLOSED':
-                    count = state.closedLeadCount;
-                    break;
-
-                  case 'TOTAL':
-                    count = state.totalCalledCount;
-                    break;
-
-                  case 'MISSED':
-                    count = state.missedLeadCount;
-                    break;
-
-                  case 'TRANSFERRED':
-                    count = state.transferredCount;
-                    break;
-                }
-
-                return Text(count, style: AppTextStyle.number(size: 14.sp));
-              },
-            ),
-
-            SizedBox(height: 1.5.h),
-
-            /// LINK ROW
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BlocBuilder<AddLeadCubit, AddLeadState>(
-                  builder: (context, state) {
-                    final staffId = staff?.id;
-                    String? dateStr;
-                    if (widget.fromCard == "TOTAL") {
-                      if (widget.dateText != null &&
-                          widget.dateText!.isNotEmpty) {
-                        try {
-                          final parsedDate = DateFormat(
-                            'dd-MM-yyyy',
-                          ).parse(widget.dateText!);
-                          dateStr = parsedDate.toIso8601String();
-                        } catch (_) {
-                          dateStr = state.selectedDashboardDate
-                              ?.toIso8601String();
-                        }
-                      } else {
-                        dateStr = null;
-                      }
-                    } else {
-                      dateStr = state.selectedDashboardDate?.toIso8601String();
-                    }
-                    final path = Uri(
-                      path: RoutePaths.newLeads,
-                      queryParameters: {
-                        if (widget.fromCard.isNotEmpty)
-                          'fromCard': widget.fromCard,
-                        if (dateStr != null) 'selectedDate': dateStr,
-                        if (staffId != null) 'staffId': staffId,
-                      },
-                    ).toString();
-
-                    return BrowserAwareLink(
-                      destination: path,
-                      usePush: true,
-                      enableInkWell: false,
-                      child: Text(
-                        "View Details",
-                        style: AppTextStyle.link(
-                          color: AppColors.grey,
-                          decorationColor: AppColors.grey,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                BlocBuilder<AddLeadCubit, AddLeadState>(
-                  builder: (context, state) {
-                    String count = "0";
-
-                    switch (widget.fromCard) {
-                      case 'NEW':
-                        count = state.newLeadCount;
-                        break;
-
-                      case 'FOLLOWUP':
-                        count = state.followUpCount;
-                        break;
-
-                      case 'CLOSED':
-                        count = state.closedLeadCount;
-                        break;
-
-                      case 'TOTAL':
-                        count = state.totalCalledCount;
-                        break;
-
-                      case 'MISSED':
-                        count = state.missedLeadCount;
-                        break;
-
-                      case 'TRANSFERRED':
-                        count = state.transferredCount;
-                        break;
-                    }
-                    return GestureDetector(
-                      onTap: () {
-                        showLeadsDialog(
-                          context: context,
-                          title: "${widget.fromCard.toUpperCase()} LEADS",
-                          value: count,
-                        );
-                      },
-                      child: Container(
-                        height: 5.h,
-                        width: 5.h,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top Row (Icon + Actions)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(3),
+                          color: _getCardBgColor(),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          Symbols.vital_signs,
-                          size: 14.sp,
-                          color: Colors.indigoAccent[400],
+                          _getCardIcon(),
+                          color: AppColors.white,
+                          // color: _getCardColor(),
+                          size: 20,
                         ),
                       ),
-                    );
-                  },
-                ),
-              ],
+                      Row(
+                        children: [
+                          // GestureDetector(
+                          //   onTap: () {
+                          //     showLeadsDialog(
+                          //       context: context,
+                          //       title: "${widget.title.toUpperCase()} LEADS",
+                          //       value: count,
+                          //     );
+                          //   },
+                          //   child: Icon(
+                          //     Symbols.vital_signs,
+                          //     size: 14.sp,
+                          //     color: Colors.indigoAccent[400]?.withOpacity(0.7),
+                          //   ),
+                          // ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.north_east,
+                            size: 14.sp,
+                            color: AppColors.grey.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Title Text
+                  Text(
+                    widget.title,
+                    style: AppTextStyle.medium(
+                      color: AppThemeColors.cardText,
+                      weight: FontWeight.w500,
+                      size: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Metric Count
+                  Text(
+                    count.padLeft(2, '0'),
+                    style: AppTextStyle.heading(
+                      size: 16,
+                      weight: FontWeight.w600,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

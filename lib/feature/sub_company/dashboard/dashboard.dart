@@ -1,15 +1,18 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/utils/custom_calender.dart';
-import 'package:Odit_CRM/core/utils/menu_hover_bottun.dart';
+import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/add_leads_button.dart';
 import 'package:Odit_CRM/feature/sub_company/dashboard/widget/dashboard_card.dart';
-import 'package:Odit_CRM/feature/sub_company/dashboard/widget/social_connect_card.dart';
+import 'package:Odit_CRM/feature/sub_company/dashboard/widget/recent_lead_activity_tile.dart';
 import 'package:Odit_CRM/main.dart';
 import 'package:sizer/sizer.dart';
 
@@ -26,21 +29,79 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   final TextEditingController _dateController = TextEditingController();
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    // _dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     final today = DateTime.now();
-
     _dateController.text = DateFormat('dd-MM-yyyy').format(today);
 
-    // context.read<AddLeadCubit>().fetchDashboardCounts(today);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      log("hhhhhhhhhhhhhhhhhhhhh");
       context.read<AddLeadCubit>().fetchDashboardCounts(today);
+      context.read<AddLeadCubit>().fetchRecentActivities();
+      _loadUser();
     });
+  }
+
+  Future<void> _loadUser() async {
+    final user = await SessionService().getSavedUser();
+    // log("hghghghghghhgghhg wwww ${user?.toJson()}");
+    if (mounted) {
+      setState(() {
+        _isAdmin = user?.designation?.toLowerCase() == 'company_admin';
+      });
+    }
+  }
+
+  Future<void> addDesignationToSubCompanyUsers() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    try {
+      // Get only users where companyType == "sub_company"
+      final QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .collection('USERS')
+          .where('companyType', isEqualTo: 'sub_company')
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        print('No sub_company users found.');
+        return;
+      }
+
+      // Use batch to update all matching documents
+      WriteBatch batch = firestore.batch();
+
+      int operationCount = 0;
+
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {
+          'designation': 'Company_Admin',
+          'designationId': 'Company_Admin',
+        });
+
+        operationCount++;
+
+        // Commit every 500 operations
+        if (operationCount == 500) {
+          await batch.commit();
+
+          batch = firestore.batch();
+          operationCount = 0;
+        }
+      }
+
+      // Commit remaining updates
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+
+      print('Successfully updated ${snapshot.docs.length} sub_company users.');
+    } catch (e, stackTrace) {
+      print('Error updating users: $e');
+      print(stackTrace);
+    }
   }
 
   @override
@@ -61,28 +122,45 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
         ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
         : null;
     context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
+    context.read<AddLeadCubit>().fetchRecentActivities();
   }
 
   @override
   Widget build(BuildContext context) {
+    final addLeadCubit = context.read<AddLeadCubit>();
+    log("ghgghghhhhgh ${_isAdmin}");
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: Row(
         children: [
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                color: AppColors.background,
-                padding: EdgeInsets.only(top: 3.h, left: 2.w, right: 3.h),
+                color: AppThemeColors.scaffoldBg,
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 3.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// TOP HEADER ROW
+                    // 1. Admin-Only Package Banner
+                    if (_isAdmin)
+                      BlocBuilder<AddLeadCubit, AddLeadState>(
+                        builder: (context, state) {
+                          return AdminPackageBanner(
+                            planName: state.subscriptionPlan,
+                            startDate: state.subscriptionStartDate,
+                            endDate: state.subscriptionEndDate,
+                            userCount: state.companyUserCount,
+                          );
+                        },
+                      ),
+
+                    // 2. Lead Management Section Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        /// LEFT SIDE (TITLE + SUBTITLE)
+                        // Left: Title + Subtitle
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -90,9 +168,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                               "Lead Management",
                               style: AppTextStyle.heading(size: 15),
                             ),
-
-                            SizedBox(height: 0.5.h),
-
+                            const SizedBox(height: 4),
                             Text(
                               "Calling features that give you wings that fast..",
                               style: AppTextStyle.small(
@@ -103,336 +179,301 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                             ),
                           ],
                         ),
-
-                        /// RIGHT SIDE (ACTIONS)
+                        // Right: Date selector dropdown + Add Leads button
                         Row(
                           children: [
-                            /// SEARCH BOX
-                            BlocBuilder<AddLeadCubit, AddLeadState>(
-                              builder: (context, state) {
-                                final addLeadCubit = context
-                                    .read<AddLeadCubit>();
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      barrierColor: Colors.transparent,
-                                      builder: (dialogContext) {
-                                        return Stack(
-                                          children: [
-                                            Positioned(
-                                              top: 20.h,
-                                              right: 5.w,
-                                              child: CustomCalendar(
-                                                initialSelectedDate:
-                                                    _dateController
-                                                        .text
-                                                        .isNotEmpty
-                                                    ? DateFormat(
-                                                        'dd-MM-yyyy',
-                                                      ).parse(
-                                                        _dateController.text,
-                                                      )
-                                                    : null,
-                                                onDateSelected: (date) {
-                                                  /// SET SELECTED DATE
-                                                  setState(() {
-                                                    _dateController.text =
-                                                        DateFormat(
-                                                          'dd-MM-yyyy',
-                                                        ).format(date);
-                                                  });
-                                                  addLeadCubit
-                                                      .updateSelectedDashboardDate(
-                                                        date,
-                                                      );
-
-                                                  addLeadCubit
-                                                      .fetchDashboardCounts(
-                                                        date,
-                                                        forceFetch: true,
-                                                      );
-
-                                                  /// CLOSE DIALOG ONLY
-                                                  Navigator.pop(dialogContext);
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Row(
-                                    children: [
-                                      /// DATE FIELD
-                                      Container(
-                                        width: 15.w,
-                                        height: 6.h,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(4),
-                                            bottomLeft: Radius.circular(4),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.transparent,
+                                  builder: (dialogContext) {
+                                    return Stack(
+                                      children: [
+                                        Positioned(
+                                          top: 20.h,
+                                          right: 5.w,
+                                          child: CustomCalendar(
+                                            initialSelectedDate:
+                                                _dateController.text.isNotEmpty
+                                                ? DateFormat(
+                                                    'dd-MM-yyyy',
+                                                  ).parse(_dateController.text)
+                                                : null,
+                                            onDateSelected: (date) {
+                                              setState(() {
+                                                _dateController.text =
+                                                    DateFormat(
+                                                      'dd-MM-yyyy',
+                                                    ).format(date);
+                                              });
+                                              addLeadCubit
+                                                  .updateSelectedDashboardDate(
+                                                    date,
+                                                  );
+                                              addLeadCubit.fetchDashboardCounts(
+                                                date,
+                                                forceFetch: true,
+                                              );
+                                              Navigator.pop(dialogContext);
+                                            },
                                           ),
                                         ),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Center(
-                                                child: IgnorePointer(
-                                                  child: TextField(
-                                                    controller: _dateController,
-                                                    readOnly: true,
-                                                    style: AppTextStyle.small(
-                                                      size: 11.sp,
-                                                      color: AppColors.grey,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    decoration: InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintStyle:
-                                                          AppTextStyle.small(
-                                                            size: 11.sp,
-                                                            color:
-                                                                AppColors.grey,
-                                                          ),
-                                                      isCollapsed: true,
-                                                      contentPadding:
-                                                          EdgeInsets.zero,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            if (_dateController.text.isNotEmpty)
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _dateController.clear();
-                                                  });
-                                                  addLeadCubit
-                                                      .updateSelectedDashboardDate(
-                                                        null,
-                                                      );
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 5,
-                                                      ),
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: AppColors.grey,
-                                                    size: 12.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Container(
+                                height: 35,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.lightGrey.withOpacity(0.5),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_today_outlined,
+                                      size: 16,
+                                      color: AppColors.grey,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _dateController.text.isNotEmpty
+                                          ? _dateController.text
+                                          : 'Select Date',
+                                      style: AppTextStyle.medium(
+                                        size: 13,
+                                        color: AppColors.black,
+                                        weight: FontWeight.w500,
                                       ),
-
-                                      /// SEARCH BUTTON
+                                    ),
+                                    if (_dateController.text.isNotEmpty) ...[
+                                      const SizedBox(width: 8),
                                       GestureDetector(
                                         onTap: () {
-                                          if (_dateController.text.isEmpty) {
-                                            addLeadCubit.fetchDashboardCounts(
-                                              null,
-                                              forceFetch: true,
-                                            );
-                                            return;
-                                          }
-
-                                          /// CONVERT STRING TO DATETIME
-                                          final selectedDate = DateFormat(
-                                            'dd-MM-yyyy',
-                                          ).parse(_dateController.text);
-
-                                          /// CALL count function
+                                          setState(() {
+                                            _dateController.clear();
+                                          });
+                                          addLeadCubit
+                                              .updateSelectedDashboardDate(
+                                                null,
+                                              );
                                           addLeadCubit.fetchDashboardCounts(
-                                            selectedDate,
+                                            null,
                                             forceFetch: true,
                                           );
                                         },
-                                        child: Container(
-                                          height: 6.h,
-                                          width: 6.h,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.indigo,
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(4),
-                                              bottomRight: Radius.circular(4),
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.search,
-                                            color: Colors.white,
-                                            size: 13.sp,
-                                          ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 14,
+                                          color: AppColors.grey,
                                         ),
                                       ),
                                     ],
-                                  ),
-                                );
-                              },
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 18,
+                                      color: AppColors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-
-                            SizedBox(width: 1.w),
-
-                            /// ADD LEADS BUTTON
-                            AddLeadsButton(),
-
-                            SizedBox(width: 1.w),
-
-                            /// MENU BUTTON
-                            MenuHoverButton(),
-
-                            SizedBox(width: 1.w),
-
-                            /// MIGRATE LEADS BUTTON
-                            // const MigrateLeadsButton(),
+                            const SizedBox(width: 16),
+                            const AddLeadsButton(),
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 2.h),
+                    const SizedBox(height: 24),
 
-                    // /// 🔥 SOCIAL CONNECT SECTION_____________don't delete_________________
-                    // Wrap(
-                    //   spacing: 2.w,
-                    //   runSpacing: 2.h,
-                    //   children: [
-                    //     SizedBox(
-                    //       width: MediaQuery.of(context).size.width > 800
-                    //           ? 38.w
-                    //           : 200.w,
-                    //       child: SocialConnectCard(
-                    //         title: "Connect facebook",
-                    //         buttonText: "Facebook Settings",
-                    //         buttonColor: AppColors.primary,
-                    //         icon: Icons.facebook,
-                    //         iconColor: AppColors.primary,
-                    //         ontap: () {
-                    //           Navigator.push(
-                    //             context,
-                    //             MaterialPageRoute(
-                    //               builder: (context) =>
-                    //                   MainScreen(selectedIndex: 21),
-                    //             ),
-                    //           );
-                    //         },
-                    //       ),
-                    //     ),
-                    //     // SizedBox(width: 2.w),
-                    //     SizedBox(
-                    //       width: MediaQuery.of(context).size.width > 600
-                    //           ? 38.w
-                    //           : 200.w,
-                    //       child: SocialConnectCard(
-                    //         title: "Connect WhatsApp",
-                    //         buttonText: "Whatsapp Settings",
-                    //         buttonColor: AppColors.green,
-                    //         icon: Icons.chat,
-                    //         iconColor: AppColors.green,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    SizedBox(height: 2.h),
-
-                    /// CARDS
+                    // 3. Stat Cards Grid
                     BlocBuilder<AddLeadCubit, AddLeadState>(
                       buildWhen: (previous, current) =>
                           previous.isLoadingCounts != current.isLoadingCounts,
                       builder: (context, state) {
-                        // if (state.isLoadingCounts) {
-                        //   // ── Single centered loader for all 6 cards ─────────────────
-                        //   return SizedBox(
-                        //     height: 20.h,
-                        //     child: Center(
-                        //       child: CircularProgressIndicator(
-                        //         strokeWidth: 2.5,
-                        //         color: AppColors.primary,
-                        //       ),
-                        //     ),
-                        //   );
-                        // }
-                        if (state.isLoadingCounts) {
-                          return Wrap(
-                            spacing: 2.w,
-                            runSpacing: 2.h,
-                            children: List.generate(
-                              6,
-                              (_) => const _SkeletonCard(),
-                            ),
-                          );
-                        }
-                        return Wrap(
-                          spacing: 2.w,
-                          runSpacing: 2.h,
-                          children: [
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "NEW LEADS",
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
+                            final totalWidth = constraints.maxWidth;
+                            double cardWidth;
+                            if (totalWidth > 1200) {
+                              cardWidth = (totalWidth - 5 * 16) / 6;
+                            } else if (totalWidth > 500) {
+                              cardWidth = (totalWidth - 2 * 16) / 6.5;
+                              // } else if (totalWidth > 500) {
+                              //   cardWidth = (totalWidth - 1 * 16) / 9;
+                            } else {
+                              cardWidth = totalWidth;
+                            }
+
+                            if (state.isLoadingCounts) {
+                              return SizedBox(
+                                height: 130,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 6,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 16),
+                                      child: _SkeletonCard(width: cardWidth),
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+
+                            final cards = [
+                              DashboardCard(
+                                title: "New Leads",
                                 message:
                                     'The combined count of new\nleads and unattended leads.',
                                 fromCard: 'NEW',
+                                width: cardWidth,
                               ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "FOLLOWUP LEADS",
+                              DashboardCard(
+                                title: "Follow-up",
                                 message:
                                     'The current count of leads assigned \nfor today, including missed follow-up leads.',
                                 fromCard: 'FOLLOWUP',
+                                width: cardWidth,
                               ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "CLOSED LEADS",
+                              DashboardCard(
+                                title: "Closed Leads",
                                 message:
                                     'Closed leads can be filtered using a specific \ndate range to determine the count of \nclosed leads within that period.',
                                 fromCard: 'CLOSED',
+                                width: cardWidth,
                               ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "TOTAL CALLED",
+                              DashboardCard(
+                                title: "Total Called",
                                 message:
                                     'Total called can be filtered \nusing a specific date range to determine \nthe count of total leads within that period.',
                                 fromCard: 'TOTAL',
                                 dateText: _dateController.text,
+                                width: cardWidth,
                               ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "MISSED LEADS",
+                              DashboardCard(
+                                title: "Missed Leads",
                                 message: 'Missed Leads',
                                 fromCard: 'MISSED',
+                                width: cardWidth,
                               ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: DashboardCard(
-                                title: "TRANSFERRED LEADS",
+                              DashboardCard(
+                                title: "Transferred",
                                 message:
                                     'Count of total leads \ntransferred to you.',
                                 fromCard: 'TRANSFERRED',
+                                width: cardWidth,
                               ),
-                            ),
-                          ],
+                            ];
+
+                            return SizedBox(
+                              height: 130,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: cards.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 16),
+                                    child: cards[index],
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         );
                       },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // 4. Recent Lead Activities List Panel
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.lightGrey.withOpacity(0.5),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Recent Lead Activities",
+                            style: AppTextStyle.medium(
+                              size: 15,
+                              weight: FontWeight.w700,
+                              color: AppColors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          BlocBuilder<AddLeadCubit, AddLeadState>(
+                            builder: (context, state) {
+                              if (state.isLoadingActivities) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+                              if (state.recentActivities.isEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 20,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "No recent activities found.",
+                                      style: AppTextStyle.small(
+                                        size: 12,
+                                        color: AppColors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              return ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: state.recentActivities.length,
+                                separatorBuilder: (context, index) => Divider(
+                                  color: AppColors.lightGrey.withOpacity(0.5),
+                                  height: 1,
+                                ),
+                                itemBuilder: (context, index) {
+                                  final activity =
+                                      state.recentActivities[index];
+                                  return RecentLeadActivityTile(
+                                    activity: activity,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -445,27 +486,179 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   }
 }
 
-class _SkeletonCard extends StatelessWidget {
-  const _SkeletonCard();
+class AdminPackageBanner extends StatelessWidget {
+  final String planName;
+  final String startDate;
+  final String endDate;
+  final String userCount;
+
+  const AdminPackageBanner({
+    super.key,
+    required this.planName,
+    required this.startDate,
+    required this.endDate,
+    required this.userCount,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 18.w,
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(AssetResources.dashboard_banner),
+          fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xff1d4ed8), // deep blue-purple gradient
+            Color(0xff6b21a8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xff10b981),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  planName.toUpperCase(),
+                  style: AppTextStyle.small(
+                    size: 11,
+                    weight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "START DATE",
+                        style: AppTextStyle.small(
+                          size: 10,
+                          weight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        startDate.isNotEmpty ? startDate : '--/--/----',
+                        style: AppTextStyle.medium(
+                          size: 13,
+                          weight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 48),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "END DATE",
+                        style: AppTextStyle.small(
+                          size: 10,
+                          weight: FontWeight.w600,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        endDate.isNotEmpty ? endDate : '--/--/----',
+                        style: AppTextStyle.medium(
+                          size: 13,
+                          weight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white.withOpacity(0.1),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.people_outline, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  "$userCount USERS",
+                  style: AppTextStyle.medium(
+                    size: 12,
+                    weight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonCard extends StatelessWidget {
+  final double width;
+  const _SkeletonCard({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [BoxShadow(color: AppColors.lightGrey, blurRadius: 8)],
+        color: AppThemeColors.dashboardCard,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(height: 12, width: 10.w, color: Colors.grey[200]),
-          SizedBox(height: 1.5.h),
-          Container(height: 24, width: 6.w, color: Colors.grey[300]),
-          SizedBox(height: 1.5.h),
-          Container(height: 10, width: 8.w, color: Colors.grey[200]),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(height: 12, width: 80, color: Colors.grey[100]),
+          const SizedBox(height: 8),
+          Container(height: 24, width: 40, color: Colors.grey[200]),
         ],
       ),
     );

@@ -1,4 +1,6 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:Odit_CRM/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -13,11 +15,13 @@ import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 class SidebarItem extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
+  final VoidCallback onBackArrowTap;
 
   const SidebarItem({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    required this.onBackArrowTap,
   });
 
   @override
@@ -27,7 +31,7 @@ class SidebarItem extends StatefulWidget {
 class _SidebarItemState extends State<SidebarItem> {
   @override
   Widget build(BuildContext context) {
-    // ✅ Read permission cubit once
+    // Read permission cubit once
     final perm = context.watch<PermissionCubit>();
 
     final isLeadSelected =
@@ -36,14 +40,11 @@ class _SidebarItemState extends State<SidebarItem> {
         widget.selectedIndex == 14;
     final isStaffSelected =
         widget.selectedIndex >= 15 && widget.selectedIndex <= 18;
-    final isSettingsSelected =
-        widget.selectedIndex >= 20 && widget.selectedIndex <= 21;
-    final isFileSelected = widget.selectedIndex == 19;
     final isReportsSelected =
         (widget.selectedIndex >= 22 && widget.selectedIndex <= 25) ||
         widget.selectedIndex == 2;
 
-    // ─── Which lead sub-items are visible ─────────────────────────────────
+    // Lead sub-items visible
     final leadChildren = [
       if (perm.canAddLead) subMenuItem("Add Lead", 1),
       if (perm.canViewLeadsReport) subMenuItem("Leads Report", 2),
@@ -58,7 +59,7 @@ class _SidebarItemState extends State<SidebarItem> {
       // subMenuItem("Phone Call Logs", 6),
     ];
 
-    // ─── Which staff sub-items are visible ────────────────────────────────
+    // Staff sub-items visible
     final staffChildren = [
       if (perm.canAddStaff) subMenuItem("Add Staff", 15),
       if (perm.canViewStaff) subMenuItem("View Staff", 16),
@@ -66,7 +67,7 @@ class _SidebarItemState extends State<SidebarItem> {
       if (perm.canViewDeletedStaff) subMenuItem("Deleted Staff", 18),
     ];
 
-    // ─── Which report sub-items are visible ───────────────────────────────
+    // Report sub-items visible
     final reportChildren = [
       if (perm.canViewStaffReport) subMenuItem("Staff Reports", 22),
       if (perm.canViewTransferReport)
@@ -77,154 +78,217 @@ class _SidebarItemState extends State<SidebarItem> {
     ];
 
     return Container(
-      width: 240,
+      // width: 150,
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: BoxBorder.fromLTRB(right: BorderSide(color: Colors.black12)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 10,
-            offset: const Offset(20, 3),
+        color: AppThemeColors.sidebarBg,
+        border: Border(
+          right: BorderSide(color: AppThemeColors.borderLight, width: 1),
+        ),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Logo Row
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: widget.onBackArrowTap,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.asset(
+                              AssetResources.iconLogo,
+                              scale: 40,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Odit CRM',
+                          style: AppTextStyle.body(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppThemeColors.sidebarLogoTxtClr,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: widget.onBackArrowTap,
+                          child: Icon(
+                            Icons.keyboard_double_arrow_left_sharp,
+                            color: AppThemeColors.hintColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // DASHBOARD
+                  sidebarItem(
+                    Icons.dashboard_outlined,
+                    "Dashboard",
+                    0,
+                    Image.asset(AssetResources.dashboard_icon, scale: 2),
+                  ),
+
+                  // LEAD MANAGEMENT
+                  if (leadChildren.isNotEmpty)
+                    CustomExpandedTile(
+                      icon: Symbols.query_stats,
+                      title: "Lead Management",
+                      isSelected: isLeadSelected,
+                      children: leadChildren,
+                    ),
+
+                  // STAFF MANAGEMENT
+                  if (staffChildren.isNotEmpty)
+                    CustomExpandedTile(
+                      icon: Symbols.badge,
+                      title: "Staff Management",
+                      isSelected: isStaffSelected,
+                      children: staffChildren,
+                    ),
+
+                  // REPORTS
+                  if (reportChildren.isNotEmpty)
+                    CustomExpandedTile(
+                      icon: Symbols.news,
+                      title: "Reports",
+                      isSelected: isReportsSelected,
+                      children: reportChildren,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          // User Section at Bottom
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state is! Authenticated) return const SizedBox.shrink();
+              final user = state.user;
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: AppThemeColors.borderLight,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage:
+                          user.imageUrl != null &&
+                              user.imageUrl!.trim().isNotEmpty
+                          ? NetworkImage(user.imageUrl!)
+                          : null,
+                      child:
+                          user.imageUrl == null || user.imageUrl!.trim().isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: Colors.grey,
+                              size: 18,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            user.name,
+                            style: AppTextStyle.medium(
+                              size: 13,
+                              weight: FontWeight.w600,
+                              color: AppThemeColors.sidebarLogoTxtClr,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            user.staffType ?? '',
+                            style: AppTextStyle.small(
+                              size: 11,
+                              color: AppColors.grey,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.w),
-                // padding: EdgeInsets.zero,
-                // child: Text(
-                //   "Oxdo Leads",
-                //   style: AppTextStyle.heading(size: 20, weight: FontWeight.w700),
-                // ),
-                child: Image.asset(
-                  AssetResources.sidebar_logo,
-                  // width: 8.w,
-                  scale: 10,
-                ),
-              ),
-            ),
-            //  SizedBox(height: 2.h),
-
-            /// DASHBOARD — always visible
-            sidebarItem(Icons.dashboard, "Dashboard", 0),
-
-            /// LEAD MANAGEMENT — only show if any child is visible
-            if (leadChildren.isNotEmpty)
-              _expansionSection(
-                icon: Icons.phone,
-                title: "Lead Management",
-                isSelected: isLeadSelected,
-                children: leadChildren,
-              ),
-
-            /// STAFF MANAGEMENT — only show if any child is visible
-            if (staffChildren.isNotEmpty)
-              _expansionSection(
-                icon: Symbols.article_person_sharp,
-                title: "Staff Management",
-                isSelected: isStaffSelected,
-                children: staffChildren,
-              ),
-
-            /// SETTINGS
-            if (perm.canViewGeneralSettings || perm.canViewFacebookSettings)
-              _expansionSection(
-                // icon: Symbols.settings,
-                icon: Icons.settings_outlined,
-                title: "Settings",
-                isSelected: isSettingsSelected,
-                children: [
-                  // if (perm.canViewFacebookSettings)
-                  //   subMenuItem("Facebook Settings", 21),
-                  if (perm.canViewGeneralSettings)
-                    subMenuItem("General Settings", 20),
-                ],
-              ),
-
-            // /// FILE MANAGER
-            // if (perm.canViewFileManager)
-            //   _expansionSection(
-            //     icon: Symbols.folder,
-            //     title: "File Manager",
-            //     isSelected: isFileSelected,
-            //     children: [subMenuItem("View", 19)],
-            //   ),
-
-            /// REPORTS — only show if any child is visible
-            if (reportChildren.isNotEmpty)
-              _expansionSection(
-                icon: Symbols.news,
-                title: "Reports",
-                isSelected: isReportsSelected,
-                children: reportChildren,
-              ),
-          ],
-        ),
-      ),
     );
   }
 
-  // ─── Reusable expansion section ───────────────────────────────────────────
-  Widget _expansionSection({
-    required IconData icon,
-    required String title,
-    required bool isSelected,
-    required List<Widget> children,
-  }) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        initiallyExpanded: isSelected,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-        childrenPadding: EdgeInsets.only(left: 20),
-        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-        leading: Icon(
-          icon,
-          color: isSelected ? AppColors.primary : AppColors.grey,
-        ),
-        title: Text(
-          title,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-          style: AppTextStyle.medium(
-            size: 14,
-            color: isSelected ? AppColors.primary : AppColors.grey,
-            weight: FontWeight.w500,
-          ),
-        ),
-        children: children,
-      ),
-    );
-  }
-
-  Widget sidebarItem(IconData icon, String title, int index) {
+  Widget sidebarItem(
+    IconData icon,
+    String title,
+    int index,
+    Widget? iconWidget,
+  ) {
     final isSelected = widget.selectedIndex == index;
     final path = RoutePaths.sidebarPaths[index] ?? '/';
     return BrowserAwareLink(
       destination: path,
       onTap: () => widget.onItemSelected(index),
-      child: Padding(
+      enableInkWell: false,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xff002b66) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.primary : AppColors.grey),
-            SizedBox(width: 0.6.w),
+            if (iconWidget != null)
+              isSelected
+                  ? ColorFiltered(
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                      child: iconWidget,
+                    )
+                  : iconWidget
+            else
+              Icon(
+                icon,
+                color: isSelected ? Colors.white : AppColors.grey,
+                size: 20,
+              ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: AppTextStyle.medium(
-                  size: 14,
-                  color: isSelected ? AppColors.primary : AppColors.grey,
+                  size: 12,
+                  color: isSelected ? Colors.white : AppColors.grey,
+                  weight: FontWeight.w500,
                 ),
               ),
             ),
@@ -240,26 +304,134 @@ class _SidebarItemState extends State<SidebarItem> {
     return BrowserAwareLink(
       destination: path,
       onTap: () => widget.onItemSelected(index),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 14, bottom: 14, left: 20),
+      enableInkWell: false,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppThemeColors.appPrimaryColor.withAlpha(15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
             Expanded(
               child: Text(
-                '-   $title',
-                style: AppTextStyle.small(
-                  size: 11.sp,
-                  weight: FontWeight.w500,
-                  color: isSelected ? AppColors.primary : AppColors.grey,
+                title,
+                style: AppTextStyle.medium(
+                  size: 12,
+                  weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? const Color(0xff002b66) : AppColors.grey,
                 ),
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class CustomExpandedTile extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final bool isSelected;
+  final List<Widget> children;
+
+  const CustomExpandedTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.isSelected,
+    required this.children,
+  });
+
+  @override
+  State<CustomExpandedTile> createState() => _CustomExpandedTileState();
+}
+
+class _CustomExpandedTileState extends State<CustomExpandedTile> {
+  late bool _isExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _isExpanded = widget.isSelected;
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomExpandedTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isSelected != widget.isSelected && widget.isSelected) {
+      _isExpanded = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isTileSelected = widget.isSelected;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            decoration: BoxDecoration(
+              color: isTileSelected
+                  ? const Color(0xff002b66)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  widget.icon,
+                  color: isTileSelected ? Colors.white : AppColors.grey,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: AppTextStyle.medium(
+                      size: 12,
+                      color: isTileSelected ? Colors.white : AppColors.grey,
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Icon(
+                  _isExpanded
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_right,
+                  color: isTileSelected ? Colors.white : AppColors.grey,
+                  size: 18,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isExpanded && widget.children.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(left: 25, top: 4, bottom: 4),
+            decoration: const BoxDecoration(
+              border: Border(
+                left: BorderSide(color: Color(0xffe2e8f0), width: 1.5),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widget.children,
+            ),
+          ),
+      ],
     );
   }
 }

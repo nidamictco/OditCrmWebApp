@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'package:sizer/sizer.dart';
@@ -8,6 +8,8 @@ class ShowEntries extends StatefulWidget {
   final ValueChanged<String>? onEntriesChanged;
   final String initialSearch;
   final String initialEntries;
+  final Widget? middleWidget;
+  final Widget? exportWidget;
 
   const ShowEntries({
     super.key,
@@ -15,6 +17,8 @@ class ShowEntries extends StatefulWidget {
     this.onEntriesChanged,
     this.initialSearch = '',
     this.initialEntries = '1',
+    this.middleWidget,
+    this.exportWidget,
   });
 
   @override
@@ -66,101 +70,129 @@ class _ShowEntriesState extends State<ShowEntries> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 1.h, left: 2.w, right: 2.w, bottom: 1.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // ── Show N entries ────────────────────────────────────────
-          Row(
-            children: [
-              Text(
-                "Show ",
-                style: AppTextStyle.medium(
-                  size: 11.sp,
-                  weight: FontWeight.w400,
-                ),
-              ),
-              _smallDropdown(),
-              Text(
-                " entries",
-                style: AppTextStyle.medium(
-                  size: 11.sp,
-                  weight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-
-          // ── Search ────────────────────────────────────────────────
-          Row(
-            children: [
-              Text(
-                "Search:",
-                style: AppTextStyle.medium(
-                  size: 11.sp,
-                  weight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(width: 1.w),
-              // Container(
-              //   width: 12.w,
-              //   height: 4.h,
-              //   decoration: _box(),
-              //   child: TextField(
-              //     controller: _searchController,
-              //     onChanged: (v) => widget.onSearchChanged?.call(v),
-              //     style: AppTextStyle.small(size: 10.sp, color: AppColors.black),
-              //     decoration: const InputDecoration(
-              //       isDense: true,
-              //       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              //       border: InputBorder.none,
-              //     ),
-              //   ),
-              // ),
-              Container(
-                width: 12.w,
-                height: 4.h,
-                decoration: _box(),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (v) => widget.onSearchChanged?.call(v),
-                  style: AppTextStyle.small(
-                    size: 10.sp,
-                    color: AppColors.black,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 10,
-                    ),
-                    border: InputBorder.none,
-                    // ✅ Show X only when text is non-empty
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              widget.onSearchChanged?.call('');
-                            },
-                            child: const Icon(
-                              Icons.close,
-                              size: 14,
-                              color: Colors.grey,
-                            ),
-                          )
-                        : null,
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight:
-                          24, // ✅ prevents the suffix from expanding the row height
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
           ),
         ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(top: 2.h, left: 2.w, right: 2.w, bottom: 2.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // ── Show N entries ────────────────────────────────────────
+            Row(
+              children: [
+                Text(
+                  "Show ",
+                  style: AppTextStyle.medium(
+                    size: 11.sp,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                _smallDropdown(),
+                Text(
+                  " entries",
+                  style: AppTextStyle.medium(
+                    size: 11.sp,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                if (widget.middleWidget != null) ...[
+                  SizedBox(width: 2.w),
+                  widget.middleWidget!,
+                ],
+              ],
+            ),
+
+            // ── Search ────────────────────────────────────────────────
+            Row(
+              children: [
+                Text(
+                  "Search:",
+                  style: AppTextStyle.medium(
+                    size: 11.sp,
+                    weight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(width: 1.w),
+                // Container(
+                //   width: 12.w,
+                //   height: 4.h,
+                //   decoration: _box(),
+                //   child: TextField(
+                //     controller: _searchController,
+                //     onChanged: (v) => widget.onSearchChanged?.call(v),
+                //     style: AppTextStyle.small(size: 10.sp, color: AppColors.black),
+                //     decoration: const InputDecoration(
+                //       isDense: true,
+                //       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                //       border: InputBorder.none,
+                //     ),
+                //   ),
+                // ),
+                Container(
+                  width: 12.w,
+                  height: 5.h,
+                  decoration: _box(),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (v) => widget.onSearchChanged?.call(v),
+                    style: AppTextStyle.small(
+                      size: 10.sp,
+                      color: AppColors.black,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "Enter...",
+                      hintStyle: AppTextStyle.small(
+                        size: 11.sp,
+                        color: Colors.grey,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 10,
+                      ),
+                      border: InputBorder.none,
+                      // ✅ Show X only when text is non-empty
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                widget.onSearchChanged?.call('');
+                              },
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
+                            )
+                          : Icon(Icons.search, color: Colors.grey),
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight:
+                            24, // ✅ prevents the suffix from expanding the row height
+                      ),
+                    ),
+                  ),
+                ),
+                if (widget.exportWidget != null) ...[
+                  SizedBox(width: 1.w),
+                  widget.exportWidget!,
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -196,7 +228,7 @@ class _ShowEntriesState extends State<ShowEntries> {
   BoxDecoration _box() {
     return BoxDecoration(
       border: Border.all(color: AppColors.lightGrey),
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(6),
       color: AppColors.white,
     );
   }

@@ -86,24 +86,23 @@ class AppSidebar extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 150,
-                  height: 60,
+                  // width: 37,
+                  // height: 40,
                   decoration: BoxDecoration(
                     // color: AppThemeColors.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Image.asset(AssetResources.sidebar_logo),
+                  child: Image.asset(AssetResources.iconLogo, scale: 40),
                 ),
-                // const SizedBox(width: 10),
-                // Text(
-                //   'Odit CRM',
-                //   style: AppTextStyle.body(
-                //     fontSize: 18,
-                //     fontWeight: FontWeight.w700,
-                //     color: AppThemeColors.textPrimary,
-                //     letterSpacing: -0.3,
-                //   ),
-                // ),
+                const SizedBox(width: 10),
+                Text(
+                  'Odit CRM',
+                  style: AppTextStyle.body(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppThemeColors.sidebarLogoTxtClr,
+                  ),
+                ),
               ],
             ),
           ),

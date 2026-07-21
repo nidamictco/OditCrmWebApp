@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
@@ -22,12 +23,15 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
 
-      /// 👇 IMPORTANT: Builder gives fresh context
       child: Builder(
         builder: (context) {
           return PopupMenuButton<String>(
-            offset: const Offset(0, 45),
-
+            padding: EdgeInsets.zero,
+            offset: const Offset(0, 40),
+            constraints: BoxConstraints(maxWidth: 225),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             onSelected: (value) {
               switch (value) {
                 case "Leads Category":
@@ -61,20 +65,82 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
                 //   break;
               }
             },
-
+            borderRadius: BorderRadius.circular(12),
+            menuPadding: EdgeInsets.zero,
             color: AppColors.white,
-
-            itemBuilder: (context) => const [
+            itemBuilder: (context) => [
               PopupMenuItem(
+                height: 35,
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                 value: "Leads Category",
-                child: Text("Leads Category"),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Image.asset("assets/icon/category.png", scale: 3.1),
+                    Text(
+                      "Leads Category",
+                      style: AppTextStyle.medium(
+                        size: 11.5.sp,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               PopupMenuItem(
+                height: 35,
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                 value: "Custom Field Settings",
-                child: Text("Custom Field Settings"),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Icon(Icons.settings_outlined, size: 19.8),
+                    Text(
+                      "Custom Field Settings",
+                      style: AppTextStyle.medium(
+                        size: 11.5.sp,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              PopupMenuItem(value: "Lead Source", child: Text("Lead Source")),
-              PopupMenuItem(value: "Lead Stage", child: Text("Lead Stage")),
+              PopupMenuItem(
+                height: 35,
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                value: "Lead Source",
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Image.asset("assets/icon/source.png", scale: 3.1),
+                    Text(
+                      "Lead Source",
+                      style: AppTextStyle.medium(
+                        size: 11.5.sp,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                height: 35,
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                value: "Lead Stage",
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Icon(Icons.leaderboard_outlined, size: 19.8),
+                    Text(
+                      "Lead Stage",
+                      style: AppTextStyle.medium(
+                        size: 11.5.sp,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               // PopupMenuItem(value: 'Call Settings', child: Text('Call Settings')),
               // PopupMenuItem(
               //   value: "Unfinished Lead Distribution Settings",
@@ -83,18 +149,28 @@ class _MenuHoverButtonState extends State<MenuHoverButton> {
             ],
 
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 6.h,
-              width: 6.h,
+              // duration: const Duration(milliseconds: 200),
+              // height: 6.h,
+              // width: 6.h,
+              // decoration: BoxDecoration(
+              //   color: isHovering
+              //       ? Colors.blue.shade100
+              //       : const Color(0xffE5E7EB),
+              //   borderRadius: BorderRadius.circular(4),
+              // ),
+              duration: const Duration(milliseconds: 150),
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: isHovering
-                    ? Colors.blue.shade100
-                    : const Color(0xffE5E7EB),
-                borderRadius: BorderRadius.circular(4),
+                    ? const Color(0xFFE2E8F0)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(8),
               ),
+              alignment: Alignment.center,
               child: Icon(
-                Icons.menu,
-                size: 18,
+                Icons.notes,
+                size: 13.sp,
                 color: isHovering ? Colors.blue : Colors.black54,
               ),
             ),

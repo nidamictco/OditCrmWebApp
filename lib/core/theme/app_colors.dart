@@ -56,4 +56,5 @@ class AppTheme {
   static const Color actionEdit = Color(0xFF0EA5E9);
   static const Color actionHistory = Color(0xFF8B5CF6);
   static const Color actionDelete = Color.fromARGB(255, 180, 27, 24);
+  static const Color sidebarBgClr = Color(0xffF6F6F6);
 }
