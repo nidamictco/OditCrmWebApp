@@ -50,24 +50,42 @@ class LeadCategoryCubit extends Cubit<LeadCategoryState> {
   // ─── Write Operations ─────────────────────────────────────────────────────
 
   /// Add a new category.
-  Future<void> addCategory({
-    required String name,
-  }) async {
-    if (state.isSubmitting) return;
-    emit(state.copyWith(isSubmitting: true, clearError: true));
+  // Future<void> addCategory({
+  //   required String name,
+  // }) async {
+  //   if (state.isSubmitting) return;
+  //   emit(state.copyWith(isSubmitting: true, clearError: true));
 
-    try {
-      await _repository.addCategory(name: name, );
-      emit(state.copyWith(isSubmitting: false));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          errorMessage: _friendlyError(e),
-        ),
-      );
-    }
+  //   try {
+  //     await _repository.addCategory(name: name, );
+  //     emit(state.copyWith(isSubmitting: false));
+  //   } catch (e) {
+  //     emit(
+  //       state.copyWith(
+  //         isSubmitting: false,
+  //         errorMessage: _friendlyError(e),
+  //       ),
+  //     );
+  //   }
+  // }
+  Future<String> addCategory({required String name}) async {
+  if (state.isSubmitting) return '';
+  emit(state.copyWith(isSubmitting: true, clearError: true));
+
+  try {
+    final id = await _repository.addCategory(name: name);
+    emit(state.copyWith(isSubmitting: false));
+    return id;   // ← return the id up to the caller
+  } catch (e) {
+    emit(
+      state.copyWith(
+        isSubmitting: false,
+        errorMessage: _friendlyError(e),
+      ),
+    );
+    rethrow;   // let the dialog's try/catch handle showing an error
   }
+}
 
   /// Update the name of an existing category.
   Future<void> updateCategory({

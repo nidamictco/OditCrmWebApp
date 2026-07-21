@@ -11,8 +11,8 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
   StreamSubscription? _sourcesSubscription;
 
   LeadSourceCubit({ILeadSourceRepository? repository})
-      : _repository = repository ?? LeadSourceRepository(), 
-        super(const LeadSourceState());
+    : _repository = repository ?? LeadSourceRepository(),
+      super(const LeadSourceState());
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -51,22 +51,19 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
   // ─── Write Operations ─────────────────────────────────────────────────────
 
   /// Add a new category.
-  Future<void> addSource({
-    required String name,
-  }) async {
-    if (state.isSubmitting) return;
+  Future<String> addSource({required String name}) async {
+    if (state.isSubmitting) return '';
     emit(state.copyWith(isSubmitting: true, clearError: true));
 
     try {
-      await _repository.addSource(name: name, );
+      final id = await _repository.addSource(name: name);
       emit(state.copyWith(isSubmitting: false));
+      return id;
     } catch (e) {
       emit(
-        state.copyWith(
-          isSubmitting: false,
-          errorMessage: _friendlyError(e),
-        ),
+        state.copyWith(isSubmitting: false, errorMessage: _friendlyError(e)),
       );
+      rethrow;
     }
   }
 
@@ -93,13 +90,10 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
   //       );
   //     },
   //   );
-  // } 
+  // }
 
   /// Update the name of an existing category.
-  Future<void> updateSource({
-    required String id,
-    required String name,
-  }) async {
+  Future<void> updateSource({required String id, required String name}) async {
     if (state.isSubmitting) return;
     emit(state.copyWith(isSubmitting: true, clearError: true));
 
@@ -108,10 +102,7 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
       emit(state.copyWith(isSubmitting: false));
     } catch (e) {
       emit(
-        state.copyWith(
-          isSubmitting: false,
-          errorMessage: _friendlyError(e),
-        ),
+        state.copyWith(isSubmitting: false, errorMessage: _friendlyError(e)),
       );
     }
   }
@@ -126,10 +117,7 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
       emit(state.copyWith(clearDeletingId: true));
     } catch (e) {
       emit(
-        state.copyWith(
-          clearDeletingId: true,
-          errorMessage: _friendlyError(e),
-        ),
+        state.copyWith(clearDeletingId: true, errorMessage: _friendlyError(e)),
       );
     }
   }

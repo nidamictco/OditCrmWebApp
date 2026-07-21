@@ -89,7 +89,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     emit(
       state.copyWith(
         selectedPriority: 'Normal',
-        selectedLeadStage: 'NEW',
+        // selectedLeadStage: 'NEW',
         status: AddLeadStatus.initial,
       ),
     );
@@ -178,11 +178,19 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     ) {
       if (isClosed) return;
       emit(state.copyWith(stages: [...stages]));
+       if (state.selectedLeadStage == null) {
+      selectLeadStage('NEW');
+    }
     }, onError: (_) {});
   }
 
   // ── Sub Category watcher — depends on a resolved categoryId ───────────────
-  void _watchSubCategoriesForCategory(String categoryId) {
+ // ── Sub Category watcher — depends on a resolved categoryId ───────────────
+  // ── Sub Category watcher — depends on a resolved categoryId ───────────────
+  void _watchSubCategoriesForCategory(
+    String categoryId, {
+    String? pendingSubCategoryName,
+  }) {
     log('[AddLeadCubit] _watchSubCategoriesForCategory: categoryId="$categoryId"');
     _subCategorySubscription?.cancel();
     _subCategorySubscription = null;
@@ -197,12 +205,34 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           log('[AddLeadCubit] subCategories received: ${subs.length} items');
           if (isClosed) return;
           emit(state.copyWith(subCategories: [...subs]));
+
+          // Resolve a pending sub-category selection once the list arrives.
+          if (pendingSubCategoryName != null &&
+              pendingSubCategoryName.isNotEmpty) {
+            final match = subs.where((s) => s.name == pendingSubCategoryName);
+            if (match.isNotEmpty) {
+              log('[AddLeadCubit] auto-resolved pending subCategory '
+                  '"$pendingSubCategoryName" -> id="${match.first.id}"');
+              emit(
+                state.copyWith(
+                  selectedSubCategory: pendingSubCategoryName,
+                  selectedSubCategoryId: match.first.id,
+                ),
+              );
+            } else {
+              log('[AddLeadCubit] pending subCategory "$pendingSubCategoryName" '
+                  'not found in loaded subs=${subs.map((s) => s.name).toList()}');
+            }
+          }
         }, onError: (e) {
           log('[AddLeadCubit] _watchSubCategoriesForCategory error: $e');
         });
   }
 
-  void _watchLeadTagForLeadStage(String leadTagId) {
+ void _watchLeadTagForLeadStage(
+    String leadTagId, {
+    String? pendingTagName,
+  }) {
     log('[AddLeadCubit] _watchLeadTagForLeadStage: stageId="$leadTagId"');
     _leadTagSubscription?.cancel();
     _leadTagRepository = _leadTagRepositoryFactory != null
@@ -214,11 +244,28 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       log('[AddLeadCubit] leadTags received: ${leadTags.length} items for stageId="$leadTagId"');
       if (isClosed) return;
       emit(state.copyWith(leadTag: [...leadTags]));
+
+      // Resolve a pending tag selection once the list arrives.
+      if (pendingTagName != null && pendingTagName.isNotEmpty) {
+        final match = leadTags.where((t) => t.name == pendingTagName);
+        if (match.isNotEmpty) {
+          log('[AddLeadCubit] auto-resolved pending tag '
+              '"$pendingTagName" -> id="${match.first.id}"');
+          emit(
+            state.copyWith(
+              selectedLeadTag: pendingTagName,
+              selectedLeadTagId: match.first.id,
+            ),
+          );
+        } else {
+          log('[AddLeadCubit] pending tag "$pendingTagName" not found in '
+              'loaded tags=${leadTags.map((t) => t.name).toList()}');
+        }
+      }
     }, onError: (e) {
       log('[AddLeadCubit] _watchLeadTagForLeadStage error: $e');
     });
   }
-
   @override
   Future<void> close() {
     _categorySubscription?.cancel();
@@ -231,7 +278,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // ── Selection helpers ─────────────────────────────────────────────────────
 
-  void selectCategory(String? value) {
+  void selectCategory(String? value, {String? pendingSubCategory}) {
     log('[AddLeadCubit] selectCategory: value="$value", '
         'cats loaded=${state.categories.length}');
     emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
@@ -253,39 +300,50 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
 
     final categoryId = match.first.id;
-    if (categoryId.isEmpty) {
-      log('[AddLeadCubit] selectCategory: matched category has empty id');
-      return;
-    }
+    emit(state.copyWith(selectedCategoryId: categoryId));
 
-    _watchSubCategoriesForCategory(categoryId);
+    _watchSubCategoriesForCategory(
+      categoryId,
+      pendingSubCategoryName: pendingSubCategory,
+    );
   }
+void selectCategoryDirect({required String name, required String id}) {
+  emit(state.copyWith(selectedCategory: name, selectedCategoryId: id));
+  _watchSubCategoriesForCategory(id);
+}
 
-  void selectSubCategory(String? value) => emit(
-    state.copyWith(selectedSubCategory: value, clearSubCategory: value == null),
-  );
 
-  void selectSource(String? value) =>
-      emit(state.copyWith(selectedSource: value, clearSource: value == null));
 
-  // void selectLeadStage(String? value) {
-  //   emit(
-  //     state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
-  //   );
-  //   _leadStageSubscription?.cancel();
-  //   if (value == null) return;
+void selectSourceDirect({required String name, required String id}) {
+  emit(state.copyWith(selectedSource: name, selectedSourceId: id));
+}
 
-  //   final match = state.stages.where((s) => s.name == value);
-  //   if (match.isEmpty) return;
+  // void selectSubCategory(String? value) => emit(
+  //   state.copyWith(selectedSubCategory: value, clearSubCategory: value == null),
+  // );
+  void selectSubCategory(String? value) {
+  emit(state.copyWith(selectedSubCategory: value, clearSubCategory: value == null));
+  if (value == null) return;
+  final match = state.subCategories.where((s) => s.name == value);
+  if (match.isNotEmpty) {
+    emit(state.copyWith(selectedSubCategoryId: match.first.id));
+  }
+}
 
-  //   final leadTagId = match.first.id;
-  //   if (leadTagId == null || leadTagId.isEmpty) return;
 
-  //   _watchLeadTagForLeadStage(leadTagId);
-  //   emit(state.copyWith(tagMandatory: match.first.tagMandatory));
-  // }
+  // void selectSource(String? value) =>
+  //     emit(state.copyWith(selectedSource: value, clearSource: value == null));
+void selectSource(String? value) {
+  emit(state.copyWith(selectedSource: value, clearSource: value == null));
+  if (value == null) return;
+  final match = state.sources.where((s) => s.name == value);
+  if (match.isNotEmpty) {
+    emit(state.copyWith(selectedSourceId: match.first.id));
+  }
+}
+ 
 
-  void selectLeadStage(String? value) {
+ void selectLeadStage(String? value, {String? pendingTag}) {
     log('[AddLeadCubit] selectLeadStage: value="$value", '
         'stages loaded=${state.stages.length}');
     emit(state.copyWith(selectedLeadStage: value, clearLeadStage: value == null));
@@ -306,14 +364,23 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       return;
     }
 
+    emit(state.copyWith(selectedLeadStageId: match.first.id));
     log('[AddLeadCubit] selectLeadStage: matched stage id="${match.first.id}", '
         'tagMandatory=${match.first.tagMandatory}');
-    _watchLeadTagForLeadStage(match.first.id);
+    _watchLeadTagForLeadStage(match.first.id, pendingTagName: pendingTag);
     emit(state.copyWith(tagMandatory: match.first.tagMandatory));
   }
 
-  void selectLeadTag(String? value) =>
-      emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
+  // void selectLeadTag(String? value) =>
+  //     emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
+void selectLeadTag(String? value) {
+  emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
+  if (value == null) return;
+  final match = state.leadTag.where((t) => t.name == value);
+  if (match.isNotEmpty) {
+    emit(state.copyWith(selectedLeadTagId: match.first.id));
+  }
+}
 
   void selectPriority(String? value) => emit(
     state.copyWith(selectedPriority: value, clearPriority: value == null),
@@ -641,6 +708,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         followUpDate: nextFollowUpDate,
         additionalFields: additionalFieldValues,
         calledDate: calledDate,
+        leadCategoryId: state.selectedCategoryId ?? '',
+        leadSubCategoryId: state.selectedSubCategoryId ?? '',
+        leadSourceId: state.selectedSourceId ?? '',
+        leadStageId: state.selectedLeadStageId ?? '',
+        leadTagId: state.selectedLeadTagId ?? '',
       );
 
       final newId = await _leadRepository.addLead(lead);
@@ -660,10 +732,16 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       if (isClosed) return;
       final newLead = lead.copyWith(id: newId);
 
-      await notificationRepo.createForAdmins(
+      // await notificationRepo.createForAdmins(
+      //   title: 'New Lead Added',
+      //   message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
+      //   excludeStaffId: user?.id,
+      // );
+       notificationRepo.createForAdmins(
         title: 'New Lead Added',
         message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
         excludeStaffId: user?.id,
+        pushData: {'type': 'lead', 'leadId': newId},
       );
 
       if (isClosed) return;
@@ -689,6 +767,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
           assignedStaffId: resolvedStaffId,
           createdById: user?.id ?? '',
           createdAt: now,
+          leadCategoryId: state.selectedCategoryId ?? '',
+          leadSubCategoryId: state.selectedSubCategoryId ?? '',
+          leadStageId: state.selectedLeadStageId ?? '',
+          leadTagId: state.selectedLeadTagId ?? '',
         );
         await _leadRepository.addFollowUp(leadId, followup);
       }
@@ -881,6 +963,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         createdAt: DateTime.now(),
         assignedStaff: user?.name ?? '',
         assignedStaffId: user?.id ?? '',
+        leadCategoryId: state.selectedCategoryId ?? '',
+        leadSubCategoryId: state.selectedSubCategoryId ?? '',
+        leadStageId: state.selectedLeadStageId ?? '',
+        leadTagId: state.selectedLeadTagId ?? '',
       );
 
       await _leadRepository.addFollowUp(leadId, followUp);
@@ -979,6 +1065,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         email: email,
         assignedStaff: user!.name,
         assignedStaffId: user.id ?? '',
+        leadCategoryId: state.selectedCategoryId ?? '',
+        leadSubCategoryId: state.selectedSubCategoryId ?? '',
+        leadStageId: state.selectedLeadStageId ?? '',
+        leadTagId: state.selectedLeadTagId ?? '',
       );
       log(
         'followup date : ${followUp.nextFollowUpDate}, called date : ${followUp.calledDate},followup datail: $followUp',
@@ -1059,11 +1149,21 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         changedById: user?.id ?? '',
       );
 
-      if (toStaffId.isNotEmpty) {
-        await notificationRepo.create(
+      // if (toStaffId.isNotEmpty) {
+      //   await notificationRepo.create(
+      //     staffId: toStaffId,
+      //     title: 'Lead Transferred',
+      //     message: 'Name :$leadName, Phone No: $contactNumber',
+      //   );
+      // }
+
+       if (toStaffId.isNotEmpty) {
+        notificationRepo.create(
           staffId: toStaffId,
           title: 'Lead Transferred',
-          message: 'Name :$leadName, Phone No: $contactNumber',
+          message:
+              'Name :$leadName, Phone No: $contactNumber from Staff :$fromStaff',
+          pushData: {'type': 'transfer', 'leadId': leadId},
         );
       }
 

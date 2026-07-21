@@ -8,7 +8,7 @@ import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_m
 
 abstract class ILeadCategoryRepository {
   Stream<List<LeadsModel>> watchCategories();
-  Future<void> addCategory({required String name, });
+  Future<String> addCategory({required String name, });
   Future<void> updateCategory({required String id, required String name});
   Future<void> deleteCategory({required String id});
 }
@@ -38,22 +38,36 @@ Stream<List<LeadsModel>> watchCategories() {
 }
 
   /// 🔹 Add a new category
+  // @override
+  // Future<void> addCategory({
+  //   required String name,
+  // }) async {
+  //   final trimmedName = name.trim();
+  //   if (trimmedName.isEmpty) {
+  //     throw ArgumentError('Category name cannot be empty.');
+  //   }
+  //   final StaffModel? user = await SessionService().getSavedUser();
+  //   await _collection.add({
+  //     'name': trimmedName,
+  //     'createdBy': user?.name, 
+  //     'idOfCreator': user?.id,
+  //     'createdAt': FieldValue.serverTimestamp(),
+  //   });
+    
+  // } 
   @override
-  Future<void> addCategory({
-    required String name,
-  }) async {
-    final trimmedName = name.trim();
-    if (trimmedName.isEmpty) {
-      throw ArgumentError('Category name cannot be empty.');
-    }
-    final StaffModel? user = await SessionService().getSavedUser();
-    await _collection.add({
-      'name': trimmedName,
-      'createdBy': user?.name, 
-      'idOfCreator': user?.id,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-  } 
+Future<String> addCategory({required String name}) async {
+  final trimmedName = name.trim().toUpperCase();
+  if (trimmedName.isEmpty) throw ArgumentError('Category name cannot be empty.');
+  final StaffModel? user = await SessionService().getSavedUser();
+  final docRef = await _collection.add({
+    'name': trimmedName,
+    'createdBy': user?.name,
+    'idOfCreator': user?.id,
+    'createdAt': FieldValue.serverTimestamp(),
+  });
+  return docRef.id;   // ← return it
+}
 
   /// 🔹 Update an existing category's name
   @override

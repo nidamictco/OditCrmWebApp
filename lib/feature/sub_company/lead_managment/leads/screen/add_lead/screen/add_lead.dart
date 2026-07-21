@@ -172,6 +172,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   /// Re-builds the ordered focus list whenever additional fields change.
   /// Call this from the BlocListener after syncing controllers.
   void _buildOrderedNodes(List<dynamic> additionalFields) {
+    final tagsVisible = context.read<AddLeadCubit>().state.leadTag.isNotEmpty;
     final nodes = <FocusNode>[
       _clientNameFocus,
       _contactFocus,
@@ -198,7 +199,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     nodes.addAll([
       _priorityFocus,
       _stageFocus,
-      if (_leadStage == 'REJECTED') _tagsFocus,
+      if (_leadStage != 'NEW' && _leadStage != null && tagsVisible) _tagsFocus,
       if (_leadStage != 'NEW' && _leadStage != null) _callResultFocus,
       _remarksFocus,
       _submitFocus,
@@ -447,12 +448,16 @@ class _AddLeadPageState extends State<AddLeadPage> {
         pinCode: _pinCtrl.text,
         postOffice: _postOfficeCtrl.text,
         remarks: _remarksCtrl.text,
+        leadCategoryId: state.selectedCategoryId ?? widget.lead!.leadCategoryId,
         leadCategory: state.selectedCategory ?? widget.lead!.leadCategory,
+        leadSubCategoryId: state.selectedSubCategoryId ?? widget.lead!.leadSubCategoryId,
         leadSubCategory:
             state.selectedSubCategory ?? widget.lead!.leadSubCategory,
         leadSource: state.selectedSource ?? widget.lead!.leadSource,
+        leadSourceId: state.selectedSourceId ?? widget.lead!.leadSourceId,
         priority: state.selectedPriority ?? widget.lead!.priority,
         leadStage: _leadStage ?? widget.lead!.leadStage,
+        leadStageId: state.selectedLeadStageId ?? widget.lead!.leadStageId,
         state: state.selectedState ?? widget.lead!.state,
         district: state.selectedDistrict ?? widget.lead!.district,
         additionalFields: additionalValues.isNotEmpty
@@ -1516,21 +1521,38 @@ class _AddLeadPageState extends State<AddLeadPage> {
             ],
           ),
         ),
+        // onSubmit: () async {
+        //   final name = _dialogNameCtrl.text.trim();
+        //   if (name.isEmpty) return;
+        //   context.read<LeadCategoryCubit>().addCategory(name: name);
+        //   setState(() => _leadCategory = name);
+        //   context.read<AddLeadCubit>().selectCategory(name);
+        //   Navigator.pop(ctx);
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('Category "$name" added.'),
+        //       backgroundColor: AppColors.green,
+        //       behavior: SnackBarBehavior.floating,
+        //     ),
+        //   );
+        // },
         onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
-          if (name.isEmpty) return;
-          context.read<LeadCategoryCubit>().addCategory(name: name);
-          setState(() => _leadCategory = name);
-          context.read<AddLeadCubit>().selectCategory(name);
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$name" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
+  final name = _dialogNameCtrl.text.trim();
+  if (name.isEmpty) return;
+  final normalized = name.toUpperCase();          // ← match what fromFirestore produces
+   final newId = await context.read<LeadCategoryCubit>().addCategory(name: normalized);
+  setState(() => _leadCategory = normalized);
+  // context.read<AddLeadCubit>().selectCategory(normalized);
+  context.read<AddLeadCubit>().selectCategoryDirect(name: normalized, id: newId);
+  Navigator.pop(ctx);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Category "$normalized" added.'),
+      backgroundColor: AppColors.green,
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+},
       ),
     );
   }
@@ -1570,13 +1592,14 @@ class _AddLeadPageState extends State<AddLeadPage> {
         onSubmit: () async {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
-          context.read<LeadSourceCubit>().addSource(name: name);
-          setState(() => _leadSource = name);
-          context.read<AddLeadCubit>().selectSource(name);
+          final normalized = name.toUpperCase();
+         final newId= await context.read<LeadSourceCubit>().addSource(name: normalized);
+          setState(() => _leadSource = normalized);
+          context.read<AddLeadCubit>().selectSourceDirect(name: normalized, id: newId);
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Source "$name" added.'),
+              content: Text('Source "$normalized" added.'),
               backgroundColor: AppColors.green,
               behavior: SnackBarBehavior.floating,
             ),

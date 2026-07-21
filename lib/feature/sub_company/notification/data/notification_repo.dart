@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/service/push_notification_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../model/notification_model.dart';
@@ -15,56 +16,56 @@ class NotificationRepo {
     return '$prefix-$datePart-$id';
   }
 
-  Future<void> create({
-    required String staffId,
-    required String title,
-    required String message,
-  }) async {
-    final String id = _generateDateId('NOTIF');
-    await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
-      'staffId': staffId,
-      'title': title,
-      'message': message,
-      'createdAt': FieldValue.serverTimestamp(),
-      'isRead': false,
-    });
-  }
-  Future<void> createForAdmins({
-    required String title,
-    required String message,
-    String? excludeStaffId,
-  }) async {
-    try {
-      // Fetch all admin users
-      final snapshot = await FirestorePath.companyCollection('STAFF')
-          .where('staffType', isEqualTo: 'Admin')
-          .get();
+//   Future<void> create({
+//     required String staffId,
+//     required String title,
+//     required String message,
+//   }) async {
+//     final String id = _generateDateId('NOTIF');
+//     await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
+//       'staffId': staffId,
+//       'title': title,
+//       'message': message,
+//       'createdAt': FieldValue.serverTimestamp(),
+//       'isRead': false,
+//     });
+//   }
+//   Future<void> createForAdmins({
+//     required String title,
+//     required String message,
+//     String? excludeStaffId,
+//   }) async {
+//     try {
+//       // Fetch all admin users
+//       final snapshot = await FirestorePath.companyCollection('STAFF')
+//           .where('staffType', isEqualTo: 'Admin')
+//           .get();
 
-      for (final doc in snapshot.docs) {
-        final adminId = doc.id;
+//       for (final doc in snapshot.docs) {
+//         final adminId = doc.id;
 
-        // Skip if this admin is already the assigned staff (already notified above)
-        if (excludeStaffId != null &&
-            excludeStaffId.isNotEmpty &&
-            adminId == excludeStaffId) {
-          continue;
-        }
+//         // Skip if this admin is already the assigned staff (already notified above)
+//         if (excludeStaffId != null &&
+//             excludeStaffId.isNotEmpty &&
+//             adminId == excludeStaffId) {
+//           continue;
+//         }
 
-        log('Creating admin notification for: $adminId');
-        final String id = _generateDateId('NOTIF');
-        await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
-          'staffId': adminId,
-          'title': title,
-          'message': message,
-          'createdAt': FieldValue.serverTimestamp(),
-          'isRead': false,
-        });
-        log('Notification saved successfully');
-      }
-    } catch (e) {
-      log('[NotificationRepo] createForAdmins error: $e');
-    }
-  }
+//         log('Creating admin notification for: $adminId');
+//         final String id = _generateDateId('NOTIF');
+//         await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
+//           'staffId': adminId,
+//           'title': title,
+//           'message': message,
+//           'createdAt': FieldValue.serverTimestamp(),
+//           'isRead': false,
+//         });
+//         log('Notification saved successfully');
+//       }
+//     } catch (e) {
+//       log('[NotificationRepo] createForAdmins error: $e');
+//     }
+//   }
   Stream<List<NotificationModel>> streamByStaff(String staffId) {
     log('Listening for notifications of $staffId');
     return FirestorePath.companyCollection('NOTIFICATIONS')
@@ -130,6 +131,83 @@ Future<void> markAllRead(String staffId) async {
     batch.update(doc.reference, {'isRead': true});
   }
   await batch.commit();
+}
+
+
+Future<void> create({
+  required String staffId,
+  required String title,
+  required String message,
+  Map<String, dynamic>? pushData,
+}) async {
+  final String id = _generateDateId('NOTIF');
+  await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
+    'staffId': staffId,
+    'title': title,
+    'message': message,
+    'createdAt': FieldValue.serverTimestamp(),
+    'isRead': false,
+  });
+
+  final doc = await FirestorePath.companyCollection('STAFF').doc(staffId).get();
+  final token = doc.data()?['fcmToken'] as String?;
+  if (token != null && token.isNotEmpty) {
+    await PushNotificationApi.sendPush(
+      tokens: [token],
+      title: title,
+      body: message,
+      data: {'notificationId': id, ...?pushData},
+    );
+  } else {
+    log('[NotificationRepo] no fcmToken for staff $staffId, skipping push');
+  }
+}
+
+Future<void> createForAdmins({
+  required String title,
+  required String message,
+  String? excludeStaffId,
+  Map<String, dynamic>? pushData,
+}) async {
+  try {
+    final snapshot = await FirestorePath.companyCollection('STAFF')
+        .where('staffType', isEqualTo: 'Admin')
+        .get();
+
+    final adminTokens = <String>[];
+
+    for (final doc in snapshot.docs) {
+      final adminId = doc.id;
+      if (excludeStaffId != null && excludeStaffId.isNotEmpty && adminId == excludeStaffId) {
+        continue;
+      }
+
+      final String id = _generateDateId('NOTIF');
+      await FirestorePath.companyCollection('NOTIFICATIONS').doc(id).set({
+        'staffId': adminId,
+        'title': title,
+        'message': message,
+        'createdAt': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
+
+      final token = doc.data()['fcmToken'] as String?;
+      if (token != null && token.isNotEmpty) adminTokens.add(token);
+    }
+
+    if (adminTokens.isNotEmpty) {
+      await PushNotificationApi.sendPush(
+        tokens: adminTokens,
+        title: title,
+        body: message,
+        data: pushData,
+      );
+    } else {
+      log('[NotificationRepo] no admin fcmTokens found, skipping push');
+    }
+  } catch (e) {
+    log('[NotificationRepo] createForAdmins error: $e');
+  }
 }
 
 }

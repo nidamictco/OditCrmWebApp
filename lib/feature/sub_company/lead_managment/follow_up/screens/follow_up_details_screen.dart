@@ -964,17 +964,17 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
   void _confirmDeleteFollowUp(BuildContext context, FollowUpModel followUp) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Follow-up'),
         content: const Text('Are you sure you want to delete this follow-up?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               await context.read<AddLeadCubit>().deleteFollowUp(
                 leadId: widget.leadId,
                 followUpId: followUp.id!,
@@ -1180,10 +1180,12 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
     DateTime calledDateValue = DateTime.now();
 
     if (from == 'EDIT') {
-      cubit.selectLeadStage(leadFollowup!.leadStage);
-      cubit.selectCategory(leadFollowup.leadCategory);
-      cubit.selectSubCategory(leadFollowup.leadSubCategory);
-      cubit.selectLeadTag(leadFollowup.leadTag);
+      // cubit.selectLeadStage(leadFollowup!.leadStage);
+      // cubit.selectCategory(leadFollowup.leadCategory);
+      // cubit.selectSubCategory(leadFollowup.leadSubCategory);
+      // cubit.selectLeadTag(leadFollowup.leadTag);
+      cubit.selectCategory(leadFollowup!.leadCategory, pendingSubCategory: leadFollowup.leadSubCategory);
+cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
       cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
@@ -1191,7 +1193,7 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       final editStage = (leadFollowup.leadStage.toUpperCase() == 'NEW')
           ? 'FOLLOWUP'
           : leadFollowup.leadStage;
-      cubit.selectLeadStage(editStage);
+      cubit.selectLeadStage(editStage,  pendingTag: leadFollowup.leadTag);
       nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
       ).format(leadFollowup.nextFollowUpDate);
@@ -1217,11 +1219,9 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       _WhtsppNoCtrl.text = lead.whatsappNumber;
       cubit.selectLeadStage('FOLLOWUP');
       cubit.selectCategory(
-        lead.leadCategory.isEmpty ? null : lead.leadCategory,
-      );
-      cubit.selectSubCategory(
-        lead.leadSubCategory.isEmpty ? null : lead.leadSubCategory,
-      );
+  lead.leadCategory.isEmpty ? null : lead.leadCategory,
+  pendingSubCategory: lead.leadSubCategory.isEmpty ? null : lead.leadSubCategory,
+);
       cubit.selectPriority(lead.priority.isEmpty ? null : lead.priority);
     }
 
@@ -1930,21 +1930,22 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
           ),
         ),
         onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
-          if (name.isEmpty) return;
-          widget.leadCategoryCubit.addCategory(name: name);
-          // setState(() => _leadCategory = name);
-
-          context.read<AddLeadCubit>().selectCategory(name);
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$name" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
+  final name = _dialogNameCtrl.text.trim();
+  if (name.isEmpty) return;
+  final normalized = name.toUpperCase();          // ← match what fromFirestore produces
+   final newId = await context.read<LeadCategoryCubit>().addCategory(name: normalized);
+  setState(() => _leadCategory = normalized);
+  // context.read<AddLeadCubit>().selectCategory(normalized);
+  context.read<AddLeadCubit>().selectCategoryDirect(name: normalized, id: newId);
+  Navigator.pop(ctx);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Category "$normalized" added.'),
+      backgroundColor: AppColors.green,
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+},
       ),
     );
   }
@@ -2293,7 +2294,7 @@ class _FollowupCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
-                        if (index == 1)
+                        if (index == 1 && lead.leadStage.toUpperCase()!='REJECTED' && lead.leadStage.toUpperCase()!='CLOSED')
                           Row(
                             children: [
                               InkWell(

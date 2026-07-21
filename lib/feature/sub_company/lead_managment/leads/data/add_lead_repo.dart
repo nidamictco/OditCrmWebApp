@@ -644,13 +644,17 @@ class AddLeadRepository implements IAddLeadRepository {
     // });
     final Map<String, dynamic> leadUpdates = {
       'leadStage': followUp.leadStage,
+      'leadStageId':followUp.leadStageId,
       'priority': followUp.priority,
       'leadCategory': followUp.leadCategory,
+      'leadCategoryId':followUp.leadCategoryId,
       'leadSubCategory':followUp.leadSubCategory,
+      'leadSubCategoryId':followUp.leadSubCategoryId,
       'nextFollowUpDate': followUp.nextFollowUpDate,
       'lastCalledDate': followUp.calledDate,
       'callResult': followUp.calledStatus,
       'leadTag': followUp.leadTag,
+      'leadTagId':followUp.leadTagId,
       'updatedAt': FieldValue.serverTimestamp(),
       'hasFollowUp': true,
     };
@@ -662,6 +666,9 @@ class AddLeadRepository implements IAddLeadRepository {
     }
     if ((followUp.remarks ?? '').isNotEmpty) {
       leadUpdates['remarks'] = followUp.remarks;
+    }
+    if((followUp.leadWhatsappNo ?? '').isNotEmpty) {
+      leadUpdates['whatsapp'] = followUp.leadWhatsappNo;
     }
     batch.update(leadRef, leadUpdates);
 
@@ -1862,8 +1869,12 @@ class AddLeadRepository implements IAddLeadRepository {
 
       await leadRef.update({
         'leadStage': latest.leadStage,
+        'leadStageId':latest.leadStageId,
         'priority': latest.priority,
         'leadCategory': latest.leadCategory,
+        'leadCategoryId':latest.leadCategoryId,
+        'leadSubCategory':latest.leadSubCategory,
+        'leadSubCategoryId':latest.leadSubCategoryId,
         'followUpDate': latest.nextFollowUpDate,
         'calledDate': latest.calledDate,
         'callResult': latest.calledStatus,

@@ -33,6 +33,11 @@ class AddLeadModel {
   final String leadTag;
   final String? callResult;
   final List<TransferDetails>? transferLeads;
+  final String leadCategoryId;
+final String leadSubCategoryId;
+final String leadSourceId;
+final String leadStageId;
+final String leadTagId;
 
   const AddLeadModel({
     this.id,
@@ -68,6 +73,11 @@ class AddLeadModel {
     this.leadTag = '',
     this.callResult = '',
     this.transferLeads,
+    this.leadCategoryId = '',
+    this.leadSubCategoryId = '',
+    this.leadSourceId = '',
+    this.leadStageId = '',
+    this.leadTagId = '',
   });
 
   Map<String, dynamic> toFirestore() {
@@ -110,6 +120,11 @@ class AddLeadModel {
       'transferLeads': transferLeads != null
           ? transferLeads!.map((e) => e.toFirestore()).toList()
           : [],
+      'leadCategoryId': leadCategoryId,
+      'leadSubCategoryId': leadSubCategoryId,
+      'leadSourceId': leadSourceId,
+      'leadStageId': leadStageId,
+      'leadTagId': leadTagId, 
     };
   }
 
@@ -157,6 +172,11 @@ class AddLeadModel {
                 .map((e) => TransferDetails.fromFirestore(e, ''))
                 .toList()
           : null,
+      leadCategoryId: data['leadCategoryId'] ?? '',
+      leadSubCategoryId: data['leadSubCategoryId'] ?? '',
+      leadSourceId: data['leadSourceId'] ?? '',
+      leadStageId: data['leadStageId'] ?? '',
+      leadTagId: data['leadTagId'] ?? '',
     );
   }
 
@@ -193,6 +213,11 @@ class AddLeadModel {
     String? leadTag,
     String? callResult,
     List<TransferDetails>? transferLeads,
+    String? leadCategoryId,
+    String? leadSubCategoryId,
+    String? leadSourceId,
+    String? leadStageId,
+    String? leadTagId,
   }) {
     return AddLeadModel(
       id: id ?? this.id,
@@ -227,6 +252,11 @@ class AddLeadModel {
       leadTag: leadTag ?? this.leadTag,
       callResult: callResult ?? this.callResult,
       transferLeads: transferLeads ?? this.transferLeads,
+      leadCategoryId: leadCategoryId ?? this.leadCategoryId,
+      leadSubCategoryId: leadSubCategoryId ?? this.leadSubCategoryId,
+      leadSourceId: leadSourceId ?? this.leadSourceId,
+      leadStageId: leadStageId ?? this.leadStageId,
+      leadTagId: leadTagId ?? this.leadTagId,
     );
   }
 
@@ -262,6 +292,11 @@ class FollowUpModel {
 
   final String createdById;
   final DateTime? createdAt;
+  
+  final String leadCategoryId;
+  final String leadSubCategoryId;
+  final String leadStageId;
+  final String leadTagId;
 
   const FollowUpModel({
     this.id,
@@ -284,6 +319,10 @@ class FollowUpModel {
     required this.assignedStaffId,
     required this.createdById,
     this.createdAt,
+    this.leadCategoryId = '',
+    this.leadSubCategoryId = '',
+    this.leadStageId = '',
+    this.leadTagId = '',
   });
 
   factory FollowUpModel.fromFirestore(Map<String, dynamic> data, String docId) {
@@ -310,6 +349,10 @@ class FollowUpModel {
       assignedStaffId: data['assignedStaffId'] ?? '',
       createdById: data['createdById'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+       leadCategoryId: data['leadCategoryId'] ?? '',
+      leadSubCategoryId: data['leadSubCategoryId'] ?? '',
+      leadStageId: data['leadStageId'] ?? '',
+      leadTagId: data['leadTagId'] ?? '',
     );
   }
 
@@ -336,6 +379,10 @@ class FollowUpModel {
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
+      'leadCategoryId': leadCategoryId,
+      'leadSubCategoryId': leadSubCategoryId,
+      'leadStageId': leadStageId,
+      'leadTagId': leadTagId,
     };
   }
 
@@ -360,6 +407,10 @@ class FollowUpModel {
     String? assignedStaffId,
     String? createdById,
     DateTime? createdAt,
+      String? leadCategoryId,
+    String? leadSubCategoryId,
+    String? leadStageId,
+    String? leadTagId,
   }) {
     return FollowUpModel(
       id: id ?? this.id,
@@ -382,6 +433,10 @@ class FollowUpModel {
       assignedStaffId: assignedStaffId ?? this.assignedStaffId,
       createdById: createdById ?? this.createdById,
       createdAt: createdAt ?? this.createdAt,
+      leadCategoryId: leadCategoryId ?? this.leadCategoryId,
+      leadSubCategoryId: leadSubCategoryId ?? this.leadSubCategoryId,
+      leadStageId: leadStageId ?? this.leadStageId,
+      leadTagId: leadTagId ?? this.leadTagId,
     );
   }
 }
