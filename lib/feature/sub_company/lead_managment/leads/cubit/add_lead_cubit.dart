@@ -731,10 +731,16 @@ void selectLeadTag(String? value) {
       if (isClosed) return;
       final newLead = lead.copyWith(id: newId);
 
-      await notificationRepo.createForAdmins(
+      // await notificationRepo.createForAdmins(
+      //   title: 'New Lead Added',
+      //   message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
+      //   excludeStaffId: user?.id,
+      // );
+       notificationRepo.createForAdmins(
         title: 'New Lead Added',
         message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
         excludeStaffId: user?.id,
+        pushData: {'type': 'lead', 'leadId': newId},
       );
 
       if (isClosed) return;
@@ -1142,11 +1148,21 @@ void selectLeadTag(String? value) {
         changedById: user?.id ?? '',
       );
 
-      if (toStaffId.isNotEmpty) {
-        await notificationRepo.create(
+      // if (toStaffId.isNotEmpty) {
+      //   await notificationRepo.create(
+      //     staffId: toStaffId,
+      //     title: 'Lead Transferred',
+      //     message: 'Name :$leadName, Phone No: $contactNumber',
+      //   );
+      // }
+
+       if (toStaffId.isNotEmpty) {
+        notificationRepo.create(
           staffId: toStaffId,
           title: 'Lead Transferred',
-          message: 'Name :$leadName, Phone No: $contactNumber',
+          message:
+              'Name :$leadName, Phone No: $contactNumber from Staff :$fromStaff',
+          pushData: {'type': 'transfer', 'leadId': leadId},
         );
       }
 
