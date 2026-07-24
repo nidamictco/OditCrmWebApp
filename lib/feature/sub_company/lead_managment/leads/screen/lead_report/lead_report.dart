@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
+import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
 import 'package:flutter/foundation.dart';
@@ -1310,7 +1312,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                       RoutePaths.followUpPath(lead.id!, "NEW"),
                                     );
                                   },
-                                  getPriorityColor: getPriorityColor,
+                                  getPriorityColor: getPriorityColor, categories: state.categories, subCategories: state.subCategories, sources: state.sources, stages: state.stages, tags: state.leadTag,
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(
@@ -1756,6 +1758,12 @@ class _ReportLeadsTable extends StatefulWidget {
   final void Function(AddLeadModel lead) onDelete;
   final void Function(AddLeadModel lead) onTap;
   final Color Function(String priority) getPriorityColor;
+  final List<LeadsModel> categories;
+  final List<LeadsModel> subCategories;
+  final List<LeadsModel> sources;
+  final List<LeadsModel> stages;
+  final List<LeadsModel> tags;
+  
 
   const _ReportLeadsTable({
     required this.leads,
@@ -1769,6 +1777,11 @@ class _ReportLeadsTable extends StatefulWidget {
     required this.onDelete,
     required this.onTap,
     required this.getPriorityColor,
+     required this.categories,      // ADD
+    required this.subCategories,   // ADD
+    required this.sources,         // ADD
+    required this.stages,          // ADD
+    required this.tags,            // ADD
   });
 
   @override
@@ -1874,6 +1887,11 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
     final onDelete = widget.onDelete;
     final onTap = widget.onTap;
     final getPriorityColor = widget.getPriorityColor;
+  final categories = widget.categories;
+  final subCategories = widget.subCategories;
+  final sources = widget.sources;
+  final stages = widget.stages;
+  final tags = widget.tags;
 
     if (leads.isEmpty) {
       return Padding(
@@ -2125,8 +2143,21 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                               flex: 4,
                               child: Text(
                                 lead.leadSubCategory.isNotEmpty
-                                    ? '${lead.leadCategory} - ${lead.leadSubCategory}'
-                                    : lead.leadCategory,
+                                    ? '${resolveLeadName(
+    list: categories,
+    id: lead.leadCategoryId,
+    fallback: lead.leadCategory,
+    idOf: (s) => s.id,
+    nameOf: (s) => s.name ,
+  )} - ${resolveLeadName(list: subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s) => s.id, nameOf: (s) => s.name)}'
+                                    // : lead.leadCategory,
+                                    :resolveLeadName(
+    list: categories,
+    id: lead.leadCategoryId,
+    fallback: lead.leadCategory,
+    idOf: (s) => s.id,
+    nameOf: (s) => s.name ,
+  ),
                                 style: AppTextStyle.medium(
                                   color: const Color(0xff0F172A),
                                   weight: FontWeight.w400,
@@ -2148,7 +2179,14 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                             Expanded(
                               flex: 4,
                               child: Text(
-                                lead.leadStage,
+                                // lead.leadStage,
+                                 resolveLeadName(
+    list: stages,
+    id: lead.leadStageId,
+    fallback: lead.leadStage,
+    idOf: (s) => s.id,
+    nameOf: (s) => s.name ,
+  ),
                                 style: AppTextStyle.medium(
                                   color: _getStatusColor(lead.leadStage),
                                   weight: FontWeight.w500,
@@ -2174,7 +2212,8 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                             Expanded(
                               flex: 4,
                               child: Text(
-                                lead.leadSource,
+                                // lead.leadSource,
+                                resolveLeadName(list: sources, id: lead.leadSourceId, fallback: lead.leadSource, idOf: (s)=>s.id, nameOf: (s)=>s.name),
                                 style: AppTextStyle.medium(
                                   color: const Color(0xff0F172A),
                                   weight: FontWeight.w400,

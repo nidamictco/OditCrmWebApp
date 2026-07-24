@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -827,7 +828,9 @@ class _TransferLeadsState extends State<TransferLeads> {
                                       ),
                                       Text(
                                         lead.leadSubCategory.isEmpty
-                                        ?lead.leadCategory:'${lead.leadCategory} - ${lead.leadSubCategory}',
+                                        // ?lead.leadCategory:'${lead.leadCategory} - ${lead.leadSubCategory}',
+                                        ?resolveLeadName(list: state.categories, id: lead.leadCategoryId, fallback: lead.leadCategory, idOf: (s)=>s.id, nameOf: (s)=>s.name)
+                                      :'${resolveLeadName(list: state.categories, id: lead.leadCategoryId, fallback: lead.leadCategory, idOf: (s)=>s.id, nameOf: (s)=>s.name)} - ${resolveLeadName(list: state.subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s)=>s.id, nameOf: (s)=>s.name)}',
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
@@ -835,7 +838,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(
-                                        lead.leadStage,
+                                        // lead.leadStage,
+                                        resolveLeadName(list: state.stages, id: lead.leadStageId, fallback: lead.leadStage, idOf: (s)=>s.id, nameOf: (s)=>s.name),
                                         style: AppTextStyle.medium(),
                                       ),
                                       Text(

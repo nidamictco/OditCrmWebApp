@@ -1977,6 +1977,7 @@
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
+import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -3048,11 +3049,44 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                         contactNumber:
                                                             lead.contactNumber,
                                                         leadCategory:
-                                                            lead.leadCategory,
-                                                        leadSubCategory: lead
-                                                            .leadSubCategory,
+                                                            // lead.leadCategory,
+                                                            resolveLeadName(
+                                                              list: state
+                                                                  .categories,
+                                                              id: lead
+                                                                  .leadCategoryId,
+                                                              fallback: lead
+                                                                  .leadCategory,
+                                                              idOf: (s) => s.id,
+                                                              nameOf: (s) =>
+                                                                  s.name,
+                                                            ),
+                                                        leadSubCategory:
+                                                            // lead.leadSubCategory,
+                                                            resolveLeadName(
+                                                              list: state
+                                                                  .subCategories,
+                                                              id: lead
+                                                                  .leadSubCategoryId,
+                                                              fallback: lead
+                                                                  .leadSubCategory,
+                                                              idOf: (s) => s.id,
+                                                              nameOf: (s) =>
+                                                                  s.name,
+                                                            ),
                                                         leadStage:
-                                                            lead.leadStage,
+                                                            // lead.leadStage,
+                                                            resolveLeadName(
+                                                              list:
+                                                                  state.stages,
+                                                              id: lead
+                                                                  .leadStageId,
+                                                              fallback: lead
+                                                                  .leadStage,
+                                                              idOf: (s) => s.id,
+                                                              nameOf: (s) =>
+                                                                  s.name,
+                                                            ),
                                                         fromStaffId: lead
                                                             .assignedStaffId,
                                                         fromStaff:
@@ -3327,7 +3361,27 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             ),
             // Category
             Text(
-              lead.leadCategory,
+              // lead.leadCategory,
+              lead.leadSubCategoryId.isNotEmpty?
+              "${resolveLeadName(
+                list: state.categories,
+                id: lead.leadCategoryId,
+                fallback: lead.leadCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              )} - ${resolveLeadName(
+                list: state.subCategories,
+                id: lead.leadSubCategoryId,
+                fallback: lead.leadSubCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              )}":resolveLeadName(
+                list: state.categories,
+                id: lead.leadCategoryId,
+                fallback: lead.leadCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              ) ,
               style: const TextStyle(
                 fontSize: 12,
                 color: AppTheme.textSecondary,
