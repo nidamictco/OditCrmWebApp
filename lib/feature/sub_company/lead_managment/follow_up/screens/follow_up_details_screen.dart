@@ -398,6 +398,19 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                       // }
                                       // for (final lead in selectedLeads) {
 
+String _resolveTransferredStageId(BuildContext context) {
+  final stages = context.read<AddLeadCubit>().state.stages;
+  final match = stages.where(
+    (s) => s.name.trim().toUpperCase() == 'TRANSFERRED',
+  );
+  if (match.isEmpty) {
+    log('[Transfer] Could not resolve "TRANSFERRED" stage id — '
+        'stages loaded=${stages.map((s) => s.name).toList()}');
+    return '';
+  }
+  return match.first.id;
+}
+
                                       await context
                                           .read<AddLeadCubit>()
                                           .transferLead(
@@ -407,9 +420,15 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                                                 _currentLead.contactNumber,
                                             leadCategory:
                                                 _currentLead.leadCategory,
+                                            leadCategoryId:
+                                                _currentLead.leadCategoryId,
                                             leadSubCategory:
                                                 _currentLead.leadSubCategory,
-                                            leadStage: _currentLead.leadStage,
+                                            leadSubCategoryId:
+                                                _currentLead.leadSubCategoryId,
+                                            leadStage:"TRANSFERRED",
+                                            leadStageId:
+                                                _resolveTransferredStageId(context),
                                             fromStaffId:
                                                 _currentLead.assignedStaffId,
                                             fromStaff:

@@ -39,6 +39,8 @@ void main() async {
     //   'Notification permission: ${settings.authorizationStatus}',
     // );
 
+    
+
     runApp(const OxdoApp());
   } catch (e) {
     // Fallback UI or log error
