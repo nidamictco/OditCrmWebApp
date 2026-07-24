@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -288,7 +289,25 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                   color: Color(0xFF888888),
                 ),
               ),
-              Expanded(
+               BlocBuilder<AddLeadCubit, AddLeadState>(
+                      builder: (context, state) {
+                        final categoryName = resolveLeadName(
+                          list: state.categories,
+                          id: _currentLead.leadCategoryId,
+                          fallback: _currentLead.leadCategory,
+                          idOf: (c) => c.id,
+                          nameOf: (c) => c.name,
+                        );
+
+                        final subCategoryName = resolveLeadName(
+                          list: state.subCategories,
+                          id: _currentLead.leadSubCategoryId,
+                          fallback: _currentLead.leadSubCategory,
+                          idOf: (s) => s.id,
+                          nameOf: (s) => s.name,
+                        );
+
+                        return Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min, // shrink-wrap
@@ -447,56 +466,76 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
                     // Meta row
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          _metaItem(
-                            Icons.phone,
-                            // '8086287726'
-                            _currentLead.contactNumber ?? '',
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _metaItem(
+                                Icons.phone,
+                                _currentLead.contactNumber ?? '',
+                              ),
+                              _divider(),
+                              _metaItem(
+                                Icons.location_on_outlined,
+                                _currentLead.address,
+                              ),
+                              _divider(),
+                              _metaText(
+                                'Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt ?? DateTime.now())}',
+                              ),
+                              _divider(),
+                              // _metaText(
+                              //   _currentLead.leadSubCategory.isNotEmpty
+                              //       ? 'category : ${_currentLead.leadCategory} - ${_currentLead.leadSubCategory}'
+                              //       : 'category : ${_currentLead.leadCategory}',
+                              // ),
+                              _metaText(
+                                subCategoryName.isNotEmpty
+                                    ? 'category : $categoryName - $subCategoryName'
+                                    : 'category : $categoryName',
+                              ),
+
+                              _divider(),
+                              _metaText(
+                                'Staff : ${_currentLead.assignedStaff}',
+                              ),
+                              _divider(),
+                              // _metaText('Cost : 0'),
+                              // _divider(),
+                              // _StatusBadge(
+                              //   label: _currentLead.leadStage,
+                              //   color: Color(0xFF2196F3),
+                              // ),
+                              _StatusBadge(
+                                label: resolveLeadName(
+                                  list: state.stages,
+                                  id: _currentLead.leadStageId,
+                                  fallback: _currentLead.leadStage,
+                                  idOf: (s) => s.id,
+                                  nameOf: (s) => s.name,
+                                ),
+                                color: Color(0xFF2196F3),
+                              ),
+                            ],
                           ),
-                          _divider(),
-                          _metaItem(
-                            Icons.location_on_outlined,
-                            _currentLead.address,
-                          ),
-                          _divider(),
-                          _metaText(
-                            'Create Date : ${DateFormat("dd MMM, yyyy").format(_currentLead.createdAt ?? DateTime.now())}',
-                          ),
-                          _divider(),
-                          _metaText(
-                            _currentLead.leadSubCategory.isNotEmpty
-                                ? 'category : ${_currentLead.leadCategory} - ${_currentLead.leadSubCategory}'
-                                : 'category : ${_currentLead.leadCategory}',
-                          ),
-                          _divider(),
-                          _metaText('Staff : ${_currentLead.assignedStaff}'),
-                          _divider(),
-                          // _metaText('Cost : 0'),
-                          // _divider(),
-                          _StatusBadge(
-                            label: _currentLead.leadStage,
-                            color: Color(0xFF2196F3),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                     
 
                     const SizedBox(height: 6),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: _metaText(
-                        'Lead Source : ${_currentLead.leadSource}',
+                        'Lead Source : ${resolveLeadName(list: state.sources, id: _currentLead.leadSourceId, fallback: _currentLead.leadSource, idOf: (s) => s.id, nameOf: (s) => s.name)}',
                       ),
                     ),
                     const SizedBox(height: 10),
                   ],
                 ),
-              ),
+              );
+               },
+                    ),
             ],
           ),
           // ✅ TabBar only — NO TabBarView.
@@ -599,292 +638,6 @@ class _FollowupTabContent extends StatefulWidget {
   State<_FollowupTabContent> createState() => _FollowupTabContentState();
 }
 
-// class _FollowupTabContentState extends State<_FollowupTabContent> {
-//   final TextEditingController _calledDateCtrl = TextEditingController();
-//   final TextEditingController _callStatusCtrl = TextEditingController();
-//   // final TextEditingController _leadStagetCtrl = TextEditingController();
-//   final TextEditingController _nextFollowUpDateCtrl = TextEditingController();
-//   final TextEditingController _costCtrl = TextEditingController();
-//   final TextEditingController _WhtsppNoCtrl = TextEditingController();
-//   final TextEditingController _emailCtrl = TextEditingController();
-//   final TextEditingController _addressm = TextEditingController();
-//   final TextEditingController _remarksCtrl = TextEditingController();
-
-//   final TextEditingController _dialogNameCtrl = TextEditingController();
-
-//   final List<String> _leadStages = ['New', 'Follow Up', 'Closed', 'Rejected'];
-//   final List<String> _callStatuses = [
-//     'Connected',
-//     'Not Connected',
-//     'Busy',
-//     "No Status Updated",
-//     "Not Attended",
-//     "Out of coverge Area",
-//     "Rejected",
-//     "Switched Off",
-//     "Number Changed",
-//     "Not Switched On",
-//   ];
-
-//   String? _leadStage;
-//   String? _leadCategory;
-//   String? _leadPriority;
-
-//   void _confirmDeleteFollowUp(BuildContext context, FollowUpModel followUp) {
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: const Text('Delete Follow-up'),
-//         content: const Text('Are you sure you want to delete this follow-up?'),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.pop(context),
-//             child: const Text('Cancel'),
-//           ),
-//           TextButton(
-//             onPressed: () async {
-//               Navigator.pop(context);
-
-//               await context.read<AddLeadCubit>().deleteFollowUp(
-//                 leadId: widget.leadId,
-//                 followUpId: followUp.id!,
-//                 changedByName: widget.lead.assignedStaff,
-//                 changedById: widget.lead.assignedStaffId,
-//                 leadName: widget.leadName,
-//                 leadPhone: widget.lead.contactNumber,
-//               );
-
-//               widget.onFollowUpAdded();
-
-//               if (mounted) {
-//                 ScaffoldMessenger.of(context).showSnackBar(
-//                   const SnackBar(
-//                     content: Text('Follow-up deleted successfully'),
-//                     backgroundColor: Colors.green,
-//                   ),
-//                 );
-//               }
-//             },
-//             child: const Text('Delete', style: TextStyle(color: Colors.red)),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     log("widget.followups.isEmpty ${widget.followups.length}");
-//     _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-//     // widget.onFollowUpAdded();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final Widget divider = SizedBox(width: 1.w);
-
-//     Future<FollowUpModel> createLeadFollowup() async {
-
-//       final user = await SessionService().getSavedUser();
-//       return FollowUpModel(
-//         leadId: widget.leadId,
-//         leadName: widget.leadName,
-//         leadWhatsappNo: widget.leadWhatsappNo ?? "",
-//         leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//         nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-//         leadTag: widget.lead.leadTag ?? '',
-//         calledStatus: widget.lead.callResult ?? "",
-//         calledDate:
-//             widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-//         leadStage: widget.lead.leadStage,
-//         leadCategory: widget.lead.leadCategory,
-//         priority: widget.lead.priority,
-//         remarks: widget.lead.remarks,
-//         createdById: widget.lead.createdById,
-//         adress: widget.lead.address,
-//         email: widget.lead.email, assignedStaff: user!.name, assignedStaffId:user.id??'',
-//       );
-//     }
-
-//     // Group entries by date
-//     final Map<String, List<FollowUpModel>> grouped = {};
-
-//     final Map<String, FollowUpModel> followupGroup = {};
-
-//     log("jhhhhhhhhhhhhh ${widget.lead.followUpDate}");
-
-//     if (widget.lead.followUpDate != null &&
-//         widget.lead.leadStage.toLowerCase() != 'closed' &&
-//         widget.lead.leadStage.toLowerCase() != 'rejected' &&
-//         widget.lead.leadStage.toLowerCase() != 'new') {
-//       // followupGroup[DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!)] = createLeadFollowup();
-//       followupGroup[DateFormat(
-//             'dd-MM-yyyy hh:mm',
-//           ).format(widget.lead.followUpDate!)] =
-//           createLeadFollowup();
-//     }
-
-//     for (final f in widget.followups) {
-//       followupGroup[DateFormat('dd-MM-yyyy hh:mm').format(f.calledDate)] = f;
-//     }
-
-//     // if(widget.followups.isEmpty) {
-//     followupGroup[DateFormat(
-//           'dd-MM-yyyy hh:mm',
-//         ).format(widget.lead.createdAt!)] =
-//         createLeadFollowup();
-//     // }
-
-//     ///---------------------------------------------------------------
-//     // grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.followUpDate!), () => []).add(FollowUpModel(
-//     //     leadId: widget.leadId,
-//     //     leadName: widget.leadName,
-//     //     leadWhatsappNo: widget.leadWhatsappNo ?? "",
-//     //     leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//     //     nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-//     //     calledStatus: widget.lead.callResult ?? "",
-//     //     calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-//     //     leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-//     //     priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-//     //
-//     // ));
-//     //
-//     // for (final f in widget.followups) {
-//     //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(f.calledDate), () => []).add(f);
-//     // }
-//     //
-//     //
-//     // if(widget.followups.isEmpty) {
-//     //   grouped.putIfAbsent(DateFormat('dd-MM-yyyy').format(widget.lead.createdAt!), () => []).add(FollowUpModel(
-//     //       leadId: widget.leadId,
-//     //       leadName: widget.leadName,
-//     //       leadWhatsappNo: widget.leadWhatsappNo ?? "",
-//     //       leadWhatsappDialCode: widget.leadWhatsappDialCode ?? "",
-//     //       nextFollowUpDate: widget.lead.followUpDate ?? DateTime.now(),
-//     //       calledStatus: widget.lead.callResult ?? "",
-//     //       calledDate: widget.lead.calledDate ?? widget.lead.createdAt ?? DateTime.now(),
-//     //       leadStage: widget.lead.leadStage, leadCategory: widget.lead.leadCategory,
-//     //       priority: widget.lead.priority, remarks: widget.lead.remarks, createdById: widget.lead.createdById
-//     //
-//     //   ));
-//     // }
-
-//     // final dates = grouped.keys.toList();
-
-//     ///--------------------------------------------------------------------------
-
-//     final dates = followupGroup.keys.toList();
-//     log(dates.length.toString());
-
-//     return Container(
-//       color: Colors.white,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         mainAxisSize: MainAxisSize.min, // ✅ shrink-wrap
-//         children: [
-//           // Action bar
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-//             child: Row(
-//               children: [
-//                 Text(
-//                   'Followup Details',
-//                   style: AppTextStyle.heading(
-//                     size: 18,
-//                     // weight: FontWeight.w700,
-//                     color: Color(0xFF495057),
-//                   ),
-//                   // TextStyle(
-//                   //     fontSize: 16,
-//                   //     fontWeight: FontWeight.w700,
-//                   //     color: Color(0xFF222222)),
-//                 ),
-//                 const Spacer(),
-//                 // Container(
-//                 //   decoration: BoxDecoration(
-//                 //     color: AppColors.green,
-//                 //     borderRadius: BorderRadius.circular(6),
-//                 //   ),
-//                 //   padding: const EdgeInsets.symmetric(
-//                 //     horizontal: 12,
-//                 //     vertical: 7,
-//                 //   ),
-//                 //   child: Row(
-//                 //     children: [
-//                 //       // Icon(Icons.chat, color: Colors.white, size: 16),
-//                 //       Image.asset("assets/icon/whatsapp.png", scale: 2,),
-//                 //       const SizedBox(width: 4),
-//                 //       const Icon(
-//                 //         Icons.keyboard_arrow_down,
-//                 //         color: Colors.white,
-//                 //         size: 16,
-//                 //       ),
-//                 //     ],
-//                 //   ),
-//                 // ),
-//                 // const SizedBox(width: 8),
-//                 ElevatedButton(
-//                   onPressed: () {
-//                     _addFollowUpBottom(context, null, "NEW", widget.lead);
-//                   },
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: AppColors.primary,
-//                     foregroundColor: Colors.white,
-//                     elevation: 0,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(6),
-//                     ),
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: 14,
-//                       vertical: 9,
-//                     ),
-//                   ),
-//                   child: Text(
-//                     'Add Follow-up',
-//                     style: AppTextStyle.small(size: 13, color: AppColors.white),
-//                   ),
-//                   // TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           // ✅ Rendered as plain Column children — no ListView required
-//           ...dates.map(
-//             (date) => _DateGroup(
-//               // date: date,
-//               date: date.substring(0, 10),
-//               entry: followupGroup[date]!,
-//               time: DateFormat(
-//                 'hh:mm a',
-//               ).format(followupGroup[date]!.calledDate),
-//               lead: widget.lead,
-//               index: dates.indexOf(date),
-//               dateCount: dates.length,
-//               onEdit: (followup) {
-//                 _addFollowUpBottom(context, followup, "EDIT", widget.lead);
-//               },
-//               onDelete: (followup) {
-//                 _confirmDeleteFollowUp(context, followup);
-//               },
-//             ),
-//           ),
-
-//           // ...dates.map(
-//           //   (date) => _DateGroup(
-//           //     date: date,
-//           //     entries: grouped[date]!,
-//           //     time: DateFormat('hh:mm a').format(grouped[date]![0].calledDate),
-//           //     // entry: grouped[date]![0],
-//           //     lead: widget.lead,
-//           //   ),
-//           // ),
-//           const SizedBox(height: 20),
-//         ],
-//       ),
-//     );
-//   }
 class _FollowupTabContentState extends State<_FollowupTabContent> {
   final TextEditingController _calledDateCtrl = TextEditingController();
   final TextEditingController _callStatusCtrl = TextEditingController();
@@ -1184,16 +937,65 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       // cubit.selectCategory(leadFollowup.leadCategory);
       // cubit.selectSubCategory(leadFollowup.leadSubCategory);
       // cubit.selectLeadTag(leadFollowup.leadTag);
-      cubit.selectCategory(leadFollowup!.leadCategory, pendingSubCategory: leadFollowup.leadSubCategory);
-cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
+      cubit.selectCategory(
+        // leadFollowup!.leadCategory,
+        resolveLeadName(
+        list: cubit.state.categories,
+        id: leadFollowup!.leadCategoryId,
+        fallback: leadFollowup.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+        pendingSubCategory: resolveLeadName(
+        list: cubit.state.subCategories,
+        id: leadFollowup.leadSubCategoryId,
+        fallback: leadFollowup.leadSubCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+      );
+      cubit.selectLeadStage(
+        resolveLeadName(
+        list: cubit.state.stages,
+        id: leadFollowup.leadStageId,
+        fallback: leadFollowup.leadStage,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+        pendingTag: resolveLeadName(
+        list: cubit.state.leadTag,
+        id: leadFollowup.leadTagId,
+        fallback: leadFollowup.leadTag,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+      );
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
       cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
 
-      final editStage = (leadFollowup.leadStage.toUpperCase() == 'NEW')
+      final editStage = (resolveLeadName(
+        list: cubit.state.stages,
+        id: leadFollowup.leadStageId,
+        fallback: leadFollowup.leadStage,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ).toUpperCase() == 'NEW')
           ? 'FOLLOWUP'
-          : leadFollowup.leadStage;
-      cubit.selectLeadStage(editStage,  pendingTag: leadFollowup.leadTag);
+          :  resolveLeadName(
+        list: cubit.state.stages,
+        id: leadFollowup.leadStageId,
+        fallback: leadFollowup.leadStage,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      );
+      cubit.selectLeadStage(editStage, pendingTag: resolveLeadName(
+        list: cubit.state.leadTag,
+        id: leadFollowup.leadTagId,
+        fallback: leadFollowup.leadTag,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ));
       nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
       ).format(leadFollowup.nextFollowUpDate);
@@ -1208,8 +1010,20 @@ cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
       nextFollowUpDate = leadFollowup.nextFollowUpDate;
       calledDateValue = leadFollowup.calledDate;
       _leadPriority = lead.priority;
-      _leadCategory = lead.leadCategory;
-      _leadSubCategory = lead.leadSubCategory;
+      _leadCategory = resolveLeadName(
+        list: cubit.state.categories,
+        id: lead.leadCategoryId,
+        fallback: lead.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      );
+      _leadSubCategory = resolveLeadName(
+        list: cubit.state.subCategories,
+        id: lead.leadSubCategoryId,
+        fallback: lead.leadSubCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      );
     } else {
       _calledDateCtrl.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
       _callStatusCtrl.text = '';
@@ -1219,9 +1033,29 @@ cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
       _WhtsppNoCtrl.text = lead.whatsappNumber;
       cubit.selectLeadStage('FOLLOWUP');
       cubit.selectCategory(
-  lead.leadCategory.isEmpty ? null : lead.leadCategory,
-  pendingSubCategory: lead.leadSubCategory.isEmpty ? null : lead.leadSubCategory,
-);
+        resolveLeadName(
+        list: cubit.state.categories,
+        id: lead.leadCategoryId,
+        fallback: lead.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+        pendingSubCategory:   resolveLeadName(
+        list: cubit.state.categories,
+        id: lead.leadCategoryId,
+        fallback: lead.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ).isEmpty
+            ? null
+            :   resolveLeadName(
+        list: cubit.state.categories,
+        id: lead.leadCategoryId,
+        fallback: lead.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
+      );
       cubit.selectPriority(lead.priority.isEmpty ? null : lead.priority);
     }
 
@@ -1378,7 +1212,8 @@ cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
                           }
 
                           // ── Validation: tag for rejected lead ───────────────────
-                          if (state.selectedLeadTag == null && state.tagMandatory) {
+                          if (state.selectedLeadTag == null &&
+                              state.tagMandatory) {
                             _showAlertDialog(
                               sbContext,
                               title: 'Validation',
@@ -1930,22 +1765,28 @@ cubit.selectLeadStage(leadFollowup.leadStage, pendingTag: leadFollowup.leadTag);
           ),
         ),
         onSubmit: () async {
-  final name = _dialogNameCtrl.text.trim();
-  if (name.isEmpty) return;
-  final normalized = name.toUpperCase();          // ← match what fromFirestore produces
-   final newId = await context.read<LeadCategoryCubit>().addCategory(name: normalized);
-  setState(() => _leadCategory = normalized);
-  // context.read<AddLeadCubit>().selectCategory(normalized);
-  context.read<AddLeadCubit>().selectCategoryDirect(name: normalized, id: newId);
-  Navigator.pop(ctx);
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Category "$normalized" added.'),
-      backgroundColor: AppColors.green,
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-},
+          final name = _dialogNameCtrl.text.trim();
+          if (name.isEmpty) return;
+          final normalized = name
+              .toUpperCase(); // ← match what fromFirestore produces
+          final newId = await context.read<LeadCategoryCubit>().addCategory(
+            name: normalized,
+          );
+          setState(() => _leadCategory = normalized);
+          // context.read<AddLeadCubit>().selectCategory(normalized);
+          context.read<AddLeadCubit>().selectCategoryDirect(
+            name: normalized,
+            id: newId,
+          );
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Category "$normalized" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
       ),
     );
   }
@@ -2238,6 +2079,7 @@ class _FollowupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AddLeadCubit>().state;
     return Padding(
       padding: const EdgeInsets.only(right: 16, bottom: 0, top: 16),
       child: Column(
@@ -2294,7 +2136,9 @@ class _FollowupCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
-                        if (index == 1 && lead.leadStage.toUpperCase()!='REJECTED' && lead.leadStage.toUpperCase()!='CLOSED')
+                        if (index == 1 &&
+                            lead.leadStage.toUpperCase() != 'REJECTED' &&
+                            lead.leadStage.toUpperCase() != 'CLOSED')
                           Row(
                             children: [
                               InkWell(
@@ -2344,8 +2188,20 @@ class _FollowupCard extends StatelessWidget {
                         _cardRow('Call Status', entry.calledStatus),
                         const SizedBox(height: 4),
                         // if (entry.leadStage.toLowerCase() == 'rejected')
-                        if(lead.leadTag!.isNotEmpty)
-                          _cardRow('Tags', lead.leadTag!),
+                        if (resolveLeadName(
+        list: state.leadTag,
+        id: lead.leadTagId,
+        fallback:  lead.leadTag ?? '',
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ).isNotEmpty)
+                          _cardRow('Tags', resolveLeadName(
+        list: state.leadTag,
+        id: lead.leadTagId,
+        fallback: lead.leadTag,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      )),
                         if (entry.leadStage.toLowerCase() == 'rejected')
                           const SizedBox(height: 4),
                         _remarkRow('-${entry.remarks}'),
@@ -2372,7 +2228,13 @@ class _FollowupCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            _StatusChip(label: entry.leadStage),
+                            _StatusChip(label: resolveLeadName(
+        list: state.stages,
+        id: entry.leadStageId,
+        fallback: entry.leadStage,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      )),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -2622,6 +2484,7 @@ class _LastFollowupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AddLeadCubit>().state;
     return Padding(
       padding: const EdgeInsets.only(right: 16, bottom: 20, top: 16),
       child: Column(
@@ -2730,7 +2593,7 @@ class _LastFollowupCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Row(
                               children: [
-                                _StatusChip(label: lead.leadStage),
+                                _StatusChip(label: resolveLeadName(list: state.stages, id: lead.leadStageId, fallback: lead.leadStage, idOf: (s) => s.id, nameOf: (s) => s.name)),
                                 Text(
                                   "(Pending)",
                                   style: AppTextStyle.body(
@@ -3133,6 +2996,7 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AddLeadCubit>().state;
     TextStyle labelStyle = AppTextStyle.body(
       fontSize: 13,
       color: Color(0xFF888888),
@@ -3195,7 +3059,14 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
               ],
               [
                 'Lead Category',
-                widget.lead.leadCategory,
+                // widget.lead.leadCategory,
+                resolveLeadName(
+        list: state.categories,
+        id: widget.lead.leadCategoryId,
+        fallback: widget.lead.leadCategory,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
                 'Assigned Staff',
                 widget.lead.assignedStaff,
               ],
@@ -3204,7 +3075,14 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
                 'Call Status',
                 widget.lead.callResult ?? "-",
                 'Lead Stage',
-                widget.lead.leadStage,
+                // widget.lead.leadStage,
+resolveLeadName(
+        list: state.stages,
+        id: widget.lead.leadStageId,
+        fallback: widget.lead.leadStage,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      ),
               ],
               // ['Products', '', '', ''],
             ],
@@ -3214,7 +3092,13 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
             labelStyle: labelStyle,
             valueStyle: valueStyle,
             left: 'Lead Method',
-            leftVal: widget.lead.leadSource,
+            leftVal: resolveLeadName(
+        list: state.sources,
+        id: widget.lead.leadSourceId,
+        fallback: widget.lead.leadSource,
+        idOf: (s) => s.id,
+        nameOf: (s) => s.name,
+      )!,
             right: 'Remarks',
             rightVal: widget.lead.remarks.isEmpty
                 ? '-'
@@ -3560,7 +3444,7 @@ class _StatusChip extends StatelessWidget {
       case 'connected':
         return const Color(0xFF4CAF50);
       case 'closed':
-      return const Color(0xFF4CAF50);
+        return const Color(0xFF4CAF50);
       case 'new':
         return const Color(0xFF10B981);
       case 'transferred':
