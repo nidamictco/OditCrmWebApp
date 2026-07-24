@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -51,11 +50,11 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
       final defaultStage = fetchedStages.isEmpty
           ? null
           : fetchedStages
-              .firstWhere(
-                (s) => s.name?.toLowerCase() == 'new',
-                orElse: () => fetchedStages.first,
-              )
-              .name;
+                .firstWhere(
+                  (s) => s.name?.toLowerCase() == 'new',
+                  orElse: () => fetchedStages.first,
+                )
+                .name;
 
       // ── 3. Resolve staff assignment based on role ────────────────────────
       //
@@ -108,46 +107,53 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   //   state.copyWith(selectedCategory: value, clearCategory: value == null),
   // );
 
-Future<void> selectCategory(String? value) async {
-  emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
-  emit(state.copyWith(subCategories: [], clearSubCategory: true));
+  Future<void> selectCategory(String? value) async {
+    emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
+    emit(state.copyWith(subCategories: [], clearSubCategory: true));
+    log("uuuuuuuuuuuu");
+    if (value == null) return;
 
-  if (value == null) return;
+    final match = state.categories.where((c) => c.name == value);
+    if (match.isEmpty) return;
 
-  final match = state.categories.where((c) => c.name == value);
-  if (match.isEmpty) return;
+    final categoryId = match.first.id;
+    log("yyyyyyyyyyyyyyyyyyyy $categoryId");
+    emit(state.copyWith(selectedCategoryId: categoryId));
 
-  final categoryId = match.first.id;
-  emit(state.copyWith(selectedCategoryId: categoryId));
-
-  try {
-    final subs = await _repository.fetchSubCategories(categoryId);
-    emit(state.copyWith(subCategories: subs));
-  } catch (_) {
-    // non-fatal; leave subCategories empty
+    try {
+      final subs = await _repository.fetchSubCategories(categoryId);
+      log("zzzzzzzzzzzz $subs");
+      emit(state.copyWith(subCategories: subs));
+    } catch (_) {
+      // non-fatal; leave subCategories empty
+    }
   }
-}
 
-void selectSubCategory(String? value) {
-  emit(state.copyWith(selectedSubCategory: value, clearSubCategory: value == null));
-  if (value == null) return;
-  final match = state.subCategories.where((s) => s.name == value);
-  if (match.isNotEmpty) {
-    emit(state.copyWith(selectedSubCategoryId: match.first.id));
+  void selectSubCategory(String? value) {
+    emit(
+      state.copyWith(
+        selectedSubCategory: value,
+        clearSubCategory: value == null,
+      ),
+    );
+    if (value == null) return;
+    final match = state.subCategories.where((s) => s.name == value);
+    if (match.isNotEmpty) {
+      emit(state.copyWith(selectedSubCategoryId: match.first.id));
+    }
   }
-}
 
   // void selectSource(String? value) =>
   //     emit(state.copyWith(selectedSource: value, clearSource: value == null));
 
-void selectSource(String? value) {
-  emit(state.copyWith(selectedSource: value, clearSource: value == null));
-  if (value == null) return;
-  final match = state.sources.where((s) => s.name == value);
-  if (match.isNotEmpty) {
-    emit(state.copyWith(selectedSourceId: match.first.id));
+  void selectSource(String? value) {
+    emit(state.copyWith(selectedSource: value, clearSource: value == null));
+    if (value == null) return;
+    final match = state.sources.where((s) => s.name == value);
+    if (match.isNotEmpty) {
+      emit(state.copyWith(selectedSourceId: match.first.id));
+    }
   }
-}
 
   void selectLeadStage(String? value) => emit(
     state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
@@ -292,20 +298,20 @@ void selectSource(String? value) {
       }
 
       final defaults = ImportLeadModel(
-  leadCategory: state.selectedCategory ?? '',
-  leadCategoryId: state.selectedCategoryId ?? '',
-  leadSubCategory: state.selectedSubCategory ?? '',
-  leadSubCategoryId: state.selectedSubCategoryId ?? '',
-  leadSource: state.selectedSource ?? '',
-  leadSourceId: state.selectedSourceId ?? '',
-  leadStage: state.selectedLeadStage ?? '',
-  leadStageId: state.selectedLeadStageId ?? '',
-  priority: state.selectedPriority ?? 'Normal',
-  state: state.selectedState ?? '',
-  district: state.selectedDistrict ?? '',
-  assignedStaff: state.assignedStaffName,
-  assignedStaffId: state.assignedStaffId ?? '',
-  contactDialCode: state.dialCode,
+        leadCategory: state.selectedCategory ?? '',
+        leadCategoryId: state.selectedCategoryId ?? '',
+        leadSubCategory: state.selectedSubCategory ?? '',
+        leadSubCategoryId: state.selectedSubCategoryId ?? '',
+        leadSource: state.selectedSource ?? '',
+        leadSourceId: state.selectedSourceId ?? '',
+        leadStage: state.selectedLeadStage ?? '',
+        leadStageId: state.selectedLeadStageId ?? '',
+        priority: state.selectedPriority ?? 'Normal',
+        state: state.selectedState ?? '',
+        district: state.selectedDistrict ?? '',
+        assignedStaff: state.assignedStaffName,
+        assignedStaffId: state.assignedStaffId ?? '',
+        contactDialCode: state.dialCode,
         createdBy: user?.name ?? '',
         createdById: user?.id ?? '',
       );
@@ -326,7 +332,8 @@ void selectSource(String? value) {
 
       await _notificationRepo.createForAdmins(
         title: 'Leads Imported',
-        message: '$count lead${count == 1 ? '' : 's'} have been imported and assigned to $resolvedStaffName',
+        message:
+            '$count lead${count == 1 ? '' : 's'} have been imported and assigned to $resolvedStaffName',
         excludeStaffId: creatorId,
       );
       if (isClosed) return;
@@ -335,11 +342,11 @@ void selectSource(String? value) {
       final defaultStage = state.stages.isEmpty
           ? null
           : state.stages
-              .firstWhere(
-                (s) => s.name?.toLowerCase() == 'new',
-                orElse: () => state.stages.first,
-              )
-              .name;
+                .firstWhere(
+                  (s) => s.name?.toLowerCase() == 'new',
+                  orElse: () => state.stages.first,
+                )
+                .name;
 
       // For Staff users, re-pin the staff assignment after reset.
       final postStaffName = state.isAdmin ? '' : resolvedStaffName;

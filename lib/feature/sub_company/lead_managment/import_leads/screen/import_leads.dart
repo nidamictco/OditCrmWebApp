@@ -1,26 +1,25 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
-import 'package:Odit_CRM/core/theme/app_text_style.dart';
-import 'package:Odit_CRM/core/utils/dropdown.dart';
-import 'package:Odit_CRM/core/utils/file_picker_field.dart';
 import 'package:Odit_CRM/core/utils/indian_location_service.dart';
 import 'package:Odit_CRM/core/utils/popup_msg.dart';
-import 'package:Odit_CRM/core/utils/tool_tips.dart';
-import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
-import 'package:Odit_CRM/core/utils/dropdown_with_add.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/cubit/import_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/field_position_dialog.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/sample_file.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_tag_repo.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
-import 'package:sizer/sizer.dart';
 
 class ImportLeads extends StatefulWidget {
   const ImportLeads({super.key});
@@ -30,16 +29,19 @@ class ImportLeads extends StatefulWidget {
 }
 
 class _ImportLeadsState extends State<ImportLeads> {
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _sourceController = TextEditingController();
-  final TextEditingController _costController = TextEditingController();
   final TextEditingController _dialogNameCtrl = TextEditingController();
 
   Uint8List? _pickedCsvBytes;
+  String? _pickedFileName;
 
   final List<String> _priorities = ['High', 'Low', 'Negative', 'Normal'];
 
   Map<String, List<String>> _stateDistrictMap = {};
+
+  List<LeadsModel> _stageTags = [];
+  String? _selectedTag;
+  StreamSubscription? _tagSubscription;
+  String? _lastStageId;
 
   @override
   void initState() {
@@ -53,9 +55,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
   @override
   void dispose() {
-    _categoryController.dispose();
-    _sourceController.dispose();
-    _costController.dispose();
+    _tagSubscription?.cancel();
     _dialogNameCtrl.dispose();
     super.dispose();
   }
@@ -74,38 +74,199 @@ class _ImportLeadsState extends State<ImportLeads> {
     return BlocConsumer<ImportLeadsCubit, ImportLeadsState>(
       listener: _onStateChanged,
       builder: (context, state) {
+        final cubit = context.read<ImportLeadsCubit>();
+
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppThemeColors.scaffoldBg,
           body: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TopBreadcrumbBar(
-                  subTitle: 'Import Leads',
-                  title: 'Leads Management',
-                ),
+                // _buildTopHeaderBar(context),
                 Padding(
-                  padding: EdgeInsets.all(2.w),
-                  child: Column(
-                    children: [
-                      _tabs(state),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: AppColors.divider),
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0x14000000),
+                          offset: const Offset(0, 1),
+                          blurRadius: 8,
+                          spreadRadius: 0,
                         ),
-                        child: Column(
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Top Section: CSV Upload Box & Action Buttons
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _titleBar(context),
-                            Divider(color: AppColors.divider),
-                            SizedBox(height: 2.h),
-                            _description(),
-                            SizedBox(height: 3.h),
-                            _formBody(context, state),
+                            _buildCsvUploadBox(cubit),
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: () => downloadSampleLeadExcel(),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF7ED),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      'Sample File',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFFEA580C),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                InkWell(
+                                  onTap: () => showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (_) => BlocProvider.value(
+                                      value: context.read<ImportLeadsCubit>(),
+                                      child: const FieldPositionDialog(),
+                                    ),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF3B82F6),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      'Field Settings',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                              ],
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        _buildCountryCodeToggle(state, cubit),
+                        const SizedBox(height: 24),
+
+                        // Form Fields Grid (Max 4 per row, dynamic Stage Tag & Category SubCategory)
+                        _buildFormGrid(context, state, cubit),
+
+                        const SizedBox(height: 32),
+
+                        // Bottom Right Actions: Clear All & Submit
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _pickedCsvBytes = null;
+                                  _pickedFileName = null;
+                                  _selectedTag = null;
+                                  _stageTags = [];
+                                  _lastStageId = null;
+                                });
+                                _tagSubscription?.cancel();
+                                cubit.selectLeadStage(null);
+                                cubit.selectCategory(null);
+                                cubit.selectSubCategory(null);
+                                cubit.selectStaff(null);
+                                cubit.selectSource(null);
+                                cubit.selectPriority(null);
+                                cubit.selectState(null);
+                                cubit.selectDistrict(null);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Color(0xFFEF4444),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 14,
+                                ),
+                              ),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(
+                                  color: Color(0xFFEF4444),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed:
+                                  (_pickedCsvBytes != null &&
+                                      !state.isImporting)
+                                  ? () =>
+                                        _confirmAndImport(context, state, cubit)
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    (_pickedCsvBytes != null &&
+                                        !state.isImporting)
+                                    ? const Color(0xFF00C853)
+                                    : Colors.grey.shade400,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
+                              ),
+                              child: state.isImporting
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Submit',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -113,6 +274,655 @@ class _ImportLeadsState extends State<ImportLeads> {
           ),
         );
       },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CSV UPLOAD BOX
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildCsvUploadBox(ImportLeadsCubit cubit) {
+    final hasFile = _pickedCsvBytes != null;
+    return GestureDetector(
+      onTap: () async {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['csv'],
+          withData: true,
+        );
+        if (result != null &&
+            result.files.isNotEmpty &&
+            result.files.single.bytes != null) {
+          final file = result.files.single;
+          final bytes = file.bytes!;
+          setState(() {
+            _pickedCsvBytes = bytes;
+            _pickedFileName = file.name;
+          });
+          cubit.setCsvBytes(bytes);
+        }
+      },
+      child: Container(
+        width: 200,
+        height: 135,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: hasFile ? const Color(0xFFF0FDF4) : const Color(0xFFFAFAFA),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: hasFile ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: hasFile
+                    ? const Color(0xFFDCFCE7)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                hasFile
+                    ? Icons.check_circle_outline
+                    : Icons.insert_drive_file_outlined,
+                color: hasFile
+                    ? const Color(0xFF059669)
+                    : const Color(0xFF64748B),
+                size: 26,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              hasFile
+                  ? (_pickedFileName ?? 'File Selected')
+                  : 'Import CSV File',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: hasFile
+                    ? const Color(0xFF047857)
+                    : const Color(0xFF1E293B),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              hasFile
+                  ? '${(_pickedCsvBytes!.length / 1024).toStringAsFixed(1)} KB'
+                  : 'Drop file or click here to choose file.',
+              style: TextStyle(
+                fontSize: 10,
+                color: hasFile
+                    ? const Color(0xFF059669)
+                    : const Color(0xFF94A3B8),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // COUNTRY CODE TOGGLE
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildCountryCodeToggle(
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) {
+    final isWithCountryCode = state.selectedTab == 0;
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppThemeColors.borderLight),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Country Code',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 50,
+            height: 28,
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: Switch(
+                value: isWithCountryCode,
+                activeTrackColor: const Color(0xFF1E3A8A),
+                onChanged: (val) {
+                  cubit.selectTab(val ? 0 : 1);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FORM GRID (DYNAMIC FIELDS WITH MAXIMUM 4 PER ROW)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildFormGrid(
+    BuildContext context,
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) {
+    // ── Check and listen for tags on selected lead stage ───────────────────
+    final matchStage = state.stages.where(
+      (s) => s.name == state.selectedLeadStage,
+    );
+    final stageId = matchStage.isNotEmpty ? matchStage.first.id : null;
+
+    if (stageId != _lastStageId) {
+      _lastStageId = stageId;
+      _tagSubscription?.cancel();
+      _tagSubscription = null;
+
+      if (stageId != null && stageId.isNotEmpty) {
+        _tagSubscription = LeadTagRepository(tagId: stageId)
+            .watchLeadTags()
+            .listen((tags) {
+              if (mounted) {
+                setState(() {
+                  _stageTags = tags;
+                  if (_selectedTag != null &&
+                      !tags.any((t) => t.name == _selectedTag)) {
+                    _selectedTag = null;
+                  }
+                });
+              }
+            });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _stageTags = [];
+              _selectedTag = null;
+            });
+          }
+        });
+      }
+    }
+
+    final categoryNames = state.categories
+        .map((c) => c.name)
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    final sourceNames = state.sources
+        .map((s) => s.name)
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    final stagesNames = state.stages
+        .map((s) => s.name)
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    final staffNames = state.staffList
+        .map((s) => s.name)
+        .where((n) => n.isNotEmpty)
+        .toList();
+
+    // ── Construct list of active fields in sequence ────────────────────────
+    final contactField = _buildContactNumberField(state, cubit);
+
+    final stageField = _buildStandardDropdown(
+      label: 'Lead Stage',
+      hint: 'Select Field',
+      items: stagesNames,
+      selectedValue: state.selectedLeadStage,
+      onChanged: (val) {
+        cubit.selectLeadStage(val);
+      },
+    );
+
+    final categoryField = _buildDropdownWithAddButton(
+      label: 'Lead Category',
+      hint: 'Select Category',
+      items: categoryNames,
+      selectedValue: state.selectedCategory,
+      onChanged: (val) {
+        log("gfdfdgvbcbc selectedCategory: $val");
+        cubit.selectCategory(val);
+      },
+      onAddTap: _showAddCategoryDialog,
+    );
+
+    final staffField = _buildStandardDropdown(
+      label: 'Staff',
+      hint: 'Select Field',
+      items: staffNames,
+      selectedValue: state.assignedStaffName.isNotEmpty
+          ? state.assignedStaffName
+          : state.selectedStaff,
+      onChanged: cubit.selectStaff,
+      enabled: state.isAdmin,
+    );
+
+    final sourceField = _buildDropdownWithAddButton(
+      label: 'Lead Source',
+      hint: 'Select Source',
+      items: sourceNames,
+      selectedValue: state.selectedSource,
+      onChanged: cubit.selectSource,
+      onAddTap: _showAddSourceDialog,
+    );
+
+    final priorityField = _buildStandardDropdown(
+      label: 'Priority',
+      hint: 'Select Field',
+      items: _priorities,
+      selectedValue: state.selectedPriority,
+      onChanged: cubit.selectPriority,
+    );
+
+    final stateField = _buildStandardDropdown(
+      label: 'State',
+      hint: 'Select Field',
+      items: _stateDistrictMap.keys.toList(),
+      selectedValue: state.selectedState,
+      onChanged: cubit.selectState,
+      showClear: true,
+    );
+
+    final districtField = _buildStandardDropdown(
+      label: 'District',
+      hint: 'Select Field',
+      items: state.selectedState == null
+          ? []
+          : _stateDistrictMap[state.selectedState] ?? [],
+      selectedValue: state.selectedDistrict,
+      onChanged: cubit.selectDistrict,
+      enabled: state.selectedState != null,
+      showClear: true,
+    );
+
+    final List<Widget> activeFields = [contactField, stageField];
+
+    // If selected stage has tags in Firebase -> insert Tag dropdown next to Lead Stage
+    if (_stageTags.isNotEmpty) {
+      final tagNames = _stageTags
+          .map((t) => t.name)
+          .where((n) => n.isNotEmpty)
+          .toList();
+      activeFields.add(
+        _buildStandardDropdown(
+          label: 'Tag',
+          hint: 'Select Tag',
+          items: tagNames,
+          selectedValue: _selectedTag,
+          onChanged: (val) {
+            setState(() {
+              _selectedTag = val;
+            });
+          },
+          showClear: true,
+        ),
+      );
+    }
+
+    activeFields.add(categoryField);
+
+    // If selected category has subcategories in Firebase -> insert Sub Category dropdown next to Lead Category
+    if (state.subCategories.isNotEmpty) {
+      final subCatNames = state.subCategories
+          .map((s) => s.name)
+          .where((n) => n.isNotEmpty)
+          .toList();
+      activeFields.add(
+        _buildStandardDropdown(
+          label: 'Lead Sub Category',
+          hint: 'Select Sub Category',
+          items: subCatNames,
+          selectedValue: state.selectedSubCategory,
+          onChanged: cubit.selectSubCategory,
+          showClear: true,
+        ),
+      );
+    }
+
+    if (state.isAdmin) {
+      activeFields.add(staffField);
+    }
+
+    activeFields.addAll([
+      sourceField,
+      priorityField,
+      stateField,
+      districtField,
+    ]);
+
+    // ── Chunk active fields into rows with maximum 4 fields per row ──────────
+    final List<List<Widget>> rows = [];
+    for (int i = 0; i < activeFields.length; i += 4) {
+      final end = (i + 4 < activeFields.length) ? i + 4 : activeFields.length;
+      rows.add(activeFields.sublist(i, end));
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 800;
+
+        if (isDesktop) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (int i = 0; i < rows.length; i++) ...[
+                if (i > 0) const SizedBox(height: 20),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int j = 0; j < 4; j++) ...[
+                      if (j < rows[i].length)
+                        Expanded(child: rows[i][j])
+                      else
+                        const Expanded(child: SizedBox.shrink()),
+                      if (j < 3) const SizedBox(width: 16),
+                    ],
+                  ],
+                ),
+              ],
+            ],
+          );
+        }
+
+        final itemWidth = (constraints.maxWidth - 16) / 2;
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: activeFields
+              .map((field) => SizedBox(width: itemWidth, child: field))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FIELD WIDGET BUILDERS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildContactNumberField(
+    ImportLeadsState state,
+    ImportLeadsCubit cubit,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Text(
+              'Contact Number',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF475569),
+              ),
+            ),
+            Text(
+              '*',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              if (state.selectedTab == 0)
+                Localizations.override(
+                  context: context,
+                  locale: const Locale('en'),
+                  child: CountryCodePicker(
+                    onChanged: (country) =>
+                        cubit.setDialCode(country.dialCode ?? '+91'),
+                    initialSelection: 'IN',
+                    showCountryOnly: false,
+                    showOnlyCountryWhenClosed: false,
+                    alignLeft: false,
+                    padding: EdgeInsets.zero,
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A),
+                    ),
+                    flagWidth: 18,
+                    dialogBackgroundColor: Colors.white,
+                    boxDecoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xff00B16E)),
+                    ),
+                  ),
+                )
+              else
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Text(
+                    '+91',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  '0000 0000 00',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                ),
+              ),
+              const Icon(
+                Icons.phone_outlined,
+                size: 18,
+                color: Color(0xFF94A3B8),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownWithAddButton({
+    required String label,
+    required String hint,
+    required List<String> items,
+    required String? selectedValue,
+    required ValueChanged<String?> onChanged,
+    required VoidCallback onAddTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF475569),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: onAddTap,
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00C853),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 18),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value:
+                        (selectedValue != null && items.contains(selectedValue))
+                        ? selectedValue
+                        : null,
+                    hint: Text(
+                      hint,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Color(0xFF94A3B8),
+                      size: 20,
+                    ),
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF0F172A),
+                    ),
+                    items: items
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: onChanged,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStandardDropdown({
+    required String label,
+    required String hint,
+    required List<String> items,
+    required String? selectedValue,
+    required ValueChanged<String?> onChanged,
+    bool enabled = true,
+    bool showClear = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF475569),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: enabled ? Colors.white : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value:
+                        (selectedValue != null && items.contains(selectedValue))
+                        ? selectedValue
+                        : null,
+                    hint: Text(
+                      hint,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                    icon: showClear && selectedValue != null
+                        ? InkWell(
+                            onTap: () => onChanged(null),
+                            child: const Icon(
+                              Icons.close,
+                              color: Color(0xFF94A3B8),
+                              size: 18,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color(0xFF94A3B8),
+                            size: 20,
+                          ),
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF0F172A),
+                    ),
+                    items: items
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: enabled ? onChanged : null,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -130,7 +940,14 @@ class _ImportLeadsState extends State<ImportLeads> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      setState(() => _pickedCsvBytes = null);
+      setState(() {
+        _pickedCsvBytes = null;
+        _pickedFileName = null;
+        _selectedTag = null;
+        _stageTags = [];
+        _lastStageId = null;
+      });
+      _tagSubscription?.cancel();
       context.go(RoutePaths.leadsReport);
     }
 
@@ -147,269 +964,46 @@ class _ImportLeadsState extends State<ImportLeads> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // UI SECTIONS
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _titleBar(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Import Leads',
-            style: AppTextStyle.medium(
-              size: 13.6.sp,
-              color: AppColors.black.withOpacity(0.77),
-              weight: FontWeight.w600,
-            ),
-          ),
-          Row(
-            children: [
-              InkWell(
-                onTap: () => downloadSampleLeadExcel(),
-                child: _topButton(
-                  'Sample File',
-                  Colors.orange.shade50,
-                  Colors.orange,
-                ),
-              ),
-              SizedBox(width: 1.w),
-              InkWell(
-                onTap: () => showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<ImportLeadsCubit>(),
-                    child: const FieldPositionDialog(),
-                  ),
-                ),
-                child: _topButton('Field Settings', Colors.blue, Colors.white),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _description() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.w),
-      child: Text(
-        'There are two methods available for importing leads. The first option '
-        'is to refer to the provided sample CSV format and use it directly. '
-        'Alternatively, you can modify the field settings according to the '
-        'recommended format before importing the leads.',
-        style: AppTextStyle.medium(size: 11.sp, weight: FontWeight.w400),
-      ),
-    );
-  }
-
-  Widget _formBody(BuildContext context, ImportLeadsState state) {
-    final cubit = context.read<ImportLeadsCubit>();
-
-    final categoryNames = state.categories
-        .map((c) => c.name ?? '')
-        .where((n) => n.isNotEmpty)
-        .toList();
-
-    final sourceNames = state.sources
-        .map((s) => s.name ?? '')
-        .where((n) => n.isNotEmpty)
-        .toList();
-
-    final stagesNames = state.stages
-        .map((s) => s.name ?? '')
-        .where((n) => n.isNotEmpty)
-        .toList();
-
-    final staffNames = state.staffList
-        .map((s) => s.name ?? '')
-        .where((n) => n.isNotEmpty)
-        .toList();
-
-    return Padding(
-      padding: EdgeInsets.only(left: 2.w, right: 40.w, bottom: 2.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (state.selectedTab == 0) ...[
-            _countryCodeField(cubit),
-            SizedBox(height: 2.h),
-          ],
-
-          Dropdown(
-            items: stagesNames,
-            selectedValue: state.selectedLeadStage,
-            onChanged: cubit.selectLeadStage,
-            label: 'Lead Stage',
-            showClear: false,
-            hint: 'Select Lead Stage',
-          ),
-         
-          SizedBox(height: 2.h),
-
-          DropdownWithAdd(
-            showHelp: true,
-            message:
-                'Lead Category is the type of \nproduct, service, or solution a \npotential customer is interested in, helping \nbusinesses identify and classify\n inquiries for better FOLLOWUP.',
-            label: 'Lead Category',
-            icon: Icons.layers_outlined,
-            items: categoryNames,
-            selectedValue: state.selectedCategory,
-            onChanged: cubit.selectCategory,
-            onTap: () => _showAddCategoryDialog(),
-          ),
-           if (state.subCategories.isNotEmpty) ...[
-  SizedBox(height: 2.h),
-  Dropdown(
-    label: 'Lead Sub Type',
-    hint: 'Select Lead Sub Type',
-    items: state.subCategories.map((e) => e.name).toList(),
-    selectedValue: state.selectedSubCategory,
-    onChanged: cubit.selectSubCategory,
-  ),
-],
-          SizedBox(height: 2.h),
-
-          // state.isLoading
-          //     ? _loadingDropdown('Staff')
-          //     : Dropdown(
-          //         label: 'Staff',
-          //         hint: 'Select Staff',
-          //         items: staffNames,
-          //         showStar: true,
-          //         selectedValue: state.assignedStaffName,
-          //         onChanged: cubit.selectStaff,
-          //       ),
-          // SizedBox(height: 2.h),
-          if (state.isAdmin) ...[
-            state.isLoading
-                ? _loadingDropdown('Staff')
-                : Dropdown(
-                    label: 'Staff',
-                    hint: 'Select Staff',
-                    items: staffNames,
-                    showStar: true,
-                    selectedValue: state.assignedStaffName.isNotEmpty
-                        ? state.assignedStaffName
-                        : state.selectedStaff,
-                    onChanged: cubit.selectStaff,
-                  ),
-            SizedBox(height: 2.h),
-          ],
-
-          DropdownWithAdd(
-            showHelp: true,
-            message:
-                'Lead Source refers to \nhow the potential customer discovered \nor engaged with the business, \nsuch as through marketing campaigns,\n social media, referrals, events,\n or website inquiries.',
-            label: 'Lead Source',
-            icon: Icons.layers_rounded,
-            items: sourceNames,
-            selectedValue: state.selectedSource,
-            onChanged: cubit.selectSource,
-            onTap: () => _showAddSourceDialog(),
-          ),
-          SizedBox(height: 2.h),
-
-          Dropdown(
-            items: _priorities,
-            onChanged: cubit.selectPriority,
-            label: 'Priority',
-            hint: 'Select Priority',
-            selectedValue: state.selectedPriority,
-            showClear: false,
-          ),
-          SizedBox(height: 2.h),
-
-          Dropdown(
-            showIcon: true,
-            label: 'State',
-            hint: 'Select State',
-            items: _stateDistrictMap.keys.toList(),
-            selectedValue: state.selectedState,
-            onChanged: cubit.selectState,
-          ),
-          SizedBox(height: 2.h),
-
-          Dropdown(
-            showIcon: true,
-            label: 'District',
-            hint: 'Select District',
-            items: state.selectedState == null
-                ? []
-                : _stateDistrictMap[state.selectedState] ?? [],
-            selectedValue: state.selectedDistrict,
-            enabled: state.selectedState != null,
-            onChanged: cubit.selectDistrict,
-          ),
-          SizedBox(height: 2.h),
-
-          _label('CSV file '),
-          FilePickerField(
-            allowedExtensions: ['csv'],
-            onFilePicked: (file) async {
-              if (file != null && file.bytes != null) {
-                final bytes = file.bytes!;
-                setState(() => _pickedCsvBytes = bytes);
-                cubit.setCsvBytes(bytes);
-              }
-            },
-          ),
-          Text(
-            'Limit CSV file to 1000 rows.',
-            style: AppTextStyle.medium(
-              size: 10.sp,
-              color: Colors.lightBlue.shade900,
-            ),
-          ),
-          SizedBox(height: 3.h),
-
-          _submitButton(context, state, cubit),
-          SizedBox(height: 2.w),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // DIALOGS — fixed
+  // DIALOGS
   // ─────────────────────────────────────────────────────────────────────────
 
   void _showAddCategoryDialog() {
     _dialogNameCtrl.clear();
-
-    // ✅ Capture both cubits from the PARENT context before dialog opens.
-    //    The dialog's builder context has no BlocProviders, so
-    //    context.read<X>() inside the dialog would throw.
     final importCubit = context.read<ImportLeadsCubit>();
     final categoryCubit = context.read<LeadCategoryCubit>();
 
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
-        width: 35.w,
+        width: 400,
         title: 'Add Lead Category',
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
-              SizedBox(height: 2.h),
+              const Text(
+                'Lead Category',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF475569),
+                ),
+              ),
+              const SizedBox(height: 8),
               TextField(
                 controller: _dialogNameCtrl,
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Enter Category',
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
+                  hintStyle: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF94A3B8),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
               ),
@@ -420,16 +1014,11 @@ class _ImportLeadsState extends State<ImportLeads> {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
 
-          // Step 1: write to Firestore via LeadCategoryCubit
           await categoryCubit.addCategory(name: name);
-
-          // Step 2: ✅ re-fetch into ImportLeadsCubit so dropdown updates NOW
           await importCubit.refreshCategories();
-
-          // ✅ Auto-select the newly added category
           importCubit.selectCategory(name);
 
-          Navigator.pop(ctx);
+          if (ctx.mounted) Navigator.pop(ctx);
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -447,35 +1036,41 @@ class _ImportLeadsState extends State<ImportLeads> {
 
   void _showAddSourceDialog() {
     _dialogNameCtrl.clear();
-
-    // ✅ Capture both cubits from the PARENT context before dialog opens
     final importCubit = context.read<ImportLeadsCubit>();
     final sourceCubit = context.read<LeadSourceCubit>();
 
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
-        width: 35.w,
+        width: 400,
         title: 'Add Lead Source',
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
-              SizedBox(height: 2.h),
+              const Text(
+                'Lead Source',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF475569),
+                ),
+              ),
+              const SizedBox(height: 8),
               TextField(
                 controller: _dialogNameCtrl,
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Enter Source',
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.grey,
+                  hintStyle: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF94A3B8),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
               ),
@@ -486,16 +1081,11 @@ class _ImportLeadsState extends State<ImportLeads> {
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
 
-          // Step 1: write to Firestore via LeadSourceCubit
           await sourceCubit.addSource(name: name);
-
-          // Step 2: ✅ re-fetch into ImportLeadsCubit so dropdown updates NOW
           await importCubit.refreshSources();
-
-          // ✅ Auto-select the newly added source
           importCubit.selectSource(name);
 
-          Navigator.pop(ctx);
+          if (ctx.mounted) Navigator.pop(ctx);
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -512,220 +1102,14 @@ class _ImportLeadsState extends State<ImportLeads> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // SMALL WIDGETS
+  // CONFIRM AND IMPORT
   // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _countryCodeField(ImportLeadsCubit cubit) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('Country Code', style: AppTextStyle.medium()),
-            Text(
-              '*',
-              style: AppTextStyle.medium(
-                size: 11.sp,
-                weight: FontWeight.w600,
-                color: AppColors.red,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 1.h),
-        SizedBox(
-          height: 5.h,
-          width: 45.w,
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.divider),
-              borderRadius: BorderRadius.circular(3),
-              color: AppColors.greyCard,
-            ),
-            child: Localizations.override(
-              context: context,
-              locale: const Locale('en'),
-              child: CountryCodePicker(
-                onChanged: (country) =>
-                    cubit.setDialCode(country.dialCode ?? '+91'),
-                initialSelection: 'IN',
-                showCountryOnly: false,
-                showOnlyCountryWhenClosed: false,
-                alignLeft: true,
-                padding: EdgeInsets.zero,
-                textStyle: AppTextStyle.body(size: 11.sp),
-                flagWidth: 16,
-                dialogBackgroundColor: AppColors.white,
-                dialogSize: Size(30.w, 80.h),
-                dialogTextStyle: AppTextStyle.body(size: 11.sp),
-                searchStyle: AppTextStyle.body(size: 11.sp),
-                searchDecoration: InputDecoration(
-                  hintText: 'Search country',
-                  hintStyle: AppTextStyle.small(
-                    size: 11.sp,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.divider),
-                  ),
-                  contentPadding: EdgeInsets.all(1.w),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _submitButton(
-    BuildContext context,
-    ImportLeadsState state,
-    ImportLeadsCubit cubit,
-  ) {
-    final bool canSubmit = !state.isImporting && _pickedCsvBytes != null;
-
-    return SizedBox(
-      width: 10.w,
-      height: 5.h,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: canSubmit ? AppColors.green : Colors.grey.shade400,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        ),
-        // onPressed: canSubmit
-        //     ? () => cubit.importLeads(csvBytes: _pickedCsvBytes!)
-        //     : null,
-        onPressed: canSubmit
-            ? () => _confirmAndImport(context, state, cubit)
-            : null,
-        child: state.isImporting
-            ? const SizedBox(
-                width: 14,
-                height: 14,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                'Submit',
-                style: AppTextStyle.medium(size: 10.sp, color: AppColors.white),
-              ),
-      ),
-    );
-  }
-
-  Widget _loadingDropdown(String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppTextStyle.medium()),
-        SizedBox(height: 0.8.h),
-        Container(
-          height: 5.h,
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.divider),
-            borderRadius: BorderRadius.circular(4),
-            color: AppColors.greyCard,
-          ),
-          child: Center(
-            child: SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.orange,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _label(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 0.8.h),
-      child: Row(
-        children: [
-          Text(text, style: AppTextStyle.medium()),
-          Text(
-            '*',
-            style: AppTextStyle.medium(
-              size: 11.sp,
-              weight: FontWeight.w600,
-              color: AppColors.red,
-            ),
-          ),
-          ToolTipWidget(
-            message:
-                'Ensure that the file is uploaded\nonly in '
-                'comma-separated\nvalues (csv) format',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _topButton(String text, Color bg, Color textColor) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(text, style: AppTextStyle.medium(color: textColor)),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // TAB BAR
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _tabs(ImportLeadsState state) {
-    return Row(
-      children: [
-        _tabItem('With Country Code', 0, state.selectedTab),
-        SizedBox(width: 1.w),
-        _tabItem('Without Country Code', 1, state.selectedTab),
-      ],
-    );
-  }
-
-  Widget _tabItem(String title, int index, int selectedTab) {
-    final isSelected = selectedTab == index;
-    return GestureDetector(
-      onTap: () => context.read<ImportLeadsCubit>().selectTab(index),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: AppTextStyle.medium(
-              color: isSelected ? AppColors.primary : AppColors.grey,
-              weight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 0.7.h),
-          Container(
-            height: 2,
-            width: 10.w,
-            color: isSelected ? AppColors.primary : Colors.transparent,
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _confirmAndImport(
     BuildContext context,
     ImportLeadsState state,
     ImportLeadsCubit cubit,
   ) async {
-    // ── Client-side validation: Admin must pick a staff member ───────────────
     if (state.isAdmin &&
         (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -737,10 +1121,10 @@ class _ImportLeadsState extends State<ImportLeads> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      return; // stop here — don't even open the loading dialog
+      return;
     }
 
-    // Show loading while checking duplicates
+    final navigator = Navigator.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -753,27 +1137,25 @@ class _ImportLeadsState extends State<ImportLeads> {
     );
 
     if (!mounted) return;
-    context.pop();
-    // Navigator.pop(context); // close loading
+    navigator.pop();
 
     if (duplicateCount > 0) {
+      if (!mounted) return;
       final confirmed = await showDialog<bool>(
+        // ignore: use_build_context_synchronously
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          title: Row(
+          title: const Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
               SizedBox(width: 8),
               Text(
                 'Duplicates Found',
-                style: AppTextStyle.medium(
-                  size: 13.sp,
-                  weight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -785,11 +1167,11 @@ class _ImportLeadsState extends State<ImportLeads> {
                 'Your file contains $duplicateCount existing '
                 'lead${duplicateCount == 1 ? '' : 's'} with phone '
                 'numbers already in the system.',
-                style: AppTextStyle.medium(size: 11.sp),
+                style: const TextStyle(fontSize: 13),
               ),
-              SizedBox(height: 1.5.h),
+              const SizedBox(height: 12),
               Container(
-                padding: EdgeInsets.all(1.w),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -802,12 +1184,12 @@ class _ImportLeadsState extends State<ImportLeads> {
                       color: Colors.orange.shade700,
                       size: 18,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Duplicates will be skipped. Only unique leads will be imported.',
-                        style: AppTextStyle.medium(
-                          size: 10.sp,
+                        style: TextStyle(
+                          fontSize: 12,
                           color: Colors.orange.shade800,
                         ),
                       ),
@@ -820,10 +1202,7 @@ class _ImportLeadsState extends State<ImportLeads> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(
-                'Cancel',
-                style: AppTextStyle.medium(size: 11.sp, color: AppColors.grey),
-              ),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -833,9 +1212,9 @@ class _ImportLeadsState extends State<ImportLeads> {
                 ),
               ),
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(
+              child: const Text(
                 'Import Anyway',
-                style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],

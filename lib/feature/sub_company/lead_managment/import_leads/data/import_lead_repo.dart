@@ -36,7 +36,7 @@ class ImportLeadsRepository implements IImportLeadsRepository {
   final FirebaseFirestore _firestore;
 
   ImportLeadsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _leadsCollection =>
       FirestorePath.companyCollection('LEADS');
@@ -75,22 +75,25 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       rethrow;
     }
   }
+
   @override
-Future<List<LeadsModel>> fetchSubCategories(String categoryId) async {
-  try {
-    final snap = await FirestorePath.companyCollection('LEADS CATEGORY')
-        .doc(categoryId)
-        .collection('SUB_CATEGORY')   // ← match your actual SubCategoryRepository path
-        .orderBy('createdAt', descending: false)
-        .get();
-    return snap.docs
-        .map((d) => LeadsModel.fromFirestore(d.data(), d.id))
-        .toList();
-  } catch (e, st) {
-    log('[ImportLeadsRepo] fetchSubCategories error: $e', stackTrace: st);
-    rethrow;
+  Future<List<LeadsModel>> fetchSubCategories(String categoryId) async {
+    try {
+      final snap = await FirestorePath.companyCollection('LEADS CATEGORY')
+          .doc(categoryId)
+          .collection(
+            'SUB CATEGORY',
+          ) // ← match your actual SubCategoryRepository path
+          .orderBy('createdAt', descending: false)
+          .get();
+      return snap.docs
+          .map((d) => LeadsModel.fromFirestore(d.data(), d.id))
+          .toList();
+    } catch (e, st) {
+      log('[ImportLeadsRepo] fetchSubCategories error: $e', stackTrace: st);
+      rethrow;
+    }
   }
-}
 
   @override
   Future<List<LeadsModel>> fetchSources() async {
@@ -151,8 +154,9 @@ Future<List<LeadsModel>> fetchSubCategories(String categoryId) async {
 
     final dataRows = csvTable.skip(1).toList();
 
-    final existingSnap = await _leadsCollection
-        .get(const GetOptions(source: Source.server));
+    final existingSnap = await _leadsCollection.get(
+      const GetOptions(source: Source.server),
+    );
 
     final existingNumbers = existingSnap.docs
         .map((d) => (d.data()['contactNumber'] ?? '').toString().trim())
@@ -196,13 +200,15 @@ Future<List<LeadsModel>> fetchSubCategories(String categoryId) async {
     if (dataRows.isEmpty) throw Exception('CSV file contains no data rows.');
 
     const int maxRows = 1000;
-    final rowsToProcess =
-        dataRows.length > maxRows ? dataRows.sublist(0, maxRows) : dataRows;
+    final rowsToProcess = dataRows.length > maxRows
+        ? dataRows.sublist(0, maxRows)
+        : dataRows;
 
     log('[ImportLeadsRepo] CSV rows to process: ${rowsToProcess.length}');
 
-    final existingSnap = await _leadsCollection
-        .get(const GetOptions(source: Source.server));
+    final existingSnap = await _leadsCollection.get(
+      const GetOptions(source: Source.server),
+    );
 
     final existingNumbers = existingSnap.docs
         .map((d) => (d.data()['contactNumber'] ?? '').toString().trim())
