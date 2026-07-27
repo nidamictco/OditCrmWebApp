@@ -244,6 +244,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       if (lead.leadCategory.isNotEmpty) cubit.selectCategory(lead.leadCategory);
       if (lead.leadSource.isNotEmpty) cubit.selectSource(lead.leadSource);
       if (lead.priority.isNotEmpty) cubit.selectPriority(lead.priority);
+       if (lead.leadStage.isNotEmpty) cubit.selectLeadStage(lead.leadStage);
     });
   }
 
@@ -408,21 +409,19 @@ class _AddLeadPageState extends State<AddLeadPage> {
     }
 
     final tag = _leadTag;
-    if (tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
+    if (!_isEditMode &&tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
       _showError('Tag is required.');
       return;
     }
 
-    if (_callResult == null && _leadStage!.toUpperCase() != "NEW") {
+log("yutyetretetdggh $_callResult");
+
+    if ( !_isEditMode && _callResult == null && _leadStage!.toUpperCase() != "NEW" ) {
       _showError('Call Result is required.');
       return;
     }
 
-    // final callResult = _callResult;
-    // if (callResult == null && _leadStage!.toUpperCase() == "REJECTED") {
-    //   _showError('Call Result is required.');
-    //   return;
-    // }
+   
 
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;
@@ -463,7 +462,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         additionalFields: additionalValues.isNotEmpty
             ? additionalValues
             : widget.lead!.additionalFields,
-        callResult: state.selectedCallResult ?? widget.lead!.callResult,
+        callResult: state.selectedCallResult ?? widget.lead!.callResult ,
         leadTag: state.selectedLeadTag ?? widget.lead!.leadTag,
         followUpDate: nextFollowUpDate,
       );

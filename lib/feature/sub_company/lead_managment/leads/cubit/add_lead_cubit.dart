@@ -1,7 +1,7 @@
-
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/constant/firebase_const.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_tag_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -135,32 +135,38 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   void _watchCategories() {
     _categorySubscription?.cancel();
-    _categorySubscription = _categoryRepository.watchCategories().listen((
-      cats,
-    ) {
-      if (isClosed) return;
-      emit(state.copyWith(categories: [...cats]));
+    _categorySubscription = _categoryRepository.watchCategories().listen(
+      (cats) {
+        if (isClosed) return;
+        emit(state.copyWith(categories: [...cats]));
 
-      // ── Edit-mode race condition fix ────────────────────────────────────────
-      // selectCategory() may have been called (via _prefillIfEditing) before
-      // this stream fired its first event.  If a category is already recorded
-      // in state but no sub-category subscription is running yet, start it now.
-      final alreadySelected = state.selectedCategory;
-      if (alreadySelected != null && alreadySelected.isNotEmpty &&
-          _subCategorySubscription == null) {
-        log('[AddLeadCubit] _watchCategories: auto-starting subCat watcher '
-            'for already-selected category="$alreadySelected"');
-        final match = cats.where((c) => c.name == alreadySelected);
-        if (match.isNotEmpty && match.first.id.isNotEmpty) {
-          _watchSubCategoriesForCategory(match.first.id);
-        } else {
-          log('[AddLeadCubit] _watchCategories: no match found for '
-              'selectedCategory="$alreadySelected" in loaded cats=${cats.map((c) => c.name).toList()}');
+        // ── Edit-mode race condition fix ────────────────────────────────────────
+        // selectCategory() may have been called (via _prefillIfEditing) before
+        // this stream fired its first event.  If a category is already recorded
+        // in state but no sub-category subscription is running yet, start it now.
+        final alreadySelected = state.selectedCategory;
+        if (alreadySelected != null &&
+            alreadySelected.isNotEmpty &&
+            _subCategorySubscription == null) {
+          log(
+            '[AddLeadCubit] _watchCategories: auto-starting subCat watcher '
+            'for already-selected category="$alreadySelected"',
+          );
+          final match = cats.where((c) => c.name == alreadySelected);
+          if (match.isNotEmpty && match.first.id.isNotEmpty) {
+            _watchSubCategoriesForCategory(match.first.id);
+          } else {
+            log(
+              '[AddLeadCubit] _watchCategories: no match found for '
+              'selectedCategory="$alreadySelected" in loaded cats=${cats.map((c) => c.name).toList()}',
+            );
+          }
         }
-      }
-    }, onError: (e) {
-      log('[AddLeadCubit] _watchCategories error: $e');
-    });
+      },
+      onError: (e) {
+        log('[AddLeadCubit] _watchCategories error: $e');
+      },
+    );
   }
 
   void _watchSources() {
@@ -178,20 +184,22 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     ) {
       if (isClosed) return;
       emit(state.copyWith(stages: [...stages]));
-       if (state.selectedLeadStage == null) {
-      selectLeadStage('NEW');
-    }
+      if (state.selectedLeadStage == null) {
+        selectLeadStage('NEW');
+      }
     }, onError: (_) {});
   }
 
   // ── Sub Category watcher — depends on a resolved categoryId ───────────────
- // ── Sub Category watcher — depends on a resolved categoryId ───────────────
+  // ── Sub Category watcher — depends on a resolved categoryId ───────────────
   // ── Sub Category watcher — depends on a resolved categoryId ───────────────
   void _watchSubCategoriesForCategory(
     String categoryId, {
     String? pendingSubCategoryName,
   }) {
-    log('[AddLeadCubit] _watchSubCategoriesForCategory: categoryId="$categoryId"');
+    log(
+      '[AddLeadCubit] _watchSubCategoriesForCategory: categoryId="$categoryId"',
+    );
     _subCategorySubscription?.cancel();
     _subCategorySubscription = null;
 
@@ -201,71 +209,83 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
     _subCategorySubscription = _subCategoryRepository!
         .watchSubCategories()
-        .listen((subs) {
-          log('[AddLeadCubit] subCategories received: ${subs.length} items');
-          if (isClosed) return;
-          emit(state.copyWith(subCategories: [...subs]));
+        .listen(
+          (subs) {
+            log('[AddLeadCubit] subCategories received: ${subs.length} items');
+            if (isClosed) return;
+            emit(state.copyWith(subCategories: [...subs]));
 
-          // Resolve a pending sub-category selection once the list arrives.
-          if (pendingSubCategoryName != null &&
-              pendingSubCategoryName.isNotEmpty) {
-            final match = subs.where((s) => s.name == pendingSubCategoryName);
-            if (match.isNotEmpty) {
-              log('[AddLeadCubit] auto-resolved pending subCategory '
-                  '"$pendingSubCategoryName" -> id="${match.first.id}"');
-              emit(
-                state.copyWith(
-                  selectedSubCategory: pendingSubCategoryName,
-                  selectedSubCategoryId: match.first.id,
-                ),
-              );
-            } else {
-              log('[AddLeadCubit] pending subCategory "$pendingSubCategoryName" '
-                  'not found in loaded subs=${subs.map((s) => s.name).toList()}');
+            // Resolve a pending sub-category selection once the list arrives.
+            if (pendingSubCategoryName != null &&
+                pendingSubCategoryName.isNotEmpty) {
+              final match = subs.where((s) => s.name == pendingSubCategoryName);
+              if (match.isNotEmpty) {
+                log(
+                  '[AddLeadCubit] auto-resolved pending subCategory '
+                  '"$pendingSubCategoryName" -> id="${match.first.id}"',
+                );
+                emit(
+                  state.copyWith(
+                    selectedSubCategory: pendingSubCategoryName,
+                    selectedSubCategoryId: match.first.id,
+                  ),
+                );
+              } else {
+                log(
+                  '[AddLeadCubit] pending subCategory "$pendingSubCategoryName" '
+                  'not found in loaded subs=${subs.map((s) => s.name).toList()}',
+                );
+              }
             }
-          }
-        }, onError: (e) {
-          log('[AddLeadCubit] _watchSubCategoriesForCategory error: $e');
-        });
+          },
+          onError: (e) {
+            log('[AddLeadCubit] _watchSubCategoriesForCategory error: $e');
+          },
+        );
   }
 
- void _watchLeadTagForLeadStage(
-    String leadTagId, {
-    String? pendingTagName,
-  }) {
+  void _watchLeadTagForLeadStage(String leadTagId, {String? pendingTagName}) {
     log('[AddLeadCubit] _watchLeadTagForLeadStage: stageId="$leadTagId"');
     _leadTagSubscription?.cancel();
     _leadTagRepository = _leadTagRepositoryFactory != null
         ? _leadTagRepositoryFactory!(leadTagId)
         : LeadTagRepository(tagId: leadTagId);
-    _leadTagSubscription = _leadTagRepository!.watchLeadTags().listen((
-      leadTags,
-    ) {
-      log('[AddLeadCubit] leadTags received: ${leadTags.length} items for stageId="$leadTagId"');
-      if (isClosed) return;
-      emit(state.copyWith(leadTag: [...leadTags]));
+    _leadTagSubscription = _leadTagRepository!.watchLeadTags().listen(
+      (leadTags) {
+        log(
+          '[AddLeadCubit] leadTags received: ${leadTags.length} items for stageId="$leadTagId"',
+        );
+        if (isClosed) return;
+        emit(state.copyWith(leadTag: [...leadTags]));
 
-      // Resolve a pending tag selection once the list arrives.
-      if (pendingTagName != null && pendingTagName.isNotEmpty) {
-        final match = leadTags.where((t) => t.name == pendingTagName);
-        if (match.isNotEmpty) {
-          log('[AddLeadCubit] auto-resolved pending tag '
-              '"$pendingTagName" -> id="${match.first.id}"');
-          emit(
-            state.copyWith(
-              selectedLeadTag: pendingTagName,
-              selectedLeadTagId: match.first.id,
-            ),
-          );
-        } else {
-          log('[AddLeadCubit] pending tag "$pendingTagName" not found in '
-              'loaded tags=${leadTags.map((t) => t.name).toList()}');
+        // Resolve a pending tag selection once the list arrives.
+        if (pendingTagName != null && pendingTagName.isNotEmpty) {
+          final match = leadTags.where((t) => t.name == pendingTagName);
+          if (match.isNotEmpty) {
+            log(
+              '[AddLeadCubit] auto-resolved pending tag '
+              '"$pendingTagName" -> id="${match.first.id}"',
+            );
+            emit(
+              state.copyWith(
+                selectedLeadTag: pendingTagName,
+                selectedLeadTagId: match.first.id,
+              ),
+            );
+          } else {
+            log(
+              '[AddLeadCubit] pending tag "$pendingTagName" not found in '
+              'loaded tags=${leadTags.map((t) => t.name).toList()}',
+            );
+          }
         }
-      }
-    }, onError: (e) {
-      log('[AddLeadCubit] _watchLeadTagForLeadStage error: $e');
-    });
+      },
+      onError: (e) {
+        log('[AddLeadCubit] _watchLeadTagForLeadStage error: $e');
+      },
+    );
   }
+
   @override
   Future<void> close() {
     _categorySubscription?.cancel();
@@ -279,8 +299,10 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   // ── Selection helpers ─────────────────────────────────────────────────────
 
   void selectCategory(String? value, {String? pendingSubCategory}) {
-    log('[AddLeadCubit] selectCategory: value="$value", '
-        'cats loaded=${state.categories.length}');
+    log(
+      '[AddLeadCubit] selectCategory: value="$value", '
+      'cats loaded=${state.categories.length}',
+    );
     emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
 
     // Reset sub-category selection + list + stream whenever the category changes
@@ -293,9 +315,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     // Resolve the Firestore doc ID of the chosen category from already-loaded list.
     final match = state.categories.where((c) => c.name == value);
     if (match.isEmpty) {
-      log('[AddLeadCubit] selectCategory: no match for "$value" in '
-          'categories=${state.categories.map((c) => c.name).toList()} — '
-          'sub-category watcher NOT started (stream not yet loaded?)');
+      log(
+        '[AddLeadCubit] selectCategory: no match for "$value" in '
+        'categories=${state.categories.map((c) => c.name).toList()} — '
+        'sub-category watcher NOT started (stream not yet loaded?)',
+      );
       return;
     }
 
@@ -307,46 +331,52 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       pendingSubCategoryName: pendingSubCategory,
     );
   }
-void selectCategoryDirect({required String name, required String id}) {
-  emit(state.copyWith(selectedCategory: name, selectedCategoryId: id));
-  _watchSubCategoriesForCategory(id);
-}
 
+  void selectCategoryDirect({required String name, required String id}) {
+    emit(state.copyWith(selectedCategory: name, selectedCategoryId: id));
+    _watchSubCategoriesForCategory(id);
+  }
 
-
-void selectSourceDirect({required String name, required String id}) {
-  emit(state.copyWith(selectedSource: name, selectedSourceId: id));
-}
+  void selectSourceDirect({required String name, required String id}) {
+    emit(state.copyWith(selectedSource: name, selectedSourceId: id));
+  }
 
   // void selectSubCategory(String? value) => emit(
   //   state.copyWith(selectedSubCategory: value, clearSubCategory: value == null),
   // );
   void selectSubCategory(String? value) {
-  emit(state.copyWith(selectedSubCategory: value, clearSubCategory: value == null));
-  if (value == null) return;
-  final match = state.subCategories.where((s) => s.name == value);
-  if (match.isNotEmpty) {
-    emit(state.copyWith(selectedSubCategoryId: match.first.id));
+    emit(
+      state.copyWith(
+        selectedSubCategory: value,
+        clearSubCategory: value == null,
+      ),
+    );
+    if (value == null) return;
+    final match = state.subCategories.where((s) => s.name == value);
+    if (match.isNotEmpty) {
+      emit(state.copyWith(selectedSubCategoryId: match.first.id));
+    }
   }
-}
-
 
   // void selectSource(String? value) =>
   //     emit(state.copyWith(selectedSource: value, clearSource: value == null));
-void selectSource(String? value) {
-  emit(state.copyWith(selectedSource: value, clearSource: value == null));
-  if (value == null) return;
-  final match = state.sources.where((s) => s.name == value);
-  if (match.isNotEmpty) {
-    emit(state.copyWith(selectedSourceId: match.first.id));
+  void selectSource(String? value) {
+    emit(state.copyWith(selectedSource: value, clearSource: value == null));
+    if (value == null) return;
+    final match = state.sources.where((s) => s.name == value);
+    if (match.isNotEmpty) {
+      emit(state.copyWith(selectedSourceId: match.first.id));
+    }
   }
-}
- 
 
- void selectLeadStage(String? value, {String? pendingTag}) {
-    log('[AddLeadCubit] selectLeadStage: value="$value", '
-        'stages loaded=${state.stages.length}');
-    emit(state.copyWith(selectedLeadStage: value, clearLeadStage: value == null));
+  void selectLeadStage(String? value, {String? pendingTag}) {
+    log(
+      '[AddLeadCubit] selectLeadStage: value="$value", '
+      'stages loaded=${state.stages.length}',
+    );
+    emit(
+      state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+    );
 
     if (value == null) {
       _leadTagSubscription?.cancel();
@@ -356,31 +386,35 @@ void selectSource(String? value) {
 
     final match = state.stages.where((s) => s.name == value);
     if (match.isEmpty) {
-      log('[AddLeadCubit] selectLeadStage: no match for "$value" in '
-          'stages=${state.stages.map((s) => s.name).toList()} — '
-          'tag watcher NOT started');
+      log(
+        '[AddLeadCubit] selectLeadStage: no match for "$value" in '
+        'stages=${state.stages.map((s) => s.name).toList()} — '
+        'tag watcher NOT started',
+      );
       _leadTagSubscription?.cancel();
       emit(state.copyWith(leadTag: [], tagMandatory: false));
       return;
     }
 
     emit(state.copyWith(selectedLeadStageId: match.first.id));
-    log('[AddLeadCubit] selectLeadStage: matched stage id="${match.first.id}", '
-        'tagMandatory=${match.first.tagMandatory}');
+    log(
+      '[AddLeadCubit] selectLeadStage: matched stage id="${match.first.id}", '
+      'tagMandatory=${match.first.tagMandatory}',
+    );
     _watchLeadTagForLeadStage(match.first.id, pendingTagName: pendingTag);
     emit(state.copyWith(tagMandatory: match.first.tagMandatory));
   }
 
   // void selectLeadTag(String? value) =>
   //     emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
-void selectLeadTag(String? value) {
-  emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
-  if (value == null) return;
-  final match = state.leadTag.where((t) => t.name == value);
-  if (match.isNotEmpty) {
-    emit(state.copyWith(selectedLeadTagId: match.first.id));
+  void selectLeadTag(String? value) {
+    emit(state.copyWith(selectedLeadTag: value, clearLeadTag: value == null));
+    if (value == null) return;
+    final match = state.leadTag.where((t) => t.name == value);
+    if (match.isNotEmpty) {
+      emit(state.copyWith(selectedLeadTagId: match.first.id));
+    }
   }
-}
 
   void selectPriority(String? value) => emit(
     state.copyWith(selectedPriority: value, clearPriority: value == null),
@@ -737,7 +771,7 @@ void selectLeadTag(String? value) {
       //   message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
       //   excludeStaffId: user?.id,
       // );
-       notificationRepo.createForAdmins(
+      notificationRepo.createForAdmins(
         title: 'New Lead Added',
         message: 'Name: ${lead.clientName} Phone No: ${lead.contactNumber}',
         excludeStaffId: user?.id,
@@ -1110,13 +1144,20 @@ void selectLeadTag(String? value) {
 
   // ______transfer______________________
 
+Future<void> getLeadStage({required String leadStage}) async {
+  
+}
+
   Future<void> transferLead({
     required String leadId,
     required String leadName,
     required String contactNumber,
     required String leadCategory,
+    required String leadCategoryId,
     required String leadSubCategory,
+    required String leadSubCategoryId,
     required String leadStage,
+    required String leadStageId,
     required String fromStaffId,
     required String fromStaff,
     required String toStaffId,
@@ -1140,6 +1181,9 @@ void selectLeadTag(String? value) {
         toStaffId: toStaffId,
         toStaff: toStaff,
         transferTime: DateTime.now(),
+        leadCategoryId: leadCategoryId,
+        leadSubCategoryId: leadSubCategoryId,
+        leadStageId: leadStageId,
       );
 
       await _leadRepository.transferLead(
@@ -1157,7 +1201,7 @@ void selectLeadTag(String? value) {
       //   );
       // }
 
-       if (toStaffId.isNotEmpty) {
+      if (toStaffId.isNotEmpty) {
         notificationRepo.create(
           staffId: toStaffId,
           title: 'Lead Transferred',
@@ -1176,6 +1220,7 @@ void selectLeadTag(String? value) {
           assignedStaff: toStaff,
           assignedStaffId: toStaffId,
           leadStage: 'TRANSFERRED',
+          leadStageId: leadStageId,
           transferLeads: [...(l.transferLeads ?? []), transfer],
         );
       }).toList();
@@ -1279,13 +1324,16 @@ void selectLeadTag(String? value) {
 
             if (companySnap.exists) {
               final data = companySnap.data();
-              final plan = data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE';
+              final plan =
+                  data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE';
               subscriptionPlan = plan.toUpperCase();
 
               final startTs = data?['subscriptionStartDate'] as Timestamp?;
               final endTs = data?['subscriptionEndDate'] as Timestamp?;
               if (startTs != null) {
-                startDateStr = DateFormat('dd-MM-yyyy').format(startTs.toDate());
+                startDateStr = DateFormat(
+                  'dd-MM-yyyy',
+                ).format(startTs.toDate());
               }
               if (endTs != null) {
                 endDateStr = DateFormat('dd-MM-yyyy').format(endTs.toDate());
@@ -1578,49 +1626,280 @@ void selectLeadTag(String? value) {
         limit: 5,
       );
 
-      emit(state.copyWith(
-        isLoadingActivities: false,
-        recentActivities: activities,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          isLoadingActivities: false,
+          recentActivities: activities,
+          clearError: true,
+        ),
+      );
     } catch (e) {
       log('[AddLeadCubit] Error fetching recent activities: $e');
-      emit(state.copyWith(
-        isLoadingActivities: false,
-        activityError: e.toString(),
-      ));
+      emit(
+        state.copyWith(isLoadingActivities: false, activityError: e.toString()),
+      );
     }
   }
 }
 
-Future<void> migrateCallResults() async {
+
+/// ── ONE-TIME MIGRATION ───────────────────────────────────────────────────
+/// Backfills leadCategoryId / leadSubCategoryId / leadStageId inside each
+/// map entry of the `transferLeads` array field on LEADS documents.
+///
+/// Firestore cannot patch a single field inside one array element — the
+/// only way to change anything inside an array is to read the whole array,
+/// rebuild every entry in memory, and overwrite the entire field. This does
+/// exactly that, using the same name→id resolution maps as the
+/// TRANSFER_LEADS subcollection migration, so results stay consistent
+/// between the two copies of this data.
+///
+/// Safe to re-run: any array entry that already has a non-empty
+/// leadCategoryId is left untouched (still rebuilt into the new array,
+/// but with its existing values preserved, not overwritten).
+Future<void> migrateLeadTransferArrayCategoryIds() async {
   final db = FirebaseFirestore.instance;
-  final leadsSnap = await db.collection('LEADS').get();
 
-  for (final leadDoc in leadsSnap.docs) {
-    // Get the latest follow-up for this lead
-    final followUpsSnap = await db
-        .collection('LEADS')
-        .doc(leadDoc.id)
-        .collection('FOLLOW_UPS')
-        .orderBy('createdAt', descending: true)
-        .limit(1)
+  // ── 1. Preload category name → id map (case-insensitive) ────────────────
+  final categorySnap =
+      await FirestorePath.companyCollection('LEADS CATEGORY').get();
+  final Map<String, String> categoryNameToId = {
+    for (final doc in categorySnap.docs)
+      (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
+  };
+
+  // ── 2. Preload stage name → id map (case-insensitive) ───────────────────
+  final stageSnap =
+      await FirestorePath.companyCollection('LEADS STAGE').get();
+  final Map<String, String> stageNameToId = {
+    for (final doc in stageSnap.docs)
+      (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
+  };
+
+  // ── 3. Sub-category lookups are scoped per-category — cache lazily ──────
+  final Map<String, Map<String, String>> subCategoryCachePerCategory = {};
+
+  Future<Map<String, String>> getSubCategoryMap(String categoryId) async {
+    if (subCategoryCachePerCategory.containsKey(categoryId)) {
+      return subCategoryCachePerCategory[categoryId]!;
+    }
+    final subSnap = await FirestorePath.companyCollection('LEADS CATEGORY')
+        .doc(categoryId)
+        .collection('SUB CATEGORY')
         .get();
-
-    if (followUpsSnap.docs.isEmpty) continue;
-
-    final latestCalledStatus =
-        followUpsSnap.docs.first.data()['calledStatus'] as String? ?? '';
-
-    if (latestCalledStatus.isEmpty) continue;
-
-    // Update the lead's callResult
-    await db.collection('LEADS').doc(leadDoc.id).update({
-      'callResult': latestCalledStatus,
-    });
-
-    print('Updated lead ${leadDoc.id} → callResult: $latestCalledStatus');
+    final map = {
+      for (final doc in subSnap.docs)
+        (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
+    };
+    subCategoryCachePerCategory[categoryId] = map;
+    return map;
   }
 
-  print('Migration complete.');
+  // ── 4. Walk every Lead doc that actually has a transferLeads array ──────
+  final leadsSnap = await FirestorePath.companyCollection('LEADS').get();
+
+  int scannedLeads = 0;
+  int scannedEntries = 0;
+  int updatedLeads = 0;
+  int alreadyDoneEntries = 0;
+  int unresolvedCategory = 0;
+  int unresolvedStage = 0;
+
+  final List<DocumentReference<Map<String, dynamic>>> pendingRefs = [];
+  final List<List<Map<String, dynamic>>> pendingArrays = [];
+
+  for (final leadDoc in leadsSnap.docs) {
+    final data = leadDoc.data();
+    final rawList = data['transferLeads'];
+    if (rawList == null || rawList is! List || rawList.isEmpty) continue;
+
+    scannedLeads++;
+    bool anyChanged = false;
+
+    final rebuiltArray = <Map<String, dynamic>>[];
+
+    for (final item in rawList) {
+      scannedEntries++;
+      if (item is! Map<String, dynamic>) {
+        // Shouldn't happen, but don't drop unknown shapes — keep as-is.
+        rebuiltArray.add(Map<String, dynamic>.from(item as Map));
+        continue;
+      }
+
+      final entry = Map<String, dynamic>.from(item);
+
+      final existingCategoryId = (entry['leadCategoryId'] as String? ?? '');
+      if (existingCategoryId.isNotEmpty) {
+        alreadyDoneEntries++;
+        rebuiltArray.add(entry); // preserve as-is
+        continue;
+      }
+
+      final rawCategory =
+          (entry['leadCategory'] as String? ?? '').trim().toUpperCase();
+      final rawSubCategory =
+          (entry['leadSubCategory'] as String? ?? '').trim().toUpperCase();
+      final rawStage =
+          (entry['leadStage'] as String? ?? '').trim().toUpperCase();
+
+      final resolvedCategoryId = categoryNameToId[rawCategory] ?? '';
+      final resolvedStageId = stageNameToId[rawStage] ?? '';
+
+      String resolvedSubCategoryId = '';
+      if (resolvedCategoryId.isNotEmpty && rawSubCategory.isNotEmpty) {
+        final subMap = await getSubCategoryMap(resolvedCategoryId);
+        resolvedSubCategoryId = subMap[rawSubCategory] ?? '';
+      }
+
+      if (rawCategory.isNotEmpty && resolvedCategoryId.isEmpty) {
+        unresolvedCategory++;
+        log('[migrateLeadTransferArrayCategoryIds] lead=${leadDoc.id} '
+            'Could not resolve category "$rawCategory" in array entry — leaving blank.');
+      }
+      if (rawStage.isNotEmpty && resolvedStageId.isEmpty) {
+        unresolvedStage++;
+        log('[migrateLeadTransferArrayCategoryIds] lead=${leadDoc.id} '
+            'Could not resolve stage "$rawStage" in array entry — leaving blank.');
+      }
+
+      if (resolvedCategoryId.isNotEmpty) {
+        entry['leadCategoryId'] = resolvedCategoryId;
+        anyChanged = true;
+      }
+      if (resolvedSubCategoryId.isNotEmpty) {
+        entry['leadSubCategoryId'] = resolvedSubCategoryId;
+        anyChanged = true;
+      }
+      if (resolvedStageId.isNotEmpty) {
+        entry['leadStageId'] = resolvedStageId;
+        anyChanged = true;
+      }
+
+      rebuiltArray.add(entry);
+    }
+
+    if (anyChanged) {
+      pendingRefs.add(leadDoc.reference);
+      pendingArrays.add(rebuiltArray);
+    }
+  }
+
+  // ── 5. Overwrite the whole array field, chunked at 450 per batch ────────
+  const chunkSize = 450;
+  for (var i = 0; i < pendingRefs.length; i += chunkSize) {
+    final end =
+        (i + chunkSize > pendingRefs.length) ? pendingRefs.length : i + chunkSize;
+    final batch = db.batch();
+    for (var j = i; j < end; j++) {
+      // Full field overwrite — NOT arrayUnion. arrayUnion only adds new
+      // elements and cannot replace existing ones, so it can't be used here.
+      batch.update(pendingRefs[j], {'transferLeads': pendingArrays[j]});
+    }
+    await batch.commit();
+    updatedLeads += (end - i);
+    log('[migrateLeadTransferArrayCategoryIds] Committed batch '
+        '${(i ~/ chunkSize) + 1} (${end - i} lead docs)');
+  }
+
+  log('[migrateLeadTransferArrayCategoryIds] DONE — '
+      'scannedLeads:$scannedLeads scannedEntries:$scannedEntries '
+      'updatedLeads:$updatedLeads alreadyDoneEntries:$alreadyDoneEntries '
+      'unresolvedCategory:$unresolvedCategory unresolvedStage:$unresolvedStage');
 }
+
+/// Manually resolves one specific old raw category name to a specific
+/// current category ID — fixing BOTH copies of the data at once:
+///   1. TRANSFER_LEADS subcollection docs (leadCategory == oldRawCategoryName)
+///   2. The transferLeads array field on the parent LEADS document
+///
+/// Use this only after confirming by eye (via listUnresolvedTransferCategories
+/// or the Firebase console) which current category the old name should map to.
+///
+/// Safe to re-run: docs/entries that already carry correctCategoryId are
+/// simply overwritten with the same value again — no harm, no duplication.
+Future<void> manuallyResolveTransferCategoryEverywhere({
+  required String oldRawCategoryName,   // exactly as stored, e.g. "MAY VIST"
+  required String correctCategoryId,    // real LEADS CATEGORY doc id
+  required String correctCategoryName,  // its current display name
+}) async {
+  final db = FirebaseFirestore.instance;
+  final leadsSnap = await FirestorePath.companyCollection('LEADS').get();
+
+  final List<DocumentReference<Map<String, dynamic>>> subDocRefs = [];
+  final List<DocumentReference<Map<String, dynamic>>> leadRefsToRewriteArray = [];
+  final List<List<Map<String, dynamic>>> rebuiltArrays = [];
+
+  int matchedSubDocs = 0;
+  int matchedArrayEntries = 0;
+
+  for (final leadDoc in leadsSnap.docs) {
+    // ── 1. TRANSFER_LEADS subcollection ──────────────────────────────────
+    final transferSnap = await leadDoc.reference
+        .collection('TRANSFER_LEADS')
+        .where('leadCategory', isEqualTo: oldRawCategoryName)
+        .get();
+    if (transferSnap.docs.isNotEmpty) {
+      subDocRefs.addAll(transferSnap.docs.map((d) => d.reference));
+      matchedSubDocs += transferSnap.docs.length;
+    }
+
+    // ── 2. transferLeads array on the Lead doc ───────────────────────────
+    final data = leadDoc.data();
+    final rawList = data['transferLeads'];
+    if (rawList is List && rawList.isNotEmpty) {
+      bool changed = false;
+      final rebuilt = <Map<String, dynamic>>[];
+
+      for (final item in rawList) {
+        if (item is! Map<String, dynamic>) {
+          rebuilt.add(Map<String, dynamic>.from(item as Map));
+          continue;
+        }
+        final entry = Map<String, dynamic>.from(item);
+        if ((entry['leadCategory'] as String? ?? '') == oldRawCategoryName) {
+          entry['leadCategoryId'] = correctCategoryId;
+          entry['leadCategory'] = correctCategoryName;
+          changed = true;
+          matchedArrayEntries++;
+        }
+        rebuilt.add(entry);
+      }
+
+      if (changed) {
+        leadRefsToRewriteArray.add(leadDoc.reference);
+        rebuiltArrays.add(rebuilt);
+      }
+    }
+  }
+
+  // ── Batch-write both sets, chunked at 450 ────────────────────────────────
+  const chunkSize = 450;
+
+  for (var i = 0; i < subDocRefs.length; i += chunkSize) {
+    final end = (i + chunkSize > subDocRefs.length) ? subDocRefs.length : i + chunkSize;
+    final batch = db.batch();
+    for (var j = i; j < end; j++) {
+      batch.update(subDocRefs[j], {
+        'leadCategoryId': correctCategoryId,
+        'leadCategory': correctCategoryName,
+      });
+    }
+    await batch.commit();
+  }
+
+  for (var i = 0; i < leadRefsToRewriteArray.length; i += chunkSize) {
+    final end = (i + chunkSize > leadRefsToRewriteArray.length)
+        ? leadRefsToRewriteArray.length
+        : i + chunkSize;
+    final batch = db.batch();
+    for (var j = i; j < end; j++) {
+      batch.update(leadRefsToRewriteArray[j], {'transferLeads': rebuiltArrays[j]});
+    }
+    await batch.commit();
+  }
+
+  log('[manuallyResolveTransferCategoryEverywhere] "$oldRawCategoryName" → '
+      '$correctCategoryId ("$correctCategoryName") — '
+      'subDocsUpdated:$matchedSubDocs arrayEntriesUpdated:$matchedArrayEntries');
+}
+

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1032,6 +1034,21 @@ class _TransferLeadsState extends State<TransferLeads> {
                                               return;
                                             }
 
+
+
+String _resolveTransferredStageId(BuildContext context) {
+  final stages = context.read<AddLeadCubit>().state.stages;
+  final match = stages.where(
+    (s) => s.name.trim().toUpperCase() == 'TRANSFERRED',
+  );
+  if (match.isEmpty) {
+    log('[Transfer] Could not resolve "TRANSFERRED" stage id — '
+        'stages loaded=${stages.map((s) => s.name).toList()}');
+    return '';
+  }
+  return match.first.id;
+}
+
                                             // ── Transfer only the leads that are actually different ──
 
                                             for (final lead in selectedLeads) {
@@ -1044,8 +1061,11 @@ class _TransferLeadsState extends State<TransferLeads> {
                                                         lead.contactNumber,
                                                     leadCategory:
                                                         lead.leadCategory,
+                                                        leadCategoryId: lead.leadCategoryId,
                                                     leadSubCategory: lead.leadSubCategory,
-                                                    leadStage: lead.leadStage,
+                                                    leadSubCategoryId: lead.leadSubCategoryId,
+                                                    leadStage: 'TRANSFERRED' ,
+                                                    leadStageId:_resolveTransferredStageId(context),
                                                     fromStaffId:
                                                         lead.assignedStaffId,
                                                     fromStaff:

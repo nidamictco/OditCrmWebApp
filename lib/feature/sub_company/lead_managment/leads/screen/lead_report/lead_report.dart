@@ -955,32 +955,32 @@ class _LeadsReportState extends State<LeadsReport> {
                                       );
                                     }
 
-                                    if (showCallResult) {
-                                      row3Cols.add(
-                                        MultiSelectDropdown(
-                                          showChips: true,
-                                          label: "Call Result",
-                                          hint: "select call result",
-                                          items: const [
-                                            'Connected',
-                                            'Answered',
-                                            'Busy',
-                                            'Not Attended',
-                                            'Out of Coverage Area',
-                                            'Rejected',
-                                            'Switched Off',
-                                            'No Answer',
-                                          ],
-                                          selectedValues: selectedCallResults,
-                                          onChanged: (vals) {
-                                            setState(() {
-                                              selectedCallResults = vals;
-                                              _resetPage();
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    }
+                                    // if (showCallResult) {
+                                    //   row3Cols.add(
+                                    //     MultiSelectDropdown(
+                                    //       showChips: true,
+                                    //       label: "Call Result",
+                                    //       hint: "select call result",
+                                    //       items: const [
+                                    //         'Connected',
+                                    //         'Answered',
+                                    //         'Busy',
+                                    //         'Not Attended',
+                                    //         'Out of Coverage Area',
+                                    //         'Rejected',
+                                    //         'Switched Off',
+                                    //         'No Answer',
+                                    //       ],
+                                    //       selectedValues: selectedCallResults,
+                                    //       onChanged: (vals) {
+                                    //         setState(() {
+                                    //           selectedCallResults = vals;
+                                    //           _resetPage();
+                                    //         });
+                                    //       },
+                                    //     ),
+                                    //   );
+                                    // }
 
                                     if (row3Cols.isEmpty) {
                                       return const SizedBox.shrink();
@@ -1152,10 +1152,9 @@ class _LeadsReportState extends State<LeadsReport> {
                         exportLeadsToExcel(filtered, 'leads_report_');
                       },
                       child: Container(
-                        height: 5.h,
+                        height: 4.h,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 1.4.w,
-                          // vertical: 1.2.h,
+                          horizontal: 0.8.w,
                         ),
                         decoration: BoxDecoration(
                           color: AppThemeColors.appPrimaryColor,

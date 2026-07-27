@@ -3037,6 +3037,20 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                   return;
                                                 }
 
+String _resolveTransferredStageId(BuildContext context) {
+  final stages = context.read<AddLeadCubit>().state.stages;
+  final match = stages.where(
+    (s) => s.name.trim().toUpperCase() == 'TRANSFERRED',
+  );
+  if (match.isEmpty) {
+    log('[Transfer] Could not resolve "TRANSFERRED" stage id — '
+        'stages loaded=${stages.map((s) => s.name).toList()}');
+    return '';
+  }
+  return match.first.id;
+}
+
+
                                                 // ── Transfer only the leads that are actually different ──
                                                 for (final lead
                                                     in selectedLeads) {
@@ -3061,6 +3075,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                               nameOf: (s) =>
                                                                   s.name,
                                                             ),
+                                                        leadCategoryId:
+                                                            lead.leadCategoryId,
                                                         leadSubCategory:
                                                             // lead.leadSubCategory,
                                                             resolveLeadName(
@@ -3074,19 +3090,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                               nameOf: (s) =>
                                                                   s.name,
                                                             ),
+                                                        leadSubCategoryId:
+                                                            lead.leadSubCategoryId,
                                                         leadStage:
-                                                            // lead.leadStage,
-                                                            resolveLeadName(
-                                                              list:
-                                                                  state.stages,
-                                                              id: lead
-                                                                  .leadStageId,
-                                                              fallback: lead
-                                                                  .leadStage,
-                                                              idOf: (s) => s.id,
-                                                              nameOf: (s) =>
-                                                                  s.name,
-                                                            ),
+                                                           'TRANSFERRED',
+                                                        leadStageId:
+                                                            _resolveTransferredStageId(context),
                                                         fromStaffId: lead
                                                             .assignedStaffId,
                                                         fromStaff:

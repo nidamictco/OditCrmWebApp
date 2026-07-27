@@ -668,7 +668,7 @@ class AddLeadRepository implements IAddLeadRepository {
       leadUpdates['remarks'] = followUp.remarks;
     }
     if((followUp.leadWhatsappNo ?? '').isNotEmpty) {
-      leadUpdates['whatsapp'] = followUp.leadWhatsappNo;
+      leadUpdates['whatsappNumber'] = followUp.leadWhatsappNo;
     }
     batch.update(leadRef, leadUpdates);
 
@@ -789,6 +789,7 @@ class AddLeadRepository implements IAddLeadRepository {
       'assignedStaff': transfer.toStaff,
       'assignedStaffId': transfer.toStaffId,
       'leadStage': 'TRANSFERRED',
+       'leadStageId':transfer.leadStageId,
       'transferLeads': FieldValue.arrayUnion([transfer.toFirestore()]),
     });
 
