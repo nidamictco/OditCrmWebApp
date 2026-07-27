@@ -986,19 +986,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       InkWell(
-                                        // onTap: () {
-                                        //   _applyFilters();
-                                        // },
-                                        onTap: () async {
-  log('[Migration] Starting migrateLeadTransferArrayCategoryIds...');
-  try {
-    await migrateIsDeletedField();
-    log('[Migration] Finished without throwing.');
-  } catch (e, st) {
-    log('[Migration] THREW: $e');
-    log('[Migration] Stack: $st');
-  }
-},
+                                        onTap: () {
+                                          _applyFilters();
+                                        },
+                                       
                                         child: Container(
                                           height: 4.h,
                                           padding: EdgeInsets.symmetric(

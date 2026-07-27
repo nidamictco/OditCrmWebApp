@@ -898,6 +898,7 @@ class AddLeadCubit extends Cubit<AddLeadState> {
       final leads = await _leadRepository.fetchDeletedLeads();
       emit(state.copyWith(listStatus: LeadListStatus.loaded, leads: leads));
     } catch (e) {
+      log("error in deleted leads ${e.toString()}");
       emit(
         state.copyWith(
           listStatus: LeadListStatus.failure,

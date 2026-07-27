@@ -8,6 +8,44 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// ── ONE-TIME MIGRATION ───────────────────────────────────────────────────
 
 
+Future<void> migrateHasFollowUp() async {
+  final db = FirebaseFirestore.instance;
+  final leadsSnap = await db.collection('LEADS').get();
+
+  int updated = 0;
+  int skipped = 0;
+
+  for (final leadDoc in leadsSnap.docs) {
+    final data = leadDoc.data();
+
+    // Skip if already set
+    if (data.containsKey('hasFollowUp')) {
+      skipped++;
+      continue;
+    }
+
+    // Check if this lead has any follow-ups
+    final followUpsSnap = await db
+        .collection('LEADS')
+        .doc(leadDoc.id)
+        .collection('FOLLOW_UPS')
+        .limit(1)
+        .get();
+
+    final hasFollowUp = followUpsSnap.docs.isNotEmpty;
+
+    await db.collection('LEADS').doc(leadDoc.id).update({
+      'hasFollowUp': hasFollowUp,
+    });
+
+    updated++;
+    print('Updated ${leadDoc.id} → hasFollowUp: $hasFollowUp');
+  }
+
+  print('Migration complete. Updated: $updated, Skipped: $skipped');
+}
+
+
 /// ── ONE-TIME MIGRATION ───────────────────────────────────────────────────
 /// Backfills leadCategoryId / leadSubCategoryId / leadStageId on existing
 /// TRANSFER_LEADS subcollection docs that were written before these ID
