@@ -1,7 +1,4 @@
-//
-
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import '../router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
@@ -60,11 +57,11 @@ class _CustomTableState extends State<CustomTable> {
   @override
   void didUpdateWidget(covariant CustomTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 🔹 Sync state if rows change
-    if (widget.rows.length != _checkedStates.length) {
-      _checkedStates = widget.initialCheckedStates != null
-          ? List<bool>.from(widget.initialCheckedStates!)
-          : List<bool>.filled(widget.rows.length, false);
+    // 🔹 Sync state if initialCheckedStates provided or rows length change
+    if (widget.initialCheckedStates != null) {
+      _checkedStates = List<bool>.from(widget.initialCheckedStates!);
+    } else if (widget.rows.length != _checkedStates.length) {
+      _checkedStates = List<bool>.filled(widget.rows.length, false);
     }
   }
 
@@ -118,16 +115,16 @@ class _CustomTableState extends State<CustomTable> {
 
     return Container(
       // width: 100.w,
-      margin: EdgeInsets.only(
-        right: 2.w,
-        left: 2.w,
-        bottom: 2.w,
-        top: widget.height ?? 2.w,
-      ),
+      // margin: EdgeInsets.only(
+      //   right: 2.w,
+      //   left: 2.w,
+      //   bottom: 2.w,
+      //   top: widget.height ?? 2.w,
+      // ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: tableContent,
     );
@@ -137,28 +134,27 @@ class _CustomTableState extends State<CustomTable> {
   Widget _buildHeader() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.lightGrey.withOpacity(0.5),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+        color: const Color(0xFFF8FAFC),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+        border: const Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
       ),
       child: Row(
         children: [
-          SizedBox(width: 1.4.w),
-          // SizedBox(width: 1.5.w),
+          SizedBox(width: 0.8.w),
           // Checkbox header placeholder (keeps alignment)
           if (widget.showCheckboxes)
             SizedBox(
               width: 3.5.w,
               child: Container(
                 alignment: Alignment.topLeft,
-                padding: EdgeInsets.symmetric(vertical: 2.h),
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: AppColors.divider)),
+                padding: EdgeInsets.symmetric(vertical: 1.6.h),
+                decoration: const BoxDecoration(
+                  border: Border(right: BorderSide(color: Color(0xFFE2E8F0))),
                 ),
                 child: Checkbox(
                   value: _isAllSelected, // 🔹 tri-state: true / false / null
                   tristate: true,
-                  activeColor: AppColors.primary,
+                  activeColor: const Color(0xFF10B981),
                   onChanged: (_) => _toggleSelectAll(),
                 ),
               ),
@@ -169,12 +165,46 @@ class _CustomTableState extends State<CustomTable> {
             final col = widget.columns[index];
             final cellContent = Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4),
+              padding: EdgeInsets.symmetric(vertical: 1.6.h, horizontal: 8),
               decoration: const BoxDecoration(),
-              child: Text(
-                col.title,
-                style: AppTextStyle.medium(weight: FontWeight.w600),
-              ),
+              child: col.title.toLowerCase() == 'select all'
+                  ? Row(
+                      children: [
+                        Text(
+                          col.title,
+                          style: AppTextStyle.medium(
+                            weight: FontWeight.w600,
+                            color: const Color(0xFF475569),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 3.5.w,
+                          // child: Container(
+                          //   alignment: Alignment.topLeft,
+                          //   padding: EdgeInsets.symmetric(vertical: 1.6.h),
+                          //   decoration: const BoxDecoration(
+                          //     border: Border(
+                          //       right: BorderSide(color: Color(0xFFE2E8F0)),
+                          //     ),
+                          //   ),
+                          child: Checkbox(
+                            value:
+                                _isAllSelected, // 🔹 tri-state: true / false / null
+                            tristate: true,
+                            activeColor: const Color(0xFF10B981),
+                            onChanged: (_) => _toggleSelectAll(),
+                          ),
+                          // ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      col.title,
+                      style: AppTextStyle.medium(
+                        weight: FontWeight.w600,
+                        color: const Color(0xFF475569),
+                      ),
+                    ),
             );
 
             if (col.width != null) {
@@ -197,26 +227,27 @@ class _CustomTableState extends State<CustomTable> {
           ? widget.priorityColors![rowIndex]
           : Colors.transparent;
       final childWidget = Container(
-        decoration: BoxDecoration(
-          color: rowIndex.isEven ? AppColors.greyCard : Colors.white,
-          border: Border(bottom: BorderSide(color: AppColors.divider)),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
         ),
         child: Row(
           children: [
-            SizedBox(width: 10),
+            SizedBox(width: 15),
 
             // ── Priority dot ───────────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.only(right: 0.1.w),
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
+            if (dotColor != Colors.transparent)
+              Padding(
+                padding: EdgeInsets.only(right: 0.1.w),
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
 
             // 🔹 Checkbox cell
             if (widget.showCheckboxes)
@@ -227,7 +258,7 @@ class _CustomTableState extends State<CustomTable> {
                   padding: EdgeInsets.symmetric(vertical: 1.h),
                   child: Checkbox(
                     value: _checkedStates[rowIndex],
-                    activeColor: AppColors.primary, // use your brand color
+                    activeColor: const Color(0xFF10B981),
                     onChanged: (val) {
                       setState(() => _checkedStates[rowIndex] = val ?? false);
                       widget.onCheckChanged?.call(rowIndex, val ?? false);
@@ -241,7 +272,7 @@ class _CustomTableState extends State<CustomTable> {
               final col = widget.columns[colIndex];
               final cellContent = Container(
                 alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5),
+                padding: EdgeInsets.symmetric(vertical: 1.4.h, horizontal: 8),
                 decoration: const BoxDecoration(),
                 child: widget.rows[rowIndex][colIndex],
               );
@@ -252,6 +283,7 @@ class _CustomTableState extends State<CustomTable> {
 
               return Expanded(flex: col.flex, child: cellContent);
             }),
+            SizedBox(width: 15),
           ],
         ),
       );

@@ -85,7 +85,7 @@ class _ShowEntriesState extends State<ShowEntries> {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.only(top: 2.h, left: 2.w, right: 2.w, bottom: 2.h),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
