@@ -190,62 +190,75 @@ class _CrmShellState extends State<CrmShell> {
     // Block native OS back pop on Dashboard to show the exit dialog (non-web)
     final bool blockNativePop = kIsWeb ? false : isDashboard;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final double minLayoutWidth = 1200;
+    final double contentWidth =
+        screenWidth < minLayoutWidth ? minLayoutWidth : screenWidth;
+
     final mainContent = Stack(
       children: [
         Scaffold(
-          body: Row(
-            children: [
-              // ── SIDEBAR ────────────────────────────────────────────────
-              SizedBox(
-                width: isSidebarOpen ? 225 : 70,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  child: isSidebarOpen
-                      ? SidebarItem(
-                          selectedIndex: selectedIndex,
-                          onItemSelected: (idx) =>
-                              _onItemSelected(context, idx),
-                          onBackArrowTap: toggleSidebar,
-                        )
-                      : MiniSidebar(
-                          selectedIndex: selectedIndex,
-                          onItemSelected: (idx) =>
-                              _onItemSelected(context, idx),
-                          onBackArrowTap: toggleSidebar,
-                        ),
-                ),
-              ),
+          body: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: contentWidth,
+              height: screenHeight,
+              child: Row(
+                children: [
+                  // ── SIDEBAR ────────────────────────────────────────────────
+                  SizedBox(
+                    width: isSidebarOpen ? 225 : 70,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      child: isSidebarOpen
+                          ? SidebarItem(
+                              selectedIndex: selectedIndex,
+                              onItemSelected: (idx) =>
+                                  _onItemSelected(context, idx),
+                              onBackArrowTap: toggleSidebar,
+                            )
+                          : MiniSidebar(
+                              selectedIndex: selectedIndex,
+                              onItemSelected: (idx) =>
+                                  _onItemSelected(context, idx),
+                              onBackArrowTap: toggleSidebar,
+                            ),
+                    ),
+                  ),
 
-              // ── MAIN CONTENT ───────────────────────────────────────────
-              Expanded(
-                child: Column(
-                  children: [
-                    MultiBlocProvider(
-                      providers: [
-                        BlocProvider(
-                          create: (_) => AddLeadCubit()..fetchLeads(),
+                  // ── MAIN CONTENT ───────────────────────────────────────────
+                  Expanded(
+                    child: Column(
+                      children: [
+                        MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                              create: (_) => AddLeadCubit()..fetchLeads(),
+                            ),
+                            BlocProvider.value(value: _notificationCubit),
+                          ],
+                          child: TopBar(
+                            isSidebarOpen: isSidebarOpen,
+                            onMenuTap: toggleSidebar,
+                          ),
                         ),
-                        BlocProvider.value(value: _notificationCubit),
+                        Expanded(
+                          child: Container(
+                            color: AppColors.background,
+                            child: BlocProvider.value(
+                              value: _notificationCubit,
+                              child: widget.child,
+                            ),
+                          ),
+                        ),
+                        // const BottomBar(),
                       ],
-                      child: TopBar(
-                        isSidebarOpen: isSidebarOpen,
-                        onMenuTap: toggleSidebar,
-                      ),
                     ),
-                    Expanded(
-                      child: Container(
-                        color: AppColors.background,
-                        child: BlocProvider.value(
-                          value: _notificationCubit,
-                          child: widget.child,
-                        ),
-                      ),
-                    ),
-                    // const BottomBar(),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
         _buildExitDialogOverlay(),

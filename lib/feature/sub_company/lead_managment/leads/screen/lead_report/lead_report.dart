@@ -592,7 +592,7 @@ class _LeadsReportState extends State<LeadsReport> {
             //   title: 'Lead Management',
             // ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+              padding: EdgeInsets.symmetric(horizontal: 25),
               child: Column(
                 children: [
                   // ── CARD 1: FILTERS CARD ───────────────────────────────────
@@ -1295,7 +1295,12 @@ class _LeadsReportState extends State<LeadsReport> {
                                       RoutePaths.followUpPath(lead.id!, "NEW"),
                                     );
                                   },
-                                  getPriorityColor: getPriorityColor, categories: state.categories, subCategories: state.subCategories, sources: state.sources, stages: state.stages, tags: state.leadTag,
+                                  getPriorityColor: getPriorityColor,
+                                  categories: state.categories,
+                                  subCategories: state.subCategories,
+                                  sources: state.sources,
+                                  stages: state.stages,
+                                  tags: state.leadTag,
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(
@@ -1746,7 +1751,6 @@ class _ReportLeadsTable extends StatefulWidget {
   final List<LeadsModel> sources;
   final List<LeadsModel> stages;
   final List<LeadsModel> tags;
-  
 
   const _ReportLeadsTable({
     required this.leads,
@@ -1760,11 +1764,11 @@ class _ReportLeadsTable extends StatefulWidget {
     required this.onDelete,
     required this.onTap,
     required this.getPriorityColor,
-     required this.categories,      // ADD
-    required this.subCategories,   // ADD
-    required this.sources,         // ADD
-    required this.stages,          // ADD
-    required this.tags,            // ADD
+    required this.categories, // ADD
+    required this.subCategories, // ADD
+    required this.sources, // ADD
+    required this.stages, // ADD
+    required this.tags, // ADD
   });
 
   @override
@@ -1870,11 +1874,11 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
     final onDelete = widget.onDelete;
     final onTap = widget.onTap;
     final getPriorityColor = widget.getPriorityColor;
-  final categories = widget.categories;
-  final subCategories = widget.subCategories;
-  final sources = widget.sources;
-  final stages = widget.stages;
-  final tags = widget.tags;
+    final categories = widget.categories;
+    final subCategories = widget.subCategories;
+    final sources = widget.sources;
+    final stages = widget.stages;
+    final tags = widget.tags;
 
     if (leads.isEmpty) {
       return Padding(
@@ -2126,21 +2130,15 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                               flex: 4,
                               child: Text(
                                 lead.leadSubCategory.isNotEmpty
-                                    ? '${resolveLeadName(
-    list: categories,
-    id: lead.leadCategoryId,
-    fallback: lead.leadCategory,
-    idOf: (s) => s.id,
-    nameOf: (s) => s.name ,
-  )} - ${resolveLeadName(list: subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s) => s.id, nameOf: (s) => s.name)}'
+                                    ? '${resolveLeadName(list: categories, id: lead.leadCategoryId, fallback: lead.leadCategory, idOf: (s) => s.id, nameOf: (s) => s.name)} - ${resolveLeadName(list: subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s) => s.id, nameOf: (s) => s.name)}'
                                     // : lead.leadCategory,
-                                    :resolveLeadName(
-    list: categories,
-    id: lead.leadCategoryId,
-    fallback: lead.leadCategory,
-    idOf: (s) => s.id,
-    nameOf: (s) => s.name ,
-  ),
+                                    : resolveLeadName(
+                                        list: categories,
+                                        id: lead.leadCategoryId,
+                                        fallback: lead.leadCategory,
+                                        idOf: (s) => s.id,
+                                        nameOf: (s) => s.name,
+                                      ),
                                 style: AppTextStyle.medium(
                                   color: const Color(0xff0F172A),
                                   weight: FontWeight.w400,
@@ -2163,13 +2161,13 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                               flex: 4,
                               child: Text(
                                 // lead.leadStage,
-                                 resolveLeadName(
-    list: stages,
-    id: lead.leadStageId,
-    fallback: lead.leadStage,
-    idOf: (s) => s.id,
-    nameOf: (s) => s.name ,
-  ),
+                                resolveLeadName(
+                                  list: stages,
+                                  id: lead.leadStageId,
+                                  fallback: lead.leadStage,
+                                  idOf: (s) => s.id,
+                                  nameOf: (s) => s.name,
+                                ),
                                 style: AppTextStyle.medium(
                                   color: _getStatusColor(lead.leadStage),
                                   weight: FontWeight.w500,
@@ -2196,7 +2194,13 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                               flex: 4,
                               child: Text(
                                 // lead.leadSource,
-                                resolveLeadName(list: sources, id: lead.leadSourceId, fallback: lead.leadSource, idOf: (s)=>s.id, nameOf: (s)=>s.name),
+                                resolveLeadName(
+                                  list: sources,
+                                  id: lead.leadSourceId,
+                                  fallback: lead.leadSource,
+                                  idOf: (s) => s.id,
+                                  nameOf: (s) => s.name,
+                                ),
                                 style: AppTextStyle.medium(
                                   color: const Color(0xff0F172A),
                                   weight: FontWeight.w400,

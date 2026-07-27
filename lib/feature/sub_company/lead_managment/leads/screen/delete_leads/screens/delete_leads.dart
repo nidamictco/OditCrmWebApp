@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,8 @@ import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/utils/dropdown.dart';
 import 'package:Odit_CRM/core/utils/export_excel.dart';
 import 'package:Odit_CRM/core/utils/input_date.dart';
-import 'package:Odit_CRM/core/utils/page_button.dart';
 import 'package:Odit_CRM/core/utils/show_entries.dart';
 import 'package:Odit_CRM/core/utils/table.dart';
-import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
@@ -28,8 +27,11 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   final TextEditingController _fromDateController = TextEditingController();
   final TextEditingController _toDateController = TextEditingController();
 
-  // ── Multi-select filter selections (temporary, pending "View" tap) ────────
+  // ── Multi-select & Single-select filter selections ────────
   List<String> selectedCategories = [];
+  List<String> selectedSubCategories = [];
+  List<String> selectedLeadStages = [];
+  List<String> selectedTags = [];
   List<String> selectedSources = [];
   String? selectedDeletedBy;
   String? selectedAssignedStaff;
@@ -46,6 +48,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   static String? _staticFromDate;
   static String? _staticToDate;
   static List<String> _staticCategories = [];
+  static List<String> _staticSubCategories = [];
+  static List<String> _staticLeadStages = [];
+  static List<String> _staticTags = [];
   static List<String> _staticSources = [];
   static String? _staticDeletedBy;
   static String? _staticAssignedStaff;
@@ -55,6 +60,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
   // Static variables for applied (active) filter state
   static List<String> _staticAppliedCategories = [];
+  static List<String> _staticAppliedSubCategories = [];
+  static List<String> _staticAppliedStages = [];
+  static List<String> _staticAppliedTags = [];
   static List<String> _staticAppliedSources = [];
   static String? _staticAppliedStaff;
   static String? _staticAppliedDeletedBy;
@@ -63,6 +71,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
   // ── Snapshot fields (applied only when "View" is tapped) ────────────────────
   List<String> _appliedCategories = [];
+  List<String> _appliedSubCategories = [];
+  List<String> _appliedStages = [];
+  List<String> _appliedTags = [];
   List<String> _appliedSources = [];
   String? _appliedStaff;
   String? _appliedDeletedBy;
@@ -75,6 +86,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     _staticFromDate = _fromDateController.text;
     _staticToDate = _toDateController.text;
     _staticCategories = List<String>.from(selectedCategories);
+    _staticSubCategories = List<String>.from(selectedSubCategories);
+    _staticLeadStages = List<String>.from(selectedLeadStages);
+    _staticTags = List<String>.from(selectedTags);
     _staticSources = List<String>.from(selectedSources);
     _staticDeletedBy = selectedDeletedBy;
     _staticAssignedStaff = selectedAssignedStaff;
@@ -84,6 +98,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     _staticCurrentPage = _currentPage;
 
     _staticAppliedCategories = List<String>.from(_appliedCategories);
+    _staticAppliedSubCategories = List<String>.from(_appliedSubCategories);
+    _staticAppliedStages = List<String>.from(_appliedStages);
+    _staticAppliedTags = List<String>.from(_appliedTags);
     _staticAppliedSources = List<String>.from(_appliedSources);
     _staticAppliedStaff = _appliedStaff;
     _staticAppliedDeletedBy = _appliedDeletedBy;
@@ -109,6 +126,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       _fromDateController.text = _staticFromDate ?? '';
       _toDateController.text = _staticToDate ?? '';
       selectedCategories = List<String>.from(_staticCategories);
+      selectedSubCategories = List<String>.from(_staticSubCategories);
+      selectedLeadStages = List<String>.from(_staticLeadStages);
+      selectedTags = List<String>.from(_staticTags);
       selectedSources = List<String>.from(_staticSources);
       selectedDeletedBy = _staticDeletedBy;
       selectedAssignedStaff = _staticAssignedStaff;
@@ -118,6 +138,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       _currentPage = _staticCurrentPage;
 
       _appliedCategories = List<String>.from(_staticAppliedCategories);
+      _appliedSubCategories = List<String>.from(_staticAppliedSubCategories);
+      _appliedStages = List<String>.from(_staticAppliedStages);
+      _appliedTags = List<String>.from(_staticAppliedTags);
       _appliedSources = List<String>.from(_staticAppliedSources);
       _appliedStaff = _staticAppliedStaff;
       _appliedDeletedBy = _staticAppliedDeletedBy;
@@ -137,18 +160,12 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     });
   }
 
-  bool _hasActiveFilters() {
-    return selectedCategories.isNotEmpty ||
-        selectedSources.isNotEmpty ||
-        selectedAssignedStaff != null ||
-        selectedDeletedBy != null ||
-        _fromDateController.text.isNotEmpty ||
-        _toDateController.text.isNotEmpty;
-  }
-
   void _clearFilters() {
     setState(() {
       selectedCategories = [];
+      selectedSubCategories = [];
+      selectedLeadStages = [];
+      selectedTags = [];
       selectedSources = [];
       selectedAssignedStaff = null;
       selectedDeletedBy = null;
@@ -156,6 +173,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       _toDateController.clear();
 
       _appliedCategories = [];
+      _appliedSubCategories = [];
+      _appliedStages = [];
+      _appliedTags = [];
       _appliedSources = [];
       _appliedStaff = null;
       _appliedDeletedBy = null;
@@ -163,6 +183,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       _appliedToDate = null;
 
       _hasSavedState = false;
+
+      context.read<AddLeadCubit>().selectCategory(null);
+      context.read<AddLeadCubit>().selectLeadStage(null);
 
       _resetPage();
     });
@@ -172,6 +195,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   void _applyFilters() {
     setState(() {
       _appliedCategories = List<String>.from(selectedCategories);
+      _appliedSubCategories = List<String>.from(selectedSubCategories);
+      _appliedStages = List<String>.from(selectedLeadStages);
+      _appliedTags = List<String>.from(selectedTags);
       _appliedSources = List<String>.from(selectedSources);
       _appliedStaff = selectedAssignedStaff;
       _appliedDeletedBy = selectedDeletedBy;
@@ -193,7 +219,6 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     }
   }
 
-  // ── Skip placeholder "Select …" values (for the remaining single-select fields) ──
   bool _isPlaceholder(String? val) =>
       val == null ||
       val.trim().isEmpty ||
@@ -227,7 +252,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           .toList();
     }
 
-    // ── Lead Category — stored UPPERCASE in Firestore — match ANY selected ───
+    // ── Lead Category ──────────────────────────────────────────────────────────
     if (_appliedCategories.isNotEmpty) {
       final cats = _appliedCategories
           .map((e) => e.trim().toUpperCase())
@@ -237,7 +262,33 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           .toList();
     }
 
-    // ── Lead Source — stored UPPERCASE in Firestore — match ANY selected ─────
+    // ── Sub Category ───────────────────────────────────────────────────────────
+    if (_appliedSubCategories.isNotEmpty) {
+      final subCats = _appliedSubCategories
+          .map((e) => e.trim().toUpperCase())
+          .toSet();
+      result = result
+          .where((l) => subCats.contains(l.leadSubCategory.toUpperCase()))
+          .toList();
+    }
+
+    // ── Lead Stage ────────────────────────────────────────────────────────────
+    if (_appliedStages.isNotEmpty) {
+      final stages = _appliedStages.map((e) => e.trim().toUpperCase()).toSet();
+      result = result
+          .where((l) => stages.contains(l.leadStage.toUpperCase()))
+          .toList();
+    }
+
+    // ── Tag ───────────────────────────────────────────────────────────────────
+    if (_appliedTags.isNotEmpty) {
+      final tags = _appliedTags.map((e) => e.trim().toUpperCase()).toSet();
+      result = result
+          .where((l) => tags.contains(l.leadTag.toUpperCase()))
+          .toList();
+    }
+
+    // ── Lead Source ───────────────────────────────────────────────────────────
     if (_appliedSources.isNotEmpty) {
       final sources = _appliedSources
           .map((e) => e.trim().toUpperCase())
@@ -247,7 +298,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           .toList();
     }
 
-    // ── Assigned Staff — stored as-is ────────────────────────────────────────
+    // ── Assigned Staff ────────────────────────────────────────────────────────
     if (!_isPlaceholder(_appliedStaff)) {
       result = result
           .where(
@@ -258,7 +309,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           .toList();
     }
 
-    // ── Deleted By — stored as-is ─────────────────────────────────────────────
+    // ── Deleted By ────────────────────────────────────────────────────────────
     if (!_isPlaceholder(_appliedDeletedBy)) {
       result = result
           .where(
@@ -314,10 +365,39 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     _tableKey++;
   }
 
+  // Color _getStageColor(String stageName) {
+  //   final lower = stageName.toLowerCase();
+  //   if (lower.contains('follow') || lower.contains('follow up')) {
+  //     return const Color(0xFF3B82F6); // Blue
+  //   } else if (lower.contains('closed') || lower.contains('won')) {
+  //     return const Color(0xFF10B981); // Green
+  //   } else if (lower.contains('reject') || lower.contains('lost')) {
+  //     return const Color(0xFFEF4444); // Red
+  //   }
+  //   return const Color(0xFF64748B);
+  // }
+
+  Color _getStageColor(String stage) {
+    switch (stage.trim().toUpperCase()) {
+      case 'FOLLOWUP':
+        return const Color(0xFFF59E0B);
+      case 'CLOSED':
+        return const Color(0xFF10B981);
+      case 'TRANSFERRED':
+        return const Color(0xFF3B82F6);
+      case 'REJECTED':
+        return const Color(0xFFEF4444);
+      case 'NEW':
+        return const Color(0xFF0D31E8);
+      default:
+        return const Color(0xFF10B981);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: BlocConsumer<AddLeadCubit, AddLeadState>(
         listener: (context, state) {
           if (state.listStatus == LeadListStatus.failure) {
@@ -334,277 +414,98 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                TopBreadcrumbBar(
-                  subTitle: 'Deleted Leads',
-                  title: 'Leads Management',
-                ),
-
+                /// ── TOP BAR (Matching Mockup Design) ──
+                // _buildTopNavigationHeader(),
                 Padding(
-                  padding: EdgeInsets.all(2.w),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Column(
-                      children: [
-                        /// TITLE BAR
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            vertical: 2.h,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Deleted Leads",
-                                style: AppTextStyle.medium(
-                                  size: 13.6.sp,
-                                  color: AppColors.black.withOpacity(0.77),
-                                  weight: FontWeight.w600,
-                                ),
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: Column(
+                    children: [
+                      /// ── FILTER CARD ──
+                      _buildFilterCard(state),
+
+                      SizedBox(height: 2.h),
+                      ShowEntries(
+                        initialSearch: _searchQuery,
+                        initialEntries: _selectedEntries,
+                        onSearchChanged: (v) => setState(() {
+                          _searchQuery = v;
+                          _resetPage();
+                        }),
+                        onEntriesChanged: (v) => setState(() {
+                          _selectedEntries = v;
+                          _resetPage();
+                        }),
+                        exportWidget: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () {
+                              final leads = context
+                                  .read<AddLeadCubit>()
+                                  .state
+                                  .leads;
+                              final filtered = _filteredLeads(leads);
+                              exportLeadsToExcel(filtered, 'deleted_leads_');
+                            },
+                            child: Container(
+                              height: 4.h,
+                              padding: EdgeInsets.symmetric(horizontal: 0.8.w),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppThemeColors.appPrimaryColor, // Dark Navy
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  final leads = context
-                                      .read<AddLeadCubit>()
-                                      .state
-                                      .leads;
-                                  final filtered = _filteredLeads(
-                                    leads,
-                                  ); // exports only filtered data
-                                  exportLeadsToExcel(
-                                    filtered,
-                                    'deleted_leads_',
-                                  );
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 1.4.w,
-                                    vertical: 1.2.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xffE5E7EB),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
+                              child: Row(
+                                children: [
+                                  Text(
                                     "Export",
                                     style: AppTextStyle.medium(
-                                      color: Colors.indigo[900],
-                                      weight: FontWeight.w400,
+                                      color: Colors.white,
+                                      weight: FontWeight.w500,
+                                      size: 10.sp,
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(color: AppColors.divider),
-
-                        /// FILTERS
-                        BlocBuilder<AddLeadCubit, AddLeadState>(
-                          builder: (context, state) {
-                            final categoryItems = state.categories
-                                .map((e) => e.name)
-                                .toList();
-                            final sourceItems = state.sources
-                                .map((e) => e.name)
-                                .toList();
-                            final staffItems = state.staffList
-                                .map((e) => e.name)
-                                .toList();
-                            final deletedByItems = state.staffList
-                                .map((e) => e.name)
-                                .toList();
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                left: 2.w,
-                                right: 2.w,
-                                top: 2.w,
-                                bottom: 1.h,
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: InputDate(
-                                          label: "From Date",
-                                          fromController: _fromDateController,
-                                          toController: _toDateController,
-                                          isFrom: true, // shows fromDate value
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                      Expanded(
-                                        child: InputDate(
-                                          label: "To Date",
-                                          fromController: _fromDateController,
-                                          toController: _toDateController,
-                                          isFrom: false, // shows toDate value
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                      Expanded(
-                                        child: MultiSelectDropdown(
-                                          showHelp: true,
-                                          message:
-                                              'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
-                                          items: categoryItems,
-                                          selectedValues: selectedCategories,
-                                          onChanged: (val) {
-                                            setState(() {
-                                              selectedCategories = val;
-                                              _resetPage();
-                                            });
-                                          },
-                                          label: "Lead Category",
-                                          hint: 'Select Lead Category',
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                      Expanded(
-                                        child: MultiSelectDropdown(
-                                          label: "Lead Source",
-                                          hint: 'Select Lead Source',
-                                          showHelp: true,
-                                          message:
-                                              'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                          items: sourceItems,
-                                          selectedValues: selectedSources,
-                                          onChanged: (val) {
-                                            setState(() {
-                                              selectedSources = val;
-                                              _resetPage();
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 1.h),
-
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 17.45.w,
-                                        child: Dropdown(
-                                          label: "Assigned Staff",
-                                          hint: 'Select Assigned Staff',
-                                          items: staffItems,
-                                          selectedValue: selectedAssignedStaff,
-                                          onChanged: (val) {
-                                            setState(() {
-                                              selectedAssignedStaff = val;
-                                              _resetPage();
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                      SizedBox(
-                                        width: 17.45.w,
-                                        child: Dropdown(
-                                          label: "Deleted By",
-                                          hint: 'Select Deleted By',
-                                          items: deletedByItems,
-                                          selectedValue: selectedDeletedBy,
-                                          onChanged: (val) {
-                                            setState(() {
-                                              selectedDeletedBy = val;
-                                              _resetPage();
-                                            });
-                                          },
-                                          message: '.',
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () => _applyFilters(),
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 2.h),
-                                          child: SizedBox(
-                                            width: 7.w,
-                                            height: 4.5.h,
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xff1BAA90),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  "View",
-                                                  style: AppTextStyle.small(
-                                                    size: 10.sp,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 1.w),
-                                      if (_hasActiveFilters())
-                                        InkWell(
-                                          onTap: _clearFilters,
-                                          child: Container(
-                                            width: 7.w,
-                                            height: 4.5.h,
-                                            padding: EdgeInsets.all(1.h),
-                                            margin: EdgeInsets.only(top: 2.h),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.orange,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              'Reset Filters',
-                                              style: AppTextStyle.small(
-                                                size: 10.sp,
-                                                color: Colors.white,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                                  SizedBox(width: 0.4.w),
+                                  Icon(
+                                    Icons.file_upload_outlined,
+                                    color: Colors.white,
+                                    size: 12.sp,
                                   ),
                                 ],
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
+                      ),
+                      SizedBox(height: 2.h),
 
-                        Divider(color: AppColors.divider),
-
-                        ///TABLE CONTROLS
-                        ShowEntries(
-                          initialSearch: _searchQuery,
-                          initialEntries: _selectedEntries,
-                          onSearchChanged: (v) => setState(() {
-                            _searchQuery = v;
-                            _resetPage();
-                          }),
-                          onEntriesChanged: (v) => setState(() {
-                            _selectedEntries = v;
-                            _resetPage();
-                          }),
+                      /// ── TABLE & CONTROLS CONTAINER ──
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0x14000000,
+                              ), // #00000014 (8% opacity)
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
                         ),
+                        child: Column(
+                          children: [
+                            /// Table Controls (Show entries & Search)
 
-                        _buildTavbleSection(state),
-
-                        SizedBox(height: 2.h),
-                      ],
-                    ),
+                            /// Table Section
+                            _buildTableSection(state),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                    ],
                   ),
                 ),
               ],
@@ -615,8 +516,422 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     );
   }
 
-  // _______________Table Section________________
-  Widget _buildTavbleSection(AddLeadState leadState) {
+  /// ── Top Header Navigation Bar matching mock ──
+  Widget _buildTopNavigationHeader() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFE2E8F0), width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          /// Left side: Breadcrumb
+          Row(
+            children: [
+              Icon(
+                Icons.chevron_left,
+                size: 16.sp,
+                color: Colors.grey.shade400,
+              ),
+              SizedBox(width: 0.2.w),
+              Icon(
+                Icons.chevron_right,
+                size: 16.sp,
+                color: Colors.grey.shade400,
+              ),
+              SizedBox(width: 0.8.w),
+              Text(
+                'Lead Management',
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: Colors.grey.shade500,
+                  weight: FontWeight.w400,
+                ),
+              ),
+              Text(
+                ' / ',
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+              Text(
+                'Deleted Leads',
+                style: AppTextStyle.medium(
+                  size: 11.sp,
+                  color: const Color(0xFF1E293B),
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+
+          /// Right side: Search, Export, and Action Icon Buttons
+          Row(
+            children: [
+              /// Top Search Bar
+              Container(
+                width: 18.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: TextField(
+                  onChanged: (v) => setState(() {
+                    _searchQuery = v;
+                    _resetPage();
+                  }),
+                  style: AppTextStyle.small(size: 10.sp),
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    hintStyle: AppTextStyle.small(
+                      size: 10.sp,
+                      color: Colors.grey.shade400,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      size: 14.sp,
+                      color: Colors.grey.shade400,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 0.8.h),
+                  ),
+                ),
+              ),
+              SizedBox(width: 1.w),
+
+              /// Navy Export Button
+              SizedBox(width: 0.8.w),
+
+              /// Filter list icon button (=)
+              _buildHeaderIconButton(Icons.filter_list),
+              SizedBox(width: 0.5.w),
+
+              /// Bell notification icon button with red badge
+              Stack(
+                children: [
+                  _buildHeaderIconButton(Icons.notifications_none_outlined),
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 0.5.w),
+
+              /// Settings icon button
+              _buildHeaderIconButton(Icons.settings_outlined),
+              SizedBox(width: 0.5.w),
+
+              /// Fullscreen icon button
+              _buildHeaderIconButton(Icons.crop_free),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderIconButton(IconData icon) {
+    return Container(
+      width: 4.h,
+      height: 4.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Icon(icon, size: 12.sp, color: const Color(0xFF64748B)),
+    );
+  }
+
+  /// ── Filter Card ──
+  Widget _buildFilterCard(AddLeadState state) {
+    final categoryItems = state.categories.map((e) => e.name).toList();
+    final subCategoryItems = state.subCategories.map((e) => e.name).toList();
+    final stageItems = state.stages.map((e) => e.name).toList();
+    final tagItems = state.leadTag.map((e) => e.name).toList();
+    final sourceItems = state.sources.map((e) => e.name).toList();
+    final staffItems = state.staffList.map((e) => e.name).toList();
+    final deletedByItems = state.staffList.map((e) => e.name).toList();
+
+    final showSubCategory =
+        selectedCategories.length == 1 && state.subCategories.isNotEmpty;
+    final showTags = selectedLeadStages.length == 1 && state.leadTag.isNotEmpty;
+
+    // Collect all filter widgets in display order
+    final List<Widget> filterWidgets = [
+      InputDate(
+        label: "From Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: true,
+      ),
+      InputDate(
+        label: "To Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: false,
+      ),
+      MultiSelectDropdown(
+        showHelp: true,
+        message: 'Lead Category is the type of product/service inquiries.',
+        items: categoryItems,
+        selectedValues: selectedCategories,
+        onChanged: (val) {
+          setState(() {
+            selectedCategories = val;
+            selectedSubCategories = [];
+            _resetPage();
+          });
+          if (val.length == 1) {
+            context.read<AddLeadCubit>().selectCategory(val.first);
+          } else {
+            context.read<AddLeadCubit>().selectCategory(null);
+          }
+        },
+        label: "Lead Category",
+        hint: 'Select Lead Category',
+      ),
+    ];
+
+    // Sub-Category directly next to Category if visible
+    if (showSubCategory) {
+      filterWidgets.add(
+        MultiSelectDropdown(
+          showChips: true,
+          label: "Lead Sub-Category",
+          hint: 'Select Sub-Category',
+          items: subCategoryItems,
+          selectedValues: selectedSubCategories,
+          onChanged: (vals) {
+            setState(() {
+              selectedSubCategories = vals;
+              _resetPage();
+            });
+          },
+        ),
+      );
+    }
+
+    // Lead Stage
+    // filterWidgets.add(
+    //   MultiSelectDropdown(
+    //     label: "Lead Stage",
+    //     hint: 'Select Lead Stage',
+    //     items: stageItems,
+    //     selectedValues: selectedLeadStages,
+    //     onChanged: (vals) {
+    //       setState(() {
+    //         selectedLeadStages = vals;
+    //         selectedTags = [];
+    //         _resetPage();
+    //       });
+    //       if (vals.length == 1) {
+    //         context.read<AddLeadCubit>().selectLeadStage(vals.first);
+    //       } else {
+    //         context.read<AddLeadCubit>().selectLeadStage(null);
+    //       }
+    //     },
+    //   ),
+    // );
+
+    // // Tag directly next to Stage if visible
+    // if (showTags) {
+    //   filterWidgets.add(
+    //     MultiSelectDropdown(
+    //       showChips: true,
+    //       label: "Tag",
+    //       hint: 'Select Tag',
+    //       items: tagItems,
+    //       selectedValues: selectedTags,
+    //       onChanged: (vals) {
+    //         setState(() {
+    //           selectedTags = vals;
+    //           _resetPage();
+    //         });
+    //       },
+    //     ),
+    //   );
+    // }
+
+    filterWidgets.add(
+      MultiSelectDropdown(
+        label: "Lead Source",
+        hint: 'Select Lead Source',
+        showHelp: true,
+        message: 'Refers to the source of the lead.',
+        items: sourceItems,
+        selectedValues: selectedSources,
+        onChanged: (val) {
+          setState(() {
+            selectedSources = val;
+            _resetPage();
+          });
+        },
+      ),
+    );
+
+    filterWidgets.add(
+      Dropdown(
+        label: "Assigned Staff",
+        hint: 'Select Field',
+        items: staffItems,
+        selectedValue: selectedAssignedStaff,
+        onChanged: (val) {
+          setState(() {
+            selectedAssignedStaff = val;
+            _resetPage();
+          });
+        },
+      ),
+    );
+
+    filterWidgets.add(
+      Dropdown(
+        label: "Deleted By",
+        hint: 'Select Field',
+        items: deletedByItems,
+        selectedValue: selectedDeletedBy,
+        onChanged: (val) {
+          setState(() {
+            selectedDeletedBy = val;
+            _resetPage();
+          });
+        },
+      ),
+    );
+
+    // Group filter widgets into rows of 3 columns
+    List<List<Widget>> rows = [];
+    for (int i = 0; i < filterWidgets.length; i += 3) {
+      rows.add(
+        filterWidgets.sublist(
+          i,
+          i + 3 > filterWidgets.length ? filterWidgets.length : i + 3,
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(1.8.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ...rows.map((rowItems) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: 1.5.h),
+              child: Row(
+                children: [
+                  ...rowItems.map(
+                    (widget) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                        child: widget,
+                      ),
+                    ),
+                  ),
+                  // Fill remaining space if row has fewer than 3 items
+                  ...List.generate(
+                    3 - rowItems.length,
+                    (_) => Expanded(child: SizedBox()),
+                  ),
+                ],
+              ),
+            );
+          }),
+
+          /// Action Buttons (Clear All & View)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              /// Clear All Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: _clearFilters,
+                  child: Container(
+                    height: 4.h,
+                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Clear All',
+                      style: AppTextStyle.small(
+                        size: 10.sp,
+                        color: const Color(0xFFEF4444),
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 1.w),
+
+              /// View Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: _applyFilters,
+                  child: Container(
+                    height: 4.h,
+                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981), // Emerald Green
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "View",
+                      style: AppTextStyle.small(
+                        size: 10.sp,
+                        color: Colors.white,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ── Table Section ──
+  Widget _buildTableSection(AddLeadState leadState) {
     if (leadState.listStatus == LeadListStatus.loading) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -650,7 +965,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                     vertical: 0.8.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.orange.withOpacity(0.1),
+                    color: AppColors.orange.withValues(alpha: 0.1),
                     border: Border.all(color: AppColors.orange),
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -679,87 +994,169 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     }
     final pagedList = _pagedLeads(allFiltered);
 
-    // "Showing X to Y of Z entries"
     final showFrom = totalCount == 0 ? 0 : (_currentPage - 1) * limit + 1;
     final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
+
     return Column(
       children: [
         SizedBox(
           child: CustomTable(
             key: ValueKey(_tableKey),
+            initialCheckedStates: List.generate(
+              pagedList.length,
+              (index) => _selectedIndices.contains(index),
+            ),
+            onCheckChanged: (rowIndex, isChecked) {
+              setState(() {
+                if (isChecked) {
+                  if (!_selectedIndices.contains(rowIndex)) {
+                    _selectedIndices.add(rowIndex);
+                  }
+                } else {
+                  _selectedIndices.remove(rowIndex);
+                }
+              });
+            },
             columns: [
-              TableColumn(title: "Sl No.", flex: 1),
+              TableColumn(title: "No.", width: 40),
               TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Contact Number", flex: 4),
+              TableColumn(title: "Contact No.", flex: 4),
               TableColumn(title: "Lead Category", flex: 4),
               TableColumn(title: "Assigned Staff", flex: 4),
               TableColumn(title: "Lead Status", flex: 4),
-              TableColumn(title: "Delete Date", flex: 4),
+              TableColumn(title: "Deleted Date", flex: 4),
               TableColumn(title: "Deleted By", flex: 4),
-              TableColumn(title: "Action", flex: 2),
+              TableColumn(title: "Select All", flex: 4),
             ],
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;
               final lead = entry.value;
               final serial = (_currentPage - 1) * limit + index + 1;
               final deletedAt = lead.deletedAt != null
-                  ? '${lead.deletedAt!.day.toString().padLeft(2, '0')}/'
-                        '${lead.deletedAt!.month.toString().padLeft(2, '0')}/'
-                        '${lead.deletedAt!.year}'
+                  ? DateFormat('dd-MM-yyyy').format(lead.deletedAt!)
                   : '—';
+
+              final categoryName = resolveLeadName(
+                list: leadState.categories,
+                id: lead.leadCategoryId,
+                fallback: lead.leadCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              );
+
+              final stageName = resolveLeadName(
+                list: leadState.stages,
+                id: lead.leadStageId,
+                fallback: lead.leadStage,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              );
+
+              final isChecked = _selectedIndices.contains(index);
+
               return [
-                Text('$serial', style: AppTextStyle.medium()),
-                Text(lead.clientName, style: AppTextStyle.medium()),
+                Text(
+                  '$serial',
+                  style: AppTextStyle.medium(weight: FontWeight.w500),
+                ),
+                Text(
+                  lead.clientName,
+                  style: AppTextStyle.medium(
+                    weight: FontWeight.w500,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
                 Text(lead.contactNumber, style: AppTextStyle.medium()),
-                Text(
-                  // lead.leadCategory,
-                  resolveLeadName(
-                      list: leadState.categories,
-                      id: lead.leadCategoryId,
-                      fallback: lead.leadCategory,
-                      idOf: (s) => s.id,
-                      nameOf: (s) => s.name),
-                  style: AppTextStyle.medium()),
+                Text(categoryName, style: AppTextStyle.medium()),
                 Text(lead.assignedStaff, style: AppTextStyle.medium()),
+
+                /// Lead Status with styled text color
                 Text(
-                  // lead.leadStage,
-                  resolveLeadName(list: leadState.stages, id: lead.leadStageId, fallback: lead.leadStage, idOf: (s)=>s.id, nameOf: (s)=>s.name),
-                  style: AppTextStyle.medium()),
+                  stageName,
+                  style: AppTextStyle.medium(
+                    weight: FontWeight.w600,
+                    color: _getStageColor(stageName),
+                  ),
+                ),
                 Text(deletedAt, style: AppTextStyle.medium()),
                 Text(lead.assignedStaff, style: AppTextStyle.medium()),
 
-                /// ACTION
+                /// Action Buttons & Row Checkbox
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    /// Restore Icon Button
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         onTap: () => _confirmRestore(context, lead),
                         child: Tooltip(
                           message: 'Restore',
-                          child: Icon(
-                            Icons.restore,
-                            size: 14.sp,
-                            color: AppColors.green,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color(0xFFCBD5E1),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.restore,
+                              size: 13.sp,
+                              color: const Color(0xFF3B82F6),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 0.5.w),
+                    SizedBox(width: 0.4.w),
+
+                    /// Delete Icon Button
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         onTap: () => _confirmDelete(context, lead),
                         child: Tooltip(
-                          message: 'Delete',
-                          child: Icon(
-                            Icons.delete_outline,
-                            size: 14.sp,
-                            color: Colors.red,
+                          message: 'Delete Permanently',
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF2F2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color(0xFFFCA5A5),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.delete_outline,
+                              size: 13.sp,
+                              color: const Color(0xFFEF4444),
+                            ),
                           ),
                         ),
                       ),
+                    ),
+                    // SizedBox(width: 0.2.w),
+
+                    /// Row Selection Checkbox
+                    Checkbox(
+                      value: isChecked,
+                      activeColor: const Color(0xFF10B981),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            if (!_selectedIndices.contains(index)) {
+                              _selectedIndices.add(index);
+                            }
+                          } else {
+                            _selectedIndices.remove(index);
+                          }
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -768,30 +1165,130 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           ),
         ),
 
-        /// 🔹 FOOTER
+        /// ── FOOTER & PAGINATION ──
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Showing $showFrom to $showTo of $totalCount entries",
-                style: AppTextStyle.medium(weight: FontWeight.w400),
+                "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
+                style: AppTextStyle.medium(
+                  size: 10.sp,
+                  weight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
               ),
               Row(
                 children: [
-                  PageButton(
-                    label: 'Previous',
-                    enabled: _currentPage > 1,
-                    isLeft: true,
-                    onTap: () => _goToPage(_currentPage - 1, totalCount),
+                  /// Previous button
+                  MouseRegion(
+                    cursor: _currentPage > 1
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.basic,
+                    child: GestureDetector(
+                      onTap: _currentPage > 1
+                          ? () => _goToPage(_currentPage - 1, totalCount)
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Icon(
+                          Icons.chevron_left,
+                          size: 16,
+                          color: _currentPage > 1
+                              ? const Color(0xFF475569)
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
                   ),
+
+                  /// Page Numbers
                   ..._buildPageNumbers(totalPages, totalCount),
-                  PageButton(
-                    label: 'Next',
-                    enabled: _currentPage < totalPages,
-                    isRight: true,
-                    onTap: () => _goToPage(_currentPage + 1, totalCount),
+
+                  /// Next button
+                  MouseRegion(
+                    cursor: _currentPage < totalPages
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.basic,
+                    child: GestureDetector(
+                      onTap: _currentPage < totalPages
+                          ? () => _goToPage(_currentPage + 1, totalCount)
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(left: 4, right: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 16,
+                          color: _currentPage < totalPages
+                              ? const Color(0xFF475569)
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Selected Item Action Button
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (_selectedIndices.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No items selected.'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          return;
+                        }
+                        _confirmBulkAction(context, pagedList);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 0.8.w,
+                          vertical: 0.8.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444), // Coral Red
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Selected Item',
+                              style: AppTextStyle.small(
+                                size: 10.sp,
+                                color: Colors.white,
+                                weight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(width: 0.4.w),
+                            Icon(
+                              Icons.delete_outline,
+                              color: Colors.white,
+                              size: 13.sp,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -804,25 +1301,157 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
-
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+    if (totalPages <= 1) {
+      return [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
+            color: AppThemeColors.appPrimaryColor,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            '1',
+            style: AppTextStyle.small(
+              size: 10.sp,
+              color: Colors.white,
+              weight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ];
+      ];
+    }
+
+    List<Widget> pages = [];
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= _currentPage - 1 && i <= _currentPage + 1)) {
+        final isSelected = i == _currentPage;
+        pages.add(
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _goToPage(i, totalCount),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 32),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppThemeColors.appPrimaryColor
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppThemeColors.appPrimaryColor
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  '$i',
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == _currentPage - 2 || i == _currentPage + 2) {
+        pages.add(
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              '...',
+              style: AppTextStyle.small(
+                size: 10.sp,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return pages;
+  }
+
+  // ── Bulk action dialog for selected items ───────────────────
+  void _confirmBulkAction(BuildContext ctx, List<AddLeadModel> pagedList) {
+    final addLeadCubit = ctx.read<AddLeadCubit>();
+    final selectedLeads = _selectedIndices
+        .where((i) => i < pagedList.length)
+        .map((i) => pagedList[i])
+        .toList();
+
+    showDialog(
+      context: ctx,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: Text(
+            'Selected Items (${selectedLeads.length})',
+            style: AppTextStyle.medium(size: 14.sp),
+          ),
+          content: Text(
+            'What would you like to do with the ${selectedLeads.length} selected lead(s)?',
+            style: AppTextStyle.medium(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Cancel',
+                style: AppTextStyle.medium(color: AppColors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                for (var lead in selectedLeads) {
+                  addLeadCubit.restoreLead(lead);
+                }
+                setState(() => _selectedIndices.clear());
+              },
+              child: Text(
+                'Restore Selected',
+                style: AppTextStyle.medium(color: Colors.green),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                for (var lead in selectedLeads) {
+                  if (lead.id != null) {
+                    addLeadCubit.permanentlyDeleteLead(lead.id!);
+                  }
+                }
+                setState(() => _selectedIndices.clear());
+              },
+              child: Text(
+                'Delete Selected',
+                style: AppTextStyle.medium(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // ─── Restore confirmation dialog ───────────────────────────────────────────
@@ -853,7 +1482,6 @@ class _DeleteLeadsState extends State<DeleteLeads> {
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-
                 addLeadCubit.restoreLead(lead);
               },
               child: Text(
@@ -890,9 +1518,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              addLeadCubit.permanentlyDeleteLead(
-                lead.id ?? '',
-              ); // see cubit addition below
+              addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
             },
             child: Text(
               'Delete',
