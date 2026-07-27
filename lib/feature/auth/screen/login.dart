@@ -674,6 +674,18 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+            color: AppThemeColors.appPrimaryColor,
+            size: 18,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscurePassword = !_obscurePassword;
+            });
+          },
+        ),
       ),
     );
   }

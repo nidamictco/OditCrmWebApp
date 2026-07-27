@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/migration_functions.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
@@ -955,33 +956,6 @@ class _LeadsReportState extends State<LeadsReport> {
                                       );
                                     }
 
-                                    // if (showCallResult) {
-                                    //   row3Cols.add(
-                                    //     MultiSelectDropdown(
-                                    //       showChips: true,
-                                    //       label: "Call Result",
-                                    //       hint: "select call result",
-                                    //       items: const [
-                                    //         'Connected',
-                                    //         'Answered',
-                                    //         'Busy',
-                                    //         'Not Attended',
-                                    //         'Out of Coverage Area',
-                                    //         'Rejected',
-                                    //         'Switched Off',
-                                    //         'No Answer',
-                                    //       ],
-                                    //       selectedValues: selectedCallResults,
-                                    //       onChanged: (vals) {
-                                    //         setState(() {
-                                    //           selectedCallResults = vals;
-                                    //           _resetPage();
-                                    //         });
-                                    //       },
-                                    //     ),
-                                    //   );
-                                    // }
-
                                     if (row3Cols.isEmpty) {
                                       return const SizedBox.shrink();
                                     }
@@ -1012,9 +986,19 @@ class _LeadsReportState extends State<LeadsReport> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       InkWell(
-                                        onTap: () {
-                                          _applyFilters();
-                                        },
+                                        // onTap: () {
+                                        //   _applyFilters();
+                                        // },
+                                        onTap: () async {
+  log('[Migration] Starting migrateLeadTransferArrayCategoryIds...');
+  try {
+    await migrateIsDeletedField();
+    log('[Migration] Finished without throwing.');
+  } catch (e, st) {
+    log('[Migration] THREW: $e');
+    log('[Migration] Stack: $st');
+  }
+},
                                         child: Container(
                                           height: 4.h,
                                           padding: EdgeInsets.symmetric(

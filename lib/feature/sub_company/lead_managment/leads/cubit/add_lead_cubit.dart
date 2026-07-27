@@ -509,23 +509,23 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // ── Delete ────────────────────────────────────────────────────────────────
 
-  Future<void> deleteLead(String id, AddLeadModel lead) async {
-    if (state.isDeleting) return;
-    emit(state.copyWith(isDeleting: true, clearError: true));
-    try {
-      await _leadRepository.moveToDeleted(lead);
-      final updated = state.leads.where((l) => l.id != id).toList();
-      emit(
-        state.copyWith(
-          isDeleting: false,
-          leads: updated,
-          successMessage: 'Lead deleted successfully.',
-        ),
-      );
-    } catch (e) {
-      emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
-    }
-  }
+  // Future<void> deleteLead(String id, AddLeadModel lead) async {
+  //   if (state.isDeleting) return;
+  //   emit(state.copyWith(isDeleting: true, clearError: true));
+  //   try {
+  //     await _leadRepository.moveToDeleted(lead);
+  //     final updated = state.leads.where((l) => l.id != id).toList();
+  //     emit(
+  //       state.copyWith(
+  //         isDeleting: false,
+  //         leads: updated,
+  //         successMessage: 'Lead deleted successfully.',
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  //   }
+  // }
 
   // ── Update ────────────────────────────────────────────────────────────────
 
@@ -859,21 +859,36 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   ///--------------deleted leads-------------
   ///---------------------------------------------
 
+  // Future<void> restoreLead(AddLeadModel lead) async {
+  //   emit(state.copyWith(isUpdating: true, clearError: true));
+  //   try {
+  //     await _leadRepository.restoreLead(lead);
+  //     emit(
+  //       state.copyWith(
+  //         isUpdating: false,
+  //         successMessage: 'Lead restored successfully.',
+  //       ),
+  //     );
+  //     await fetchDeletedLeads();
+  //   } catch (e) {
+  //     emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
+  //   }
+  // }
   Future<void> restoreLead(AddLeadModel lead) async {
-    emit(state.copyWith(isUpdating: true, clearError: true));
-    try {
-      await _leadRepository.restoreLead(lead);
-      emit(
-        state.copyWith(
-          isUpdating: false,
-          successMessage: 'Lead restored successfully.',
-        ),
-      );
-      await fetchDeletedLeads();
-    } catch (e) {
-      emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
-    }
+  emit(state.copyWith(isUpdating: true, clearError: true));
+  try {
+    await _leadRepository.restoreLead(lead.id!);
+    emit(
+      state.copyWith(
+        isUpdating: false,
+        successMessage: 'Lead restored successfully.',
+      ),
+    );
+    await fetchDeletedLeads();
+  } catch (e) {
+    emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
   }
+}
 
   Future<void> fetchDeletedLeads() async {
     emit(
@@ -892,23 +907,65 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  Future<void> permanentlyDeleteLead(String id) async {
-    emit(state.copyWith(isDeleting: true, clearError: true));
-    try {
-      await _leadRepository.permanentlyDeleteLead(id);
-      final updated = state.leads.where((l) => l.id != id).toList();
-      emit(
-        state.copyWith(
-          isDeleting: false,
-          leads: updated,
-          successMessage: 'Lead deleted successfully.',
-        ),
-      );
-      await fetchDeletedLeads();
-    } catch (e) {
-      emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  Future<void> deleteLead(String id, AddLeadModel lead) async {
+  if (state.isDeleting) return;
+  emit(state.copyWith(isDeleting: true, clearError: true));
+  try {
+    if (!lead.isDeleted) {
+      // First delete → hide from active views only.
+      await _leadRepository.softDeleteLead(id);
+    } else {
+      // Second delete → archive with all subcollections, then purge.
+      await _leadRepository.archiveDeletedLead(id);
     }
+    final updated = state.leads.where((l) => l.id != id).toList();
+    emit(
+      state.copyWith(
+        isDeleting: false,
+        leads: updated,
+        successMessage: 'Lead deleted successfully.',
+      ),
+    );
+  } catch (e) {
+    emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
   }
+}
+
+Future<void> permanentlyDeleteLead(String id) async {
+  emit(state.copyWith(isDeleting: true, clearError: true));
+  try {
+    await _leadRepository.archiveDeletedLead(id);
+    final updated = state.leads.where((l) => l.id != id).toList();
+    emit(
+      state.copyWith(
+        isDeleting: false,
+        leads: updated,
+        successMessage: 'Lead deleted successfully.',
+      ),
+    );
+    await fetchDeletedLeads();
+  } catch (e) {
+    emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  }
+}
+
+  // Future<void> permanentlyDeleteLead(String id) async {
+  //   emit(state.copyWith(isDeleting: true, clearError: true));
+  //   try {
+  //     await _leadRepository.permanentlyDeleteLead(id);
+  //     final updated = state.leads.where((l) => l.id != id).toList();
+  //     emit(
+  //       state.copyWith(
+  //         isDeleting: false,
+  //         leads: updated,
+  //         successMessage: 'Lead deleted successfully.',
+  //       ),
+  //     );
+  //     await fetchDeletedLeads();
+  //   } catch (e) {
+  //     emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  //   }
+  // }
 
   // ----------------fetch staff----------------
   Future<void> fetchStaff() async {
@@ -1193,13 +1250,7 @@ Future<void> getLeadStage({required String leadStage}) async {
         changedById: user?.id ?? '',
       );
 
-      // if (toStaffId.isNotEmpty) {
-      //   await notificationRepo.create(
-      //     staffId: toStaffId,
-      //     title: 'Lead Transferred',
-      //     message: 'Name :$leadName, Phone No: $contactNumber',
-      //   );
-      // }
+
 
       if (toStaffId.isNotEmpty) {
         notificationRepo.create(
@@ -1640,266 +1691,5 @@ Future<void> getLeadStage({required String leadStage}) async {
       );
     }
   }
-}
-
-
-/// ── ONE-TIME MIGRATION ───────────────────────────────────────────────────
-/// Backfills leadCategoryId / leadSubCategoryId / leadStageId inside each
-/// map entry of the `transferLeads` array field on LEADS documents.
-///
-/// Firestore cannot patch a single field inside one array element — the
-/// only way to change anything inside an array is to read the whole array,
-/// rebuild every entry in memory, and overwrite the entire field. This does
-/// exactly that, using the same name→id resolution maps as the
-/// TRANSFER_LEADS subcollection migration, so results stay consistent
-/// between the two copies of this data.
-///
-/// Safe to re-run: any array entry that already has a non-empty
-/// leadCategoryId is left untouched (still rebuilt into the new array,
-/// but with its existing values preserved, not overwritten).
-Future<void> migrateLeadTransferArrayCategoryIds() async {
-  final db = FirebaseFirestore.instance;
-
-  // ── 1. Preload category name → id map (case-insensitive) ────────────────
-  final categorySnap =
-      await FirestorePath.companyCollection('LEADS CATEGORY').get();
-  final Map<String, String> categoryNameToId = {
-    for (final doc in categorySnap.docs)
-      (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
-  };
-
-  // ── 2. Preload stage name → id map (case-insensitive) ───────────────────
-  final stageSnap =
-      await FirestorePath.companyCollection('LEADS STAGE').get();
-  final Map<String, String> stageNameToId = {
-    for (final doc in stageSnap.docs)
-      (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
-  };
-
-  // ── 3. Sub-category lookups are scoped per-category — cache lazily ──────
-  final Map<String, Map<String, String>> subCategoryCachePerCategory = {};
-
-  Future<Map<String, String>> getSubCategoryMap(String categoryId) async {
-    if (subCategoryCachePerCategory.containsKey(categoryId)) {
-      return subCategoryCachePerCategory[categoryId]!;
-    }
-    final subSnap = await FirestorePath.companyCollection('LEADS CATEGORY')
-        .doc(categoryId)
-        .collection('SUB CATEGORY')
-        .get();
-    final map = {
-      for (final doc in subSnap.docs)
-        (doc.data()['name'] as String? ?? '').trim().toUpperCase(): doc.id,
-    };
-    subCategoryCachePerCategory[categoryId] = map;
-    return map;
-  }
-
-  // ── 4. Walk every Lead doc that actually has a transferLeads array ──────
-  final leadsSnap = await FirestorePath.companyCollection('LEADS').get();
-
-  int scannedLeads = 0;
-  int scannedEntries = 0;
-  int updatedLeads = 0;
-  int alreadyDoneEntries = 0;
-  int unresolvedCategory = 0;
-  int unresolvedStage = 0;
-
-  final List<DocumentReference<Map<String, dynamic>>> pendingRefs = [];
-  final List<List<Map<String, dynamic>>> pendingArrays = [];
-
-  for (final leadDoc in leadsSnap.docs) {
-    final data = leadDoc.data();
-    final rawList = data['transferLeads'];
-    if (rawList == null || rawList is! List || rawList.isEmpty) continue;
-
-    scannedLeads++;
-    bool anyChanged = false;
-
-    final rebuiltArray = <Map<String, dynamic>>[];
-
-    for (final item in rawList) {
-      scannedEntries++;
-      if (item is! Map<String, dynamic>) {
-        // Shouldn't happen, but don't drop unknown shapes — keep as-is.
-        rebuiltArray.add(Map<String, dynamic>.from(item as Map));
-        continue;
-      }
-
-      final entry = Map<String, dynamic>.from(item);
-
-      final existingCategoryId = (entry['leadCategoryId'] as String? ?? '');
-      if (existingCategoryId.isNotEmpty) {
-        alreadyDoneEntries++;
-        rebuiltArray.add(entry); // preserve as-is
-        continue;
-      }
-
-      final rawCategory =
-          (entry['leadCategory'] as String? ?? '').trim().toUpperCase();
-      final rawSubCategory =
-          (entry['leadSubCategory'] as String? ?? '').trim().toUpperCase();
-      final rawStage =
-          (entry['leadStage'] as String? ?? '').trim().toUpperCase();
-
-      final resolvedCategoryId = categoryNameToId[rawCategory] ?? '';
-      final resolvedStageId = stageNameToId[rawStage] ?? '';
-
-      String resolvedSubCategoryId = '';
-      if (resolvedCategoryId.isNotEmpty && rawSubCategory.isNotEmpty) {
-        final subMap = await getSubCategoryMap(resolvedCategoryId);
-        resolvedSubCategoryId = subMap[rawSubCategory] ?? '';
-      }
-
-      if (rawCategory.isNotEmpty && resolvedCategoryId.isEmpty) {
-        unresolvedCategory++;
-        log('[migrateLeadTransferArrayCategoryIds] lead=${leadDoc.id} '
-            'Could not resolve category "$rawCategory" in array entry — leaving blank.');
-      }
-      if (rawStage.isNotEmpty && resolvedStageId.isEmpty) {
-        unresolvedStage++;
-        log('[migrateLeadTransferArrayCategoryIds] lead=${leadDoc.id} '
-            'Could not resolve stage "$rawStage" in array entry — leaving blank.');
-      }
-
-      if (resolvedCategoryId.isNotEmpty) {
-        entry['leadCategoryId'] = resolvedCategoryId;
-        anyChanged = true;
-      }
-      if (resolvedSubCategoryId.isNotEmpty) {
-        entry['leadSubCategoryId'] = resolvedSubCategoryId;
-        anyChanged = true;
-      }
-      if (resolvedStageId.isNotEmpty) {
-        entry['leadStageId'] = resolvedStageId;
-        anyChanged = true;
-      }
-
-      rebuiltArray.add(entry);
-    }
-
-    if (anyChanged) {
-      pendingRefs.add(leadDoc.reference);
-      pendingArrays.add(rebuiltArray);
-    }
-  }
-
-  // ── 5. Overwrite the whole array field, chunked at 450 per batch ────────
-  const chunkSize = 450;
-  for (var i = 0; i < pendingRefs.length; i += chunkSize) {
-    final end =
-        (i + chunkSize > pendingRefs.length) ? pendingRefs.length : i + chunkSize;
-    final batch = db.batch();
-    for (var j = i; j < end; j++) {
-      // Full field overwrite — NOT arrayUnion. arrayUnion only adds new
-      // elements and cannot replace existing ones, so it can't be used here.
-      batch.update(pendingRefs[j], {'transferLeads': pendingArrays[j]});
-    }
-    await batch.commit();
-    updatedLeads += (end - i);
-    log('[migrateLeadTransferArrayCategoryIds] Committed batch '
-        '${(i ~/ chunkSize) + 1} (${end - i} lead docs)');
-  }
-
-  log('[migrateLeadTransferArrayCategoryIds] DONE — '
-      'scannedLeads:$scannedLeads scannedEntries:$scannedEntries '
-      'updatedLeads:$updatedLeads alreadyDoneEntries:$alreadyDoneEntries '
-      'unresolvedCategory:$unresolvedCategory unresolvedStage:$unresolvedStage');
-}
-
-/// Manually resolves one specific old raw category name to a specific
-/// current category ID — fixing BOTH copies of the data at once:
-///   1. TRANSFER_LEADS subcollection docs (leadCategory == oldRawCategoryName)
-///   2. The transferLeads array field on the parent LEADS document
-///
-/// Use this only after confirming by eye (via listUnresolvedTransferCategories
-/// or the Firebase console) which current category the old name should map to.
-///
-/// Safe to re-run: docs/entries that already carry correctCategoryId are
-/// simply overwritten with the same value again — no harm, no duplication.
-Future<void> manuallyResolveTransferCategoryEverywhere({
-  required String oldRawCategoryName,   // exactly as stored, e.g. "MAY VIST"
-  required String correctCategoryId,    // real LEADS CATEGORY doc id
-  required String correctCategoryName,  // its current display name
-}) async {
-  final db = FirebaseFirestore.instance;
-  final leadsSnap = await FirestorePath.companyCollection('LEADS').get();
-
-  final List<DocumentReference<Map<String, dynamic>>> subDocRefs = [];
-  final List<DocumentReference<Map<String, dynamic>>> leadRefsToRewriteArray = [];
-  final List<List<Map<String, dynamic>>> rebuiltArrays = [];
-
-  int matchedSubDocs = 0;
-  int matchedArrayEntries = 0;
-
-  for (final leadDoc in leadsSnap.docs) {
-    // ── 1. TRANSFER_LEADS subcollection ──────────────────────────────────
-    final transferSnap = await leadDoc.reference
-        .collection('TRANSFER_LEADS')
-        .where('leadCategory', isEqualTo: oldRawCategoryName)
-        .get();
-    if (transferSnap.docs.isNotEmpty) {
-      subDocRefs.addAll(transferSnap.docs.map((d) => d.reference));
-      matchedSubDocs += transferSnap.docs.length;
-    }
-
-    // ── 2. transferLeads array on the Lead doc ───────────────────────────
-    final data = leadDoc.data();
-    final rawList = data['transferLeads'];
-    if (rawList is List && rawList.isNotEmpty) {
-      bool changed = false;
-      final rebuilt = <Map<String, dynamic>>[];
-
-      for (final item in rawList) {
-        if (item is! Map<String, dynamic>) {
-          rebuilt.add(Map<String, dynamic>.from(item as Map));
-          continue;
-        }
-        final entry = Map<String, dynamic>.from(item);
-        if ((entry['leadCategory'] as String? ?? '') == oldRawCategoryName) {
-          entry['leadCategoryId'] = correctCategoryId;
-          entry['leadCategory'] = correctCategoryName;
-          changed = true;
-          matchedArrayEntries++;
-        }
-        rebuilt.add(entry);
-      }
-
-      if (changed) {
-        leadRefsToRewriteArray.add(leadDoc.reference);
-        rebuiltArrays.add(rebuilt);
-      }
-    }
-  }
-
-  // ── Batch-write both sets, chunked at 450 ────────────────────────────────
-  const chunkSize = 450;
-
-  for (var i = 0; i < subDocRefs.length; i += chunkSize) {
-    final end = (i + chunkSize > subDocRefs.length) ? subDocRefs.length : i + chunkSize;
-    final batch = db.batch();
-    for (var j = i; j < end; j++) {
-      batch.update(subDocRefs[j], {
-        'leadCategoryId': correctCategoryId,
-        'leadCategory': correctCategoryName,
-      });
-    }
-    await batch.commit();
-  }
-
-  for (var i = 0; i < leadRefsToRewriteArray.length; i += chunkSize) {
-    final end = (i + chunkSize > leadRefsToRewriteArray.length)
-        ? leadRefsToRewriteArray.length
-        : i + chunkSize;
-    final batch = db.batch();
-    for (var j = i; j < end; j++) {
-      batch.update(leadRefsToRewriteArray[j], {'transferLeads': rebuiltArrays[j]});
-    }
-    await batch.commit();
-  }
-
-  log('[manuallyResolveTransferCategoryEverywhere] "$oldRawCategoryName" → '
-      '$correctCategoryId ("$correctCategoryName") — '
-      'subDocsUpdated:$matchedSubDocs arrayEntriesUpdated:$matchedArrayEntries');
 }
 
