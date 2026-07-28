@@ -134,56 +134,6 @@ Future<String> uploadFileBytes({
 }
   // ─── Update ───────────────────────────────────────────────────────────────
 
-//  Future<void> updateStaff(
-//   StaffModel staff, {
-//   File? imageFile,
-//   Uint8List? imageBytes,
-//   String? imageFileName,
-//   File? documentFile,
-//   Uint8List? documentBytes,
-//   String? documentFileName,
-// }) async {
-//   assert(staff.id != null, 'ID must not be null for update');
-
-//   String? imageUrl = staff.imageUrl;
-//   String? documentUrl = staff.documentUrl;
-
-//   if (kIsWeb) {
-//     if (imageBytes != null && imageFileName != null) {
-//       imageUrl = await uploadFileBytes(
-//         bytes: imageBytes,
-//         folder: 'staff_images',
-//         fileName: imageFileName,
-//       );
-//       log('[StaffRepository] Image uploaded (web): $imageUrl');
-//     }
-//     if (documentBytes != null && documentFileName != null) {
-//       documentUrl = await uploadFileBytes(
-//         bytes: documentBytes,
-//         folder: 'staff_docs',
-//         fileName: documentFileName,
-//       );
-//       log('[StaffRepository] Document uploaded (web): $documentUrl');
-//     }
-//   } else {
-//     if (imageFile != null) {
-//       imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
-//       log('[StaffRepository] Image uploaded: $imageUrl');
-//     }
-//     if (documentFile != null) {
-//       documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
-//       log('[StaffRepository] Document uploaded: $documentUrl');
-//     }
-//   }
-
-//   await _collection.doc(staff.id).update(
-//         staff
-//             .copyWith(imageUrl: imageUrl, documentUrl: documentUrl)
-//             .toMap()
-//             ..remove('createdAt'),
-//       );
-//   log('[StaffRepository] Staff updated: ${staff.id}');
-// }
 Future<void> updateStaff(
   StaffModel staff, {
   File? imageFile,
@@ -264,7 +214,141 @@ Future<void> updateStaff(
 
   await _collection.doc(staff.id).update(updatedData);
   log('[StaffRepository] Staff updated: ${staff.id}');
+  // Fire the sync AFTER the staff doc write succeeds.
+  // Errors inside are caught internally — they never bubble up here.
+  await _syncStaffNameToLeadsAndFollowups(
+    staffId: staff.id!,
+    newStaffName: finalStaff.name,
+  );
 }
+
+// ── Sync helper ──────────────────────────────────────────────────────────
+
+  /// Propagates a staff name change to all LEADS, FOLLOW_UPS, and
+  /// TRANSFER_LEADS documents that reference this staff member.
+  ///
+  /// - LEADS + FOLLOW_UPS: matched on `assignedStaffId`, updates
+  ///   `assignedStaff`.
+  /// - TRANSFER_LEADS: matched separately on `fromStaffId` (updates
+  ///   `fromStaff`) and `toStaffId` (updates `toStaff`), since a transfer
+  ///   doc can reference two different staff members.
+  /// - Uses WriteBatch, chunked at 450 ops to stay under Firestore's 500
+  ///   per-batch write limit.
+  /// - Never throws: a sync failure must not surface as a staff-update
+  ///   failure.
+  Future<void> _syncStaffNameToLeadsAndFollowups({
+    required String staffId,
+    required String newStaffName,
+  }) async {
+    try {
+      // final leadsSnap = await _collection.firestore
+      //     .collection(_collection.path.replaceFirst('STAFF', 'LEADS'))
+      //     .where('assignedStaffId', isEqualTo: staffId)
+      //     .get();
+      final leadsSnap = await FirestorePath.companyCollection('LEADS')
+    .where('assignedStaffId', isEqualTo: staffId)
+    .get();
+
+    final leadCreatedSnap = await FirestorePath.companyCollection('LEADS')
+    .where('createdById', isEqualTo: staffId)
+    .get();
+
+      final followUpsSnap = await _firestore
+          .collectionGroup('FOLLOW_UPS')
+          .where('assignedStaffId', isEqualTo: staffId)
+          .get();
+
+      final transferFromSnap = await _firestore
+          .collectionGroup('TRANSFER_LEADS')
+          .where('fromStaffId', isEqualTo: staffId)
+          .get();
+
+      final transferToSnap = await _firestore
+          .collectionGroup('TRANSFER_LEADS')
+          .where('toStaffId', isEqualTo: staffId)
+          .get();
+
+      final activitySnap = await _firestore.collectionGroup('ACTIVITIES')
+      .where('changedById', isEqualTo: staffId)
+      .get();
+
+
+       final deletedLeadsSnap =
+          await FirestorePath.companyCollection('DELETED_LEADS')
+              .where('assignedStaffId', isEqualTo: staffId)
+              .get();
+
+
+       final leadSourceSnap =
+          await FirestorePath.companyCollection('LEAD SOURCE')
+              .where('idOfCreator', isEqualTo: staffId)
+              .get();
+
+        final leadsCategorySnap =
+          await FirestorePath.companyCollection('LEADS CATEGORY')
+              .where('idOfCreator', isEqualTo: staffId)
+              .get();
+
+      final leadsStageSnap =
+          await FirestorePath.companyCollection('LEADS STAGE')
+              .where('idOfCreator', isEqualTo: staffId)
+              .get();
+
+       final leadsTagSnap = await _firestore
+          .collectionGroup('LEADS TAG')
+          .where('idOfCreator', isEqualTo: staffId)
+          .get();
+
+      final subCategorySnap = await _firestore
+          .collectionGroup('SUB CATEGORY')
+          .where('idOfCreator', isEqualTo: staffId)
+          .get();
+
+      final updates = <(DocumentReference<Map<String, dynamic>>, String)>[
+        ...leadsSnap.docs.map((d) => (d.reference, 'assignedStaff')),
+        ...leadCreatedSnap.docs.map((d) => (d.reference, 'createdBy')),
+        ...followUpsSnap.docs.map((d) => (d.reference, 'assignedStaff')),
+        ...transferFromSnap.docs.map((d) => (d.reference, 'fromStaff')),
+        ...transferToSnap.docs.map((d) => (d.reference, 'toStaff')),
+        ...activitySnap.docs.map((d)=>(d.reference,'changedBy')),
+         ...deletedLeadsSnap.docs.map((d) => (d.reference, 'assignedStaff')),
+        ...leadSourceSnap.docs.map((d) => (d.reference, 'createdBy')),
+        ...leadsCategorySnap.docs.map((d) => (d.reference, 'createdBy')),
+        ...leadsStageSnap.docs.map((d) => (d.reference, 'createdBy')),
+        ...leadsTagSnap.docs.map((d) => (d.reference, 'createdBy')),
+        ...subCategorySnap.docs.map((d) => (d.reference, 'createdBy')),
+      ];
+
+      if (updates.isEmpty) {
+        log('[StaffRepository] syncStaffName: no matching docs '
+            'for staffId=$staffId');
+        return;
+      }
+
+      const chunkSize = 450;
+      for (var i = 0; i < updates.length; i += chunkSize) {
+        final end =
+            (i + chunkSize > updates.length) ? updates.length : i + chunkSize;
+        final chunk = updates.sublist(i, end);
+
+        final batch = _firestore.batch();
+        for (final (ref, field) in chunk) {
+          batch.update(ref, {field: newStaffName});
+        }
+        await batch.commit();
+
+        log('[StaffRepository] syncStaffName: committed batch '
+            '${(i ~/ chunkSize) + 1} (${chunk.length} docs) for staffId=$staffId');
+      }
+
+      log('[StaffRepository] syncStaffName: done — '
+          '${leadsSnap.docs.length} leads, ${followUpsSnap.docs.length} followups, '
+          '${transferFromSnap.docs.length + transferToSnap.docs.length} transfers '
+          'updated for staffId=$staffId → "$newStaffName"');
+    } catch (e, st) {
+      log('[StaffRepository] syncStaffName ERROR for staffId=$staffId: $e\n$st');
+    }
+  }
 
   // ─── Update single field ──────────────────────────────────────────────────
 
@@ -276,17 +360,50 @@ Future<void> updateStaff(
 
   // ─── Soft delete (move to DELETED_STAFF) ─────────────────────────────────
 
-  Future<void> moveToDeleted(StaffModel staff) async {
-    assert(staff.id != null, 'ID must not be null');
+Future<void> moveToDeleted(StaffModel staff) async {
+  assert(staff.id != null, 'ID must not be null');
 
-    final deletedStaff = staff.copyWith(deletedAt: DateTime.now());
+  final deletedStaff = staff.copyWith(deletedAt: DateTime.now());
 
-    await _deletedCollection.add(deletedStaff.toMap());
-    await _collection.doc(staff.id).delete();
+  // 1. Write the parent doc at the same ID under DELETED_STAFF
+  await _deletedCollection.doc(staff.id).set(deletedStaff.toMap());
 
-    log('[StaffRepository] Staff moved to DELETED_STAFF: ${staff.id}');
+  // 2. Carry the NOTES subcollection over with it
+  await _moveSubcollection(
+    fromDoc: _collection.doc(staff.id),
+    toDoc: _deletedCollection.doc(staff.id),
+    subcollection: 'NOTES',
+  );
+
+  // 3. Now it's safe to remove the original
+  await _collection.doc(staff.id).delete();
+
+  log('[StaffRepository] Staff moved to DELETED_STAFF: ${staff.id}');
+}
+
+
+/// Copies every document in [subcollection] from [fromDoc] to [toDoc],
+/// preserving each doc's ID, then deletes the originals.
+/// Used to carry NOTES along when a staff doc moves between
+/// STAFF and DELETED_STAFF.
+Future<void> _moveSubcollection({
+  required DocumentReference<Map<String, dynamic>> fromDoc,
+  required DocumentReference<Map<String, dynamic>> toDoc,
+  required String subcollection,
+}) async {
+  final snap = await fromDoc.collection(subcollection).get();
+  if (snap.docs.isEmpty) return;
+
+  final batch = _firestore.batch();
+  for (final doc in snap.docs) {
+    batch.set(toDoc.collection(subcollection).doc(doc.id), doc.data());
+    batch.delete(doc.reference);
   }
+  await batch.commit();
 
+  log('[StaffRepository] Moved ${snap.docs.length} "$subcollection" docs '
+      '${fromDoc.path} → ${toDoc.path}');
+}
   // ─── Hard delete ──────────────────────────────────────────────────────────
 
   Future<void> deleteStaff(String id) async {
@@ -294,6 +411,10 @@ Future<void> updateStaff(
     log('[StaffRepository] Staff deleted: $id');
   }
 
+Future<void> deleteStaffPermanently(String id) async {
+  await _deletedCollection.doc(id).update({'isPurged': true});
+  log('[StaffRepository] Staff purged (kept in Firestore, hidden from UI): $id');
+}
   // ─── Fetch all ────────────────────────────────────────────────────────────
 
   Future<List<StaffModel>> fetchAll() async {
@@ -320,54 +441,53 @@ Future<void> updateStaff(
   }
 
   // ─── Restore from deleted ─────────────────────────────────────────────────
+Future<String> restoreStaff(
+  StaffModel staff, {
+  File? imageFile,
+  File? documentFile,
+}) async {
+  String? imageUrl = staff.imageUrl;
+  String? documentUrl = staff.documentUrl;
 
-  Future<String> restoreStaff(
-    StaffModel staff, {
-    File? imageFile,
-    File? documentFile,
-  }) async {
-    String? imageUrl = staff.imageUrl;
-    String? documentUrl = staff.documentUrl;
-
-    if (imageFile != null) {
-      imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
-      log('[StaffRepository] Image uploaded: $imageUrl');
-    }
-
-    if (documentFile != null) {
-      documentUrl =
-          await uploadFile(file: documentFile, folder: 'staff_docs');
-      log('[StaffRepository] Document uploaded: $documentUrl');
-    }
-
-    final finalStaff = staff.copyWith(
-      imageUrl: imageUrl,
-      documentUrl: documentUrl,
-      createdAt: DateTime.now(),
-    );
-
-    final docRef = await _collection.add(finalStaff.toMap());
-    await _deletedCollection.doc(staff.id).delete();
-
-    log('[StaffRepository] Staff restored: ${docRef.id}');
-    return docRef.id;
+  if (imageFile != null) {
+    imageUrl = await uploadFile(file: imageFile, folder: 'staff_images');
+  }
+  if (documentFile != null) {
+    documentUrl = await uploadFile(file: documentFile, folder: 'staff_docs');
   }
 
-  // ─── Fetch deleted staff ──────────────────────────────────────────────────
+  final finalStaff = staff.copyWith(
+    imageUrl: imageUrl,
+    documentUrl: documentUrl,
+    // createdAt: DateTime.now(),
+  );
 
-  Future<List<StaffModel>> fetchDeletedStaff() async {
-    final snap = await _deletedCollection
-        .orderBy('createdAt', descending: true)
-        .get();
-    return snap.docs.map(StaffModel.fromFirestore).toList();
-  }
+  // 1. Write back to STAFF at the same ID
+  await _collection.doc(staff.id).set(finalStaff.toMap());
 
-  // ─── Permanently delete ───────────────────────────────────────────────────
+  // 2. Carry NOTES back with it
+  await _moveSubcollection(
+    fromDoc: _deletedCollection.doc(staff.id),
+    toDoc: _collection.doc(staff.id),
+    subcollection: 'NOTES',
+  );
 
-  Future<void> deleteStaffPermanently(String id) async {
-    await _deletedCollection.doc(id).delete();
-    log('[StaffRepository] Staff deleted permanently: $id');
-  }
+  // 3. Now safe to remove from DELETED_STAFF
+  await _deletedCollection.doc(staff.id).delete();
+
+  log('[StaffRepository] Staff restored: ${staff.id}');
+  return staff.id!;
+}
+
+Future<List<StaffModel>> fetchDeletedStaff() async {
+  final snap = await _deletedCollection
+      .orderBy('createdAt', descending: true)
+      .get();
+  return snap.docs
+      .map(StaffModel.fromFirestore)
+      .where((s) => !s.isPurged)
+      .toList();
+}
 
   // ─── Notes ────────────────────────────────────────────────────────────────
 
@@ -416,3 +536,5 @@ Future<void> updateStaff(
     log('[StaffRepository] Note deleted: $noteId');
   }
 }
+
+
