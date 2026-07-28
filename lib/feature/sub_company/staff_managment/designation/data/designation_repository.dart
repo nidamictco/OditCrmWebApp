@@ -17,11 +17,49 @@ class DesignationRepository {
     return doc.id;
   }
 
-  /// Update an existing designation
-  Future<void> updateDesignation(DesignationModel designation) async {
-    assert(designation.id != null, 'ID must not be null for update');
-    await _collection.doc(designation.id).update(designation.toMap());
+  // /// Update an existing designation
+  // Future<void> updateDesignation(DesignationModel designation) async {
+  //   assert(designation.id != null, 'ID must not be null for update');
+  //   await _collection.doc(designation.id).update(designation.toMap());
+  // }
+
+  /// Update an existing designation, and cascade the name change to all
+/// STAFF docs that reference this designation.
+Future<void> updateDesignation(DesignationModel designation) async {
+  assert(designation.id != null, 'ID must not be null for update');
+
+  await _collection.doc(designation.id).update(designation.toMap());
+
+  await _updateStaffDesignationName(
+    designationId: designation.id!,
+    newName: designation.designationName,
+  );
+}
+
+/// Finds all STAFF docs pointing to this designationId and updates the
+/// denormalized name field, in batches of 500 (Firestore batch limit).
+Future<void> _updateStaffDesignationName({
+  required String designationId,
+  required String newName,
+}) async {
+  final staffCollection = FirestorePath.companyCollection('STAFF');
+
+  final staffSnap = await staffCollection
+      .where('designationId', isEqualTo: designationId)
+      .get();
+
+  if (staffSnap.docs.isEmpty) return;
+
+  const chunkSize = 500;
+  for (var i = 0; i < staffSnap.docs.length; i += chunkSize) {
+    final chunk = staffSnap.docs.skip(i).take(chunkSize);
+    final batch = _firestore.batch();
+    for (final doc in chunk) {
+      batch.update(doc.reference, {'designation': newName});
+    }
+    await batch.commit();
   }
+}
 
   /// Delete a designation by ID
   Future<void> deleteDesignation(String id) async {

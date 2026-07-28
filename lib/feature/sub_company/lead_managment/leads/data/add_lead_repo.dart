@@ -27,8 +27,8 @@ abstract class IAddLeadRepository {
   Future<void> updateLead(String id, AddLeadModel lead);
   Future<void> deleteLead(String id);
   Future<void> moveToDeleted(AddLeadModel lead);
-  Future<List<AddLeadModel>> fetchDeletedLeads();
-  Future<String> restoreLead(AddLeadModel lead);
+  // Future<List<AddLeadModel>> fetchDeletedLeads();
+  // Future<String> restoreLead(AddLeadModel lead);
   Future<void> permanentlyDeleteLead(String id);
   Future<void> assignStaff(String leadId, String staffId, String staffName);
   Future<AddLeadModel> getLeadById(String leadId);
@@ -115,6 +115,23 @@ abstract class IAddLeadRepository {
     required String role,
     int limit = 5,
   });
+    Future<void> softDeleteLead(String leadId);
+  Future<void> archiveDeletedLead(String leadId);
+  Future<void> restoreLead(String leadId);
+  Future<void> permanentlyDeleteArchivedLead(String leadId);
+  Future<List<AddLeadModel>> fetchDeletedLeads();
+}
+
+
+enum _ArchiveOpType { set, delete }
+
+class _ArchiveOp {
+  final _ArchiveOpType type;
+  final DocumentReference<Map<String, dynamic>> ref;
+  final Map<String, dynamic>? data;
+
+  _ArchiveOp.set(this.ref, this.data) : type = _ArchiveOpType.set;
+  _ArchiveOp.delete(this.ref) : type = _ArchiveOpType.delete, data = null;
 }
 
 class AddLeadRepository implements IAddLeadRepository {
@@ -192,7 +209,8 @@ class AddLeadRepository implements IAddLeadRepository {
           return lead.copyWith(followUp: followUps);
         }),
       );
-      return allLeads;
+      // return allLeads;
+     return allLeads.where((lead) => !lead.isDeleted).toList();
     } on FirebaseException catch (e) {
       debugPrint('[fetchLeads] Firebase error: ${e.code} — ${e.message}');
       rethrow;
@@ -227,6 +245,9 @@ class AddLeadRepository implements IAddLeadRepository {
           .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
           .toList();
 
+          final activeLeads = allLeads.where((lead) => !lead.isDeleted).toList();
+// then use `activeLeads` instead of `allLeads` in every case below
+
       /// ---------------- DATE FILTER HELPER ----------------
 
       bool isSameDay(DateTime? date) {
@@ -242,37 +263,37 @@ class AddLeadRepository implements IAddLeadRepository {
       switch (fromCard.toUpperCase()) {
         /// NEW LEADS
         case 'NEW':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return isSameDay(lead.createdAt);
           }).toList();
 
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return isSameDay(lead.followUpDate);
           }).toList();
 
         /// CLOSED LEADS
         case 'CLOSED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return lead.leadStage.toUpperCase() == 'CLOSED';
           }).toList();
 
         /// TOTAL CALLED
         case 'TOTAL':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return isSameDay(lead.calledDate);
           }).toList();
 
         /// MISSED / REJECTED
         case 'MISSED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return lead.leadStage.toUpperCase() == 'REJECTED';
           }).toList();
 
         /// TRANSFERRED LEADS
         case 'TRANSFERRED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             if (lead.transferLeads == null || lead.transferLeads!.isEmpty) {
               return false;
             }
@@ -299,7 +320,7 @@ class AddLeadRepository implements IAddLeadRepository {
           }).toList();
 
         default:
-          return allLeads;
+          return activeLeads;
       }
     } catch (e) {
       log("error in fetchDashboardLeads ::: $e");
@@ -349,13 +370,9 @@ class AddLeadRepository implements IAddLeadRepository {
       );
 
       /// DATE FILTER HELPER
-      // bool isSameDay(DateTime? date) {
-      //   if (date == null) return false;
-
-      //   return date.year == selectedDate.year &&
-      //       date.month == selectedDate.month &&
-      //       date.day == selectedDate.day;
-      // }
+     
+     final activeLeads = allLeads.where((lead) => !lead.isDeleted).toList();
+// then use `activeLeads` instead of `allLeads` in every case below
 
       final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
       final DateTime? fromDay = selectedDate != null
@@ -397,7 +414,7 @@ class AddLeadRepository implements IAddLeadRepository {
       switch (fromCard.toUpperCase()) {
         /// NEW LEADS
         case 'NEW':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return isInRange(lead.createdAt) &&
                 lead.leadStage.toUpperCase() == 'NEW' &&
                 // lead.followUp!.isEmpty;
@@ -406,7 +423,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
         /// FOLLOWUP LEADS
         case 'FOLLOWUP':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return isInRange(lead.followUpDate) &&
                 lead.leadStage.toUpperCase() == 'FOLLOWUP'; // &&
             // lead.leadStage.toUpperCase() != 'CLOSED'&&
@@ -415,7 +432,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
         /// CLOSED LEADS
         case 'CLOSED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             return lead.leadStage.toUpperCase() == 'CLOSED' &&
                 isInRange(lead.calledDate);
           }).toList();
@@ -423,7 +440,7 @@ class AddLeadRepository implements IAddLeadRepository {
         /// TOTAL CALLED
         case 'TOTAL':
           final List<AddLeadModel> result = [];
-          for (final lead in allLeads) {
+          for (final lead in activeLeads) {
             final matchingFollowUps =
                 lead.followUp?.where((fup) {
                   final inRange = isInRange(fup.calledDate);
@@ -462,7 +479,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
         /// MISSED / REJECTED
         case 'MISSED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             if (lead.leadStage.toUpperCase() == 'NEW') {
               if (lead.createdAt == null) return false;
               return isbeforeFromDay(lead.createdAt);
@@ -483,7 +500,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
         /// TRANSFERRED
         case 'TRANSFERRED':
-          return allLeads.where((lead) {
+          return activeLeads.where((lead) {
             if (lead.transferLeads == null || lead.transferLeads!.isEmpty) {
               return false;
             }
@@ -500,7 +517,7 @@ class AddLeadRepository implements IAddLeadRepository {
           }).toList();
 
         default:
-          return allLeads;
+          return activeLeads;
       }
     } catch (e) {
       log("error in fetchDashboardLeads ::: $e");
@@ -538,28 +555,28 @@ class AddLeadRepository implements IAddLeadRepository {
     log('[StaffRepository] Staff moved to DELETED_STAFF: ${lead.id}');
   }
 
-  @override
-  Future<String> restoreLead(AddLeadModel lead) async {
-    if (lead.clientName.trim().isEmpty) {
-      throw ArgumentError('Client name cannot be empty.');
-    }
-    if (lead.contactNumber.trim().isEmpty) {
-      throw ArgumentError('Contact number cannot be empty.');
-    }
-    final doc = await _collection.add(lead.toFirestore());
-    await _deletedCollection.doc(lead.id).delete();
-    return doc.id;
-  }
+  // @override
+  // Future<String> restoreLead(AddLeadModel lead) async {
+  //   if (lead.clientName.trim().isEmpty) {
+  //     throw ArgumentError('Client name cannot be empty.');
+  //   }
+  //   if (lead.contactNumber.trim().isEmpty) {
+  //     throw ArgumentError('Contact number cannot be empty.');
+  //   }
+  //   final doc = await _collection.add(lead.toFirestore());
+  //   await _deletedCollection.doc(lead.id).delete();
+  //   return doc.id;
+  // }
 
-  @override
-  Future<List<AddLeadModel>> fetchDeletedLeads() async {
-    final snap = await _deletedCollection
-        .orderBy('deletedAt', descending: true)
-        .get();
-    return snap.docs
-        .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
-        .toList();
-  }
+  // @override
+  // Future<List<AddLeadModel>> fetchDeletedLeads() async {
+  //   final snap = await _deletedCollection
+  //       .orderBy('deletedAt', descending: true)
+  //       .get();
+  //   return snap.docs
+  //       .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+  //       .toList();
+  // }
 
   @override
   Future<void> permanentlyDeleteLead(String id) async {
@@ -846,158 +863,7 @@ class AddLeadRepository implements IAddLeadRepository {
     return day1.isBefore(day2);
   }
 
-  //   @override
-  //   Future<DashboardCountModel> fetchLeadCounts({
-  //     required String staffId,
-  //     required DateTime selectedDate,
-  //     required String role,
-  //     bool forceStaffFilter = false, // ← new flag
-  //   }) async {
-  //     final startOfDay = DateTime(
-  //       selectedDate.year,
-  //       selectedDate.month,
-  //       selectedDate.day,
-  //     );
-  //     final endOfDay = DateTime(
-  //       selectedDate.year,
-  //       selectedDate.month,
-  //       selectedDate.day,
-  //       23,
-  //       59,
-  //       59,
-  //     );
 
-  //     // If forceStaffFilter=true (staff profile screen), ALWAYS filter by staffId
-  //     // regardless of role. Otherwise use the original admin/staff logic.
-  //     Query<Map<String, dynamic>> query = _collection;
-  //     if (forceStaffFilter && staffId.isNotEmpty) {
-  //       query = query.where('assignedStaffId', isEqualTo: staffId);
-  //       log(
-  //         '[fetchLeadCounts] Staff profile mode: filtering by staffId=$staffId',
-  //       );
-  //     } else if (role.toLowerCase() != 'admin') {
-  //       query = query.where('assignedStaffId', isEqualTo: staffId);
-  //       log('[fetchLeadCounts] Staff mode: filtering by staffId=$staffId');
-  //     } else {
-  //       log('[fetchLeadCounts] Admin dashboard mode: fetching all leads');
-  //     }
-
-  //     final snap = await query.get();
-  //     log('[fetchLeadCounts] Total docs fetched: ${snap.docs.length}');
-
-  //     int newLeadCount = 0;
-  //     int followUpCount = 0;
-  //     int closedLeadCount = 0;
-  //     int totalCalledCount = 0;
-  //     int missedLeadCount = 0;
-  //     int transferredCount = 0;
-
-  //     for (final doc in snap.docs) {
-  //       final data = doc.data();
-  //       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-  //       final followUps =
-  //           (await doc.reference.collection('FOLLOW_UPS').get()).docs;
-
-  //       // NEW
-  //       final createdAt = data['createdAt'];
-  //       if (createdAt != null) {
-  //         final createdDate = (createdAt as Timestamp).toDate();
-  //         // if (_isSameDay(createdDate, selectedDate) &&
-  //         //     leadStage == 'NEW' &&
-  //         //     followUps.isEmpty) {
-  //         //   newLeadCount++;
-  //         // }
-  // //         if (leadStage == 'NEW' && createdDate != null && _isSameDay(createdDate, selectedDate)) {
-  // //   // only fetch follow-ups when the lead is actually a candidate
-  // //   final followUps = (await doc.reference.collection('FOLLOW_UPS').get()).docs;
-  // //   if (followUps.isEmpty) newLeadCount++;
-  // // }
-  // final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
-  // if (leadStage == 'NEW' && _isSameDay(createdDate, selectedDate)) {
-  //   if (!hasFollowUp) newLeadCount++;
-  // }
-  //       }
-
-  //       // FOLLOWUP
-  //       final nextFollowUpDate = data['nextFollowUpDate'];
-  //       if (nextFollowUpDate != null) {
-  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
-  //         if (_isSameDay(followDate, selectedDate) &&
-  //             leadStage != 'CLOSED' &&
-  //             leadStage != 'REJECTED' &&
-  //             leadStage != 'NEW') {
-  //           followUpCount++;
-  //         }
-  //       }
-
-  //       // final calledDate = data['lastCalledDate'] ;
-  //       // CLOSED
-  //       final lastCalledDate = data['lastCalledDate'];
-  //       if (lastCalledDate != null) {
-  //         final calledDate = (lastCalledDate as Timestamp).toDate();
-  //         if (leadStage == 'CLOSED' && _isSameDay(calledDate, selectedDate)) {
-  //           closedLeadCount++;
-  //         }
-  //       } else {
-  //         if (createdAt != null) {
-  //           final createdDate = (createdAt as Timestamp).toDate();
-  //           if (leadStage == 'CLOSED' && _isSameDay(createdDate, selectedDate)) {
-  //             closedLeadCount++;
-  //           }
-  //         }
-  //       }
-  //       //&& _isSameDay(calledDate, selectedDate)) closedLeadCount++;
-
-  //       // MISSED / REJECTED
-  //       if (nextFollowUpDate != null) {
-  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
-  //         if ((leadStage == 'FOLLOWUP' || leadStage == 'NEW') &&
-  //             _isBeforeDay(followDate, selectedDate)) {
-  //           missedLeadCount++;
-  //         }
-  //       }
-
-  //       // TOTAL CALLED
-  //       // final lastCalledDate = data['lastCalledDate'];
-  //       if (lastCalledDate != null) {
-  //         final calledDate = (lastCalledDate as Timestamp).toDate();
-  //         if (_isSameDay(calledDate, selectedDate)) totalCalledCount++;
-  //       }
-
-  //       // TRANSFERRED
-  //       final transferredList = data['transferLeads'];
-  //       if (transferredList != null && transferredList is List) {
-  //         bool alreadyCounted = false;
-  //         for (final item in transferredList) {
-  //           if (item is Map<String, dynamic>) {
-  //             final transferredTime = item['transferTime'];
-  //             if (transferredTime != null) {
-  //               final transferDate = (transferredTime as Timestamp).toDate();
-  //               if (_isSameDay(transferDate, selectedDate) && !alreadyCounted) {
-  //                 transferredCount++;
-  //                 alreadyCounted = true;
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     log(
-  //       '[fetchLeadCounts] Results — new:$newLeadCount followUp:$followUpCount '
-  //       'closed:$closedLeadCount total:$totalCalledCount missed:$missedLeadCount '
-  //       'transferred:$transferredCount',
-  //     );
-
-  //     return DashboardCountModel(
-  //       newLeadCount: newLeadCount,
-  //       followUpCount: followUpCount,
-  //       closedLeadCount: closedLeadCount,
-  //       totalCalledCount: totalCalledCount,
-  //       missedLeadCount: missedLeadCount,
-  //       transferredCount: transferredCount,
-  //     );
-  //   }
   @override
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
@@ -1056,6 +922,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snap.docs) {
       final data = doc.data();
+      if (data['isDeleted'] == true) continue;
       final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
 
       // ── NEW ────────────────────────────────────────────────────────────
@@ -1235,6 +1102,8 @@ class AddLeadRepository implements IAddLeadRepository {
         }),
       );
 
+      final activeLeads = allLeads.where((lead) => !lead.isDeleted).toList();
+
       final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
       final DateTime? fromDay = selectedDate != null
           ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
@@ -1259,7 +1128,7 @@ class AddLeadRepository implements IAddLeadRepository {
       final List<AddLeadModel> result = [];
 
       int totalCount = 0;
-      for (final lead in allLeads) {
+      for (final lead in activeLeads) {
         final matchingFollowUps =
             lead.followUp?.where((fup) {
               final inRange = isInRange(fup.calledDate);
@@ -1558,6 +1427,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snap.docs) {
       final data = doc.data();
+      if(data['isDeleted']==true) continue;
       final stage = (data['leadStage'] ?? '').toString().toUpperCase();
 
       switch (stage) {
@@ -1623,6 +1493,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
+      if(data['isDeleted']==true) continue;
       final category = (data['leadCategory'] as String? ?? 'Uncategorized')
           .trim()
           .toUpperCase();
@@ -1729,6 +1600,12 @@ class AddLeadRepository implements IAddLeadRepository {
       'FOLLOW_UPS',
     );
 
+
+final deletedIdsSnap = await _collection.where('isDeleted', isEqualTo: true).get();
+final deletedIds = deletedIdsSnap.docs.map((d) => d.id).toSet();
+
+
+
     if (fromTs != null && toTs != null) {
       query = query
           .where('calledDate', isGreaterThanOrEqualTo: fromTs)
@@ -1744,6 +1621,7 @@ class AddLeadRepository implements IAddLeadRepository {
 
     for (final doc in snap.docs) {
       final data = doc.data();
+     if (deletedIds.contains(data['leadId'])) continue;
       if (role.toLowerCase() != 'admin') {
         if (data['createdById'] != staffId) {
           continue;
@@ -1910,7 +1788,8 @@ class AddLeadRepository implements IAddLeadRepository {
         .where('contactNumber', isEqualTo: contactNumber.trim())
         .limit(1)
         .get();
-    return snap.docs.isNotEmpty;
+    // return snap.docs.isNotEmpty;
+    return snap.docs.any((d) => (d.data()['isDeleted'] ?? false) != true);
   }
 
   @override
@@ -1920,7 +1799,8 @@ class AddLeadRepository implements IAddLeadRepository {
         .where('whatsappNumber', isEqualTo: whatsappNumber.trim())
         .limit(1)
         .get();
-    return snap.docs.isNotEmpty;
+    // return snap.docs.isNotEmpty;
+     return snap.docs.any((d) => (d.data()['isDeleted'] ?? false) != true);
   }
 
   @override
@@ -1932,7 +1812,9 @@ class AddLeadRepository implements IAddLeadRepository {
     final snap = await _collection
         .where('contactNumber', isEqualTo: contactNumber.trim())
         .get();
-    return snap.docs.any((doc) => doc.id != currentLeadId);
+    // return snap.docs.any((doc) => doc.id != currentLeadId);
+     return snap.docs.any((doc) =>
+      doc.id != currentLeadId && (doc.data()['isDeleted'] ?? false) != true);
   }
 
   @override
@@ -1944,7 +1826,9 @@ class AddLeadRepository implements IAddLeadRepository {
     final snap = await _collection
         .where('whatsappNumber', isEqualTo: whatsappNumber.trim())
         .get();
-    return snap.docs.any((doc) => doc.id != currentLeadId);
+    // return snap.docs.any((doc) => doc.id != currentLeadId);
+     return snap.docs.any((doc) =>
+      doc.id != currentLeadId && (doc.data()['isDeleted'] ?? false) != true);
   }
 
   @override
@@ -1963,8 +1847,10 @@ class AddLeadRepository implements IAddLeadRepository {
       final List<AddLeadModel> leads = snap.docs
           .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
           .toList();
+      
+      final activeLeads = leads.where((lead) => !lead.isDeleted).toList();
 
-      if (leads.isEmpty) {
+      if (activeLeads.isEmpty) {
         return [];
       }
 
@@ -1978,11 +1864,11 @@ class AddLeadRepository implements IAddLeadRepository {
         }
         return latest;
       }
-
-      leads.sort((a, b) => getLatestTime(b).compareTo(getLatestTime(a)));
+      // sort leads by latest activity time
+      activeLeads.sort((a, b) => getLatestTime(b).compareTo(getLatestTime(a)));
 
       final List<ActivityModel> allActivities = [];
-      final topLeads = leads.take(10).toList();
+      final topLeads = activeLeads.take(10).toList();
 
       final activityFutures = topLeads.map((lead) async {
         try {
@@ -2028,41 +1914,115 @@ class AddLeadRepository implements IAddLeadRepository {
       return [];
     }
   }
+  //  ---------------------------------------------------------------------
+
+  Future<void> _commitBatchOps(List<_ArchiveOp> ops, {int chunkSize = 450}) async {
+  for (var i = 0; i < ops.length; i += chunkSize) {
+    final end = (i + chunkSize > ops.length) ? ops.length : i + chunkSize;
+    final batch = _firestore.batch();
+    for (var j = i; j < end; j++) {
+      final op = ops[j];
+      if (op.type == _ArchiveOpType.set) {
+        batch.set(op.ref, op.data!);
+      } else {
+        batch.delete(op.ref);
+      }
+    }
+    await batch.commit();
+  }
 }
 
-Future<void> migrateHasFollowUp() async {
-  final db = FirebaseFirestore.instance;
-  final leadsSnap = await db.collection('LEADS').get();
+@override
+Future<void> softDeleteLead(String leadId) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+  await _collection.doc(leadId).update({
+    'isDeleted': true,
+    'deletedAt': FieldValue.serverTimestamp(),
+  });
+  log('[AddLeadRepository] Lead soft-deleted: $leadId');
+}
 
-  int updated = 0;
-  int skipped = 0;
+@override
+Future<void> restoreLead(String leadId) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+  await _collection.doc(leadId).update({
+    'isDeleted': false,
+    'deletedAt': null,
+  });
+  log('[AddLeadRepository] Lead restored: $leadId');
+}
 
-  for (final leadDoc in leadsSnap.docs) {
-    final data = leadDoc.data();
+@override
+Future<void> archiveDeletedLead(String leadId) async {
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
-    // Skip if already set
-    if (data.containsKey('hasFollowUp')) {
-      skipped++;
-      continue;
+  final leadRef = _collection.doc(leadId);
+  final archiveRef = _deletedCollection.doc(leadId); // same doc ID, preserved
+
+  final leadSnap = await leadRef.get();
+  if (!leadSnap.exists) {
+    throw Exception('Lead not found. It may already be archived or removed.');
+  }
+  final leadData = Map<String, dynamic>.from(leadSnap.data()!);
+
+  const subcollections = ['FOLLOW_UPS', 'ACTIVITIES', 'TRANSFER_LEADS'];
+
+  final writeOps = <_ArchiveOp>[_ArchiveOp.set(archiveRef, leadData)];
+  final deleteOps = <_ArchiveOp>[];
+
+  for (final sub in subcollections) {
+    final subSnap = await leadRef.collection(sub).get();
+    for (final doc in subSnap.docs) {
+      writeOps.add(
+        _ArchiveOp.set(archiveRef.collection(sub).doc(doc.id), doc.data()),
+      );
+      deleteOps.add(_ArchiveOp.delete(leadRef.collection(sub).doc(doc.id)));
     }
-
-    // Check if this lead has any follow-ups
-    final followUpsSnap = await db
-        .collection('LEADS')
-        .doc(leadDoc.id)
-        .collection('FOLLOW_UPS')
-        .limit(1)
-        .get();
-
-    final hasFollowUp = followUpsSnap.docs.isNotEmpty;
-
-    await db.collection('LEADS').doc(leadDoc.id).update({
-      'hasFollowUp': hasFollowUp,
-    });
-
-    updated++;
-    print('Updated ${leadDoc.id} → hasFollowUp: $hasFollowUp');
   }
 
-  print('Migration complete. Updated: $updated, Skipped: $skipped');
+  // Copy everything FIRST. Only if every archive write succeeds do we
+  // touch the original — a failure here leaves LEADS completely intact.
+  await _commitBatchOps(writeOps);
+
+  deleteOps.add(_ArchiveOp.delete(leadRef)); // delete parent doc last
+  await _commitBatchOps(deleteOps);
+
+  log('[AddLeadRepository] Lead archived + removed from LEADS: $leadId');
+}
+
+@override
+Future<void> permanentlyDeleteArchivedLead(String leadId) async {
+  // Purges an already-archived DELETED_LEADS/{id} doc and its subcollections.
+  // Not currently wired to any button — available if you later want a
+  // separate "empty the archive" admin action.
+  if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
+
+  final archiveRef = _deletedCollection.doc(leadId);
+  const subcollections = ['FOLLOW_UPS', 'ACTIVITIES', 'TRANSFER_LEADS'];
+
+  final deleteOps = <_ArchiveOp>[];
+  for (final sub in subcollections) {
+    final subSnap = await archiveRef.collection(sub).get();
+    for (final doc in subSnap.docs) {
+      deleteOps.add(_ArchiveOp.delete(archiveRef.collection(sub).doc(doc.id)));
+    }
+  }
+  deleteOps.add(_ArchiveOp.delete(archiveRef));
+
+  await _commitBatchOps(deleteOps);
+  log('[AddLeadRepository] Archived lead purged permanently: $leadId');
+}
+
+
+@override
+Future<List<AddLeadModel>> fetchDeletedLeads() async {
+  final snap = await _collection
+      .where('isDeleted', isEqualTo: true)
+      .orderBy('deletedAt', descending: true)
+      .get();
+  return snap.docs
+      .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
+      .toList();
+}
+ 
 }

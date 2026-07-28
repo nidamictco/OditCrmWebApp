@@ -17,7 +17,7 @@ class StaffListLoaded extends StaffState {
   final List<StaffModel> staffList;
   StaffListLoaded(this.staffList);
 }
-
+ 
 // ─── Single staff loaded (for edit pre-fill) ─────────────────────────────────
 class StaffLoaded extends StaffState {
   final StaffModel staff;

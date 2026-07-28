@@ -953,7 +953,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               Icon(Icons.error_outline, color: Colors.red, size: 18.sp),
               SizedBox(height: 1.h),
               Text(
-                'Failed to load deleted staff.',
+                'Failed to load deleted leads.',
                 style: AppTextStyle.medium(color: Colors.red),
               ),
               SizedBox(height: 1.5.h),
@@ -1440,7 +1440,8 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 Navigator.pop(dialogContext);
                 for (var lead in selectedLeads) {
                   if (lead.id != null) {
-                    addLeadCubit.permanentlyDeleteLead(lead.id!);
+                    // addLeadCubit.permanentlyDeleteLead(lead.id!);
+                    addLeadCubit.deleteLead(lead.id!, lead);
                   }
                 }
                 setState(() => _selectedIndices.clear());
@@ -1520,7 +1521,8 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
+              // addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
+              addLeadCubit.deleteLead(lead.id!, lead);
             },
             child: Text(
               'Delete',

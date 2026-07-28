@@ -38,6 +38,7 @@ class AddLeadModel {
   final String leadSourceId;
   final String leadStageId;
   final String leadTagId;
+  final bool isDeleted;
 
   const AddLeadModel({
     this.id,
@@ -78,6 +79,7 @@ class AddLeadModel {
     this.leadSourceId = '',
     this.leadStageId = '',
     this.leadTagId = '',
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toFirestore() {
@@ -125,6 +127,7 @@ class AddLeadModel {
       'leadSourceId': leadSourceId,
       'leadStageId': leadStageId,
       'leadTagId': leadTagId,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -177,6 +180,7 @@ class AddLeadModel {
       leadSourceId: data['leadSourceId'] ?? '',
       leadStageId: data['leadStageId'] ?? '',
       leadTagId: data['leadTagId'] ?? '',
+      isDeleted: data['isDeleted'] ?? false,
     );
   }
 
@@ -218,6 +222,7 @@ class AddLeadModel {
     String? leadSourceId,
     String? leadStageId,
     String? leadTagId,
+    bool? isDeleted,
   }) {
     return AddLeadModel(
       id: id ?? this.id,
@@ -257,6 +262,7 @@ class AddLeadModel {
       leadSourceId: leadSourceId ?? this.leadSourceId,
       leadStageId: leadStageId ?? this.leadStageId,
       leadTagId: leadTagId ?? this.leadTagId,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
