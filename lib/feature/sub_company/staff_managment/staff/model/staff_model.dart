@@ -175,6 +175,7 @@ class StaffModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'password': password,
       'phone': phone,

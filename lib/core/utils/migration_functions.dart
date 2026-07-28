@@ -539,3 +539,4 @@ Future<void> migrateIsDeletedField() async {
     'Updated: $updated, Skipped (already had field): $skipped',
   );
 }
+

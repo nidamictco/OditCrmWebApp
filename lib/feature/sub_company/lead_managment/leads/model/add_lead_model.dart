@@ -84,6 +84,7 @@ class AddLeadModel {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'id':id,
       'clientName': clientName.trim(),
       'contactNumber': contactNumber.trim(),
       'contactDialCode': contactDialCode,
@@ -364,6 +365,7 @@ class FollowUpModel {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'id':id,
       'leadId': leadId,
       'leadName': leadName,
       'leadWhatsappNo': leadWhatsappNo,
@@ -508,6 +510,7 @@ class TransferDetails {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'id':id,
       'leadId': leadId,
       'leadName': leadName,
       'contactNumber': contactNumber,

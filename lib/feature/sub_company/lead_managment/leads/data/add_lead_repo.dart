@@ -599,29 +599,6 @@ class AddLeadRepository implements IAddLeadRepository {
   }
 
   @override
-  Future<void> addFollowUpOld(String leadId, FollowUpModel followUp) async {
-    if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
-
-    final String followUpId = _generateDateId('FUP');
-    await _collection
-        .doc(leadId)
-        .collection('FOLLOW_UPS')
-        .doc(followUpId)
-        .set(followUp.toFirestore());
-
-    await _collection.doc(leadId).update({
-      'leadStage': followUp.leadStage,
-      'priority': followUp.priority,
-      'leadCategory': followUp.leadCategory,
-      'nextFollowUpDate': followUp.nextFollowUpDate,
-      'lastCalledDate': followUp.calledDate,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    log('[AddLeadRepository] FollowUp added for lead: $leadId');
-  }
-
-  @override
   Future<void> addFollowUp(
     String leadId,
     FollowUpModel followUp, {
@@ -640,11 +617,12 @@ class AddLeadRepository implements IAddLeadRepository {
 
     // 1. Write the follow-up document
     final String followUpId = followUp.id ?? _generateDateId('FUP');
+    final syncedFollowUp = followUp.copyWith(id: followUpId);
     final fupRef = _collection
         .doc(leadId)
         .collection('FOLLOW_UPS')
         .doc(followUpId);
-    batch.set(fupRef, followUp.toFirestore(), SetOptions(merge: true));
+    batch.set(fupRef, syncedFollowUp.toFirestore(), SetOptions(merge: true));
 
     // 2. Update lead document
     final leadRef = _collection.doc(leadId);
@@ -692,9 +670,26 @@ class AddLeadRepository implements IAddLeadRepository {
     final now = DateTime.now();
 
     // Helper to add an activity doc in the batch
+    // void logActivity(ActivityModel activity) {
+    //   batch.set(activityRef.doc(), activity.toFirestore());
+    // }
+
     void logActivity(ActivityModel activity) {
-      batch.set(activityRef.doc(), activity.toFirestore());
-    }
+  final ref = activityRef.doc(); // ← was activityRef.doc() inline, discard-and-lose-id
+  batch.set(ref, ActivityModel(
+    id: ref.id, // ← sync
+    type: activity.type,
+    changedBy: activity.changedBy,
+    changedById: activity.changedById,
+    changedAt: activity.changedAt,
+    previousValue: activity.previousValue,
+    newValue: activity.newValue,
+    leadId: activity.leadId,
+    leadName: activity.leadName,
+    leadPhone: activity.leadPhone,
+    description: activity.description,
+  ).toFirestore());
+}
 
     // 3. Always log the follow-up added activity
     logActivity(
@@ -793,12 +788,14 @@ class AddLeadRepository implements IAddLeadRepository {
     final batch = FirebaseFirestore.instance.batch();
     final String transferId = _generateDateId('TRF');
 
+     final syncedTransfer = transfer.copyWith(id: transferId);
+
     // 1. Add to TRANSFER_LEADS subcollection
     final transferRef = _collection
         .doc(leadId)
         .collection('TRANSFER_LEADS')
         .doc(transferId);
-    batch.set(transferRef, transfer.toFirestore());
+    batch.set(transferRef, syncedTransfer.toFirestore());
 
     // 2. Update the lead document
     final leadRef = _collection.doc(leadId);
@@ -815,7 +812,7 @@ class AddLeadRepository implements IAddLeadRepository {
     batch.set(
       activityRef,
       ActivityModel(
-        id: '',
+        id:activityRef.id,
         type: ActivityType.staffAssigned,
         changedBy: changedByName,
         changedById: changedById,
@@ -1196,14 +1193,34 @@ class AddLeadRepository implements IAddLeadRepository {
     return totalCalledCount;
   }
 
-  @override
-  Future<void> _logActivity(String leadId, ActivityModel activity) async {
-    await _collection
-        .doc(leadId)
-        .collection('ACTIVITIES')
-        .doc()
-        .set(activity.toFirestore());
-  }
+  // @override
+  // Future<void> _logActivity(String leadId, ActivityModel activity) async {
+  //   await _collection
+  //       .doc(leadId)
+  //       .collection('ACTIVITIES')
+  //       .doc()
+  //       .set(activity.toFirestore());
+  // }
+
+@override
+Future<void> _logActivity(String leadId, ActivityModel activity) async {
+  final ref = _collection.doc(leadId).collection('ACTIVITIES').doc();
+  await ref.set(
+    ActivityModel(
+      id: ref.id, // ← was activity.id (always '')
+      type: activity.type,
+      changedBy: activity.changedBy,
+      changedById: activity.changedById,
+      changedAt: activity.changedAt,
+      previousValue: activity.previousValue,
+      newValue: activity.newValue,
+      description: activity.description,
+      leadId: activity.leadId,
+      leadName: activity.leadName,
+      leadPhone: activity.leadPhone,
+    ).toFirestore(),
+  );
+}
 
   Future<void> logLeadCreated({
     required String leadId,
@@ -1252,10 +1269,11 @@ class AddLeadRepository implements IAddLeadRepository {
       String desc,
     ) {
       if (prev == next || next.isEmpty) return;
+      final ref = activityRef.doc();
       batch.set(
-        activityRef.doc(),
+       ref,
         ActivityModel(
-          id: '',
+          id: ref.id,
           type: type,
           changedBy: changedByName,
           changedById: changedById,
@@ -1762,9 +1780,10 @@ final deletedIds = deletedIdsSnap.docs.map((d) => d.id).toSet();
     }
 
     // Log activity
+    final activityDoc = activityRef.doc();
     await activityRef.add(
       ActivityModel(
-        id: '',
+        id: activityDoc.id,
         type: ActivityType.followupDeleted,
         changedBy: changedByName,
         changedById: changedById,
@@ -2023,6 +2042,70 @@ Future<List<AddLeadModel>> fetchDeletedLeads() async {
   return snap.docs
       .map((d) => AddLeadModel.fromFirestore(d.data(), d.id))
       .toList();
+}
+
+// ─── One-time migration: backfill missing `id` field ─────────────────────
+
+/// Adds the `id` field to every LEADS / DELETED_LEADS document, and to
+/// every FOLLOW_UPS / TRANSFER_LEADS / ACTIVITIES subcollection document,
+/// for records created before `toFirestore()` started writing `id`.
+///
+/// Idempotent — docs whose `id` already matches `doc.id` are skipped,
+/// so it's safe to re-run.
+Future<void> migrateMissingLeadIds() async {
+  await _backfillCollectionIds(_collection, label: 'LEADS');
+  await _backfillCollectionIds(_deletedCollection, label: 'DELETED_LEADS');
+
+  await _backfillCollectionGroupIds('FOLLOW_UPS');
+  await _backfillCollectionGroupIds('TRANSFER_LEADS');
+  await _backfillCollectionGroupIds('ACTIVITIES');
+}
+
+Future<void> _backfillCollectionIds(
+  CollectionReference<Map<String, dynamic>> collection, {
+  required String label,
+}) async {
+  final snap = await collection.get();
+  await _backfillDocs(snap.docs, label: label);
+}
+
+Future<void> _backfillCollectionGroupIds(String collectionGroupName) async {
+  final snap = await _firestore.collectionGroup(collectionGroupName).get();
+  await _backfillDocs(snap.docs, label: collectionGroupName);
+}
+
+Future<void> _backfillDocs(
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> docs, {
+  required String label,
+}) async {
+  final toFix = docs.where((doc) {
+    final existingId = doc.data()['id'] as String?;
+    return existingId == null || existingId != doc.id;
+  }).toList();
+
+  if (toFix.isEmpty) {
+    log('[AddLeadRepository] migrateMissingLeadIds: $label already up to date '
+        '(${docs.length} docs checked)');
+    return;
+  }
+
+  const chunkSize = 450;
+  for (var i = 0; i < toFix.length; i += chunkSize) {
+    final end = (i + chunkSize > toFix.length) ? toFix.length : i + chunkSize;
+    final chunk = toFix.sublist(i, end);
+
+    final batch = _firestore.batch();
+    for (final doc in chunk) {
+      batch.update(doc.reference, {'id': doc.id});
+    }
+    await batch.commit();
+
+    log('[AddLeadRepository] migrateMissingLeadIds: $label batch '
+        '${(i ~/ chunkSize) + 1} — ${chunk.length} docs updated');
+  }
+
+  log('[AddLeadRepository] migrateMissingLeadIds: $label done — '
+      '${toFix.length}/${docs.length} docs backfilled');
 }
  
 }
