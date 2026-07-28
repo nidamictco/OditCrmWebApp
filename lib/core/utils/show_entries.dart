@@ -92,23 +92,12 @@ class _ShowEntriesState extends State<ShowEntries> {
             // ── Show N entries ────────────────────────────────────────
             Row(
               children: [
-                Text(
-                  "Show ",
-                  style: AppTextStyle.medium(
-                    size: 11.sp,
-                    weight: FontWeight.w400,
-                  ),
-                ),
+                Text("Show ", style: AppTextStyle.medium(size: 12)),
                 _smallDropdown(),
-                Text(
-                  " entries",
-                  style: AppTextStyle.medium(
-                    size: 11.sp,
-                    weight: FontWeight.w400,
-                  ),
-                ),
+
+                Text(" entries", style: AppTextStyle.medium(size: 12)),
                 if (widget.middleWidget != null) ...[
-                  SizedBox(width: 2.w),
+                  SizedBox(width: 25),
                   widget.middleWidget!,
                 ],
               ],
@@ -117,13 +106,7 @@ class _ShowEntriesState extends State<ShowEntries> {
             // ── Search ────────────────────────────────────────────────
             Row(
               children: [
-                Text(
-                  "Search:",
-                  style: AppTextStyle.medium(
-                    size: 11.sp,
-                    weight: FontWeight.w400,
-                  ),
-                ),
+                Text("Search:", style: AppTextStyle.medium(size: 12)),
                 SizedBox(width: 1.w),
                 // Container(
                 //   width: 12.w,

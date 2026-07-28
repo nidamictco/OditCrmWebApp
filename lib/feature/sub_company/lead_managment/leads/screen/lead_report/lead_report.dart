@@ -4,6 +4,7 @@ import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/migration_functions.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
+import 'package:Odit_CRM/core/utils/table_checkbox.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/sub_category_state.dart';
@@ -1128,9 +1129,7 @@ class _LeadsReportState extends State<LeadsReport> {
                       },
                       child: Container(
                         height: 4.h,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 0.8.w,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 0.8.w),
                         decoration: BoxDecoration(
                           color: AppThemeColors.appPrimaryColor,
                           borderRadius: BorderRadius.circular(4),
@@ -1806,31 +1805,6 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
     }
   }
 
-  Widget _buildRoundedCheckbox({
-    required bool value,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 18,
-        height: 18,
-        decoration: BoxDecoration(
-          color: value ? const Color(0xff10B981) : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: value ? const Color(0xff10B981) : const Color(0xffCBD5E1),
-            width: 1.5,
-          ),
-        ),
-        child: value
-            ? const Icon(Icons.check, size: 12, color: Colors.white)
-            : null,
-      ),
-    );
-  }
-
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -2035,7 +2009,7 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              _buildRoundedCheckbox(
+                              buildRoundedCheckbox(
                                 value: isAllSelected,
                                 onTap: onToggleSelectAll,
                               ),
@@ -2216,7 +2190,7 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                                     onTap: () => onDelete(lead),
                                   ),
                                   const SizedBox(width: 12),
-                                  _buildRoundedCheckbox(
+                                  buildRoundedCheckbox(
                                     value: isChecked,
                                     onTap: () => onCheckChanged(absoluteIndex),
                                   ),

@@ -457,13 +457,14 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
             onTap: _toggleDropdown,
             child: Container(
               // constraints: BoxConstraints(minHeight: 5.5.h),
-              height: 5.5.h,
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.4.h),
+              height: 35,
+              // padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.4.h),
+              padding: EdgeInsets.only(left: 1.w, top: 0.4.h, bottom: 0.4.h),
               decoration: BoxDecoration(
-                color: widget.enabled
-                    ? AppColors.greyCard
-                    : AppColors.background,
-                borderRadius: BorderRadius.circular(3),
+                // color: widget.enabled
+                //     ? AppColors.greyCard
+                //     : AppColors.background,
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: _errorText != null
                       ? AppColors.red

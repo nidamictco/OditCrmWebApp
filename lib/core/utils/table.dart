@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_text_style.dart';
 import '../router/browser_aware_link.dart';
 import 'package:sizer/sizer.dart';
+import 'table_checkbox.dart';
 
 class TableColumn {
   final String title;
@@ -45,6 +46,7 @@ class CustomTable extends StatefulWidget {
 
 class _CustomTableState extends State<CustomTable> {
   late List<bool> _checkedStates;
+  final ScrollController _hScrollController = ScrollController();
 
   @override
   void initState() {
@@ -52,6 +54,12 @@ class _CustomTableState extends State<CustomTable> {
     _checkedStates = widget.initialCheckedStates != null
         ? List<bool>.from(widget.initialCheckedStates!)
         : List<bool>.filled(widget.rows.length, false);
+  }
+
+  @override
+  void dispose() {
+    _hScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -86,11 +94,22 @@ class _CustomTableState extends State<CustomTable> {
     }
   }
 
+  /// Find the index of the "Name" column (case-insensitive).
+  /// Returns -1 if not found.
+  int get _nameColumnIndex {
+    for (int i = 0; i < widget.columns.length; i++) {
+      if (widget.columns[i].title.toLowerCase() == 'name') return i;
+    }
+    return -1;
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget tableContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildHeader(),
+        const Divider(height: 1, color: Color(0xFFE2E8F0)),
         if (widget.rows.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -107,111 +126,108 @@ class _CustomTableState extends State<CustomTable> {
     );
 
     if (widget.minWidth != null) {
-      tableContent = SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(width: widget.minWidth, child: tableContent),
+      tableContent = Scrollbar(
+        controller: _hScrollController,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          controller: _hScrollController,
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(width: widget.minWidth, child: tableContent),
+        ),
       );
     }
 
     return Container(
-      // width: 100.w,
-      // margin: EdgeInsets.only(
-      //   right: 2.w,
-      //   left: 2.w,
-      //   bottom: 2.w,
-      //   top: widget.height ?? 2.w,
-      // ),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
       ),
-      child: tableContent,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: tableContent,
+      ),
     );
   }
 
   /// 🔹 HEADER
   Widget _buildHeader() {
+    final bool hasPriority = widget.priorityColors != null;
+    final int nameColIdx = _nameColumnIndex;
+
     return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: const Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
+      padding: EdgeInsets.symmetric(vertical: 1.8.h, horizontal: 1.5.w),
       child: Row(
         children: [
-          SizedBox(width: 0.8.w),
-          // Checkbox header placeholder (keeps alignment)
-          if (widget.showCheckboxes)
-            SizedBox(
-              width: 3.5.w,
-              child: Container(
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.symmetric(vertical: 1.6.h),
-                decoration: const BoxDecoration(
-                  border: Border(right: BorderSide(color: Color(0xFFE2E8F0))),
-                ),
-                child: Checkbox(
-                  value: _isAllSelected, // 🔹 tri-state: true / false / null
-                  tristate: true,
-                  activeColor: const Color(0xFF10B981),
-                  onChanged: (_) => _toggleSelectAll(),
-                ),
-              ),
-            ),
-
           // Regular column headers
           ...List.generate(widget.columns.length, (index) {
             final col = widget.columns[index];
-            final cellContent = Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 1.6.h, horizontal: 8),
-              decoration: const BoxDecoration(),
-              child: col.title.toLowerCase() == 'select all'
-                  ? Row(
-                      children: [
-                        Text(
-                          col.title,
-                          style: AppTextStyle.medium(
-                            weight: FontWeight.w600,
-                            color: const Color(0xFF475569),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 3.5.w,
-                          // child: Container(
-                          //   alignment: Alignment.topLeft,
-                          //   padding: EdgeInsets.symmetric(vertical: 1.6.h),
-                          //   decoration: const BoxDecoration(
-                          //     border: Border(
-                          //       right: BorderSide(color: Color(0xFFE2E8F0)),
-                          //     ),
-                          //   ),
-                          child: Checkbox(
-                            value:
-                                _isAllSelected, // 🔹 tri-state: true / false / null
-                            tristate: true,
-                            activeColor: const Color(0xFF10B981),
-                            onChanged: (_) => _toggleSelectAll(),
-                          ),
-                          // ),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      col.title,
-                      style: AppTextStyle.medium(
-                        weight: FontWeight.w600,
-                        color: const Color(0xFF475569),
-                      ),
-                    ),
-            );
+            final bool isSelectAll = col.title.toLowerCase() == 'select all';
+            final bool isNameCol = index == nameColIdx;
 
-            if (col.width != null) {
-              return SizedBox(width: col.width, child: cellContent);
+            Widget cellChild;
+
+            if (isSelectAll) {
+              // "Select All" header — right-aligned with rounded checkbox
+              cellChild = Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    col.title,
+                    style: AppTextStyle.medium(
+                      weight: FontWeight.w600,
+                      color: const Color(0xFF475569),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  buildRoundedCheckbox(
+                    value: _isAllSelected == true,
+                    onTap: _toggleSelectAll,
+                  ),
+                ],
+              );
+            } else if (isNameCol && hasPriority) {
+              // "Name" header with priority dot icon hint
+              cellChild = Row(
+                children: [
+                  const Icon(
+                    Icons.radio_button_unchecked,
+                    size: 12,
+                    color: Color(0xFF94A3B8),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    col.title,
+                    style: AppTextStyle.medium(
+                      weight: FontWeight.w600,
+                      color: const Color(0xFF475569),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              // Normal header
+              cellChild = Text(
+                col.title,
+                style: AppTextStyle.medium(
+                  weight: FontWeight.w600,
+                  color: const Color(0xFF475569),
+                ),
+              );
             }
 
-            return Expanded(flex: col.flex, child: cellContent);
+            if (col.width != null) {
+              return SizedBox(width: col.width, child: cellChild);
+            }
+
+            return Expanded(flex: col.flex, child: cellChild);
           }),
         ],
       ),
@@ -220,61 +236,80 @@ class _CustomTableState extends State<CustomTable> {
 
   /// ROWS
   List<Widget> _buildRows() {
+    final int nameColIdx = _nameColumnIndex;
+
     return List.generate(widget.rows.length, (rowIndex) {
       final dotColor =
           (widget.priorityColors != null &&
               rowIndex < widget.priorityColors!.length)
           ? widget.priorityColors![rowIndex]
           : Colors.transparent;
+      final bool hasDot = dotColor != Colors.transparent;
+
       final childWidget = Container(
+        padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 1.5.w),
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
         ),
         child: Row(
           children: [
-            SizedBox(width: 15),
-
-            // ── Priority dot ───────────────────────────────────────────────
-            if (dotColor != Colors.transparent)
-              Padding(
-                padding: EdgeInsets.only(right: 0.1.w),
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-
-            // 🔹 Checkbox cell
-            if (widget.showCheckboxes)
-              SizedBox(
-                width: 3.8.w,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 1.h),
-                  child: Checkbox(
-                    value: _checkedStates[rowIndex],
-                    activeColor: const Color(0xFF10B981),
-                    onChanged: (val) {
-                      setState(() => _checkedStates[rowIndex] = val ?? false);
-                      widget.onCheckChanged?.call(rowIndex, val ?? false);
-                    },
-                  ),
-                ),
-              ),
-
             // 🔹 Regular data cells
             ...List.generate(widget.rows[rowIndex].length, (colIndex) {
               final col = widget.columns[colIndex];
+              final bool isNameCol = colIndex == nameColIdx;
+              final bool isLastCol =
+                  colIndex == widget.rows[rowIndex].length - 1;
+
+              Widget cellChild;
+
+              if (isNameCol && hasDot) {
+                // Name cell with priority dot before the content
+                cellChild = Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: dotColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: widget.rows[rowIndex][colIndex]),
+                  ],
+                );
+              } else if (isLastCol &&
+                  widget.showCheckboxes &&
+                  col.title.toLowerCase() == 'select all') {
+                // Last column ("Select All") — append checkbox at the end
+                cellChild = Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    widget.rows[rowIndex][colIndex],
+                    const SizedBox(width: 12),
+                    buildRoundedCheckbox(
+                      value: _checkedStates[rowIndex],
+                      onTap: () {
+                        setState(
+                          () => _checkedStates[rowIndex] =
+                              !_checkedStates[rowIndex],
+                        );
+                        widget.onCheckChanged?.call(
+                          rowIndex,
+                          _checkedStates[rowIndex],
+                        );
+                      },
+                    ),
+                  ],
+                );
+              } else {
+                cellChild = widget.rows[rowIndex][colIndex];
+              }
+
               final cellContent = Container(
                 alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 1.4.h, horizontal: 8),
-                decoration: const BoxDecoration(),
-                child: widget.rows[rowIndex][colIndex],
+                child: cellChild,
               );
 
               if (col.width != null) {
@@ -283,7 +318,6 @@ class _CustomTableState extends State<CustomTable> {
 
               return Expanded(flex: col.flex, child: cellContent);
             }),
-            SizedBox(width: 15),
           ],
         ),
       );
