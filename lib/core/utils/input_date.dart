@@ -199,16 +199,16 @@ class _InputDateState extends State<InputDate> {
         Text(
           widget.label,
           style: AppTextStyle.small(
-            size: 11.sp,
+            size: 12,
             color: AppColors.black,
             weight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 0.3.h),
+        SizedBox(height: 3),
         GestureDetector(
           onTap: _openPicker,
           child: Container(
-            height: 5.2.h,
+            height: 35,
             decoration: _box(),
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.symmetric(horizontal: 1.w),
@@ -271,8 +271,8 @@ class _InputDateState extends State<InputDate> {
   BoxDecoration _box() {
     return BoxDecoration(
       border: Border.all(color: AppColors.divider),
-      borderRadius: BorderRadius.circular(3),
-      color: AppColors.greyCard,
+      borderRadius: BorderRadius.circular(8),
+      // color: AppColors.greyCard,
     );
   }
 }

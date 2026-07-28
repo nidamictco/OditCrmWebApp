@@ -381,13 +381,13 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     switch (stage.trim().toUpperCase()) {
       case 'FOLLOWUP':
         return const Color(0xFFF59E0B);
-      case 'CLOSED':
+      case 'NEW':
         return const Color(0xFF10B981);
       case 'TRANSFERRED':
         return const Color(0xFF3B82F6);
       case 'REJECTED':
         return const Color(0xFFEF4444);
-      case 'NEW':
+      case 'CLOSED':
         return const Color(0xFF0D31E8);
       default:
         return const Color(0xFF10B981);
@@ -1002,6 +1002,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         SizedBox(
           child: CustomTable(
             key: ValueKey(_tableKey),
+            showCheckboxes: true,
             initialCheckedStates: List.generate(
               pagedList.length,
               (index) => _selectedIndices.contains(index),
@@ -1095,22 +1096,23 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              // color: const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: const Color(0xFFCBD5E1),
+                                color: AppThemeColors.appPrimaryColor
+                                    .withValues(alpha: 0.5),
                               ),
                             ),
                             child: Icon(
                               Icons.restore,
                               size: 13.sp,
-                              color: const Color(0xFF3B82F6),
+                              color: AppThemeColors.appPrimaryColor,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 0.4.w),
+                    SizedBox(width: 5),
 
                     /// Delete Icon Button
                     MouseRegion(
@@ -1122,7 +1124,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFEF2F2),
+                              // color: const Color(0xFFFEF2F2),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: const Color(0xFFFCA5A5),
@@ -1140,24 +1142,24 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                     // SizedBox(width: 0.2.w),
 
                     /// Row Selection Checkbox
-                    Checkbox(
-                      value: isChecked,
-                      activeColor: const Color(0xFF10B981),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      onChanged: (val) {
-                        setState(() {
-                          if (val == true) {
-                            if (!_selectedIndices.contains(index)) {
-                              _selectedIndices.add(index);
-                            }
-                          } else {
-                            _selectedIndices.remove(index);
-                          }
-                        });
-                      },
-                    ),
+                    // Checkbox(
+                    //   value: isChecked,
+                    //   activeColor: const Color(0xFF10B981),
+                    //   shape: RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.circular(3),
+                    //   ),
+                    //   onChanged: (val) {
+                    //     setState(() {
+                    //       if (val == true) {
+                    //         if (!_selectedIndices.contains(index)) {
+                    //           _selectedIndices.add(index);
+                    //         }
+                    //       } else {
+                    //         _selectedIndices.remove(index);
+                    //       }
+                    //     });
+                    //   },
+                    // ),
                   ],
                 ),
               ];

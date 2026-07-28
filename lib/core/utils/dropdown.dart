@@ -80,8 +80,8 @@ class _DropdownState extends State<Dropdown> {
       color: _hasFocus ? AppColors.primary : AppColors.divider,
       width: _hasFocus ? 1.5 : 1.0,
     ),
-    borderRadius: BorderRadius.circular(3),
-    color: AppColors.greyCard,
+    borderRadius: BorderRadius.circular(8),
+    // color: AppColors.greyCard,
   );
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
@@ -277,13 +277,13 @@ class _DropdownState extends State<Dropdown> {
         Row(
           children: [
             if (widget.showIcon)
-              Icon(widget.icon, size: 12.sp, color: AppColors.green),
-            Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
+              Icon(widget.icon, size: 13, color: AppColors.green),
+            Text(widget.label, style: AppTextStyle.medium(size: 12)),
             if (widget.showStar)
               Text(
                 '*',
                 style: AppTextStyle.medium(
-                  size: 11.sp,
+                  size: 11,
                   weight: FontWeight.w600,
                   color: AppColors.red,
                 ),
@@ -292,7 +292,7 @@ class _DropdownState extends State<Dropdown> {
           ],
         ),
 
-        SizedBox(height: 0.5.h),
+        SizedBox(height: 3),
 
         // ── Focusable container ────────────────────────────────────────────────
         Focus(
@@ -300,7 +300,7 @@ class _DropdownState extends State<Dropdown> {
           onFocusChange: (focused) => setState(() => _hasFocus = focused),
           onKeyEvent: _handleOuterKeyEvent,
           child: Container(
-            height: 5.5.h,
+            height: 35,
             decoration: _box(),
             child: Row(
               children: [
@@ -399,17 +399,11 @@ class _DropdownState extends State<Dropdown> {
                         iconClosed:
                             (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 1.w),
-                                child: const Icon(Icons.keyboard_arrow_down),
-                              ),
+                            : const Icon(Icons.keyboard_arrow_down),
                         iconOpened:
                             (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
-                            : Padding(
-                                padding: EdgeInsets.only(right: 1.w),
-                                child: const Icon(Icons.keyboard_arrow_up),
-                              ),
+                            : const Icon(Icons.keyboard_arrow_up),
                       ),
                     ),
 
