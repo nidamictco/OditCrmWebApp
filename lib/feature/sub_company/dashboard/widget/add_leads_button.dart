@@ -29,7 +29,7 @@ class _AddLeadsButtonState extends State<AddLeadsButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          height: 35,
+          height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: isHovering

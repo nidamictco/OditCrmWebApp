@@ -700,7 +700,7 @@ class _TransferLeadsState extends State<TransferLeads> {
     }
 
     return Container(
-      padding: EdgeInsets.all(1.8.w),
+      padding: EdgeInsets.all(25),
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),
@@ -895,12 +895,12 @@ class _TransferLeadsState extends State<TransferLeads> {
             columns: [
               TableColumn(title: "No.", width: 40),
               TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Contact No.", flex: 4),
+              TableColumn(title: "Contact No.", flex: 3),
               TableColumn(title: "Category", flex: 4),
               TableColumn(title: "Staff", flex: 4),
               TableColumn(title: "Status", flex: 4),
-              TableColumn(title: "Created Date", flex: 4),
-              TableColumn(title: "Select All", flex: 4),
+              TableColumn(title: "Created Date", flex: 2),
+              TableColumn(title: "Select All", flex: 3),
             ],
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;

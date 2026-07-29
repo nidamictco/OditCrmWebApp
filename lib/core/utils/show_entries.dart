@@ -75,14 +75,14 @@ class _ShowEntriesState extends State<ShowEntries> {
         color: AppColors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x14000000), // #00000014 (8% opacity)
-            offset: const Offset(0, 1),
-            blurRadius: 8,
-            spreadRadius: 0,
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: const Color(0x14000000), // #00000014 (8% opacity)
+        //     offset: const Offset(0, 1),
+        //     blurRadius: 8,
+        //     spreadRadius: 0,
+        //   ),
+        // ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),

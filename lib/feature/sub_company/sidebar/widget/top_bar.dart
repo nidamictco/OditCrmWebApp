@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/menu_hover_bottun.dart';
+import 'package:Odit_CRM/feature/sub_company/dashboard/widget/add_leads_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -344,10 +345,15 @@ class _TopBarState extends State<TopBar> {
         child: Builder(
           builder: (context) {
             final location = GoRouterState.of(context).uri.path;
+            final page = GoRouterState.of(
+              context,
+            ).uri.queryParameters['fromCard'];
             final isDashboard =
                 location == RoutePaths.dashboard || location == '/';
+            final isLeadListScreen =
+                location == RoutePaths.newLeads || location == '/leads';
 
-            final breadcrumbs = _getBreadcrumbs(location);
+            final breadcrumbs = _getBreadcrumbs(location, page ?? '');
 
             return Row(
               children: [
@@ -425,7 +431,8 @@ class _TopBarState extends State<TopBar> {
                 // RIGHT SIDE: Search Box, Hamburger (Menu), Bell, Settings, Fullscreen
                 _buildSearchBox(),
                 SizedBox(width: 0.8.w),
-
+                if (isDashboard || isLeadListScreen) AddLeadsButton(),
+                if (isDashboard || isLeadListScreen) SizedBox(width: 0.6.w),
                 // _TopBarIconButton(
                 //   icon: Icons.notes,
                 //   tooltip: 'Menu',
@@ -915,6 +922,25 @@ class _PushNotificationSettingsDialogState
   }
 }
 
+String getPageName(String fromCard) {
+  switch (fromCard.toUpperCase()) {
+    case 'NEW':
+      return 'New Leads';
+    case 'FOLLOWUP':
+      return 'Follow-up Leads';
+    case 'CLOSED':
+      return 'Closed Leads';
+    case 'TOTAL':
+      return 'Total Leads';
+    case 'MISSED':
+      return 'Missed Leads';
+    case 'TRANSFERRED':
+      return 'Transferred Leads';
+    default:
+      return 'Leads';
+  }
+}
+
 class _BreadcrumbsData {
   final String parent;
   final String current;
@@ -922,7 +948,7 @@ class _BreadcrumbsData {
   _BreadcrumbsData(this.parent, this.current);
 }
 
-_BreadcrumbsData _getBreadcrumbs(String path) {
+_BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
   if (path == RoutePaths.dashboard || path == '/') {
     return _BreadcrumbsData('Dashboard', '');
   }
@@ -960,7 +986,7 @@ _BreadcrumbsData _getBreadcrumbs(String path) {
     return _BreadcrumbsData('Lead Management', 'Unassigned Leads');
   }
   if (path == RoutePaths.newLeads || path == '/leads') {
-    return _BreadcrumbsData('Lead Management', 'New Leads');
+    return _BreadcrumbsData('Lead Management', getPageName(fromCard));
   }
 
   if (path == RoutePaths.addStaff) {
