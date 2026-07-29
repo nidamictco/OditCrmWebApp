@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/migration_functions.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
@@ -39,6 +40,8 @@ class LeadsReport extends StatefulWidget {
 class _LeadsReportState extends State<LeadsReport> {
   final TextEditingController fromDate = TextEditingController();
   final TextEditingController toDate = TextEditingController();
+
+  String? _currentUserRole;
 
   bool _isCreatedDate = true;
 
@@ -115,11 +118,19 @@ class _LeadsReportState extends State<LeadsReport> {
     }
   }
 
+  Future<void> _loadCurrentUserRole() async {
+    final user = await SessionService().getSavedUser();
+    if (!mounted) return;
+    setState(() {
+      _currentUserRole = user?.staffType;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadLocations();
-
+    _loadCurrentUserRole();
     if (_hasSavedState) {
       // Restore filter state from static variables
       fromDate.text = _staticFromDate ?? '';
@@ -685,6 +696,8 @@ class _LeadsReportState extends State<LeadsReport> {
                             final staffItems = state.staffList
                                 .map((e) => e.name)
                                 .toList();
+                     final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin'; 
+       
                             // createdBy uses staff list too (same people create leads)
                             final createdByItems = state.staffList
                                 .map((e) => e.name)
@@ -822,6 +835,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                         ),
                                       ),
                                       SizedBox(width: 2.w),
+                                      if (isAdmin) ...[
                                       Expanded(
                                         child: MultiSelectDropdown(
                                           showChips: true,
@@ -838,7 +852,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                           message: ".",
                                         ),
                                       ),
-                                      SizedBox(width: 2.w),
+                                      SizedBox(width: 2.w),],
                                       Expanded(
                                         child: MultiSelectDropdown(
                                           showChips: true,
@@ -990,7 +1004,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                         onTap: () {
                                           _applyFilters();
                                         },
-                                       
+
                                         child: Container(
                                           height: 4.h,
                                           padding: EdgeInsets.symmetric(

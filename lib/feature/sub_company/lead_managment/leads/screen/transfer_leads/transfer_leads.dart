@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 
@@ -41,6 +42,7 @@ class _TransferLeadsState extends State<TransferLeads> {
   String? selectedPriority;
   String? selectedLeadStage;
   String? selectedStaff;
+   String? _currentUserRole;
 
   String _searchQuery = '';
   String _selectedEntries = '10';
@@ -108,7 +110,8 @@ class _TransferLeadsState extends State<TransferLeads> {
     cubit.initialize();
     cubit.fetchLeads();
     cubit.fetchStaff();
-
+ _loadCurrentUserRole();
+ 
     if (_hasSavedState) {
       // Restore filter state from static variables
       _fromDateController.text = _staticFromDate ?? '';
@@ -141,6 +144,14 @@ class _TransferLeadsState extends State<TransferLeads> {
       if (!_hasSavedState) {
         _applyFilters();
       }
+    });
+  }
+
+  Future<void> _loadCurrentUserRole() async {
+    final user = await SessionService().getSavedUser();
+    if (!mounted) return;
+    setState(() {
+      _currentUserRole = user?.staffType;
     });
   }
 
@@ -545,6 +556,7 @@ class _TransferLeadsState extends State<TransferLeads> {
     final tagItems = state.leadTag.map((e) => e.name).toList();
     final sourceItems = state.sources.map((e) => e.name).toList();
     final staffItems = state.staffList.map((e) => e.name).toList();
+ final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin'; 
 
     final showSubCategory =
         selectedCategory != null && state.subCategories.isNotEmpty;
@@ -673,6 +685,7 @@ class _TransferLeadsState extends State<TransferLeads> {
       ),
     );
 
+ if (isAdmin) {
     filterWidgets.add(
       Dropdown(
         label: "Staff",
@@ -686,7 +699,7 @@ class _TransferLeadsState extends State<TransferLeads> {
           });
         },
       ),
-    );
+    );}
 
     // Group filter widgets into rows of 4 columns
     List<List<Widget>> rows = [];
@@ -1505,38 +1518,4 @@ class _TransferLeadsState extends State<TransferLeads> {
     );
   }
 
-  // -------------export to excel function (filtered)-------------
-  void exportLeadsToExcel(List<AddLeadModel> leads, String fileName) {
-    exportToExcel<AddLeadModel>(
-      fileName: fileName,
-      wrapColumnIndices: [2],
-      rows: leads,
-      columns: [
-        ExcelColumn(header: 'SL No.', value: (l) => '${leads.indexOf(l) + 1}'),
-        ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
-        ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
-        ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),
-        ExcelColumn(header: 'Email', value: (l) => l.email),
-        ExcelColumn(header: 'Address', value: (l) => l.address),
-        ExcelColumn(header: 'Pin Code', value: (l) => l.pinCode),
-        ExcelColumn(header: 'Post Office', value: (l) => l.postOffice),
-        ExcelColumn(header: 'State', value: (l) => l.state),
-        ExcelColumn(header: 'District', value: (l) => l.district),
-        ExcelColumn(header: 'Lead Category', value: (l) => l.leadCategory),
-        ExcelColumn(header: 'Lead Source', value: (l) => l.leadSource),
-        ExcelColumn(header: 'Lead Stage', value: (l) => l.leadStage),
-        ExcelColumn(header: 'Priority', value: (l) => l.priority),
-        ExcelColumn(header: 'Assigned Staff', value: (l) => l.assignedStaff),
-        ExcelColumn(header: 'Created By', value: (l) => l.createdBy),
-        ExcelColumn(header: 'Call Result', value: (l) => l.callResult),
-        ExcelColumn(header: 'Remarks', value: (l) => l.remarks),
-        ExcelColumn(
-          header: 'Created Date',
-          value: (l) => l.createdAt != null
-              ? DateFormat('dd-MM-yyyy').format(l.createdAt!)
-              : '-',
-        ),
-      ],
-    );
-  }
 }

@@ -77,14 +77,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     emit(state.copyWith(status: AddLeadStatus.loading));
 
     // Load staff name + additional fields in parallel; streams fire independently
-    await Future.wait([_loadStaffName(), _fetchAdditionalFields()]);
+    await Future.wait([_loadStaffName(), _fetchAdditionalFields(), fetchStaff()]);
     if (isClosed) return;
     _watchCategories();
     _watchSources();
     _watchLeadStages();
-    // NOTE: Sub Categories are NOT watched here — there is no category
-    // selected yet on first load. The sub-category stream is started
-    // inside selectCategory() once a Lead Category value is chosen.
     if (isClosed) return;
     emit(
       state.copyWith(
@@ -950,23 +947,6 @@ Future<void> permanentlyDeleteLead(String id) async {
   }
 }
 
-  // Future<void> permanentlyDeleteLead(String id) async {
-  //   emit(state.copyWith(isDeleting: true, clearError: true));
-  //   try {
-  //     await _leadRepository.permanentlyDeleteLead(id);
-  //     final updated = state.leads.where((l) => l.id != id).toList();
-  //     emit(
-  //       state.copyWith(
-  //         isDeleting: false,
-  //         leads: updated,
-  //         successMessage: 'Lead deleted successfully.',
-  //       ),
-  //     );
-  //     await fetchDeletedLeads();
-  //   } catch (e) {
-  //     emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
-  //   }
-  // }
 
   // ----------------fetch staff----------------
   Future<void> fetchStaff() async {
@@ -976,7 +956,29 @@ Future<void> permanentlyDeleteLead(String id) async {
     } catch (e) {
       log('[AddLeadCubit] fetchStaff error: $e');
     }
+    
+  //   try {
+  //   final list = await _staffRepository.fetchAll();
+  //   if (isClosed) return;
+
+  //   // Only keep active staff — every screen that reads state.staffList
+  //   // (assign-staff dialog, admin dropdowns, etc.) benefits automatically.
+  //   final activeStaff = list
+  //       .where((s) => !_isInactiveStaffStatus(s.status))
+  //       .toList();
+
+  //   emit(state.copyWith(staffList: activeStaff));
+  // } catch (e) {
+  //   log('[AddLeadCubit] fetchStaff error: $e');
+  // }
   }
+
+  bool _isInactiveStaffStatus(dynamic statusValue) {
+  if (statusValue == null) return false;
+  if (statusValue is bool) return statusValue == false;
+  if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
+  return false;
+}
 
   Future<void> assignStaff({
     required String leadId,

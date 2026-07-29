@@ -115,28 +115,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (state is Authenticated) {
           TextInput.finishAutofillContext();
         }
-        // if (state is AuthInitial || state is AuthLoading) {
-        //               return const Scaffold(
-        //                 backgroundColor: AppColors.background,
-        //                 body: Center(child: CircularProgressIndicator()),
-        //               );
-        //             }
+      
         if (state is AuthError) {
           if (!state.message.toLowerCase().contains('suspended') &&
               !state.message.toLowerCase().contains('upgrade plan')) {
             _showError(state.message);
-            // ScaffoldMessenger.of(context)
-            //   ..hideCurrentSnackBar()
-            //   ..showSnackBar(
-            //     SnackBar(
-            //       content: Text(state.message),
-            //       backgroundColor: Colors.redAccent,
-            //       behavior: SnackBarBehavior.floating,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(8),
-            //       ),
-            //     ),
-            //   );
+           
           }
         }
       },

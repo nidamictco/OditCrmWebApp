@@ -45,6 +45,12 @@ class FirebaseAuthService {
           throw AuthException('Incorrect password.');
         }
 
+        if (isInactiveStatus(data['status'])) {
+          throw const AuthException(
+            'Your account has been deactivated. Please contact your administrator.',
+          );
+        }
+
         userModel = StaffModel.fromFirestore(doc);
         if (userModel.companyId != null && userModel.companyId!.isNotEmpty) {
           FirestorePath.initializeCompany(userModel.companyId!);
@@ -74,6 +80,12 @@ class FirebaseAuthService {
 
         if ((data['password'] ?? '') != password) {
           throw AuthException('Incorrect password.');
+        }
+
+         if (isInactiveStatus(data['status'])) {
+          throw const AuthException(
+            'Your account has been deactivated. Please contact your administrator.',
+          );
         }
 
         // ====================================================
@@ -126,54 +138,34 @@ class FirebaseAuthService {
     }
   }
 
-  // Future<StaffModel> login({
-  //   required String phoneNo,
-  //   required String password,
-  // }) async {
-  //   try {
-  //     log('[FirebaseAuthService] Querying STAFF where PHONE == $phoneNo');
-  //
-  //     final query = await _staff
-  //         .where('phone', isEqualTo: phoneNo.trim())
-  //         .limit(1)
-  //         .get();
-  //
-  //     log('[FirebaseAuthService] Docs found: ${query.docs.length}');
-  //
-  //     if (query.docs.isEmpty) {
-  //       throw AuthException('No account found for "$phoneNo".');
-  //     }
-  //
-  //     final doc = query.docs.first;
-  //     final data = doc.data();
-  //
-  //     log('[FirebaseAuthService] Raw doc data: $data');
-  //
-  //     final storedPassword = data['password'] as String? ?? '';
-  //
-  //     if (storedPassword != password) {
-  //       throw AuthException('Incorrect password.');
-  //     }
-  //
-  //     try {
-  //       final user = StaffModel.fromFirestore(doc);
-  //       log('[FirebaseAuthService] UserModel built: $user');
-  //       return user;
-  //     } catch (e) {
-  //       log('[FirebaseAuthService] fromMap parse error: $e  |  raw data: $data');
-  //       throw AuthException('Failed to parse user data: $e');
-  //     }
-  //   } on AuthException {
-  //     rethrow;
-  //   } on FirebaseException catch (e) {
-  //     log('[FirebaseAuthService] FirebaseException: ${e.message}');
-  //     throw AuthException('Firebase error: ${e.message}');
-  //   } catch (e, st) {
-  //     log('[FirebaseAuthService] Unexpected: $e', stackTrace: st);
-  //     throw AuthException('Unexpected error: $e');
-  //   }
-  // }
+
+
+bool isInactiveStatus(dynamic statusValue) {
+    if (statusValue == null) return false;
+    if (statusValue is bool) return statusValue == false;
+    if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
+    return false;
+  }
+
+   DocumentReference<Map<String, dynamic>> staffDocumentRef(StaffModel user) {
+    if (user.companyType == 'mother_company') {
+      return users.doc(user.id);
+    }
+ 
+    if (user.companyId == null || user.companyId!.isEmpty) {
+      throw const AuthException(
+        'Missing company context for staff status lookup.',
+      );
+    }
+ 
+    // companyCollection() reads from FirestorePath's already-initialized
+    // company context. initializeCompany() is idempotent-safe to call again
+    // here in case this is invoked before AuthCubit has done so itself.
+    FirestorePath.initializeCompany(user.companyId!);
+    return FirestorePath.companyCollection(DBCollections.staff).doc(user.id);
+  }
 }
+
 
 class AuthException implements Exception {
   final String message;
