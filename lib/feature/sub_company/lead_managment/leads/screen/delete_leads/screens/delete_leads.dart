@@ -1045,6 +1045,14 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 nameOf: (s) => s.name,
               );
 
+              final subCategoryName = resolveLeadName(
+                list: leadState.subCategories,
+                id: lead.leadSubCategoryId,
+                fallback: lead.leadSubCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              );
+
               final stageName = resolveLeadName(
                 list: leadState.stages,
                 id: lead.leadStageId,
@@ -1068,7 +1076,12 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                   ),
                 ),
                 Text(lead.contactNumber, style: AppTextStyle.medium()),
-                Text(categoryName, style: AppTextStyle.medium()),
+                Text(
+                  subCategoryName.isEmpty
+                      ? categoryName
+                      : "$categoryName - $subCategoryName",
+                  style: AppTextStyle.medium(),
+                ),
                 Text(lead.assignedStaff, style: AppTextStyle.medium()),
 
                 /// Lead Status with styled text color

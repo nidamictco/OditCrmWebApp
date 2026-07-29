@@ -11,69 +11,6 @@ import '../theme/app_text_style.dart';
 import 'dropdown.dart';
 import 'popup_msg.dart';
 
-// void showAssignStaffDialog(List<AddLeadModel> selectedLeads, BuildContext context, {required Function(String? selectedStaffId, String? selectedStaffName) onSubmit}) {
-//   String? selectedStaffId;
-//   String? selectedStaffName;
-
-//   showDialog(
-//     context: context,
-//     builder: (dialogContext) {
-//       return BlocProvider.value(
-//         value: context.read<AddLeadCubit>(),
-//         child: StatefulBuilder(
-//           builder: (context, setDialogState) {
-//             return BlocBuilder<AddLeadCubit, AddLeadState>(
-//               builder: (context, state) {
-//                 // 🔹 Use staffList directly from AddLeadState
-//                 final staffList = state.staffList;
-//                 final staffNames = staffList.map((s) => s.name).toList();
-
-//                 return AppDialog(
-//                   title: 'Assign Staff',
-//                   width: 40.w,
-//                   body: Padding(
-//                     padding: EdgeInsets.all(1.w),
-//                     child: Column(
-//                       mainAxisSize: MainAxisSize.min,
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           "${selectedLeads!.length} lead(s) selected",
-//                           style: AppTextStyle.medium(
-//                             color: AppColors.black,
-//                             weight: FontWeight.w500,
-//                           ),
-//                         ),
-//                         SizedBox(height: 1.5.h),
-//                         Dropdown(
-//                           label: 'Staff',
-//                           hint: 'Select Staff',
-//                           items: staffNames,
-//                           selectedValue: selectedStaffName,
-//                           onChanged: (val) {
-//                             setDialogState(() {
-//                               selectedStaffName = val;
-//                               selectedStaffId = staffList
-//                                   .firstWhere((s) => s.name == val)
-//                                   .id;
-//                             });
-//                           },
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   onClose: () => Navigator.pop(dialogContext),
-//                   onSubmit: () => onSubmit(selectedStaffId, selectedStaffName),
-//                 );
-//               },
-//             );
-//           },
-//         ),
-//       );
-//     },
-//   );
-// }
-
 void showAssignStaffDialog(
   String fromPage,
   List<AddLeadModel> selectedLeads,
@@ -101,7 +38,9 @@ void showAssignStaffDialog(
           builder: (context, setDialogState) {
             return BlocBuilder<AddLeadCubit, AddLeadState>(
               builder: (context, state) {
-                final staffList = state.staffList;
+                 final staffList = state.staffList
+        .where((s) => !isInactiveStatus(s.status))
+        .toList();
                 final staffNames = staffList.map((s) => s.name).toList();
 
                 // ── Disable transfer if every selected lead already belongs
@@ -171,4 +110,12 @@ void showAssignStaffDialog(
       );
     },
   );
+}
+
+
+bool isInactiveStatus(dynamic statusValue) {
+  if (statusValue == null) return false;
+  if (statusValue is bool) return statusValue == false;
+  if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
+  return false;
 }

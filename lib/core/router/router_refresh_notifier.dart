@@ -10,7 +10,16 @@ class RouterRefreshNotifier extends ChangeNotifier {
 
   RouterRefreshNotifier(this.authCubit) {
     _subscription = authCubit.stream.listen((state) {
-      notifyListeners();
+      // Only notify GoRouter when a navigation-relevant state change occurs.
+      // AuthLoading and AuthError are transient states — the router's redirect
+      // callback cannot meaningfully act on them (it returns null for both),
+      // so notifying on them only causes the route tree to rebuild and momentarily
+      // replace the current screen, which creates a duplicate widget instance
+      // with a second live BlocConsumer subscription before the original is
+      // disposed — resulting in every AuthError SnackBar appearing twice.
+      if (state is Authenticated || state is AuthLoggedOut) {
+        notifyListeners();
+      }
     });
   }
 

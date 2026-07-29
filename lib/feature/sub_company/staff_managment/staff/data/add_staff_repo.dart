@@ -128,9 +128,11 @@ Future<String> uploadFileBytes({
     createdAt: DateTime.now(),
   );
 
-  final doc = await _collection.add(data.toMap());
-  log('[StaffRepository] Staff added: ${doc.id}');
-  return doc.id;
+  final docRef = _collection.doc();               
+final finalData = data.copyWith(id: docRef.id);  
+await docRef.set(finalData.toMap()); 
+  log('[StaffRepository] Staff added: ${docRef.id}');
+  return docRef.id;
 }
   // ─── Update ───────────────────────────────────────────────────────────────
 
@@ -535,6 +537,57 @@ Future<List<StaffModel>> fetchDeletedStaff() async {
         .delete();
     log('[StaffRepository] Note deleted: $noteId');
   }
+
+
+
+  // ─── One-time migration: backfill missing `id` field ─────────────────────
+
+/// Adds the `id` field to any existing STAFF / DELETED_STAFF documents
+/// that don't already have it (i.e. docs created before `toMap()` started
+/// writing `id`).
+///
+/// Safe to run multiple times — docs that already have a matching `id`
+/// are skipped, so it's idempotent.
+Future<void> migrateMissingStaffIds() async {
+  await _backfillIdsFor(_collection, label: 'STAFF');
+  await _backfillIdsFor(_deletedCollection, label: 'DELETED_STAFF');
+}
+
+Future<void> _backfillIdsFor(
+  CollectionReference<Map<String, dynamic>> collection, {
+  required String label,
+}) async {
+  final snap = await collection.get();
+
+  final toFix = snap.docs.where((doc) {
+    final existingId = doc.data()['id'] as String?;
+    return existingId == null || existingId != doc.id;
+  }).toList();
+
+  if (toFix.isEmpty) {
+    log('[StaffRepository] migrateMissingStaffIds: $label already up to date '
+        '(${snap.docs.length} docs checked)');
+    return;
+  }
+
+  const chunkSize = 450;
+  for (var i = 0; i < toFix.length; i += chunkSize) {
+    final end = (i + chunkSize > toFix.length) ? toFix.length : i + chunkSize;
+    final chunk = toFix.sublist(i, end);
+
+    final batch = _firestore.batch();
+    for (final doc in chunk) {
+      batch.update(doc.reference, {'id': doc.id});
+    }
+    await batch.commit();
+
+    log('[StaffRepository] migrateMissingStaffIds: $label batch '
+        '${(i ~/ chunkSize) + 1} — ${chunk.length} docs updated');
+  }
+
+  log('[StaffRepository] migrateMissingStaffIds: $label done — '
+      '${toFix.length}/${snap.docs.length} docs backfilled');
+}
 }
 
 

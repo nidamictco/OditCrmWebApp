@@ -164,21 +164,27 @@ class _OxdoAppState extends State<OxdoApp> {
                           );
                         },
                       );
-                    }
-                  }
-                },
-                child: BlocBuilder<AuthCubit, AuthState>(
-                  bloc: _authCubit,
-                  builder: (context, state) {
-                    // if (state is AuthInitial || state is AuthLoading) {
-                    //   return const Scaffold(
-                    //     backgroundColor: AppColors.background,
-                    //     body: Center(child: CircularProgressIndicator()),
-                    //   );
-                    // }
-                    return child ?? const SizedBox.shrink();
-                  },
-                ),
+                    } else {
+      // NEW — every other AuthError (wrong password, empty fields,
+      // deactivated, no account found, etc.) shown here now. This
+      // listener is set up once in OxdoApp's build tree, above
+      // MaterialApp.router, so it can never be duplicated the way
+      // LoginScreen can during a GoRouter page transition.
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(state.message),
+            backgroundColor: const Color.fromARGB(255, 180, 27, 24),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
+  }
+},
+                //   }
+                // },
+                child: child ?? const SizedBox.shrink(),
               );
             },
           );
