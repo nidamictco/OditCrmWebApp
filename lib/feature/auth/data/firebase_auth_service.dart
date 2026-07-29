@@ -82,7 +82,7 @@ class FirebaseAuthService {
           throw AuthException('Incorrect password.');
         }
 
-         if (isInactiveStatus(data['status'])) {
+        if (isInactiveStatus(data['status'])) {
           throw const AuthException(
             'Your account has been deactivated. Please contact your administrator.',
           );
@@ -135,29 +135,29 @@ class FirebaseAuthService {
       return userModel;
     } catch (e) {
       rethrow;
+      // log("errorrrrrrr $e");
+      // throw AuthException('Incorrect passwordddddddddddddddd.');
     }
   }
 
-
-
-bool isInactiveStatus(dynamic statusValue) {
+  bool isInactiveStatus(dynamic statusValue) {
     if (statusValue == null) return false;
     if (statusValue is bool) return statusValue == false;
     if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
     return false;
   }
 
-   DocumentReference<Map<String, dynamic>> staffDocumentRef(StaffModel user) {
+  DocumentReference<Map<String, dynamic>> staffDocumentRef(StaffModel user) {
     if (user.companyType == 'mother_company') {
       return users.doc(user.id);
     }
- 
+
     if (user.companyId == null || user.companyId!.isEmpty) {
       throw const AuthException(
         'Missing company context for staff status lookup.',
       );
     }
- 
+
     // companyCollection() reads from FirestorePath's already-initialized
     // company context. initializeCompany() is idempotent-safe to call again
     // here in case this is invoked before AuthCubit has done so itself.
@@ -165,7 +165,6 @@ bool isInactiveStatus(dynamic statusValue) {
     return FirestorePath.companyCollection(DBCollections.staff).doc(user.id);
   }
 }
-
 
 class AuthException implements Exception {
   final String message;

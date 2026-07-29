@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer';
 
@@ -117,10 +117,13 @@ class AuthCubit extends Cubit<AuthState> {
     required String password,
     required PermissionCubit permissionCubit,
   }) async {
+    log('[AuthCubit] login() CALLED — phone: $phoneNo');
     if (phoneNo.trim().isEmpty || password.isEmpty) {
+      log('[AuthCubit] login() → emitting AuthError (empty fields)');
       emit(AuthError(message: 'Phone number and password are required.'));
       return;
     }
+    log('[AuthCubit] login() → emitting AuthLoading');
     emit(AuthLoading());
     try {
       // FirebaseAuthService.login() now also validates staff `status` and
@@ -137,16 +140,17 @@ class AuthCubit extends Cubit<AuthState> {
 
       await permissionCubit.loadPermissions(user.designationId);
 
+      log('[AuthCubit] login() → emitting Authenticated');
       emit(Authenticated(user: user));
 
       // Start live monitoring immediately after a successful login so an
       // admin-side deactivation is caught in real time, not just on restart.
       _startStaffStatusListener(user, permissionCubit: permissionCubit);
     } on AuthException catch (e) {
-      log('[AuthCubit.....] AuthException: ${e.message}');
+      log('[AuthCubit] login() → AuthException — emitting AuthError: ${e.message}');
       emit(AuthError(message: e.message));
     } catch (e, st) {
-      log('[AuthCubit] Unexpected login error: $e', stackTrace: st);
+      log('[AuthCubit] login() → unexpected error — emitting AuthError: $e', stackTrace: st);
       emit(AuthError(message: 'Login failed. Please try again.'));
     }
   }

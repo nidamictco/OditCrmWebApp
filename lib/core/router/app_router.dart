@@ -104,16 +104,30 @@ class AppRouter {
         final isLoggingIn = state.uri.path == RoutePaths.login;
         final isForgotPassword = state.uri.path == RoutePaths.forgotPassword;
 
-        // While initializing or loading auth session, do not redirect
-        if (authState is AuthInitial || authState is AuthLoading) {
+        // Transient states: never redirect. AuthLoading and AuthError carry
+        // no navigation intent — the router has nothing meaningful to act on.
+        // Importantly, AuthError must be a no-op here: if we let it fall
+        // through to the !isAuthenticated branch below (AuthError is not
+        // Authenticated), GoRouter would redirect back to /login even when
+        // already there, creating a second LoginScreen instance on top of the
+        // existing one before its BlocConsumer is disposed — which is exactly
+        // what causes the double-SnackBar on every login cycle after the first.
+        if (authState is AuthInitial ||
+            authState is AuthLoading ||
+            authState is AuthError) {
           return null;
         }
 
         final isAuthenticated = authState is Authenticated;
 
         if (!isAuthenticated) {
-          if (isForgotPassword) return null;
-          return isLoggingIn ? null : RoutePaths.login;
+          // Already on the login page — no redirect needed. Without this guard,
+          // a double evaluation of the redirect callback during the GoRouter
+          // page-transition animation (logout → /login) can push a *second*
+          // /login route entry, leaving two LoginScreen instances alive with
+          // two active BlocConsumer subscriptions on the same AuthCubit.
+          if (isForgotPassword || isLoggingIn) return null;
+          return RoutePaths.login;
         }
 
         // Authenticated user trying to access login or forgot password
@@ -143,11 +157,19 @@ class AppRouter {
         // Standalone Auth Routes
         GoRoute(
           path: RoutePaths.login,
-          builder: (context, state) => const LoginScreen(),
+          // builder: (context, state) => const LoginScreen(),
+           pageBuilder: (context, state) => const MaterialPage(
+    key: ValueKey('login-page'), // stable across every redirect resolution
+    child: LoginScreen(),
+  ),
         ),
         GoRoute(
           path: RoutePaths.forgotPassword,
-          builder: (context, state) => const ForgotPasswordScreen(),
+          // builder: (context, state) => const ForgotPasswordScreen(),
+           pageBuilder: (context, state) => const MaterialPage(
+    key: ValueKey('forgot-password-page'),
+    child: ForgotPasswordScreen(),
+  ),
         ),
 
         // Mother Company Routes (Non-CRM Shell)
