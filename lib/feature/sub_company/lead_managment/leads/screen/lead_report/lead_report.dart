@@ -1712,7 +1712,7 @@ class _LeadsReportState extends State<LeadsReport> {
       rows: leads,
       columns: [
         ExcelColumn(header: 'Sl No.', value: (l) => '${leads.indexOf(l) + 1}'),
-        ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
+        ExcelColumn(header: 'Name', value: (l) => l.clientName),
         ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
         ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),
         ExcelColumn(header: 'Email', value: (l) => l.email),
