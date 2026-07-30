@@ -829,7 +829,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     }
 
     return Container(
-      padding: EdgeInsets.all(1.8.w),
+      padding: EdgeInsets.all(25),
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),

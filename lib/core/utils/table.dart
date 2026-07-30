@@ -163,7 +163,7 @@ class _CustomTableState extends State<CustomTable> {
         color: Color(0xFFF8FAFC),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: EdgeInsets.symmetric(vertical: 1.8.h, horizontal: 1.5.w),
+      padding: EdgeInsets.only(top: 1.8.h, bottom: 1.8.h, right: 20, left: 10),
       child: Row(
         children: [
           // Regular column headers
@@ -247,7 +247,7 @@ class _CustomTableState extends State<CustomTable> {
       final bool hasDot = dotColor != Colors.transparent;
 
       final childWidget = Container(
-        padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 1.5.w),
+        padding: EdgeInsets.only(top: 1.h, bottom: 1.h, left: 1.w, right: 10),
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
@@ -309,6 +309,8 @@ class _CustomTableState extends State<CustomTable> {
 
               final cellContent = Container(
                 alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(right: 10),
+                // color: Colors.yellow,
                 child: cellChild,
               );
 
