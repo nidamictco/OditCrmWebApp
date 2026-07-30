@@ -68,6 +68,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   String selectedValue = '10';
   List<String> dropdownItems = ['10', '50', '100', '500', '1000'];
 
+ String? _currentUserRole;
+
   bool _selectAll = false;
   String _searchQuery = '';
   String _selectedEntries = '10';
@@ -492,6 +494,8 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   void initState() {
     super.initState();
 
+    _loadCurrentUserRole();
+
     final bool cardChanged =
         _hasSavedState && (_staticFromCard != widget.fromCard);
     final bool dateChanged =
@@ -546,6 +550,14 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       selectedDate: _appliedFromDate,
       toDate: _appliedToDate,
     );
+  }
+
+   Future<void> _loadCurrentUserRole() async {
+    final user = await SessionService().getSavedUser();
+    if (!mounted) return;
+    setState(() {
+      _currentUserRole = user?.staffType;
+    });
   }
 
   bool _hasActiveFilters() {
@@ -1477,6 +1489,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     final tagItems = state.leadTag.map((e) => e.name).toList();
     final sourceItems = state.sources.map((e) => e.name).toList();
     final staffItems = state.staffList.map((e) => e.name).toList();
+   final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin'; 
     final deletedByItems = state.staffList.map((e) => e.name).toList();
     const priorityItems = ["High", "Low", "Negative", "Normal"];
 
@@ -1595,6 +1608,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       ),
     );
 
+if (isAdmin) {
     filterWidgets.add(
       MultiSelectDropdown(
         label: "Staff",
@@ -1608,7 +1622,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           });
         },
       ),
-    );
+    );}
 
     // Group filter widgets into rows of 3 columns
     List<List<Widget>> rows = [];
