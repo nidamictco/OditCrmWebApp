@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -244,7 +245,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
       if (lead.leadCategory.isNotEmpty) cubit.selectCategory(lead.leadCategory);
       if (lead.leadSource.isNotEmpty) cubit.selectSource(lead.leadSource);
       if (lead.priority.isNotEmpty) cubit.selectPriority(lead.priority);
-       if (lead.leadStage.isNotEmpty) cubit.selectLeadStage(lead.leadStage);
+      if (lead.leadStage.isNotEmpty) cubit.selectLeadStage(lead.leadStage);
     });
   }
 
@@ -409,19 +410,21 @@ class _AddLeadPageState extends State<AddLeadPage> {
     }
 
     final tag = _leadTag;
-    if (!_isEditMode &&tag == null && context.read<AddLeadCubit>().state.tagMandatory) {
+    if (!_isEditMode &&
+        tag == null &&
+        context.read<AddLeadCubit>().state.tagMandatory) {
       _showError('Tag is required.');
       return;
     }
 
-log("yutyetretetdggh $_callResult");
+    log("yutyetretetdggh $_callResult");
 
-    if ( !_isEditMode && _callResult == null && _leadStage!.toUpperCase() != "NEW" ) {
+    if (!_isEditMode &&
+        _callResult == null &&
+        _leadStage!.toUpperCase() != "NEW") {
       _showError('Call Result is required.');
       return;
     }
-
-   
 
     final cubit = context.read<AddLeadCubit>();
     final state = cubit.state;
@@ -449,7 +452,8 @@ log("yutyetretetdggh $_callResult");
         remarks: _remarksCtrl.text,
         leadCategoryId: state.selectedCategoryId ?? widget.lead!.leadCategoryId,
         leadCategory: state.selectedCategory ?? widget.lead!.leadCategory,
-        leadSubCategoryId: state.selectedSubCategoryId ?? widget.lead!.leadSubCategoryId,
+        leadSubCategoryId:
+            state.selectedSubCategoryId ?? widget.lead!.leadSubCategoryId,
         leadSubCategory:
             state.selectedSubCategory ?? widget.lead!.leadSubCategory,
         leadSource: state.selectedSource ?? widget.lead!.leadSource,
@@ -462,7 +466,7 @@ log("yutyetretetdggh $_callResult");
         additionalFields: additionalValues.isNotEmpty
             ? additionalValues
             : widget.lead!.additionalFields,
-        callResult: state.selectedCallResult ?? widget.lead!.callResult ,
+        callResult: state.selectedCallResult ?? widget.lead!.callResult,
         leadTag: state.selectedLeadTag ?? widget.lead!.leadTag,
         followUpDate: nextFollowUpDate,
       );
@@ -558,74 +562,92 @@ log("yutyetretetdggh $_callResult");
             "Success state: status = ${state.status}, message = ${state.successMessage}",
           );
           if (state.status == AddLeadStatus.success) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (ctx) => AlertDialog(
-                backgroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.check_circle_outline,
-                      color: AppColors.green,
-                      size: 35,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Success',
-                      style: AppTextStyle.medium(
-                        size: 15.sp,
-                        weight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
+            //   showDialog(
+            //     context: context,
+            //     barrierDismissible: false,
+            //     builder: (ctx) => AlertDialog(
+            //       backgroundColor: AppColors.white,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(12),
+            //       ),
+            //       alignment: Alignment.center,
+            //       title: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.center,
+            //         children: [
+            //           const Icon(
+            //             Icons.check_circle_outline,
+            //             color: AppColors.green,
+            //             size: 35,
+            //           ),
+            //           const SizedBox(height: 8),
+            //           Text(
+            //             'Success',
+            //             style: AppTextStyle.medium(
+            //               size: 15.sp,
+            //               weight: FontWeight.w600,
+            //             ),
+            //           ),
+            //           const SizedBox(height: 8),
+            //         ],
+            //       ),
 
-                content: Text(
-                  state.successMessage!,
-                  style: AppTextStyle.medium(size: 12.sp),
-                  textAlign: TextAlign.center,
-                ),
-                actionsAlignment: MainAxisAlignment.center,
-                actions: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      if (_isEditMode) {
-                        // Navigator.pushReplacement(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => MainScreen(selectedIndex: 2),
-                        //   ),
-                        // );
-                        Navigator.pop(context, true);
-                      } else {
-                        context.read<AddLeadCubit>().fetchLeads();
-                        context.go(RoutePaths.leadsReport);
-                      }
-                    },
-                    child: Text(
-                      'OK',
-                      style: AppTextStyle.medium(
-                        size: 11.sp,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            //       content: Text(
+            //         state.successMessage!,
+            //         style: AppTextStyle.medium(size: 12.sp),
+            //         textAlign: TextAlign.center,
+            //       ),
+            //       actionsAlignment: MainAxisAlignment.center,
+            //       actions: [
+            //         ElevatedButton(
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: AppColors.green,
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(8),
+            //             ),
+            //           ),
+            //           onPressed: () {
+            //             Navigator.pop(ctx);
+            //             if (_isEditMode) {
+            //               // Navigator.pushReplacement(
+            //               //   context,
+            //               //   MaterialPageRoute(
+            //               //     builder: (context) => MainScreen(selectedIndex: 2),
+            //               //   ),
+            //               // );
+            //               Navigator.pop(context, true);
+            //             } else {
+            //               context.read<AddLeadCubit>().fetchLeads();
+            //               context.go(RoutePaths.leadsReport);
+            //             }
+            //           },
+            //           child: Text(
+            //             'OK',
+            //             style: AppTextStyle.medium(
+            //               size: 11.sp,
+            //               color: AppColors.white,
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   );
+            // }
+            StatusAlertWidget.show(
+              context,
+              isSuccess: true,
+              title: _isEditMode ? 'LEAD UPDATED!' : 'LEAD CREATED!',
+              message: _isEditMode
+                  ? 'The lead has been updated successfully.'
+                  : 'The lead has been added successfully.',
+              onButtonPressed: () {
+                Navigator.of(context).pop();
+                if (_isEditMode) {
+                  Navigator.pop(context, true);
+                } else {
+                  context.read<AddLeadCubit>().fetchLeads();
+                  context.go(RoutePaths.leadsReport);
+                }
+              },
             );
           }
         }
@@ -1536,22 +1558,28 @@ log("yutyetretetdggh $_callResult");
         //   );
         // },
         onSubmit: () async {
-  final name = _dialogNameCtrl.text.trim();
-  if (name.isEmpty) return;
-  final normalized = name.toUpperCase();          // ← match what fromFirestore produces
-   final newId = await context.read<LeadCategoryCubit>().addCategory(name: normalized);
-  setState(() => _leadCategory = normalized);
-  // context.read<AddLeadCubit>().selectCategory(normalized);
-  context.read<AddLeadCubit>().selectCategoryDirect(name: normalized, id: newId);
-  Navigator.pop(ctx);
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Category "$normalized" added.'),
-      backgroundColor: AppColors.green,
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-},
+          final name = _dialogNameCtrl.text.trim();
+          if (name.isEmpty) return;
+          final normalized = name
+              .toUpperCase(); // ← match what fromFirestore produces
+          final newId = await context.read<LeadCategoryCubit>().addCategory(
+            name: normalized,
+          );
+          setState(() => _leadCategory = normalized);
+          // context.read<AddLeadCubit>().selectCategory(normalized);
+          context.read<AddLeadCubit>().selectCategoryDirect(
+            name: normalized,
+            id: newId,
+          );
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Category "$normalized" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
       ),
     );
   }
@@ -1592,9 +1620,14 @@ log("yutyetretetdggh $_callResult");
           final name = _dialogNameCtrl.text.trim();
           if (name.isEmpty) return;
           final normalized = name.toUpperCase();
-         final newId= await context.read<LeadSourceCubit>().addSource(name: normalized);
+          final newId = await context.read<LeadSourceCubit>().addSource(
+            name: normalized,
+          );
           setState(() => _leadSource = normalized);
-          context.read<AddLeadCubit>().selectSourceDirect(name: normalized, id: newId);
+          context.read<AddLeadCubit>().selectSourceDirect(
+            name: normalized,
+            id: newId,
+          );
           Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

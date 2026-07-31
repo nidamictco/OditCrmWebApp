@@ -44,7 +44,7 @@ class RecentLeadActivityTile extends StatelessWidget {
                 Text(
                   _getTitle(activity),
                   style: AppTextStyle.medium(
-                    size: 13.5,
+                    size: 12,
                     weight: FontWeight.w600,
                     color: AppColors.black,
                   ),
@@ -53,7 +53,7 @@ class RecentLeadActivityTile extends StatelessWidget {
                 Text(
                   activity.description,
                   style: AppTextStyle.small(
-                    size: 11.5,
+                    size: 11,
                     color: AppColors.grey,
                     weight: FontWeight.w500,
                   ),

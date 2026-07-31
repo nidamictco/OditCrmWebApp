@@ -179,7 +179,7 @@ class _DashboardCardState extends State<DashboardCard> {
               curve: Curves.easeInOut,
               transform: Matrix4.translationValues(0, isHovering ? -6 : 0, 0),
               width: widget.width ?? 18.w,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(12),

@@ -1,42 +1,40 @@
+import 'package:Odit_CRM/core/theme/app_colors.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-enum CalendarMode { single, range, both }
+// enum CalendarMode { single, range, both }
 
-class CalendarResult {
-  final DateTime from;
-  final DateTime to;
-  final bool isRange;
+// class CalendarResult {
+//   final DateTime from;
+//   final DateTime to;
+//   final bool isRange;
 
-  const CalendarResult({
-    required this.from,
-    required this.to,
-    required this.isRange,
-  });
-}
+//   const CalendarResult({
+//     required this.from,
+//     required this.to,
+//     required this.isRange,
+//   });
+// }
 
-Future<CalendarResult?> showCalendarDialog(
+Future<CalendarResult?> showCustomCalendarDialog(
   BuildContext context, {
-  DateTime? initialDate,
-  CalendarMode mode = CalendarMode.both, // ← new param, default = both
+  CalendarResult?
+  initialResult, // ← was `initialDate`; now carries single OR range
+  CalendarMode mode = CalendarMode.both,
 }) async {
   return showDialog<CalendarResult>(
     context: context,
-    builder: (_) => _CalendarDialog(
-      initialDate: initialDate,
-      mode: mode,
-    ),
+    builder: (_) => _CalendarDialog(initialResult: initialResult, mode: mode),
   );
 }
 
 class _CalendarDialog extends StatefulWidget {
-  final DateTime? initialDate;
+  final CalendarResult? initialResult;
   final CalendarMode mode;
 
-  const _CalendarDialog({
-    this.initialDate,
-    this.mode = CalendarMode.both,
-  });
+  const _CalendarDialog({this.initialResult, this.mode = CalendarMode.both});
 
   @override
   State<_CalendarDialog> createState() => _CalendarDialogState();
@@ -50,19 +48,23 @@ class _CalendarDialogState extends State<_CalendarDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialDate != null) {
-      _first = widget.initialDate;
-      _currentMonth = DateTime(
-        widget.initialDate!.year,
-        widget.initialDate!.month,
-      );
+    final initial = widget.initialResult;
+    if (initial != null) {
+      // Reopening: restore previous selection (single date or range) exactly.
+      _first = initial.from;
+      _second = initial.isRange ? initial.to : null;
+      _currentMonth = DateTime(initial.from.year, initial.from.month);
     } else {
-      _first = DateTime.now();
+      // Fresh open: nothing selected, nothing highlighted.
+      _first = null;
+      _second = null;
       _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
     }
   }
 
   // ── helpers ────────────────────────────────────────────────────────────────
+  // (unchanged: _daysInMonth, _same, _rangeFrom, _rangeTo, _isStart, _isEnd,
+  //  _inRange, _isSelected — all already null-safe on _first/_second)
 
   List<DateTime> _daysInMonth(DateTime month) {
     final firstDay = DateTime(month.year, month.month, 1);
@@ -102,31 +104,27 @@ class _CalendarDialogState extends State<_CalendarDialog> {
       (_first != null && _same(d, _first!)) ||
       (_second != null && _same(d, _second!));
 
-  // ── tap logic — respects mode ──────────────────────────────────────────────
+  // ── tap logic — unchanged, mode `both` already gives single+range in one dialog
 
   void _onTap(DateTime day) {
     setState(() {
       switch (widget.mode) {
         case CalendarMode.single:
-          // Always just pick one date
           _first = day;
           _second = null;
           break;
 
         case CalendarMode.range:
-          // Must pick two dates — first tap sets start, second sets end
           if (_first == null || _second != null) {
-            // Start fresh
             _first = day;
             _second = null;
           } else {
-            if (_same(day, _first!)) return; // ignore tapping same day
+            if (_same(day, _first!)) return;
             _second = day;
           }
           break;
 
         case CalendarMode.both:
-          // Original behavior: single tap = single date, second tap = range
           if (_first == null) {
             _first = day;
           } else if (_second == null) {
@@ -143,8 +141,6 @@ class _CalendarDialogState extends State<_CalendarDialog> {
       }
     });
   }
-
-  // ── label ──────────────────────────────────────────────────────────────────
 
   String get _label {
     switch (widget.mode) {
@@ -166,14 +162,11 @@ class _CalendarDialogState extends State<_CalendarDialog> {
     }
   }
 
-  // ── can confirm — range mode needs both dates ──────────────────────────────
-
   bool get _canConfirm {
-    if (widget.mode == CalendarMode.range) return _first != null && _second != null;
+    if (widget.mode == CalendarMode.range)
+      return _first != null && _second != null;
     return _first != null;
   }
-
-  // ── confirm ────────────────────────────────────────────────────────────────
 
   void _confirm() {
     if (!_canConfirm) return;
@@ -189,22 +182,22 @@ class _CalendarDialogState extends State<_CalendarDialog> {
   }
 
   void _prev() => setState(() {
-        _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-      });
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
+  });
 
   void _next() => setState(() {
-        _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
-      });
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
+  });
 
-  // ── build — unchanged layout ───────────────────────────────────────────────
-
+  // ── build methods below are 100% unchanged from your original file ─────────
   @override
   Widget build(BuildContext context) {
     final days = _daysInMonth(_currentMonth);
-    return Dialog(backgroundColor: Colors.white,
+    return Dialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: SizedBox(
-        width: 320,
+        width: 420,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -222,10 +215,10 @@ class _CalendarDialogState extends State<_CalendarDialog> {
 
   Widget _buildTopBar() {
     return Container(
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      height: 62,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E3A5F),
+        color: AppThemeColors.appPrimaryColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
       ),
       child: Row(
@@ -244,16 +237,16 @@ class _CalendarDialogState extends State<_CalendarDialog> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: 15,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     _currentMonth.year.toString(),
                     style: const TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -279,7 +272,8 @@ class _CalendarDialogState extends State<_CalendarDialog> {
         textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 12,
-          color: Color(0xFF1E3A5F),
+          // color: Color(0xFF1E3A5F),
+          color: AppThemeColors.appPrimaryColor,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -292,19 +286,21 @@ class _CalendarDialogState extends State<_CalendarDialog> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            .map((d) => SizedBox(
-                  width: 36,
-                  child: Center(
-                    child: Text(
-                      d,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black54,
-                      ),
+            .map(
+              (d) => SizedBox(
+                width: 36,
+                child: Center(
+                  child: Text(
+                    d,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
                     ),
                   ),
-                ))
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -345,6 +341,8 @@ class _CalendarDialogState extends State<_CalendarDialog> {
     return GestureDetector(
       onTap: inMonth ? () => _onTap(day) : null,
       child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
           color: inRange
               ? const Color(0xFF1E3A5F).withOpacity(0.08)
@@ -352,22 +350,26 @@ class _CalendarDialogState extends State<_CalendarDialog> {
           borderRadius: rangeBg ?? BorderRadius.zero,
         ),
         child: Container(
-          margin: const EdgeInsets.all(2),
+          // margin: const EdgeInsets.symmetric(vertical: 5),
+          // width: 50,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isHighlighted ? const Color(0xFF1E3A5F) : Colors.transparent,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10),
+            color: isHighlighted
+                ? AppThemeColors.appPrimaryColor
+                : Colors.transparent,
           ),
           alignment: Alignment.center,
           child: Text(
             day.day.toString(),
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.5,
               fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w400,
               color: isHighlighted
                   ? Colors.white
                   : inMonth
-                      ? Colors.black87
-                      : Colors.grey.withOpacity(0.35),
+                  ? Colors.black87
+                  : Colors.grey.withOpacity(0.35),
             ),
           ),
         ),
@@ -383,16 +385,19 @@ class _CalendarDialogState extends State<_CalendarDialog> {
         children: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: Color(0xFF1E3A5F))),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF1E3A5F)),
+            ),
           ),
           const SizedBox(width: 8),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E3A5F),
+              backgroundColor: AppThemeColors.appPrimaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: _canConfirm ? _confirm : null,
             child: const Text('Select'),
