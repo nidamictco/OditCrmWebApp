@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
+import 'package:Odit_CRM/feature/sub_company/dashboard/widget/calender.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +32,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   final TextEditingController _dateController = TextEditingController();
   bool _isAdmin = false;
+   CalendarResult? _selectedRange;
 
   @override
   void initState() {
@@ -39,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<AddLeadCubit>().fetchDashboardCounts(today);
+      context.read<AddLeadCubit>().fetchDashboardCounts(null);
       context.read<AddLeadCubit>().fetchRecentActivities();
       _loadUser();
     });
@@ -116,13 +119,57 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
     super.dispose();
   }
 
-  @override
+  // @override
+  // void didPopNext() {
+  //   final today = _dateController.text.isNotEmpty
+  //       ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
+  //       : null;
+  //   context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
+  //   context.read<AddLeadCubit>().fetchRecentActivities();
+  // }
+   @override
   void didPopNext() {
-    final today = _dateController.text.isNotEmpty
-        ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
-        : null;
-    context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
+    context.read<AddLeadCubit>().fetchDashboardCounts(
+          _selectedRange?.from,
+          toDate: _selectedRange?.isRange == true ? _selectedRange!.to : null,
+          forceFetch: true,
+        );
     context.read<AddLeadCubit>().fetchRecentActivities();
+  }
+
+String get _dateLabel {
+    if (_selectedRange == null) return 'Select Date';
+    if (_selectedRange!.isRange) {
+      return '${DateFormat('dd-MM-yyyy').format(_selectedRange!.from)} → '
+          '${DateFormat('dd-MM-yyyy').format(_selectedRange!.to)}';
+    }
+    return DateFormat('dd-MM-yyyy').format(_selectedRange!.from);
+  }
+
+ Future<void> _openCalendar(AddLeadCubit addLeadCubit) async {
+    final result = await showCustomCalendarDialog(
+      context,
+      initialResult: _selectedRange, // reopen with previous selection, if any
+    );
+    if (result == null) return; // user cancelled — keep current selection
+
+    setState(() => _selectedRange = result);
+
+    addLeadCubit.updateSelectedDashboardDate(
+      result.from,
+      to: result.isRange ? result.to : null,
+    );
+    addLeadCubit.fetchDashboardCounts(
+      result.from,
+      toDate: result.isRange ? result.to : null,
+      forceFetch: true,
+    );
+  }
+
+  void _clearDateFilter(AddLeadCubit addLeadCubit) {
+    setState(() => _selectedRange = null);
+    addLeadCubit.updateSelectedDashboardDate(null);
+    addLeadCubit.fetchDashboardCounts(null, forceFetch: true);
   }
 
   @override
@@ -184,45 +231,46 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                showDialog(
-                                  context: context,
-                                  barrierColor: Colors.transparent,
-                                  builder: (dialogContext) {
-                                    return Stack(
-                                      children: [
-                                        Positioned(
-                                          top: 20.h,
-                                          right: 5.w,
-                                          child: CustomCalendar(
-                                            initialSelectedDate:
-                                                _dateController.text.isNotEmpty
-                                                ? DateFormat(
-                                                    'dd-MM-yyyy',
-                                                  ).parse(_dateController.text)
-                                                : null,
-                                            onDateSelected: (date) {
-                                              setState(() {
-                                                _dateController.text =
-                                                    DateFormat(
-                                                      'dd-MM-yyyy',
-                                                    ).format(date);
-                                              });
-                                              addLeadCubit
-                                                  .updateSelectedDashboardDate(
-                                                    date,
-                                                  );
-                                              addLeadCubit.fetchDashboardCounts(
-                                                date,
-                                                forceFetch: true,
-                                              );
-                                              Navigator.pop(dialogContext);
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
+                                // showDialog(
+                                //   context: context,
+                                //   barrierColor: Colors.transparent,
+                                //   builder: (dialogContext) {
+                                //     return Stack(
+                                //       children: [
+                                //         Positioned(
+                                //           top: 20.h,
+                                //           right: 5.w,
+                                //           child: CustomCalendar(
+                                //             initialSelectedDate:
+                                //                 _dateController.text.isNotEmpty
+                                //                 ? DateFormat(
+                                //                     'dd-MM-yyyy',
+                                //                   ).parse(_dateController.text)
+                                //                 : null,
+                                //             onDateSelected: (date) {
+                                //               setState(() {
+                                //                 _dateController.text =
+                                //                     DateFormat(
+                                //                       'dd-MM-yyyy',
+                                //                     ).format(date);
+                                //               });
+                                //               addLeadCubit
+                                //                   .updateSelectedDashboardDate(
+                                //                     date,
+                                //                   );
+                                //               addLeadCubit.fetchDashboardCounts(
+                                //                 date,
+                                //                 forceFetch: true,
+                                //               );
+                                //               Navigator.pop(dialogContext);
+                                //             },
+                                //           ),
+                                //         ),
+                                //       ],
+                                //     );
+                                //   },
+                                // );
+                                _openCalendar(addLeadCubit);
                               },
                               child: Container(
                                 height: 35,
@@ -247,31 +295,17 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      _dateController.text.isNotEmpty
-                                          ? _dateController.text
-                                          : 'Select Date',
+                                     _dateLabel,
                                       style: AppTextStyle.medium(
                                         size: 13,
                                         color: AppColors.black,
                                         weight: FontWeight.w500,
                                       ),
                                     ),
-                                    if (_dateController.text.isNotEmpty) ...[
+                                    if (_selectedRange != null) ...[
                                       const SizedBox(width: 8),
                                       GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _dateController.clear();
-                                          });
-                                          addLeadCubit
-                                              .updateSelectedDashboardDate(
-                                                null,
-                                              );
-                                          addLeadCubit.fetchDashboardCounts(
-                                            null,
-                                            forceFetch: true,
-                                          );
-                                        },
+                                       onTap: () => _clearDateFilter(addLeadCubit),
                                         child: const Icon(
                                           Icons.close,
                                           size: 14,
@@ -423,7 +457,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                             "Recent Lead Activities",
                             style: AppTextStyle.medium(
                               size: 15,
-                              weight: FontWeight.w700,
+                              weight: FontWeight.w600,
                               color: AppColors.black,
                             ),
                           ),
@@ -717,3 +751,5 @@ class _MigrateLeadsButtonState extends State<MigrateLeadsButton> {
     );
   }
 }
+
+

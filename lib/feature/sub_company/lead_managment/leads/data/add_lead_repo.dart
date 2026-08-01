@@ -54,6 +54,7 @@ abstract class IAddLeadRepository {
   Future<DashboardCountModel> fetchLeadCounts({
     required String staffId,
     DateTime? selectedDate,
+    DateTime? toDate,
     required String role,
     bool forceStaffFilter = false,
   });
@@ -861,199 +862,371 @@ class AddLeadRepository implements IAddLeadRepository {
   }
 
 
-  @override
-  Future<DashboardCountModel> fetchLeadCounts({
-    required String staffId,
-    DateTime? selectedDate,
-    required String role,
-    bool forceStaffFilter = false,
-  }) async {
-    final sw = Stopwatch()..start();
+  // @override
+  // Future<DashboardCountModel> fetchLeadCounts({
+  //   required String staffId,
+  //   DateTime? selectedDate,
+  //   DateTime? toDate,
+  //   required String role,
+  //   bool forceStaffFilter = false,
+  // }) async {
+  //   final sw = Stopwatch()..start();
 
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final startOfDay = selectedDate != null
-        ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-        : null;
-    final endOfDay = selectedDate != null
-        ? DateTime(
-            selectedDate.year,
-            selectedDate.month,
-            selectedDate.day,
-            23,
-            59,
-            59,
-          )
-        : DateTime(now.year, now.month, now.day, 23, 59, 59);
+  //   final now = DateTime.now();
+  //   final todayStart = DateTime(now.year, now.month, now.day);
+  //   final startOfDay = selectedDate != null
+  //       ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+  //       : null;
+  //   final endOfDay = selectedDate != null
+  //       ? DateTime(
+  //           selectedDate.year,
+  //           selectedDate.month,
+  //           selectedDate.day,
+  //           23,
+  //           59,
+  //           59,
+  //         )
+  //       : DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-    // ── Single query, no composite index needed ──────────────────────────────
-    Query<Map<String, dynamic>> base = _collection;
-    if (forceStaffFilter && staffId.isNotEmpty) {
-      base = base.where('assignedStaffId', isEqualTo: staffId);
-    } else if (role.toLowerCase() != 'admin') {
-      base = base.where('assignedStaffId', isEqualTo: staffId);
+  //   // ── Single query, no composite index needed ──────────────────────────────
+  //   Query<Map<String, dynamic>> base = _collection;
+  //   if (forceStaffFilter && staffId.isNotEmpty) {
+  //     base = base.where('assignedStaffId', isEqualTo: staffId);
+  //   } else if (role.toLowerCase() != 'admin') {
+  //     base = base.where('assignedStaffId', isEqualTo: staffId);
+  //   }
+
+  //   // ONE round-trip to Firestore — no subcollection reads at all
+  //   final snap = await base.get();
+  //   log('[fetchLeadCounts...............] docs: ${snap.docs.length}');
+
+  //   final activeLeadIds = snap.docs.map((doc) => doc.id).toSet();
+  //   int newLeadCount = 0;
+  //   int followUpCount = 0;
+  //   int closedLeadCount = 0;
+  //   // int totalCalledCount = await getTotalCalledCount(
+  //   //   startOfDay,
+  //   //   endOfDay,
+  //   //   staffId,
+  //   //   role,
+  //   // );
+  //   int totalCalledCount = await findTotalCalledCount(
+  //     staffId,
+  //     role,
+  //     selectedDate,
+  //     endOfDay,
+  //   );
+  //   int missedLeadCount = 0;
+  //   int transferredCount = 0;
+
+  //   for (final doc in snap.docs) {
+  //     final data = doc.data();
+  //     if (data['isDeleted'] == true) continue;
+  //     final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+
+  //     // ── NEW ────────────────────────────────────────────────────────────
+  //     if (leadStage == 'NEW') {
+  //       final createdAt = data['createdAt'];
+  //       if (createdAt != null) {
+  //         final createdDate = (createdAt as Timestamp).toDate();
+  //         final inRange = selectedDate != null
+  //             ? _isInRange(createdDate, startOfDay!, endOfDay)
+  //             : !createdDate.isAfter(endOfDay);
+  //         if (inRange) {
+  //           final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+  //           if (!hasFollowUp) newLeadCount++;
+  //         }
+  //       }
+  //     }
+
+  //     // ── FOLLOWUP ───────────────────────────────────────────────────────
+  //     if (leadStage == 'FOLLOWUP') {
+  //       final nextFollowUpDate = data['nextFollowUpDate'];
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //         final inRange = selectedDate != null
+  //             ? _isInRange(followDate, startOfDay!, endOfDay)
+  //             : !followDate.isAfter(endOfDay);
+  //         if (inRange) followUpCount++;
+  //       }
+  //     }
+
+  //     // ── CLOSED ─────────────────────────────────────────────────────────
+  //     if (leadStage == 'CLOSED') {
+  //       final lastCalledDate = data['lastCalledDate'];
+  //       final createdAt = data['createdAt'];
+  //       if (lastCalledDate != null) {
+  //         final calledDate = (lastCalledDate as Timestamp).toDate();
+  //         final inRange = selectedDate != null
+  //             ? _isInRange(calledDate, startOfDay!, endOfDay)
+  //             : !calledDate.isAfter(endOfDay);
+  //         if (inRange) closedLeadCount++;
+  //       } else if (createdAt != null) {
+  //         final createdDate = (createdAt as Timestamp).toDate();
+  //         final inRange = selectedDate != null
+  //             ? _isInRange(createdDate, startOfDay!, endOfDay)
+  //             : !createdDate.isAfter(endOfDay);
+  //         if (inRange) closedLeadCount++;
+  //       }
+  //     }
+
+  //     // ── TOTAL CALLED ───────────────────────────────────────────────────
+  //     // Handled outside the loop above to avoid N+1 queries.
+
+  //     // ── MISSED ─────────────────────────────────────────────────────────
+  //     if (leadStage == 'NEW') {
+  //       final createdAt = data['createdAt'];
+  //       if (createdAt != null) {
+  //         final createdDate = (createdAt as Timestamp).toDate();
+  //         final baseline = selectedDate != null ? startOfDay! : todayStart;
+  //         if (_isBeforeDay(createdDate, baseline)) {
+  //           missedLeadCount++;
+  //         }
+  //       }
+  //     }
+  //     if (leadStage == 'FOLLOWUP') {
+  //       final nextFollowUpDate = data['nextFollowUpDate'];
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //         final baseline = selectedDate != null ? startOfDay! : todayStart;
+  //         if (_isBeforeDay(followDate, baseline)) {
+  //           missedLeadCount++;
+  //         }
+  //       }
+  //     }
+  //     if (leadStage == 'TRANSFERRED') {
+  //       final nextFollowUpDate = data['nextFollowUpDate'];
+  //       if (nextFollowUpDate != null) {
+  //         final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //         final baseline = selectedDate != null ? startOfDay! : todayStart;
+  //         if (_isBeforeDay(followDate, baseline)) {
+  //           missedLeadCount++;
+  //         }
+  //       }
+  //     }
+
+  //     // if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
+  //     //   final nextFollowUpDate = data['nextFollowUpDate'];
+  //     //   if (nextFollowUpDate != null) {
+  //     //     final followDate = (nextFollowUpDate as Timestamp).toDate();
+  //     //     final baseline = selectedDate != null ? startOfDay! : todayStart;
+  //     //     if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
+  //     //   }
+  //     // }
+
+  //     // ── TRANSFERRED ────────────────────────────────────────────────────
+  //     if (leadStage == 'TRANSFERRED') {
+  //       final transferredList = data['transferLeads'];
+  //       if (transferredList is List) {
+  //         bool counted = false;
+  //         for (final item in transferredList) {
+  //           if (counted) break;
+  //           if (item is Map<String, dynamic>) {
+  //             final t = item['transferTime'];
+  //             if (t != null) {
+  //               final td = (t as Timestamp).toDate();
+  //               final inRange = selectedDate != null
+  //                   ? _isInRange(td, startOfDay!, endOfDay)
+  //                   : !td.isAfter(endOfDay);
+  //               if (inRange) {
+  //                 transferredCount++;
+  //                 counted = true;
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   sw.stop();
+  //   log(
+  //     '[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
+  //     'closed:$closedLeadCount total:$totalCalledCount '
+  //     'missed:$missedLeadCount transferred:$transferredCount '
+  //     '— ${sw.elapsedMilliseconds}ms',
+  //   );
+
+  //   return DashboardCountModel(
+  //     newLeadCount: newLeadCount,
+  //     followUpCount: followUpCount,
+  //     closedLeadCount: closedLeadCount,
+  //     totalCalledCount: totalCalledCount,
+  //     missedLeadCount: missedLeadCount,
+  //     transferredCount: transferredCount,
+  //   );
+  // }
+
+@override
+Future<DashboardCountModel> fetchLeadCounts({
+  required String staffId,
+  DateTime? selectedDate,
+  DateTime? toDate, // NEW
+  required String role,
+  bool forceStaffFilter = false,
+}) async {
+  final sw = Stopwatch()..start();
+
+  final now = DateTime.now();
+  final todayStart = DateTime(now.year, now.month, now.day);
+
+  final startOfDay = selectedDate != null
+      ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+      : null;
+
+  // CHANGED: endOfDay now respects a real range end (toDate), falling back
+  // to selectedDate (single-day case) then to "now" (no filter case).
+  final effectiveEnd = toDate ?? selectedDate ?? now;
+  final endOfDay = DateTime(
+    effectiveEnd.year,
+    effectiveEnd.month,
+    effectiveEnd.day,
+    23, 59, 59,
+  );
+
+  Query<Map<String, dynamic>> base = _collection;
+  if (forceStaffFilter && staffId.isNotEmpty) {
+    base = base.where('assignedStaffId', isEqualTo: staffId);
+  } else if (role.toLowerCase() != 'admin') {
+    base = base.where('assignedStaffId', isEqualTo: staffId);
+  }
+
+  final snap = await base.get();
+  log('[fetchLeadCounts...............] docs: ${snap.docs.length}');
+
+  final activeLeadIds = snap.docs.map((doc) => doc.id).toSet();
+  int newLeadCount = 0;
+  int followUpCount = 0;
+  int closedLeadCount = 0;
+
+  // CHANGED: pass the real toDate through (not a synthetic single-day endOfDay)
+  int totalCalledCount = await findTotalCalledCount(
+    staffId,
+    role,
+    selectedDate,
+    toDate, // was: endOfDay
+  );
+
+  int missedLeadCount = 0;
+  int transferredCount = 0;
+
+  // ── everything below this line is UNCHANGED — it already uses
+  //    startOfDay/endOfDay/_isInRange generically, so it now naturally
+  //    spans the full range instead of a single day ──────────────────────
+  for (final doc in snap.docs) {
+    final data = doc.data();
+    if (data['isDeleted'] == true) continue;
+    final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
+
+    if (leadStage == 'NEW') {
+      final createdAt = data['createdAt'];
+      if (createdAt != null) {
+        final createdDate = (createdAt as Timestamp).toDate();
+        final inRange = selectedDate != null
+            ? _isInRange(createdDate, startOfDay!, endOfDay)
+            : !createdDate.isAfter(endOfDay);
+        if (inRange) {
+          final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
+          if (!hasFollowUp) newLeadCount++;
+        }
+      }
     }
 
-    // ONE round-trip to Firestore — no subcollection reads at all
-    final snap = await base.get();
-    log('[fetchLeadCounts...............] docs: ${snap.docs.length}');
-
-    final activeLeadIds = snap.docs.map((doc) => doc.id).toSet();
-    int newLeadCount = 0;
-    int followUpCount = 0;
-    int closedLeadCount = 0;
-    // int totalCalledCount = await getTotalCalledCount(
-    //   startOfDay,
-    //   endOfDay,
-    //   staffId,
-    //   role,
-    // );
-    int totalCalledCount = await findTotalCalledCount(
-      staffId,
-      role,
-      selectedDate,
-      endOfDay,
-    );
-    int missedLeadCount = 0;
-    int transferredCount = 0;
-
-    for (final doc in snap.docs) {
-      final data = doc.data();
-      if (data['isDeleted'] == true) continue;
-      final leadStage = (data['leadStage'] ?? '').toString().toUpperCase();
-
-      // ── NEW ────────────────────────────────────────────────────────────
-      if (leadStage == 'NEW') {
-        final createdAt = data['createdAt'];
-        if (createdAt != null) {
-          final createdDate = (createdAt as Timestamp).toDate();
-          final inRange = selectedDate != null
-              ? _isInRange(createdDate, startOfDay!, endOfDay)
-              : !createdDate.isAfter(endOfDay);
-          if (inRange) {
-            final hasFollowUp = data['hasFollowUp'] as bool? ?? false;
-            if (!hasFollowUp) newLeadCount++;
-          }
-        }
+    if (leadStage == 'FOLLOWUP') {
+      final nextFollowUpDate = data['nextFollowUpDate'];
+      if (nextFollowUpDate != null) {
+        final followDate = (nextFollowUpDate as Timestamp).toDate();
+        final inRange = selectedDate != null
+            ? _isInRange(followDate, startOfDay!, endOfDay)
+            : !followDate.isAfter(endOfDay);
+        if (inRange) followUpCount++;
       }
+    }
 
-      // ── FOLLOWUP ───────────────────────────────────────────────────────
-      if (leadStage == 'FOLLOWUP') {
-        final nextFollowUpDate = data['nextFollowUpDate'];
-        if (nextFollowUpDate != null) {
-          final followDate = (nextFollowUpDate as Timestamp).toDate();
-          final inRange = selectedDate != null
-              ? _isInRange(followDate, startOfDay!, endOfDay)
-              : !followDate.isAfter(endOfDay);
-          if (inRange) followUpCount++;
-        }
+    if (leadStage == 'CLOSED') {
+      final lastCalledDate = data['lastCalledDate'];
+      final createdAt = data['createdAt'];
+      if (lastCalledDate != null) {
+        final calledDate = (lastCalledDate as Timestamp).toDate();
+        final inRange = selectedDate != null
+            ? _isInRange(calledDate, startOfDay!, endOfDay)
+            : !calledDate.isAfter(endOfDay);
+        if (inRange) closedLeadCount++;
+      } else if (createdAt != null) {
+        final createdDate = (createdAt as Timestamp).toDate();
+        final inRange = selectedDate != null
+            ? _isInRange(createdDate, startOfDay!, endOfDay)
+            : !createdDate.isAfter(endOfDay);
+        if (inRange) closedLeadCount++;
       }
+    }
 
-      // ── CLOSED ─────────────────────────────────────────────────────────
-      if (leadStage == 'CLOSED') {
-        final lastCalledDate = data['lastCalledDate'];
-        final createdAt = data['createdAt'];
-        if (lastCalledDate != null) {
-          final calledDate = (lastCalledDate as Timestamp).toDate();
-          final inRange = selectedDate != null
-              ? _isInRange(calledDate, startOfDay!, endOfDay)
-              : !calledDate.isAfter(endOfDay);
-          if (inRange) closedLeadCount++;
-        } else if (createdAt != null) {
-          final createdDate = (createdAt as Timestamp).toDate();
-          final inRange = selectedDate != null
-              ? _isInRange(createdDate, startOfDay!, endOfDay)
-              : !createdDate.isAfter(endOfDay);
-          if (inRange) closedLeadCount++;
-        }
+    if (leadStage == 'NEW') {
+      final createdAt = data['createdAt'];
+      if (createdAt != null) {
+        final createdDate = (createdAt as Timestamp).toDate();
+        final baseline = selectedDate != null ? startOfDay! : todayStart;
+        if (_isBeforeDay(createdDate, baseline)) missedLeadCount++;
       }
-
-      // ── TOTAL CALLED ───────────────────────────────────────────────────
-      // Handled outside the loop above to avoid N+1 queries.
-
-      // ── MISSED ─────────────────────────────────────────────────────────
-      if (leadStage == 'NEW') {
-        final createdAt = data['createdAt'];
-        if (createdAt != null) {
-          final createdDate = (createdAt as Timestamp).toDate();
-          final baseline = selectedDate != null ? startOfDay! : todayStart;
-          if (_isBeforeDay(createdDate, baseline)) {
-            missedLeadCount++;
-          }
-        }
+    }
+    if (leadStage == 'FOLLOWUP') {
+      final nextFollowUpDate = data['nextFollowUpDate'];
+      if (nextFollowUpDate != null) {
+        final followDate = (nextFollowUpDate as Timestamp).toDate();
+        final baseline = selectedDate != null ? startOfDay! : todayStart;
+        if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
       }
-      if (leadStage == 'FOLLOWUP') {
-        final nextFollowUpDate = data['nextFollowUpDate'];
-        if (nextFollowUpDate != null) {
-          final followDate = (nextFollowUpDate as Timestamp).toDate();
-          final baseline = selectedDate != null ? startOfDay! : todayStart;
-          if (_isBeforeDay(followDate, baseline)) {
-            missedLeadCount++;
-          }
-        }
+    }
+    if (leadStage == 'TRANSFERRED') {
+      final nextFollowUpDate = data['nextFollowUpDate'];
+      if (nextFollowUpDate != null) {
+        final followDate = (nextFollowUpDate as Timestamp).toDate();
+        final baseline = selectedDate != null ? startOfDay! : todayStart;
+        if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
       }
-      if (leadStage == 'TRANSFERRED') {
-        final nextFollowUpDate = data['nextFollowUpDate'];
-        if (nextFollowUpDate != null) {
-          final followDate = (nextFollowUpDate as Timestamp).toDate();
-          final baseline = selectedDate != null ? startOfDay! : todayStart;
-          if (_isBeforeDay(followDate, baseline)) {
-            missedLeadCount++;
-          }
-        }
-      }
+    }
 
-      // if (leadStage == 'FOLLOWUP' || leadStage == 'NEW') {
-      //   final nextFollowUpDate = data['nextFollowUpDate'];
-      //   if (nextFollowUpDate != null) {
-      //     final followDate = (nextFollowUpDate as Timestamp).toDate();
-      //     final baseline = selectedDate != null ? startOfDay! : todayStart;
-      //     if (_isBeforeDay(followDate, baseline)) missedLeadCount++;
-      //   }
-      // }
-
-      // ── TRANSFERRED ────────────────────────────────────────────────────
-      if (leadStage == 'TRANSFERRED') {
-        final transferredList = data['transferLeads'];
-        if (transferredList is List) {
-          bool counted = false;
-          for (final item in transferredList) {
-            if (counted) break;
-            if (item is Map<String, dynamic>) {
-              final t = item['transferTime'];
-              if (t != null) {
-                final td = (t as Timestamp).toDate();
-                final inRange = selectedDate != null
-                    ? _isInRange(td, startOfDay!, endOfDay)
-                    : !td.isAfter(endOfDay);
-                if (inRange) {
-                  transferredCount++;
-                  counted = true;
-                }
+    if (leadStage == 'TRANSFERRED') {
+      final transferredList = data['transferLeads'];
+      if (transferredList is List) {
+        bool counted = false;
+        for (final item in transferredList) {
+          if (counted) break;
+          if (item is Map<String, dynamic>) {
+            final t = item['transferTime'];
+            if (t != null) {
+              final td = (t as Timestamp).toDate();
+              final inRange = selectedDate != null
+                  ? _isInRange(td, startOfDay!, endOfDay)
+                  : !td.isAfter(endOfDay);
+              if (inRange) {
+                transferredCount++;
+                counted = true;
               }
             }
           }
         }
       }
     }
-
-    sw.stop();
-    log(
-      '[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
-      'closed:$closedLeadCount total:$totalCalledCount '
-      'missed:$missedLeadCount transferred:$transferredCount '
-      '— ${sw.elapsedMilliseconds}ms',
-    );
-
-    return DashboardCountModel(
-      newLeadCount: newLeadCount,
-      followUpCount: followUpCount,
-      closedLeadCount: closedLeadCount,
-      totalCalledCount: totalCalledCount,
-      missedLeadCount: missedLeadCount,
-      transferredCount: transferredCount,
-    );
   }
+
+  sw.stop();
+  log(
+    '[fetchLeadCounts] new:$newLeadCount followUp:$followUpCount '
+    'closed:$closedLeadCount total:$totalCalledCount '
+    'missed:$missedLeadCount transferred:$transferredCount '
+    '— ${sw.elapsedMilliseconds}ms',
+  );
+
+  return DashboardCountModel(
+    newLeadCount: newLeadCount,
+    followUpCount: followUpCount,
+    closedLeadCount: closedLeadCount,
+    totalCalledCount: totalCalledCount,
+    missedLeadCount: missedLeadCount,
+    transferredCount: transferredCount,
+  );
+}
 
   // ── Add this helper if not already present ──────────────────────────────────
   bool _isInRange(DateTime date, DateTime start, DateTime end) {

@@ -198,22 +198,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                     ),
                   ),
                 ),
-                SizedBox(height: 1.5.h),
-                Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
-                SizedBox(height: 0.5.h),
-                TextField(
-                  controller: costController,
-                  decoration: InputDecoration(
-                    hintText: "Enter Cost",
-                    hintStyle: AppTextStyle.medium(
-                      size: 11.sp,
-                      color: AppColors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
+               
               ],
             ),
           ),

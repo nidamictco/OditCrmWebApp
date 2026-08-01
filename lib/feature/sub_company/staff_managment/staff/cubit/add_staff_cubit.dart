@@ -75,16 +75,7 @@ class StaffCubit extends Cubit<StaffState> {
 
   // ─── Update status ────────────────────────────────────────────────────────
 
-  // Future<void> updateStatus(String staffId, String newStatus) async {
-  //   try {
-  //     await _repository.updateStaffField(staffId, {'status': newStatus});
-  //     log('[StaffCubit] Status updated: $staffId → $newStatus');
-  //     await getStaff(staffId);
-  //   } catch (e, st) {
-  //     log('[StaffCubit] UpdateStatus error: $e', stackTrace: st);
-  //     emit(StaffError(e.toString()));
-  //   }
-  // }
+ 
   Future<void> updateStatus(String staffId, String newStatus) async {
   try {
     await _repository.updateStaffField(staffId, {'status': newStatus});

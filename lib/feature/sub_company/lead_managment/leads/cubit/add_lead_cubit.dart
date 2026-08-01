@@ -1291,70 +1291,213 @@ Future<void> getLeadStage({required String leadStage}) async {
     }
   }
 
-  // In AddLeadCubit — add these fields
-  DateTime? _lastCountDate;
-  DashboardCountModel? _cachedCounts;
-  int? _cachedTotalCalled;
+  // // In AddLeadCubit — add these fields
+  // DateTime? _lastCountDate;
+  // DashboardCountModel? _cachedCounts;
+  // int? _cachedTotalCalled;
 
-  Future<void> fetchDashboardCounts(
-    DateTime? selectedDate, {
-    String? staffId,
-    String? role,
-    bool forceFetch = false,
-  }) async {
-    // Skip re-fetch if same date and we already have counts
-    bool isSameDate = false;
-    if (_lastCountDate == null && selectedDate == null) {
-      isSameDate = true;
-    } else if (_lastCountDate != null && selectedDate != null) {
-      isSameDate =
-          _lastCountDate!.year == selectedDate.year &&
-          _lastCountDate!.month == selectedDate.month &&
-          _lastCountDate!.day == selectedDate.day;
-    }
-    if (!forceFetch &&
-        isSameDate &&
-        _cachedCounts != null &&
-        _cachedTotalCalled != null) {
-      log('[fetchDashboardCounts] Returning cached result');
+  // Future<void> fetchDashboardCounts(
+  //   DateTime? selectedDate, {
+  //   String? staffId,
+  //   String? role,
+  //   bool forceFetch = false,
+  // }) async {
+  //   // Skip re-fetch if same date and we already have counts
+  //   bool isSameDate = false;
+  //   if (_lastCountDate == null && selectedDate == null) {
+  //     isSameDate = true;
+  //   } else if (_lastCountDate != null && selectedDate != null) {
+  //     isSameDate =
+  //         _lastCountDate!.year == selectedDate.year &&
+  //         _lastCountDate!.month == selectedDate.month &&
+  //         _lastCountDate!.day == selectedDate.day;
+  //   }
+  //   if (!forceFetch &&
+  //       isSameDate &&
+  //       _cachedCounts != null &&
+  //       _cachedTotalCalled != null) {
+  //     log('[fetchDashboardCounts] Returning cached result');
+  //     return;
+  //   }
+
+  //   emit(state.copyWith(isLoadingCounts: true));
+
+  //   try {
+  //     final user = await SessionService().getSavedUser();
+  //     if (isClosed) return;
+  //     if (user == null) {
+  //       emit(state.copyWith(isLoadingCounts: false));
+  //       return;
+  //     }
+
+  //     // Fetch both in parallel
+  //     final results = await Future.wait([
+  //       _leadRepository.fetchLeadCounts(
+  //         staffId: staffId ?? user.id ?? '',
+  //         selectedDate: selectedDate,
+  //         role: role ?? user.staffType ?? '',
+  //         forceStaffFilter: false,
+  //       ),
+  //       _leadRepository.fetchCallStatusCounts(
+  //         staffId: staffId ?? user.id ?? '',
+  //         role: role ?? user.staffType ?? '',
+  //         selectedDate: selectedDate,
+  //       ),
+  //     ]);
+
+  //     final counts = results[0] as DashboardCountModel;
+  //     final callCounts = results[1] as Map<String, int>;
+  //     final totalCalled = callCounts['totalCalled'] ?? 0;
+
+  //     if (isClosed) return;
+
+  //     // Store cache after successful fetch
+  //     _lastCountDate = selectedDate;
+  //     _cachedCounts = counts;
+  //     _cachedTotalCalled = totalCalled;
+
+  //     log(
+  //       '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
+  //       'total=${counts.totalCalledCount} totalCalled=$totalCalled',
+  //     );
+
+  //     String subscriptionPlan = 'ACTIVE PACKAGE';
+  //     String startDateStr = '';
+  //     String endDateStr = '';
+  //     String userCountStr = '0';
+
+  //     final userRole = role ?? user.staffType ?? '';
+  //     if (userRole.toLowerCase() == 'admin') {
+  //       final companyId = user.companyId ?? '';
+  //       if (companyId.isNotEmpty) {
+  //         try {
+  //           final companySnap = await FirebaseFirestore.instance
+  //               .collection('COMPANY')
+  //               .doc(companyId)
+  //               .get();
+
+  //           if (companySnap.exists) {
+  //             final data = companySnap.data();
+  //             final plan =
+  //                 data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE';
+  //             subscriptionPlan = plan.toUpperCase();
+
+  //             final startTs = data?['subscriptionStartDate'] as Timestamp?;
+  //             final endTs = data?['subscriptionEndDate'] as Timestamp?;
+  //             if (startTs != null) {
+  //               startDateStr = DateFormat(
+  //                 'dd-MM-yyyy',
+  //               ).format(startTs.toDate());
+  //             }
+  //             if (endTs != null) {
+  //               endDateStr = DateFormat('dd-MM-yyyy').format(endTs.toDate());
+  //             }
+  //           }
+
+  //           final staffSnap = await FirebaseFirestore.instance
+  //               .collection('COMPANY')
+  //               .doc(companyId)
+  //               .collection('STAFF')
+  //               .get();
+  //           userCountStr = staffSnap.docs.length.toString();
+  //         } catch (e) {
+  //           log('[fetchDashboardCounts] Error loading company info: $e');
+  //         }
+  //       }
+  //     }
+
+  //     emit(
+  //       state.copyWith(
+  //         isLoadingCounts: false,
+  //         newLeadCount: counts.newLeadCount.toString(),
+  //         followUpCount: counts.followUpCount.toString(),
+  //         closedLeadCount: counts.closedLeadCount.toString(),
+  //         totalCalledCount: counts.totalCalledCount.toString(),
+  //         dashboardTotalCalledCount: totalCalled.toString(),
+  //         missedLeadCount: counts.missedLeadCount.toString(),
+  //         transferredCount: counts.transferredCount.toString(),
+  //         subscriptionPlan: subscriptionPlan,
+  //         subscriptionStartDate: startDateStr,
+  //         subscriptionEndDate: endDateStr,
+  //         companyUserCount: userCountStr,
+  //       ),
+  //     );
+  //     log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
+  //   } catch (e) {
+  //     log('[fetchDashboardCounts] Error: $e');
+  //     if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
+  //   }
+  // }
+
+  DateTime? _lastCountDate;
+DateTime? _lastCountToDate; // NEW — track range end for cache validity
+DashboardCountModel? _cachedCounts;
+int? _cachedTotalCalled;
+
+Future<void> fetchDashboardCounts(
+  DateTime? selectedDate, {
+  DateTime? toDate, // NEW
+  String? staffId,
+  String? role,
+  bool forceFetch = false,
+}) async {
+  bool _sameDay(DateTime? a, DateTime? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  // CHANGED: cache key now includes toDate so switching between a single
+  // date and a range (or changing the range end) always triggers a re-fetch.
+  final isSameSelection =
+      _sameDay(_lastCountDate, selectedDate) && _sameDay(_lastCountToDate, toDate);
+
+  if (!forceFetch &&
+      isSameSelection &&
+      _cachedCounts != null &&
+      _cachedTotalCalled != null) {
+    log('[fetchDashboardCounts] Returning cached result');
+    return;
+  }
+
+  emit(state.copyWith(isLoadingCounts: true));
+
+  try {
+    final user = await SessionService().getSavedUser();
+    if (isClosed) return;
+    if (user == null) {
+      emit(state.copyWith(isLoadingCounts: false));
       return;
     }
 
-    emit(state.copyWith(isLoadingCounts: true));
+    final results = await Future.wait([
+      _leadRepository.fetchLeadCounts(
+        staffId: staffId ?? user.id ?? '',
+        selectedDate: selectedDate,
+        toDate: toDate, // NEW
+        role: role ?? user.staffType ?? '',
+        forceStaffFilter: false,
+      ),
+      _leadRepository.fetchCallStatusCounts(
+        staffId: staffId ?? user.id ?? '',
+        role: role ?? user.staffType ?? '',
+        selectedDate: selectedDate,
+        toDate: toDate, // already supported — just wire it up
+      ),
+    ]);
 
-    try {
-      final user = await SessionService().getSavedUser();
-      if (isClosed) return;
-      if (user == null) {
-        emit(state.copyWith(isLoadingCounts: false));
-        return;
-      }
+    final counts = results[0] as DashboardCountModel;
+    final callCounts = results[1] as Map<String, int>;
+    final totalCalled = callCounts['totalCalled'] ?? 0;
 
-      // Fetch both in parallel
-      final results = await Future.wait([
-        _leadRepository.fetchLeadCounts(
-          staffId: staffId ?? user.id ?? '',
-          selectedDate: selectedDate,
-          role: role ?? user.staffType ?? '',
-          forceStaffFilter: false,
-        ),
-        _leadRepository.fetchCallStatusCounts(
-          staffId: staffId ?? user.id ?? '',
-          role: role ?? user.staffType ?? '',
-          selectedDate: selectedDate,
-        ),
-      ]);
+    if (isClosed) return;
 
-      final counts = results[0] as DashboardCountModel;
-      final callCounts = results[1] as Map<String, int>;
-      final totalCalled = callCounts['totalCalled'] ?? 0;
+    _lastCountDate = selectedDate;
+    _lastCountToDate = toDate; // NEW
+    _cachedCounts = counts;
+    _cachedTotalCalled = totalCalled;
 
-      if (isClosed) return;
-
-      // Store cache after successful fetch
-      _lastCountDate = selectedDate;
-      _cachedCounts = counts;
-      _cachedTotalCalled = totalCalled;
+    // ... rest of the method (subscription plan lookup, emit(...)) is unchanged
 
       log(
         '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
@@ -1428,6 +1571,9 @@ Future<void> getLeadStage({required String leadStage}) async {
       if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
     }
   }
+
+
+
 
   // ── Staff profile fetch (ALWAYS filters by staffId) ───────────────────────
   Future<void> fetchProfileCounts(
@@ -1551,13 +1697,27 @@ Future<void> getLeadStage({required String leadStage}) async {
     }
   }
 
-  void updateSelectedDashboardDate(DateTime? date) {
-    if (date == null) {
-      emit(state.copyWith(clearSelectedDashboardDate: true));
-    } else {
-      emit(state.copyWith(selectedDashboardDate: date));
-    }
+  // void updateSelectedDashboardDate(DateTime? date) {
+  //   if (date == null) {
+  //     emit(state.copyWith(clearSelectedDashboardDate: true));
+  //   } else {
+  //     emit(state.copyWith(selectedDashboardDate: date));
+  //   }
+  // }
+  void updateSelectedDashboardDate(DateTime? date, {DateTime? to}) {
+  if (date == null) {
+    emit(state.copyWith(
+      clearSelectedDashboardDate: true,
+      // clearSelectedDashboardToDate: true, // NEW — needs matching field in state
+    ));
+  } else {
+    emit(state.copyWith(
+      selectedDashboardDate: date,
+      // selectedDashboardToDate: to,       // NEW
+      // clearSelectedDashboardToDate: to == null,
+    ));
   }
+}
 
   Future<void> fetchLeadChartCounts({
     required String staffId,
