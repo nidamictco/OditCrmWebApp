@@ -364,7 +364,7 @@ class _LeadsReportState extends State<LeadsReport> {
       case 'high':
         return const Color(0xffEF4444); // Red
       case 'normal':
-        return const Color(0xff22C55E); // Green
+        return AppThemeColors.basicGreen; // Green
       case 'low':
         return Color.fromARGB(255, 226, 249, 22); // Orange-Yellow
       case 'negative':
@@ -1103,7 +1103,7 @@ class _LeadsReportState extends State<LeadsReport> {
                             ),
                           ),
                           SizedBox(width: 0.8.w),
-                          _legendDot(const Color(0xff22C55E)),
+                          _legendDot(AppThemeColors.basicGreen),
                           SizedBox(width: 0.3.w),
                           Text(
                             'Normal',

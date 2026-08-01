@@ -34,6 +34,20 @@ class _SidebarItemState extends State<SidebarItem> {
     // Read permission cubit once
     final perm = context.watch<PermissionCubit>();
 
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
+    final isCompactHeight = screenHeight < 800;
+    final isCompactWidth = screenWidth < 1400;
+
+    final double itemVerticalPadding = isCompactHeight ? 8 : 10;
+    final double itemHorizontalPadding = isCompactWidth ? 8 : 10;
+    final double subItemLeftMargin = isCompactWidth ? 20 : 35;
+    final double logoVerticalPadding = isCompactHeight ? 16 : 24;
+    final double fontSizeMain = isCompactWidth ? 11.5 : 12.0;
+    final double fontSizeSub = isCompactWidth ? 11.0 : 12.0;
+
     final isLeadSelected =
         (widget.selectedIndex >= 1 && widget.selectedIndex <= 6) ||
         widget.selectedIndex == 13 ||
@@ -46,40 +60,123 @@ class _SidebarItemState extends State<SidebarItem> {
 
     // Lead sub-items visible
     final leadChildren = [
-      if (perm.canAddLead) subMenuItem("Add Lead", 1),
-      if (perm.canViewLeadsReport) subMenuItem("Leads Report", 2),
-      if (perm.canImportLeads) subMenuItem("Import Leads", 14),
-      // if(perm.canViewCallHistory)
-      //   subMenuItem("Call History", 3),
-      if (perm.canViewDeletedLeads) subMenuItem("Deleted Leads", 4),
-      // if (perm.canViewUnassignedLeads) subMenuItem("Unassigned Leads", 13),
+      if (perm.canAddLead)
+        subMenuItem(
+          "Add Lead",
+          1,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewLeadsReport)
+        subMenuItem(
+          "Leads Report",
+          2,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canImportLeads)
+        subMenuItem(
+          "Import Leads",
+          14,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewDeletedLeads)
+        subMenuItem(
+          "Deleted Leads",
+          4,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
       if (perm.canTransferLeads || perm.canViewTransferLeads)
-        subMenuItem("Transfer Leads", 5),
-      // if(perm.canViewPhoneCallLog)
-      // subMenuItem("Phone Call Logs", 6),
+        subMenuItem(
+          "Transfer Leads",
+          5,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
     ];
 
     // Staff sub-items visible
     final staffChildren = [
-      if (perm.canAddStaff) subMenuItem("Add Staff", 15),
-      if (perm.canViewStaff) subMenuItem("View Staff", 16),
-      if (perm.canViewDesignation) subMenuItem("Designation", 17),
-      if (perm.canViewDeletedStaff) subMenuItem("Deleted Staff", 18),
+      if (perm.canAddStaff)
+        subMenuItem(
+          "Add Staff",
+          15,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewStaff)
+        subMenuItem(
+          "View Staff",
+          16,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewDesignation)
+        subMenuItem(
+          "Designation",
+          17,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewDeletedStaff)
+        subMenuItem(
+          "Deleted Staff",
+          18,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
     ];
 
     // Report sub-items visible
     final reportChildren = [
-      if (perm.canViewStaffReport) subMenuItem("Staff Reports", 22),
+      if (perm.canViewStaffReport)
+        subMenuItem(
+          "Staff Reports",
+          22,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
       if (perm.canViewTransferReport)
-        subMenuItem("Transferred Leads Reports", 23),
-      if (perm.canViewTotalReport) subMenuItem("Total Leads Reports", 2),
-      // if (perm.canViewLeadSource) subMenuItem("Scheduled Leads Reports", 24),
-      if (perm.canViewRejectedReport) subMenuItem("Rejected Leads Reports", 25),
+        subMenuItem(
+          "Transferred Leads Reports",
+          23,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewTotalReport)
+        subMenuItem(
+          "Total Leads Reports",
+          2,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewRejectedReport)
+        subMenuItem(
+          "Rejected Leads Reports",
+          25,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
     ];
 
     return Container(
-      // width: 150,
       height: MediaQuery.of(context).size.height,
+      padding: EdgeInsets.only(left: 8),
       decoration: BoxDecoration(
         color: AppThemeColors.sidebarBg,
         border: Border(
@@ -95,7 +192,12 @@ class _SidebarItemState extends State<SidebarItem> {
                 children: [
                   // Logo Row
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
+                    padding: EdgeInsets.fromLTRB(
+                      isCompactWidth ? 14 : 20,
+                      logoVerticalPadding,
+                      isCompactWidth ? 14 : 20,
+                      logoVerticalPadding,
+                    ),
                     child: Row(
                       children: [
                         GestureDetector(
@@ -106,7 +208,7 @@ class _SidebarItemState extends State<SidebarItem> {
                             ),
                             child: Image.asset(
                               AssetResources.iconLogo,
-                              scale: 40,
+                              scale: isCompactWidth ? 45 : 40,
                             ),
                           ),
                         ),
@@ -114,55 +216,76 @@ class _SidebarItemState extends State<SidebarItem> {
                         Text(
                           'Odit CRM',
                           style: AppTextStyle.body(
-                            fontSize: 16,
+                            fontSize: isCompactWidth ? 14 : 16,
                             fontWeight: FontWeight.w600,
                             color: AppThemeColors.sidebarLogoTxtClr,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const Spacer(),
+                        Spacer(),
                         GestureDetector(
                           onTap: widget.onBackArrowTap,
                           child: Icon(
                             Icons.keyboard_double_arrow_left_sharp,
                             color: AppThemeColors.hintColor,
+                            size: isCompactWidth ? 18 : 22,
                           ),
                         ),
                       ],
                     ),
                   ),
+                  SizedBox(height: 10),
 
                   // DASHBOARD
                   sidebarItem(
                     Icons.dashboard_outlined,
                     "Dashboard",
                     0,
-                    Image.asset(AssetResources.dashboard_icon, scale: 2),
+                    null,
+                    // Image.asset(AssetResources.dashboard_icon, scale: 2),
+                    itemHorizontalPadding: itemHorizontalPadding,
+                    itemVerticalPadding: itemVerticalPadding,
+                    fontSizeMain: fontSizeMain,
                   ),
-
+                  if (leadChildren.isNotEmpty) SizedBox(height: 10),
                   // LEAD MANAGEMENT
                   if (leadChildren.isNotEmpty)
                     CustomExpandedTile(
                       icon: Symbols.query_stats,
                       title: "Lead Management",
                       isSelected: isLeadSelected,
+                      itemHorizontalPadding: itemHorizontalPadding,
+                      itemVerticalPadding: itemVerticalPadding,
+                      subItemLeftMargin: subItemLeftMargin,
+                      fontSizeMain: fontSizeMain,
                       children: leadChildren,
                     ),
 
+                  if (staffChildren.isNotEmpty) SizedBox(height: 10),
                   // STAFF MANAGEMENT
                   if (staffChildren.isNotEmpty)
                     CustomExpandedTile(
                       icon: Symbols.badge,
                       title: "Staff Management",
                       isSelected: isStaffSelected,
+                      itemHorizontalPadding: itemHorizontalPadding,
+                      itemVerticalPadding: itemVerticalPadding,
+                      subItemLeftMargin: subItemLeftMargin,
+                      fontSizeMain: fontSizeMain,
                       children: staffChildren,
                     ),
 
+                  if (reportChildren.isNotEmpty) SizedBox(height: 10),
                   // REPORTS
                   if (reportChildren.isNotEmpty)
                     CustomExpandedTile(
                       icon: Symbols.news,
                       title: "Reports",
                       isSelected: isReportsSelected,
+                      itemHorizontalPadding: itemHorizontalPadding,
+                      itemVerticalPadding: itemVerticalPadding,
+                      subItemLeftMargin: subItemLeftMargin,
+                      fontSizeMain: fontSizeMain,
                       children: reportChildren,
                     ),
                 ],
@@ -187,9 +310,9 @@ class _SidebarItemState extends State<SidebarItem> {
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isCompactWidth ? 10 : 14,
+                      vertical: isCompactHeight ? 8 : 12,
                     ),
                     decoration: BoxDecoration(
                       border: Border(
@@ -202,7 +325,7 @@ class _SidebarItemState extends State<SidebarItem> {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          radius: 18,
+                          radius: isCompactHeight ? 16 : 18,
                           backgroundColor: Colors.grey.shade200,
                           backgroundImage:
                               user.imageUrl != null &&
@@ -212,14 +335,14 @@ class _SidebarItemState extends State<SidebarItem> {
                           child:
                               user.imageUrl == null ||
                                   user.imageUrl!.trim().isEmpty
-                              ? const Icon(
+                              ? Icon(
                                   Icons.person,
                                   color: Colors.grey,
-                                  size: 18,
+                                  size: isCompactHeight ? 16 : 18,
                                 )
                               : null,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +351,7 @@ class _SidebarItemState extends State<SidebarItem> {
                               Text(
                                 user.name,
                                 style: AppTextStyle.medium(
-                                  size: 13,
+                                  size: isCompactWidth ? 12 : 13,
                                   weight: FontWeight.w600,
                                   color: AppThemeColors.sidebarLogoTxtClr,
                                 ),
@@ -237,7 +360,7 @@ class _SidebarItemState extends State<SidebarItem> {
                               Text(
                                 user.staffType ?? '',
                                 style: AppTextStyle.small(
-                                  size: 11,
+                                  size: isCompactWidth ? 10 : 11,
                                   color: AppColors.grey,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -261,8 +384,11 @@ class _SidebarItemState extends State<SidebarItem> {
     IconData icon,
     String title,
     int index,
-    Widget? iconWidget,
-  ) {
+    Widget? iconWidget, {
+    double itemHorizontalPadding = 12,
+    double itemVerticalPadding = 10,
+    double fontSizeMain = 12,
+  }) {
     final isSelected = widget.selectedIndex == index;
     final path = RoutePaths.sidebarPaths[index] ?? '/';
     return BrowserAwareLink(
@@ -270,8 +396,14 @@ class _SidebarItemState extends State<SidebarItem> {
       onTap: () => widget.onItemSelected(index),
       enableInkWell: false,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        margin: EdgeInsets.symmetric(
+          horizontal: itemHorizontalPadding < 10 ? 6 : 8,
+          vertical: 2,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: itemHorizontalPadding,
+          vertical: itemVerticalPadding,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xff002b66) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -291,19 +423,22 @@ class _SidebarItemState extends State<SidebarItem> {
             else
               Icon(
                 icon,
-                color: isSelected ? Colors.white : AppColors.grey,
+                color: isSelected ? Colors.white : AppThemeColors.sidebarTxtClr,
                 size: 20,
               ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 title,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: AppTextStyle.medium(
-                  size: 12,
-                  color: isSelected ? Colors.white : AppColors.grey,
+                  size: fontSizeMain,
+                  color: isSelected
+                      ? Colors.white
+                      : AppThemeColors.sidebarTxtClr,
                   weight: FontWeight.w500,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
@@ -313,7 +448,13 @@ class _SidebarItemState extends State<SidebarItem> {
     );
   }
 
-  Widget subMenuItem(String title, int index) {
+  Widget subMenuItem(
+    String title,
+    int index, {
+    double itemHorizontalPadding = 10,
+    double itemVerticalPadding = 8,
+    double fontSizeSub = 12,
+  }) {
     final isSelected = widget.selectedIndex == index;
     final path = RoutePaths.sidebarPaths[index] ?? '/';
     return BrowserAwareLink(
@@ -321,8 +462,11 @@ class _SidebarItemState extends State<SidebarItem> {
       onTap: () => widget.onItemSelected(index),
       enableInkWell: false,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding: EdgeInsets.symmetric(
+          horizontal: itemHorizontalPadding,
+          vertical: itemVerticalPadding,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? AppThemeColors.appPrimaryColor.withAlpha(15)
@@ -334,10 +478,15 @@ class _SidebarItemState extends State<SidebarItem> {
             Expanded(
               child: Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.medium(
-                  size: 12,
+                  size: fontSizeSub,
                   weight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? const Color(0xff002b66) : AppColors.grey,
+                  color: isSelected
+                      ? const Color(0xff002b66)
+                      : AppThemeColors.sidebarTxtClr,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
@@ -353,6 +502,10 @@ class CustomExpandedTile extends StatefulWidget {
   final String title;
   final bool isSelected;
   final List<Widget> children;
+  final double itemHorizontalPadding;
+  final double itemVerticalPadding;
+  final double subItemLeftMargin;
+  final double fontSizeMain;
 
   const CustomExpandedTile({
     super.key,
@@ -360,6 +513,10 @@ class CustomExpandedTile extends StatefulWidget {
     required this.title,
     required this.isSelected,
     required this.children,
+    this.itemHorizontalPadding = 8,
+    this.itemVerticalPadding = 10,
+    this.subItemLeftMargin = 25,
+    this.fontSizeMain = 12,
   });
 
   @override
@@ -396,8 +553,14 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
             });
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            margin: EdgeInsets.symmetric(
+              horizontal: widget.itemHorizontalPadding < 10 ? 6 : 8,
+              vertical: 2,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.itemHorizontalPadding,
+              vertical: widget.itemVerticalPadding,
+            ),
             decoration: BoxDecoration(
               color: isTileSelected
                   ? const Color(0xff002b66)
@@ -408,17 +571,24 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
               children: [
                 Icon(
                   widget.icon,
-                  color: isTileSelected ? Colors.white : AppColors.grey,
+                  color: isTileSelected
+                      ? Colors.white
+                      : AppThemeColors.sidebarTxtClr,
                   size: 20,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyle.medium(
-                      size: 12,
-                      color: isTileSelected ? Colors.white : AppColors.grey,
+                      size: widget.fontSizeMain,
+                      color: isTileSelected
+                          ? Colors.white
+                          : AppThemeColors.sidebarTxtClr,
                       weight: FontWeight.w500,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -435,7 +605,12 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
         ),
         if (_isExpanded && widget.children.isNotEmpty)
           Container(
-            margin: const EdgeInsets.only(left: 25, top: 4, bottom: 4),
+            margin: EdgeInsets.only(
+              left: widget.subItemLeftMargin,
+              // right: 12,
+              top: 2,
+              bottom: 2,
+            ),
             decoration: const BoxDecoration(
               border: Border(
                 left: BorderSide(color: Color(0xffe2e8f0), width: 1.5),
@@ -530,7 +705,12 @@ class _UserProfileAlertDialogState extends State<_UserProfileAlertDialog> {
   Widget build(BuildContext context) {
     final user = widget.user;
     final hasImage = user.imageUrl != null && user.imageUrl!.trim().isNotEmpty;
-    final width = MediaQuery.of(context).size.width;
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
+    final isCompact = width < 1000;
+    final dialogWidth = width < 700
+        ? width * 0.85
+        : (width < 1200 ? width * 0.65 : width * 0.45);
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -538,9 +718,9 @@ class _UserProfileAlertDialogState extends State<_UserProfileAlertDialog> {
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
-        width: width * 0.5,
-        constraints: const BoxConstraints(maxWidth: 580),
-        padding: const EdgeInsets.all(30),
+        width: dialogWidth,
+        constraints: const BoxConstraints(maxWidth: 580, minWidth: 300),
+        padding: EdgeInsets.all(isCompact ? 20 : 30),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

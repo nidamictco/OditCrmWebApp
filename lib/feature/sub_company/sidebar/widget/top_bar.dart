@@ -345,9 +345,9 @@ class _TopBarState extends State<TopBar> {
         child: Builder(
           builder: (context) {
             final location = GoRouterState.of(context).uri.path;
-            final page = GoRouterState.of(
-              context,
-            ).uri.queryParameters['fromCard'];
+            final page =
+                GoRouterState.of(context).uri.queryParameters['fromCard'] ??
+                GoRouterState.of(context).uri.queryParameters['from_card'];
             final isDashboard =
                 location == RoutePaths.dashboard || location == '/';
             final isLeadListScreen =
@@ -358,26 +358,33 @@ class _TopBarState extends State<TopBar> {
             return Row(
               children: [
                 // LEFT SIDE: Back and Forward buttons, and Breadcrumbs
-                GestureDetector(
-                  onTap: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.chevron_left,
-                      size: 14.sp,
-                      color: AppColors.grey,
-                    ),
-                  ),
-                ),
+                // GestureDetector(
+                //   onTap: () {
+                //     if (context.canPop()) {
+                //       context.pop();
+                //     } else if (location.contains('/follow_up/')) {
+                //       context.go(
+                //         Uri(
+                //           path: RoutePaths.newLeads,
+                //           queryParameters: {'fromCard': page ?? "NEW"},
+                //         ).toString(),
+                //       );
+                //     }
+                //   },
+                //   child: Container(
+                //     width: 32,
+                //     height: 32,
+                //     decoration: BoxDecoration(
+                //       color: const Color(0xFFF1F5F9),
+                //       borderRadius: BorderRadius.circular(8),
+                //     ),
+                //     child: Icon(
+                //       Icons.chevron_left,
+                //       size: 14.sp,
+                //       color: AppColors.grey,
+                //     ),
+                //   ),
+                // ),
                 // const SizedBox(width: 6),
                 // Container(
                 //   width: 32,
@@ -398,30 +405,32 @@ class _TopBarState extends State<TopBar> {
                 Text(
                   breadcrumbs.parent,
                   style: AppTextStyle.medium(
-                    size: 11.sp,
+                    size: 11.5,
                     color: breadcrumbs.current.isEmpty
                         ? const Color(0xFF0F172A)
-                        : const Color(0xFF94A3B8),
+                        : const Color(0xFFA9A9A9),
                     weight: breadcrumbs.current.isEmpty
                         ? FontWeight.w600
                         : FontWeight.w400,
+                    letterSpacing: 0.2,
                   ),
                 ),
                 if (breadcrumbs.current.isNotEmpty) ...[
                   Text(
-                    ' / ',
+                    '  >>  ',
                     style: AppTextStyle.medium(
-                      size: 11.sp,
-                      color: const Color(0xFFCBD5E1),
+                      size: 11.5,
+                      color: const Color(0xFFA9A9A9),
                       weight: FontWeight.w400,
                     ),
                   ),
                   Text(
                     breadcrumbs.current,
                     style: AppTextStyle.medium(
-                      size: 11.sp,
+                      size: 11.5,
                       color: const Color(0xFF0F172A),
                       weight: FontWeight.w600,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ],
@@ -529,14 +538,11 @@ class _TopBarState extends State<TopBar> {
                 controller: _searchController,
                 focusNode: _searchFocusNode,
                 onChanged: (query) => _onSearchChanged(query, cubit),
-                style: AppTextStyle.small(
-                  size: 11.5.sp,
-                  color: AppColors.black,
-                ),
+                style: AppTextStyle.small(size: 11.5, color: AppColors.black),
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   hintStyle: AppTextStyle.small(
-                    size: 11.5.sp,
+                    size: 11,
                     color: const Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
@@ -931,7 +937,7 @@ String getPageName(String fromCard) {
     case 'CLOSED':
       return 'Closed Leads';
     case 'TOTAL':
-      return 'Total Leads';
+      return 'Total Called';
     case 'MISSED':
       return 'Missed Leads';
     case 'TRANSFERRED':
@@ -986,7 +992,7 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
     return _BreadcrumbsData('Lead Management', 'Unassigned Leads');
   }
   if (path == RoutePaths.newLeads || path == '/leads') {
-    return _BreadcrumbsData('Lead Management', getPageName(fromCard));
+    return _BreadcrumbsData('Dashboard', getPageName(fromCard));
   }
 
   if (path == RoutePaths.addStaff) {
@@ -1033,7 +1039,7 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
     return _BreadcrumbsData('Staff Management', 'Edit Staff');
   }
   if (path.contains('/follow_up/')) {
-    return _BreadcrumbsData('Lead Management', 'Follow Up');
+    return _BreadcrumbsData('Dashboard  >>  Lead List', 'Follow Up Details');
   }
   if (path.contains('/staff/') && path.contains('/change_password')) {
     return _BreadcrumbsData('Staff Management', 'Change Password');

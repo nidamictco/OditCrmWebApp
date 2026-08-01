@@ -42,7 +42,7 @@ class _TransferLeadsState extends State<TransferLeads> {
   String? selectedPriority;
   String? selectedLeadStage;
   String? selectedStaff;
-   String? _currentUserRole;
+  String? _currentUserRole;
 
   String _searchQuery = '';
   String _selectedEntries = '10';
@@ -110,8 +110,8 @@ class _TransferLeadsState extends State<TransferLeads> {
     cubit.initialize();
     cubit.fetchLeads();
     cubit.fetchStaff();
- _loadCurrentUserRole();
- 
+    _loadCurrentUserRole();
+
     if (_hasSavedState) {
       // Restore filter state from static variables
       _fromDateController.text = _staticFromDate ?? '';
@@ -234,7 +234,7 @@ class _TransferLeadsState extends State<TransferLeads> {
       case 'high':
         return const Color(0xffEF4444); // Red
       case 'normal':
-        return const Color(0xff22C55E); // Green
+        return AppThemeColors.basicGreen; // Green
       case 'low':
         return Color.fromARGB(255, 226, 249, 22); // Orange-Yellow
       case 'negative':
@@ -556,7 +556,7 @@ class _TransferLeadsState extends State<TransferLeads> {
     final tagItems = state.leadTag.map((e) => e.name).toList();
     final sourceItems = state.sources.map((e) => e.name).toList();
     final staffItems = state.staffList.map((e) => e.name).toList();
- final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin'; 
+    final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin';
 
     final showSubCategory =
         selectedCategory != null && state.subCategories.isNotEmpty;
@@ -685,21 +685,22 @@ class _TransferLeadsState extends State<TransferLeads> {
       ),
     );
 
- if (isAdmin) {
-    filterWidgets.add(
-      Dropdown(
-        label: "Staff",
-        hint: 'Select Field',
-        items: staffItems,
-        selectedValue: selectedStaff,
-        onChanged: (val) {
-          setState(() {
-            selectedStaff = val;
-            _resetPage();
-          });
-        },
-      ),
-    );}
+    if (isAdmin) {
+      filterWidgets.add(
+        Dropdown(
+          label: "Staff",
+          hint: 'Select Field',
+          items: staffItems,
+          selectedValue: selectedStaff,
+          onChanged: (val) {
+            setState(() {
+              selectedStaff = val;
+              _resetPage();
+            });
+          },
+        ),
+      );
+    }
 
     // Group filter widgets into rows of 4 columns
     List<List<Widget>> rows = [];
@@ -938,7 +939,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                 nameOf: (s) => s.name,
               );
 
-              final stageColor = _getStageColor(stageName);
+              final stageColor = getStageColor(stageName);
 
               final isChecked = _selectedIndices.contains(index);
 
@@ -1320,29 +1321,12 @@ class _TransferLeadsState extends State<TransferLeads> {
                 ),
               ),
               SizedBox(width: 0.4.w),
-              Icon(Icons.swap_horiz, color: Colors.white, size: 13.sp),
+              Icon(Icons.swap_vert, color: Colors.white, size: 13.sp),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Color _getStageColor(String stage) {
-    switch (stage.trim().toUpperCase()) {
-      case 'FOLLOWUP':
-        return const Color(0xFFF59E0B);
-      case 'NEW':
-        return const Color(0xFF10B981);
-      case 'TRANSFERRED':
-        return const Color(0xFF3B82F6);
-      case 'REJECTED':
-        return const Color(0xFFEF4444);
-      case 'CLOSED':
-        return const Color(0xFF0D31E8);
-      default:
-        return const Color(0xFF10B981);
-    }
   }
 
   // ── Page number chips ───────────────────────
@@ -1517,5 +1501,4 @@ class _TransferLeadsState extends State<TransferLeads> {
       ),
     );
   }
-
 }

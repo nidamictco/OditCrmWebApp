@@ -199,7 +199,7 @@ class _InputDateState extends State<InputDate> {
         Text(
           widget.label,
           style: AppTextStyle.small(
-            size: 12,
+            size: 11.sp,
             color: AppColors.black,
             weight: FontWeight.w500,
           ),
