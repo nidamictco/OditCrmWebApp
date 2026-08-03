@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/core/utils/dotted_down_arrow.dart';
 import 'package:Odit_CRM/core/utils/follow_up_left_notch.dart';
 import 'package:Odit_CRM/core/utils/functions.dart';
@@ -200,6 +201,12 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
               ).toString();
 
               context.go(path);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${lead.clientName} deleted successfully!'),
+                  backgroundColor: Colors.red,
+                ),
+              );
             },
             child: Text(
               'Delete',
@@ -453,6 +460,14 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                   context.pop();
                                   context.pop();
                                   context.read<AddLeadCubit>().fetchLeads();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${_currentLead.clientName} transferred to $selectedStaffName successfully',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
                                 },
                           );
                         },
@@ -936,13 +951,29 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
               Navigator.pop(dialogContext);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
-                  _showAlertDialog(
+                  // _showAlertDialog(
+                  //   context,
+                  //   title: 'Success',
+                  //   message: 'Follow-up added successfully!',
+                  //   icon: Icons.check_circle_outline,
+                  //   iconColor: Colors.green,
+                  //   titleColor: Colors.green.shade700,
+                  // );
+                  StatusAlertWidget.show(
                     context,
-                    title: 'Success',
-                    message: 'Follow-up added successfully!',
-                    icon: Icons.check_circle_outline,
-                    iconColor: Colors.green,
-                    titleColor: Colors.green.shade700,
+                    isSuccess: true,
+                    title: from == 'EDIT'
+                        ? 'FOLLOW-UP UPDATED!'
+                        : 'FOLLOW-UP ADDED!',
+                    message: from == 'EDIT'
+                        ? 'The follow-up has been updated successfully.'
+                        : 'The follow-up has been added to your schedule.',
+                    onButtonPressed: () {
+                      if (!context.mounted) return;
+                      // Navigator.pop(context); // just dismiss the status alert
+                      context.pop();
+                      _dialogShown = false;
+                    },
                   );
                 }
               });
@@ -952,60 +983,70 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
               _dialogShown = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (ctx.mounted) {
-                  showDialog(
-                    context: ctx,
-                    barrierDismissible: false,
-                    builder: (alertCtx) => AlertDialog(
-                      backgroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      title: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.red.shade600,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Error',
-                            style: AppTextStyle.heading(
-                              size: 15,
-                              weight: FontWeight.w700,
-                              color: Colors.red.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      content: Text(
-                        state.errorMessage!,
-                        style: AppTextStyle.medium(
-                          color: const Color(0xFF555555),
-                        ),
-                      ),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _dialogShown = false;
-                            Navigator.pop(alertCtx);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.shade600,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            'OK',
-                            style: AppTextStyle.medium(color: AppColors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ).then((_) => _dialogShown = false);
+                  // showDialog(
+                  //   context: ctx,
+                  //   barrierDismissible: false,
+                  //   builder: (alertCtx) => AlertDialog(
+                  //     backgroundColor: AppColors.white,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(12),
+                  //     ),
+                  //     title: Row(
+                  //       children: [
+                  //         Icon(
+                  //           Icons.error_outline,
+                  //           color: Colors.red.shade600,
+                  //           size: 22,
+                  //         ),
+                  //         const SizedBox(width: 8),
+                  //         Text(
+                  //           'Error',
+                  //           style: AppTextStyle.heading(
+                  //             size: 15,
+                  //             weight: FontWeight.w700,
+                  //             color: Colors.red.shade700,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     content: Text(
+                  //       state.errorMessage!,
+                  //       style: AppTextStyle.medium(
+                  //         color: const Color(0xFF555555),
+                  //       ),
+                  //     ),
+                  //     actions: [
+                  //       ElevatedButton(
+                  //         onPressed: () {
+                  //           _dialogShown = false;
+                  //           Navigator.pop(alertCtx);
+                  //         },
+                  //         style: ElevatedButton.styleFrom(
+                  //           backgroundColor: Colors.red.shade600,
+                  //           foregroundColor: Colors.white,
+                  //           elevation: 0,
+                  //           shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(8),
+                  //           ),
+                  //         ),
+                  //         child: Text(
+                  //           'OK',
+                  //           style: AppTextStyle.medium(color: AppColors.white),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ).then((_) => _dialogShown = false);
+                  StatusAlertWidget.show(
+                    ctx,
+                    isSuccess: false,
+                    title: 'Error',
+                    message: state.errorMessage!,
+                    onButtonPressed: () {
+                      _dialogShown = false;
+                      Navigator.pop(ctx);
+                    },
+                  );
                 }
               });
             }
@@ -1025,39 +1066,45 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
               builder: (sbContext, sbSetState) {
                 Future<void> submitAction() async {
                   if (_callStatusCtrl.text.trim().isEmpty) {
-                    _showAlertDialog(
+                    StatusAlertWidget.show(
                       sbContext,
+                      isSuccess: false,
                       title: 'Validation',
                       message: 'Please enter called status.',
-                      icon: Icons.warning_amber_outlined,
-                      iconColor: Colors.orange,
-                      titleColor: Colors.orange.shade700,
+                      onButtonPressed: () {
+                        _dialogShown = false;
+                        Navigator.pop(sbContext);
+                      },
                     );
                     return;
                   }
 
                   if (_WhtsppNoCtrl.text.isNotEmpty &&
                       _WhtsppNoCtrl.text.trim().length < 10) {
-                    _showAlertDialog(
+                    StatusAlertWidget.show(
                       sbContext,
+                      isSuccess: false,
                       title: 'Validation',
                       message: 'Please enter a valid WhatsApp number.',
-                      icon: Icons.warning_amber_outlined,
-                      iconColor: Colors.orange,
-                      titleColor: Colors.orange.shade700,
+                      onButtonPressed: () {
+                        _dialogShown = false;
+                        Navigator.pop(sbContext);
+                      },
                     );
                     return;
                   }
 
                   if (state.selectedLeadTag == null &&
                       state.tagMandatory) {
-                    _showAlertDialog(
+                    StatusAlertWidget.show(
                       sbContext,
+                      isSuccess: false,
                       title: 'Validation',
                       message: 'Please select tag for rejected lead.',
-                      icon: Icons.warning_amber_outlined,
-                      iconColor: Colors.orange,
-                      titleColor: Colors.orange.shade700,
+                      onButtonPressed: () {
+                        _dialogShown = false;
+                        Navigator.pop(sbContext);
+                      },
                     );
                     return;
                   }
@@ -2152,7 +2199,7 @@ class _NewFollowupTabContentState extends State<_NewFollowupTabContent> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Follow-up deleted successfully'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.red,
                   ),
                 );
               }

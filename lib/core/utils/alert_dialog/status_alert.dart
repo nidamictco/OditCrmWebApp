@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
@@ -91,11 +93,9 @@ class StatusAlertWidget extends StatelessWidget {
     final String statusLabel = isSuccess ? 'Success' : 'Error';
     final String buttonText = isSuccess ? 'Done' : 'Try Again';
     final String imagePath = isSuccess
-        ? AssetResources
-              .successImage // replace with actual asset constant, e.g. AssetResources.successImage
-        : AssetResources
-              .errorImage; // replace with actual asset constant, e.g. AssetResources.errorImage
-
+        ? AssetResources.successImage
+        : AssetResources.errorImage;
+    log('llllllllllll$imagePath');
     // Figma tokens (Layout panel, 1512x1043 desktop frame):
     // Width: Hug (318px)  Height: Hug (330.58px)  Radius: 24px  Border: 1px
     // Padding: top 30 / right 60 / bottom 30 / left 60   Gap: 25px
