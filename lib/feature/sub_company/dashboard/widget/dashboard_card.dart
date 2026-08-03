@@ -69,7 +69,7 @@ class _DashboardCardState extends State<DashboardCard> {
       case 'MISSED':
         return Icons.call_missed;
       case 'TRANSFERRED':
-        return Icons.compare_arrows_outlined;
+        return Icons.swap_vert_outlined;
       default:
         return Icons.insert_drive_file_outlined;
     }

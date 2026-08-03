@@ -68,7 +68,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   String selectedValue = '10';
   List<String> dropdownItems = ['10', '50', '100', '500', '1000'];
 
- String? _currentUserRole;
+  String? _currentUserRole;
 
   bool _selectAll = false;
   String _searchQuery = '';
@@ -552,7 +552,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     );
   }
 
-   Future<void> _loadCurrentUserRole() async {
+  Future<void> _loadCurrentUserRole() async {
     final user = await SessionService().getSavedUser();
     if (!mounted) return;
     setState(() {
@@ -1447,7 +1447,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             style: AppTextStyle.small(size: 10.sp, color: Colors.white),
           ),
           SizedBox(width: 0.8.w),
-          _legendDot(const Color(0xff22C55E)),
+          _legendDot(AppThemeColors.basicGreen),
           SizedBox(width: 0.3.w),
           Text(
             'Normal',
@@ -1489,7 +1489,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
     final tagItems = state.leadTag.map((e) => e.name).toList();
     final sourceItems = state.sources.map((e) => e.name).toList();
     final staffItems = state.staffList.map((e) => e.name).toList();
-   final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin'; 
+    final isAdmin = (_currentUserRole ?? '').toLowerCase() == 'admin';
     final deletedByItems = state.staffList.map((e) => e.name).toList();
     const priorityItems = ["High", "Low", "Negative", "Normal"];
 
@@ -1608,21 +1608,22 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       ),
     );
 
-if (isAdmin) {
-    filterWidgets.add(
-      MultiSelectDropdown(
-        label: "Staff",
-        hint: 'select staff',
-        items: staffItems,
-        selectedValues: selectedStaffs,
-        onChanged: (val) {
-          setState(() {
-            selectedStaffs = val;
-            _resetPage();
-          });
-        },
-      ),
-    );}
+    if (isAdmin) {
+      filterWidgets.add(
+        MultiSelectDropdown(
+          label: "Staff",
+          hint: 'select staff',
+          items: staffItems,
+          selectedValues: selectedStaffs,
+          onChanged: (val) {
+            setState(() {
+              selectedStaffs = val;
+              _resetPage();
+            });
+          },
+        ),
+      );
+    }
 
     // Group filter widgets into rows of 3 columns
     List<List<Widget>> rows = [];
@@ -1984,7 +1985,7 @@ if (isAdmin) {
             case 'high':
               return const Color(0xFFEF4444);
             case 'normal':
-              return const Color(0xFF22C55E);
+              return AppThemeColors.basicGreen;
             case 'low':
               return const Color.fromARGB(255, 226, 249, 22);
             case 'negative':

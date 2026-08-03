@@ -1,5 +1,7 @@
 // lib/core/router/crm_shell.dart
 
+import 'dart:developer';
+
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -196,10 +198,12 @@ class _CrmShellState extends State<CrmShell> {
     final bool blockNativePop = kIsWeb ? false : isDashboard;
 
     final screenWidth = MediaQuery.of(context).size.width;
+    log("screen width is ............. $screenWidth");
     final screenHeight = MediaQuery.of(context).size.height;
-    final double minLayoutWidth = 1200;
-    final double contentWidth =
-        screenWidth < minLayoutWidth ? minLayoutWidth : screenWidth;
+    final double minLayoutWidth = 1000;
+    final double contentWidth = screenWidth < minLayoutWidth
+        ? minLayoutWidth
+        : screenWidth;
 
     final mainContent = Stack(
       children: [

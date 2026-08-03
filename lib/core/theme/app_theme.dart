@@ -72,11 +72,37 @@ class AppThemeColors {
   static const Color hintColor = Color(0xff747474);
 
   static Color textfieldBorder = Color(0xff8798B0).withValues(alpha: 0.12);
+  static Color followupCardBorder = Color(0xff8798B0).withValues(alpha: 0.3);
 
   static const Color sidebarLogoTxtClr = Color(0xff2D2D2D);
+  static const Color sidebarTxtClr = Color(0xff2D2D2D);
   static const Color basicGreen = Color(0xff00B16E);
   static const Color dashboardCard = Color(0xffFEFEFE);
   static const Color cardText = Color(0xff2D2D2D);
+  static const Color followupDateCardBg = Color(0xffF4F6F8);
+}
+
+Color getStageColor(String stage) {
+  switch (stage.trim().toUpperCase()) {
+    case 'FOLLOWUP':
+    case 'FOLLOW UP':
+    case 'FOLLOW-UP':
+      return const Color(0xFFF59E0B);
+    case 'NEW':
+      return const Color(0xFF10B981);
+    case 'TRANSFERRED':
+      return const Color(0xFF3B82F6);
+    case 'REJECTED':
+      return const Color(0xFFEF4444);
+    case 'CLOSED':
+      return const Color(0xFF0D31E8);
+    case 'CONNECTED':
+      return const Color(0xFF059669);
+    case 'MISSED':
+      return const Color(0xFFEF4444);
+    default:
+      return const Color(0xFFF59E0B);
+  }
 }
 
 // class AppTextStyles {

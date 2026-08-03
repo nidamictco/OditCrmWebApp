@@ -1,5 +1,6 @@
 // lib/core/router/app_router.dart
 
+import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/screens/follow_up_details_new.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/screen/lead_tag.dart';
 import 'package:flutter/material.dart';
@@ -158,18 +159,20 @@ class AppRouter {
         GoRoute(
           path: RoutePaths.login,
           // builder: (context, state) => const LoginScreen(),
-           pageBuilder: (context, state) => const MaterialPage(
-    key: ValueKey('login-page'), // stable across every redirect resolution
-    child: LoginScreen(),
-  ),
+          pageBuilder: (context, state) => const MaterialPage(
+            key: ValueKey(
+              'login-page',
+            ), // stable across every redirect resolution
+            child: LoginScreen(),
+          ),
         ),
         GoRoute(
           path: RoutePaths.forgotPassword,
           // builder: (context, state) => const ForgotPasswordScreen(),
-           pageBuilder: (context, state) => const MaterialPage(
-    key: ValueKey('forgot-password-page'),
-    child: ForgotPasswordScreen(),
-  ),
+          pageBuilder: (context, state) => const MaterialPage(
+            key: ValueKey('forgot-password-page'),
+            child: ForgotPasswordScreen(),
+          ),
         ),
 
         // Mother Company Routes (Non-CRM Shell)
@@ -807,7 +810,11 @@ class _FollowUpWrapperState extends State<FollowUpWrapper> {
         ),
         BlocProvider(create: (_) => LeadCategoryCubit()),
       ],
-      child: FollowUpDetailsScreen(
+      // child: FollowUpDetailsScreen(
+      //   currentLead: _lead!,
+      //   fromCard: widget.fromCard,
+      // ),
+      child: FollowUpDetailsNewScreen(
         currentLead: _lead!,
         fromCard: widget.fromCard,
       ),

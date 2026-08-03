@@ -1,8 +1,11 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/text_theme_extension.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'feature/auth/data/firebase_auth_service.dart';
 import 'core/shared_preference/session_service.dart';
 import 'feature/auth/cubit/auth/auth_cubit.dart';
@@ -38,8 +41,6 @@ void main() async {
     // print(
     //   'Notification permission: ${settings.authorizationStatus}',
     // );
-
-    
 
     runApp(const OxdoApp());
   } catch (e) {
@@ -104,8 +105,16 @@ class _OxdoAppState extends State<OxdoApp> {
         localizationsDelegates: const [CountryLocalizations.delegate],
         debugShowCheckedModeBanner: false,
         title: 'Odit CRM',
+
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppThemeColors.appPrimaryColor,
+          ),
+          scaffoldBackgroundColor: AppThemeColors.scaffoldBg,
+
+          textTheme: GoogleFonts.poppinsTextTheme(
+            ThemeData.light().textTheme,
+          ).withLetterSpacing(0.3, 11.5),
         ),
         builder: (context, child) {
           return Sizer(
@@ -165,23 +174,28 @@ class _OxdoAppState extends State<OxdoApp> {
                         },
                       );
                     } else {
-      // NEW — every other AuthError (wrong password, empty fields,
-      // deactivated, no account found, etc.) shown here now. This
-      // listener is set up once in OxdoApp's build tree, above
-      // MaterialApp.router, so it can never be duplicated the way
-      // LoginScreen can during a GoRouter page transition.
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(state.message),
-            backgroundColor: const Color.fromARGB(255, 180, 27, 24),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-    }
-  }
-},
+                      // NEW — every other AuthError (wrong password, empty fields,
+                      // deactivated, no account found, etc.) shown here now. This
+                      // listener is set up once in OxdoApp's build tree, above
+                      // MaterialApp.router, so it can never be duplicated the way
+                      // LoginScreen can during a GoRouter page transition.
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(state.message),
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              180,
+                              27,
+                              24,
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                    }
+                  }
+                },
                 //   }
                 // },
                 child: child ?? const SizedBox.shrink(),
