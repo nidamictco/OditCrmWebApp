@@ -1,5 +1,6 @@
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -133,24 +134,6 @@ class _LeadCategoryState extends State<LeadCategory> {
                 ),
 
                 SizedBox(height: 1.5.h),
-
-                /// Cost
-                // Text("Cost", style: AppTextStyle.medium(size: 11.sp)),
-                // SizedBox(height: 0.5.h),
-                // TextField(
-                //   style: AppTextStyle.medium(weight: FontWeight.w400),
-                //   controller: costController,
-                //   decoration: InputDecoration(
-                //     hintText: "Enter Cost",
-                //     hintStyle: AppTextStyle.medium(
-                //       size: 11.sp,
-                //       color: AppColors.grey,
-                //     ),
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(4),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -158,9 +141,29 @@ class _LeadCategoryState extends State<LeadCategory> {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
 
+             final cubit = context.read<LeadCategoryCubit>();
+
+  if (cubit.categoryExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This category already exists.', isSuccess: false, onButtonPressed: () {  
+context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx);
 
             await context.read<LeadCategoryCubit>().addCategory(name: name);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$name added successfully'),
+                backgroundColor: AppColors.green,
+              ),
+            );
           },
         );
       },
@@ -209,6 +212,19 @@ class _LeadCategoryState extends State<LeadCategory> {
 
             if (name.isEmpty) return;
 
+ final cubit = context.read<LeadCategoryCubit>();
+
+             if (cubit.categoryExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This category already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
@@ -216,6 +232,12 @@ class _LeadCategoryState extends State<LeadCategory> {
               id: id,
               name: name,
             );
+             ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$name updated successfully'),
+              backgroundColor: AppColors.green,
+            ),
+          );
           },
         );
       },
@@ -242,6 +264,12 @@ class _LeadCategoryState extends State<LeadCategory> {
         onSubmit: () {
           Navigator.pop(ctx);
           context.read<LeadCategoryCubit>().deleteCategory(id: category.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${category.name} deleted successfully!'),
+              backgroundColor: AppColors.red,
+            ),
+          );
         },
       ),
     );
@@ -351,124 +379,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                           : _showAddDialog,
                                       isLoading: state.isSubmitting,
                                     ),
-                                    SizedBox(width: 1.w),
-                                    // _actionBtn(
-                                    //   1,
-                                    //   "Import",
-                                    //   AppColors.blueLight,
-                                    //   AppColors.primary,
-                                    //   () {
-                                    //     showDialog(
-                                    //       context: context,
-                                    //       builder: (context) {
-                                    //         return AppDialog(
-                                    //           title: 'Bulk Upload',
-                                    //           body: Column(
-                                    //             crossAxisAlignment:
-                                    //                 CrossAxisAlignment.start,
-                                    //             mainAxisSize: MainAxisSize.min,
-                                    //             children: [
-                                    //               Text(
-                                    //                 "Import CSV File",
-                                    //                 style: AppTextStyle.medium(
-                                    //                   size: 11.sp,
-                                    //                 ),
-                                    //               ),
-                                    //               SizedBox(height: 2.h),
-                                    //               Container(
-                                    //                 height: 5.h,
-                                    //                 width: 50.w,
-                                    //                 decoration: BoxDecoration(
-                                    //                   color: AppColors.white,
-                                    //                   border: Border.all(
-                                    //                     color:
-                                    //                         AppColors.divider,
-                                    //                   ),
-                                    //                   borderRadius:
-                                    //                       BorderRadius.circular(
-                                    //                         4,
-                                    //                       ),
-                                    //                 ),
-                                    //                 child: Row(
-                                    //                   children: [
-                                    //                     const Icon(
-                                    //                       Icons.file_upload,
-                                    //                     ),
-                                    //                     SizedBox(width: 1.h),
-                                    //                     Text(
-                                    //                       "Upload CSV File",
-                                    //                       style:
-                                    //                           AppTextStyle.medium(),
-                                    //                     ),
-                                    //                   ],
-                                    //                 ),
-                                    //               ),
-                                    //               const SizedBox(height: 16),
-                                    //               Text(
-                                    //                 'Simple File',
-                                    //                 style: AppTextStyle.small(
-                                    //                   color: Colors.indigo,
-                                    //                   size: 11.sp,
-                                    //                 ),
-                                    //               ),
-                                    //             ],
-                                    //           ),
-                                    //           onSubmit: () =>
-                                    //               Navigator.pop(context),
-                                    //         );
-                                    //       },
-                                    //     );
-                                    //   },
-                                    // ),
                                     // SizedBox(width: 1.w),
-                                    // _actionBtn(
-                                    //   2,
-                                    //   "Bulk Add",
-                                    //   AppColors.orangeLight,
-                                    //   AppColors.orange,
-                                    //   () {
-                                    //     showDialog(
-                                    //       context: context,
-                                    //       builder: (context) {
-                                    //         return AppDialog(
-                                    //           title: 'Bulk Add Category',
-                                    //           body: Column(
-                                    //             crossAxisAlignment:
-                                    //                 CrossAxisAlignment.start,
-                                    //             mainAxisSize: MainAxisSize.min,
-                                    //             children: [
-                                    //               const Text("Lead Category"),
-                                    //               const SizedBox(height: 8),
-                                    //               TextField(
-                                    //                 controller:
-                                    //                     categoryController,
-                                    //                 decoration: InputDecoration(
-                                    //                   hintText:
-                                    //                       "Enter Category",
-                                    //                   hintStyle:
-                                    //                       AppTextStyle.medium(
-                                    //                         size: 11.sp,
-                                    //                         color:
-                                    //                             AppColors.grey,
-                                    //                       ),
-                                    //                   border: OutlineInputBorder(
-                                    //                     borderRadius:
-                                    //                         BorderRadius.circular(
-                                    //                           4,
-                                    //                         ),
-                                    //                   ),
-                                    //                 ),
-                                    //               ),
-                                    //               const SizedBox(height: 16),
-                                    //             ],
-                                    //           ),
-                                    //           onSubmit: () =>
-                                    //               Navigator.pop(context),
-                                    //         );
-                                    //       },
-                                    //     );
-                                    //   },
-                                    // ),
                                   ],
                                 );
                               },

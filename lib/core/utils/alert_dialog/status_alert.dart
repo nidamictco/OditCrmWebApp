@@ -121,7 +121,7 @@ class StatusAlertWidget extends StatelessWidget {
           //   ),
           // ),
           Container(
-            width: wPx(318, 300, 380),
+            width:318,
             constraints: BoxConstraints(minHeight: hPx(330.58, 320, 400)),
             padding: EdgeInsets.only(top: 30, right: 60, bottom: 30, left: 60),
             decoration: BoxDecoration(

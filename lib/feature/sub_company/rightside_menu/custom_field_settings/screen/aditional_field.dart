@@ -333,6 +333,12 @@ class _AdditionalFieldsSectionState extends State<AdditionalFieldsSection> {
                                         context
                                             .read<AdditionalFieldsCubit>()
                                             .deleteField(field.id!);
+                                            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${field.fieldName} deleted successfully!"),
+            backgroundColor: Colors.red,
+          ),
+        );
                                       },
                                       child: Icon(
                                         Icons.delete_outline,

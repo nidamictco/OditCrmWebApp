@@ -87,6 +87,13 @@ class LeadCategoryCubit extends Cubit<LeadCategoryState> {
   }
 }
 
+bool categoryExists(String name, {String? excludingId}) {
+  final normalized = name.trim().toUpperCase();
+  return state.categories.any(
+    (c) => c.name.trim().toUpperCase() == normalized && c.id != excludingId,
+  );
+}
+
   /// Update the name of an existing category.
   Future<void> updateCategory({
     required String id,

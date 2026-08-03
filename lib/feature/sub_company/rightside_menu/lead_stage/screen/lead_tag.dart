@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_state.dart';
@@ -152,9 +153,27 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
 
+ final cubit = context.read<LeadTagCubit>();
+
+             if (cubit.leaTagExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This tag already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
             Navigator.pop(ctx);
 
             await context.read<LeadTagCubit>().addLeadTag(name: name);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$name added successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
@@ -203,6 +222,19 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
             if (name.isEmpty) return;
 
+ final cubit = context.read<LeadTagCubit>();
+
+             if (cubit.leaTagExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This tag already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
@@ -210,13 +242,19 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
               id: id,
               name: name,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} updated successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
     );
   }
 
-  void _confirmDelete(LeadsModel category) {
+  void _confirmDelete(LeadsModel leadTag) {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
@@ -228,14 +266,20 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Are you sure you want to delete "${category.name}"?\nThis action cannot be undone.',
+              'Are you sure you want to delete "${leadTag.name}"?\nThis action cannot be undone.',
               style: AppTextStyle.medium(size: 11.5.sp, color: AppColors.black),
             ),
           ),
         ),
         onSubmit: () {
           Navigator.pop(ctx);
-          context.read<LeadTagCubit>().deleteLeadTag(id: category.id);
+          context.read<LeadTagCubit>().deleteLeadTag(id: leadTag.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${leadTag.name} deleted successfully"),
+            backgroundColor: Colors.red,
+          ),
+        );
         },
       ),
     );

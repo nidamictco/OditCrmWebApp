@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -10,6 +11,7 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_state.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 class LeadSourceScreen extends StatefulWidget {
@@ -136,6 +138,19 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
             final name = sourceController.text.trim();
             if (name.isEmpty) return;
 
+             final cubit = context.read<LeadSourceCubit>();
+
+             if (cubit.sourceExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This source already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx);
 
             await context.read<LeadSourceCubit>().addSource(name: name);
@@ -185,6 +200,18 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
 
             if (name.isEmpty) return;
 
+            final cubit = context.read<LeadSourceCubit>();
+ if (cubit.sourceExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This source already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
@@ -192,17 +219,23 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
               id: id,
               name: name,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} updated successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
     );
   }
 
-  void _confirmDelete(LeadsModel category) {
+  void _confirmDelete(LeadsModel source) {
     showDialog(
       context: context,
       builder: (ctx) => AppDialog(
-        title: 'Delete Category',
+        title: 'Delete source',
         submitText: 'Delete',
         width: 35.w,
         body: Padding(
@@ -210,14 +243,20 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Are you sure you want to delete "${category.name}"?\nThis action cannot be undone.',
+              'Are you sure you want to delete "${source.name}"?\nThis action cannot be undone.',
               style: AppTextStyle.medium(size: 11.5.sp, color: AppColors.black),
             ),
           ),
         ),
         onSubmit: () {
           Navigator.pop(ctx);
-          context.read<LeadSourceCubit>().deleteSource(id: category.id);
+          context.read<LeadSourceCubit>().deleteSource(id: source.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${source.name} deleted successfully!"),
+            backgroundColor: Colors.red,
+          ),
+        );
         },
       ),
     );

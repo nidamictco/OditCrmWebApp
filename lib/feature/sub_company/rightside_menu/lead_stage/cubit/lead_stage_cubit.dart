@@ -72,6 +72,13 @@ class LeadStageCubit extends Cubit<LeadStageState> {
     }
   }
 
+bool stageExists(String name, {String? excludingId}) {
+  final normalized = name.trim().toUpperCase();
+  return state.stages.any(
+    (c) => c.name.trim().toUpperCase() == normalized && c.id != excludingId,
+  );
+}
+
   /// Update the name of an existing category.
   Future<void> updateStage({
     required String id,
