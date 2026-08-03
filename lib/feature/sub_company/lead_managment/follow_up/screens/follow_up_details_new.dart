@@ -2362,7 +2362,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
 
     return IntrinsicHeight(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: const EdgeInsets.only(left: 50),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Row(
@@ -3069,7 +3069,7 @@ class _NewActivityItem extends StatelessWidget {
       case ActivityType.leadCreated:
         return Icons.add_circle_outline;
       case ActivityType.statusChanged:
-        return Icons.swap_horiz;
+        return Icons.flag;
       case ActivityType.followupAdded:
         return Icons.phone_outlined;
       case ActivityType.categoryChanged:
@@ -3083,18 +3083,31 @@ class _NewActivityItem extends StatelessWidget {
       case ActivityType.remarkUpdated:
         return Icons.edit_note_outlined;
       default:
-        return Icons.phone_outlined;
+        return Icons.swap_horiz;
     }
   }
 
   Color get _iconBgColor {
     switch (activity.type) {
       case ActivityType.followupAdded:
-        return const Color(0xFF0F766E);
+        return const Color(0xFF4E9CDB).withValues(alpha: 0.15);
+      case ActivityType.leadCreated:
+        return const Color(0xFF059669).withValues(alpha: 0.15);
+      case ActivityType.statusChanged:
+        return const Color(0xFFEF4444).withValues(alpha: 0.15);
+      default:
+        return const Color(0xFF0F766E).withValues(alpha: 0.15);
+    }
+  }
+
+  Color get _iconColor {
+    switch (activity.type) {
+      case ActivityType.followupAdded:
+        return const Color(0xFF4E9CDB);
       case ActivityType.leadCreated:
         return const Color(0xFF059669);
       case ActivityType.statusChanged:
-        return const Color(0xFF2563EB);
+        return const Color(0xFFEF4444);
       default:
         return const Color(0xFF0F766E);
     }
@@ -3118,13 +3131,16 @@ class _NewActivityItem extends StatelessWidget {
                     color: _iconBgColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(_icon, size: 18, color: Colors.white),
+                  child: Icon(_icon, size: 18, color: _iconColor),
                 ),
                 if (!isLast)
                   Expanded(
                     child: Container(
-                      width: 1.5,
-                      color: const Color(0xFFCBD5E1),
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: const DottedArrowDown(
+                        height: 140,
+                        color: Color(0xFFBDBDBD),
+                      ),
                     ),
                   ),
               ],
@@ -3133,7 +3149,8 @@ class _NewActivityItem extends StatelessWidget {
           const SizedBox(width: 14),
 
           // Right: Card
-          Expanded(
+          SizedBox(
+            width: 500,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Container(
