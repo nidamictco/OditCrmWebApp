@@ -200,6 +200,12 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
               ).toString();
 
               context.go(path);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Lead deleted successfully'),
+                  backgroundColor: Colors.red,
+                ),
+              );
             },
             child: Text(
               'Delete',
@@ -453,6 +459,14 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                   context.pop();
                                   context.pop();
                                   context.read<AddLeadCubit>().fetchLeads();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${_currentLead.clientName} transferred to $selectedStaffName successfully',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
                                 },
                           );
                         },
