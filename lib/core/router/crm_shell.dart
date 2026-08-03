@@ -1,5 +1,6 @@
 // lib/core/router/crm_shell.dart
 
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,9 +37,12 @@ class _CrmShellState extends State<CrmShell> {
   late NotificationCubit _notificationCubit;
   bool _notificationCubitReady = false;
 
+   late final StaffCubit _staffCubit;
+
   @override
   void initState() {
     super.initState();
+     _staffCubit = StaffCubit();
     _notificationCubit = NotificationCubit(
       NotificationRepo(),
       GeneralSettingsRepository(staffId: ''),
@@ -61,6 +65,7 @@ class _CrmShellState extends State<CrmShell> {
 
   @override
   void dispose() {
+      _staffCubit.close();  
     if (_notificationCubitReady) {
       _notificationCubit.close();
     }
@@ -243,15 +248,27 @@ class _CrmShellState extends State<CrmShell> {
                             onMenuTap: toggleSidebar,
                           ),
                         ),
+                        // Expanded(
+                        //   child: Container(
+                        //     color: AppColors.background,
+                        //     child: BlocProvider.value(
+                        //       value: _notificationCubit,
+                        //       child: widget.child,
+                        //     ),
+                        //   ),
+                        // ),
                         Expanded(
-                          child: Container(
-                            color: AppColors.background,
-                            child: BlocProvider.value(
-                              value: _notificationCubit,
-                              child: widget.child,
-                            ),
-                          ),
-                        ),
+  child: Container(
+    color: AppColors.background,
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _notificationCubit),
+        BlocProvider.value(value: _staffCubit),   // ← add here instead
+      ],
+      child: widget.child,
+    ),
+  ),
+),
                         // const BottomBar(),
                       ],
                     ),

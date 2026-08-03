@@ -151,7 +151,7 @@ class AddLeadRepository implements IAddLeadRepository {
     final datePart = DateFormat('yyyyMMdd').format(now);
     final timePart = DateFormat('HHmmss').format(now);
     final ms =
-        now.millisecondsSinceEpoch % 1000; // last 3 digits for uniqueness
+        now.millisecondsSinceEpoch % 1000; 
     final id = now.millisecondsSinceEpoch.toString();
     return '$prefix-$datePart-$id';
   }
@@ -426,9 +426,8 @@ class AddLeadRepository implements IAddLeadRepository {
         case 'FOLLOWUP':
           return activeLeads.where((lead) {
             return isInRange(lead.followUpDate) &&
-                lead.leadStage.toUpperCase() == 'FOLLOWUP'; // &&
-            // lead.leadStage.toUpperCase() != 'CLOSED'&&
-            // lead.leadStage.toUpperCase() != 'REJECTED'&& ;
+                (lead.leadStage.toUpperCase() == 'FOLLOWUP' ||
+                    lead.leadStage.toUpperCase() == 'TRANSFERRED');
           }).toList();
 
         /// CLOSED LEADS
@@ -1132,7 +1131,20 @@ Future<DashboardCountModel> fetchLeadCounts({
       }
     }
 
-    if (leadStage == 'FOLLOWUP') {
+    // if (leadStage == 'FOLLOWUP') {
+    //   final nextFollowUpDate = data['nextFollowUpDate'];
+    //   if (nextFollowUpDate != null) {
+    //     final followDate = (nextFollowUpDate as Timestamp).toDate();
+    //     final inRange = selectedDate != null
+    //         ? _isInRange(followDate, startOfDay!, endOfDay)
+    //         : !followDate.isAfter(endOfDay);
+    //     if (inRange) followUpCount++;
+    //   }
+    // }
+
+    // CHANGED: TRANSFERRED-stage leads with a pending nextFollowUpDate now
+    // also count toward Follow-up, same as FOLLOWUP-stage leads.
+    if (leadStage == 'FOLLOWUP' || leadStage == 'TRANSFERRED') {
       final nextFollowUpDate = data['nextFollowUpDate'];
       if (nextFollowUpDate != null) {
         final followDate = (nextFollowUpDate as Timestamp).toDate();
@@ -1272,12 +1284,38 @@ Future<DashboardCountModel> fetchLeadCounts({
         }),
       );
 
+      // final activeLeads = allLeads.where((lead) => !lead.isDeleted).toList();
+
+      // final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
+      // final DateTime? fromDay = selectedDate != null
+      //     ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+      //     : null;
+      // final DateTime toDay = DateTime(
+      //   effectiveTo.year,
+      //   effectiveTo.month,
+      //   effectiveTo.day,
+      //   23,
+      //   59,
+      //   59,
+      // );
+
+      // bool isInRange(DateTime? date) {
+      //   if (date == null) return false;
+      //   if (selectedDate == null) {
+      //     return date.isBefore(toDay);
+      //   }
+      //   return !date.isBefore(fromDay!) && !date.isAfter(toDay);
+      // }
+
       final activeLeads = allLeads.where((lead) => !lead.isDeleted).toList();
 
-      final effectiveTo = toDate ?? DateTime.now(); //selectedDate ??
-      final DateTime? fromDay = selectedDate != null
+      // CHANGED: when no filter is active, default the range to "today only"
+      // instead of "before end of today" (which matched every past call).
+      final now = DateTime.now();
+      final DateTime fromDay = selectedDate != null
           ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-          : null;
+          : DateTime(now.year, now.month, now.day);
+      final DateTime effectiveTo = toDate ?? selectedDate ?? now;
       final DateTime toDay = DateTime(
         effectiveTo.year,
         effectiveTo.month,
@@ -1289,10 +1327,7 @@ Future<DashboardCountModel> fetchLeadCounts({
 
       bool isInRange(DateTime? date) {
         if (date == null) return false;
-        if (selectedDate == null) {
-          return date.isBefore(toDay);
-        }
-        return !date.isBefore(fromDay!) && !date.isAfter(toDay);
+        return !date.isBefore(fromDay) && !date.isAfter(toDay);
       }
 
       final List<AddLeadModel> result = [];

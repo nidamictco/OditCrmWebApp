@@ -544,7 +544,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           cur.successMessage != prev.successMessage ||
           cur.additionalFields != prev.additionalFields ||
           cur.isUpdating != prev.isUpdating,
-      listener: (context, state) {
+      listener: (context1, state) {
         if (state.additionalFields.isNotEmpty) {
           _syncAdditionalControllers(state.additionalFields);
         }
@@ -562,6 +562,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             "Success state: status = ${state.status}, message = ${state.successMessage}",
           );
           if (state.status == AddLeadStatus.success) {
+            context.read<AddLeadCubit>().clearMessages();
             //   showDialog(
             //     context: context,
             //     barrierDismissible: false,
@@ -640,9 +641,15 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ? 'The lead has been updated successfully.'
                   : 'The lead has been added successfully.',
               onButtonPressed: () {
-                Navigator.of(context).pop();
+                if (!mounted) return;
+                context.pop();
                 if (_isEditMode) {
-                  Navigator.pop(context, true);
+                  if (context.canPop()) {
+                    context.pop(true);
+                  } else {
+                    Navigator.pop(context);
+                    context.go(RoutePaths.leadsReport);
+                  }
                 } else {
                   context.read<AddLeadCubit>().fetchLeads();
                   context.go(RoutePaths.leadsReport);

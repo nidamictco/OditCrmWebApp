@@ -494,7 +494,7 @@ class AppRouter {
                   hasPermission: perm.canAddStaff,
                   child: MultiBlocProvider(
                     providers: [
-                      BlocProvider(create: (_) => StaffCubit()),
+                      // BlocProvider(create: (_) => StaffCubit()),
                       BlocProvider(
                         create: (_) => DesignationCubit()..fetchAll(),
                       ),
@@ -520,10 +520,10 @@ class AppRouter {
                 final perm = context.watch<PermissionCubit>();
                 return PermissionGuard(
                   hasPermission: perm.canViewStaff,
-                  child: BlocProvider(
-                    create: (_) => StaffCubit()..fetchAll(),
+                  // child: BlocProvider(
+                  //   create: (_) => StaffCubit()..fetchAll(),
                     child: ViewStaff(),
-                  ),
+                  // ),
                 );
               },
             ),
@@ -939,7 +939,7 @@ class _StaffProfileWrapperState extends State<StaffProfileWrapper> {
     }
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => StaffCubit()),
+        // BlocProvider(create: (_) => StaffCubit()),
         BlocProvider(create: (_) => AddLeadCubit()),
         BlocProvider(create: (_) => StaffActivityCubit(ActivityRepository())),
       ],
@@ -1003,7 +1003,7 @@ class _EditStaffWrapperState extends State<EditStaffWrapper> {
       hasPermission: perm.canAddStaff,
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => StaffCubit()),
+          // BlocProvider(create: (_) => StaffCubit()),
           BlocProvider(create: (_) => DesignationCubit()..fetchAll()),
         ],
         child: AddStaff(

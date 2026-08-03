@@ -274,8 +274,15 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                                 child: const Text('Cancel'),
                                               ),
                                               TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(ctx, true),
+                                                onPressed: () {
+                                                    Navigator.pop(ctx, true);
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        backgroundColor: AppColors.red,
+                                                        content: Text('Designation "${designation.designationName}" deleted!'),
+                                                      ),
+                                                    );
+                                                    },
                                                 style: TextButton.styleFrom(
                                                   foregroundColor: Colors.red,
                                                 ),
@@ -293,7 +300,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                                 designation.id!,
                                               );
                                         }
-                                      },
+                                        },
 
                                       child: Icon(
                                         Icons.delete_outline,

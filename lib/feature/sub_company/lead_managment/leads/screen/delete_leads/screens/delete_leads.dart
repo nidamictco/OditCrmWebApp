@@ -1440,6 +1440,13 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 Navigator.pop(dialogContext);
                 for (var lead in selectedLeads) {
                   addLeadCubit.restoreLead(lead);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${selectedLeads.length} Lead(s) restored successfully.'),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: AppColors.green,
+                            ), 
+                          );
                 }
                 setState(() => _selectedIndices.clear());
               },
@@ -1455,6 +1462,13 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                   if (lead.id != null) {
                     // addLeadCubit.permanentlyDeleteLead(lead.id!);
                     addLeadCubit.deleteLead(lead.id!, lead);
+                     ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${selectedLeads.length} Lead(s) deleted successfully.'),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: AppColors.red,
+                            ),
+                          );
                   }
                 }
                 setState(() => _selectedIndices.clear());
@@ -1499,6 +1513,13 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 addLeadCubit.restoreLead(lead);
+                ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${lead.clientName} restored successfully.'),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: AppColors.green,
+                            ), 
+                          );
               },
               child: Text(
                 'Restore',
@@ -1536,6 +1557,13 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               Navigator.pop(dialogContext);
               // addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
               addLeadCubit.deleteLead(lead.id!, lead);
+              ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Lead(s) deleted successfully.'),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: AppColors.red,
+                            ), 
+                          );
             },
             child: Text(
               'Delete',

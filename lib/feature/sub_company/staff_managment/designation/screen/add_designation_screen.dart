@@ -514,7 +514,7 @@ class _DesignationPermissionsScreenState
         if (state is DesignationSaved) {
           final docId = state.docId;
           final name = _designationController.text.trim();
-          _showSnack('Designation "$name" saved!');
+         isEditMode ? _showSnack('Designation "$name" updated!') : _showSnack('Designation "$name" saved!');
           context.read<DesignationCubit>().reset();
           Navigator.pop(context, {'id': docId, 'name': name});
           // context.read<DesignationCubit>().reset();

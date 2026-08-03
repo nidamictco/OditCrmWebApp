@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
@@ -63,14 +64,15 @@ class StatusAlertWidget extends StatelessWidget {
   /// );
   /// ```
   static Future<void> show(
-    BuildContext context, {
+    BuildContext dialogContext, {
     required bool isSuccess,
     required String title,
     required String message,
     required VoidCallback onButtonPressed,
   }) {
     return showDialog(
-      context: context,
+      context: dialogContext,
+
       barrierDismissible: false,
       builder: (_) => StatusAlertWidget(
         isSuccess: isSuccess,
@@ -101,31 +103,27 @@ class StatusAlertWidget extends StatelessWidget {
     final double gap = hPx(25, 20, 30);
 
     return Dialog(
-      backgroundColor: Colors.transparent,
+      // backgroundColor: AppThemeColors.appPrimaryColor,
+      backgroundColor: Colors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: wPx(60, 20, 36)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.only(left: wPx(4, 3, 6), bottom: hPx(8, 6, 10)),
-            child: Text(
-              statusLabel,
-              style: AppTextStyle.medium(
-                color: Colors.black54,
-                fontSize: 12.sp,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.only(left: wPx(4, 3, 6), bottom: hPx(8, 6, 10)),
+          //   child: Text(
+          //     statusLabel,
+          //     style: AppTextStyle.medium(
+          //       color: Colors.black54,
+          //       fontSize: 12.sp,
+          //     ),
+          //   ),
+          // ),
           Container(
             width: wPx(318, 300, 380),
             constraints: BoxConstraints(minHeight: hPx(330.58, 320, 400)),
-            padding: EdgeInsets.only(
-              top: 30,
-              right: 60,
-              bottom: 30,
-              left: 60,
-            ),
+            padding: EdgeInsets.only(top: 30, right: 60, bottom: 30, left: 60),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFFFF),
               borderRadius: BorderRadius.circular(wPx(24, 18, 28)),
@@ -144,7 +142,7 @@ class StatusAlertWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: AppTextStyle.medium(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
+                    fontSize: 13.5.sp,
                     color: accentColor,
                     letterSpacing: 0.6,
                   ),

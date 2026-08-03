@@ -258,7 +258,7 @@ class _AddStaffState extends State<AddStaff> {
 
   // ─── Submit ───────────────────────────────────────────────────────────────
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     final error = _validate();
     if (error != null) {
       _showSnack(error, isError: true);
@@ -297,6 +297,7 @@ class _AddStaffState extends State<AddStaff> {
       documentName: _selectedDocuments,
       documentUrl: widget.staff?.documentUrl,
       accessibleUsers: _accessibleUsers,
+      status: widget.staff?.status ?? 'Active',
     );
 
     // On web, File is not available — pass null for file args
@@ -304,7 +305,7 @@ class _AddStaffState extends State<AddStaff> {
     final documentFile = kIsWeb ? null : _selectedDocument;
 
     if (_isEditMode) {
-      context.read<StaffCubit>().updateStaff(
+      await context.read<StaffCubit>().updateStaff(
         model,
         imageFile: kIsWeb ? null : _selectedImage,
         imageBytes: kIsWeb ? _selectedImageBytes : null,
@@ -314,7 +315,7 @@ class _AddStaffState extends State<AddStaff> {
         documentFileName: kIsWeb ? _docFileName : null,
       );
     } else {
-      context.read<StaffCubit>().addStaff(
+      await context.read<StaffCubit>().addStaff(
         model,
         imageFile: kIsWeb ? null : _selectedImage,
         imageBytes: kIsWeb ? _selectedImageBytes : null,
@@ -324,7 +325,7 @@ class _AddStaffState extends State<AddStaff> {
         documentFileName: kIsWeb ? _docFileName : null,
       );
     }
-
+    // context.read<StaffCubit>().fetchAll();
     // Navigator.pushReplacement(
     //   context,
     //   MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 16)),
@@ -390,7 +391,19 @@ class _AddStaffState extends State<AddStaff> {
               }
             }
           }
+                 ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: _isEditMode
+                  ? Text('Staff updated successfully.')
+                  : Text('Staff added successfully.'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: AppColors.green,
+            ),
+          );
+    
+      
           context.go(RoutePaths.viewStaff);
+          // context.pop();
         }
         if (state is StaffError) {
           final rawMsg = state.message;
@@ -816,42 +829,60 @@ class _AddStaffState extends State<AddStaff> {
   // ─── Submit Button ────────────────────────────────────────────────────────
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<StaffCubit, StaffState>(
-      builder: (context, state) {
-        final isSaving = state is StaffSaving;
-        return Align(
-          alignment: Alignment.centerRight,
-          child: SizedBox(
-            width: 10.w,
-            height: 5.h,
-            child: ElevatedButton(
-              onPressed: isSaving ? null : _handleSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSaving ? AppColors.grey : AppColors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+    return 
+    //BlocListener<StaffCubit, StaffState>(
+    //   listener: (context, state) {
+    //     if (state is StaffSaved) {
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(
+    //           content: _isEditMode
+    //               ? Text('Staff updated successfully.')
+    //               : Text('Staff added successfully.'),
+    //           behavior: SnackBarBehavior.floating,
+    //           backgroundColor: AppColors.green,
+    //         ),
+    //       );
+    //       Navigator.pop(context);
+    //     }
+    //   },
+    //   child:
+       BlocBuilder<StaffCubit, StaffState>(
+        builder: (context, state) {
+          final isSaving = state is StaffSaving;
+          return Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 10.w,
+              height: 5.h,
+              child: ElevatedButton(
+                onPressed: isSaving ? null : _handleSubmit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isSaving ? AppColors.grey : AppColors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
+                child: isSaving
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        _isEditMode ? 'Update' : 'Submit',
+                        style: AppTextStyle.medium(
+                          size: 10.sp,
+                          color: AppColors.white,
+                        ),
+                      ),
               ),
-              child: isSaving
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      _isEditMode ? 'Update' : 'Submit',
-                      style: AppTextStyle.medium(
-                        size: 10.sp,
-                        color: AppColors.white,
-                      ),
-                    ),
             ),
-          ),
-        );
-      },
+          );
+        },
+    //   ),
     );
   }
 

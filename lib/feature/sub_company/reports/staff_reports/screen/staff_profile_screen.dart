@@ -110,8 +110,7 @@ class StaffProfileScreen extends StatefulWidget {
   State<StaffProfileScreen> createState() => _StaffProfileScreenState();
 }
 
-class _StaffProfileScreenState extends State<StaffProfileScreen>
-    with SingleTickerProviderStateMixin {
+class _StaffProfileScreenState extends State<StaffProfileScreen> {
   late TabController _tabController;
   int _selectedTab = 0;
   late String _selectedDate;
@@ -139,40 +138,6 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   // Add a ScaffoldKey to control the endDrawer
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _liveModel = widget.staff;
-  //   _selectedDate = _formatDate(DateTime.now());
-  //   _tabController = TabController(length: 2, vsync: this);
-  //   _tabController.addListener(() {
-  //     setState(() => _selectedTab = _tabController.index);
-  //   });
-
-  //   // Refresh latest staff data from Firestore
-  //   if (widget.staff.id != null) {
-  //     context.read<StaffCubit>().getStaff(widget.staff.id!);
-  //   }
-  //   context.read<AddLeadCubit>().fetchLeadChartCounts(
-  //     staffId: widget.staff.id ?? '',
-  //     role: widget.staff.staffType ?? '',
-  //     selectedDate: DateTime.now(),
-  //   );
-  //   context.read<AddLeadCubit>().fetchDashboardCounts(
-  //     DateTime.now(),
-  //     staffId: widget.staff.id,
-  //     role: widget.staff.staffType,
-  //   );
-
-  //   if (widget.staff.id != null) {
-  //     context.read<StaffActivityCubit>().load(widget.staff.id!);
-  //   }
-
-  //   context.read<AddLeadCubit>().fetchCallStatusCounts(
-  //     staffId: widget.staff.id ?? '',
-  //     role: widget.staff.staffType ?? '',
-  //   );
-  // }
   void _refreshCounts() {
     final staffId = _liveModel.id ?? '';
     final role = _liveModel.staffType ?? '';
@@ -217,10 +182,6 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
     _selectedDate = _formatDate(DateTime.now());
     _selectedDateValue = DateTime.now();
     _toDateValue = null;
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(
-      () => setState(() => _selectedTab = _tabController.index),
-    );
 
     if (widget.staff.id != null) {
       context.read<StaffCubit>().getStaff(widget.staff.id!);
@@ -235,7 +196,6 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -298,7 +258,10 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                               Icons.arrow_back_ios_new,
                               color: Colors.white,
                             ),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () async {
+                             await context.read<StaffCubit>().fetchAll();
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -331,15 +294,9 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 _buildSliverHeader(innerBoxIsScrolled, staffInfo, _liveModel),
               ],
-              body: TabBarView(
-                controller: _tabController,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(0.8.w),
-                    child: _buildOverviewTab(staffInfo),
-                  ),
-                  // _buildDocumentsTab(_liveModel),
-                ],
+              body: Padding(
+                padding: EdgeInsets.all(0.8.w),
+                child: _buildOverviewTab(staffInfo),
               ),
             ),
           );
@@ -361,65 +318,15 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
       backgroundColor: const Color(0xFF1E3A5F),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () async {
+         await context.read<StaffCubit>().fetchAll();
+          Navigator.pop(context);
+        },
       ),
-      // actions: [
-      //   _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
-      //   SizedBox(width: 1.w),
-      //   ElevatedButton.icon(
-      //     onPressed: () {
-      //       showDialog(
-      //         context: context,
-      //         builder: (dialogContext) => BlocProvider.value(
-      //           value: context.read<StaffCubit>()..fetchNotes(widget.staff.id!),
-      //           child: NotesDialog(id: widget.staff.id!),
-      //         ),
-      //       );
-      //     },
-      //     icon: const Icon(Icons.note_alt_outlined, size: 16),
-      //     label: Text(
-      //       'Open Notes',
-      //       style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
-      //     ),
-      //     style: ElevatedButton.styleFrom(
-      //       backgroundColor: const Color(0xFF2B5BA8),
-      //       foregroundColor: Colors.white,
-      //       textStyle: AppTextStyle.small(size: 11.sp, color: AppColors.white),
-      //       padding: EdgeInsets.symmetric(horizontal: 0.5.w, vertical: 0.5.w),
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(8),
-      //       ),
-      //     ),
-      //   ),
-      //   SizedBox(width: 1.w),
-      //   Container(
-      //     margin: EdgeInsets.only(right: 1.w),
-      //     decoration: BoxDecoration(
-      //       color: const Color(0xFFF59E0B),
-      //       borderRadius: BorderRadius.circular(8),
-      //     ),
-      //     child: IconButton(
-      //       icon: const Icon(
-      //         Icons.edit_outlined,
-      //         color: Colors.white,
-      //         size: 18,
-      //       ),
-      //       onPressed: () {
-      //         Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //             builder: (context) =>
-      //                 MainScreen(selectedIndex: 15, staff: liveModel),
-      //           ),
-      //         );
-      //       },
-      //     ),
-      //   ),
-      // ],
+      
       actions: [
         _StatusDropdown(status: staffInfo.status, staffId: widget.staff.id),
         SizedBox(width: 1.w),
-        // ← "Open Notes" ElevatedButton.icon removed entirely
         Container(
           margin: EdgeInsets.only(right: 1.w),
           decoration: BoxDecoration(
@@ -432,11 +339,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
             enableInkWell: false,
             child: Container(
               padding: const EdgeInsets.all(12),
-              child: const Icon(
-                Icons.edit_outlined,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: Icon(Icons.edit_outlined, color: Colors.white, size: 18),
             ),
           ),
         ),
@@ -448,41 +351,20 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
         preferredSize: const Size.fromHeight(48),
         child: Container(
           color: const Color(0xFF1E3A5F),
-          child: TabBar(
-            controller: _tabController,
-            indicatorColor: Colors.white,
-            indicatorWeight: 3,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            labelStyle: AppTextStyle.medium(
-              weight: FontWeight.w700,
-              size: 12.sp,
-            ),
-            unselectedLabelStyle: AppTextStyle.medium(
-              weight: FontWeight.w400,
-              size: 12.sp,
-            ),
-            tabs: [
-              Tab(
-                child: Text(
-                  'Overview',
-                  style: AppTextStyle.medium(
-                    color: AppColors.white,
-                    size: 11.sp,
-                  ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.all(1.w),
+              child: Text(
+                'Overview',
+                style: AppTextStyle.medium(
+                  color: AppColors.white,
+                  size: 11.5.sp,
                 ),
               ),
-              Tab(
-                child: Text(
-                  'Staff Document',
-                  style: AppTextStyle.medium(
-                    size: 11.sp,
-                    color: AppColors.white,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
+         
         ),
       ),
     );
@@ -493,20 +375,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
   Widget _buildOverviewTab(StaffInfo staffInfo) {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, leadState) {
-        // Use live counts if available, fall back to zeros
-
-        // final liveCallData = CallStatusData(
-        //   cloudCallDuration: _callData.cloudCallDuration,
-        //   phoneCallDuration: _callData.phoneCallDuration,
-        //   closedCount: int.tryParse(leadState.closedLeadCount) ?? 0,
-        //   costAmount: _callData.costAmount,
-        //   totalCalled: int.tryParse(leadState.totalCalledCount) ?? 0,
-        //   leadsByCategory: leadState.leadChartCounts.isNotEmpty
-        //       ? leadState.leadChartCounts
-        //       : _callData.leadsByCategory,
-        //   connectedCount: int.tryParse(leadState.connectedCount) ?? 0,
-        //   notConnectedCount: int.tryParse(leadState.notConnectedCount) ?? 0,
-        // );
+       
         final liveCallData = CallStatusData(
           cloudCallDuration: _callData.cloudCallDuration,
           phoneCallDuration: _callData.phoneCallDuration,
@@ -531,6 +400,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
         return SingleChildScrollView(
           padding: EdgeInsets.all(2.h),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,47 +415,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen>
                           data: liveCallData,
                           selectedDate: _selectedDate,
                           categoryRows: leadState.leadCategoryTableRows,
-                          // onDateChanged: (date) {
-                          //   // date is now DateTime
-                          //   setState(() => _selectedDate = _formatDate(date));
 
-                          //   // fetch chart counts for the selected single date
-                          //   context.read<AddLeadCubit>().fetchLeadChartCounts(
-                          //     staffId: widget.staff.id ?? '',
-                          //     role: widget.staff.staffType ?? '',
-                          //     selectedDate: date, // ← actual selected date
-                          //   );
-
-                          //   // fetch call status for the selected single date
-                          //   context.read<AddLeadCubit>().fetchCallStatusCounts(
-                          //     staffId: widget.staff.id ?? '',
-                          //     role: widget.staff.staffType ?? '',
-                          //     selectedDate:
-                          //         date, // ← pass if your repo supports it
-                          //   );
-                          // },
-                          // onRangeChanged: (from, to) {
-                          //   setState(
-                          //     () => _selectedDate =
-                          //         '${_formatDate(from)} - ${_formatDate(to)}',
-                          //   );
-
-                          //   // fetch chart counts for the date range
-                          //   context.read<AddLeadCubit>().fetchLeadChartCounts(
-                          //     staffId: widget.staff.id ?? '',
-                          //     role: widget.staff.staffType ?? '',
-                          //     selectedDate:
-                          //         from, // pass from; add a `toDate` param if your repo supports range
-                          //     toDate: to, // uncomment when repo supports range
-                          //   );
-
-                          //   context.read<AddLeadCubit>().fetchCallStatusCounts(
-                          //     staffId: widget.staff.id ?? '',
-                          //     role: widget.staff.staffType ?? '',
-                          //     selectedDate: from,
-                          //     toDate: to,
-                          //   );
-                          // },
                           onDateChanged: (date) {
                             setState(() {
                               _selectedDate = _formatDate(date);
@@ -964,7 +794,9 @@ class _StatusDropdownState extends State<_StatusDropdown> {
     if (selected != null && selected != _current) {
       setState(() => _current = selected);
       if (widget.staffId != null) {
-        context.read<StaffCubit>().updateStatus(widget.staffId!, selected);
+        await context
+            .read<StaffCubit>()
+            .updateStatus(widget.staffId!, selected);
       }
     }
   }

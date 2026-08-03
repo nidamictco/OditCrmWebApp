@@ -188,7 +188,7 @@ class _ViewStaffState extends State<ViewStaff> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Staff member deleted successfully.'),
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.red,
                 behavior: SnackBarBehavior.floating,
               ),
             );

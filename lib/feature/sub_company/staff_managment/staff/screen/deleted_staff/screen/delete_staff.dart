@@ -117,6 +117,12 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
             onPressed: () {
               Navigator.pop(dialogContext);
               ctx.read<StaffCubit>().restoreStaff(staff);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: AppColors.green,
+                  content: Text('Staff "${staff.name}" restored!'),
+                ),
+              );
             },
             child: Text(
               'Restore',
@@ -152,7 +158,13 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
               Navigator.pop(dialogContext);
               ctx.read<StaffCubit>().deleteStaffPermanently(
                 staff.id ?? '',
-              ); // see cubit addition below
+              ); 
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.red,
+                  content: Text('Staff "${staff.name}" deleted permanently!'),
+                ),
+              );
             },
             child: Text(
               'Delete',

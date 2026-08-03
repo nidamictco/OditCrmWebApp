@@ -77,7 +77,11 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     emit(state.copyWith(status: AddLeadStatus.loading));
 
     // Load staff name + additional fields in parallel; streams fire independently
-    await Future.wait([_loadStaffName(), _fetchAdditionalFields(), fetchStaff()]);
+    await Future.wait([
+      _loadStaffName(),
+      _fetchAdditionalFields(),
+      fetchStaff(),
+    ]);
     if (isClosed) return;
     _watchCategories();
     _watchSources();
@@ -100,6 +104,15 @@ class AddLeadCubit extends Cubit<AddLeadState> {
         errorMessage: null,
       ),
     );
+  }
+
+  void _safeEmit(AddLeadState newState) {
+    if (isClosed) return; // if closed, do nothing
+    emit(newState);
+  }
+
+  void clearMessages() {
+    _safeEmit(state.copyWith(successMessage: null, errorMessage: null));
   }
 
   void initSettings(String staffId) {
@@ -872,20 +885,20 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   //   }
   // }
   Future<void> restoreLead(AddLeadModel lead) async {
-  emit(state.copyWith(isUpdating: true, clearError: true));
-  try {
-    await _leadRepository.restoreLead(lead.id!);
-    emit(
-      state.copyWith(
-        isUpdating: false,
-        successMessage: 'Lead restored successfully.',
-      ),
-    );
-    await fetchDeletedLeads();
-  } catch (e) {
-    emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
+    emit(state.copyWith(isUpdating: true, clearError: true));
+    try {
+      await _leadRepository.restoreLead(lead.id!);
+      emit(
+        state.copyWith(
+          isUpdating: false,
+          successMessage: 'Lead restored successfully.',
+        ),
+      );
+      await fetchDeletedLeads();
+    } catch (e) {
+      emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
+    }
   }
-}
 
   Future<void> fetchDeletedLeads() async {
     emit(
@@ -906,47 +919,46 @@ class AddLeadCubit extends Cubit<AddLeadState> {
   }
 
   Future<void> deleteLead(String id, AddLeadModel lead) async {
-  if (state.isDeleting) return;
-  emit(state.copyWith(isDeleting: true, clearError: true));
-  try {
-    if (!lead.isDeleted) {
-      // First delete → hide from active views only.
-      await _leadRepository.softDeleteLead(id);
-    } else {
-      // Second delete → archive with all subcollections, then purge.
-      await _leadRepository.archiveDeletedLead(id);
+    if (state.isDeleting) return;
+    emit(state.copyWith(isDeleting: true, clearError: true));
+    try {
+      if (!lead.isDeleted) {
+        // First delete → hide from active views only.
+        await _leadRepository.softDeleteLead(id);
+      } else {
+        // Second delete → archive with all subcollections, then purge.
+        await _leadRepository.archiveDeletedLead(id);
+      }
+      final updated = state.leads.where((l) => l.id != id).toList();
+      emit(
+        state.copyWith(
+          isDeleting: false,
+          leads: updated,
+          successMessage: 'Lead deleted successfully.',
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
     }
-    final updated = state.leads.where((l) => l.id != id).toList();
-    emit(
-      state.copyWith(
-        isDeleting: false,
-        leads: updated,
-        successMessage: 'Lead deleted successfully.',
-      ),
-    );
-  } catch (e) {
-    emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
   }
-}
 
-Future<void> permanentlyDeleteLead(String id) async {
-  emit(state.copyWith(isDeleting: true, clearError: true));
-  try {
-    await _leadRepository.archiveDeletedLead(id);
-    final updated = state.leads.where((l) => l.id != id).toList();
-    emit(
-      state.copyWith(
-        isDeleting: false,
-        leads: updated,
-        successMessage: 'Lead deleted successfully.',
-      ),
-    );
-    await fetchDeletedLeads();
-  } catch (e) {
-    emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  Future<void> permanentlyDeleteLead(String id) async {
+    emit(state.copyWith(isDeleting: true, clearError: true));
+    try {
+      await _leadRepository.archiveDeletedLead(id);
+      final updated = state.leads.where((l) => l.id != id).toList();
+      emit(
+        state.copyWith(
+          isDeleting: false,
+          leads: updated,
+          successMessage: 'Lead deleted successfully.',
+        ),
+      );
+      await fetchDeletedLeads();
+    } catch (e) {
+      emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+    }
   }
-}
-
 
   // ----------------fetch staff----------------
   Future<void> fetchStaff() async {
@@ -956,29 +968,29 @@ Future<void> permanentlyDeleteLead(String id) async {
     } catch (e) {
       log('[AddLeadCubit] fetchStaff error: $e');
     }
-    
-  //   try {
-  //   final list = await _staffRepository.fetchAll();
-  //   if (isClosed) return;
 
-  //   // Only keep active staff — every screen that reads state.staffList
-  //   // (assign-staff dialog, admin dropdowns, etc.) benefits automatically.
-  //   final activeStaff = list
-  //       .where((s) => !_isInactiveStaffStatus(s.status))
-  //       .toList();
+    //   try {
+    //   final list = await _staffRepository.fetchAll();
+    //   if (isClosed) return;
 
-  //   emit(state.copyWith(staffList: activeStaff));
-  // } catch (e) {
-  //   log('[AddLeadCubit] fetchStaff error: $e');
-  // }
+    //   // Only keep active staff — every screen that reads state.staffList
+    //   // (assign-staff dialog, admin dropdowns, etc.) benefits automatically.
+    //   final activeStaff = list
+    //       .where((s) => !_isInactiveStaffStatus(s.status))
+    //       .toList();
+
+    //   emit(state.copyWith(staffList: activeStaff));
+    // } catch (e) {
+    //   log('[AddLeadCubit] fetchStaff error: $e');
+    // }
   }
 
   bool _isInactiveStaffStatus(dynamic statusValue) {
-  if (statusValue == null) return false;
-  if (statusValue is bool) return statusValue == false;
-  if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
-  return false;
-}
+    if (statusValue == null) return false;
+    if (statusValue is bool) return statusValue == false;
+    if (statusValue is String) return statusValue.toUpperCase() == 'INACTIVE';
+    return false;
+  }
 
   Future<void> assignStaff({
     required String leadId,
@@ -1204,9 +1216,7 @@ Future<void> permanentlyDeleteLead(String id) async {
 
   // ______transfer______________________
 
-Future<void> getLeadStage({required String leadStage}) async {
-  
-}
+  Future<void> getLeadStage({required String leadStage}) async {}
 
   Future<void> transferLead({
     required String leadId,
@@ -1253,8 +1263,6 @@ Future<void> getLeadStage({required String leadStage}) async {
         changedById: user?.id ?? '',
       );
 
-
-
       if (toStaffId.isNotEmpty) {
         notificationRepo.create(
           staffId: toStaffId,
@@ -1292,212 +1300,100 @@ Future<void> getLeadStage({required String leadStage}) async {
   }
 
   // // In AddLeadCubit — add these fields
-  // DateTime? _lastCountDate;
-  // DashboardCountModel? _cachedCounts;
-  // int? _cachedTotalCalled;
-
-  // Future<void> fetchDashboardCounts(
-  //   DateTime? selectedDate, {
-  //   String? staffId,
-  //   String? role,
-  //   bool forceFetch = false,
-  // }) async {
-  //   // Skip re-fetch if same date and we already have counts
-  //   bool isSameDate = false;
-  //   if (_lastCountDate == null && selectedDate == null) {
-  //     isSameDate = true;
-  //   } else if (_lastCountDate != null && selectedDate != null) {
-  //     isSameDate =
-  //         _lastCountDate!.year == selectedDate.year &&
-  //         _lastCountDate!.month == selectedDate.month &&
-  //         _lastCountDate!.day == selectedDate.day;
-  //   }
-  //   if (!forceFetch &&
-  //       isSameDate &&
-  //       _cachedCounts != null &&
-  //       _cachedTotalCalled != null) {
-  //     log('[fetchDashboardCounts] Returning cached result');
-  //     return;
-  //   }
-
-  //   emit(state.copyWith(isLoadingCounts: true));
-
-  //   try {
-  //     final user = await SessionService().getSavedUser();
-  //     if (isClosed) return;
-  //     if (user == null) {
-  //       emit(state.copyWith(isLoadingCounts: false));
-  //       return;
-  //     }
-
-  //     // Fetch both in parallel
-  //     final results = await Future.wait([
-  //       _leadRepository.fetchLeadCounts(
-  //         staffId: staffId ?? user.id ?? '',
-  //         selectedDate: selectedDate,
-  //         role: role ?? user.staffType ?? '',
-  //         forceStaffFilter: false,
-  //       ),
-  //       _leadRepository.fetchCallStatusCounts(
-  //         staffId: staffId ?? user.id ?? '',
-  //         role: role ?? user.staffType ?? '',
-  //         selectedDate: selectedDate,
-  //       ),
-  //     ]);
-
-  //     final counts = results[0] as DashboardCountModel;
-  //     final callCounts = results[1] as Map<String, int>;
-  //     final totalCalled = callCounts['totalCalled'] ?? 0;
-
-  //     if (isClosed) return;
-
-  //     // Store cache after successful fetch
-  //     _lastCountDate = selectedDate;
-  //     _cachedCounts = counts;
-  //     _cachedTotalCalled = totalCalled;
-
-  //     log(
-  //       '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
-  //       'total=${counts.totalCalledCount} totalCalled=$totalCalled',
-  //     );
-
-  //     String subscriptionPlan = 'ACTIVE PACKAGE';
-  //     String startDateStr = '';
-  //     String endDateStr = '';
-  //     String userCountStr = '0';
-
-  //     final userRole = role ?? user.staffType ?? '';
-  //     if (userRole.toLowerCase() == 'admin') {
-  //       final companyId = user.companyId ?? '';
-  //       if (companyId.isNotEmpty) {
-  //         try {
-  //           final companySnap = await FirebaseFirestore.instance
-  //               .collection('COMPANY')
-  //               .doc(companyId)
-  //               .get();
-
-  //           if (companySnap.exists) {
-  //             final data = companySnap.data();
-  //             final plan =
-  //                 data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE';
-  //             subscriptionPlan = plan.toUpperCase();
-
-  //             final startTs = data?['subscriptionStartDate'] as Timestamp?;
-  //             final endTs = data?['subscriptionEndDate'] as Timestamp?;
-  //             if (startTs != null) {
-  //               startDateStr = DateFormat(
-  //                 'dd-MM-yyyy',
-  //               ).format(startTs.toDate());
-  //             }
-  //             if (endTs != null) {
-  //               endDateStr = DateFormat('dd-MM-yyyy').format(endTs.toDate());
-  //             }
-  //           }
-
-  //           final staffSnap = await FirebaseFirestore.instance
-  //               .collection('COMPANY')
-  //               .doc(companyId)
-  //               .collection('STAFF')
-  //               .get();
-  //           userCountStr = staffSnap.docs.length.toString();
-  //         } catch (e) {
-  //           log('[fetchDashboardCounts] Error loading company info: $e');
-  //         }
-  //       }
-  //     }
-
-  //     emit(
-  //       state.copyWith(
-  //         isLoadingCounts: false,
-  //         newLeadCount: counts.newLeadCount.toString(),
-  //         followUpCount: counts.followUpCount.toString(),
-  //         closedLeadCount: counts.closedLeadCount.toString(),
-  //         totalCalledCount: counts.totalCalledCount.toString(),
-  //         dashboardTotalCalledCount: totalCalled.toString(),
-  //         missedLeadCount: counts.missedLeadCount.toString(),
-  //         transferredCount: counts.transferredCount.toString(),
-  //         subscriptionPlan: subscriptionPlan,
-  //         subscriptionStartDate: startDateStr,
-  //         subscriptionEndDate: endDateStr,
-  //         companyUserCount: userCountStr,
-  //       ),
-  //     );
-  //     log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
-  //   } catch (e) {
-  //     log('[fetchDashboardCounts] Error: $e');
-  //     if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
-  //   }
-  // }
+ 
 
   DateTime? _lastCountDate;
-DateTime? _lastCountToDate; // NEW — track range end for cache validity
-DashboardCountModel? _cachedCounts;
-int? _cachedTotalCalled;
+  DateTime? _lastCountToDate; // NEW — track range end for cache validity
+  DashboardCountModel? _cachedCounts;
+  int? _cachedTotalCalled;
 
-Future<void> fetchDashboardCounts(
-  DateTime? selectedDate, {
-  DateTime? toDate, // NEW
-  String? staffId,
-  String? role,
-  bool forceFetch = false,
-}) async {
-  bool _sameDay(DateTime? a, DateTime? b) {
-    if (a == null && b == null) return true;
-    if (a == null || b == null) return false;
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
+  Future<void> fetchDashboardCounts(
+    DateTime? selectedDate, {
+    DateTime? toDate, // NEW
+    String? staffId,
+    String? role,
+    bool forceFetch = false,
+  }) async {
+    bool _sameDay(DateTime? a, DateTime? b) {
+      if (a == null && b == null) return true;
+      if (a == null || b == null) return false;
+      return a.year == b.year && a.month == b.month && a.day == b.day;
+    }
 
-  // CHANGED: cache key now includes toDate so switching between a single
-  // date and a range (or changing the range end) always triggers a re-fetch.
-  final isSameSelection =
-      _sameDay(_lastCountDate, selectedDate) && _sameDay(_lastCountToDate, toDate);
+    // CHANGED: cache key now includes toDate so switching between a single
+    // date and a range (or changing the range end) always triggers a re-fetch.
+    final isSameSelection =
+        _sameDay(_lastCountDate, selectedDate) &&
+        _sameDay(_lastCountToDate, toDate);
 
-  if (!forceFetch &&
-      isSameSelection &&
-      _cachedCounts != null &&
-      _cachedTotalCalled != null) {
-    log('[fetchDashboardCounts] Returning cached result');
-    return;
-  }
-
-  emit(state.copyWith(isLoadingCounts: true));
-
-  try {
-    final user = await SessionService().getSavedUser();
-    if (isClosed) return;
-    if (user == null) {
-      emit(state.copyWith(isLoadingCounts: false));
+    if (!forceFetch &&
+        isSameSelection &&
+        _cachedCounts != null &&
+        _cachedTotalCalled != null) {
+      log('[fetchDashboardCounts] Returning cached result');
       return;
     }
 
-    final results = await Future.wait([
-      _leadRepository.fetchLeadCounts(
-        staffId: staffId ?? user.id ?? '',
-        selectedDate: selectedDate,
-        toDate: toDate, // NEW
-        role: role ?? user.staffType ?? '',
-        forceStaffFilter: false,
-      ),
-      _leadRepository.fetchCallStatusCounts(
-        staffId: staffId ?? user.id ?? '',
-        role: role ?? user.staffType ?? '',
-        selectedDate: selectedDate,
-        toDate: toDate, // already supported — just wire it up
-      ),
-    ]);
+    emit(state.copyWith(isLoadingCounts: true));
 
-    final counts = results[0] as DashboardCountModel;
-    final callCounts = results[1] as Map<String, int>;
-    final totalCalled = callCounts['totalCalled'] ?? 0;
+    try {
+      final user = await SessionService().getSavedUser();
+      if (isClosed) return;
+      if (user == null) {
+        emit(state.copyWith(isLoadingCounts: false));
+        return;
+      }
 
-    if (isClosed) return;
+// Total Called must default to "today only" when no date filter is
+      // active (first load, or after clearing the filter) — never all-time.
+      // Single date / range selections are passed through unchanged so the
+      // existing selectedDate/toDate filtering in the repo is reused as-is.
+      final DateTime totalCalledFilterDate = selectedDate ?? DateTime.now();
 
-    _lastCountDate = selectedDate;
-    _lastCountToDate = toDate; // NEW
-    _cachedCounts = counts;
-    _cachedTotalCalled = totalCalled;
+      final results = await Future.wait([
+        _leadRepository.fetchLeadCounts(
+          staffId: staffId ?? user.id ?? '',
+          selectedDate: selectedDate,
+          toDate: toDate, // NEW
+          role: role ?? user.staffType ?? '',
+          forceStaffFilter: false,
+        ),
+        _leadRepository.fetchCallStatusCounts(
+          staffId: staffId ?? user.id ?? '',
+          role: role ?? user.staffType ?? '',
+          selectedDate: totalCalledFilterDate, // CHANGED — was: selectedDate
+          toDate: toDate,
+        ),
+      ]);
 
-    // ... rest of the method (subscription plan lookup, emit(...)) is unchanged
+      // final results = await Future.wait([
+      //   _leadRepository.fetchLeadCounts(
+      //     staffId: staffId ?? user.id ?? '',
+      //     selectedDate: selectedDate,
+      //     toDate: toDate,
+      //     role: role ?? user.staffType ?? '',
+      //     forceStaffFilter: false,
+      //   ),
+      //   _leadRepository.fetchCallStatusCounts(
+      //     staffId: staffId ?? user.id ?? '',
+      //     role: role ?? user.staffType ?? '',
+      //     selectedDate: selectedDate,
+      //     toDate: toDate, 
+      //   ),
+      // ]);
+
+      final counts = results[0] as DashboardCountModel;
+      final callCounts = results[1] as Map<String, int>;
+      final totalCalled = callCounts['totalCalled'] ?? 0;
+
+      if (isClosed) return;
+
+      _lastCountDate = selectedDate;
+      _lastCountToDate = toDate; // NEW
+      _cachedCounts = counts;
+      _cachedTotalCalled = totalCalled;
+
+      // ... rest of the method (subscription plan lookup, emit(...)) is unchanged
 
       log(
         '[fetchDashboardCounts......1234567890......] closed=${counts.closedLeadCount} '
@@ -1571,9 +1467,6 @@ Future<void> fetchDashboardCounts(
       if (!isClosed) emit(state.copyWith(isLoadingCounts: false));
     }
   }
-
-
-
 
   // ── Staff profile fetch (ALWAYS filters by staffId) ───────────────────────
   Future<void> fetchProfileCounts(
@@ -1705,19 +1598,23 @@ Future<void> fetchDashboardCounts(
   //   }
   // }
   void updateSelectedDashboardDate(DateTime? date, {DateTime? to}) {
-  if (date == null) {
-    emit(state.copyWith(
-      clearSelectedDashboardDate: true,
-      // clearSelectedDashboardToDate: true, // NEW — needs matching field in state
-    ));
-  } else {
-    emit(state.copyWith(
-      selectedDashboardDate: date,
-      // selectedDashboardToDate: to,       // NEW
-      // clearSelectedDashboardToDate: to == null,
-    ));
+    if (date == null) {
+      emit(
+        state.copyWith(
+          clearSelectedDashboardDate: true,
+          // clearSelectedDashboardToDate: true, // NEW — needs matching field in state
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          selectedDashboardDate: date,
+          // selectedDashboardToDate: to,       // NEW
+          // clearSelectedDashboardToDate: to == null,
+        ),
+      );
+    }
   }
-}
 
   Future<void> fetchLeadChartCounts({
     required String staffId,
@@ -1823,10 +1720,44 @@ Future<void> fetchDashboardCounts(
     );
   }
 
+  //   Future<void> fetchRecentActivities() async {
+  //     emit(state.copyWith(isLoadingActivities: true));
+  //     try {
+  //       final user = await SessionService().getSavedUser();
+  //       if (user == null) {
+  //         emit(state.copyWith(isLoadingActivities: false));
+  //         return;
+  //       }
+  //       final role = user.staffType ?? '';
+  //       final staffId = user.id ?? '';
+
+  //       final activities = await _leadRepository.fetchRecentActivities(
+  //         staffId: staffId,
+  //         role: role,
+  //         limit: 5,
+  //       );
+
+  //       emit(
+  //         state.copyWith(
+  //           isLoadingActivities: false,
+  //           recentActivities: activities,
+  //           clearError: true,
+  //         ),
+  //       );
+  //     } catch (e) {
+  //       log('[AddLeadCubit] Error fetching recent activities: $e');
+  //       emit(
+  //         state.copyWith(isLoadingActivities: false, activityError: e.toString()),
+  //       );
+  //     }
+  //   }
+  // }
+
   Future<void> fetchRecentActivities() async {
     emit(state.copyWith(isLoadingActivities: true));
     try {
       final user = await SessionService().getSavedUser();
+      if (isClosed) return; // ← ADD THIS
       if (user == null) {
         emit(state.copyWith(isLoadingActivities: false));
         return;
@@ -1839,6 +1770,7 @@ Future<void> fetchDashboardCounts(
         role: role,
         limit: 5,
       );
+      if (isClosed) return; // ← ADD THIS
 
       emit(
         state.copyWith(
@@ -1849,10 +1781,10 @@ Future<void> fetchDashboardCounts(
       );
     } catch (e) {
       log('[AddLeadCubit] Error fetching recent activities: $e');
+      if (isClosed) return; // ← ADD THIS
       emit(
         state.copyWith(isLoadingActivities: false, activityError: e.toString()),
       );
     }
   }
 }
-
