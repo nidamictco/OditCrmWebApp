@@ -200,6 +200,8 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
 
   void setCsvBytes(Uint8List? bytes) => emit(state.copyWith(csvBytes: bytes));
 
+  void clearCsvBytes() => emit(state.copyWith(clearCsvBytes: true));
+
   void updateFieldPosition(String fieldName, int position) {
     final updated = Map<String, int>.from(state.fieldPositions);
     updated[fieldName] = position;
