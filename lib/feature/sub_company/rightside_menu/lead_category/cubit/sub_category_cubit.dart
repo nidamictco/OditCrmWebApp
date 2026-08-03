@@ -69,6 +69,12 @@ class SubCategoryCubit extends Cubit<SubCategoryState> {
     }
   }
 
+bool subcategoryExists(String name, {String? excludingId}) {
+  final normalized = name.trim().toUpperCase();
+  return state.subCategories.any(
+    (c) => c.name.trim().toUpperCase() == normalized && c.id != excludingId,
+  );
+}
   /// Update the name of an existing sub category.
   Future<void> updateSubCategory({
     required String id,

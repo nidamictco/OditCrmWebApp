@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -143,10 +144,27 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
           onSubmit: () async {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
+   final cubit = context.read<SubCategoryCubit>();
 
+             if (cubit.subcategoryExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This sub category already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
             Navigator.pop(ctx);
 
             await context.read<SubCategoryCubit>().addSubCategory(name: name);
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$name added successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
@@ -198,6 +216,19 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
 
             if (name.isEmpty) return;
 
+ final cubit = context.read<SubCategoryCubit>();
+
+             if (cubit.subcategoryExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This sub category already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx); // pop first
 
             // ✅ Use outer screen context, not ctx
@@ -205,6 +236,12 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
               id: id,
               name: name,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} updated successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
@@ -231,6 +268,12 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
         onSubmit: () {
           Navigator.pop(ctx);
           context.read<SubCategoryCubit>().deleteSubCategory(id: category.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} deleted successfully!"),
+            backgroundColor: Colors.red,
+            )
+          );
         },
       ),
     );

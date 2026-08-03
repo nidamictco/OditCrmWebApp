@@ -1551,28 +1551,29 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         ),
       );
     }
-
-    // Lead Stage
-    filterWidgets.add(
-      MultiSelectDropdown(
-        label: "Lead Stage",
-        hint: 'Select Lead Stage',
-        items: stageItems,
-        selectedValues: selectedLeadStages,
-        onChanged: (vals) {
-          setState(() {
-            selectedLeadStages = vals;
-            selectedTags = [];
-            _resetPage();
-          });
-          if (vals.length == 1) {
-            context.read<AddLeadCubit>().selectLeadStage(vals.first);
-          } else {
-            context.read<AddLeadCubit>().selectLeadStage(null);
-          }
-        },
-      ),
-    );
+    if (widget.fromCard == "FOLLOWUP" || widget.fromCard == "MISSED" || widget.fromCard=="TOTAL") {
+      // Lead Stage
+      filterWidgets.add(
+        MultiSelectDropdown(
+          label: "Lead Stage",
+          hint: 'Select Lead Stage',
+          items: stageItems,
+          selectedValues: selectedLeadStages,
+          onChanged: (vals) {
+            setState(() {
+              selectedLeadStages = vals;
+              selectedTags = [];
+              _resetPage();
+            });
+            if (vals.length == 1) {
+              context.read<AddLeadCubit>().selectLeadStage(vals.first);
+            } else {
+              context.read<AddLeadCubit>().selectLeadStage(null);
+            }
+          },
+        ),
+      );
+    }
 
     // // Tag directly next to Stage if visible
     if (showTags) {

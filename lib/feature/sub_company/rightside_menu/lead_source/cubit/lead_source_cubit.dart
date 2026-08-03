@@ -67,6 +67,13 @@ class LeadSourceCubit extends Cubit<LeadSourceState> {
     }
   }
 
+bool sourceExists(String name, {String? excludingId}) {
+  final normalized = name.trim().toUpperCase();
+  return state.sources.any(
+    (c) => c.name.trim().toUpperCase() == normalized && c.id != excludingId,
+  );
+}
+
   //  Future<void> fetchLeadSource() async {
   //   emit(state.copyWith(status: LeadSourceStatus.loading));
 

@@ -334,7 +334,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
       children: [
         CustomTable(
           columns: [
-            TableColumn(title: "#", flex: 1),
+            TableColumn(title: "Sl No.", flex: 1),
             TableColumn(title: "Name", flex: 4),
             TableColumn(title: "Phone Number", flex: 4),
             TableColumn(title: "Designation", flex: 4),

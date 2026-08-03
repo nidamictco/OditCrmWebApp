@@ -75,6 +75,7 @@ class _CustomTableState extends State<CustomTable> {
 
   /// 🔹 true = all checked, false = none, null = some (indeterminate)
   bool? get _isAllSelected {
+    if (_checkedStates.isEmpty) return false;
     if (_checkedStates.every((e) => e)) return true;
     if (_checkedStates.every((e) => !e)) return false;
     return null; // indeterminate
@@ -82,6 +83,7 @@ class _CustomTableState extends State<CustomTable> {
 
   /// 🔹 If all selected → deselect all, otherwise → select all
   void _toggleSelectAll() {
+    if (widget.rows.isEmpty) return;
     final selectAll = _isAllSelected != true;
     setState(() {
       for (int i = 0; i < _checkedStates.length; i++) {
@@ -189,7 +191,10 @@ class _CustomTableState extends State<CustomTable> {
                   const SizedBox(width: 8),
                   buildRoundedCheckbox(
                     value: _isAllSelected == true,
-                    onTap: _toggleSelectAll,
+                    onTap: () {
+                      if (widget.rows.isEmpty) return;
+                      _toggleSelectAll();
+                    },
                   ),
                 ],
               );

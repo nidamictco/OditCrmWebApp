@@ -1,5 +1,6 @@
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -12,6 +13,7 @@ import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_state.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 class LeadStagesScreen extends StatefulWidget {
@@ -131,12 +133,31 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
             final name = stagesController.text.trim();
             if (name.isEmpty) return;
 
+ final cubit = context.read<LeadStageCubit>();
+
+             if (cubit.stageExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This stage already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
+
             Navigator.pop(ctx);
 
             await context.read<LeadStageCubit>().addCategory(
               name: name,tagMandatory: false
               // createdBy: '-',
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$name added successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
@@ -199,12 +220,29 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
             final id = category.id;
 
             if (name.isEmpty) return;
+ final cubit = context.read<LeadStageCubit>();
 
+             if (cubit.stageExists(name)) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This stage already exists.', isSuccess: false, onButtonPressed: () {  
+        context.pop();
+      },
+    );
+    return; // keep the dialog open, don't pop
+  }
             Navigator.pop(ctx);
             await context.read<LeadStageCubit>().updateStage(
               id: id,
               name: name,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} updated successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
           },
         );
       },
@@ -237,6 +275,12 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
         onSubmit: () {
           Navigator.pop(ctx);
           context.read<LeadStageCubit>().deleteStage(id: category.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${category.name} deleted successfully!"),
+            backgroundColor: Colors.red,
+          ),
+        );
         },
       ),
     );
