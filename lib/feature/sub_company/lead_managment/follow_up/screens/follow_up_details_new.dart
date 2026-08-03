@@ -573,7 +573,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                               ),
                             ),
                       style: AppTextStyle.small(
-                        size: 12,
+                        fontSize: 11.5,
                         color: Colors.white,
                         weight: FontWeight.w500,
                       ),
@@ -694,7 +694,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
             Text(
               label,
               style: AppTextStyle.small(
-                size: 10,
+                size: 11,
                 color: color,
                 weight: FontWeight.w500,
               ),
@@ -718,9 +718,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
           child: Text(
             text,
             style: AppTextStyle.small(
-              size: 11,
+              fontSize: 11.5,
               color: const Color(0xFF4B5563),
               weight: FontWeight.w400,
+              letterSpacing: 0.3,
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
@@ -1094,8 +1095,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                     return;
                   }
 
-                  if (state.selectedLeadTag == null &&
-                      state.tagMandatory) {
+                  if (state.selectedLeadTag == null && state.tagMandatory) {
                     StatusAlertWidget.show(
                       sbContext,
                       isSuccess: false,
@@ -1139,19 +1139,19 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                       children: [
                         Text(
                           text,
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: AppTextStyle.medium(
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF334155),
+                            color: const Color(0xFF334155),
                           ),
                         ),
                         if (isRequired)
-                          const Text(
+                          Text(
                             '*',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: AppTextStyle.medium(
+                              fontSize: 11.5,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFFEF4444),
+                              color: const Color(0xFFEF4444),
                             ),
                           ),
                       ],
@@ -1193,17 +1193,17 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                             Expanded(
                               child: TextField(
                                 controller: controller,
-                                style: const TextStyle(
-                                  fontSize: 12,
+                                style: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: const Color(0xFF1E293B),
                                 ),
                                 decoration: InputDecoration(
                                   hintText: hint,
-                                  hintStyle: const TextStyle(
-                                    fontSize: 12,
+                                  hintStyle: AppTextStyle.medium(
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w400,
-                                    color: Color(0xFF94A3B8),
+                                    color: const Color(0xFF94A3B8),
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,
@@ -1256,8 +1256,8 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                   controller.text.isEmpty
                                       ? 'Select Date'
                                       : controller.text,
-                                  style: TextStyle(
-                                    fontSize: 12,
+                                  style: AppTextStyle.medium(
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w500,
                                     color: controller.text.isEmpty
                                         ? const Color(0xFF94A3B8)
@@ -1306,15 +1306,15 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                           child: DropdownButton<String>(
                             value:
                                 (selectedValue != null &&
-                                        items.contains(selectedValue))
-                                    ? selectedValue
-                                    : null,
+                                    items.contains(selectedValue))
+                                ? selectedValue
+                                : null,
                             hint: Text(
                               hint,
-                              style: const TextStyle(
-                                fontSize: 12,
+                              style: AppTextStyle.medium(
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.w400,
-                                color: Color(0xFF94A3B8),
+                                color: const Color(0xFF94A3B8),
                               ),
                             ),
                             isExpanded: true,
@@ -1323,10 +1323,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                               size: 18,
                               color: Color(0xFF94A3B8),
                             ),
-                            style: const TextStyle(
-                              fontSize: 12,
+                            style: AppTextStyle.medium(
+                              fontSize: 11.5,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF1E293B),
+                              color: const Color(0xFF1E293B),
                             ),
                             onChanged: onChanged,
                             items: items.map((String item) {
@@ -1334,9 +1334,9 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                 value: item,
                                 child: Text(
                                   item,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF1E293B),
+                                  style: AppTextStyle.medium(
+                                    fontSize: 11.5,
+                                    color: const Color(0xFF1E293B),
                                   ),
                                 ),
                               );
@@ -1392,15 +1392,15 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                 child: DropdownButton<String>(
                                   value:
                                       (selectedValue != null &&
-                                              items.contains(selectedValue))
-                                          ? selectedValue
-                                          : null,
-                                  hint: const Text(
+                                          items.contains(selectedValue))
+                                      ? selectedValue
+                                      : null,
+                                  hint: Text(
                                     'Select Category',
-                                    style: TextStyle(
-                                      fontSize: 12,
+                                    style: AppTextStyle.medium(
+                                      fontSize: 11.5,
                                       fontWeight: FontWeight.w400,
-                                      color: Color(0xFF94A3B8),
+                                      color: const Color(0xFF94A3B8),
                                     ),
                                   ),
                                   isExpanded: true,
@@ -1409,10 +1409,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                     size: 18,
                                     color: Color(0xFF94A3B8),
                                   ),
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: AppTextStyle.medium(
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF1E293B),
+                                    color: const Color(0xFF1E293B),
                                   ),
                                   onChanged: onChanged,
                                   items: items.map((String item) {
@@ -1420,9 +1420,9 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                       value: item,
                                       child: Text(
                                         item,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF1E293B),
+                                        style: AppTextStyle.medium(
+                                          fontSize: 11.5,
+                                          color: const Color(0xFF1E293B),
                                         ),
                                       ),
                                     );
@@ -1455,46 +1455,50 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 6,
+                        ),
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 2,
-                              ),
+                              // width: 65,
+                              // padding: const EdgeInsets.symmetric(
+                              //   // horizontal: 4,
+                              //   vertical: 2,
+                              // ),
+                              margin: EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(4),
                                 border: Border.all(
                                   color: const Color(
                                     0xFF00B074,
-                                  ).withOpacity(0.5),
+                                  ).withValues(alpha: 0.5),
                                 ),
                               ),
                               child: CountryCodePicker(
-                                onChanged: (country) =>
-                                    onDialCodeChanged(
-                                      country.dialCode ?? '+91',
-                                    ),
+                                onChanged: (country) => onDialCodeChanged(
+                                  country.dialCode ?? '+91',
+                                ),
                                 initialSelection: 'IN',
                                 showCountryOnly: false,
                                 showOnlyCountryWhenClosed: false,
                                 alignLeft: false,
                                 padding: EdgeInsets.zero,
-                                textStyle: const TextStyle(
-                                  fontSize: 12,
+                                textStyle: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1E293B),
+                                  color: const Color(0xFF1E293B),
                                 ),
-                                flagWidth: 16,
+                                flagWidth: 15,
                                 dialogBackgroundColor: AppColors.white,
-                                dialogTextStyle: const TextStyle(
-                                  fontSize: 12,
+                                dialogTextStyle: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                             Expanded(
                               child: TextField(
                                 controller: controller,
@@ -1503,17 +1507,17 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10),
                                 ],
-                                style: const TextStyle(
-                                  fontSize: 12,
+                                style: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: const Color(0xFF1E293B),
                                 ),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: '0000 0000 00',
-                                  hintStyle: TextStyle(
-                                    fontSize: 12,
+                                  hintStyle: AppTextStyle.medium(
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w400,
-                                    color: Color(0xFF94A3B8),
+                                    color: const Color(0xFF94A3B8),
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,
@@ -1598,33 +1602,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                       onChanged: (v) => cubit.selectLeadTag(v),
                     ),
 
-                  // 5. Lead Category
-                  buildAlertCategoryField(
-                    label: 'Lead Category',
-                    items: categoryNames,
-                    selectedValue: state.selectedCategory ?? _leadCategory,
-                    onChanged: (v) {
-                      setState(() => _leadCategory = v);
-                      cubit.selectCategory(v);
-                      sbSetState(() {});
-                      cubit.selectSubCategory(null);
-                    },
-                    onAddTap: () => _showAddCategoryDialog(),
-                  ),
-
-                  // 6. Lead Sub Type (Conditional: shown when category has sub category)
-                  if (state.subCategories.isNotEmpty)
-                    buildAlertDropdownField(
-                      label: 'Lead Sub Type',
-                      isRequired: false,
-                      hint: 'Select Lead Sub Type',
-                      items: subCategoryName,
-                      selectedValue: state.selectedSubCategory,
-                      onChanged: (v) =>
-                          context.read<AddLeadCubit>().selectSubCategory(v),
-                    ),
-
-                  // 7. Next Follow-Up Date (Conditional: shown when selected stage is followup)
+                  // 5. Next Follow-Up Date (Conditional: shown when selected stage is followup - placed next to Lead Stage)
                   if (state.selectedLeadStage == 'FOLLOWUP')
                     buildAlertDateField(
                       label: 'Next Follow-Up Date',
@@ -1648,6 +1626,33 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                           });
                         }
                       },
+                    ),
+
+                  // 6. Lead Category
+                  buildAlertCategoryField(
+                    label: 'Lead Category',
+                    items: categoryNames,
+                    selectedValue: state.selectedCategory ?? _leadCategory,
+                    onChanged: (v) {
+                      setState(() => _leadCategory = v);
+                      cubit.selectCategory(v);
+                      sbSetState(() {});
+                      cubit.selectSubCategory(null);
+                    },
+                    onAddTap: () => _showAddCategoryDialog(),
+                  ),
+
+                  // 7. Lead Sub Type (Conditional: shown when category has sub category)
+                  if (state.subCategories.isNotEmpty)
+                    buildAlertDropdownField(
+                      label: 'Lead Sub Type',
+                      isRequired: false,
+                      hint: 'Select Lead Sub Type',
+                      items: subCategoryName,
+                      selectedValue:
+                          state.selectedSubCategory ?? _leadSubCategory,
+                      onChanged: (v) =>
+                          context.read<AddLeadCubit>().selectSubCategory(v),
                     ),
 
                   // 8. Priority
@@ -1743,12 +1748,12 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Add Follow-Up',
-                              style: TextStyle(
-                                fontSize: 12,
+                              style: AppTextStyle.medium(
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E293B),
+                                color: const Color(0xFF1E293B),
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -1793,12 +1798,12 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                 ),
                                 backgroundColor: Colors.white,
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Cancel',
-                                style: TextStyle(
-                                  fontSize: 12,
+                                style: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B),
+                                  color: const Color(0xFF64748B),
                                 ),
                               ),
                             ),
@@ -1819,10 +1824,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                                   vertical: 12,
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Submit',
-                                style: TextStyle(
-                                  fontSize: 12,
+                                style: AppTextStyle.medium(
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -1855,7 +1860,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+              Text('Lead Category', style: AppTextStyle.medium(fontSize: 11.5)),
               SizedBox(height: 2.h),
               TextField(
                 controller: _dialogNameCtrl,
@@ -1863,7 +1868,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 decoration: InputDecoration(
                   hintText: 'Enter Category',
                   hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
+                    fontSize: 11.5,
                     color: AppColors.grey,
                   ),
                   border: OutlineInputBorder(
@@ -1919,10 +1924,13 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
           ),
           child: TextField(
             controller: controller,
-            style: AppTextStyle.body(size: 11.sp),
+            style: AppTextStyle.body(fontSize: 11.5),
             decoration: InputDecoration(
               hintText: label,
-              hintStyle: AppTextStyle.small(size: 11.sp, color: AppColors.grey),
+              hintStyle: AppTextStyle.small(
+                fontSize: 11.5,
+                color: AppColors.grey,
+              ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.all(1.w),
             ),
@@ -1937,11 +1945,11 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
       children: [
         Icon(icons, size: 12.sp, color: AppColors.green),
         SizedBox(width: 0.5.w),
-        Text(text, style: AppTextStyle.medium()),
+        Text(text, style: AppTextStyle.medium(fontSize: 11.5)),
         if (required)
           Text(
             '*',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.red),
+            style: AppTextStyle.small(fontSize: 11.5, color: AppColors.red),
           ),
       ],
     );
@@ -1979,16 +1987,16 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                   showOnlyCountryWhenClosed: false,
                   alignLeft: true,
                   padding: EdgeInsets.zero,
-                  textStyle: AppTextStyle.body(size: 11.sp),
+                  textStyle: AppTextStyle.body(fontSize: 11.5),
                   flagWidth: 16,
                   dialogBackgroundColor: AppColors.white,
                   dialogSize: Size(30.w, 80.h),
-                  dialogTextStyle: AppTextStyle.body(size: 11.sp),
-                  searchStyle: AppTextStyle.body(size: 11.sp),
+                  dialogTextStyle: AppTextStyle.body(fontSize: 11.5),
+                  searchStyle: AppTextStyle.body(fontSize: 11.5),
                   searchDecoration: InputDecoration(
                     hintText: 'Search country',
                     hintStyle: AppTextStyle.small(
-                      size: 11.sp,
+                      fontSize: 11.5,
                       color: AppColors.grey,
                     ),
                     border: OutlineInputBorder(
@@ -2011,7 +2019,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 ),
                 child: TextField(
                   controller: controller,
-                  style: AppTextStyle.body(size: 11.sp),
+                  style: AppTextStyle.body(fontSize: 11.5),
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -2020,7 +2028,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                   decoration: InputDecoration(
                     hintText: 'Enter number',
                     hintStyle: AppTextStyle.small(
-                      size: 11.sp,
+                      fontSize: 11.5,
                       color: AppColors.grey,
                     ),
                     border: InputBorder.none,
@@ -2078,7 +2086,7 @@ class _StatusChip extends StatelessWidget {
             label,
             style: AppTextStyle.medium(
               color: _color,
-              size: 12,
+              fontSize: 12,
               weight: FontWeight.w500,
             ),
           ),
@@ -2176,12 +2184,21 @@ class _NewFollowupTabContentState extends State<_NewFollowupTabContent> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Follow-up'),
-        content: const Text('Are you sure you want to delete this follow-up?'),
+        title: Text(
+          'Delete Follow-up',
+          style: AppTextStyle.medium(fontSize: 11.5),
+        ),
+        content: Text(
+          'Are you sure you want to delete this follow-up?',
+          style: AppTextStyle.medium(fontSize: 11.5),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: AppTextStyle.medium(fontSize: 11.5, color: AppColors.grey),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -2204,7 +2221,10 @@ class _NewFollowupTabContentState extends State<_NewFollowupTabContent> {
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'Delete',
+              style: AppTextStyle.medium(fontSize: 11.5, color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -2240,6 +2260,7 @@ class _NewFollowupTabContentState extends State<_NewFollowupTabContent> {
     final dates = followupGroup.keys.toList();
 
     return Container(
+      alignment: Alignment.center,
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2341,12 +2362,14 @@ class _NewTimelineDateGroup extends StatelessWidget {
 
     return IntrinsicHeight(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 50),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // SizedBox(width: 30),
               // ── Left: Timeline column ──
               SizedBox(
                 width: 80,
@@ -2370,7 +2393,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                           Text(
                             '$dayStr, $monthStr',
                             style: AppTextStyle.small(
-                              size: 10,
+                              fontSize: 11.5,
                               color: isPending
                                   ? Colors.white
                                   : AppThemeColors.sidebarTxtClr,
@@ -2380,7 +2403,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                           Text(
                             '$weekdayStr, $dayStr',
                             style: AppTextStyle.small(
-                              size: 10,
+                              fontSize: 11.5,
                               color: isPending
                                   ? Colors.white
                                   : AppThemeColors.sidebarTxtClr,
@@ -2442,7 +2465,9 @@ class _NewTimelineDateGroup extends StatelessWidget {
               const SizedBox(width: 20),
 
               // ── Right: Follow-up card ──
-              Expanded(
+              SizedBox(
+                // width: MediaQuery.of(context).size.width * 0.5,
+                width: 500,
                 child: isPending
                     ? _buildPendingCard(context)
                     : isCreationNode && index == dateCount - 1
@@ -2464,197 +2489,186 @@ class _NewTimelineDateGroup extends StatelessWidget {
         lead.leadStage.toUpperCase() != 'REJECTED' &&
         lead.leadStage.toUpperCase() != 'CLOSED';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 8),
-          child: NotchedCard(
-            borderColor: AppThemeColors.followupCardBorder,
-            backgroundColor: Colors.white,
-            notchWidth: 12,
-            notchHeight: 24,
-            notchTop: 18,
-            child: IntrinsicWidth(
-              stepWidth: 500,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 28),
+      child: NotchedCard(
+        borderColor: AppThemeColors.followupCardBorder,
+        backgroundColor: Colors.white,
+        notchWidth: 12,
+        notchHeight: 24,
+        notchTop: 18,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: Avatar + Name + Badge + Actions
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              child: Row(
                 children: [
-                  // Header: Avatar + Name + Badge + Actions
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(0xFFE2E8F0),
-                          child: Icon(
-                            Icons.person,
-                            size: 18,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            entry.assignedStaff.isNotEmpty
-                                ? entry.assignedStaff
-                                : 'Unknown',
-                            style: AppTextStyle.body(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: const Color(0xFF1E293B),
-                            ),
-                          ),
-                        ),
-
-                        _NewStatusChip(
-                          label:
-                              capitalizeFirstLetter(
-                                    resolveLeadName(
-                                      list: state.stages,
-                                      id: entry.leadStageId,
-                                      fallback: entry.leadStage,
-                                      idOf: (s) => s.id,
-                                      nameOf: (s) => s.name,
-                                    ),
-                                  ) ==
-                                  'Followup'
-                              ? "Follow-Up"
-                              : capitalizeFirstLetter(
-                                  resolveLeadName(
-                                    list: state.stages,
-                                    id: entry.leadStageId,
-                                    fallback: entry.leadStage,
-                                    idOf: (s) => s.id,
-                                    nameOf: (s) => s.name,
-                                  ),
-                                ),
-                        ),
-
-                        // const Spacer(),
-                        if (showEditDelete) ...[
-                          const SizedBox(width: 10),
-                          InkWell(
-                            onTap: () => onEdit(entry),
-                            borderRadius: BorderRadius.circular(4),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: AppThemeColors.appPrimaryColor,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(
-                                Icons.edit_outlined,
-                                size: 12,
-                                color: AppThemeColors.appPrimaryColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          InkWell(
-                            onTap: () => onDelete(entry),
-                            borderRadius: BorderRadius.circular(4),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.red.shade400),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(
-                                Icons.delete_outline,
-                                size: 13,
-                                color: Colors.red.shade400,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Color(0xFFE2E8F0),
+                    child: Icon(
+                      Icons.person,
+                      size: 18,
+                      color: Color(0xFF64748B),
                     ),
                   ),
-                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      entry.assignedStaff.isNotEmpty
+                          ? entry.assignedStaff
+                          : 'Unknown',
+                      style: AppTextStyle.body(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                  ),
 
-                  // Detail rows
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (entry.leadStage.toLowerCase() != 'rejected' &&
-                            entry.leadStage.toLowerCase() != 'closed')
-                          _detailRow(
-                            Icons.calendar_today_outlined,
-                            'Scheduled Date:',
-                            DateFormat(
-                              'dd-MM-yyyy, hh:mm a',
-                            ).format(entry.nextFollowUpDate),
-                          ),
-                        if (entry.leadStage.toLowerCase() != 'rejected' &&
-                            entry.leadStage.toLowerCase() != 'closed')
-                          const SizedBox(height: 8),
-                        _detailRow(
-                          Icons.phone_outlined,
-                          'Called Date:',
-                          DateFormat(
-                            'dd-MM-yyyy, hh:mm a',
-                          ).format(entry.calledDate),
-                        ),
-                        const SizedBox(height: 8),
-                        _detailRow(
-                          Icons.people_outline,
-                          'Call Status:',
-                          entry.calledStatus,
-                          valueColor:
-                              entry.calledStatus.toLowerCase() == 'connected'
-                              ? AppThemeColors.basicGreen
-                              : Colors.red.shade300,
-                        ),
-                        if (resolveLeadName(
-                          list: state.leadTag,
-                          id: lead.leadTagId,
-                          fallback: lead.leadTag ?? '',
-                          idOf: (s) => s.id,
-                          nameOf: (s) => s.name,
-                        ).isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          _detailRow(
-                            Icons.label_outline,
-                            'Tags:',
+                  _NewStatusChip(
+                    label:
+                        capitalizeFirstLetter(
+                              resolveLeadName(
+                                list: state.stages,
+                                id: entry.leadStageId,
+                                fallback: entry.leadStage,
+                                idOf: (s) => s.id,
+                                nameOf: (s) => s.name,
+                              ),
+                            ) ==
+                            'Followup'
+                        ? "Follow-Up"
+                        : capitalizeFirstLetter(
                             resolveLeadName(
-                              list: state.leadTag,
-                              id: lead.leadTagId,
-                              fallback: lead.leadTag,
+                              list: state.stages,
+                              id: entry.leadStageId,
+                              fallback: entry.leadStage,
                               idOf: (s) => s.id,
                               nameOf: (s) => s.name,
                             ),
                           ),
-                        ],
-                        const SizedBox(height: 10),
-                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                        const SizedBox(height: 10),
-                        // Remarks
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Remarks:  ',
-                                style: AppTextStyle.body(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppThemeColors.cardText,
-                                ),
-                              ),
+                  ),
 
-                              TextSpan(
-                                text: entry.remarks,
-                                style: AppTextStyle.body(
-                                  fontSize: 11.5,
-                                  color: AppThemeColors.cardText,
-                                ),
-                              ),
-                            ],
+                  // const Spacer(),
+                  if (showEditDelete) ...[
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => onEdit(entry),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppThemeColors.appPrimaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: 12,
+                          color: AppThemeColors.appPrimaryColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    InkWell(
+                      onTap: () => onDelete(entry),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.red.shade400),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 13,
+                          color: Colors.red.shade400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+            // Detail rows
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (entry.leadStage.toLowerCase() != 'rejected' &&
+                      entry.leadStage.toLowerCase() != 'closed')
+                    _detailRow(
+                      Icons.calendar_today_outlined,
+                      'Scheduled Date:',
+                      DateFormat(
+                        'dd-MM-yyyy, hh:mm a',
+                      ).format(entry.nextFollowUpDate),
+                    ),
+                  if (entry.leadStage.toLowerCase() != 'rejected' &&
+                      entry.leadStage.toLowerCase() != 'closed')
+                    const SizedBox(height: 8),
+                  _detailRow(
+                    Icons.phone_outlined,
+                    'Called Date:',
+                    DateFormat('dd-MM-yyyy, hh:mm a').format(entry.calledDate),
+                  ),
+                  const SizedBox(height: 8),
+                  _detailRow(
+                    Icons.people_outline,
+                    'Call Status:',
+                    entry.calledStatus,
+                    valueColor: entry.calledStatus.toLowerCase() == 'connected'
+                        ? AppThemeColors.basicGreen
+                        : Colors.red.shade300,
+                  ),
+                  if (resolveLeadName(
+                    list: state.leadTag,
+                    id: lead.leadTagId,
+                    fallback: lead.leadTag ?? '',
+                    idOf: (s) => s.id,
+                    nameOf: (s) => s.name,
+                  ).isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _detailRow(
+                      Icons.label_outline,
+                      'Tags:',
+                      resolveLeadName(
+                        list: state.leadTag,
+                        id: lead.leadTagId,
+                        fallback: lead.leadTag,
+                        idOf: (s) => s.id,
+                        nameOf: (s) => s.name,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  const SizedBox(height: 10),
+                  // Remarks
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Remarks:  ',
+                          style: AppTextStyle.body(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: AppThemeColors.cardText,
+                          ),
+                        ),
+
+                        TextSpan(
+                          text: entry.remarks,
+                          style: AppTextStyle.body(
+                            fontSize: 11.5,
+                            color: AppThemeColors.cardText,
                           ),
                         ),
                       ],
@@ -2663,10 +2677,9 @@ class _NewTimelineDateGroup extends StatelessWidget {
                 ],
               ),
             ),
-          ),
+          ],
         ),
-        SizedBox(height: 20),
-      ],
+      ),
     );
   }
 
@@ -2775,116 +2788,103 @@ class _NewTimelineDateGroup extends StatelessWidget {
   // }
 
   Widget _buildCreationCard(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 8),
-          child: NotchedCard(
-            borderColor: AppThemeColors.followupCardBorder,
-            backgroundColor: Colors.white,
-            notchWidth: 12,
-            notchHeight: 24,
-            notchTop: 18,
-            child: IntrinsicWidth(
-              stepWidth: 500,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 28),
+      child: NotchedCard(
+        borderColor: AppThemeColors.followupCardBorder,
+        backgroundColor: Colors.white,
+        notchWidth: 12,
+        notchHeight: 24,
+        notchTop: 18,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(0xFFE2E8F0),
-                          child: Icon(
-                            Icons.person,
-                            size: 18,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            lead.createdBy,
-                            style: AppTextStyle.body(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: const Color(0xFF1E293B),
-                            ),
-                          ),
-                        ),
-                        _NewStatusChip(label: 'NEW'),
-                      ],
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Color(0xFFE2E8F0),
+                    child: Icon(
+                      Icons.person,
+                      size: 18,
+                      color: Color(0xFF64748B),
                     ),
                   ),
-                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _detailRow(
-                          Icons.calendar_today_outlined,
-                          'Created Date:',
-                          DateFormat(
-                            'dd-MM-yyyy, hh:mm a',
-                          ).format(lead.createdAt!),
-                        ),
-                        const SizedBox(height: 8),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Remarks: ',
-                                style: AppTextStyle.body(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppThemeColors.cardText,
-                                ),
-                              ),
-                              TextSpan(
-                                text: lead.remarks.isNotEmpty
-                                    ? lead.remarks
-                                    : '-',
-                                style: AppTextStyle.body(
-                                  fontSize: 11,
-                                  color: AppThemeColors.cardText,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // const SizedBox(height: 8),
-                        // Row(
-                        //   children: [
-                        //     Icon(
-                        //       Icons.info_outline,
-                        //       size: 14,
-                        //       color: const Color(0xFF6B7280),
-                        //     ),
-                        //     const SizedBox(width: 6),
-                        //     Text(
-                        //       'Status:',
-                        //       style: AppTextStyle.body(
-                        //         fontSize: 12,
-                        //         color: const Color(0xFF6B7280),
-                        //       ),
-                        //     ),
-                        //     const SizedBox(width: 8),
-                        //   ],
-                        // ),
-                      ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      lead.createdBy,
+                      style: AppTextStyle.body(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: const Color(0xFF1E293B),
+                      ),
                     ),
                   ),
+                  _NewStatusChip(label: 'NEW'),
                 ],
               ),
             ),
-          ),
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _detailRow(
+                    Icons.calendar_today_outlined,
+                    'Created Date:',
+                    DateFormat('dd-MM-yyyy, hh:mm a').format(lead.createdAt!),
+                  ),
+                  const SizedBox(height: 8),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Remarks: ',
+                          style: AppTextStyle.body(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: AppThemeColors.cardText,
+                          ),
+                        ),
+                        TextSpan(
+                          text: lead.remarks.isNotEmpty ? lead.remarks : 'N/A',
+                          style: AppTextStyle.body(
+                            fontSize: 11.5,
+                            color: AppThemeColors.cardText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // const SizedBox(height: 8),
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.info_outline,
+                  //       size: 14,
+                  //       color: const Color(0xFF6B7280),
+                  //     ),
+                  //     const SizedBox(width: 6),
+                  //     Text(
+                  //       'Status:',
+                  //       style: AppTextStyle.body(
+                  //         fontSize: 12,
+                  //         color: const Color(0xFF6B7280),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //   ],
+                  // ),
+                ],
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 20),
-      ],
+      ),
     );
   }
 
@@ -2901,7 +2901,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
         Text(
           label,
           style: AppTextStyle.body(
-            fontSize: 11,
+            fontSize: 11.5,
             color: AppThemeColors.cardText,
           ),
         ),
@@ -2909,7 +2909,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
         Text(
           value,
           style: AppTextStyle.body(
-            fontSize: 11,
+            fontSize: 11.5,
             color: valueColor ?? AppThemeColors.cardText,
             fontWeight: valueColor != null ? FontWeight.w500 : FontWeight.w500,
           ),
@@ -2921,79 +2921,65 @@ class _NewTimelineDateGroup extends StatelessWidget {
   Widget _buildPendingCard(BuildContext context) {
     // final state = context.watch<AddLeadCubit>().state;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 8),
-          child: NotchedCard(
-            borderColor: const Color(0xFF00B16E).withValues(alpha: 0.5),
-            backgroundColor: Colors.white,
-            notchWidth: 12,
-            notchHeight: 24,
-            notchTop: 18,
-            child: IntrinsicWidth(
-              stepWidth: 500,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 28),
+      child: NotchedCard(
+        borderColor: const Color(0xFF00B16E).withValues(alpha: 0.5),
+        backgroundColor: Colors.white,
+        notchWidth: 12,
+        notchHeight: 24,
+        notchTop: 18,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.grey.shade200,
-                          child: const Icon(Icons.person, size: 18),
-                        ),
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.grey.shade200,
+                    child: const Icon(Icons.person, size: 18),
+                  ),
 
-                        const SizedBox(width: 10),
+                  const SizedBox(width: 10),
 
-                        Expanded(
-                          child: Text(
-                            lead.assignedStaff,
-                            style: AppTextStyle.body(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: const Color(0xff374151),
-                            ),
-                          ),
-                        ),
-
-                        Text(
-                          "Pending",
-                          style: AppTextStyle.body(
-                            fontSize: 12,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                  Expanded(
+                    child: Text(
+                      lead.assignedStaff,
+                      style: AppTextStyle.body(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: const Color(0xff374151),
+                      ),
                     ),
                   ),
 
-                  Divider(height: 1, color: Colors.grey.shade200),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 14,
-                    ),
-                    child: _detailRow(
-                      Icons.calendar_today_outlined,
-                      "Scheduled Date:",
-                      DateFormat(
-                        'dd-MM-yyyy, hh:mm a',
-                      ).format(lead.followUpDate!),
+                  Text(
+                    "Pending",
+                    style: AppTextStyle.body(
+                      fontSize: 12,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
+
+            Divider(height: 1, color: Colors.grey.shade200),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              child: _detailRow(
+                Icons.calendar_today_outlined,
+                "Scheduled Date:",
+                DateFormat('dd-MM-yyyy, hh:mm a').format(lead.followUpDate!),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 20),
-      ],
+      ),
     );
   }
 }
@@ -3337,7 +3323,7 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
                       Text(
                         widget.lead.remarks.isNotEmpty
                             ? widget.lead.remarks
-                            : '-',
+                            : 'N/A',
                         style: AppTextStyle.body(
                           fontSize: 13,
                           color: const Color(0xFF1E293B),
@@ -3443,11 +3429,17 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
                 );
               }
               if (snap.hasError) {
-                return Text('Error: ${snap.error}');
+                return Text(
+                  'Error: ${snap.error}',
+                  style: AppTextStyle.body(fontSize: 12),
+                );
               }
               final handlers = snap.data ?? [];
               if (handlers.isEmpty) {
-                return const Text('No staff records found.');
+                return Text(
+                  'No staff records found.',
+                  style: AppTextStyle.body(fontSize: 12),
+                );
               }
 
               return Column(
@@ -3594,7 +3586,7 @@ class _NewStaffCard extends StatelessWidget {
               Text(
                 handler.activityCount == 1 ? 'Activity' : 'Activities',
                 style: AppTextStyle.body(
-                  fontSize: 11,
+                  fontSize: 11.5,
                   color: const Color(0xFF6B7280),
                 ),
               ),
@@ -3642,7 +3634,7 @@ class _NewPriorityBadge extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyle.small(
-          size: 11,
+          fontSize: 11.5,
           color: Colors.white,
           weight: FontWeight.w600,
         ),
@@ -3666,7 +3658,7 @@ class _NewStatusChip extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyle.small(
-          size: 11,
+          fontSize: 11.5,
           color: Colors.white,
           weight: FontWeight.w600,
         ),
