@@ -1023,416 +1023,766 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
 
             return StatefulBuilder(
               builder: (sbContext, sbSetState) {
-                return AppDialog(
-                  title: 'Add Follow-Up',
-                  width: 60.w,
-                  onSubmit: state.isSubmitting
-                      ? null
-                      : () async {
-                          if (_callStatusCtrl.text.trim().isEmpty) {
-                            _showAlertDialog(
-                              sbContext,
-                              title: 'Validation',
-                              message: 'Please enter called status.',
-                              icon: Icons.warning_amber_outlined,
-                              iconColor: Colors.orange,
-                              titleColor: Colors.orange.shade700,
-                            );
-                            return;
-                          }
+                Future<void> submitAction() async {
+                  if (_callStatusCtrl.text.trim().isEmpty) {
+                    _showAlertDialog(
+                      sbContext,
+                      title: 'Validation',
+                      message: 'Please enter called status.',
+                      icon: Icons.warning_amber_outlined,
+                      iconColor: Colors.orange,
+                      titleColor: Colors.orange.shade700,
+                    );
+                    return;
+                  }
 
-                          if (_WhtsppNoCtrl.text.isNotEmpty &&
-                              _WhtsppNoCtrl.text.trim().length < 10) {
-                            _showAlertDialog(
-                              sbContext,
-                              title: 'Validation',
-                              message: 'Please enter a valid WhatsApp number.',
-                              icon: Icons.warning_amber_outlined,
-                              iconColor: Colors.orange,
-                              titleColor: Colors.orange.shade700,
-                            );
-                            return;
-                          }
+                  if (_WhtsppNoCtrl.text.isNotEmpty &&
+                      _WhtsppNoCtrl.text.trim().length < 10) {
+                    _showAlertDialog(
+                      sbContext,
+                      title: 'Validation',
+                      message: 'Please enter a valid WhatsApp number.',
+                      icon: Icons.warning_amber_outlined,
+                      iconColor: Colors.orange,
+                      titleColor: Colors.orange.shade700,
+                    );
+                    return;
+                  }
 
-                          if (state.selectedLeadTag == null &&
-                              state.tagMandatory) {
-                            _showAlertDialog(
-                              sbContext,
-                              title: 'Validation',
-                              message: 'Please select tag for rejected lead.',
-                              icon: Icons.warning_amber_outlined,
-                              iconColor: Colors.orange,
-                              titleColor: Colors.orange.shade700,
-                            );
-                            return;
-                          }
+                  if (state.selectedLeadTag == null &&
+                      state.tagMandatory) {
+                    _showAlertDialog(
+                      sbContext,
+                      title: 'Validation',
+                      message: 'Please select tag for rejected lead.',
+                      icon: Icons.warning_amber_outlined,
+                      iconColor: Colors.orange,
+                      titleColor: Colors.orange.shade700,
+                    );
+                    return;
+                  }
 
-                          await cubit.submitFollowUp(
-                            leadId: lead.id ?? '',
-                            leadName: lead.clientName,
-                            leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
-                            leadWhatsappDialCode: '+91',
-                            calledDate: calledDateValue,
-                            nextFollowUpDate: nextFollowUpDate,
-                            calledStatus: _callStatusCtrl.text,
-                            leadTag: lead.leadTag ?? '',
-                            remarks: _remarksCtrl.text.trim(),
-                            address: _addressm.text.trim(),
-                            email: _emailCtrl.text.trim(),
-                            previousStage: lead.leadStage,
-                            previousCategory: lead.leadCategory,
-                            previousPriority: lead.priority,
-                            leadPhone: lead.contactNumber,
-                            fromPage: from,
-                            editId: leadFollowup != null
-                                ? leadFollowup.id ?? ""
-                                : "",
-                          );
-                        },
-                  body: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 1.w,
-                      vertical: 1.h,
-                    ),
-                    child: Column(
+                  await cubit.submitFollowUp(
+                    leadId: lead.id ?? '',
+                    leadName: lead.clientName,
+                    leadWhatsappNo: _WhtsppNoCtrl.text.trim(),
+                    leadWhatsappDialCode: '+91',
+                    calledDate: calledDateValue,
+                    nextFollowUpDate: nextFollowUpDate,
+                    calledStatus: _callStatusCtrl.text,
+                    leadTag: lead.leadTag,
+                    remarks: _remarksCtrl.text.trim(),
+                    address: _addressm.text.trim(),
+                    email: _emailCtrl.text.trim(),
+                    previousStage: lead.leadStage,
+                    previousCategory: lead.leadCategory,
+                    previousPriority: lead.priority,
+                    leadPhone: lead.contactNumber,
+                    fromPage: from,
+                    editId: leadFollowup != null ? leadFollowup.id ?? "" : "",
+                  );
+                }
+
+                // ── Helper 1: Label Builder ──────────────────────────
+                Widget buildAlertLabel(String text, {bool isRequired = false}) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Row 1: Called Date + Call Status
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Called Date',
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        '*',
-                                        style: AppTextStyle.medium(
-                                          size: 13,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 0.5.h),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final result =
-                                          await showCalendarDialogUsingTimePicker(
-                                            sbContext,
-                                            initialDate: calledDateValue,
-                                            mode: CalendarMode.single,
-                                          );
-                                      if (result != null) {
-                                        sbSetState(() {
-                                          calledDateValue = result.from;
-                                          _calledDateCtrl.text = DateFormat(
-                                            'dd-MM-yyyy',
-                                          ).format(result.from);
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      height: 5.2.h,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.greyCard,
-                                        border: Border.all(
-                                          color: AppColors.divider,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: IgnorePointer(
-                                        child: TextField(
-                                          controller: _calledDateCtrl,
-                                          readOnly: true,
-                                          style: AppTextStyle.small(
-                                            size: 11.sp,
-                                            color: AppColors.black,
-                                          ),
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: _calledDateCtrl.text,
-                                            hintStyle: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.black,
-                                            ),
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.zero,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        Text(
+                          text,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF334155),
+                          ),
+                        ),
+                        if (isRequired)
+                          const Text(
+                            '*',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFEF4444),
                             ),
-                            SizedBox(width: 1.w),
+                          ),
+                      ],
+                    ),
+                  );
+                }
+
+                // ── Helper 2: Text Input Field Builder ────────────────
+                Widget buildAlertTextField({
+                  required String label,
+                  required TextEditingController controller,
+                  required String hint,
+                  bool isRequired = false,
+                  IconData? prefixIcon,
+                }) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildAlertLabel(label, isRequired: isRequired),
+                      Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            if (prefixIcon != null) ...[
+                              Icon(
+                                prefixIcon,
+                                size: 16,
+                                color: const Color(0xFF2C3E6B),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                             Expanded(
-                              child: Dropdown(
-                                showStar: true,
-                                items: _callStatuses,
-                                selectedValue: _callStatusCtrl.text.isEmpty
-                                    ? null
-                                    : _callStatusCtrl.text,
-                                onChanged: (v) => sbSetState(
-                                  () => _callStatusCtrl.text = v ?? '',
+                              child: TextField(
+                                controller: controller,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF1E293B),
                                 ),
-                                label: 'Called Status',
-                                hint: 'Select Call Status',
+                                decoration: InputDecoration(
+                                  hintText: hint,
+                                  hintStyle: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 1.h),
+                      ),
+                    ],
+                  );
+                }
 
-                        // Row 2: Lead Stage + Lead Category
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Dropdown(
-                                showHelp: true,
-                                showStar: true,
-                                items: stagesNames,
-                                showClear: false,
-                                selectedValue: state.selectedLeadStage,
-                                onChanged: (v) {
-                                  setState(() {
-                                    _leadStage = v;
-                                  });
-                                  cubit.selectLeadStage(v);
-                                  cubit.selectLeadTag(null);
-                                },
-                                label: 'Lead Stage',
-                                hint: stagesNames.isEmpty
-                                    ? 'Loading...'
-                                    : 'Select',
-                              ),
-                            ),
-                            SizedBox(width: 1.w),
-                            Expanded(
-                              child: DropdownWithAdd(
-                                label: 'Lead Category',
-                                icon: Icons.layers_outlined,
-                                items: categoryNames,
-                                selectedValue:
-                                    state.selectedCategory ?? _leadCategory,
-                                onChanged: (v) {
-                                  setState(() => _leadCategory = v);
-                                  cubit.selectCategory(v);
-                                  sbSetState(() {});
-                                  cubit.selectSubCategory(null);
-                                },
-                                onTap: () => _showAddCategoryDialog(),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Conditional: Stage-specific + Sub Category
-                        Builder(
-                          builder: (_) {
-                            Widget leftContainer;
-                            if (state.selectedLeadStage == 'FOLLOWUP') {
-                              leftContainer = Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Next Follow-Up Date',
-                                    style: AppTextStyle.medium(),
+                // ── Helper 3: Date Picker Field Builder ──────────────
+                Widget buildAlertDateField({
+                  required String label,
+                  required TextEditingController controller,
+                  required VoidCallback onTap,
+                  bool isRequired = false,
+                  bool iconOnRight = false,
+                }) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildAlertLabel(label, isRequired: isRequired),
+                      GestureDetector(
+                        onTap: onTap,
+                        child: Container(
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              if (!iconOnRight) ...[
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 16,
+                                  color: Color(0xFF2C3E6B),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  controller.text.isEmpty
+                                      ? 'Select Date'
+                                      : controller.text,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: controller.text.isEmpty
+                                        ? const Color(0xFF94A3B8)
+                                        : const Color(0xFF1E293B),
                                   ),
-                                  SizedBox(height: 0.5.h),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final result =
-                                          await showCalendarDialogUsingTimePicker(
-                                            sbContext,
-                                            initialDate: nextFollowUpDate,
-                                            mode: CalendarMode.single,
-                                            showTimePicker: true,
-                                            minDate: calledDateValue,
-                                          );
-                                      if (result != null) {
-                                        sbSetState(() {
-                                          nextFollowUpDate = result.from;
-                                          nextFollowUpCtrl.text = DateFormat(
-                                            'dd-MM-yyyy hh:mm a',
-                                          ).format(result.from);
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      height: 5.2.h,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.greyCard,
-                                        border: Border.all(
-                                          color: AppColors.divider,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: IgnorePointer(
-                                        child: TextField(
-                                          controller: nextFollowUpCtrl,
-                                          readOnly: true,
-                                          style: AppTextStyle.small(
-                                            size: 11.sp,
-                                            color: AppColors.black,
-                                          ),
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: nextFollowUpCtrl.text,
-                                            hintStyle: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: AppColors.black,
-                                            ),
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.zero,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else if (state.leadTag.isNotEmpty) {
-                              leftContainer = Dropdown(
-                                label: 'Tags',
-                                hint: 'Select Tags',
-                                showStar: state.tagMandatory,
-                                items: state.leadTag
-                                    .map((e) => e.name)
-                                    .toList(),
-                                selectedValue: state.selectedLeadTag,
-                                onChanged: (v) {
-                                  cubit.selectLeadTag(v);
-                                },
-                              );
-                            } else {
-                              leftContainer = const SizedBox();
-                            }
-
-                            final hasSubCategories =
-                                state.subCategories.isNotEmpty;
-                            final rightContainer = hasSubCategories
-                                ? Dropdown(
-                                    label: 'Lead Sub Type',
-                                    hint: 'Select Lead Sub Type',
-                                    items: subCategoryName,
-                                    selectedValue: state.selectedSubCategory,
-                                    onChanged: (v) => context
-                                        .read<AddLeadCubit>()
-                                        .selectSubCategory(v),
-                                  )
-                                : const SizedBox();
-
-                            return Column(
-                              children: [
-                                SizedBox(height: 1.h),
-                                Row(
-                                  children: [
-                                    Expanded(child: leftContainer),
-                                    SizedBox(width: 1.w),
-                                    Expanded(child: rightContainer),
-                                  ],
+                                ),
+                              ),
+                              if (iconOnRight) ...[
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 16,
+                                  color: Color(0xFF2C3E6B),
                                 ),
                               ],
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 1.h),
-
-                        // Row 4: Priority + WhatsApp
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Dropdown(
-                                icon: Icons.flag_outlined,
-                                showIcon: true,
-                                showHelp: true,
-                                items: priority,
-                                selectedValue:
-                                    state.selectedPriority ?? _leadPriority,
-                                onChanged: (v) {
-                                  _leadPriority = v;
-                                  cubit.selectPriority(v);
-                                },
-                                label: 'Priority',
-                                hint: 'Select Priority',
-                              ),
-                            ),
-                            SizedBox(width: 1.w),
-                            Expanded(
-                              child: _phoneField(
-                                'Whatsapp Number',
-                                false,
-                                Icons.call_outlined,
-                                controller: _WhtsppNoCtrl,
-                                onDialCodeChanged: (c) =>
-                                    sbSetState(() => _WhtsppNoCtrl.text = c),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-
-                        // Row 5: Email + Address
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _field(
-                                'Email',
-                                false,
-                                null,
-                                controller: _emailCtrl,
-                              ),
-                            ),
-                            SizedBox(width: 1.w),
-                            Expanded(
-                              child: _field(
-                                'Address',
-                                false,
-                                null,
-                                controller: _addressm,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-
-                        // Row 6: Remarks
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _field(
-                                'Remark',
-                                false,
-                                null,
-                                controller: _remarksCtrl,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-
-                        if (state.isSubmitting)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: LinearProgressIndicator(),
+                            ],
                           ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                // ── Helper 4: Dropdown Field Builder ─────────────────
+                Widget buildAlertDropdownField({
+                  required String label,
+                  required String hint,
+                  required List<String> items,
+                  required String? selectedValue,
+                  required ValueChanged<String?> onChanged,
+                  bool isRequired = false,
+                }) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildAlertLabel(label, isRequired: isRequired),
+                      Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value:
+                                (selectedValue != null &&
+                                        items.contains(selectedValue))
+                                    ? selectedValue
+                                    : null,
+                            hint: Text(
+                              hint,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                            isExpanded: true,
+                            icon: const Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 18,
+                              color: Color(0xFF94A3B8),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF1E293B),
+                            ),
+                            onChanged: onChanged,
+                            items: items.map((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                // ── Helper 5: Category Dropdown Field Builder ────────
+                Widget buildAlertCategoryField({
+                  required String label,
+                  required List<String> items,
+                  required String? selectedValue,
+                  required ValueChanged<String?> onChanged,
+                  required VoidCallback onAddTap,
+                }) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildAlertLabel(label, isRequired: false),
+                      Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: onAddTap,
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00B074),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value:
+                                      (selectedValue != null &&
+                                              items.contains(selectedValue))
+                                          ? selectedValue
+                                          : null,
+                                  hint: const Text(
+                                    'Select Category',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                  isExpanded: true,
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    size: 18,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                  onChanged: onChanged,
+                                  items: items.map((String item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item,
+                                      child: Text(
+                                        item,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                // ── Helper 6: Phone Field Builder ────────────────────
+                Widget buildAlertPhoneField({
+                  required String label,
+                  required TextEditingController controller,
+                  required void Function(String) onDialCodeChanged,
+                  bool isRequired = true,
+                }) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildAlertLabel(label, isRequired: isRequired),
+                      Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFF00B074,
+                                  ).withOpacity(0.5),
+                                ),
+                              ),
+                              child: CountryCodePicker(
+                                onChanged: (country) =>
+                                    onDialCodeChanged(
+                                      country.dialCode ?? '+91',
+                                    ),
+                                initialSelection: 'IN',
+                                showCountryOnly: false,
+                                showOnlyCountryWhenClosed: false,
+                                alignLeft: false,
+                                padding: EdgeInsets.zero,
+                                textStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1E293B),
+                                ),
+                                flagWidth: 16,
+                                dialogBackgroundColor: AppColors.white,
+                                dialogTextStyle: const TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: controller,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(10),
+                                ],
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF1E293B),
+                                ),
+                                decoration: const InputDecoration(
+                                  hintText: '0000 0000 00',
+                                  hintStyle: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.call_outlined,
+                              size: 16,
+                              color: Color(0xFF2C3E6B),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                // ── Build Active Fields List ─────────────────────────
+                final List<Widget> activeFields = [
+                  // 1. Called Date*
+                  buildAlertDateField(
+                    label: 'Called Date',
+                    isRequired: true,
+                    controller: _calledDateCtrl,
+                    onTap: () async {
+                      final result = await showCalendarDialogUsingTimePicker(
+                        sbContext,
+                        initialDate: calledDateValue,
+                        mode: CalendarMode.single,
+                      );
+                      if (result != null) {
+                        sbSetState(() {
+                          calledDateValue = result.from;
+                          _calledDateCtrl.text = DateFormat(
+                            'dd-MM-yyyy',
+                          ).format(result.from);
+                        });
+                      }
+                    },
+                  ),
+
+                  // 2. Called Status*
+                  buildAlertDropdownField(
+                    label: 'Called Status',
+                    isRequired: true,
+                    hint: 'Select Call Status',
+                    items: _callStatuses,
+                    selectedValue: _callStatusCtrl.text.isEmpty
+                        ? null
+                        : _callStatusCtrl.text,
+                    onChanged: (v) =>
+                        sbSetState(() => _callStatusCtrl.text = v ?? ''),
+                  ),
+
+                  // 3. Lead Stage*
+                  buildAlertDropdownField(
+                    label: 'Lead Stage',
+                    isRequired: true,
+                    hint: stagesNames.isEmpty ? 'Loading...' : 'Select',
+                    items: stagesNames,
+                    selectedValue: state.selectedLeadStage,
+                    onChanged: (v) {
+                      setState(() {
+                        _leadStage = v;
+                      });
+                      cubit.selectLeadStage(v);
+                      cubit.selectLeadTag(null);
+                    },
+                  ),
+
+                  // 4. Tags (Conditional: shown when lead stage has tags in firebase)
+                  if (state.leadTag.isNotEmpty)
+                    buildAlertDropdownField(
+                      label: 'Tags',
+                      isRequired: state.tagMandatory,
+                      hint: 'Select Tags',
+                      items: state.leadTag.map((e) => e.name).toList(),
+                      selectedValue: state.selectedLeadTag,
+                      onChanged: (v) => cubit.selectLeadTag(v),
+                    ),
+
+                  // 5. Lead Category
+                  buildAlertCategoryField(
+                    label: 'Lead Category',
+                    items: categoryNames,
+                    selectedValue: state.selectedCategory ?? _leadCategory,
+                    onChanged: (v) {
+                      setState(() => _leadCategory = v);
+                      cubit.selectCategory(v);
+                      sbSetState(() {});
+                      cubit.selectSubCategory(null);
+                    },
+                    onAddTap: () => _showAddCategoryDialog(),
+                  ),
+
+                  // 6. Lead Sub Type (Conditional: shown when category has sub category)
+                  if (state.subCategories.isNotEmpty)
+                    buildAlertDropdownField(
+                      label: 'Lead Sub Type',
+                      isRequired: false,
+                      hint: 'Select Lead Sub Type',
+                      items: subCategoryName,
+                      selectedValue: state.selectedSubCategory,
+                      onChanged: (v) =>
+                          context.read<AddLeadCubit>().selectSubCategory(v),
+                    ),
+
+                  // 7. Next Follow-Up Date (Conditional: shown when selected stage is followup)
+                  if (state.selectedLeadStage == 'FOLLOWUP')
+                    buildAlertDateField(
+                      label: 'Next Follow-Up Date',
+                      isRequired: false,
+                      iconOnRight: true,
+                      controller: nextFollowUpCtrl,
+                      onTap: () async {
+                        final result = await showCalendarDialogUsingTimePicker(
+                          sbContext,
+                          initialDate: nextFollowUpDate,
+                          mode: CalendarMode.single,
+                          showTimePicker: true,
+                          minDate: calledDateValue,
+                        );
+                        if (result != null) {
+                          sbSetState(() {
+                            nextFollowUpDate = result.from;
+                            nextFollowUpCtrl.text = DateFormat(
+                              'dd-MM-yyyy hh:mm a',
+                            ).format(result.from);
+                          });
+                        }
+                      },
+                    ),
+
+                  // 8. Priority
+                  buildAlertDropdownField(
+                    label: 'Priority',
+                    isRequired: false,
+                    hint: 'Select Priority',
+                    items: priority,
+                    selectedValue: state.selectedPriority ?? _leadPriority,
+                    onChanged: (v) {
+                      _leadPriority = v;
+                      cubit.selectPriority(v);
+                    },
+                  ),
+
+                  // 9. WhatsApp Number*
+                  buildAlertPhoneField(
+                    label: 'WhatsApp Number',
+                    isRequired: true,
+                    controller: _WhtsppNoCtrl,
+                    onDialCodeChanged: (c) =>
+                        sbSetState(() => _WhtsppNoCtrl.text = c),
+                  ),
+
+                  // 10. Email Id
+                  buildAlertTextField(
+                    label: 'Email Id',
+                    isRequired: false,
+                    controller: _emailCtrl,
+                    hint: 'Enter email id',
+                    prefixIcon: Icons.email_outlined,
+                  ),
+
+                  // 11. Address
+                  buildAlertTextField(
+                    label: 'Address',
+                    isRequired: false,
+                    controller: _addressm,
+                    hint: 'Enter Address',
+                  ),
+
+                  // 12. Remark
+                  buildAlertTextField(
+                    label: 'Remark',
+                    isRequired: false,
+                    controller: _remarksCtrl,
+                    hint: 'Enter Remark',
+                  ),
+                ];
+
+                // ── Chunk Active Fields into Rows of max 3 fields ──────
+                final List<Widget> fieldRows = [];
+                for (int i = 0; i < activeFields.length; i += 3) {
+                  final chunk = activeFields.sublist(
+                    i,
+                    i + 3 > activeFields.length ? activeFields.length : i + 3,
+                  );
+                  fieldRows.add(
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (int j = 0; j < chunk.length; j++) ...[
+                            Expanded(child: chunk[j]),
+                            if (j < chunk.length - 1) const SizedBox(width: 16),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                // ── Return New Design Dialog ─────────────────────────
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 8,
+                  backgroundColor: Colors.white,
+                  child: Container(
+                    width: 65.w,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header Title with navy indicator line
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Add Follow-Up',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 42,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2C3E6B),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(color: Color(0xFFE2E8F0), height: 1),
+                        const SizedBox(height: 20),
+
+                        // Form Rows (3 fields per row)
+                        ...fieldRows,
+
+                        if (state.isSubmitting) ...[
+                          const LinearProgressIndicator(),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Footer Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                backgroundColor: Colors.white,
+                              ),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed: state.isSubmitting
+                                  ? null
+                                  : submitAction,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00B074),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                              ),
+                              child: const Text(
+                                'Submit',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
