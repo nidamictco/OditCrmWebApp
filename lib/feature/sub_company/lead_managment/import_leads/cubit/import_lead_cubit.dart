@@ -101,6 +101,15 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
     }
   }
 
+  void selectNextFollowUpDate(DateTime? date) {
+  emit(
+    state.copyWith(
+      nextFollowUpDate: date,
+      clearNextFollowUpDate: date == null,
+    ),
+  );
+}
+
   // ── Selection helpers ─────────────────────────────────────────────────────
 
   // void selectCategory(String? value) => emit(
@@ -155,9 +164,19 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
     }
   }
 
-  void selectLeadStage(String? value) => emit(
-    state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+  // void selectLeadStage(String? value) => emit(
+  //   state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+  // );
+  void selectLeadStage(String? value) {
+  emit(
+    state.copyWith(
+      selectedLeadStage: value,
+      clearLeadStage: value == null,
+      clearNextFollowUpDate:
+          value?.toUpperCase() != 'FOLLOWUP',
+    ),
   );
+}
 
   void selectPriority(String? value) => emit(
     state.copyWith(selectedPriority: value, clearPriority: value == null),
@@ -316,6 +335,7 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         contactDialCode: state.dialCode,
         createdBy: user?.name ?? '',
         createdById: user?.id ?? '',
+        nextFollowUpDate: state.nextFollowUpDate,
       );
 
       final result = await _repository.importFromCsv(
