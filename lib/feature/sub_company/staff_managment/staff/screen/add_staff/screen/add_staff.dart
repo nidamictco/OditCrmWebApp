@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/data/add_lead_repo.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,10 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/app_text_style.dart';
-import '../../../../../../../core/utils/dropdown.dart';
-import '../../../../../../../core/utils/inputfield_for_psswrd.dart';
-import '../../../../../../../core/utils/staff_top_bar.dart';
-import '../../../../../../../core/utils/dropdown_with_add.dart';
 import '../../../../../../auth/cubit/auth/auth_cubit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
@@ -23,7 +19,6 @@ import '../../../cubit/add_staff_state.dart';
 import '../../../model/staff_model.dart';
 import '../../../../designation/cubit/designation_cubit.dart';
 import '../../../../designation/screen/add_designation_screen.dart';
-import 'package:sizer/sizer.dart';
 
 class AddStaff extends StatefulWidget {
   final StaffModel? staff;
@@ -49,6 +44,7 @@ class _AddStaffState extends State<AddStaff> {
   bool _pettyCash = false;
   bool _whatsapp = false;
   bool _callLog = false;
+  bool _obscurePassword = true;
 
   String? _selectedDocuments;
   String? _staffType;
@@ -59,7 +55,7 @@ class _AddStaffState extends State<AddStaff> {
 
   // ─── Image / Document ─────────────────────────────────────────────────────
   File? _selectedImage;
-  Uint8List? _selectedImageBytes; // used for preview on all platforms
+  Uint8List? _selectedImageBytes;
   File? _selectedDocument;
   Uint8List? _selectedDocumentBytes;
 
@@ -77,7 +73,6 @@ class _AddStaffState extends State<AddStaff> {
   void initState() {
     super.initState();
 
-    context.read<StaffCubit>().reset();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       try {
@@ -91,7 +86,7 @@ class _AddStaffState extends State<AddStaff> {
     if (_isEditMode) {
       _prefill(widget.staff!);
     } else {
-      _clearAll(); // 👈 explicitly clear everything
+      _clearAll();
     }
   }
 
@@ -177,18 +172,6 @@ class _AddStaffState extends State<AddStaff> {
     }
   }
 
-  Future<void> _pickDocument() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final bytes = await picked.readAsBytes();
-      setState(() {
-        _selectedDocumentBytes = bytes;
-        if (!kIsWeb) _selectedDocument = File(picked.path);
-        _docFileName = picked.name;
-      });
-    }
-  }
-
   void _removeImage() {
     setState(() {
       _selectedImage = null;
@@ -204,53 +187,29 @@ class _AddStaffState extends State<AddStaff> {
     if (_nameCtrl.text.trim().isEmpty) return 'Name is required';
 
     if (_passwordCtrl.text.trim().isEmpty) return 'Password is required';
-    if (_passwordCtrl.text.trim().length < 6)
+    if (_passwordCtrl.text.trim().length < 6) {
       return 'Password must be at least 6 characters';
+    }
 
     if (_phoneCtrl.text.trim().isEmpty) return 'Phone number is required';
 
     final phone = _phoneCtrl.text.trim();
-    if (phone.length < 10) return 'Phone number must be exactly 10 digits';
-    if (phone.length > 10) return 'Phone number must be exactly 10 digits';
-    if (!RegExp(r'^[0-9]{10}$').hasMatch(phone))
-      return 'Phone number must be 10 digits only';
+    if (phone.length != 10 || !RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
+      return 'Phone number must be exactly 10 digits';
+    }
 
     final email = _emailCtrl.text.trim();
-    if (email.isEmpty) return 'Email is required';
-    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
-    if (!emailRegex.hasMatch(email)) return 'Enter a valid email address';
+    if (email.isNotEmpty) {
+      final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+      if (!emailRegex.hasMatch(email)) return 'Enter a valid email address';
+    }
 
-    if (_staffType == null || _staffType!.isEmpty)
+    if (_staffType == null || _staffType!.isEmpty) {
       return 'Please select a staff type';
+    }
 
-    if (_designation == null || _designation!.isEmpty)
+    if (_designation == null || _designation!.isEmpty) {
       return 'Please select a designation';
-
-    if (_joiningDateCtrl.text.trim().isNotEmpty) {
-      final dateText = _joiningDateCtrl.text.trim();
-
-      final regex = RegExp(
-        r'^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(19|20)\d{2}$',
-      );
-
-      if (!regex.hasMatch(dateText)) {
-        return 'Joining Date must be in DD-MM-YYYY format';
-      }
-
-      try {
-        final parts = dateText.split('-');
-        final day = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final year = int.parse(parts[2]);
-
-        final date = DateTime(year, month, day);
-
-        if (date.day != day || date.month != month || date.year != year) {
-          return 'Please enter a valid date';
-        }
-      } catch (_) {
-        return 'Please enter a valid date';
-      }
     }
 
     return null;
@@ -300,36 +259,30 @@ class _AddStaffState extends State<AddStaff> {
       status: widget.staff?.status ?? 'Active',
     );
 
-    // On web, File is not available — pass null for file args
     final imageFile = kIsWeb ? null : _selectedImage;
     final documentFile = kIsWeb ? null : _selectedDocument;
 
     if (_isEditMode) {
       await context.read<StaffCubit>().updateStaff(
         model,
-        imageFile: kIsWeb ? null : _selectedImage,
+        imageFile: imageFile,
         imageBytes: kIsWeb ? _selectedImageBytes : null,
         imageFileName: kIsWeb ? _imageFileName : null,
-        documentFile: kIsWeb ? null : _selectedDocument,
+        documentFile: documentFile,
         documentBytes: kIsWeb ? _selectedDocumentBytes : null,
         documentFileName: kIsWeb ? _docFileName : null,
       );
     } else {
       await context.read<StaffCubit>().addStaff(
         model,
-        imageFile: kIsWeb ? null : _selectedImage,
+        imageFile: imageFile,
         imageBytes: kIsWeb ? _selectedImageBytes : null,
         imageFileName: kIsWeb ? _imageFileName : null,
-        documentFile: kIsWeb ? null : _selectedDocument,
+        documentFile: documentFile,
         documentBytes: kIsWeb ? _selectedDocumentBytes : null,
         documentFileName: kIsWeb ? _docFileName : null,
       );
     }
-    // context.read<StaffCubit>().fetchAll();
-    // Navigator.pushReplacement(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => MainScreen(selectedIndex: 16)),
-    // );
   }
 
   void _showSnack(String message, {bool isError = false}) {
@@ -380,7 +333,6 @@ class _AddStaffState extends State<AddStaff> {
           current is StaffSaved || current is StaffError,
       listener: (context, state) {
         if (state is StaffSaved) {
-          // ── Refresh TopBar profile image if editing the logged-in user ──
           if (_isEditMode) {
             final authState = context.read<AuthCubit>().state;
             if (authState is Authenticated) {
@@ -391,19 +343,21 @@ class _AddStaffState extends State<AddStaff> {
               }
             }
           }
-                 ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: _isEditMode
-                  ? Text('Staff updated successfully.')
-                  : Text('Staff added successfully.'),
+                  ? const Text('Staff updated successfully.')
+                  : const Text('Staff added successfully.'),
               behavior: SnackBarBehavior.floating,
               backgroundColor: AppColors.green,
             ),
           );
-    
-      
-          context.go(RoutePaths.viewStaff);
-          // context.pop();
+
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(true);
+          } else {
+            context.go(RoutePaths.viewStaff);
+          }
         }
         if (state is StaffError) {
           final rawMsg = state.message;
@@ -417,270 +371,169 @@ class _AddStaffState extends State<AddStaff> {
           _showSnack(friendlyMsg, isError: true);
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              StaffTopBar(
-                title: _isEditMode ? 'Edit Staff' : 'Add Staff',
-                current: _isEditMode ? 'Edit Staff' : 'Add Staff',
-                parent: 'Staff Management',
-                parent2: _isEditMode ? 'View Staff' : '',
-                onPressed: _isEditMode
-                    ? () {
-                        // Navigator.pushReplacement(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => MainScreen(selectedIndex: 16),
-                        //   ),
-                        // );
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (!mounted) return;
-                          context.go(RoutePaths.viewStaff);
-                        });
-                      }
-                    : null,
-                parent2True: _isEditMode ? true : false,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
-                child: Column(
-                  children: [
-                    // ── Main Form Card ───────────────────────────────────
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                        vertical: 2.h,
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ─── Image Upload Box ───────────────────────────────────────
+                  _buildUploadImageBox(),
+
+                  const SizedBox(height: 20),
+
+                  // ─── Form Fields (Two Columns) ──────────────────────────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildStaffNameField(),
+                            const SizedBox(height: 12),
+                            _buildPasswordField(),
+                            const SizedBox(height: 12),
+                            _buildStaffTypeField(),
+                            const SizedBox(height: 12),
+                            _buildJoiningDateField(),
+                          ],
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppColors.divider),
+
+                      const SizedBox(width: 24),
+
+                      // Right Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildContactNumberField(),
+                            const SizedBox(height: 12),
+                            _buildDesignationField(),
+                            const SizedBox(height: 12),
+                            _buildEmailField(),
+                            const SizedBox(height: 12),
+                            _buildSalaryField(),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // ─── Action Buttons (Cancel & Submit) ───────────────────────
+                  BlocBuilder<StaffCubit, StaffState>(
+                    builder: (context, state) {
+                      final isSaving = state is StaffSaving;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Expanded(child: _leftSection()),
-                          SizedBox(width: 2.w),
-                          Expanded(child: _middleSection()),
-                          SizedBox(width: 2.w),
-                          Expanded(child: _rightSection()),
+                          OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFFD0D5DD)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              backgroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: AppTextStyle.medium(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF344054),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton(
+                            onPressed: isSaving ? null : _handleSubmit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppThemeColors.basicGreen,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                            child: isSaving
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    _isEditMode ? 'Update' : 'Submit',
+                                    style: AppTextStyle.medium(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
                         ],
-                      ),
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    // ── Submit Button ────────────────────────────────────
-                    _buildSubmitButton(),
-                  ],
-                ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ─── Left Section ─────────────────────────────────────────────────────────
+  // ─── Image Upload Widget ───────────────────────────────────────────────────
 
-  Widget _leftSection() {
-    return Column(
-      children: [
-        InputField(
-          label: 'Name',
-          showStar: true,
-          hint: 'Enter Full Name',
-          controller: _nameCtrl,
-        ),
-        InputFieldForPsswrd(
-          label: 'Password',
-          showStar: true,
-          hint: 'Password',
-          controller: _passwordCtrl,
-        ),
-        (() {
-          final isCompanyAdmin =
-              _isEditMode && widget.staff?.designation == "Company_Admin";
-
-          final staffTypeWidget = Dropdown(
-            showStar: true,
-            label: 'Staff Type',
-            hint: 'Select staff type',
-            items: const [
-              'Admin',
-              'Marketing',
-              'Team Lead',
-              'Technical',
-              'Telecalling',
-            ],
-            selectedValue: _staffType,
-            onChanged: isCompanyAdmin
-                ? (v) {}
-                : (v) => setState(() => _staffType = v),
-          );
-
-          if (isCompanyAdmin) {
-            return AbsorbPointer(
-              absorbing: true,
-              child: Tooltip(
-                message: "Company Admin staff type cannot be changed.",
-                child: Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    staffTypeWidget,
-                    Padding(
-                      padding: EdgeInsets.only(right: 3.w, top: 2.h),
-                      child: Icon(
-                        Icons.lock_outline,
-                        size: 14.sp,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return staffTypeWidget;
-        })(),
-        SizedBox(height: 0.8.h),
-        InputField(
-          label: 'Joining Date',
-          hint: 'DD-MM-YYYY',
-          controller: _joiningDateCtrl,
-        ),
-        SizedBox(height: 2.h),
-      ],
-    );
-  }
-
-  // ─── Middle Section ───────────────────────────────────────────────────────
-
-  Widget _middleSection() {
-    return Column(
-      children: [
-        InputField(
-          label: 'Phone Number',
-          showStar: true,
-          hint: 'Enter Phone Number',
-          controller: _phoneCtrl,
-          isPhone: true,
-        ),
-        // if()
-        BlocBuilder<DesignationCubit, DesignationState>(
-          builder: (context, state) {
-            List<String> designationItems = [];
-            Map<String, String> designationMap = {};
-
-            if (state is DesignationListLoaded) {
-              for (final d in state.designations) {
-                designationItems.add(d.designationName);
-                if (d.id != null) {
-                  designationMap[d.designationName] = d.id!;
-                }
-              }
-            }
-
-            if (_designation != null &&
-                _designation!.isNotEmpty &&
-                !designationItems.contains(_designation)) {
-              designationItems.insert(0, _designation!);
-            }
-
-            final isCompanyAdmin =
-                _isEditMode && widget.staff?.designation == "Company_Admin";
-
-            final dropdownWidget = DropdownWithAdd(
-              label: 'Designation',
-              items: designationItems,
-              selectedValue: _designation,
-              showStar: true,
-              onTap: isCompanyAdmin ? () {} : _openDesignationDialog,
-              onChanged: isCompanyAdmin
-                  ? (v) {}
-                  : (v) => setState(() {
-                      _designation = v;
-                      _designationId = v != null ? designationMap[v] : null;
-                    }),
-            );
-
-            if (isCompanyAdmin) {
-              return AbsorbPointer(
-                absorbing: true,
-                child: Tooltip(
-                  message: "Company Admin designation cannot be changed.",
-                  child: Stack(
-                    alignment: Alignment.centerRight,
-                    children: [
-                      dropdownWidget,
-                      Padding(
-                        padding: EdgeInsets.only(right: 3.w, top: 2.h),
-                        child: Icon(
-                          Icons.lock_outline,
-                          size: 14.sp,
-                          color: AppColors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            return dropdownWidget;
-          },
-        ),
-        SizedBox(height: 0.8.h),
-        InputField(
-          showStar: true,
-          label: 'Email Id',
-          hint: 'Enter Your Email',
-          controller: _emailCtrl,
-        ),
-        InputField(
-          label: 'Salary',
-          hint: 'Enter Salary',
-          controller: _salaryCtrl,
-        ),
-      ],
-    );
-  }
-
-  // ─── Right Section ────────────────────────────────────────────────────────
-
-  Widget _rightSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Staff Image', style: AppTextStyle.medium()),
-        SizedBox(height: 1.h),
-
-        _buildFilePicker(fileName: _imageFileName, onTap: _pickImage),
-
-        SizedBox(height: 1.5.h),
-
-        // ── Image Preview (web-safe) ───────────────────────────────
-        Container(
-          height: 22.h,
-          width: double.infinity,
+  Widget _buildUploadImageBox() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: DottedBorder(
+        color: AppThemeColors.borderClr.withValues(alpha: 0.5),
+        strokeWidth: 1,
+        dashPattern: const [2, 2],
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(8),
+        child: Container(
+          width: 130,
+          height: 130,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: _buildImagePreview(),
+          child: _buildImageContent(),
         ),
-
-        SizedBox(height: 2.h),
-      ],
+      ),
     );
   }
 
-  Widget _buildImagePreview() {
-    // 1. Newly picked image
+  Widget _buildImageContent() {
     if (_selectedImageBytes != null) {
       return Stack(
         fit: StackFit.expand,
@@ -700,7 +553,7 @@ class _AddStaffState extends State<AddStaff> {
                   shape: BoxShape.circle,
                 ),
                 padding: const EdgeInsets.all(4),
-                child: const Icon(Icons.close, color: Colors.white, size: 16),
+                child: const Icon(Icons.close, color: Colors.white, size: 14),
               ),
             ),
           ),
@@ -708,7 +561,6 @@ class _AddStaffState extends State<AddStaff> {
       );
     }
 
-    // 2. Existing network image — only show if NOT removed
     if (widget.staff?.imageUrl != null && !_existingImageRemoved) {
       return Stack(
         fit: StackFit.expand,
@@ -718,18 +570,12 @@ class _AddStaffState extends State<AddStaff> {
             child: Image.network(
               widget.staff!.imageUrl!,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return const Center(
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              },
-              errorBuilder: (_, __, ___) =>
-                  const Center(child: Text('Failed to load image')),
+              errorBuilder: (_, __, ___) => Center(
+                child: Text(
+                  'Failed to load image',
+                  style: AppTextStyle.medium(fontSize: 11.5),
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -743,7 +589,7 @@ class _AddStaffState extends State<AddStaff> {
                   shape: BoxShape.circle,
                 ),
                 padding: const EdgeInsets.all(4),
-                child: const Icon(Icons.close, color: Colors.white, size: 16),
+                child: const Icon(Icons.close, color: Colors.white, size: 14),
               ),
             ),
           ),
@@ -751,273 +597,692 @@ class _AddStaffState extends State<AddStaff> {
       );
     }
 
-    // 3. Placeholder
-    return Center(
-      child: Text(
-        'No Image Selected',
-        style: TextStyle(color: Colors.grey.shade500),
-      ),
-    );
-  }
-  // ─── Upload Section ───────────────────────────────────────────────────────
-
-  Widget _buildUploadSection() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-            child: Text(
-              'Upload Files',
-              style: AppTextStyle.medium(
-                size: 11.sp,
-                color: AppColors.black.withOpacity(0.77),
-                weight: FontWeight.w600,
-              ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.person_outline_rounded,
+          size: 28,
+          color: Color(0xFF667085),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Upload Image',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF101828),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'Drop file or click here to choose file.',
+            textAlign: TextAlign.center,
+            style: AppTextStyle.medium(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF667085),
             ),
           ),
-          Divider(color: AppColors.divider),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Dropdown(
-                    hint: 'Select document',
-                    items: const ['Aadhaar', 'PAN', 'Passport', 'Other'],
-                    selectedValue: _selectedDocuments,
-                    onChanged: (v) => setState(() => _selectedDocuments = v),
-                    label: 'Select Document Name',
+        ),
+      ],
+    );
+  }
+
+  // ─── Fields Implementation ────────────────────────────────────────────────
+
+  Widget _buildStaffNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Staff Name',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF344054),
+              ),
+            ),
+            Text(
+              '*',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFFD92D20),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 12, right: 8),
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _nameCtrl,
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Enter full name',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                SizedBox(width: 1.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactNumberField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Contact Number',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF344054),
+              ),
+            ),
+            Text(
+              '*',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFFD92D20),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 6),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: const Color(0xFF00B16E),
+                      width: .5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text('🇮🇳', style: AppTextStyle.medium(fontSize: 11.5)),
+                      const SizedBox(width: 4),
                       Text(
-                        'Upload Document',
+                        '+91',
                         style: AppTextStyle.medium(
-                          size: 11.sp,
-                          weight: FontWeight.w600,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF344054),
                         ),
                       ),
-                      SizedBox(height: 0.5.h),
-                      _buildFilePicker(
-                        fileName: _docFileName,
-                        onTap: _pickDocument,
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '0000 0000 00',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(right: 12, left: 8),
+                child: Icon(
+                  Icons.phone_outlined,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Password',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF344054),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 12, right: 8),
+                child: Icon(
+                  Icons.lock_outline_rounded,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _passwordCtrl,
+                  obscureText: _obscurePassword,
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Enter password',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12, left: 8),
+                child: GestureDetector(
+                  onTap: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                  child: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 18,
+                    color: const Color(0xFF667085),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesignationField() {
+    return BlocBuilder<DesignationCubit, DesignationState>(
+      builder: (context, state) {
+        List<String> designationItems = [];
+        Map<String, String> designationMap = {};
+
+        if (state is DesignationListLoaded) {
+          for (final d in state.designations) {
+            designationItems.add(d.designationName);
+            if (d.id != null) {
+              designationMap[d.designationName] = d.id!;
+            }
+          }
+        }
+
+        if (_designation != null &&
+            _designation!.isNotEmpty &&
+            !designationItems.contains(_designation)) {
+          designationItems.insert(0, _designation!);
+        }
+
+        final isCompanyAdmin =
+            _isEditMode && widget.staff?.designation == "Company_Admin";
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Designation',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF344054),
+              ),
+            ),
+            const SizedBox(height: 5),
+            PopupMenuButton<String>(
+              enabled: !isCompanyAdmin,
+              onSelected: (val) {
+                if (val == '__ADD_NEW__') {
+                  _openDesignationDialog();
+                } else {
+                  setState(() {
+                    _designation = val;
+                    _designationId = designationMap[val];
+                  });
+                }
+              },
+              itemBuilder: (context) => [
+                ...designationItems.map(
+                  (item) => PopupMenuItem<String>(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: AppTextStyle.medium(fontSize: 11.5),
+                    ),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem<String>(
+                  value: '__ADD_NEW__',
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.add,
+                        size: 16,
+                        color: AppThemeColors.basicGreen,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Add New Designation',
+                        style: AppTextStyle.medium(
+                          fontSize: 11.5,
+                          color: const Color(0xFF00B074),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Submit Button ────────────────────────────────────────────────────────
-
-  Widget _buildSubmitButton() {
-    return 
-    //BlocListener<StaffCubit, StaffState>(
-    //   listener: (context, state) {
-    //     if (state is StaffSaved) {
-    //       ScaffoldMessenger.of(context).showSnackBar(
-    //         SnackBar(
-    //           content: _isEditMode
-    //               ? Text('Staff updated successfully.')
-    //               : Text('Staff added successfully.'),
-    //           behavior: SnackBarBehavior.floating,
-    //           backgroundColor: AppColors.green,
-    //         ),
-    //       );
-    //       Navigator.pop(context);
-    //     }
-    //   },
-    //   child:
-       BlocBuilder<StaffCubit, StaffState>(
-        builder: (context, state) {
-          final isSaving = state is StaffSaving;
-          return Align(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              width: 10.w,
-              height: 5.h,
-              child: ElevatedButton(
-                onPressed: isSaving ? null : _handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSaving ? AppColors.grey : AppColors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppThemeColors.textfieldBorder),
                 ),
-                child: isSaving
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: isCompanyAdmin ? null : _openDesignationDialog,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00B074),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          size: 14,
                           color: Colors.white,
                         ),
-                      )
-                    : Text(
-                        _isEditMode ? 'Update' : 'Submit',
-                        style: AppTextStyle.medium(
-                          size: 10.sp,
-                          color: AppColors.white,
-                        ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _designation ?? 'Select Designation',
+                        style: AppTextStyle.medium(
+                          fontSize: 11.5,
+                          color: _designation != null
+                              ? const Color(0xFF101828)
+                              : const Color(0xFF98A2B3),
+                          fontWeight: FontWeight.w400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 20,
+                      color: Color(0xFF667085),
+                    ),
+                  ],
+                ),
               ),
             ),
-          );
-        },
-    //   ),
+          ],
+        );
+      },
     );
   }
 
-  // ─── Shared Widgets ───────────────────────────────────────────────────────
+  Widget _buildStaffTypeField() {
+    final isCompanyAdmin =
+        _isEditMode && widget.staff?.designation == "Company_Admin";
+    final staffTypeItems = const [
+      'Admin',
+      'Marketing',
+      'Team Lead',
+      'Technical',
+      'Telecalling',
+    ];
 
-  Widget _buildFilePicker({
-    required String fileName,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      height: 5.h,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 3.w),
-              height: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                border: Border(right: BorderSide(color: Colors.grey.shade400)),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'Choose file',
-                style: AppTextStyle.medium(size: 10.sp),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Staff Type',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF344054),
+          ),
+        ),
+        const SizedBox(height: 5),
+        PopupMenuButton<String>(
+          enabled: !isCompanyAdmin,
+          onSelected: (val) => setState(() => _staffType = val),
+          itemBuilder: (context) => staffTypeItems
+              .map(
+                (item) => PopupMenuItem<String>(
+                  value: item,
+                  child: Text(item, style: AppTextStyle.medium(fontSize: 11.5)),
+                ),
+              )
+              .toList(),
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppThemeColors.textfieldBorder),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.person_outline_rounded,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _staffType ?? 'Select Field',
+                    style: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: _staffType != null
+                          ? const Color(0xFF101828)
+                          : const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF667085),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.w),
-              child: Text(
-                fileName,
-                style: TextStyle(color: Colors.grey.shade700),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-}
 
-// ─── Reusable Widgets ─────────────────────────────────────────────────────────
-
-class InputField extends StatelessWidget {
-  final String label;
-  final String hint;
-  final bool isPassword;
-  final TextEditingController? controller;
-  final bool showStar;
-  final bool isPhone;
-
-  const InputField({
-    super.key,
-    required this.label,
-    required this.hint,
-    this.isPassword = false,
-    this.controller,
-    this.showStar = false,
-    this.isPhone = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 1.5.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Email Id',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF344054),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
             children: [
-              Text(label, style: AppTextStyle.medium()),
-              if (showStar)
-                Text('*', style: AppTextStyle.medium(color: Colors.red)),
+              const Padding(
+                padding: EdgeInsets.only(left: 12, right: 8),
+                child: Icon(
+                  Icons.mail_outline_rounded,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Enter email id',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
             ],
           ),
-          SizedBox(height: 0.5.h),
-          Container(
-            height: 5.3.h,
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.divider),
-              borderRadius: BorderRadius.circular(4),
-              color: AppColors.greyCard,
-            ),
-            child: TextField(
-              controller: controller,
-              style: AppTextStyle.body(size: 11.sp),
-              obscureText: isPassword,
-              inputFormatters: [
-                if (isPhone) FilteringTextInputFormatter.digitsOnly,
-                if (isPhone) LengthLimitingTextInputFormatter(10),
-              ],
-              keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: AppTextStyle.small(
-                  size: 11.sp,
-                  color: AppColors.grey,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.all(1.w),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-}
 
-class CheckboxTile extends StatelessWidget {
-  final String title;
-  final bool value;
-  final Function(bool?) onChanged;
-
-  const CheckboxTile({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+  Widget _buildJoiningDateField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Checkbox(value: value, onChanged: onChanged),
-        Text(title, style: AppTextStyle.medium()),
+        Text(
+          'Joining Date',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF344054),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 12, right: 8),
+                child: Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18,
+                  color: Color(0xFF667085),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _joiningDateCtrl,
+                  readOnly: true,
+                  onTap: () async {
+                    final now = DateTime.now();
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: now,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      final day = picked.day.toString().padLeft(2, '0');
+                      final month = picked.month.toString().padLeft(2, '0');
+                      final year = picked.year;
+                      setState(() {
+                        _joiningDateCtrl.text = '$day-$month-$year';
+                      });
+                    }
+                  },
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '25-06-2026',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSalaryField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Salary',
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF344054),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppThemeColors.textfieldBorder),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _salaryCtrl,
+                  keyboardType: TextInputType.number,
+                  style: AppTextStyle.medium(
+                    fontSize: 11.5,
+                    color: const Color(0xFF101828),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Enter Salary',
+                    hintStyle: AppTextStyle.medium(
+                      fontSize: 11.5,
+                      color: const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ),
       ],
     );
   }

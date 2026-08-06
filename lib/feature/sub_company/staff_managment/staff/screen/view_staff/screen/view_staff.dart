@@ -1,4 +1,6 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/designation_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/view_staff/addStaffButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +35,7 @@ class _ViewStaffState extends State<ViewStaff> {
   List<int> _selectedIndices = [];
   int _tableKey = 0;
   int _currentPage = 1;
+  List<StaffModel> _cachedStaffList = [];
 
   @override
   void initState() {
@@ -146,8 +149,8 @@ class _ViewStaffState extends State<ViewStaff> {
 
   Widget _statusBadge(String? status) {
     final isActive = (status ?? '').toLowerCase() == 'active';
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 0.6.w, vertical: 0.3.h),
+    return SizedBox(
+      // padding: EdgeInsets.symmetric(horizontal: 0.6.w, vertical: 0.3.h),
       // decoration: BoxDecoration(
       //   color: isActive
       //       ? AppColors.green.withOpacity(0.12)
@@ -162,7 +165,7 @@ class _ViewStaffState extends State<ViewStaff> {
       child: Text(
         isActive ? 'Active' : 'Inactive',
         style: AppTextStyle.medium(
-          size: 12,
+          size: 11.5,
           color: isActive ? AppColors.green : AppColors.red,
         ),
       ),
@@ -194,6 +197,9 @@ class _ViewStaffState extends State<ViewStaff> {
                 behavior: SnackBarBehavior.floating,
               ),
             );
+          }
+          if (state is StaffListLoaded) {
+            _cachedStaffList = state.staffList;
           }
           if (state is StaffSaved) {
             context.read<StaffCubit>().fetchAll();
@@ -337,7 +343,7 @@ class _ViewStaffState extends State<ViewStaff> {
                               final List<StaffModel> rawList =
                                   state is StaffListLoaded
                                   ? state.staffList
-                                  : [];
+                                  : _cachedStaffList;
 
                               final activeCount = rawList
                                   .where(
@@ -468,7 +474,7 @@ class _ViewStaffState extends State<ViewStaff> {
               label,
               style: AppTextStyle.medium(
                 color: isSelected ? Colors.white : unselectedText,
-                size: 9.5.sp,
+                size: 11.5,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
@@ -481,8 +487,8 @@ class _ViewStaffState extends State<ViewStaff> {
   // ─── Table section ─────────────────────────────────────────────────────────
 
   Widget _buildTableSection(StaffState state) {
-    // Loading
-    if (state is StaffLoading) {
+    // Loading (only show big spinner if we have no cached data)
+    if (state is StaffLoading && _cachedStaffList.isEmpty) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h),
         child: Center(
@@ -495,7 +501,7 @@ class _ViewStaffState extends State<ViewStaff> {
     }
 
     // Error
-    if (state is StaffError) {
+    if (state is StaffError && _cachedStaffList.isEmpty) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
         child: Center(
@@ -541,7 +547,7 @@ class _ViewStaffState extends State<ViewStaff> {
 
     final List<StaffModel> rawList = state is StaffListLoaded
         ? state.staffList
-        : [];
+        : _cachedStaffList;
 
     final allFiltered = _filtered(rawList);
     final totalCount = allFiltered.length;
@@ -577,10 +583,10 @@ class _ViewStaffState extends State<ViewStaff> {
             TableColumn(title: "Name", flex: 4),
             TableColumn(title: "Designation", flex: 4),
             TableColumn(title: "Staff Type", flex: 4),
-            TableColumn(title: "Contact No.", flex: 4),
-            TableColumn(title: "Created Date", flex: 4),
-            TableColumn(title: "Joining Date", flex: 4),
-            TableColumn(title: "Status", flex: 4),
+            TableColumn(title: "Contact No.", flex: 3),
+            TableColumn(title: "Created Date", flex: 3),
+            TableColumn(title: "Joining Date", flex: 3),
+            TableColumn(title: "Status", flex: 3),
             TableColumn(title: "Action", flex: 2),
           ],
           rows: pagedList.asMap().entries.map((entry) {
@@ -595,21 +601,27 @@ class _ViewStaffState extends State<ViewStaff> {
                 : '—';
 
             return [
-              Text('$serial', style: AppTextStyle.medium()),
+              Text('$serial', style: AppTextStyle.medium(fontSize: 11.5)),
               Text(
                 staff.name,
-                style: AppTextStyle.medium(),
+                style: AppTextStyle.medium(fontSize: 11.5),
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 staff.designation ?? '—',
-                style: AppTextStyle.medium(),
+                style: AppTextStyle.medium(fontSize: 11.5),
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
-              Text(staff.phone, style: AppTextStyle.medium()),
-              Text(createdAt, style: AppTextStyle.medium()),
-              Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
+              Text(
+                staff.staffType ?? '—',
+                style: AppTextStyle.medium(fontSize: 11.5),
+              ),
+              Text(staff.phone, style: AppTextStyle.medium(fontSize: 11.5)),
+              Text(createdAt, style: AppTextStyle.medium(fontSize: 11.5)),
+              Text(
+                staff.joiningDate ?? '—',
+                style: AppTextStyle.medium(fontSize: 11.5),
+              ),
               _statusBadge(staff.status),
               //action buttons
               Center(
@@ -617,17 +629,23 @@ class _ViewStaffState extends State<ViewStaff> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     if (staff.designation != "Company_Admin")
-                      BrowserAwareLink(
-                        destination: RoutePaths.staffEditPath(staff.id!),
-                        onTap: () => context
-                            .push(RoutePaths.staffEditPath(staff.id!))
-                            .then((_) {
-                              if (context.mounted) {
-                                context.read<StaffCubit>().fetchAll();
-                              }
-                            }),
-                        usePush: true,
-                        enableInkWell: false,
+                      GestureDetector(
+                        onTap: () {
+                          final staffCubit = context.read<StaffCubit>();
+                          showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (dialogContext) => MultiBlocProvider(
+                              providers: [
+                                BlocProvider.value(value: staffCubit),
+                                BlocProvider(
+                                  create: (_) => DesignationCubit()..fetchAll(),
+                                ),
+                              ],
+                              child: AddStaff(staff: staff),
+                            ),
+                          );
+                        },
                         child: Tooltip(
                           message: 'Edit',
                           child: Icon(
@@ -727,7 +745,7 @@ class _ViewStaffState extends State<ViewStaff> {
               Text(
                 "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
                 style: AppTextStyle.medium(
-                  size: 10.sp,
+                  size: 11,
                   weight: FontWeight.w600,
                   color: Colors.grey.shade600,
                 ),
@@ -821,7 +839,7 @@ class _ViewStaffState extends State<ViewStaff> {
           ),
           child: Text(
             '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            style: AppTextStyle.small(size: 11.5, color: AppColors.white),
           ),
         ),
       ),
