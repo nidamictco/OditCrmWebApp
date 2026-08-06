@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/theme/app_colors.dart';
@@ -172,7 +173,7 @@ class _ViewStaffState extends State<ViewStaff> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: BlocConsumer<StaffCubit, StaffState>(
         listener: (context, state) {
           if (state is StaffError) {
@@ -201,84 +202,137 @@ class _ViewStaffState extends State<ViewStaff> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                StaffTopBar(
-                  title: 'Staff List',
-                  current: 'View Staff',
-                  parent: 'Staff Management',
-                ),
+                // StaffTopBar(
+                //   title: 'Staff List',
+                //   current: 'View Staff',
+                //   parent: 'Staff Management',
+                // ),
                 Padding(
-                  padding: EdgeInsets.all(2.w),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ─── Add New button ─────────────────────────────────
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 2.w,
-                            right: 2.w,
-                            top: 2.h,
-                            bottom: 1.h,
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: SizedBox(
-                              width: 7.5.w,
-                              height: 4.5.h,
-                              child: MouseRegion(
-                                onEnter: (_) =>
-                                    setState(() => isHovering = true),
-                                onExit: (_) =>
-                                    setState(() => isHovering = false),
-                                child: BrowserAwareLink(
-                                  destination: RoutePaths.addStaff,
-                                  usePush: false,
-                                  enableInkWell: false,
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut,
-                                    height: 5.h,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.orange,
-                                        width: 0.02.w,
-                                      ),
-                                      color: isHovering
-                                          ? AppColors.orange
-                                          : AppColors.orange.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Add New",
-                                        style: AppTextStyle.small(
-                                          color: isHovering
-                                              ? Colors.white
-                                              : AppColors.orange,
-                                          size: 10.sp,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ─── Add New button ─────────────────────────────────
+                      // Padding(
+                      //   padding: EdgeInsets.only(
+                      //     left: 2.w,
+                      //     right: 2.w,
+                      //     top: 2.h,
+                      //     bottom: 1.h,
+                      //   ),
+                      //   child: Align(
+                      //     alignment: Alignment.centerRight,
+                      //     child: SizedBox(
+                      //       width: 7.5.w,
+                      //       height: 4.5.h,
+                      //       child: MouseRegion(
+                      //         onEnter: (_) =>
+                      //             setState(() => isHovering = true),
+                      //         onExit: (_) =>
+                      //             setState(() => isHovering = false),
+                      //         child: BrowserAwareLink(
+                      //           destination: RoutePaths.addStaff,
+                      //           usePush: false,
+                      //           enableInkWell: false,
+                      //           child: AnimatedContainer(
+                      //             duration: const Duration(milliseconds: 200),
+                      //             curve: Curves.easeInOut,
+                      //             height: 5.h,
+                      //             decoration: BoxDecoration(
+                      //               border: Border.all(
+                      //                 color: AppColors.orange,
+                      //                 width: 0.02.w,
+                      //               ),
+                      //               color: isHovering
+                      //                   ? AppColors.orange
+                      //                   : AppColors.orange.withOpacity(0.1),
+                      //               borderRadius: BorderRadius.circular(4),
+                      //             ),
+                      //             child: Center(
+                      //               child: Text(
+                      //                 "Add New",
+                      //                 style: AppTextStyle.small(
+                      //                   color: isHovering
+                      //                       ? Colors.white
+                      //                       : AppColors.orange,
+                      //                   size: 10.sp,
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Divider(color: AppColors.divider),
+                      // SizedBox(height: 2.h),
 
-                        Divider(color: AppColors.divider),
-                        SizedBox(height: 2.h),
+                      // // ─── Active / Inactive filter buttons ───────────────
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(
+                      //     horizontal: 2.w,
+                      //     vertical: 1.h,
+                      //   ),
+                      //   child: BlocBuilder<StaffCubit, StaffState>(
+                      //     builder: (context, state) {
+                      //       final List<StaffModel> rawList =
+                      //           state is StaffListLoaded
+                      //           ? state.staffList
+                      //           : [];
 
-                        // ─── Active / Inactive filter buttons ───────────────
-                        Padding(
+                      //       final activeCount = rawList
+                      //           .where(
+                      //             (s) => s.status.toLowerCase() == 'active',
+                      //           )
+                      //           .length;
+                      //       final inactiveCount = rawList
+                      //           .where(
+                      //             (s) => s.status.toLowerCase() != 'active',
+                      //           )
+                      //           .length;
+
+                      //       return Row(
+                      //         children: [
+                      //           _filterButton(
+                      //             label: 'Active',
+                      //             color: AppColors.green,
+                      //             isSelected: _activeFilter == 'Active',
+                      //             onTap: () => setState(
+                      //               () => _activeFilter = 'Active',
+                      //             ),
+                      //             count: activeCount, // 👈 pass count
+                      //           ),
+                      //           SizedBox(width: 0.6.w),
+                      //           _filterButton(
+                      //             label: 'Inactive',
+                      //             color: AppColors.red.withOpacity(0.9),
+                      //             isSelected: _activeFilter == 'Inactive',
+                      //             onTap: () => setState(
+                      //               () => _activeFilter = 'Inactive',
+                      //             ),
+                      //             count: inactiveCount, // 👈 pass count
+                      //           ),
+                      //         ],
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
+                      ShowEntries(
+                        initialSearch: _searchQuery,
+                        initialEntries: _selectedEntries,
+                        onSearchChanged: (v) => setState(() {
+                          _searchQuery = v;
+                          _resetPage();
+                        }),
+                        onEntriesChanged: (v) => setState(() {
+                          _selectedEntries = v;
+                          _resetPage();
+                        }),
+                        middleWidget: Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: 2.w,
-                            vertical: 1.h,
+                            // vertical: 1.h,
                           ),
                           child: BlocBuilder<StaffCubit, StaffState>(
                             builder: (context, state) {
@@ -324,25 +378,10 @@ class _ViewStaffState extends State<ViewStaff> {
                             },
                           ),
                         ),
-
-                        SizedBox(height: 2.h),
-
-                        ShowEntries(
-                          initialSearch: _searchQuery,
-                          initialEntries: _selectedEntries,
-                          onSearchChanged: (v) => setState(() {
-                            _searchQuery = v;
-                            _resetPage();
-                          }),
-                          onEntriesChanged: (v) => setState(() {
-                            _selectedEntries = v;
-                            _resetPage();
-                          }),
-                        ),
-
-                        _buildTableSection(state),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 13),
+                      _buildTableSection(state),
+                    ],
                   ),
                 ),
               ],

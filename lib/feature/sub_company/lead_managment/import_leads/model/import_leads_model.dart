@@ -155,6 +155,7 @@ class ImportLeadModel {
       'nextFollowUpDate': nextFollowUpDate == null
     ? null
     : Timestamp.fromDate(nextFollowUpDate!),
+     'hasFollowUp': leadStage.toUpperCase() == 'FOLLOWUP' && nextFollowUpDate != null, 
       'leadCategoryId':    leadCategoryId,
       'leadSubCategoryId': leadSubCategoryId,
       'leadSourceId':      leadSourceId,

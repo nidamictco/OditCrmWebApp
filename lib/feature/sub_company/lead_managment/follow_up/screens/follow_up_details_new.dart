@@ -42,6 +42,7 @@ import '../models/follow_up_details_models.dart';
 import '../../../../../core/theme/app_text_style.dart';
 
 import '../models/staff_handler_model.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 class FollowUpDetailsNewScreen extends StatefulWidget {
   final AddLeadModel currentLead;
@@ -297,7 +298,8 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 fallback: _currentLead.leadCategory,
                 idOf: (c) => c.id,
                 nameOf: (c) => c.name,
-        ):'N/A';
+              )
+            : 'N/A';
 
         final subCategoryName = resolveLeadName(
           list: state.subCategories,
@@ -525,7 +527,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                         ),
                         _metaChip(
                           Icons.phone_outlined,
-                          '${_currentLead.contactDialCode} ${_currentLead.contactNumber }',
+                          '${_currentLead.contactDialCode} ${_currentLead.contactNumber}',
                         ),
                         _metaChip(
                           Icons.location_on_outlined,
@@ -2369,7 +2371,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
 
     return IntrinsicHeight(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: const EdgeInsets.only(left: 50),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Row(
@@ -3076,7 +3078,7 @@ class _NewActivityItem extends StatelessWidget {
       case ActivityType.leadCreated:
         return Icons.add_circle_outline;
       case ActivityType.statusChanged:
-        return Icons.swap_horiz;
+        return Icons.flag;
       case ActivityType.followupAdded:
         return Icons.phone_outlined;
       case ActivityType.categoryChanged:
@@ -3090,18 +3092,31 @@ class _NewActivityItem extends StatelessWidget {
       case ActivityType.remarkUpdated:
         return Icons.edit_note_outlined;
       default:
-        return Icons.phone_outlined;
+        return Icons.swap_horiz;
     }
   }
 
   Color get _iconBgColor {
     switch (activity.type) {
       case ActivityType.followupAdded:
-        return const Color(0xFF0F766E);
+        return const Color(0xFF4E9CDB).withValues(alpha: 0.15);
+      case ActivityType.leadCreated:
+        return const Color(0xFF059669).withValues(alpha: 0.15);
+      case ActivityType.statusChanged:
+        return const Color(0xFFEF4444).withValues(alpha: 0.15);
+      default:
+        return const Color(0xFF0F766E).withValues(alpha: 0.15);
+    }
+  }
+
+  Color get _iconColor {
+    switch (activity.type) {
+      case ActivityType.followupAdded:
+        return const Color(0xFF4E9CDB);
       case ActivityType.leadCreated:
         return const Color(0xFF059669);
       case ActivityType.statusChanged:
-        return const Color(0xFF2563EB);
+        return const Color(0xFFEF4444);
       default:
         return const Color(0xFF0F766E);
     }
@@ -3125,13 +3140,16 @@ class _NewActivityItem extends StatelessWidget {
                     color: _iconBgColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(_icon, size: 18, color: Colors.white),
+                  child: Icon(_icon, size: 18, color: _iconColor),
                 ),
                 if (!isLast)
                   Expanded(
                     child: Container(
-                      width: 1.5,
-                      color: const Color(0xFFCBD5E1),
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: const DottedArrowDown(
+                        height: 140,
+                        color: Color(0xFFBDBDBD),
+                      ),
                     ),
                   ),
               ],
@@ -3140,7 +3158,8 @@ class _NewActivityItem extends StatelessWidget {
           const SizedBox(width: 14),
 
           // Right: Card
-          Expanded(
+          SizedBox(
+            width: 500,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Container(
@@ -3187,26 +3206,31 @@ class _NewActivityItem extends StatelessWidget {
                             'dd-MM-yyyy, hh:mm a',
                           ).format(activity.changedAt),
                           style: AppTextStyle.body(
-                            fontSize: 12,
-                            color: const Color(0xFF94A3B8),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: AppThemeColors.cardText,
                           ),
                         ),
                         const SizedBox(width: 4),
                         const Icon(
                           Icons.calendar_today_outlined,
                           size: 13,
-                          color: Color(0xFF94A3B8),
+                          color: AppThemeColors.cardText,
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
+                    Divider(color: Color(0xFFE2E8F0), height: 1),
+                    SizedBox(height: 10),
                     // Description
                     Text(
                       activity.description,
                       style: AppTextStyle.body(
-                        fontSize: 13,
-                        color: const Color(0xFF475569),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF1E293B),
                         height: 1.5,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ],
@@ -3234,11 +3258,13 @@ class _NewDetailsTabContent extends StatefulWidget {
 
 class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
   late final Future<List<LeadStaffHandler>> _handlersFuture;
+  late final Future<StaffModel?> _currentStaffFuture;
 
   @override
   void initState() {
     super.initState();
     _handlersFuture = AddLeadRepository().getLeadHandledStaffs(widget.lead);
+    _currentStaffFuture = SessionService().getSavedUser();
   }
 
   @override
@@ -3277,141 +3303,164 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Two-column details
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Column: Lead Details
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'LEAD DETAILS',
-                        style: AppTextStyle.heading(
-                          size: 14,
-                          weight: FontWeight.w700,
-                          color: const Color(0xFF1E293B),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Left Column: Lead Details
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'LEAD DETAILS',
+                          style: AppTextStyle.heading(
+                            size: 13,
+                            weight: FontWeight.w700,
+                            color: const Color(0xFF0F2942),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 18),
-                      _detailItem('Lead Category:', categoryName),
-                      const SizedBox(height: 14),
-                      _detailItemWithBadge('Lead Stage:', stageName),
-                      const SizedBox(height: 14),
-                      _detailItem('Lead Source:', sourceName ?? '-'),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'Create Date:',
-                        DateFormat(
-                          'dd-MM-yyyy, hh:mm a',
-                        ).format(widget.lead.createdAt ?? DateTime.now()),
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem('Create By:', widget.lead.createdBy),
-                      const SizedBox(height: 14),
-                      _detailItem('Assigned Staff:', widget.lead.assignedStaff),
-                      const SizedBox(height: 18),
-                      Text(
-                        'Remark:',
-                        style: AppTextStyle.body(
-                          fontSize: 13,
-                          color: const Color(0xFF6B7280),
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 12),
+                        _detailItem(
+                          'Lead Category:',
+                          categoryName.isNotEmpty ? categoryName : 'N/A',
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.lead.remarks.isNotEmpty
-                            ? widget.lead.remarks
-                            : 'N/A',
-                        style: AppTextStyle.body(
-                          fontSize: 13,
-                          color: const Color(0xFF1E293B),
+                        _detailItemWithBadge('Lead Stage:', stageName),
+                        _detailItem(
+                          'Lead Source:',
+                          sourceName.isNotEmpty ? sourceName : 'N/A',
                         ),
-                      ),
-                    ],
+                        _detailItem(
+                          'Create Date:',
+                          DateFormat(
+                            'dd-MM-yyyy, hh:mm a',
+                          ).format(widget.lead.createdAt ?? DateTime.now()),
+                        ),
+                        _detailItem(
+                          'Create By:',
+                          widget.lead.createdBy.isNotEmpty
+                              ? widget.lead.createdBy
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'Assigned Staff:',
+                          widget.lead.assignedStaff.isNotEmpty
+                              ? widget.lead.assignedStaff
+                              : 'N/A',
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Remark:',
+                                style: AppTextStyle.body(
+                                  fontSize: 11.5,
+                                  color: const Color(0xFF475569),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                widget.lead.remarks.isNotEmpty
+                                    ? widget.lead.remarks
+                                    : 'N/A',
+                                style: AppTextStyle.body(
+                                  fontSize: 11.5,
+                                  color: const Color(0xFF1E293B),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
+                const SizedBox(width: 20),
 
-              // Right Column: Contact Information
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'CONTACT INFORMATION',
-                        style: AppTextStyle.heading(
-                          size: 14,
-                          weight: FontWeight.w700,
-                          color: const Color(0xFF1E293B),
+                // Right Column: Contact Information
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CONTACT INFORMATION',
+                          style: AppTextStyle.heading(
+                            size: 13,
+                            weight: FontWeight.w700,
+                            color: const Color(0xFF0F2942),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 18),
-                      _detailItem(
-                        'WhatsApp Number:',
-                        widget.lead.whatsappNumber.isNotEmpty
-                            ? widget.lead.whatsappNumber
-                            : widget.lead.contactNumber,
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'Email Address:',
-                        widget.lead.email.isNotEmpty ? widget.lead.email : '-',
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'Address:',
-                        widget.lead.address.isNotEmpty
-                            ? widget.lead.address
-                            : '-',
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'State:',
-                        widget.lead.state.isNotEmpty ? widget.lead.state : '-',
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'District:',
-                        widget.lead.district.isNotEmpty
-                            ? widget.lead.district
-                            : '-',
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'City:',
-                        widget.lead.address.isNotEmpty
-                            ? widget.lead.address
-                            : '-',
-                      ),
-                      const SizedBox(height: 14),
-                      _detailItem(
-                        'Pincode:',
-                        widget.lead.pinCode.isNotEmpty
-                            ? widget.lead.pinCode
-                            : '-',
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        _detailItem(
+                          'WhatsApp Number:',
+                          widget.lead.whatsappNumber.isNotEmpty
+                              ? widget.lead.whatsappNumber
+                              : (widget.lead.contactNumber.isNotEmpty
+                                    ? widget.lead.contactNumber
+                                    : 'N/A'),
+                        ),
+                        _detailItem(
+                          'Email Address:',
+                          widget.lead.email.isNotEmpty
+                              ? widget.lead.email
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'Address:',
+                          widget.lead.address.isNotEmpty
+                              ? widget.lead.address
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'State:',
+                          widget.lead.state.isNotEmpty
+                              ? widget.lead.state
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'District:',
+                          widget.lead.district.isNotEmpty
+                              ? widget.lead.district
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'City:',
+                          widget.lead.address.isNotEmpty
+                              ? widget.lead.address
+                              : 'N/A',
+                        ),
+                        _detailItem(
+                          'Pincode:',
+                          widget.lead.pinCode.isNotEmpty
+                              ? widget.lead.pinCode
+                              : 'N/A',
+                          showDivider: false,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),
@@ -3420,55 +3469,69 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
           Text(
             'LEAD HANDLE STAFF',
             style: AppTextStyle.heading(
-              size: 14,
+              size: 13,
               weight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
+              color: const Color(0xFF0F2942),
             ),
           ),
           const SizedBox(height: 14),
-          FutureBuilder<List<LeadStaffHandler>>(
-            future: _handlersFuture,
-            builder: (context, snap) {
-              if (snap.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (snap.hasError) {
-                return Text(
-                  'Error: ${snap.error}',
-                  style: AppTextStyle.body(fontSize: 12),
-                );
-              }
-              final handlers = snap.data ?? [];
-              if (handlers.isEmpty) {
-                return Text(
-                  'No staff records found.',
-                  style: AppTextStyle.body(fontSize: 12),
-                );
-              }
+          FutureBuilder<StaffModel?>(
+            future: _currentStaffFuture,
+            builder: (context, staffSnap) {
+              final currentStaff = staffSnap.data;
+              return FutureBuilder<List<LeadStaffHandler>>(
+                future: _handlersFuture,
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snap.hasError) {
+                    return Text(
+                      'Error: ${snap.error}',
+                      style: AppTextStyle.body(fontSize: 11.5),
+                    );
+                  }
+                  final handlers = snap.data ?? [];
+                  if (handlers.isEmpty) {
+                    return Text(
+                      'No staff records found.',
+                      style: AppTextStyle.body(fontSize: 11.5),
+                    );
+                  }
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (int i = 0; i < handlers.length; i += 2)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          Expanded(child: _NewStaffCard(handler: handlers[i])),
-                          if (i + 1 < handlers.length) ...[
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _NewStaffCard(handler: handlers[i + 1]),
-                            ),
-                          ] else
-                            const Expanded(child: SizedBox()),
-                        ],
-                      ),
-                    ),
-                ],
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (int i = 0; i < handlers.length; i += 2)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _NewStaffCard(
+                                  handler: handlers[i],
+                                  currentStaff: currentStaff,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              if (i + 1 < handlers.length) ...[
+                                Expanded(
+                                  child: _NewStaffCard(
+                                    handler: handlers[i + 1],
+                                    currentStaff: currentStaff,
+                                  ),
+                                ),
+                              ] else
+                                const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -3478,53 +3541,75 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
     );
   }
 
-  Widget _detailItem(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _detailItem(String label, String value, {bool showDivider = true}) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: 140,
-          child: Text(
-            label,
-            style: AppTextStyle.body(
-              fontSize: 13,
-              color: const Color(0xFF6B7280),
-              fontWeight: FontWeight.w500,
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 150,
+                child: Text(
+                  label,
+                  style: AppTextStyle.body(
+                    fontSize: 11.5,
+                    color: const Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.end,
+                  style: AppTextStyle.body(
+                    fontSize: 11.5,
+                    color: const Color(0xFF1E293B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: AppTextStyle.body(
-              fontSize: 13,
-              color: const Color(0xFF1E293B),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+        if (showDivider) const Divider(height: 1, color: Color(0xFFF1F5F9)),
       ],
     );
   }
 
-  Widget _detailItemWithBadge(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _detailItemWithBadge(
+    String label,
+    String value, {
+    bool showDivider = true,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: 140,
-          child: Text(
-            label,
-            style: AppTextStyle.body(
-              fontSize: 13,
-              color: const Color(0xFF6B7280),
-              fontWeight: FontWeight.w500,
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 150,
+                child: Text(
+                  label,
+                  style: AppTextStyle.body(
+                    fontSize: 11.5,
+                    color: const Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              _NewStatusChip(label: value),
+            ],
           ),
         ),
-        const Spacer(),
-        _NewStatusChip(label: value),
+        if (showDivider) const Divider(height: 1, color: Color(0xFFF1F5F9)),
       ],
     );
   }
@@ -3536,23 +3621,56 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
 
 class _NewStaffCard extends StatelessWidget {
   final LeadStaffHandler handler;
-  const _NewStaffCard({required this.handler});
+  final StaffModel? currentStaff;
+
+  const _NewStaffCard({
+    required this.handler,
+    this.currentStaff,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final currentId = currentStaff?.id ?? '';
+    final currentName = currentStaff?.name.trim().toLowerCase() ?? '';
+    final handlerId = handler.staffId;
+    final handlerName = handler.staffName.trim().toLowerCase();
+
+    final isCurrentUser = (currentId.isNotEmpty && handlerId.isNotEmpty)
+        ? (currentId == handlerId)
+        : (currentName.isNotEmpty && currentName == handlerName);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         children: [
-          const CircleAvatar(
-            radius: 20,
-            backgroundColor: Color(0xFFE2E8F0),
-            child: Icon(Icons.person, size: 22, color: Color(0xFF64748B)),
+          Stack(
+            children: [
+              const CircleAvatar(
+                radius: 20,
+                backgroundColor: Color(0xFFE2E8F0),
+                child: Icon(Icons.person, size: 22, color: Color(0xFF64748B)),
+              ),
+
+              if (isCurrentUser)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22C55E),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -3562,8 +3680,8 @@ class _NewStaffCard extends StatelessWidget {
                 Text(
                   handler.staffName,
                   style: AppTextStyle.body(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF1E293B),
                   ),
                 ),
@@ -3572,8 +3690,9 @@ class _NewStaffCard extends StatelessWidget {
                   Text(
                     '+91 ${handler.phone}',
                     style: AppTextStyle.body(
-                      fontSize: 12,
-                      color: const Color(0xFF6B7280),
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -3581,20 +3700,21 @@ class _NewStaffCard extends StatelessWidget {
             ),
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 '${handler.activityCount.toString().padLeft(2, '0')}',
                 style: AppTextStyle.heading(
-                  size: 16,
+                  size: 14,
                   weight: FontWeight.w700,
-                  color: const Color(0xFF0F766E),
+                  color: const Color(0xFF00B16E),
                 ),
               ),
               Text(
-                handler.activityCount == 1 ? 'Activity' : 'Activities',
+                handler.activityCount == 1 ? 'Activity' : 'Activites',
                 style: AppTextStyle.body(
-                  fontSize: 11.5,
-                  color: const Color(0xFF6B7280),
+                  fontSize: 11,
+                  color: const Color(0xFF94A3B8),
                 ),
               ),
             ],
@@ -3654,12 +3774,20 @@ class _NewStatusChip extends StatelessWidget {
   final String label;
   const _NewStatusChip({required this.label});
 
+  Color _chipColor(String txt) {
+    final lower = txt.trim().toLowerCase();
+    if (lower == 'follow-up' || lower == 'followup' || lower == 'follow up') {
+      return const Color(0xFF007AFF);
+    }
+    return getStageColor(txt);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: getStageColor(label),
+        color: _chipColor(label),
         borderRadius: BorderRadius.circular(99),
       ),
       child: Text(

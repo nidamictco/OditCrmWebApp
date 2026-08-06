@@ -79,6 +79,9 @@ class _ImportLeadsState extends State<ImportLeads> {
       builder: (context, state) {
         final cubit = context.read<ImportLeadsCubit>();
 
+         log('[Screen] rebuild — selectedLeadStage="${state.selectedLeadStage}" '
+      'nextFollowUpDate=${state.nextFollowUpDate}');
+
         return Scaffold(
           backgroundColor: AppThemeColors.scaffoldBg,
           body: SingleChildScrollView(
@@ -283,95 +286,6 @@ class _ImportLeadsState extends State<ImportLeads> {
   // ─────────────────────────────────────────────────────────────────────────
   // CSV UPLOAD BOX
   // ─────────────────────────────────────────────────────────────────────────
-
-  // Widget _buildCsvUploadBox(ImportLeadsCubit cubit) {
-  //   final hasFile = _pickedCsvBytes != null;
-  //   return GestureDetector(
-  //     onTap: () async {
-  //       final result = await FilePicker.platform.pickFiles(
-  //         type: FileType.custom,
-  //         allowedExtensions: ['csv'],
-  //         withData: true,
-  //       );
-  //       if (result != null &&
-  //           result.files.isNotEmpty &&
-  //           result.files.single.bytes != null) {
-  //         final file = result.files.single;
-  //         final bytes = file.bytes!;
-  //         setState(() {
-  //           _pickedCsvBytes = bytes;
-  //           _pickedFileName = file.name;
-  //         });
-  //         cubit.setCsvBytes(bytes);
-  //       }
-  //     },
-  //     child: Container(
-  //       width: 200,
-  //       height: 135,
-  //       padding: const EdgeInsets.all(14),
-  //       decoration: BoxDecoration(
-  //         color: hasFile ? const Color(0xFFF0FDF4) : const Color(0xFFFAFAFA),
-  //         borderRadius: BorderRadius.circular(12),
-  //         border: Border.all(
-  //           color: hasFile ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
-  //           width: 1.5,
-  //         ),
-  //       ),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Container(
-  //             padding: const EdgeInsets.all(8),
-  //             decoration: BoxDecoration(
-  //               color: hasFile
-  //                   ? const Color(0xFFDCFCE7)
-  //                   : const Color(0xFFF1F5F9),
-  //               borderRadius: BorderRadius.circular(8),
-  //             ),
-  //             child: Icon(
-  //               hasFile
-  //                   ? Icons.check_circle_outline
-  //                   : Icons.insert_drive_file_outlined,
-  //               color: hasFile
-  //                   ? const Color(0xFF059669)
-  //                   : const Color(0xFF64748B),
-  //               size: 26,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             hasFile
-  //                 ? (_pickedFileName ?? 'File Selected')
-  //                 : 'Import CSV File',
-  //             style: TextStyle(
-  //               fontSize: 12,
-  //               fontWeight: FontWeight.w600,
-  //               color: hasFile
-  //                   ? const Color(0xFF047857)
-  //                   : const Color(0xFF1E293B),
-  //             ),
-  //             maxLines: 1,
-  //             overflow: TextOverflow.ellipsis,
-  //           ),
-  //           const SizedBox(height: 2),
-  //           Text(
-  //             hasFile
-  //                 ? '${(_pickedCsvBytes!.length / 1024).toStringAsFixed(1)} KB'
-  //                 : 'Drop file or click here to choose file.',
-  //             style: TextStyle(
-  //               fontSize: 10,
-  //               color: hasFile
-  //                   ? const Color(0xFF059669)
-  //                   : const Color(0xFF94A3B8),
-  //             ),
-  //             textAlign: TextAlign.center,
-  //             maxLines: 2,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildCsvUploadBox(ImportLeadsCubit cubit) {
     final hasFile = _pickedCsvBytes != null;
@@ -612,74 +526,6 @@ class _ImportLeadsState extends State<ImportLeads> {
   // FORM GRID (DYNAMIC FIELDS WITH MAXIMUM 4 PER ROW)
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Widget _buildNextFollowupDateField(
-  //     ImportLeadsState state,
-  //     ImportLeadsCubit cubit,
-  // ) {
-  //   DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
-  //  final TextEditingController nextFollowUpCtrl = TextEditingController(
-  //     text: DateFormat(
-  //       'dd-MM-yyyy hh:mm a',
-  //     ).format(DateTime.now().add(const Duration(hours: 2))),
-  //   );
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Next Follow-Up Date',
-  //         style: TextStyle(
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.w600,
-  //           color: Color(0xFF475569),
-  //         ),
-  //       ),
-  //       const SizedBox(height: 6),
-  //       InkWell(
-  //         onTap: () async {
-  //           final result = await showCalendarDialogUsingTimePicker(
-  //               context,
-  //               initialDate: state.nextFollowUpDate,
-  //               mode: CalendarMode.single,
-  //               showTimePicker: true,
-  //               minDate: DateTime.now(),
-  //             );
-  //             if (result != null) {
-  //               setState(() {
-  //                 nextFollowUpDate = result.from;
-  //                 nextFollowUpCtrl.text = DateFormat(
-  //                   'dd-MM-yyyy hh:mm a',
-  //                 ).format(result.from);
-  //               });
-  //             }
-  //         },
-  //         child: Container(
-  //           height: 44,
-  //           padding:
-  //               const EdgeInsets.symmetric(horizontal: 12),
-  //           decoration: BoxDecoration(
-  //             border:
-  //                 Border.all(color: const Color(0xFFE2E8F0)),
-  //             borderRadius: BorderRadius.circular(8),
-  //           ),
-  //           alignment: Alignment.centerLeft,
-  //           child: Text(
-  //             nextFollowUpCtrl.text.isEmpty
-  //                 ? 'Select Date'
-  //                 : nextFollowUpCtrl.text,
-  //                   style: nextFollowUpCtrl.text.isEmpty? TextStyle(
-  //                         fontSize: 13,
-  //                         color: Color(0xFF94A3B8),
-  //                       ): TextStyle(
-  //                         fontSize: 13,
-  //                         fontWeight: FontWeight.w500,
-  //                         color: Color(0xFF0F172A),
-  //                       ),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget _buildNextFollowupDateField(
     ImportLeadsState state,
@@ -710,6 +556,7 @@ class _ImportLeadsState extends State<ImportLeads> {
               showTimePicker: true,
               minDate: DateTime.now(),
             );
+            log('[UI] date picker result: ${result?.from}');
             if (result != null) {
               cubit.selectNextFollowUpDate(
                 result.from,
@@ -882,32 +729,17 @@ class _ImportLeadsState extends State<ImportLeads> {
       activeFields.insert(0, _buildCountrySelectorField(state, cubit));
     }
 
-    if (state.selectedLeadStage?.toUpperCase() == 'FOLLOWUP') {
+    // if (state.selectedLeadStage?.toUpperCase() == 'FOLLOWUP') {
+    //   activeFields.add(_buildNextFollowupDateField(state, cubit));
+    // }
+
+     final normalizedStage =
+        state.selectedLeadStage?.toUpperCase().replaceAll(' ', '');
+    if (normalizedStage == 'FOLLOWUP') {
       activeFields.add(_buildNextFollowupDateField(state, cubit));
     }
 
-    // If selected stage has tags in Firebase -> insert Tag dropdown next to Lead Stage
-    // if (_stageTags.isNotEmpty) {
-    //   final tagNames = _stageTags
-    //       .map((t) => t.name)
-    //       .where((n) => n.isNotEmpty)
-    //       .toList();
-    //   activeFields.add(
-    //     _buildStandardDropdown(
-    //       label: 'Tag',
-    //       hint: 'Select Tag',
-    //       items: tagNames,
-    //       selectedValue: _selectedTag,
-    //       onChanged: (val) {
-    //         setState(() {
-    //           _selectedTag = val;
-    //         });
-    //       },
-    //       showClear: true,
-    //     ),
-    //   );
-    // }
-
+    
     activeFields.add(categoryField);
 
     // If selected category has subcategories in Firebase -> insert Sub Category dropdown next to Lead Category
@@ -972,25 +804,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             ],
           );
         }
-        //         if (isDesktop) {
-        //   return Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       for (int i = 0; i < rows.length; i++) ...[
-        //         if (i > 0) const SizedBox(height: 20),
-        //         Row(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           children: [
-        //             for (int j = 0; j < rows[i].length; j++) ...[
-        //               Expanded(child: rows[i][j]),
-        //               if (j < rows[i].length - 1) const SizedBox(width: 16),
-        //             ],
-        //           ],
-        //         ),
-        //       ],
-        //     ],
-        //   );
-        // }
+       
 
         final itemWidth = (constraints.maxWidth - 16) / 2;
         return Wrap(
@@ -1550,6 +1364,9 @@ class _ImportLeadsState extends State<ImportLeads> {
 
       if (confirmed != true) return;
     }
+
+log('[Screen] About to import — state.nextFollowUpDate=${state.nextFollowUpDate}, '
+    'selectedLeadStage=${state.selectedLeadStage}'); 
 
     cubit.importLeads(csvBytes: _pickedCsvBytes!);
   }

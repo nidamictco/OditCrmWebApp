@@ -352,6 +352,7 @@ class _TopBarState extends State<TopBar> {
                 location == RoutePaths.dashboard || location == '/';
             final isLeadListScreen =
                 location == RoutePaths.newLeads || location == '/leads';
+            final isViewStaff = location == RoutePaths.viewStaff;
 
             final breadcrumbs = _getBreadcrumbs(location, page ?? '');
 
@@ -442,11 +443,14 @@ class _TopBarState extends State<TopBar> {
                 SizedBox(width: 0.8.w),
                 if (isDashboard || isLeadListScreen) AddLeadsButton(),
                 if (isDashboard || isLeadListScreen) SizedBox(width: 0.6.w),
+
                 // _TopBarIconButton(
                 //   icon: Icons.notes,
                 //   tooltip: 'Menu',
                 //   onTap: widget.onMenuTap,
                 // ),
+                if (isViewStaff) AddNewStaffButton(),
+                if (isViewStaff) SizedBox(width: 0.6.w),
                 const MenuHoverButton(),
                 SizedBox(width: 0.6.w),
 
@@ -1121,6 +1125,59 @@ class _TopBarIconButtonState extends State<_TopBarIconButton> {
               if (widget.badge != null)
                 Positioned(top: -2, right: -2, child: widget.badge!),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddNewStaffButton extends StatefulWidget {
+  const AddNewStaffButton({super.key});
+
+  @override
+  State<AddNewStaffButton> createState() => _AddNewStaffButtonState();
+}
+
+class _AddNewStaffButtonState extends State<AddNewStaffButton> {
+  bool isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 7.5.w,
+      height: 4.5.h,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovering = true),
+        onExit: (_) => setState(() => isHovering = false),
+        child: BrowserAwareLink(
+          destination: RoutePaths.addStaff,
+          usePush: false,
+          enableInkWell: false,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            height: 5.h,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppThemeColors.basicGreen,
+                width: 0.02.w,
+              ),
+              color: isHovering
+                  ? AppThemeColors.basicGreen
+                  : AppThemeColors.basicGreen,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Center(
+              child: Text(
+                "Add Staff",
+                style: AppTextStyle.small(
+                  color: Colors.white,
+                  // color: isHovering ? Colors.white : AppThemeColors.basicGreen,
+                  size: 10.sp,
+                ),
+              ),
+            ),
           ),
         ),
       ),

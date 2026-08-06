@@ -84,7 +84,7 @@ class AddLeadModel {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'id':id,
+      'id': id,
       'clientName': clientName.trim(),
       'contactNumber': contactNumber.trim(),
       'contactDialCode': contactDialCode,
@@ -275,6 +275,30 @@ class AddLeadModel {
     map['updatedAt'] = FieldValue.serverTimestamp();
     return map;
   }
+  // }
+
+  // ── CSV row factory — replaces ImportLeadModel.fromCsvRow ─────────────────
+  factory AddLeadModel.fromCsvRow({
+    required List<String> row,
+    required Map<String, int> positions,
+    required AddLeadModel defaults,
+  }) {
+    String cell(String field) {
+      final idx = positions[field];
+      if (idx == null || idx < 0 || idx >= row.length) return '';
+      return row[idx].trim();
+    }
+
+    final name = cell('clientName');
+    final phone = cell('phone');
+    final address = cell('address');
+
+    return defaults.copyWith(
+      clientName: name.isNotEmpty ? name : defaults.clientName,
+      contactNumber: phone.isNotEmpty ? phone : defaults.contactNumber,
+      address: address.isNotEmpty ? address : defaults.address,
+    );
+  }
 }
 
 class FollowUpModel {
@@ -365,7 +389,7 @@ class FollowUpModel {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'id':id,
+      'id': id,
       'leadId': leadId,
       'leadName': leadName,
       'leadWhatsappNo': leadWhatsappNo,
@@ -510,7 +534,7 @@ class TransferDetails {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'id':id,
+      'id': id,
       'leadId': leadId,
       'leadName': leadName,
       'contactNumber': contactNumber,

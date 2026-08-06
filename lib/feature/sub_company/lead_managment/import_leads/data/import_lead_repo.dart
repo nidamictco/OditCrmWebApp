@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/data/add_lead_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +11,7 @@ import 'package:Odit_CRM/core/constant/firebase_const.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
+import '../../follow_up/models/follow_up_activities_model.dart';
 
 abstract class IImportLeadsRepository {
   Future<List<LeadsModel>> fetchCategories();
@@ -21,7 +24,7 @@ abstract class IImportLeadsRepository {
   Future<Map<String, int>> importFromCsv({
     required Uint8List csvBytes,
     required Map<String, int> fieldPositions,
-    required ImportLeadModel defaults,
+    required AddLeadModel defaults,
     required bool hasCountryCode,
   });
 
@@ -33,10 +36,14 @@ abstract class IImportLeadsRepository {
 }
 
 class ImportLeadsRepository implements IImportLeadsRepository {
-  final FirebaseFirestore _firestore;
+ final FirebaseFirestore _firestore;
+  final IAddLeadRepository _leadRepository;   // NEW
 
-  ImportLeadsRepository({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  ImportLeadsRepository({
+    FirebaseFirestore? firestore,
+    IAddLeadRepository? leadRepository,       // NEW
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _leadRepository = leadRepository ?? AddLeadRepository();
 
   CollectionReference<Map<String, dynamic>> get _leadsCollection =>
       FirestorePath.companyCollection('LEADS');
@@ -177,13 +184,15 @@ class ImportLeadsRepository implements IImportLeadsRepository {
   }
 
   // ✅ CHANGED: now returns Map<String, int> with 'imported' and 'skipped'
-  @override
+ @override
   Future<Map<String, int>> importFromCsv({
     required Uint8List csvBytes,
     required Map<String, int> fieldPositions,
-    required ImportLeadModel defaults,
+    required AddLeadModel defaults,
     required bool hasCountryCode,
   }) async {
+     log('[Repo] importFromCsv received defaults.followUpDate=${defaults.followUpDate}, '
+      'defaults.leadStage="${defaults.leadStage}"');
     String rawContent = utf8.decode(csvBytes, allowMalformed: true);
     if (rawContent.startsWith('\uFEFF')) {
       rawContent = rawContent.substring(1);
@@ -219,9 +228,21 @@ class ImportLeadsRepository implements IImportLeadsRepository {
 
     int importedCount = 0;
     int skippedCount = 0;
+
     WriteBatch batch = _firestore.batch();
     int batchCount = 0;
-    const int batchLimit = 500;
+    const int batchLimit = 450;
+
+    Future<void> commitIfNeeded() async {
+      if (batchCount >= batchLimit) {
+        await batch.commit();
+        batch = _firestore.batch();
+        batchCount = 0;
+      }
+    }
+
+    final createdByName = defaults.createdBy;
+    final createdById = defaults.createdById;
 
     for (int i = 0; i < rowsToProcess.length; i++) {
       final rawRow = rowsToProcess[i];
@@ -229,11 +250,13 @@ class ImportLeadsRepository implements IImportLeadsRepository {
 
       if (row.every((cell) => cell.trim().isEmpty)) continue;
 
-      final lead = ImportLeadModel.fromCsvRow(
+      final lead = AddLeadModel.fromCsvRow(
         row: row,
         positions: fieldPositions,
         defaults: defaults,
       );
+log('[Repo] row $i — lead.followUpDate=${lead.followUpDate}, '
+    'lead.leadStage="${lead.leadStage}", lead.id="${lead.id}"');
 
       if (lead.clientName.isEmpty && lead.contactNumber.isEmpty) continue;
 
@@ -244,6 +267,13 @@ class ImportLeadsRepository implements IImportLeadsRepository {
         continue;
       }
 
+      final normalizedStage =
+          lead.leadStage.toUpperCase().replaceAll(' ', '');
+      // final isFollowUpStage = normalizedStage == 'FOLLOWUP';
+final needsFollowUp = normalizedStage != 'NEW';
+
+      log('[Repo] row $i — normalizedStage="$normalizedStage" needsFollowUp=$needsFollowUp');   // ← ADD
+
       final String docId = _generateDateId('LEAD', rowIndex: i);
       final docRef = _leadsCollection.doc(docId);
 
@@ -251,18 +281,92 @@ class ImportLeadsRepository implements IImportLeadsRepository {
       batchCount++;
       importedCount++;
 
-      if (batchCount == batchLimit) {
-        await batch.commit();
-        batch = _firestore.batch();
-        batchCount = 0;
+      if (needsFollowUp) {
+
+          final resolvedFollowUpDate =
+      lead.followUpDate ?? DateTime.now().add(const Duration(hours: 2));
+
+        log('[Repo] row $i — building FollowUp for docId=$docId, '
+      'followUpDate=${lead.followUpDate}'); 
+
+        // addFollowUp() does `leadRef.update(...)` internally, which
+        // requires the lead doc to already exist server-side. Commit
+        // now so this row's lead is persisted before we touch it.
+        if (batchCount > 0) {
+          await batch.commit();
+          batch = _firestore.batch();
+          batchCount = 0;
+        }
+
+        final String followUpId = _generateDateId('FUP', rowIndex: i);
+        final followUp = FollowUpModel(
+          id: followUpId,
+          leadId: docId,
+          leadName: lead.clientName,
+          leadWhatsappNo: lead.contactNumber,
+          leadWhatsappDialCode: lead.contactDialCode,
+          nextFollowUpDate: resolvedFollowUpDate,
+          leadTag: '',
+          calledStatus: 'Connected',
+          calledDate: DateTime.now(),
+          leadStage: lead.leadStage,
+          leadCategory: lead.leadCategory,
+          leadSubCategory: lead.leadSubCategory,
+          priority: lead.priority,
+          remarks: '',
+          adress: lead.address,
+          email: lead.email,
+          assignedStaff: lead.assignedStaff,
+          assignedStaffId: lead.assignedStaffId,
+          createdById: lead.createdById,
+          createdAt: DateTime.now(),
+          leadCategoryId: lead.leadCategoryId,
+          leadSubCategoryId: lead.leadSubCategoryId,
+          leadStageId: lead.leadStageId,
+          leadTagId: lead.leadTagId,
+        );
+
+
+          log('[Repo] row $i — followUp built: id=${followUp.id}, '
+      'nextFollowUpDate=${followUp.nextFollowUpDate}, '
+      'calledDate=${followUp.calledDate}');
+
+        // Reuse the exact same method the manual Add Lead flow uses —
+        // writes FOLLOW_UPS, updates the lead doc (leadStage,
+        // nextFollowUpDate, hasFollowUp, etc.), and logs the
+        // followupAdded ACTIVITIES entry, all in one call.
+        await _leadRepository.addFollowUp(
+          docId,
+          followUp,
+          changedByName: createdByName,
+          changedById: createdById,
+          leadName: lead.clientName,
+          leadPhone: lead.contactNumber,
+        );
       }
+
+      // Same lead-created activity logger the manual Add Lead flow uses.
+      // Safe regardless of batch-commit timing — it only ever .set()s a
+      // new ACTIVITIES subdoc, which doesn't require the parent to exist.
+      await _leadRepository.logLeadCreated(
+        leadId: docId,
+        createdByName: createdByName,
+        createdById: createdById,
+        assignedTo: lead.assignedStaff,
+        leadStage: lead.leadStage,
+        priority: lead.priority,
+        leadCategory: lead.leadCategory,
+      );
+
+      await commitIfNeeded();
     }
 
     if (batchCount > 0) await batch.commit();
 
     log('[ImportLeadsRepo] Imported: $importedCount, Skipped: $skippedCount');
 
-    // ✅ CHANGED: return both counts
     return {'imported': importedCount, 'skipped': skippedCount};
   }
 }
+
+

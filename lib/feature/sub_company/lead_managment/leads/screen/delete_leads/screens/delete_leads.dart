@@ -1436,19 +1436,20 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                for (var lead in selectedLeads) {
-                  addLeadCubit.restoreLead(lead);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${selectedLeads.length} Lead(s) restored successfully.'),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: AppColors.green,
-                            ), 
-                          );
-                }
-                setState(() => _selectedIndices.clear());
+              onPressed: () async {
+                // Navigator.pop(dialogContext);
+                await addLeadCubit.bulkRestoreLeads(selectedLeads);
+    if (!mounted) return;
+    Navigator.pop(dialogContext);
+      
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${selectedLeads.length} Lead(s) restored successfully.'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.green,
+      ),
+    );
+    setState(() => _selectedIndices.clear());
               },
               child: Text(
                 'Restore Selected',
@@ -1456,22 +1457,18 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                for (var lead in selectedLeads) {
-                  if (lead.id != null) {
-                    // addLeadCubit.permanentlyDeleteLead(lead.id!);
-                    addLeadCubit.deleteLead(lead.id!, lead);
-                     ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${selectedLeads.length} Lead(s) deleted successfully.'),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: AppColors.red,
-                            ),
-                          );
-                  }
-                }
-                setState(() => _selectedIndices.clear());
+              onPressed: () async {
+                await addLeadCubit.bulkDeleteLeads(selectedLeads);
+    if (!mounted) return;Navigator.pop(dialogContext);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${selectedLeads.length} Lead(s) deleted successfully.'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.red,
+      ),
+    );
+    setState(() => _selectedIndices.clear());
               },
               child: Text(
                 'Delete Selected',

@@ -39,12 +39,12 @@ class _CrmShellState extends State<CrmShell> {
   late NotificationCubit _notificationCubit;
   bool _notificationCubitReady = false;
 
-   late final StaffCubit _staffCubit;
+  late final StaffCubit _staffCubit;
 
   @override
   void initState() {
     super.initState();
-     _staffCubit = StaffCubit();
+    _staffCubit = StaffCubit();
     _notificationCubit = NotificationCubit(
       NotificationRepo(),
       GeneralSettingsRepository(staffId: ''),
@@ -67,7 +67,7 @@ class _CrmShellState extends State<CrmShell> {
 
   @override
   void dispose() {
-      _staffCubit.close();  
+    _staffCubit.close();
     if (_notificationCubitReady) {
       _notificationCubit.close();
     }
@@ -262,17 +262,19 @@ class _CrmShellState extends State<CrmShell> {
                         //   ),
                         // ),
                         Expanded(
-  child: Container(
-    color: AppColors.background,
-    child: MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: _notificationCubit),
-        BlocProvider.value(value: _staffCubit),   // ← add here instead
-      ],
-      child: widget.child,
-    ),
-  ),
-),
+                          child: Container(
+                            color: AppColors.background,
+                            child: MultiBlocProvider(
+                              providers: [
+                                BlocProvider.value(value: _notificationCubit),
+                                BlocProvider.value(
+                                  value: _staffCubit,
+                                ), // ← add here instead
+                              ],
+                              child: widget.child,
+                            ),
+                          ),
+                        ),
                         // const BottomBar(),
                       ],
                     ),
