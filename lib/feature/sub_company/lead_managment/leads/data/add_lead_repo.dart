@@ -121,6 +121,8 @@ abstract class IAddLeadRepository {
   Future<void> restoreLead(String leadId);
   Future<void> permanentlyDeleteArchivedLead(String leadId);
   Future<List<AddLeadModel>> fetchDeletedLeads();
+  Future<void> bulkRestoreLeads(List<String> leadIds);
+Future<void> bulkArchiveDeletedLeads(List<String> leadIds);
 }
 
 
@@ -155,7 +157,7 @@ class AddLeadRepository implements IAddLeadRepository {
     final id = now.millisecondsSinceEpoch.toString();
     return '$prefix-$datePart-$id';
   }
-
+    
   @override
   Future<String> addLead(AddLeadModel lead) async {
     if (lead.clientName.trim().isEmpty) {
@@ -610,6 +612,12 @@ class AddLeadRepository implements IAddLeadRepository {
     String leadName = '',
     String leadPhone = '',
   }) async {
+
+     log('[AddLeadRepo] addFollowUp called — leadId=$leadId, '
+      'followUp.id=${followUp.id}, nextFollowUpDate=${followUp.nextFollowUpDate}, '
+      'calledDate=${followUp.calledDate}'); 
+
+
     if (leadId.trim().isEmpty) throw ArgumentError('Lead ID cannot be empty.');
 
     final batch = FirebaseFirestore.instance.batch();
@@ -618,6 +626,11 @@ class AddLeadRepository implements IAddLeadRepository {
     // 1. Write the follow-up document
     final String followUpId = followUp.id ?? _generateDateId('FUP');
     final syncedFollowUp = followUp.copyWith(id: followUpId);
+
+ log('[AddLeadRepo] syncedFollowUp.id=${syncedFollowUp.id}, '
+      'nextFollowUpDate=${syncedFollowUp.nextFollowUpDate}');   // ← ADD
+
+
     final fupRef = _collection
         .doc(leadId)
         .collection('FOLLOW_UPS')
@@ -665,6 +678,9 @@ class AddLeadRepository implements IAddLeadRepository {
     if((followUp.leadWhatsappNo ?? '').isNotEmpty) {
       leadUpdates['whatsappNumber'] = followUp.leadWhatsappNo;
     }
+
+     log('[AddLeadRepo] leadUpdates map: $leadUpdates');   // ← ADD
+
     batch.update(leadRef, leadUpdates);
 
     final now = DateTime.now();
@@ -2177,6 +2193,59 @@ Future<void> restoreLead(String leadId) async {
     'deletedAt': null,
   });
   log('[AddLeadRepository] Lead restored: $leadId');
+}
+
+@override
+Future<void> bulkRestoreLeads(List<String> leadIds) async {
+  if (leadIds.isEmpty) return;
+  const chunkSize = 450;
+  for (var i = 0; i < leadIds.length; i += chunkSize) {
+    final end = (i + chunkSize > leadIds.length) ? leadIds.length : i + chunkSize;
+    final batch = _firestore.batch();
+    for (final id in leadIds.sublist(i, end)) {
+      batch.update(_collection.doc(id), {
+        'isDeleted': false,
+        'deletedAt': null,
+      });
+    }
+    await batch.commit();
+  }
+  log('[AddLeadRepository] Bulk restored ${leadIds.length} lead(s).');
+}
+
+@override
+Future<void> bulkArchiveDeletedLeads(List<String> leadIds) async {
+  if (leadIds.isEmpty) return;
+  const subcollections = ['FOLLOW_UPS', 'ACTIVITIES', 'TRANSFER_LEADS'];
+
+  final writeOps = <_ArchiveOp>[];
+  final deleteOps = <_ArchiveOp>[];
+
+  for (final leadId in leadIds) {
+    final leadRef = _collection.doc(leadId);
+    final archiveRef = _deletedCollection.doc(leadId);
+
+    final leadSnap = await leadRef.get();
+    if (!leadSnap.exists) continue; // already gone — skip safely
+
+    writeOps.add(_ArchiveOp.set(archiveRef, Map<String, dynamic>.from(leadSnap.data()!)));
+
+    for (final sub in subcollections) {
+      final subSnap = await leadRef.collection(sub).get();
+      for (final doc in subSnap.docs) {
+        writeOps.add(_ArchiveOp.set(archiveRef.collection(sub).doc(doc.id), doc.data()));
+        deleteOps.add(_ArchiveOp.delete(leadRef.collection(sub).doc(doc.id)));
+      }
+    }
+    deleteOps.add(_ArchiveOp.delete(leadRef));
+  }
+
+  // Same safety guarantee as the single-lead path: copy everything first,
+  // only delete originals once every archive write has succeeded.
+  await _commitBatchOps(writeOps);
+  await _commitBatchOps(deleteOps);
+
+  log('[AddLeadRepository] Bulk archived ${leadIds.length} lead(s).');
 }
 
 @override

@@ -291,7 +291,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
   Widget _buildHeader() {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, state) {
-        final categoryName = _currentLead.leadCategory.isEmpty
+        final categoryName = _currentLead.leadCategory.isNotEmpty
             ? resolveLeadName(
                 list: state.categories,
                 id: _currentLead.leadCategoryId,
@@ -317,15 +317,13 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
           nameOf: (s) => s.name,
         );
 
-        final sourceName = _currentLead.leadSource.isEmpty
-            ? resolveLeadName(
-                list: state.sources,
-                id: _currentLead.leadSourceId,
-                fallback: _currentLead.leadSource,
-                idOf: (s) => s.id,
-                nameOf: (s) => s.name,
-              )
-            : 'N/A';
+        final sourceName = _currentLead.leadSource.isNotEmpty?resolveLeadName(
+          list: state.sources,
+          id: _currentLead.leadSourceId,
+          fallback: _currentLead.leadSource,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ):'N/A';
 
         return Container(
           padding: EdgeInsets.all(1.8.w),
@@ -539,17 +537,19 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                         ),
                         _metaChip(
                           Icons.grid_view_outlined,
-                          categoryName.isEmpty
-                              ? 'Category: N/A'
-                              : subCategoryName.isNotEmpty
-                              ? 'Category: $categoryName - $subCategoryName'
-                              : 'Category: $categoryName',
+                          // categoryName.isEmpty
+                          //     ? 'Category: N/A'
+                          //     :
+                               subCategoryName.isNotEmpty
+                                  ? 'Category: $categoryName - $subCategoryName'
+                                  : 'Category: $categoryName',
                         ),
                         _metaChip(
                           Icons.link_outlined,
-                          sourceName.isEmpty
-                              ? 'Lead Source: N/A'
-                              : 'Lead Source: $sourceName',
+                          // sourceName.isEmpty
+                          //     ? 'Lead Source: N/A'
+                          //     : 
+                              'Lead Source: $sourceName',
                         ),
                         _metaChip(
                           Icons.person_outline,

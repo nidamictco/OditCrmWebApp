@@ -960,6 +960,39 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
+  Future<void> bulkRestoreLeads(List<AddLeadModel> leads) async {
+  if (state.isUpdating || leads.isEmpty) return;
+  emit(state.copyWith(isUpdating: true, clearError: true));
+  try {
+    final ids = leads.where((l) => l.id != null).map((l) => l.id!).toList();
+    await _leadRepository.bulkRestoreLeads(ids);
+    emit(state.copyWith(
+      isUpdating: false,
+      successMessage: '${leads.length} lead(s) restored successfully.',
+    ));
+    await fetchDeletedLeads(); // single, safe refresh — everything already committed
+  } catch (e) {
+    emit(state.copyWith(isUpdating: false, errorMessage: _friendlyError(e)));
+  }
+}
+
+Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
+  if (state.isDeleting || leads.isEmpty) return;
+  emit(state.copyWith(isDeleting: true, clearError: true));
+  try {
+    final ids = leads.where((l) => l.id != null).map((l) => l.id!).toList();
+    await _leadRepository.bulkArchiveDeletedLeads(ids);
+    final updated = state.leads.where((l) => !ids.contains(l.id)).toList();
+    emit(state.copyWith(
+      isDeleting: false,
+      leads: updated,
+      successMessage: '${leads.length} lead(s) deleted successfully.',
+    ));
+  } catch (e) {
+    emit(state.copyWith(isDeleting: false, errorMessage: _friendlyError(e)));
+  }
+}
+
   // ----------------fetch staff----------------
   Future<void> fetchStaff() async {
     try {

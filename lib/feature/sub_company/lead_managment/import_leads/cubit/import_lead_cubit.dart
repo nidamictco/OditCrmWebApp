@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/data/add_lead_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/shared_preference/session_service.dart';
 import 'import_lead_state.dart';
@@ -10,16 +12,48 @@ import '../../../notification/data/notification_repo.dart';
 import '../../../rightside_menu/common_model/lead_model.dart';
 import '../../../staff_managment/staff/model/staff_model.dart';
 
+// class ImportLeadsCubit extends Cubit<ImportLeadsState> {
+//   final IImportLeadsRepository _repository;
+//    final IAddLeadRepository _leadRepository;
+//   final NotificationRepo _notificationRepo;
+
+//   ImportLeadsCubit({
+//      IAddLeadRepository? leadRepository,
+//     IImportLeadsRepository? repository,
+//     NotificationRepo? notificationRepo,
+//   }) :_leadRepository = leadRepository ?? AddLeadRepository(),
+//    _repository = repository ?? ImportLeadsRepository(),
+//        _notificationRepo = notificationRepo ?? NotificationRepo(),
+//        super(const ImportLeadsState());
+
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;
+  final IAddLeadRepository _leadRepository;
   final NotificationRepo _notificationRepo;
 
-  ImportLeadsCubit({
+  factory ImportLeadsCubit({
+    IAddLeadRepository? leadRepository,
     IImportLeadsRepository? repository,
     NotificationRepo? notificationRepo,
-  }) : _repository = repository ?? ImportLeadsRepository(),
-       _notificationRepo = notificationRepo ?? NotificationRepo(),
-       super(const ImportLeadsState());
+  }) {
+    final resolvedLeadRepo = leadRepository ?? AddLeadRepository();
+    return ImportLeadsCubit._(
+      leadRepository: resolvedLeadRepo,
+      repository: repository ??
+          ImportLeadsRepository(leadRepository: resolvedLeadRepo),
+      notificationRepo: notificationRepo ?? NotificationRepo(),
+    );
+  }
+
+  ImportLeadsCubit._({
+    required IAddLeadRepository leadRepository,
+    required IImportLeadsRepository repository,
+    required NotificationRepo notificationRepo,
+  })  : _leadRepository = leadRepository,
+        _repository = repository,
+        _notificationRepo = notificationRepo,
+        super(const ImportLeadsState());
+
 
   // ── Initialization ────────────────────────────────────────────────────────
 
@@ -101,6 +135,17 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
     }
   }
 
+ void selectNextFollowUpDate(DateTime? date) {
+  log('[Cubit] selectNextFollowUpDate called with: $date');   // ← ADD
+  emit(
+    state.copyWith(
+      nextFollowUpDate: date,
+      clearNextFollowUpDate: date == null,
+    ),
+  );
+  log('[Cubit] state.nextFollowUpDate after emit: ${state.nextFollowUpDate}');   // ← ADD
+}
+
   // ── Selection helpers ─────────────────────────────────────────────────────
 
   // void selectCategory(String? value) => emit(
@@ -155,9 +200,19 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
     }
   }
 
-  void selectLeadStage(String? value) => emit(
-    state.copyWith(selectedLeadStage: value, clearLeadStage: value == null),
+ 
+void selectLeadStage(String? value) {
+  final normalized = value?.toUpperCase().replaceAll(' ', '');
+   log('[Cubit] selectLeadStage: value="$value" normalized="$normalized" '
+      'clearNextFollowUpDate=${normalized != 'FOLLOWUP'}');   
+  emit(
+    state.copyWith(
+      selectedLeadStage: value,
+      clearLeadStage: value == null,
+      clearNextFollowUpDate: normalized != 'FOLLOWUP',
+    ),
   );
+}
 
   void selectPriority(String? value) => emit(
     state.copyWith(selectedPriority: value, clearPriority: value == null),
@@ -299,7 +354,9 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         resolvedStaffId = user?.id ?? state.loggedInStaffId;
       }
 
-      final defaults = ImportLeadModel(
+       log('[Cubit] importLeads start — state.nextFollowUpDate=${state.nextFollowUpDate}'); 
+
+      final defaults = AddLeadModel(
         leadCategory: state.selectedCategory ?? '',
         leadCategoryId: state.selectedCategoryId ?? '',
         leadSubCategory: state.selectedSubCategory ?? '',
@@ -316,7 +373,14 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
         contactDialCode: state.dialCode,
         createdBy: user?.name ?? '',
         createdById: user?.id ?? '',
+        followUpDate:  state.nextFollowUpDate ??
+      (state.selectedLeadStage?.toUpperCase().replaceAll(' ', '') == 'FOLLOWUP'
+          ? DateTime.now().add(const Duration(hours: 2))
+          : null), clientName: '', contactNumber: '',
       );
+
+log('[Cubit] defaults.followUpDate=${defaults.followUpDate}, '
+      'defaults.leadStage="${defaults.leadStage}"'); 
 
       final result = await _repository.importFromCsv(
         csvBytes: csvBytes,
@@ -340,6 +404,7 @@ class ImportLeadsCubit extends Cubit<ImportLeadsState> {
       );
       if (isClosed) return;
 
+      
       // ── Reset form, keep role-level defaults ────────────────────────────
       final defaultStage = state.stages.isEmpty
           ? null

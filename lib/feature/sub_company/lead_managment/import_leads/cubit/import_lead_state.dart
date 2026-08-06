@@ -23,19 +23,20 @@ class ImportLeadsState {
   final List<LeadsModel> sources;
   final List<StaffModel> staffList;
   final List<LeadsModel> stages;
-  final List<LeadsModel> subCategories;   // ← NEW
+  final List<LeadsModel> subCategories;   
 
   final String userRole;
   final String loggedInStaffId;
 
   final String? selectedCategory;
-  final String? selectedCategoryId;       // ← NEW
-  final String? selectedSubCategory;      // ← NEW
-  final String? selectedSubCategoryId;    // ← NEW
+  final String? selectedCategoryId;       
+  final String? selectedSubCategory;      
+  final String? selectedSubCategoryId;    
   final String? selectedSource;
-  final String? selectedSourceId;         // ← NEW
+  final String? selectedSourceId;         
   final String? selectedLeadStage;
-  final String? selectedLeadStageId;      // ← NEW
+  final String? selectedLeadStageId;
+  final DateTime? nextFollowUpDate;      
   final String? selectedPriority;
   final String? selectedStaff;
   final String? selectedState;
@@ -60,17 +61,18 @@ class ImportLeadsState {
     this.sources = const [],
     this.staffList = const [],
     this.stages = const [],
-    this.subCategories = const [],        // ← NEW
+    this.subCategories = const [],       
     this.userRole = '',
     this.loggedInStaffId = '',
     this.selectedCategory,
-    this.selectedCategoryId,              // ← NEW
-    this.selectedSubCategory,             // ← NEW
-    this.selectedSubCategoryId,           // ← NEW
+    this.selectedCategoryId,             
+    this.selectedSubCategory,            
+    this.selectedSubCategoryId,          
     this.selectedSource,
-    this.selectedSourceId,                // ← NEW
+    this.selectedSourceId,               
     this.selectedLeadStage,
-    this.selectedLeadStageId,             // ← NEW
+    this.selectedLeadStageId,
+    this.nextFollowUpDate,            
     this.selectedPriority = 'Normal',
     this.selectedStaff,
     this.assignedStaffName = '',
@@ -105,17 +107,19 @@ class ImportLeadsState {
     List<LeadsModel>? sources,
     List<StaffModel>? staffList,
     List<LeadsModel>? stages,
-    List<LeadsModel>? subCategories,      // ← NEW
+    List<LeadsModel>? subCategories,     
     String? userRole,
     String? loggedInStaffId,
     String? selectedCategory,
-    String? selectedCategoryId,           // ← NEW
-    String? selectedSubCategory,          // ← NEW
-    String? selectedSubCategoryId,        // ← NEW
+    String? selectedCategoryId,          
+    String? selectedSubCategory,         
+    String? selectedSubCategoryId,       
     String? selectedSource,
-    String? selectedSourceId,             // ← NEW
+    String? selectedSourceId,            
     String? selectedLeadStage,
-    String? selectedLeadStageId,          // ← NEW
+    String? selectedLeadStageId, 
+    DateTime? nextFollowUpDate,
+    bool clearNextFollowUpDate = false,        
     String? selectedPriority,
     String? selectedStaff,
     String? assignedStaffName,
@@ -135,7 +139,7 @@ class ImportLeadsState {
     bool clearCsvBytes    = false,
     bool clearDistrict    = false,
     bool clearCategory    = false,
-    bool clearSubCategory = false,        // ← NEW
+    bool clearSubCategory = false,  
     bool clearSource      = false,
     bool clearLeadStage   = false,
     bool clearPriority    = false,
@@ -160,6 +164,9 @@ class ImportLeadsState {
       selectedSourceId:  clearSource       ? null : (selectedSourceId  ?? this.selectedSourceId),
       selectedLeadStage: clearLeadStage    ? null : (selectedLeadStage ?? this.selectedLeadStage),
       selectedLeadStageId: clearLeadStage  ? null : (selectedLeadStageId ?? this.selectedLeadStageId),
+      nextFollowUpDate: clearNextFollowUpDate
+    ? null
+    : nextFollowUpDate ?? this.nextFollowUpDate,
       selectedPriority:  clearPriority     ? null : (selectedPriority  ?? this.selectedPriority),
       selectedStaff:     clearStaff        ? null : (selectedStaff     ?? this.selectedStaff),
       assignedStaffName: assignedStaffName ?? this.assignedStaffName,

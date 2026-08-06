@@ -563,76 +563,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           );
           if (state.status == AddLeadStatus.success) {
             context.read<AddLeadCubit>().clearMessages();
-            //   showDialog(
-            //     context: context,
-            //     barrierDismissible: false,
-            //     builder: (ctx) => AlertDialog(
-            //       backgroundColor: AppColors.white,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(12),
-            //       ),
-            //       alignment: Alignment.center,
-            //       title: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.center,
-            //         children: [
-            //           const Icon(
-            //             Icons.check_circle_outline,
-            //             color: AppColors.green,
-            //             size: 35,
-            //           ),
-            //           const SizedBox(height: 8),
-            //           Text(
-            //             'Success',
-            //             style: AppTextStyle.medium(
-            //               size: 15.sp,
-            //               weight: FontWeight.w600,
-            //             ),
-            //           ),
-            //           const SizedBox(height: 8),
-            //         ],
-            //       ),
-
-            //       content: Text(
-            //         state.successMessage!,
-            //         style: AppTextStyle.medium(size: 12.sp),
-            //         textAlign: TextAlign.center,
-            //       ),
-            //       actionsAlignment: MainAxisAlignment.center,
-            //       actions: [
-            //         ElevatedButton(
-            //           style: ElevatedButton.styleFrom(
-            //             backgroundColor: AppColors.green,
-            //             shape: RoundedRectangleBorder(
-            //               borderRadius: BorderRadius.circular(8),
-            //             ),
-            //           ),
-            //           onPressed: () {
-            //             Navigator.pop(ctx);
-            //             if (_isEditMode) {
-            //               // Navigator.pushReplacement(
-            //               //   context,
-            //               //   MaterialPageRoute(
-            //               //     builder: (context) => MainScreen(selectedIndex: 2),
-            //               //   ),
-            //               // );
-            //               Navigator.pop(context, true);
-            //             } else {
-            //               context.read<AddLeadCubit>().fetchLeads();
-            //               context.go(RoutePaths.leadsReport);
-            //             }
-            //           },
-            //           child: Text(
-            //             'OK',
-            //             style: AppTextStyle.medium(
-            //               size: 11.sp,
-            //               color: AppColors.white,
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   );
-            // }
+           
             StatusAlertWidget.show(
               context,
               isSuccess: true,
