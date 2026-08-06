@@ -45,6 +45,7 @@ class _TopBarState extends State<TopBar> {
   bool _isFullscreen = false;
   bool _isDropdownVisible = false;
   bool _isHoveringOverlay = false;
+  bool _isSearchClicked = false;
 
   @override
   void initState() {
@@ -320,6 +321,12 @@ class _TopBarState extends State<TopBar> {
     _overlayEntry = null;
   }
 
+  void _onSearchClicked() {
+    setState(() {
+      _isSearchClicked = !_isSearchClicked;
+    });
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -439,7 +446,27 @@ class _TopBarState extends State<TopBar> {
                 const Spacer(),
 
                 // RIGHT SIDE: Search Box, Hamburger (Menu), Bell, Settings, Fullscreen
-                _buildSearchBox(),
+                if (!isViewStaff) _buildSearchBox(),
+                if (_isSearchClicked && isViewStaff) _buildSearchBox(),
+                if (isViewStaff && !_isSearchClicked)
+                  InkWell(
+                    onTap: _onSearchClicked,
+                    child: Container(
+                      height: 32,
+                      padding: EdgeInsets.symmetric(horizontal: 0.8.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.search,
+                        size: 13.sp,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ),
+
                 SizedBox(width: 0.8.w),
                 if (isDashboard || isLeadListScreen) AddLeadsButton(),
                 if (isDashboard || isLeadListScreen) SizedBox(width: 0.6.w),
@@ -449,8 +476,6 @@ class _TopBarState extends State<TopBar> {
                 //   tooltip: 'Menu',
                 //   onTap: widget.onMenuTap,
                 // ),
-                if (isViewStaff) AddNewStaffButton(),
-                if (isViewStaff) SizedBox(width: 0.6.w),
                 const MenuHoverButton(),
                 SizedBox(width: 0.6.w),
 
@@ -1125,59 +1150,6 @@ class _TopBarIconButtonState extends State<_TopBarIconButton> {
               if (widget.badge != null)
                 Positioned(top: -2, right: -2, child: widget.badge!),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AddNewStaffButton extends StatefulWidget {
-  const AddNewStaffButton({super.key});
-
-  @override
-  State<AddNewStaffButton> createState() => _AddNewStaffButtonState();
-}
-
-class _AddNewStaffButtonState extends State<AddNewStaffButton> {
-  bool isHovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 7.5.w,
-      height: 4.5.h,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => isHovering = true),
-        onExit: (_) => setState(() => isHovering = false),
-        child: BrowserAwareLink(
-          destination: RoutePaths.addStaff,
-          usePush: false,
-          enableInkWell: false,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            height: 5.h,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppThemeColors.basicGreen,
-                width: 0.02.w,
-              ),
-              color: isHovering
-                  ? AppThemeColors.basicGreen
-                  : AppThemeColors.basicGreen,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Center(
-              child: Text(
-                "Add Staff",
-                style: AppTextStyle.small(
-                  color: Colors.white,
-                  // color: isHovering ? Colors.white : AppThemeColors.basicGreen,
-                  size: 10.sp,
-                ),
-              ),
-            ),
           ),
         ),
       ),

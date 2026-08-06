@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/view_staff/addStaffButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/theme/app_colors.dart';
@@ -25,7 +26,7 @@ class ViewStaff extends StatefulWidget {
 
 class _ViewStaffState extends State<ViewStaff> {
   bool isHovering = false;
-  String _activeFilter = 'Active'; // 'All' | 'Active' | 'Inactive'
+  String _activeFilter = 'All'; // 'All' | 'Active' | 'Inactive'
   String _searchQuery = '';
   String _selectedEntries = '10';
 
@@ -147,21 +148,21 @@ class _ViewStaffState extends State<ViewStaff> {
     final isActive = (status ?? '').toLowerCase() == 'active';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 0.6.w, vertical: 0.3.h),
-      decoration: BoxDecoration(
-        color: isActive
-            ? AppColors.green.withOpacity(0.12)
-            : AppColors.red.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: isActive
-              ? AppColors.green.withOpacity(0.4)
-              : AppColors.red.withOpacity(0.4),
-        ),
-      ),
+      // decoration: BoxDecoration(
+      //   color: isActive
+      //       ? AppColors.green.withOpacity(0.12)
+      //       : AppColors.red.withOpacity(0.12),
+      //   borderRadius: BorderRadius.circular(4),
+      //   border: Border.all(
+      //     color: isActive
+      //         ? AppColors.green.withOpacity(0.4)
+      //         : AppColors.red.withOpacity(0.4),
+      //   ),
+      // ),
       child: Text(
         isActive ? 'Active' : 'Inactive',
-        style: AppTextStyle.small(
-          size: 9.sp,
+        style: AppTextStyle.medium(
+          size: 12,
           color: isActive ? AppColors.green : AppColors.red,
         ),
       ),
@@ -330,10 +331,7 @@ class _ViewStaffState extends State<ViewStaff> {
                           _resetPage();
                         }),
                         middleWidget: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            // vertical: 1.h,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 1.w),
                           child: BlocBuilder<StaffCubit, StaffState>(
                             builder: (context, state) {
                               final List<StaffModel> rawList =
@@ -352,32 +350,48 @@ class _ViewStaffState extends State<ViewStaff> {
                                   )
                                   .length;
 
+                              final activeStr = activeCount < 10
+                                  ? '0$activeCount'
+                                  : '$activeCount';
+                              final inactiveStr = inactiveCount < 10
+                                  ? '0$inactiveCount'
+                                  : '$inactiveCount';
+
                               return Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   _filterButton(
-                                    label: 'Active',
-                                    color: AppColors.green,
-                                    isSelected: _activeFilter == 'Active',
-                                    onTap: () => setState(
-                                      () => _activeFilter = 'Active',
-                                    ),
-                                    count: activeCount, // 👈 pass count
+                                    label: 'All',
+                                    isSelected: _activeFilter == 'All',
+                                    onTap: () => setState(() {
+                                      _activeFilter = 'All';
+                                      _resetPage();
+                                    }),
                                   ),
-                                  SizedBox(width: 0.6.w),
+                                  SizedBox(width: 0.5.w),
                                   _filterButton(
-                                    label: 'Inactive',
-                                    color: AppColors.red.withOpacity(0.9),
+                                    label: 'Active ($activeStr)',
+                                    isSelected: _activeFilter == 'Active',
+                                    onTap: () => setState(() {
+                                      _activeFilter = 'Active';
+                                      _resetPage();
+                                    }),
+                                  ),
+                                  SizedBox(width: 0.5.w),
+                                  _filterButton(
+                                    label: 'Inactive ($inactiveStr)',
                                     isSelected: _activeFilter == 'Inactive',
-                                    onTap: () => setState(
-                                      () => _activeFilter = 'Inactive',
-                                    ),
-                                    count: inactiveCount, // 👈 pass count
+                                    onTap: () => setState(() {
+                                      _activeFilter = 'Inactive';
+                                      _resetPage();
+                                    }),
                                   ),
                                 ],
                               );
                             },
                           ),
                         ),
+                        exportWidget: AddNewStaffButton(),
                       ),
                       SizedBox(height: 13),
                       _buildTableSection(state),
@@ -425,61 +439,41 @@ class _ViewStaffState extends State<ViewStaff> {
   // }
   Widget _filterButton({
     required String label,
-    required Color color,
     required bool isSelected,
     required VoidCallback onTap,
-    required int count, // 👈 add this
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            height: 5.h,
-            width: 6.w,
-            decoration: BoxDecoration(
-              color: isSelected ? color : color.withOpacity(0.65),
-              border: Border.all(
-                color: isSelected ? color : AppColors.divider,
-                width: isSelected ? 2 : 1,
-              ),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Center(
-              child: Text(
-                label,
-                style: AppTextStyle.small(color: Colors.white, size: 11.sp),
-              ),
-            ),
-          ),
+    const selectedBg = Color(0xFF002660);
+    const unselectedBorder = Color(0xFF8798B0);
+    const unselectedText = Color(0xFF002660);
 
-          // 👇 Count badge at top-left
-          Positioned(
-            top: -6,
-            right: -6,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: color, width: 1.5),
-              ),
-              child: Center(
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: EdgeInsets.symmetric(horizontal: 0.8.w, vertical: 0.7.h),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedBg : Colors.white,
+            border: Border.all(
+              color: isSelected
+                  ? selectedBg
+                  : unselectedBorder.withValues(alpha: 0.5),
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyle.medium(
+                color: isSelected ? Colors.white : unselectedText,
+                size: 9.5.sp,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -579,14 +573,14 @@ class _ViewStaffState extends State<ViewStaff> {
             context.push(RoutePaths.staffProfilePath(staff.id!));
           },
           columns: [
-            TableColumn(title: "Sl No.", flex: 1),
+            TableColumn(title: "No.", flex: 1),
             TableColumn(title: "Name", flex: 4),
-            TableColumn(title: "Staff Type", flex: 4),
-            TableColumn(title: "Status", flex: 4),
-            TableColumn(title: "Phone Number", flex: 4),
             TableColumn(title: "Designation", flex: 4),
+            TableColumn(title: "Staff Type", flex: 4),
+            TableColumn(title: "Contact No.", flex: 4),
+            TableColumn(title: "Created Date", flex: 4),
             TableColumn(title: "Joining Date", flex: 4),
-            TableColumn(title: "Created At", flex: 4),
+            TableColumn(title: "Status", flex: 4),
             TableColumn(title: "Action", flex: 2),
           ],
           rows: pagedList.asMap().entries.map((entry) {
@@ -607,16 +601,17 @@ class _ViewStaffState extends State<ViewStaff> {
                 style: AppTextStyle.medium(),
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
-              _statusBadge(staff.status),
-              Text(staff.phone, style: AppTextStyle.medium()),
               Text(
                 staff.designation ?? '—',
                 style: AppTextStyle.medium(),
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
+              Text(staff.staffType ?? '—', style: AppTextStyle.medium()),
+              Text(staff.phone, style: AppTextStyle.medium()),
               Text(createdAt, style: AppTextStyle.medium()),
+              Text(staff.joiningDate ?? '—', style: AppTextStyle.medium()),
+              _statusBadge(staff.status),
+              //action buttons
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -643,38 +638,38 @@ class _ViewStaffState extends State<ViewStaff> {
                         ),
                       ),
 
-                    Center(
-                      child: BrowserAwareLink(
-                        destination: RoutePaths.staffProfilePath(staff.id!),
-                        onTap: () {
-                          context
-                              .push(RoutePaths.staffProfilePath(staff.id!))
-                              .then((_) {
-                                // ✅ Refresh the list when returning from profile screen
-                                if (context.mounted) {
-                                  context.read<StaffCubit>().fetchAll();
-                                }
-                              });
-                        },
-                        usePush: true,
-                        enableInkWell: false,
-                        child: Container(
-                          padding: EdgeInsets.all(0.1.w),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade900,
-                            borderRadius: BorderRadius.circular(1),
-                          ),
-                          child: Tooltip(
-                            message: 'View profile',
-                            child: Icon(
-                              Icons.ads_click_outlined,
-                              size: 10.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Center(
+                    //   child: BrowserAwareLink(
+                    //     destination: RoutePaths.staffProfilePath(staff.id!),
+                    //     onTap: () {
+                    //       context
+                    //           .push(RoutePaths.staffProfilePath(staff.id!))
+                    //           .then((_) {
+                    //             // ✅ Refresh the list when returning from profile screen
+                    //             if (context.mounted) {
+                    //               context.read<StaffCubit>().fetchAll();
+                    //             }
+                    //           });
+                    //     },
+                    //     usePush: true,
+                    //     enableInkWell: false,
+                    //     child: Container(
+                    //       padding: EdgeInsets.all(0.1.w),
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.blue.shade900,
+                    //         borderRadius: BorderRadius.circular(1),
+                    //       ),
+                    //       child: Tooltip(
+                    //         message: 'View profile',
+                    //         child: Icon(
+                    //           Icons.ads_click_outlined,
+                    //           size: 10.sp,
+                    //           color: Colors.white,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(width: 0.1.w),
                     Center(
                       child: GestureDetector(
@@ -730,23 +725,76 @@ class _ViewStaffState extends State<ViewStaff> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Showing $showFrom to $showTo of $totalCount entries",
-                style: AppTextStyle.medium(weight: FontWeight.w400),
+                "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
+                style: AppTextStyle.medium(
+                  size: 10.sp,
+                  weight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
               ),
               Row(
                 children: [
-                  PageButton(
-                    label: 'Previous',
-                    enabled: _currentPage > 1,
-                    isLeft: true,
-                    onTap: () => _goToPage(_currentPage - 1, totalCount),
+                  /// Previous button
+                  MouseRegion(
+                    cursor: _currentPage > 1
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.basic,
+                    child: GestureDetector(
+                      onTap: _currentPage > 1
+                          ? () => _goToPage(_currentPage - 1, totalCount)
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Icon(
+                          Icons.chevron_left,
+                          size: 16,
+                          color: _currentPage > 1
+                              ? const Color(0xFF475569)
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
                   ),
+
+                  /// Page Numbers
                   ..._buildPageNumbers(totalPages, totalCount),
-                  PageButton(
-                    label: 'Next',
-                    enabled: _currentPage < totalPages,
-                    isRight: true,
-                    onTap: () => _goToPage(_currentPage + 1, totalCount),
+
+                  /// Next button
+                  MouseRegion(
+                    cursor: _currentPage < totalPages
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.basic,
+                    child: GestureDetector(
+                      onTap: _currentPage < totalPages
+                          ? () => _goToPage(_currentPage + 1, totalCount)
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(left: 4, right: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 16,
+                          color: _currentPage < totalPages
+                              ? const Color(0xFF475569)
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
