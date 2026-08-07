@@ -1551,7 +1551,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         ),
       );
     }
-    if (widget.fromCard == "FOLLOWUP" || widget.fromCard == "MISSED" || widget.fromCard=="TOTAL") {
+    if (widget.fromCard == "FOLLOWUP" ||
+        widget.fromCard == "MISSED" ||
+        widget.fromCard == "TOTAL") {
       // Lead Stage
       filterWidgets.add(
         MultiSelectDropdown(
