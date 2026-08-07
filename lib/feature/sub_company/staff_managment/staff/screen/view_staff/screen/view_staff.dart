@@ -565,261 +565,278 @@ class _ViewStaffState extends State<ViewStaff> {
     final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
 
     // ─── Populated table ───────────────────────────────────────────────────
-    return Column(
-      children: [
-        CustomTable(
-          minWidth: MediaQuery.of(context).size.width,
-          getRowDestination: (rowIndex) {
-            final staff = pagedList[rowIndex];
-            return RoutePaths.staffProfilePath(staff.id!);
-          },
-          onRowTap: (rowIndex) {
-            final staff = pagedList[rowIndex];
-            // log('stafff........$staff');
-            context.push(RoutePaths.staffProfilePath(staff.id!));
-          },
-          columns: [
-            TableColumn(title: "No.", flex: 1),
-            TableColumn(title: "Name", flex: 4),
-            TableColumn(title: "Designation", flex: 4),
-            TableColumn(title: "Staff Type", flex: 4),
-            TableColumn(title: "Contact No.", flex: 3),
-            TableColumn(title: "Created Date", flex: 3),
-            TableColumn(title: "Joining Date", flex: 3),
-            TableColumn(title: "Status", flex: 3),
-            TableColumn(title: "Action", flex: 2),
-          ],
-          rows: pagedList.asMap().entries.map((entry) {
-            final index = entry.key;
-            final staff = entry.value;
-            final serial = (_currentPage - 1) * limit + index + 1;
-
-            final createdAt = staff.createdAt != null
-                ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
-                      '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
-                      '${staff.createdAt!.year}'
-                : '—';
-
-            return [
-              Text('$serial', style: AppTextStyle.medium(fontSize: 11.5)),
-              Text(
-                staff.name,
-                style: AppTextStyle.medium(fontSize: 11.5),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                staff.designation ?? '—',
-                style: AppTextStyle.medium(fontSize: 11.5),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                staff.staffType ?? '—',
-                style: AppTextStyle.medium(fontSize: 11.5),
-              ),
-              Text(staff.phone, style: AppTextStyle.medium(fontSize: 11.5)),
-              Text(createdAt, style: AppTextStyle.medium(fontSize: 11.5)),
-              Text(
-                staff.joiningDate ?? '—',
-                style: AppTextStyle.medium(fontSize: 11.5),
-              ),
-              _statusBadge(staff.status),
-              //action buttons
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    if (staff.designation != "Company_Admin")
-                      GestureDetector(
-                        onTap: () {
-                          final staffCubit = context.read<StaffCubit>();
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (dialogContext) => MultiBlocProvider(
-                              providers: [
-                                BlocProvider.value(value: staffCubit),
-                                BlocProvider(
-                                  create: (_) => DesignationCubit()..fetchAll(),
-                                ),
-                              ],
-                              child: AddStaff(staff: staff),
+    return Container(
+       decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0x14000000,
+                              ), // #00000014 (8% opacity)
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
                             ),
-                          );
-                        },
-                        child: Tooltip(
-                          message: 'Edit',
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 13.sp,
-                            color: Colors.blue,
+                          ],
+                        ),
+      child: Column(
+        children: [
+          CustomTable(
+            minWidth: MediaQuery.of(context).size.width,
+            getRowDestination: (rowIndex) {
+              final staff = pagedList[rowIndex];
+              return RoutePaths.staffProfilePath(staff.id!);
+            },
+            onRowTap: (rowIndex) {
+              final staff = pagedList[rowIndex];
+              // log('stafff........$staff');
+              context.push(RoutePaths.staffProfilePath(staff.id!));
+            },
+            columns: [
+              TableColumn(title: "No.", flex: 1),
+              TableColumn(title: "Name", flex: 4),
+              TableColumn(title: "Designation", flex: 4),
+              TableColumn(title: "Staff Type", flex: 4),
+              TableColumn(title: "Contact No.", flex: 3),
+              TableColumn(title: "Created Date", flex: 3),
+              TableColumn(title: "Joining Date", flex: 3),
+              TableColumn(title: "Status", flex: 3),
+              TableColumn(title: "Action", flex: 2),
+            ],
+            rows: pagedList.asMap().entries.map((entry) {
+              final index = entry.key;
+              final staff = entry.value;
+              final serial = (_currentPage - 1) * limit + index + 1;
+      
+              final createdAt = staff.createdAt != null
+                  ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
+                        '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
+                        '${staff.createdAt!.year}'
+                  : '—';
+      
+              return [
+                Text('$serial', style: AppTextStyle.medium(fontSize: 11.5)),
+                Text(
+                  staff.name,
+                  style: AppTextStyle.medium(fontSize: 11.5),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  staff.designation ?? '—',
+                  style: AppTextStyle.medium(fontSize: 11.5),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  staff.staffType ?? '—',
+                  style: AppTextStyle.medium(fontSize: 11.5),
+                ),
+                Text(staff.phone, style: AppTextStyle.medium(fontSize: 11.5)),
+                Text(createdAt, style: AppTextStyle.medium(fontSize: 11.5)),
+                Text(
+                  staff.joiningDate ?? '—',
+                  style: AppTextStyle.medium(fontSize: 11.5),
+                ),
+                _statusBadge(staff.status),
+                //action buttons
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      if (staff.designation != "Company_Admin")
+                        GestureDetector(
+                          onTap: () {
+                            final staffCubit = context.read<StaffCubit>();
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (dialogContext) => MultiBlocProvider(
+                                providers: [
+                                  BlocProvider.value(value: staffCubit),
+                                  BlocProvider(
+                                    create: (_) => DesignationCubit()..fetchAll(),
+                                  ),
+                                ],
+                                child: AddStaff(staff: staff),
+                              ),
+                            );
+                          },
+                          child: Tooltip(
+                            message: 'Edit',
+                            child: Icon(
+                              Icons.edit_outlined,
+                              size: 13.sp,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+      
+                      // Center(
+                      //   child: BrowserAwareLink(
+                      //     destination: RoutePaths.staffProfilePath(staff.id!),
+                      //     onTap: () {
+                      //       context
+                      //           .push(RoutePaths.staffProfilePath(staff.id!))
+                      //           .then((_) {
+                      //             // ✅ Refresh the list when returning from profile screen
+                      //             if (context.mounted) {
+                      //               context.read<StaffCubit>().fetchAll();
+                      //             }
+                      //           });
+                      //     },
+                      //     usePush: true,
+                      //     enableInkWell: false,
+                      //     child: Container(
+                      //       padding: EdgeInsets.all(0.1.w),
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.blue.shade900,
+                      //         borderRadius: BorderRadius.circular(1),
+                      //       ),
+                      //       child: Tooltip(
+                      //         message: 'View profile',
+                      //         child: Icon(
+                      //           Icons.ads_click_outlined,
+                      //           size: 10.sp,
+                      //           color: Colors.white,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      SizedBox(width: 0.1.w),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            context
+                                .push(RoutePaths.changePasswordPath(staff.id!))
+                                .then((_) {
+                                  if (context.mounted) {
+                                    context.read<StaffCubit>().fetchAll();
+                                  }
+                                });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(0.1.w),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                            child: Tooltip(
+                              message: 'Change Password',
+                              child: Icon(
+                                Icons.vpn_key_outlined,
+                                size: 10.sp,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-
-                    // Center(
-                    //   child: BrowserAwareLink(
-                    //     destination: RoutePaths.staffProfilePath(staff.id!),
-                    //     onTap: () {
-                    //       context
-                    //           .push(RoutePaths.staffProfilePath(staff.id!))
-                    //           .then((_) {
-                    //             // ✅ Refresh the list when returning from profile screen
-                    //             if (context.mounted) {
-                    //               context.read<StaffCubit>().fetchAll();
-                    //             }
-                    //           });
-                    //     },
-                    //     usePush: true,
-                    //     enableInkWell: false,
-                    //     child: Container(
-                    //       padding: EdgeInsets.all(0.1.w),
-                    //       decoration: BoxDecoration(
-                    //         color: Colors.blue.shade900,
-                    //         borderRadius: BorderRadius.circular(1),
-                    //       ),
-                    //       child: Tooltip(
-                    //         message: 'View profile',
-                    //         child: Icon(
-                    //           Icons.ads_click_outlined,
-                    //           size: 10.sp,
-                    //           color: Colors.white,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    SizedBox(width: 0.1.w),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          context
-                              .push(RoutePaths.changePasswordPath(staff.id!))
-                              .then((_) {
-                                if (context.mounted) {
-                                  context.read<StaffCubit>().fetchAll();
-                                }
-                              });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(0.1.w),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(1),
-                          ),
+                      if (staff.designation != "Company_Admin")
+                        GestureDetector(
+                          onTap: () => _confirmDelete(context, staff),
                           child: Tooltip(
-                            message: 'Change Password',
+                            message: 'Delete',
                             child: Icon(
-                              Icons.vpn_key_outlined,
-                              size: 10.sp,
-                              color: Colors.white,
+                              Icons.delete_outline,
+                              size: 14.sp,
+                              color: Colors.red,
                             ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ];
+            }).toList(),
+          ),
+      
+          /// 🔹 FOOTER
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
+                  style: AppTextStyle.medium(
+                    size: 11,
+                    weight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                Row(
+                  children: [
+                    /// Previous button
+                    MouseRegion(
+                      cursor: _currentPage > 1
+                          ? SystemMouseCursors.click
+                          : SystemMouseCursors.basic,
+                      child: GestureDetector(
+                        onTap: _currentPage > 1
+                            ? () => _goToPage(_currentPage - 1, totalCount)
+                            : null,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.only(right: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Icon(
+                            Icons.chevron_left,
+                            size: 16,
+                            color: _currentPage > 1
+                                ? const Color(0xFF475569)
+                                : Colors.grey.shade300,
                           ),
                         ),
                       ),
                     ),
-                    if (staff.designation != "Company_Admin")
-                      GestureDetector(
-                        onTap: () => _confirmDelete(context, staff),
-                        child: Tooltip(
-                          message: 'Delete',
+      
+                    /// Page Numbers
+                    ..._buildPageNumbers(totalPages, totalCount),
+      
+                    /// Next button
+                    MouseRegion(
+                      cursor: _currentPage < totalPages
+                          ? SystemMouseCursors.click
+                          : SystemMouseCursors.basic,
+                      child: GestureDetector(
+                        onTap: _currentPage < totalPages
+                            ? () => _goToPage(_currentPage + 1, totalCount)
+                            : null,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.only(left: 4, right: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
                           child: Icon(
-                            Icons.delete_outline,
-                            size: 14.sp,
-                            color: Colors.red,
+                            Icons.chevron_right,
+                            size: 16,
+                            color: _currentPage < totalPages
+                                ? const Color(0xFF475569)
+                                : Colors.grey.shade300,
                           ),
                         ),
                       ),
+                    ),
                   ],
                 ),
-              ),
-            ];
-          }).toList(),
-        ),
-
-        /// 🔹 FOOTER
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
-                style: AppTextStyle.medium(
-                  size: 11,
-                  weight: FontWeight.w600,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              Row(
-                children: [
-                  /// Previous button
-                  MouseRegion(
-                    cursor: _currentPage > 1
-                        ? SystemMouseCursors.click
-                        : SystemMouseCursors.basic,
-                    child: GestureDetector(
-                      onTap: _currentPage > 1
-                          ? () => _goToPage(_currentPage - 1, totalCount)
-                          : null,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.only(right: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Icon(
-                          Icons.chevron_left,
-                          size: 16,
-                          color: _currentPage > 1
-                              ? const Color(0xFF475569)
-                              : Colors.grey.shade300,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// Page Numbers
-                  ..._buildPageNumbers(totalPages, totalCount),
-
-                  /// Next button
-                  MouseRegion(
-                    cursor: _currentPage < totalPages
-                        ? SystemMouseCursors.click
-                        : SystemMouseCursors.basic,
-                    child: GestureDetector(
-                      onTap: _currentPage < totalPages
-                          ? () => _goToPage(_currentPage + 1, totalCount)
-                          : null,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.only(left: 4, right: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: 16,
-                          color: _currentPage < totalPages
-                              ? const Color(0xFF475569)
-                              : Colors.grey.shade300,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

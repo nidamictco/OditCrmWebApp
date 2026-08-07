@@ -304,162 +304,163 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
     final showTo = (showFrom + pagedList.length - 1).clamp(0, totalCount);
 
     // ─── Populated table ──────────────────────────────────────────────────
-    return Column(
-      children: [
-        CustomTable(
-          columns: [
-            TableColumn(title: "Sl No.", flex: 1),
-            TableColumn(title: "Name", flex: 4),
-            TableColumn(title: "Phone Number", flex: 4),
-            TableColumn(title: "Designation", flex: 4),
-            TableColumn(title: "Delete Date", flex: 4),
-            TableColumn(title: "Action", flex: 2),
-          ],
-          rows: pagedList.asMap().entries.map((entry) {
-            final index = entry.key;
-            final staff = entry.value;
-
-            final deletedAt = staff.createdAt != null
-                ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
-                      '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
-                      '${staff.createdAt!.year}'
-                : '—';
-
-            return [
-              Text('${index + 1}', style: AppTextStyle.medium()),
-              Text(
-                staff.name,
-                style: AppTextStyle.medium(),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(staff.phone, style: AppTextStyle.medium()),
-              Text(staff.designation ?? '—', style: AppTextStyle.medium()),
-              Text(deletedAt, style: AppTextStyle.medium()),
-              // ─── Action: Restore button ──────────────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  
-                   _buildActionButton(
-                                    icon: Icons.restore,
-                                    color: AppColors.green,
-                                    onTap: () => _confirmRestore(context, staff),
-                                  ),
-                  SizedBox(width: 0.5.w),
-                  _buildActionButton(
-                    icon: Icons.delete_outline,
-                    color: Colors.red,
-                    onTap: () => _confirmDelete(context, staff),
+    return Container(
+       decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0x14000000,
+                              ), // #00000014 (8% opacity)
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+      child: Column(
+        children: [
+          CustomTable(
+            columns: [
+              TableColumn(title: "Sl No.", flex: 1),
+              TableColumn(title: "Name", flex: 4),
+              TableColumn(title: "Phone Number", flex: 4),
+              TableColumn(title: "Designation", flex: 4),
+              TableColumn(title: "Delete Date", flex: 4),
+              TableColumn(title: "Action", flex: 2),
+            ],
+            rows: pagedList.asMap().entries.map((entry) {
+              final index = entry.key;
+              final staff = entry.value;
+      
+              final deletedAt = staff.createdAt != null
+                  ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
+                        '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
+                        '${staff.createdAt!.year}'
+                  : '—';
+      
+              return [
+                Text('${index + 1}', style: AppTextStyle.medium()),
+                Text(
+                  staff.name,
+                  style: AppTextStyle.medium(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(staff.phone, style: AppTextStyle.medium()),
+                Text(staff.designation ?? '—', style: AppTextStyle.medium()),
+                Text(deletedAt, style: AppTextStyle.medium()),
+                // ─── Action: Restore button ──────────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildActionButton(
+                      icon: Icons.restore,
+                      color: AppColors.green,
+                      onTap: () => _confirmRestore(context, staff),
+                    ),
+                    SizedBox(width: 0.5.w),
+                    _buildActionButton(
+                      icon: Icons.delete_outline,
+                      color: Colors.red,
+                      onTap: () => _confirmDelete(context, staff),
+                    ),
+                  ],
+                ),
+              ];
+            }).toList(),
+          ),
+      
+          /// 🔹 FOOTER
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
+                  style: AppTextStyle.medium(
+                    weight: FontWeight.w600,
+                    color: const Color(0xff64748B),
+                    size: 9.8.sp,
                   ),
-                 
-                ],
-              ),
-            ];
-          }).toList(),
-        ),
-
-        /// 🔹 FOOTER
-         Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 2.w,
-                                    vertical: 1.5.h,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
-                                        style: AppTextStyle.medium(
-                                          weight: FontWeight.w600,
-                                          color: const Color(0xff64748B),
-                                          size: 11.sp,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          _buildPaginationButton(
-                                            enabled: _currentPage > 1,
-                                            onTap: () => _goToPage(
-                                              _currentPage - 1,
-                                              totalCount,
-                                            ),
-                                            child: const Icon(
-                                              Icons.chevron_left,
-                                              size: 16,
-                                              color: Color(0xff94A3B8),
-                                            ),
-                                          ),
-                                          ..._buildCustomPageNumbers(
-                                            totalPages,
-                                            totalCount,
-                                          ),
-                                          _buildPaginationButton(
-                                            enabled: _currentPage < totalPages,
-                                            onTap: () => _goToPage(
-                                              _currentPage + 1,
-                                              totalCount,
-                                            ),
-                                            child: const Icon(
-                                              Icons.chevron_right,
-                                              size: 16,
-                                              color: Color(0xff94A3B8),
-                                            ),
-                                          ),
-                                          // if (selectedLeads.isNotEmpty) ...[
-                                          //   const SizedBox(width: 12),
-                                          //   GestureDetector(
-                                          //     onTap: () => _deleteSelectedLeads(
-                                          //       selectedLeads,
-                                          //     ),
-                                          //     child: Container(
-                                          //       padding: EdgeInsets.symmetric(
-                                          //         horizontal: 1.2.w,
-                                          //         vertical: 0.8.h,
-                                          //       ),
-                                          //       decoration: BoxDecoration(
-                                          //         color: const Color(
-                                          //           0xffEF4444,
-                                          //         ),
-                                          //         borderRadius:
-                                          //             BorderRadius.circular(6),
-                                          //       ),
-                                          //       child: Row(
-                                          //         mainAxisSize:
-                                          //             MainAxisSize.min,
-                                          //         children: [
-                                          //           Text(
-                                          //             "Selected Item",
-                                          //             style:
-                                          //                 AppTextStyle.medium(
-                                          //                   color: Colors.white,
-                                          //                   weight:
-                                          //                       FontWeight.w500,
-                                          //                   size: 9.sp,
-                                          //                 ),
-                                          //           ),
-                                          //           const SizedBox(width: 6),
-                                          //           const Icon(
-                                          //             Icons.delete_outline,
-                                          //             color: Colors.white,
-                                          //             size: 16,
-                                          //           ),
-                                          //         ],
-                                          //       ),
-                                          //     ),
-                                          //   ),
-                                          // ],
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-      ],
+                ),
+                Row(
+                  children: [
+                    _buildPaginationButton(
+                      enabled: _currentPage > 1,
+                      onTap: () => _goToPage(_currentPage - 1, totalCount),
+                      child: const Icon(
+                        Icons.chevron_left,
+                        size: 16,
+                        color: Color(0xff94A3B8),
+                      ),
+                    ),
+                    ..._buildCustomPageNumbers(totalPages, totalCount),
+                    _buildPaginationButton(
+                      enabled: _currentPage < totalPages,
+                      onTap: () => _goToPage(_currentPage + 1, totalCount),
+                      child: const Icon(
+                        Icons.chevron_right,
+                        size: 16,
+                        color: Color(0xff94A3B8),
+                      ),
+                    ),
+                    // if (selectedLeads.isNotEmpty) ...[
+                    //   const SizedBox(width: 12),
+                    //   GestureDetector(
+                    //     onTap: () => _deleteSelectedLeads(
+                    //       selectedLeads,
+                    //     ),
+                    //     child: Container(
+                    //       padding: EdgeInsets.symmetric(
+                    //         horizontal: 1.2.w,
+                    //         vertical: 0.8.h,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: const Color(
+                    //           0xffEF4444,
+                    //         ),
+                    //         borderRadius:
+                    //             BorderRadius.circular(6),
+                    //       ),
+                    //       child: Row(
+                    //         mainAxisSize:
+                    //             MainAxisSize.min,
+                    //         children: [
+                    //           Text(
+                    //             "Selected Item",
+                    //             style:
+                    //                 AppTextStyle.medium(
+                    //                   color: Colors.white,
+                    //                   weight:
+                    //                       FontWeight.w500,
+                    //                   size: 9.sp,
+                    //                 ),
+                    //           ),
+                    //           const SizedBox(width: 6),
+                    //           const Icon(
+                    //             Icons.delete_outline,
+                    //             color: Colors.white,
+                    //             size: 16,
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-
-   Widget _buildActionButton({
+  Widget _buildActionButton({
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
@@ -480,7 +481,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   }
 
   // ── Page number chips ───────────────────────
-   Widget _buildPaginationButton({
+  Widget _buildPaginationButton({
     required Widget child,
     required bool enabled,
     required VoidCallback onTap,

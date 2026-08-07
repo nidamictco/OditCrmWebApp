@@ -1322,7 +1322,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                         style: AppTextStyle.medium(
                                           weight: FontWeight.w600,
                                           color: const Color(0xff64748B),
-                                          size: 11.sp,
+                                          size: 9.8.sp,
                                         ),
                                       ),
                                       Row(

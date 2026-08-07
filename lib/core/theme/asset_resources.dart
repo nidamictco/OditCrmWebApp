@@ -11,4 +11,5 @@ class AssetResources {
   static const String whatsapp_dark = "assets/icon/whtsapp_dark.png";
   static const String successImage = "assets/images/success.png";
   static const String errorImage = "assets/images/error.png";
+  static const String designation = "assets/icon/designation.png";
 }

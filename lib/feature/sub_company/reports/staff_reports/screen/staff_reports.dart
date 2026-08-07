@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -90,198 +91,145 @@ class _StaffReportsState extends State<StaffReports> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            StaffTopBar(
-              title: 'Staff Reports',
-              parent: 'Staff Management',
-              current: 'Staff Reports',
-            ),
             Padding(
-              padding: EdgeInsets.all(2.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: Column(
-                  children: [
-                    ///TITLE BAR
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 2.w,
-                        right: 2.w,
-                        top: 2.h,
-                        bottom: 1.h,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: 7.5.w,
-                          height: 4.5.h,
-                          child: MouseRegion(
-                            onEnter: (_) => setState(() => isHovering = true),
-                            onExit: (_) => setState(() => isHovering = false),
-                            child: BrowserAwareLink(
-                              destination: RoutePaths.addStaff,
-                              usePush: true,
-                              enableInkWell: false,
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                height: 5.h,
-                                // padding: EdgeInsets.symmetric(horizontal: 3.w),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.orange,
-                                    width: 0.02.w,
-                                  ),
-                                  color: isHovering
-                                      ? AppColors.orange
-                                      : AppColors.orange.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "Add New",
-                                    style: AppTextStyle.small(
-                                      color: isHovering
-                                          ? Colors.white
-                                          : AppColors.orange,
-                                      size: 10.sp,
-                                    ),
-                                  ),
-                                ),
-                              ),
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+              child: Column(
+                children: [
+                  ShowEntries(
+                    initialSearch: _searchQuery,
+                    initialEntries: _selectedEntries,
+                    onSearchChanged: (v) => setState(() {
+                      _searchQuery = v;
+                      _resetPage();
+                    }),
+                    onEntriesChanged: (v) => setState(() {
+                      _selectedEntries = v;
+                      _resetPage();
+                    }),
+                  ),
+                  SizedBox(height: 2.h),
+                  BlocBuilder<StaffCubit, StaffState>(
+                    builder: (context, state) {
+                      if (state is StaffLoading) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6.h),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.orange,
+                              strokeWidth: 2,
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                    Divider(color: AppColors.divider),
-                    SizedBox(height: 2.h),
-                    ShowEntries(
-                      initialSearch: _searchQuery,
-                      initialEntries: _selectedEntries,
-                      onSearchChanged: (v) => setState(() {
-                        _searchQuery = v;
-                        _resetPage();
-                      }),
-                      onEntriesChanged: (v) => setState(() {
-                        _selectedEntries = v;
-                        _resetPage();
-                      }),
-                    ),
-                    BlocBuilder<StaffCubit, StaffState>(
-                      builder: (context, state) {
-                        if (state is StaffLoading) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 6.h),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.orange,
-                                strokeWidth: 2,
-                              ),
-                            ),
-                          );
-                        }
-
-                        // Error
-                        if (state is StaffError) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 6.h,
-                              horizontal: 2.w,
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.error_outline,
-                                    color: Colors.red,
-                                    size: 18.sp,
-                                  ),
-                                  SizedBox(height: 1.h),
-                                  Text(
-                                    'Failed to load staff data.',
-                                    style: AppTextStyle.medium(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                  SizedBox(height: 0.5.h),
-                                  Text(
-                                    state.message,
-                                    style: AppTextStyle.small(
-                                      color: Colors.grey,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(height: 1.5.h),
-                                  GestureDetector(
-                                    onTap: () =>
-                                        context.read<StaffCubit>().fetchAll(),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 2.w,
-                                        vertical: 0.8.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.orange.withOpacity(
-                                          0.1,
-                                        ),
-                                        border: Border.all(
-                                          color: AppColors.orange,
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        'Retry',
-                                        style: AppTextStyle.small(
-                                          color: AppColors.orange,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-
-                        //  final List<StaffModel> rawList = state is StaffListLoaded
-                        //       ? state.staffList
-                        //       : [];
-
-                        //   final List<StaffModel> staffList = _filtered(rawList);
-
-                        final List<StaffModel> rawList =
-                            state is StaffListLoaded ? state.staffList : [];
-
-                        final allFiltered = _filtered(rawList);
-                        final totalCount = allFiltered.length;
-                        final totalPages = _totalPages(totalCount);
-                        final limit = int.tryParse(_selectedEntries) ?? 10;
-                        if (_currentPage > totalPages) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() => _currentPage = totalPages);
-                          });
-                        }
-                        final pagedList = _pagedLeads(allFiltered);
-
-                        // "Showing X to Y of Z entries"
-                        final showFrom = totalCount == 0
-                            ? 0
-                            : (_currentPage - 1) * limit + 1;
-                        final showTo = (showFrom + pagedList.length - 1).clamp(
-                          0,
-                          totalCount,
                         );
+                      }
 
-                        return Column(
+                      // Error
+                      if (state is StaffError) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 6.h,
+                            horizontal: 2.w,
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                  size: 18.sp,
+                                ),
+                                SizedBox(height: 1.h),
+                                Text(
+                                  'Failed to load staff data.',
+                                  style: AppTextStyle.medium(color: Colors.red),
+                                ),
+                                SizedBox(height: 0.5.h),
+                                Text(
+                                  state.message,
+                                  style: AppTextStyle.small(color: Colors.grey),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 1.5.h),
+                                GestureDetector(
+                                  onTap: () =>
+                                      context.read<StaffCubit>().fetchAll(),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 2.w,
+                                      vertical: 0.8.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.orange.withOpacity(0.1),
+                                      border: Border.all(
+                                        color: AppColors.orange,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      'Retry',
+                                      style: AppTextStyle.small(
+                                        color: AppColors.orange,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      //  final List<StaffModel> rawList = state is StaffListLoaded
+                      //       ? state.staffList
+                      //       : [];
+
+                      //   final List<StaffModel> staffList = _filtered(rawList);
+
+                      final List<StaffModel> rawList = state is StaffListLoaded
+                          ? state.staffList
+                          : [];
+
+                      final allFiltered = _filtered(rawList);
+                      final totalCount = allFiltered.length;
+                      final totalPages = _totalPages(totalCount);
+                      final limit = int.tryParse(_selectedEntries) ?? 10;
+                      if (_currentPage > totalPages) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          setState(() => _currentPage = totalPages);
+                        });
+                      }
+                      final pagedList = _pagedLeads(allFiltered);
+
+                      // "Showing X to Y of Z entries"
+                      final showFrom = totalCount == 0
+                          ? 0
+                          : (_currentPage - 1) * limit + 1;
+                      final showTo = (showFrom + pagedList.length - 1).clamp(
+                        0,
+                        totalCount,
+                      );
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0x14000000,
+                              ), // #00000014 (8% opacity)
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Column(
                           children: [
                             SizedBox(
                               child: CustomTable(
@@ -292,7 +240,9 @@ class _StaffReportsState extends State<StaffReports> {
                                 onRowTap: (rowIndex) {
                                   final staff = pagedList[rowIndex];
                                   log('stafff........$staff');
-                                  context.push(RoutePaths.staffProfilePath(staff.id!));
+                                  context.push(
+                                    RoutePaths.staffProfilePath(staff.id!),
+                                  );
                                 },
                                 columns: [
                                   TableColumn(title: "Sl No.", flex: 1),
@@ -324,7 +274,9 @@ class _StaffReportsState extends State<StaffReports> {
                                       style: AppTextStyle.medium(),
                                     ),
                                     BrowserAwareLink(
-                                      destination: RoutePaths.staffProfilePath(staff.id!),
+                                      destination: RoutePaths.staffProfilePath(
+                                        staff.id!,
+                                      ),
                                       usePush: true,
                                       enableInkWell: false,
                                       child: Container(
@@ -358,33 +310,41 @@ class _StaffReportsState extends State<StaffReports> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Showing $showFrom to $showTo of $totalCount entries",
+                                    "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
                                     style: AppTextStyle.medium(
-                                      weight: FontWeight.w400,
+                                      weight: FontWeight.w600,
+                                      color: const Color(0xff64748B),
+                                      size: 9.8.sp,
                                     ),
                                   ),
                                   Row(
                                     children: [
-                                      PageButton(
-                                        label: 'Previous',
+                                      _buildPaginationButton(
                                         enabled: _currentPage > 1,
-                                        isLeft: true,
                                         onTap: () => _goToPage(
                                           _currentPage - 1,
                                           totalCount,
                                         ),
+                                        child: const Icon(
+                                          Icons.chevron_left,
+                                          size: 16,
+                                          color: Color(0xff94A3B8),
+                                        ),
                                       ),
-                                      ..._buildPageNumbers(
+                                      ..._buildCustomPageNumbers(
                                         totalPages,
                                         totalCount,
                                       ),
-                                      PageButton(
-                                        label: 'Next',
+                                      _buildPaginationButton(
                                         enabled: _currentPage < totalPages,
-                                        isRight: true,
                                         onTap: () => _goToPage(
                                           _currentPage + 1,
                                           totalCount,
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_right,
+                                          size: 16,
+                                          color: Color(0xff94A3B8),
                                         ),
                                       ),
                                     ],
@@ -393,11 +353,11 @@ class _StaffReportsState extends State<StaffReports> {
                               ),
                             ),
                           ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -407,6 +367,167 @@ class _StaffReportsState extends State<StaffReports> {
   }
 
   // ── Page number chips ───────────────────────
+  Widget _buildPaginationButton({
+    required Widget child,
+    required bool enabled,
+    required VoidCallback onTap,
+    bool isActive = false,
+    bool hasBorder = true,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        decoration: BoxDecoration(
+          color: isActive
+              ? const Color(0xff002060)
+              : (enabled ? Colors.white : const Color(0xffF8FAFC)),
+          border: hasBorder
+              ? Border.all(
+                  color: isActive
+                      ? const Color(0xff002060)
+                      : const Color(0xffE2E8F0),
+                  width: 1,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  List<Widget> _buildCustomPageNumbers(int totalPages, int totalCount) {
+    final List<Widget> chips = [];
+
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == i,
+            enabled: _currentPage != i,
+            onTap: () => _goToPage(i, totalCount),
+            child: Text(
+              '$i',
+              style: AppTextStyle.medium(
+                color: _currentPage == i
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == i ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == 1,
+          enabled: _currentPage != 1,
+          onTap: () => _goToPage(1, totalCount),
+          child: Text(
+            '1',
+            style: AppTextStyle.medium(
+              color: _currentPage == 1 ? Colors.white : const Color(0xff334155),
+              weight: _currentPage == 1 ? FontWeight.w600 : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+
+      if (_currentPage > 3) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      final start = (_currentPage - 1).clamp(2, totalPages - 1);
+      final end = (_currentPage + 1).clamp(2, totalPages - 1);
+
+      final List<int> middlePages = [];
+      for (int i = start; i <= end; i++) {
+        if (!middlePages.contains(i)) middlePages.add(i);
+      }
+      if (_currentPage <= 3) {
+        if (!middlePages.contains(2)) middlePages.add(2);
+        if (!middlePages.contains(3)) middlePages.add(3);
+      } else if (_currentPage >= totalPages - 2) {
+        if (!middlePages.contains(totalPages - 2))
+          middlePages.insert(0, totalPages - 2);
+        if (!middlePages.contains(totalPages - 1))
+          middlePages.insert(0, totalPages - 1);
+      }
+      middlePages.sort();
+
+      for (final p in middlePages) {
+        if (p == 1 || p == totalPages) continue;
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == p,
+            enabled: _currentPage != p,
+            onTap: () => _goToPage(p, totalCount),
+            child: Text(
+              '$p',
+              style: AppTextStyle.medium(
+                color: _currentPage == p
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == p ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (_currentPage < totalPages - 2) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == totalPages,
+          enabled: _currentPage != totalPages,
+          onTap: () => _goToPage(totalPages, totalCount),
+          child: Text(
+            '$totalPages',
+            style: AppTextStyle.medium(
+              color: _currentPage == totalPages
+                  ? Colors.white
+                  : const Color(0xff334155),
+              weight: _currentPage == totalPages
+                  ? FontWeight.w600
+                  : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return chips;
+  }
+
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
 
