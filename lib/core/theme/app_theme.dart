@@ -73,12 +73,9 @@ class AppThemeColors {
 
   static Color textfieldBorder = Color(0xff8798B0).withValues(alpha: 0.12);
   static Color followupCardBorder = Color(0xff8798B0).withValues(alpha: 0.3);
-<<<<<<< HEAD
   static Color switchBorder = Color(0xff8798B0);
   static Color switchhidecolor = Color(0xff8798B0).withValues(alpha: 0.25);
-=======
   static Color borderClr = Color(0xff8798B0);
->>>>>>> 30b2e119e00b6e8ee8be0636b27bb4342f9db713
 
   static const Color sidebarLogoTxtClr = Color(0xff2D2D2D);
   static const Color sidebarTxtClr = Color(0xff2D2D2D);
