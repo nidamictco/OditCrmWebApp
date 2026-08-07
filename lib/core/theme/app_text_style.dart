@@ -65,7 +65,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.black,
-      fontSize: fontSize ?? size ?? 11.sp,
+      fontSize: fontSize ?? size ?? 10.5.sp,
       fontWeight: fontWeight ?? weight ?? FontWeight.w500,
       height: height,
       fontStyle: fontStyle,

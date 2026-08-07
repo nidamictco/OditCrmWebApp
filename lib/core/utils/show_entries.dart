@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
@@ -75,14 +76,6 @@ class _ShowEntriesState extends State<ShowEntries> {
         color: AppColors.white,
         border: Border.all(color: const Color(0xFFE2E8F0)),
         borderRadius: BorderRadius.circular(12),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: const Color(0x14000000), // #00000014 (8% opacity)
-        //     offset: const Offset(0, 1),
-        //     blurRadius: 8,
-        //     spreadRadius: 0,
-        //   ),
-        // ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -125,7 +118,8 @@ class _ShowEntriesState extends State<ShowEntries> {
                 // ),
                 Container(
                   width: 12.w,
-                  height: 5.h,
+                  height: 4.h,
+                  padding: EdgeInsets.only(right: 0.7.h),
                   decoration: _box(),
                   child: TextField(
                     controller: _searchController,
@@ -141,9 +135,9 @@ class _ShowEntriesState extends State<ShowEntries> {
                         size: 11.sp,
                         color: Colors.grey,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 1.w,
+                        vertical: 1.h,
                       ),
                       border: InputBorder.none,
                       // ✅ Show X only when text is non-empty
@@ -159,7 +153,7 @@ class _ShowEntriesState extends State<ShowEntries> {
                                 color: Colors.grey,
                               ),
                             )
-                          : Icon(Icons.search, color: Colors.grey),
+                          : Icon(Icons.search_rounded, color: Colors.grey),
                       suffixIconConstraints: const BoxConstraints(
                         minWidth: 24,
                         minHeight:
@@ -186,21 +180,33 @@ class _ShowEntriesState extends State<ShowEntries> {
       child: GestureDetector(
         onTap: _toggleDropdown,
         child: Container(
-          width: 4.2.w,
-          height: 4.h,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          // width: 4.2.w,
+          // height: 4.h,
+          padding: EdgeInsets.all(0.5.h),
           decoration: _box(),
           alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(selectedValue, style: AppTextStyle.small(size: 11.sp)),
+              SizedBox(width: 0.2.w),
+              Text(
+                selectedValue,
+                style: AppTextStyle.small(
+                  size: 11.sp,
+                  color: AppThemeColors.sidebarTxtClr,
+                ),
+              ),
               AnimatedRotation(
                 turns: _isOpen ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
-                child: const Icon(Icons.arrow_drop_down, size: 16),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 11.5.sp,
+                  color: AppThemeColors.subText,
+                ),
               ),
+              SizedBox(width: 0.2.w),
             ],
           ),
         ),

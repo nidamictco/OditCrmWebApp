@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/theme/app_colors.dart';
@@ -156,9 +157,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              ctx.read<StaffCubit>().deleteStaffPermanently(
-                staff.id ?? '',
-              ); 
+              ctx.read<StaffCubit>().deleteStaffPermanently(staff.id ?? '');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Colors.red,
@@ -179,7 +178,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: BlocConsumer<StaffCubit, StaffState>(
         listener: (context, state) {
           if (state is StaffError) {
@@ -196,55 +195,30 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                TopBreadcrumbBar(
-                  subTitle: 'Deleted Staff',
-                  title: 'Staff Management',
-                ),
                 Padding(
-                  padding: EdgeInsets.all(2.w),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ─── Title bar ─────────────────────────────────────
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2.w,
-                            vertical: 2.h,
-                          ),
-                          child: Text(
-                            "Deleted Staff",
-                            style: AppTextStyle.medium(
-                              size: 13.6.sp,
-                              color: AppColors.black.withOpacity(0.77),
-                              weight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        Divider(color: AppColors.divider),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.w,
+                    vertical: 0.5.h,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ─── Show entries + search ─────────────────────────
+                      ShowEntries(
+                        initialSearch: _searchQuery,
+                        initialEntries: _selectedEntries,
+                        onSearchChanged: (v) =>
+                            setState(() => _searchQuery = v),
+                        onEntriesChanged: (v) =>
+                            setState(() => _selectedEntries = v),
+                      ),
+                      SizedBox(height: 2.h),
+                      // ─── Table ─────────────────────────────────────────
+                      _buildTableSection(state),
 
-                        // ─── Show entries + search ─────────────────────────
-                        ShowEntries(
-                          initialSearch: _searchQuery,
-                          initialEntries: _selectedEntries,
-                          onSearchChanged: (v) =>
-                              setState(() => _searchQuery = v),
-                          onEntriesChanged: (v) =>
-                              setState(() => _selectedEntries = v),
-                        ),
-
-                        // ─── Table ─────────────────────────────────────────
-                        _buildTableSection(state),
-
-                        SizedBox(height: 2.h),
-                      ],
-                    ),
+                      SizedBox(height: 2.h),
+                    ],
                   ),
                 ),
               ],
@@ -365,39 +339,19 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Center(
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => _confirmRestore(context, staff),
-                        child: Tooltip(
-                          message: 'Restore',
-                          child: Icon(
-                            Icons.restore,
-                            size: 14.sp,
-                            color: AppColors.green,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  
+                   _buildActionButton(
+                                    icon: Icons.restore,
+                                    color: AppColors.green,
+                                    onTap: () => _confirmRestore(context, staff),
+                                  ),
                   SizedBox(width: 0.5.w),
-                  Center(
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => _confirmDelete(context, staff),
-                        child: Tooltip(
-                          message: 'Delete',
-                          child: Icon(
-                            Icons.delete_outline,
-                            size: 14.sp,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ),
+                  _buildActionButton(
+                    icon: Icons.delete_outline,
+                    color: Colors.red,
+                    onTap: () => _confirmDelete(context, staff),
                   ),
+                 
                 ],
               ),
             ];
@@ -405,40 +359,288 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
         ),
 
         /// 🔹 FOOTER
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Showing $showFrom to $showTo of $totalCount entries",
-                style: AppTextStyle.medium(weight: FontWeight.w400),
-              ),
-              Row(
-                children: [
-                  PageButton(
-                    label: 'Previous',
-                    enabled: _currentPage > 1,
-                    isLeft: true,
-                    onTap: () => _goToPage(_currentPage - 1, totalCount),
-                  ),
-                  ..._buildPageNumbers(totalPages, totalCount),
-                  PageButton(
-                    label: 'Next',
-                    enabled: _currentPage < totalPages,
-                    isRight: true,
-                    onTap: () => _goToPage(_currentPage + 1, totalCount),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+         Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2.w,
+                                    vertical: 1.5.h,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
+                                        style: AppTextStyle.medium(
+                                          weight: FontWeight.w600,
+                                          color: const Color(0xff64748B),
+                                          size: 11.sp,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          _buildPaginationButton(
+                                            enabled: _currentPage > 1,
+                                            onTap: () => _goToPage(
+                                              _currentPage - 1,
+                                              totalCount,
+                                            ),
+                                            child: const Icon(
+                                              Icons.chevron_left,
+                                              size: 16,
+                                              color: Color(0xff94A3B8),
+                                            ),
+                                          ),
+                                          ..._buildCustomPageNumbers(
+                                            totalPages,
+                                            totalCount,
+                                          ),
+                                          _buildPaginationButton(
+                                            enabled: _currentPage < totalPages,
+                                            onTap: () => _goToPage(
+                                              _currentPage + 1,
+                                              totalCount,
+                                            ),
+                                            child: const Icon(
+                                              Icons.chevron_right,
+                                              size: 16,
+                                              color: Color(0xff94A3B8),
+                                            ),
+                                          ),
+                                          // if (selectedLeads.isNotEmpty) ...[
+                                          //   const SizedBox(width: 12),
+                                          //   GestureDetector(
+                                          //     onTap: () => _deleteSelectedLeads(
+                                          //       selectedLeads,
+                                          //     ),
+                                          //     child: Container(
+                                          //       padding: EdgeInsets.symmetric(
+                                          //         horizontal: 1.2.w,
+                                          //         vertical: 0.8.h,
+                                          //       ),
+                                          //       decoration: BoxDecoration(
+                                          //         color: const Color(
+                                          //           0xffEF4444,
+                                          //         ),
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(6),
+                                          //       ),
+                                          //       child: Row(
+                                          //         mainAxisSize:
+                                          //             MainAxisSize.min,
+                                          //         children: [
+                                          //           Text(
+                                          //             "Selected Item",
+                                          //             style:
+                                          //                 AppTextStyle.medium(
+                                          //                   color: Colors.white,
+                                          //                   weight:
+                                          //                       FontWeight.w500,
+                                          //                   size: 9.sp,
+                                          //                 ),
+                                          //           ),
+                                          //           const SizedBox(width: 6),
+                                          //           const Icon(
+                                          //             Icons.delete_outline,
+                                          //             color: Colors.white,
+                                          //             size: 16,
+                                          //           ),
+                                          //         ],
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
       ],
     );
   }
 
+
+   Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: Icon(icon, size: 13, color: color)),
+      ),
+    );
+  }
+
   // ── Page number chips ───────────────────────
+   Widget _buildPaginationButton({
+    required Widget child,
+    required bool enabled,
+    required VoidCallback onTap,
+    bool isActive = false,
+    bool hasBorder = true,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        decoration: BoxDecoration(
+          color: isActive
+              ? const Color(0xff002060)
+              : (enabled ? Colors.white : const Color(0xffF8FAFC)),
+          border: hasBorder
+              ? Border.all(
+                  color: isActive
+                      ? const Color(0xff002060)
+                      : const Color(0xffE2E8F0),
+                  width: 1,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  List<Widget> _buildCustomPageNumbers(int totalPages, int totalCount) {
+    final List<Widget> chips = [];
+
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == i,
+            enabled: _currentPage != i,
+            onTap: () => _goToPage(i, totalCount),
+            child: Text(
+              '$i',
+              style: AppTextStyle.medium(
+                color: _currentPage == i
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == i ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == 1,
+          enabled: _currentPage != 1,
+          onTap: () => _goToPage(1, totalCount),
+          child: Text(
+            '1',
+            style: AppTextStyle.medium(
+              color: _currentPage == 1 ? Colors.white : const Color(0xff334155),
+              weight: _currentPage == 1 ? FontWeight.w600 : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+
+      if (_currentPage > 3) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      final start = (_currentPage - 1).clamp(2, totalPages - 1);
+      final end = (_currentPage + 1).clamp(2, totalPages - 1);
+
+      final List<int> middlePages = [];
+      for (int i = start; i <= end; i++) {
+        if (!middlePages.contains(i)) middlePages.add(i);
+      }
+      if (_currentPage <= 3) {
+        if (!middlePages.contains(2)) middlePages.add(2);
+        if (!middlePages.contains(3)) middlePages.add(3);
+      } else if (_currentPage >= totalPages - 2) {
+        if (!middlePages.contains(totalPages - 2))
+          middlePages.insert(0, totalPages - 2);
+        if (!middlePages.contains(totalPages - 1))
+          middlePages.insert(0, totalPages - 1);
+      }
+      middlePages.sort();
+
+      for (final p in middlePages) {
+        if (p == 1 || p == totalPages) continue;
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == p,
+            enabled: _currentPage != p,
+            onTap: () => _goToPage(p, totalCount),
+            child: Text(
+              '$p',
+              style: AppTextStyle.medium(
+                color: _currentPage == p
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == p ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (_currentPage < totalPages - 2) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == totalPages,
+          enabled: _currentPage != totalPages,
+          onTap: () => _goToPage(totalPages, totalCount),
+          child: Text(
+            '$totalPages',
+            style: AppTextStyle.medium(
+              color: _currentPage == totalPages
+                  ? Colors.white
+                  : const Color(0xff334155),
+              weight: _currentPage == totalPages
+                  ? FontWeight.w600
+                  : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return chips;
+  }
+
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
 
