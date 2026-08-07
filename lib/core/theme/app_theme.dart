@@ -73,10 +73,13 @@ class AppThemeColors {
 
   static Color textfieldBorder = Color(0xff8798B0).withValues(alpha: 0.12);
   static Color followupCardBorder = Color(0xff8798B0).withValues(alpha: 0.3);
+  static Color switchBorder = Color(0xff8798B0);
+  static Color switchhidecolor = Color(0xff8798B0).withValues(alpha: 0.25);
 
   static const Color sidebarLogoTxtClr = Color(0xff2D2D2D);
   static const Color sidebarTxtClr = Color(0xff2D2D2D);
   static const Color basicGreen = Color(0xff00B16E);
+
   static const Color dashboardCard = Color(0xffFEFEFE);
   static const Color cardText = Color(0xff2D2D2D);
   static const Color followupDateCardBg = Color(0xffF4F6F8);

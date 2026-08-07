@@ -1051,6 +1051,18 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
   if (path.contains('/staff/')) {
     return _BreadcrumbsData('Staff Management', 'Staff Profile');
   }
+// Designation Permissions screen (used for BOTH add and edit)
+if (path.contains('/designations/') && path.contains('/permissions')) {
+  final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+  // segments => ['designations', ':designationId', 'permissions']
+  final designationId = segments.length >= 2 ? segments[1] : '';
+  final isAdd = designationId.toLowerCase() == 'new';
+
+  return _BreadcrumbsData(
+    'Staff Management >> Designation',
+    isAdd ? 'Add Designation' : 'Edit Designation',
+  );
+}
 
   // Default fallback: parse path segments
   final segments = path.split('/').where((s) => s.isNotEmpty).toList();

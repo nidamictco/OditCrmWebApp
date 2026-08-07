@@ -79,8 +79,10 @@ class _ImportLeadsState extends State<ImportLeads> {
       builder: (context, state) {
         final cubit = context.read<ImportLeadsCubit>();
 
-         log('[Screen] rebuild — selectedLeadStage="${state.selectedLeadStage}" '
-      'nextFollowUpDate=${state.nextFollowUpDate}');
+        log(
+          '[Screen] rebuild — selectedLeadStage="${state.selectedLeadStage}" '
+          'nextFollowUpDate=${state.nextFollowUpDate}',
+        );
 
         return Scaffold(
           backgroundColor: AppThemeColors.scaffoldBg,
@@ -503,18 +505,27 @@ class _ImportLeadsState extends State<ImportLeads> {
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            width: 50,
-            height: 28,
-            child: FittedBox(
-              fit: BoxFit.fill,
-              child: Switch(
-                value: isWithCountryCode,
-                activeTrackColor: const Color(0xFF1E3A8A),
-                onChanged: (val) {
-                  cubit.selectTab(val ? 0 : 1);
-                },
+          Transform.scale(
+            scale: 0.65,
+            // scaleX: 0.8,
+            // scaleY: 0.6,
+            alignment: Alignment.centerRight,
+            child: Switch(
+              focusColor: Colors.transparent,
+              inactiveTrackColor: Colors.white,
+              inactiveThumbColor: Color(0xFF1E3A8A),
+              value: isWithCountryCode,
+              activeTrackColor: Color(0xFF1E3A8A),
+              activeThumbColor: Colors.white,
+              trackOutlineWidth: WidgetStateProperty.all(3),
+              trackOutlineColor: WidgetStateProperty.all(
+                AppThemeColors.borderLight,
               ),
+
+              materialTapTargetSize: MaterialTapTargetSize.padded,
+              onChanged: (val) {
+                cubit.selectTab(val ? 0 : 1);
+              },
             ),
           ),
         ],
@@ -525,7 +536,6 @@ class _ImportLeadsState extends State<ImportLeads> {
   // ─────────────────────────────────────────────────────────────────────────
   // FORM GRID (DYNAMIC FIELDS WITH MAXIMUM 4 PER ROW)
   // ─────────────────────────────────────────────────────────────────────────
-
 
   Widget _buildNextFollowupDateField(
     ImportLeadsState state,
@@ -733,13 +743,14 @@ class _ImportLeadsState extends State<ImportLeads> {
     //   activeFields.add(_buildNextFollowupDateField(state, cubit));
     // }
 
-     final normalizedStage =
-        state.selectedLeadStage?.toUpperCase().replaceAll(' ', '');
+    final normalizedStage = state.selectedLeadStage?.toUpperCase().replaceAll(
+      ' ',
+      '',
+    );
     if (normalizedStage == 'FOLLOWUP') {
       activeFields.add(_buildNextFollowupDateField(state, cubit));
     }
 
-    
     activeFields.add(categoryField);
 
     // If selected category has subcategories in Firebase -> insert Sub Category dropdown next to Lead Category
@@ -804,7 +815,6 @@ class _ImportLeadsState extends State<ImportLeads> {
             ],
           );
         }
-       
 
         final itemWidth = (constraints.maxWidth - 16) / 2;
         return Wrap(
@@ -1365,8 +1375,10 @@ class _ImportLeadsState extends State<ImportLeads> {
       if (confirmed != true) return;
     }
 
-log('[Screen] About to import — state.nextFollowUpDate=${state.nextFollowUpDate}, '
-    'selectedLeadStage=${state.selectedLeadStage}'); 
+    log(
+      '[Screen] About to import — state.nextFollowUpDate=${state.nextFollowUpDate}, '
+      'selectedLeadStage=${state.selectedLeadStage}',
+    );
 
     cubit.importLeads(csvBytes: _pickedCsvBytes!);
   }
