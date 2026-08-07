@@ -104,14 +104,14 @@ class _SidebarItemState extends State<SidebarItem> {
 
     // Staff sub-items visible
     final staffChildren = [
-      if (perm.canAddStaff)
-        subMenuItem(
-          "Add Staff",
-          15,
-          itemHorizontalPadding: itemHorizontalPadding,
-          itemVerticalPadding: isCompactHeight ? 8 : 10,
-          fontSizeSub: fontSizeSub,
-        ),
+      // if (perm.canAddStaff)
+      //   subMenuItem(
+      //     "Add Staff",
+      //     15,
+      //     itemHorizontalPadding: itemHorizontalPadding,
+      //     itemVerticalPadding: isCompactHeight ? 8 : 10,
+      //     fontSizeSub: fontSizeSub,
+      //   ),
       if (perm.canViewStaff)
         subMenuItem(
           "View Staff",

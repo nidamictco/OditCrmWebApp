@@ -185,6 +185,7 @@ class _CustomTableState extends State<CustomTable> {
                     col.title,
                     style: AppTextStyle.medium(
                       weight: FontWeight.w600,
+                      fontSize: 11.5,
                       color: const Color(0xFF475569),
                     ),
                   ),
@@ -212,6 +213,7 @@ class _CustomTableState extends State<CustomTable> {
                     col.title,
                     style: AppTextStyle.medium(
                       weight: FontWeight.w600,
+                      fontSize: 11.5,
                       color: const Color(0xFF475569),
                     ),
                   ),
@@ -223,6 +225,7 @@ class _CustomTableState extends State<CustomTable> {
                 col.title,
                 style: AppTextStyle.medium(
                   weight: FontWeight.w600,
+                  fontSize: 11.5,
                   color: const Color(0xFF475569),
                 ),
               );

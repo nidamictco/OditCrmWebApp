@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -81,312 +82,355 @@ class _DesignationScreenState extends State<DesignationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            StaffTopBar(
-              title: 'Designation',
-              current: 'Designation',
-              parent: 'Staff Management',
-            ),
-            Padding(
-              padding: EdgeInsets.all(2.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// 🔹 Add New Button
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 2.w,
-                        right: 2.w,
-                        top: 2.h,
-                        bottom: 1.h,
+            // StaffTopBar(
+            //   title: 'Designation',
+            //   current: 'Designation',
+            //   parent: 'Staff Management',
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.all(2.w),
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(4),
+            //       border: Border.all(color: AppColors.divider),
+            //     ),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         /// 🔹 Add New Button
+            //         Padding(
+            //           padding: EdgeInsets.only(
+            //             left: 2.w,
+            //             right: 2.w,
+            //             top: 2.h,
+            //             bottom: 1.h,
+            //           ),
+            //           child: Align(
+            //             alignment: Alignment.centerRight,
+            //             child: SizedBox(
+            //               width: 7.5.w,
+            //               height: 4.5.h,
+            //               child: MouseRegion(
+            //                 onEnter: (_) => setState(() => isHovering = true),
+            //                 onExit: (_) => setState(() => isHovering = false),
+            //                 child: BrowserAwareLink(
+            //                   destination:
+            //                       RoutePaths.designationPermissionsPath("new"),
+            //                   onTap: () async {
+            //                     await context.push(
+            //                       RoutePaths.designationPermissionsPath("new"),
+            //                     );
+            //                     if (context.mounted) {
+            //                       context.read<DesignationCubit>().fetchAll();
+            //                     }
+            //                   },
+            //                   usePush: true,
+            //                   enableInkWell: false,
+            //                   child: AnimatedContainer(
+            //                     duration: const Duration(milliseconds: 200),
+            //                     curve: Curves.easeInOut,
+            //                     decoration: BoxDecoration(
+            //                       border: Border.all(
+            //                         color: AppColors.orange,
+            //                         width: 0.02.w,
+            //                       ),
+            //                       color: isHovering
+            //                           ? AppColors.orange
+            //                           : AppColors.orange.withOpacity(0.1),
+            //                       borderRadius: BorderRadius.circular(6),
+            //                     ),
+            //                     child: Center(
+            //                       child: Text(
+            //                         "Add New",
+            //                         style: AppTextStyle.small(
+            //                           color: isHovering
+            //                               ? Colors.white
+            //                               : AppColors.orange,
+            //                           size: 10.sp,
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+
+            //         Divider(color: AppColors.divider),
+            //         SizedBox(height: 2.h),
+            ShowEntries(
+              initialEntries: _selectedEntries,
+              initialSearch: _searchQuery,
+              onEntriesChanged: (value) {
+                setState(() {
+                  _selectedEntries = value;
+                });
+              },
+              onSearchChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              exportWidget: SizedBox(
+                width: 7.5.w,
+                height: 4.5.h,
+                child: MouseRegion(
+                  onEnter: (_) => setState(() => isHovering = true),
+                  onExit: (_) => setState(() => isHovering = false),
+                  child: BrowserAwareLink(
+                    destination: RoutePaths.designationPermissionsPath("new"),
+                    onTap: () async {
+                      await context.push(
+                        RoutePaths.designationPermissionsPath("new"),
+                      );
+                      if (context.mounted) {
+                        context.read<DesignationCubit>().fetchAll();
+                      }
+                    },
+                    usePush: true,
+                    enableInkWell: false,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.orange,
+                          width: 0.02.w,
+                        ),
+                        color: isHovering
+                            ? AppColors.orange
+                            : AppColors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: 7.5.w,
-                          height: 4.5.h,
-                          child: MouseRegion(
-                            onEnter: (_) => setState(() => isHovering = true),
-                            onExit: (_) => setState(() => isHovering = false),
-                            child: BrowserAwareLink(
-                              destination: RoutePaths.designationPermissionsPath("new"),
+                      child: Center(
+                        child: Text(
+                          "Add New",
+                          style: AppTextStyle.small(
+                            color: isHovering ? Colors.white : AppColors.orange,
+                            size: 10.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+
+            /// 🔹 Table Section
+            BlocConsumer<DesignationCubit, DesignationState>(
+              listener: (context, state) {
+                if (state is DesignationError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: ${state.message}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                /// 🔄 Loading
+                if (state is DesignationLoading) {
+                  return SizedBox(
+                    height: 20.h,
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                /// ✅ Data Loaded
+                if (state is DesignationListLoaded) {
+                  final allFiltered = _filtered(state.designations);
+                  final totalCount = allFiltered.length;
+                  final totalPages = _totalPages(totalCount);
+                  final limit = int.tryParse(_selectedEntries) ?? 10;
+
+                  if (_currentPage > totalPages) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() => _currentPage = totalPages);
+                    });
+                  }
+                  final pagedList = _pagedLeads(allFiltered);
+                  final showFrom = totalCount == 0
+                      ? 0
+                      : (_currentPage - 1) * limit + 1;
+                  final showTo = (showFrom + pagedList.length - 1).clamp(
+                    0,
+                    totalCount,
+                  );
+
+                  final rows = pagedList.asMap().entries.map((entry) {
+                    final index = (_currentPage - 1) * limit + entry.key + 1;
+                    final designation = entry.value;
+
+                    return [
+                      Text('$index', style: AppTextStyle.medium()),
+                      Text(
+                        designation.designationName,
+                        style: AppTextStyle.medium(),
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            /// ✏️ Edit
+                            BrowserAwareLink(
+                              destination:
+                                  RoutePaths.designationPermissionsPath(
+                                    designation.id!,
+                                  ),
                               onTap: () async {
-                                await context.push(RoutePaths.designationPermissionsPath("new"));
+                                await context.push(
+                                  RoutePaths.designationPermissionsPath(
+                                    designation.id!,
+                                  ),
+                                );
                                 if (context.mounted) {
                                   context.read<DesignationCubit>().fetchAll();
                                 }
                               },
                               usePush: true,
                               enableInkWell: false,
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.orange,
-                                    width: 0.02.w,
-                                  ),
-                                  color: isHovering
-                                      ? AppColors.orange
-                                      : AppColors.orange.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "Add New",
-                                    style: AppTextStyle.small(
-                                      color: isHovering
-                                          ? Colors.white
-                                          : AppColors.orange,
-                                      size: 10.sp,
-                                    ),
-                                  ),
-                                ),
+                              child: Icon(
+                                Icons.edit_outlined,
+                                size: 14.sp,
+                                color: Colors.blue,
                               ),
                             ),
-                          ),
+
+                            SizedBox(width: 0.5.w),
+
+                            /// 🗑 Delete
+                            GestureDetector(
+                              onTap: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: AppColors.white,
+                                    title: const Text('Delete Designation'),
+                                    content: Text(
+                                      'Are you sure you want to delete "${designation.designationName}"?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx, true);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: AppColors.red,
+                                              content: Text(
+                                                'Designation "${designation.designationName}" deleted!',
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirmed == true && context.mounted) {
+                                  context
+                                      .read<DesignationCubit>()
+                                      .deleteDesignation(designation.id!);
+                                }
+                              },
+
+                              child: Icon(
+                                Icons.delete_outline,
+                                size: 14.sp,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+                    ];
+                  }).toList();
 
-                    Divider(color: AppColors.divider),
-                    SizedBox(height: 2.h),
-                    ShowEntries(
-                      initialEntries: _selectedEntries,
-                      initialSearch: _searchQuery,
-                      onEntriesChanged: (value) {
-                        setState(() {
-                          _selectedEntries = value;
-                        });
-                      },
-                      onSearchChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                    ),
+                  return Column(
+                    children: [
+                      CustomTable(
+                        columns: [
+                          TableColumn(title: "Sl No.", flex: 1),
+                          TableColumn(title: "Designation", flex: 4),
+                          TableColumn(title: "Action", flex: 2),
+                        ],
+                        rows: rows,
+                      ),
 
-                    /// 🔹 Table Section
-                    BlocConsumer<DesignationCubit, DesignationState>(
-                      listener: (context, state) {
-                        if (state is DesignationError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: ${state.message}'),
-                              backgroundColor: Colors.red,
+                      /// 🔹 FOOTER
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 2.w,
+                          vertical: 1.5.h,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Showing $showFrom to $showTo of $totalCount entries",
+                              style: AppTextStyle.medium(
+                                weight: FontWeight.w400,
+                              ),
                             ),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        /// 🔄 Loading
-                        if (state is DesignationLoading) {
-                          return SizedBox(
-                            height: 20.h,
-                            child: const Center(
-                              child: CircularProgressIndicator(),
+                            Row(
+                              children: [
+                                PageButton(
+                                  label: 'Previous',
+                                  enabled: _currentPage > 1,
+                                  isLeft: true,
+                                  onTap: () =>
+                                      _goToPage(_currentPage - 1, totalCount),
+                                ),
+                                ..._buildPageNumbers(totalPages, totalCount),
+                                PageButton(
+                                  label: 'Next',
+                                  enabled: _currentPage < totalPages,
+                                  isRight: true,
+                                  onTap: () =>
+                                      _goToPage(_currentPage + 1, totalCount),
+                                ),
+                              ],
                             ),
-                          );
-                        }
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
 
-                        /// ✅ Data Loaded
-                        if (state is DesignationListLoaded) {
-                          final allFiltered = _filtered(state.designations);
-                          final totalCount = allFiltered.length;
-                          final totalPages = _totalPages(totalCount);
-                          final limit = int.tryParse(_selectedEntries) ?? 10;
+                /// ❌ Error UI
+                if (state is DesignationError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
 
-                          if (_currentPage > totalPages) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              setState(() => _currentPage = totalPages);
-                            });
-                          }
-                          final pagedList = _pagedLeads(allFiltered);
-                          final showFrom = totalCount == 0
-                              ? 0
-                              : (_currentPage - 1) * limit + 1;
-                          final showTo = (showFrom + pagedList.length - 1)
-                              .clamp(0, totalCount);
-
-                          final rows = pagedList.asMap().entries.map((entry) {
-                            final index =
-                                (_currentPage - 1) * limit + entry.key + 1;
-                            final designation = entry.value;
-
-                            return [
-                              Text('$index', style: AppTextStyle.medium()),
-                              Text(
-                                designation.designationName,
-                                style: AppTextStyle.medium(),
-                              ),
-                              Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    /// ✏️ Edit
-                                    BrowserAwareLink(
-                                      destination: RoutePaths.designationPermissionsPath(designation.id!),
-                                      onTap: () async {
-                                        await context.push(RoutePaths.designationPermissionsPath(designation.id!));
-                                        if (context.mounted) {
-                                          context
-                                              .read<DesignationCubit>()
-                                              .fetchAll();
-                                        }
-                                      },
-                                      usePush: true,
-                                      enableInkWell: false,
-                                      child: Icon(
-                                        Icons.edit_outlined,
-                                        size: 14.sp,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-
-                                    SizedBox(width: 0.5.w),
-
-                                    /// 🗑 Delete
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final confirmed = await showDialog<bool>(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            backgroundColor: AppColors.white,
-                                            title: const Text(
-                                              'Delete Designation',
-                                            ),
-                                            content: Text(
-                                              'Are you sure you want to delete "${designation.designationName}"?',
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(ctx, false),
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                    Navigator.pop(ctx, true);
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(
-                                                        backgroundColor: AppColors.red,
-                                                        content: Text('Designation "${designation.designationName}" deleted!'),
-                                                      ),
-                                                    );
-                                                    },
-                                                style: TextButton.styleFrom(
-                                                  foregroundColor: Colors.red,
-                                                ),
-                                                child: const Text('Delete'),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-
-                                        if (confirmed == true &&
-                                            context.mounted) {
-                                          context
-                                              .read<DesignationCubit>()
-                                              .deleteDesignation(
-                                                designation.id!,
-                                              );
-                                        }
-                                        },
-
-                                      child: Icon(
-                                        Icons.delete_outline,
-                                        size: 14.sp,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ];
-                          }).toList();
-
-                          return Column(
-                            children: [
-                              CustomTable(
-                                columns: [
-                                  TableColumn(title: "Sl No.", flex: 1),
-                                  TableColumn(title: "Designation", flex: 4),
-                                  TableColumn(title: "Action", flex: 2),
-                                ],
-                                rows: rows,
-                              ),
-
-                              /// 🔹 FOOTER
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Showing $showFrom to $showTo of $totalCount entries",
-                                      style: AppTextStyle.medium(
-                                        weight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
-                                            totalCount,
-                                          ),
-                                        ),
-                                        ..._buildPageNumbers(
-                                          totalPages,
-                                          totalCount,
-                                        ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-
-                        /// ❌ Error UI
-                        if (state is DesignationError) {
-                          return Center(child: Text('Error: ${state.message}'));
-                        }
-
-                        /// 💤 Initial state
-                        return const SizedBox();
-                      },
-                    ),
-                  ],
-                ),
-              ),
+                /// 💤 Initial state
+                return const SizedBox();
+              },
             ),
+            // ],
+            // ),
+            // ),
+            // ),
           ],
         ),
       ),
