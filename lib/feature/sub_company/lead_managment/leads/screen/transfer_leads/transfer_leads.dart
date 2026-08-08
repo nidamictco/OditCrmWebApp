@@ -907,14 +907,14 @@ class _TransferLeadsState extends State<TransferLeads> {
                 .map((lead) => getPriorityColor(lead.priority))
                 .toList(),
             columns: [
-              TableColumn(title: "No.", width: 40),
-              TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Contact No.", flex: 3),
-              TableColumn(title: "Category", flex: 4),
-              TableColumn(title: "Staff", flex: 4),
-              TableColumn(title: "Status", flex: 4),
-              TableColumn(title: "Created Date", flex: 2),
-              TableColumn(title: "Select All", flex: 3),
+              TableColumn(title: "No."),
+              TableColumn(title: "Name"),
+              TableColumn(title: "Contact No."),
+              TableColumn(title: "Category"),
+              TableColumn(title: "Staff"),
+              TableColumn(title: "Status"),
+              TableColumn(title: "Created Date"),
+              TableColumn(title: "Select All"),
             ],
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;
@@ -976,7 +976,7 @@ class _TransferLeadsState extends State<TransferLeads> {
 
                 /// Action Buttons & Row Checkbox
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     /// View Icon Button
                     MouseRegion(

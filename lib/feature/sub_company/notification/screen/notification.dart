@@ -365,10 +365,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             // ── Table (unchanged) ─────────────────────
                             CustomTable(
                               columns: [
-                                TableColumn(title: '#', flex: 1),
-                                TableColumn(title: 'Title', flex: 4),
-                                TableColumn(title: 'Reminder', flex: 4),
-                                TableColumn(title: 'Created At', flex: 4),
+                                TableColumn(title: '#'),
+                                TableColumn(title: 'Title'),
+                                TableColumn(title: 'Reminder'),
+                                TableColumn(title: 'Created At'),
                               ],
                               rows: pagedList.asMap().entries.map((entry) {
                                  final index = entry.key;

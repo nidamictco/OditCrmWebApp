@@ -6,10 +6,8 @@ import 'table_checkbox.dart';
 
 class TableColumn {
   final String title;
-  final int flex;
-  final double? width;
 
-  TableColumn({required this.title, this.flex = 1, this.width});
+  const TableColumn({required this.title});
 }
 
 class CustomTable extends StatefulWidget {
@@ -48,12 +46,35 @@ class _CustomTableState extends State<CustomTable> {
   late List<bool> _checkedStates;
   final ScrollController _hScrollController = ScrollController();
 
+  // ── Cached column widths ──────────────────────────────────
+  List<double> _columnWidths = [];
+
+  // ── Column sizing constants ───────────────────────────────
+  static const double _kMinColWidth = 50.0;
+  static const double _kMaxColWidth = 400.0;
+  static const double _kCellPadding = 24.0;
+  static const double _kDateCellPadding =
+      44.0; // Extra breathing room for date/time columns
+  static const double _kFallbackWidth =
+      36.0; // Fallback for unknown action/custom widgets
+  static const double _kPriorityDotExtra = 22.0; // 8 dot + 8 spacing + 6 icon
+  static const double _kCheckboxExtraWidth = 30.0; // checkbox(18) + spacing(12)
+  static const double _kOuterHorizontalPadding = 16.0;
+
+  // Header text style (matches the header builder)
+  static final TextStyle _headerStyle = AppTextStyle.medium(
+    weight: FontWeight.w600,
+    fontSize: 11.5,
+    color: const Color(0xFF475569),
+  );
+
   @override
   void initState() {
     super.initState();
     _checkedStates = widget.initialCheckedStates != null
         ? List<bool>.from(widget.initialCheckedStates!)
         : List<bool>.filled(widget.rows.length, false);
+    _columnWidths = _computeColumnWidths();
   }
 
   @override
@@ -71,7 +92,252 @@ class _CustomTableState extends State<CustomTable> {
     } else if (widget.rows.length != _checkedStates.length) {
       _checkedStates = List<bool>.filled(widget.rows.length, false);
     }
+
+    // 🔹 Recompute widths only when columns or rows change
+    if (!_columnsEqual(oldWidget.columns, widget.columns) ||
+        oldWidget.rows.length != widget.rows.length ||
+        !identical(oldWidget.rows, widget.rows)) {
+      _columnWidths = _computeColumnWidths();
+    }
   }
+
+  bool _columnsEqual(List<TableColumn> a, List<TableColumn> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].title != b[i].title) return false;
+    }
+    return true;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // COLUMN WIDTH COMPUTATION
+  // ════════════════════════════════════════════════════════════
+
+  List<double> _computeColumnWidths() {
+    final int colCount = widget.columns.length;
+    if (colCount == 0) return [];
+
+    final bool hasPriority = widget.priorityColors != null;
+    final int nameColIdx = _nameColumnIndex;
+
+    final List<double> widths = List<double>.filled(colCount, 0.0);
+
+    for (int col = 0; col < colCount; col++) {
+      final column = widget.columns[col];
+      final String titleLower = column.title.toLowerCase();
+      final bool isSelectAll = titleLower == 'select all';
+      final bool isNameCol = col == nameColIdx;
+      final bool isDateCol =
+          titleLower.contains('date') ||
+          titleLower.contains('time') ||
+          titleLower.contains('followup') ||
+          titleLower.contains('called');
+
+      // ── Measure header text ────────────────────────────────
+      double headerWidth = _measureTextWidth(column.title, _headerStyle);
+
+      // Account for extra header elements
+      if (isSelectAll) {
+        // "Select All" text + 8 spacing + checkbox(18)
+        headerWidth += 8 + 18;
+      } else if (isNameCol && hasPriority) {
+        // priority icon(12) + 6 spacing
+        headerWidth += 12 + 6;
+      }
+
+      double maxCellWidth = headerWidth;
+
+      // ── Measure each row's cell ────────────────────────────
+      for (int row = 0; row < widget.rows.length; row++) {
+        if (col >= widget.rows[row].length) continue;
+
+        double cellWidth = _measureWidget(widget.rows[row][col]);
+
+        // Account for priority dot in name column
+        if (isNameCol && hasPriority) {
+          cellWidth += _kPriorityDotExtra;
+        }
+
+        // Account for checkbox in select-all column
+        if (isSelectAll && widget.showCheckboxes) {
+          cellWidth += _kCheckboxExtraWidth;
+        }
+
+        if (cellWidth > maxCellWidth) {
+          maxCellWidth = cellWidth;
+        }
+      }
+
+      // Add padding and clamp (use extra padding for date/time columns)
+      final double padding = isDateCol ? _kDateCellPadding : _kCellPadding;
+      widths[col] = (maxCellWidth + padding).clamp(
+        _kMinColWidth,
+        _kMaxColWidth,
+      );
+    }
+
+    return widths;
+  }
+
+  /// Recursively measure the approximate intrinsic width of a widget.
+  double _measureWidget(Widget widget) {
+    if (widget is Text) {
+      final String text = widget.data ?? widget.textSpan?.toPlainText() ?? '';
+      final TextStyle style =
+          widget.style ?? AppTextStyle.medium(fontSize: 11.5);
+      return _measureTextWidth(text, style);
+    }
+
+    if (widget is Row) {
+      double total = 0;
+      for (final child in widget.children) {
+        if (child is Expanded || child is Flexible) {
+          // Measure the inner child of Expanded/Flexible
+          final innerChild = child is Expanded
+              ? child.child
+              : (child as Flexible).child;
+          total += _measureWidget(innerChild);
+        } else if (child is SizedBox) {
+          total +=
+              child.width ?? _measureWidget(child.child ?? const SizedBox());
+        } else {
+          total += _measureWidget(child);
+        }
+      }
+      // Account for mainAxisAlignment spacing (approximate)
+      if (widget.children.length > 1) {
+        total += (widget.children.length - 1) * 4;
+      }
+      return total;
+    }
+
+    if (widget is Icon) {
+      return (widget.size ?? 24.0);
+    }
+
+    if (widget is IconButton) {
+      return (widget.iconSize ?? 24.0) + 16; // icon + padding
+    }
+
+    if (widget is SizedBox) {
+      if (widget.width != null) return widget.width!;
+      if (widget.child != null) return _measureWidget(widget.child!);
+      return 0;
+    }
+
+    if (widget is Container) {
+      if (widget.constraints?.maxWidth != null &&
+          widget.constraints!.maxWidth != double.infinity) {
+        return widget.constraints!.maxWidth;
+      }
+      // Check for explicit width through BoxConstraints
+      final padding = widget.padding;
+      double extra = 0;
+      if (padding is EdgeInsets) {
+        extra = padding.left + padding.right;
+      } else if (padding is EdgeInsetsDirectional) {
+        extra = padding.start + padding.end;
+      }
+      if (widget.child != null) {
+        return _measureWidget(widget.child!) + extra;
+      }
+      // Fixed-size container (e.g. dot indicator)
+      if (widget.constraints?.maxWidth != null) {
+        return widget.constraints!.maxWidth + extra;
+      }
+      return _kFallbackWidth;
+    }
+
+    if (widget is Padding) {
+      double extra = 0;
+      final p = widget.padding;
+      if (p is EdgeInsets) {
+        extra = p.left + p.right;
+      } else if (p is EdgeInsetsDirectional) {
+        extra = p.start + p.end;
+      }
+      return (widget.child != null ? _measureWidget(widget.child!) : 0) + extra;
+    }
+
+    if (widget is GestureDetector) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is InkWell) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is MouseRegion) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is Tooltip) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is Center) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is Align) {
+      return widget.child != null
+          ? _measureWidget(widget.child!)
+          : _kFallbackWidth;
+    }
+
+    if (widget is Expanded) {
+      return _measureWidget(widget.child);
+    }
+
+    if (widget is Flexible) {
+      return _measureWidget(widget.child);
+    }
+
+    if (widget is BrowserAwareLink) {
+      return _measureWidget(widget.child);
+    }
+
+    if (widget is CircleAvatar) {
+      return (widget.radius ?? 20) * 2;
+    }
+
+    if (widget is AnimatedContainer) {
+      return _kFallbackWidth;
+    }
+
+    if (widget is CircularProgressIndicator) {
+      return 24;
+    }
+
+    // Fallback for any unknown widget
+    return _kFallbackWidth;
+  }
+
+  /// Measure the rendered pixel width of [text] using [style] via TextPainter.
+  double _measureTextWidth(String text, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // CHECKBOX / SELECT-ALL LOGIC (unchanged)
+  // ════════════════════════════════════════════════════════════
 
   /// 🔹 true = all checked, false = none, null = some (indeterminate)
   bool? get _isAllSelected {
@@ -105,58 +371,126 @@ class _CustomTableState extends State<CustomTable> {
     return -1;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget tableContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildHeader(),
-        const Divider(height: 1, color: Color(0xFFE2E8F0)),
-        if (widget.rows.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 6.h),
-            child: Center(
-              child: Text(
-                widget.emptyMessage,
-                style: AppTextStyle.medium(color: Colors.grey),
-              ),
-            ),
-          )
-        else
-          ..._buildRows(),
-      ],
+  /// Calculates display column widths. If available width exceeds computed content width,
+  /// columns are scaled up proportionally to fit the container without shrinking.
+  /// Uses precise floor allocation to ensure the sum of column widths matches contentAvailableWidth
+  /// exactly down to the pixel, avoiding sub-pixel RenderFlex overflows.
+  List<double> _getDisplayColumnWidths(double availableWidth) {
+    if (_columnWidths.isEmpty) return [];
+
+    final double outerPadding = _kOuterHorizontalPadding * 2;
+    final double contentAvailableWidth = availableWidth - outerPadding;
+
+    final double totalContentWidth = _columnWidths.fold(
+      0.0,
+      (sum, w) => sum + w,
     );
 
-    if (widget.minWidth != null) {
-      tableContent = Scrollbar(
-        controller: _hScrollController,
-        thumbVisibility: true,
-        child: SingleChildScrollView(
-          controller: _hScrollController,
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(width: widget.minWidth, child: tableContent),
-        ),
-      );
+    if (contentAvailableWidth > totalContentWidth && totalContentWidth > 0) {
+      final double scale = contentAvailableWidth / totalContentWidth;
+      final List<double> scaled = [];
+      double allocated = 0.0;
+
+      for (int i = 0; i < _columnWidths.length - 1; i++) {
+        final double w = (_columnWidths[i] * scale).floorToDouble();
+        scaled.add(w);
+        allocated += w;
+      }
+      // Assign the exact remaining pixels to the last column
+      final double lastColWidth =
+          (contentAvailableWidth - allocated).clamp(
+            _kMinColWidth,
+            double.infinity,
+          ) +
+          5;
+      scaled.add(lastColWidth);
+      return scaled;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: tableContent,
-      ),
+    return List<double>.from(_columnWidths);
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // BUILD
+  // ════════════════════════════════════════════════════════════
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double parentWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width;
+
+        final List<double> displayWidths = _getDisplayColumnWidths(parentWidth);
+
+        final double totalTableWidth = displayWidths.fold(
+          _kOuterHorizontalPadding * 2,
+          (sum, w) => sum + w,
+        );
+
+        final double effectiveWidth =
+            widget.minWidth != null && widget.minWidth! > totalTableWidth
+            ? widget.minWidth!
+            : totalTableWidth;
+
+        Widget tableContent = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(displayWidths),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            if (widget.rows.isEmpty)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h),
+                child: Center(
+                  child: Text(
+                    widget.emptyMessage,
+                    style: AppTextStyle.medium(color: Colors.grey),
+                  ),
+                ),
+              )
+            else
+              ..._buildRows(displayWidths),
+          ],
+        );
+
+        final bool needsScroll = effectiveWidth > parentWidth + 1.0;
+
+        if (needsScroll) {
+          tableContent = Scrollbar(
+            controller: _hScrollController,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _hScrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(width: effectiveWidth, child: tableContent),
+            ),
+          );
+        } else {
+          tableContent = SizedBox(width: parentWidth, child: tableContent);
+        }
+
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: tableContent,
+          ),
+        );
+      },
     );
   }
 
   /// 🔹 HEADER
-  Widget _buildHeader() {
+  Widget _buildHeader(List<double> columnWidths) {
     final bool hasPriority = widget.priorityColors != null;
     final int nameColIdx = _nameColumnIndex;
 
@@ -165,7 +499,10 @@ class _CustomTableState extends State<CustomTable> {
         color: Color(0xFFF8FAFC),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      padding: EdgeInsets.only(top: 1.8.h, bottom: 1.8.h, right: 20, left: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: _kOuterHorizontalPadding,
+        vertical: 14,
+      ),
       child: Row(
         children: [
           // Regular column headers
@@ -181,12 +518,12 @@ class _CustomTableState extends State<CustomTable> {
               cellChild = Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    col.title,
-                    style: AppTextStyle.medium(
-                      weight: FontWeight.w600,
-                      fontSize: 11.5,
-                      color: const Color(0xFF475569),
+                  Flexible(
+                    child: Text(
+                      col.title,
+                      style: _headerStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -209,12 +546,12 @@ class _CustomTableState extends State<CustomTable> {
                     color: Color(0xFF94A3B8),
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    col.title,
-                    style: AppTextStyle.medium(
-                      weight: FontWeight.w600,
-                      fontSize: 11.5,
-                      color: const Color(0xFF475569),
+                  Flexible(
+                    child: Text(
+                      col.title,
+                      style: _headerStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -223,19 +560,25 @@ class _CustomTableState extends State<CustomTable> {
               // Normal header
               cellChild = Text(
                 col.title,
-                style: AppTextStyle.medium(
-                  weight: FontWeight.w600,
-                  fontSize: 11.5,
-                  color: const Color(0xFF475569),
-                ),
+                style: _headerStyle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               );
             }
 
-            if (col.width != null) {
-              return SizedBox(width: col.width, child: cellChild);
-            }
+            final double colWidth = index < columnWidths.length
+                ? columnWidths[index]
+                : _kFallbackWidth;
 
-            return Expanded(flex: col.flex, child: cellChild);
+            return SizedBox(
+              width: colWidth,
+              child: Align(
+                alignment: isSelectAll
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: cellChild,
+              ),
+            );
           }),
         ],
       ),
@@ -243,7 +586,7 @@ class _CustomTableState extends State<CustomTable> {
   }
 
   /// ROWS
-  List<Widget> _buildRows() {
+  List<Widget> _buildRows(List<double> columnWidths) {
     final int nameColIdx = _nameColumnIndex;
 
     return List.generate(widget.rows.length, (rowIndex) {
@@ -255,7 +598,10 @@ class _CustomTableState extends State<CustomTable> {
       final bool hasDot = dotColor != Colors.transparent;
 
       final childWidget = Container(
-        padding: EdgeInsets.only(top: 1.h, bottom: 1.h, left: 1.w, right: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: _kOuterHorizontalPadding,
+          vertical: 10,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
@@ -294,7 +640,7 @@ class _CustomTableState extends State<CustomTable> {
                 cellChild = Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    widget.rows[rowIndex][colIndex],
+                    Expanded(child: widget.rows[rowIndex][colIndex]),
                     const SizedBox(width: 12),
                     buildRoundedCheckbox(
                       value: _checkedStates[rowIndex],
@@ -315,18 +661,19 @@ class _CustomTableState extends State<CustomTable> {
                 cellChild = widget.rows[rowIndex][colIndex];
               }
 
-              final cellContent = Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(right: 10),
-                // color: Colors.yellow,
-                child: cellChild,
+              final double colWidth = colIndex < columnWidths.length
+                  ? columnWidths[colIndex]
+                  : _kFallbackWidth;
+
+              return SizedBox(
+                width: colWidth,
+                child: ClipRect(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: cellChild,
+                  ),
+                ),
               );
-
-              if (col.width != null) {
-                return SizedBox(width: col.width, child: cellContent);
-              }
-
-              return Expanded(flex: col.flex, child: cellContent);
             }),
           ],
         ),

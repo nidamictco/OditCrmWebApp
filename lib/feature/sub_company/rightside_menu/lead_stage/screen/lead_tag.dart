@@ -477,10 +477,10 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(title: "Lead Tag", flex: 4),
-                                    TableColumn(title: "Created By", flex: 4),
-                                    TableColumn(title: "Action", flex: 2),
+                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "Lead Tag"),
+                                    TableColumn(title: "Created By"),
+                                    TableColumn(title: "Action"),
                                   ],
                                   rows: pagedList.asMap().entries.map((entry) {
                                     final index = entry.key;

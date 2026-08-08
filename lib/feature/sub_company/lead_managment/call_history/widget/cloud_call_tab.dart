@@ -1,4 +1,4 @@
-﻿import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/utils/dropdown.dart';
 import '../../../../../core/utils/input_date.dart';
@@ -108,16 +108,16 @@ Expanded(
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "Sl No.", flex: 1),
-              TableColumn(title: "Staff", flex: 4),
-              TableColumn(title: "From Phone", flex: 4),
-              TableColumn(title: "To Phone", flex: 4),
-              TableColumn(title: "Date", flex: 4),
-              TableColumn(title: "Time", flex: 4),
-              TableColumn(title: "Duration", flex: 4),
-              TableColumn(title: "Call Status", flex: 4),
-              TableColumn(title: "Call Direction", flex: 4),
-              TableColumn(title: "Call Record", flex: 4),
+              TableColumn(title: "Sl No."),
+              TableColumn(title: "Staff"),
+              TableColumn(title: "From Phone"),
+              TableColumn(title: "To Phone"),
+              TableColumn(title: "Date"),
+              TableColumn(title: "Time"),
+              TableColumn(title: "Duration"),
+              TableColumn(title: "Call Status"),
+              TableColumn(title: "Call Direction"),
+              TableColumn(title: "Call Record"),
             ],
             rows:
                 [

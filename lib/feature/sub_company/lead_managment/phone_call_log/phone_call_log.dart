@@ -197,15 +197,15 @@ class _PhoneCallLogState extends State<PhoneCallLog> {
                       child: CustomTable(
                         columns: [
                           // TableColumn(title: "", flex: 1),
-                          TableColumn(title: "Sl No.", flex: 1),
-                          TableColumn(title: "Name", flex: 4),
-                          TableColumn(title: "Phone No", flex: 4),
-                          TableColumn(title: "Duration", flex: 4),
-                          TableColumn(title: "Call Type", flex: 4),
-                          TableColumn(title: "Sim", flex: 4),
-                          TableColumn(title: "Time", flex: 4),
-                          TableColumn(title: "User", flex: 4),
-                          TableColumn(title: "Action", flex: 2),
+                          TableColumn(title: "Sl No."),
+                          TableColumn(title: "Name"),
+                          TableColumn(title: "Phone No"),
+                          TableColumn(title: "Duration"),
+                          TableColumn(title: "Call Type"),
+                          TableColumn(title: "Sim"),
+                          TableColumn(title: "Time"),
+                          TableColumn(title: "User"),
+                          TableColumn(title: "Action"),
                         ],
                         rows:
                             [

@@ -424,13 +424,10 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(
-                                      title: "Category Name",
-                                      flex: 4,
-                                    ),
-                                    TableColumn(title: "Created By", flex: 4),
-                                    TableColumn(title: "Action", flex: 2),
+                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "Category Name"),
+                                    TableColumn(title: "Created By"),
+                                    TableColumn(title: "Action"),
                                   ],
                                   rows: pagedList.asMap().entries.map((entry) {
                                     final index = entry.key;

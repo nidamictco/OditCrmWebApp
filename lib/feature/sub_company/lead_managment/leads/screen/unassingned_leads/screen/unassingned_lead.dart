@@ -510,19 +510,13 @@ class _UnassingnedLeadState extends State<UnassingnedLead> {
                                     });
                                   },
                                   columns: [
-                                    TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(title: "Name", flex: 4),
-                                    TableColumn(
-                                      title: "Contact Number",
-                                      flex: 4,
-                                    ),
-                                    TableColumn(
-                                      title: "Lead Category",
-                                      flex: 4,
-                                    ),
-                                    TableColumn(title: "Lead Status", flex: 4),
-                                    TableColumn(title: "Created Date", flex: 4),
-                                    TableColumn(title: "Action", flex: 2),
+                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "Name"),
+                                    TableColumn(title: "Contact Number"),
+                                    TableColumn(title: "Lead Category"),
+                                    TableColumn(title: "Lead Status"),
+                                    TableColumn(title: "Created Date"),
+                                    TableColumn(title: "Action"),
                                   ],
                                   rows: pagedList.asMap().entries.map((entry) {
                                     final index = entry.key;

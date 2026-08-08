@@ -1019,15 +1019,15 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               });
             },
             columns: [
-              TableColumn(title: "No.", width: 40),
-              TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Contact No.", flex: 4),
-              TableColumn(title: "Lead Category", flex: 4),
-              TableColumn(title: "Assigned Staff", flex: 4),
-              TableColumn(title: "Lead Status", flex: 4),
-              TableColumn(title: "Deleted Date", flex: 4),
-              TableColumn(title: "Deleted By", flex: 4),
-              TableColumn(title: "Select All", flex: 4),
+              TableColumn(title: "No."),
+              TableColumn(title: "Name"),
+              TableColumn(title: "Contact No."),
+              TableColumn(title: "Lead Category"),
+              TableColumn(title: "Assigned Staff"),
+              TableColumn(title: "Lead Status"),
+              TableColumn(title: "Deleted Date"),
+              TableColumn(title: "Deleted By"),
+              TableColumn(title: "Select All"),
             ],
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;

@@ -103,12 +103,12 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
                       child: CustomTable(
                         columns: [
                           // TableColumn(title: "", flex: 1),
-                          TableColumn(title: "Sl No.", flex: 1),
-                          TableColumn(title: "Staff", flex: 4),
-                          TableColumn(title: "To Phone", flex: 4),
-                          TableColumn(title: "Date", flex: 4),
-                          TableColumn(title: "Event ID ", flex: 4),
-                          TableColumn(title: "Response", flex: 4),
+                          TableColumn(title: "Sl No."),
+                          TableColumn(title: "Staff"),
+                          TableColumn(title: "To Phone"),
+                          TableColumn(title: "Date"),
+                          TableColumn(title: "Event ID "),
+                          TableColumn(title: "Response"),
                         ],
                         rows:
                             [

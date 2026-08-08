@@ -59,26 +59,26 @@ class _CloudCallSettingsScreenState extends State<CloudCallSettingsScreen>
   }
 
   List<TableColumn> get _cloudCallColumns => [
-    TableColumn(title: '#', flex: 1),
-    TableColumn(title: 'Provider', flex: 2),
-    TableColumn(title: 'CallerID', flex: 2),
-    TableColumn(title: 'ChannelID', flex: 2),
-    TableColumn(title: 'User', flex: 2),
-    TableColumn(title: 'Lead Category', flex: 3),
-    TableColumn(title: 'Lead Sub category', flex: 3),
-    TableColumn(title: 'Action', flex: 2),
+    TableColumn(title: '#'),
+    TableColumn(title: 'Provider'),
+    TableColumn(title: 'CallerID'),
+    TableColumn(title: 'ChannelID'),
+    TableColumn(title: 'User'),
+    TableColumn(title: 'Lead Category'),
+    TableColumn(title: 'Lead Sub category'),
+    TableColumn(title: 'Action'),
   ];
 
   List<TableColumn> get _ivrColumns => [
-    TableColumn(title: '#', flex: 1),
-    TableColumn(title: 'Provider', flex: 3),
-    TableColumn(title: 'Caller Id', flex: 3),
-    TableColumn(title: 'UID', flex: 2),
-    TableColumn(title: 'PIN', flex: 2),
-    TableColumn(title: 'Ext No', flex: 2),
-    TableColumn(title: 'Staff', flex: 2),
-    TableColumn(title: 'Type', flex: 2),
-    TableColumn(title: 'Action', flex: 2),
+    TableColumn(title: '#'),
+    TableColumn(title: 'Provider'),
+    TableColumn(title: 'Caller Id'),
+    TableColumn(title: 'UID'),
+    TableColumn(title: 'PIN'),
+    TableColumn(title: 'Ext No'),
+    TableColumn(title: 'Staff'),
+    TableColumn(title: 'Type'),
+    TableColumn(title: 'Action'),
   ];
 
   List<List<Widget>> _buildBonvoiceRows(

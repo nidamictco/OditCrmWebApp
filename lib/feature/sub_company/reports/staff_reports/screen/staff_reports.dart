@@ -245,11 +245,11 @@ class _StaffReportsState extends State<StaffReports> {
                                   );
                                 },
                                 columns: [
-                                  TableColumn(title: "Sl No.", flex: 1),
-                                  TableColumn(title: "Name", flex: 4),
-                                  TableColumn(title: "Phone Number", flex: 4),
-                                  TableColumn(title: "Designation", flex: 4),
-                                  TableColumn(title: "Action", flex: 2),
+                                  TableColumn(title: "Sl No."),
+                                  TableColumn(title: "Name"),
+                                  TableColumn(title: "Phone Number"),
+                                  TableColumn(title: "Designation"),
+                                  TableColumn(title: "Action"),
                                 ],
                                 rows: pagedList.asMap().entries.map((entry) {
                                   final index = entry.key;
