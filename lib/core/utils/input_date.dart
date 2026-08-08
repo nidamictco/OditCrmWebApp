@@ -198,8 +198,8 @@ class _InputDateState extends State<InputDate> {
       children: [
         Text(
           widget.label,
-          style: AppTextStyle.small(
-            size: 11.sp,
+          style: AppTextStyle.medium(
+            size: 11.5,
             color: AppColors.black,
             weight: FontWeight.w500,
           ),
@@ -227,8 +227,8 @@ class _InputDateState extends State<InputDate> {
                   child: Text(
                     _displayText,
                     style: AppTextStyle.small(
-                      size: 11.sp,
-                      color: AppColors.black,
+                      size: 11.5,
+                      color: AppColors.grey,
                       weight: FontWeight.w400,
                     ),
                   ),

@@ -1700,7 +1700,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     child: Text(
                       'Clear All',
                       style: AppTextStyle.small(
-                        size: 10.sp,
+                        size: 11,
                         color: const Color(0xFFEF4444),
                         weight: FontWeight.w500,
                       ),
@@ -1726,7 +1726,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     child: Text(
                       "View",
                       style: AppTextStyle.small(
-                        size: 10.sp,
+                        size: 11,
                         color: Colors.white,
                         weight: FontWeight.w500,
                       ),
@@ -1795,16 +1795,28 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           color: AppTheme.textSecondary,
         );
 
+        // final columns = [
+        //   TableColumn(title: 'No.', width: 70),
+        //   TableColumn(title: 'NAME', width: 200),
+        //   TableColumn(title: 'CONTACT NO.', width: 100),
+        //   TableColumn(title: 'LEAD CATEGORY', width: 250),
+        //   TableColumn(title: 'STAFF', width: 150),
+        //   TableColumn(title: 'STATUS', width: 150),
+        //   if (!isNew) TableColumn(title: 'FOLLOWUP DATE', width: 150),
+        //   if (!isNew) TableColumn(title: 'CALLED DATE', width: 150),
+        //   TableColumn(title: 'SELECT ALL', width: 150),
+        // ];
+
         final columns = [
-          TableColumn(title: 'No.', flex: 1),
-          TableColumn(title: 'NAME', flex: 4),
-          TableColumn(title: 'CONTACT NO.', flex: 3),
-          TableColumn(title: 'LEAD CATEGORY', flex: 4),
-          TableColumn(title: 'STAFF', flex: 4),
-          TableColumn(title: 'STATUS', flex: 4),
-          if (!isNew) TableColumn(title: 'FOLLOWUP DATE', flex: 3),
-          if (!isNew) TableColumn(title: 'CALLED DATE', flex: 3),
-          TableColumn(title: 'SELECT ALL', flex: 2),
+          TableColumn(title: 'No.', width: 50),
+          TableColumn(title: 'NAME'),
+          TableColumn(title: 'CONTACT NO.', width: 120),
+          TableColumn(title: 'LEAD CATEGORY'),
+          TableColumn(title: 'STAFF'),
+          TableColumn(title: 'STATUS'),
+          if (!isNew) TableColumn(title: 'FOLLOWUP DATE'),
+          if (!isNew) TableColumn(title: 'CALLED DATE'),
+          TableColumn(title: 'SELECT ALL'),
         ];
 
         final _fmt = DateFormat('dd-MM-yyyy hh:mm a');

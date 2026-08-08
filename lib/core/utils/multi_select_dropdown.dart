@@ -288,7 +288,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                       child: Text(
                                         'Select All',
                                         style: AppTextStyle.small(
-                                          size: 10.5.sp,
+                                          size: 11,
                                           color: AppColors.primary,
                                           weight: FontWeight.w600,
                                         ),
@@ -297,7 +297,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                     Text(
                                       '${_selected.length} selected',
                                       style: AppTextStyle.small(
-                                        size: 10.sp,
+                                        size: 10.5,
                                         color: AppColors.grey,
                                         weight: FontWeight.w600,
                                       ),
@@ -325,7 +325,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                         padding: EdgeInsets.all(2.h),
                                         child: Text(
                                           'No items found',
-                                          style: AppTextStyle.small(
+                                          style: AppTextStyle.medium(
                                             color: AppColors.grey,
                                           ),
                                         ),
@@ -401,7 +401,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                                         item,
                                                         style:
                                                             AppTextStyle.medium(
-                                                              size: 11.sp,
+                                                              size: 11.5,
                                                               weight: FontWeight
                                                                   .w400,
                                                               color: isChecked
@@ -444,7 +444,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
       children: [
         Row(
           children: [
-            Text(widget.label, style: AppTextStyle.medium(size: 11.sp)),
+            Text(widget.label, style: AppTextStyle.medium(size: 11.5)),
             if (widget.showHelp && widget.message != null)
               ToolTipWidget(message: widget.message!),
           ],
@@ -482,7 +482,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                             child: Text(
                               widget.hint,
                               style: AppTextStyle.small(
-                                size: 11.sp,
+                                size: 11.5,
                                 color: AppColors.grey,
                               ),
                             ),
@@ -516,7 +516,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                             child: Text(
                               _selected.join(', '),
                               style: AppTextStyle.small(
-                                size: 11.sp,
+                                size: 11.5,
                                 color: AppColors.black,
                                 weight: FontWeight.w400,
                               ),
@@ -556,7 +556,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
             padding: EdgeInsets.only(top: 0.3.h),
             child: Text(
               _errorText!,
-              style: AppTextStyle.small(size: 9.5.sp, color: AppColors.red),
+              style: AppTextStyle.medium(size: 10, color: AppColors.red),
             ),
           ),
       ],
@@ -595,7 +595,7 @@ class _SelectedChip extends StatelessWidget {
             child: Text(
               label,
               style: AppTextStyle.medium(
-                size: 10.sp,
+                size: 10.5,
                 weight: FontWeight.w500,
                 color: Colors.white,
               ),
