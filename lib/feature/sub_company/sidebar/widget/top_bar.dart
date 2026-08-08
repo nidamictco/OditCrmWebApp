@@ -360,6 +360,8 @@ class _TopBarState extends State<TopBar> {
             final isLeadListScreen =
                 location == RoutePaths.newLeads || location == '/leads';
             final isViewStaff = location == RoutePaths.viewStaff;
+            final isDesignation = location == RoutePaths.designation;
+            final isDeletedStaff = location == RoutePaths.deletedStaff;
 
             final breadcrumbs = _getBreadcrumbs(location, page ?? '');
 
@@ -410,45 +412,50 @@ class _TopBarState extends State<TopBar> {
                 const SizedBox(width: 12),
 
                 // Breadcrumbs: Parent Category / Current Category
-                Text(
-                  breadcrumbs.parent,
-                  style: AppTextStyle.medium(
-                    size: 11.5,
-                    color: breadcrumbs.current.isEmpty
-                        ? const Color(0xFF0F172A)
-                        : const Color(0xFFA9A9A9),
-                    weight: breadcrumbs.current.isEmpty
-                        ? FontWeight.w600
-                        : FontWeight.w400,
-                    letterSpacing: 0.2,
-                  ),
+                // Text(
+                //   breadcrumbs.parent,
+                //   style: AppTextStyle.medium(
+                //     size: 11.5,
+                //     color: breadcrumbs.current.isEmpty
+                //         ? const Color(0xFF0F172A)
+                //         : const Color(0xFFA9A9A9),
+                //     weight: breadcrumbs.current.isEmpty
+                //         ? FontWeight.w600
+                //         : FontWeight.w400,
+                //     letterSpacing: 0.2,
+                //   ),
+                // ),
+                // if (breadcrumbs.current.isNotEmpty) ...[
+                //   Text(
+                //     '  >>  ',
+                //     style: AppTextStyle.medium(
+                //       size: 11.5,
+                //       color: const Color(0xFFA9A9A9),
+                //       weight: FontWeight.w400,
+                //     ),
+                //   ),
+                //   Text(
+                //     breadcrumbs.current,
+                //     style: AppTextStyle.medium(
+                //       size: 11.5,
+                //       color: const Color(0xFF0F172A),
+                //       weight: FontWeight.w600,
+                //       letterSpacing: 0.2,
+                //     ),
+                //   ),
+                // Breadcrumbs: clickable parent segments, non-clickable current screen
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _buildBreadcrumbWidgets(context, breadcrumbs, location),
                 ),
-                if (breadcrumbs.current.isNotEmpty) ...[
-                  Text(
-                    '  >>  ',
-                    style: AppTextStyle.medium(
-                      size: 11.5,
-                      color: const Color(0xFFA9A9A9),
-                      weight: FontWeight.w400,
-                    ),
-                  ),
-                  Text(
-                    breadcrumbs.current,
-                    style: AppTextStyle.medium(
-                      size: 11.5,
-                      color: const Color(0xFF0F172A),
-                      weight: FontWeight.w600,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
+                // ],
 
                 const Spacer(),
 
                 // RIGHT SIDE: Search Box, Hamburger (Menu), Bell, Settings, Fullscreen
-                if (!isViewStaff) _buildSearchBox(),
-                if (_isSearchClicked && isViewStaff) _buildSearchBox(),
-                if (isViewStaff && !_isSearchClicked)
+                if (!isViewStaff && !isDesignation && !isDeletedStaff) _buildSearchBox(),
+                if (_isSearchClicked && (isViewStaff || isDesignation || isDeletedStaff)) _buildSearchBox(),
+                if (isViewStaff && !_isSearchClicked || isDesignation && !_isSearchClicked || isDeletedStaff && !_isSearchClicked)
                   InkWell(
                     onTap: _onSearchClicked,
                     child: Container(
@@ -976,11 +983,193 @@ String getPageName(String fromCard) {
   }
 }
 
+/// Inverse of getPageName — turns a Lead List breadcrumb label back into
+/// the `fromCard` code used to navigate to the correct filtered list.
+String? _getFromCardCode(String label) {
+  switch (label) {
+    case 'New Leads':
+      return 'NEW';
+    case 'Follow-up Leads':
+      return 'FOLLOWUP';
+    case 'Closed Leads':
+      return 'CLOSED';
+    case 'Total Called':
+      return 'TOTAL';
+    case 'Missed Leads':
+      return 'MISSED';
+    case 'Transferred Leads':
+      return 'TRANSFERRED';
+    default:
+      return null; // e.g. "Lead List" fallback — no specific card
+  }
+}
+
 class _BreadcrumbsData {
   final String parent;
   final String current;
 
   _BreadcrumbsData(this.parent, this.current);
+}
+
+// /// Maps a breadcrumb label to the route it should navigate to.
+// /// Returns null if there's no known "section root" for that label
+// /// (in which case it simply won't be made clickable).
+// String? _getBreadcrumbRoute(String label, String path) {
+//   switch (label.trim()) {
+//     case 'Dashboard':
+//       return RoutePaths.dashboard;
+//     case 'Lead List':
+//       return RoutePaths.newLeads;
+//     case 'Staff Management':
+//       return RoutePaths.viewStaff;
+//     case 'Designation':
+//       return RoutePaths.designation;
+//     case 'Lead Management':
+//       // Main/first screen of Lead Management — adjust if you have
+//       // a dedicated route for this vs. newLeads.
+//       return RoutePaths.addLead;
+//     case 'Reports':
+//       // Main/first Reports screen — adjust if you have a distinct
+//       // "reports home" route vs. staffReports.
+//       return RoutePaths.staffReports;
+//     default:
+//       return null;
+//   }
+// }
+
+/// Maps a breadcrumb label to the full destination (path + query params)
+/// it should navigate to. Returns null if there's no known destination
+/// for that label (in which case it simply won't be made clickable).
+String? _getBreadcrumbDestination(String label) {
+  // Lead List card breadcrumbs ("New Leads", "Missed Leads", etc.)
+  // must carry fromCard so they land back on the correct filtered list.
+  final fromCardCode = _getFromCardCode(label);
+  if (fromCardCode != null) {
+    return Uri(
+      path: RoutePaths.newLeads,
+      queryParameters: {'fromCard': fromCardCode},
+    ).toString();
+  }
+
+  switch (label.trim()) {
+    case 'Dashboard':
+      return RoutePaths.dashboard;
+    case 'Lead List':
+      // Fallback when fromCard was missing/empty — go to the list
+      // without forcing a specific card filter.
+      return RoutePaths.newLeads;
+    case 'Staff Management':
+      return RoutePaths.viewStaff;
+    case 'Designation':
+      return RoutePaths.designation;
+    case 'Lead Management':
+      return RoutePaths.addLead;
+    case 'Reports':
+      return RoutePaths.staffReports;
+    default:
+      return null;
+  }
+}
+
+// List<Widget> _buildBreadcrumbWidgets(
+//   BuildContext context,
+//   _BreadcrumbsData breadcrumbs,
+//   String path,
+// ) {
+//   // Handles both plain labels ("Staff Management") and multi-level
+//   // parents already produced by _getBreadcrumbs (e.g. "Staff Management >> Designation",
+//   // "Dashboard  >>  Lead List") without touching that logic.
+//   final List<String> parentSegments = breadcrumbs.parent
+//       .split(RegExp(r'\s*>>\s*'))
+//       .map((s) => s.trim())
+//       .where((s) => s.isNotEmpty)
+//       .toList();
+
+//   final List<String> allSegments = [
+//     ...parentSegments,
+//     if (breadcrumbs.current.isNotEmpty) breadcrumbs.current,
+//   ];
+
+//   final List<Widget> widgets = [];
+
+//   for (int i = 0; i < allSegments.length; i++) {
+//     final label = allSegments[i];
+//     final isLast = i == allSegments.length - 1;
+//     final route = isLast ? null : _getBreadcrumbRoute(label, path);
+
+//     widgets.add(
+//       _BreadcrumbItem(
+//         label: label,
+//         isCurrent: isLast,
+//         onTap: (!isLast && route != null) ? () => context.go(route) : null,
+//       ),
+//     );
+
+//     if (!isLast) {
+//       widgets.add(
+//         Text(
+//           '  >>  ',
+//           style: AppTextStyle.medium(
+//             size: 11.5,
+//             color: const Color(0xFFA9A9A9),
+//             weight: FontWeight.w400,
+//           ),
+//         ),
+//       );
+//     }
+//   }
+
+//   return widgets;
+// }
+
+List<Widget> _buildBreadcrumbWidgets(
+  BuildContext context,
+  _BreadcrumbsData breadcrumbs,
+  String path,
+) {
+  final List<String> parentSegments = breadcrumbs.parent
+      .split(RegExp(r'\s*>>\s*'))
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
+
+  final List<String> allSegments = [
+    ...parentSegments,
+    if (breadcrumbs.current.isNotEmpty) breadcrumbs.current,
+  ];
+
+  final List<Widget> widgets = [];
+
+  for (int i = 0; i < allSegments.length; i++) {
+    final label = allSegments[i];
+    final isLast = i == allSegments.length - 1;
+    final destination = isLast ? null : _getBreadcrumbDestination(label);
+
+    widgets.add(
+      _BreadcrumbItem(
+        label: label,
+        isCurrent: isLast,
+        onTap: (!isLast && destination != null)
+            ? () => context.go(destination)
+            : null,
+      ),
+    );
+
+    if (!isLast) {
+      widgets.add(
+        Text(
+          '  >>  ',
+          style: AppTextStyle.medium(
+            size: 11.5,
+            color: const Color(0xFFA9A9A9),
+            weight: FontWeight.w400,
+          ),
+        ),
+      );
+    }
+  }
+
+  return widgets;
 }
 
 _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
@@ -1061,15 +1250,23 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
   }
 
   // Parameterized routes check
+  // if (path.contains('/leads/edit/')) {
+  //   return _BreadcrumbsData('Lead Management', 'Edit Lead');
+  // }
   if (path.contains('/leads/edit/')) {
-    return _BreadcrumbsData('Lead Management', 'Edit Lead');
+    final cardLabel = fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
+    return _BreadcrumbsData('Dashboard >> $cardLabel', 'Edit Lead');
   }
   if (path.contains('/staff/edit/')) {
     return _BreadcrumbsData('Staff Management', 'Edit Staff');
   }
+  // if (path.contains('/follow_up/')) {
+  //   return _BreadcrumbsData('Dashboard  >>  Lead List', 'Follow Up Details');
+  // }
   if (path.contains('/follow_up/')) {
-    return _BreadcrumbsData('Dashboard  >>  Lead List', 'Follow Up Details');
-  }
+  final cardLabel = fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
+  return _BreadcrumbsData('Dashboard >> $cardLabel', 'Follow Up Details');
+}
   if (path.contains('/staff/') && path.contains('/change_password')) {
     return _BreadcrumbsData('Staff Management', 'Change Password');
   }
@@ -1108,6 +1305,63 @@ if (path.contains('/designations/') && path.contains('/permissions')) {
 
   return _BreadcrumbsData('Pages', 'Odit CRM');
 }
+
+
+class _BreadcrumbItem extends StatefulWidget {
+  final String label;
+  final bool isCurrent;
+  final VoidCallback? onTap;
+
+  const _BreadcrumbItem({
+    required this.label,
+    required this.isCurrent,
+    this.onTap,
+  });
+
+  @override
+  State<_BreadcrumbItem> createState() => _BreadcrumbItemState();
+}
+
+class _BreadcrumbItemState extends State<_BreadcrumbItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isClickable = widget.onTap != null;
+
+    final Color baseColor = widget.isCurrent
+        ? const Color(0xFF0F172A)
+        : const Color(0xFFA9A9A9);
+
+    final Color color = isClickable && _isHovered
+        ? const Color(0xFF0D3E6E)
+        : baseColor;
+
+    final Widget text = Text(
+      widget.label,
+      style: AppTextStyle.medium(
+        size: 11.5,
+        color: color,
+        weight: widget.isCurrent ? FontWeight.w600 : FontWeight.w400,
+        letterSpacing: 0.2,
+      ).copyWith(
+        decoration: isClickable && _isHovered
+            ? TextDecoration.underline
+            : TextDecoration.none,
+      ),
+    );
+
+    if (!isClickable) return text;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(onTap: widget.onTap, child: text),
+    );
+  }
+}
+
 
 class _TopBarIconButton extends StatefulWidget {
   final IconData icon;
