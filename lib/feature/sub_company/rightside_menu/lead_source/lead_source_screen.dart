@@ -465,10 +465,10 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No.", flex: 1),
-                                    TableColumn(title: "Lead Source", flex: 4),
-                                    TableColumn(title: "Created By", flex: 4),
-                                    TableColumn(title: "Action", flex: 2),
+                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "Lead Source"),
+                                    TableColumn(title: "Created By"),
+                                    TableColumn(title: "Action"),
                                   ],
                                   rows: pagedList.asMap().entries.map((entry) {
                                     final index = entry.key;

@@ -307,9 +307,9 @@ class _AdditionalFieldsSectionState extends State<AdditionalFieldsSection> {
                           return SizedBox(
                             child: CustomTable(
                               columns: [
-                                TableColumn(title: "Sl No.", flex: 1),
-                                TableColumn(title: "Field Name", flex: 4),
-                                TableColumn(title: "Action", flex: 2),
+                                TableColumn(title: "Sl No."),
+                                TableColumn(title: "Field Name"),
+                                TableColumn(title: "Action"),
                               ],
                               rows: rows.asMap().entries.map((entry) {
                                 final index = entry.key;

@@ -353,9 +353,9 @@ class _DesignationScreenState extends State<DesignationScreen> {
                         children: [
                           CustomTable(
                             columns: [
-                              TableColumn(title: "Sl No.", flex: 1),
-                              TableColumn(title: "Designation", flex: 4),
-                              TableColumn(title: "Action", flex: 2),
+                              TableColumn(title: "Sl No."),
+                              TableColumn(title: "Designation"),
+                              TableColumn(title: "Action"),
                             ],
                             rows: rows,
                           ),

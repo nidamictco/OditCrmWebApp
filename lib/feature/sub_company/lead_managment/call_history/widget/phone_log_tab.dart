@@ -1,4 +1,4 @@
-﻿import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -82,14 +82,14 @@ SizedBox(width: 2.w),
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "Sl No.", flex: 1),
-              TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Phone", flex: 4),
-              TableColumn(title: "Duration", flex: 4),
-              TableColumn(title: "Call Type", flex: 4),
-              TableColumn(title: "Sim", flex: 4),
-              TableColumn(title: "Time", flex: 4),
-              TableColumn(title: "User", flex: 4),
+              TableColumn(title: "Sl No."),
+              TableColumn(title: "Name"),
+              TableColumn(title: "Phone"),
+              TableColumn(title: "Duration"),
+              TableColumn(title: "Call Type"),
+              TableColumn(title: "Sim"),
+              TableColumn(title: "Time"),
+              TableColumn(title: "User"),
             ],
             rows:
                 [

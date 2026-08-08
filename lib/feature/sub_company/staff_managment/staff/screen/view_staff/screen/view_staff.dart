@@ -595,15 +595,15 @@ class _ViewStaffState extends State<ViewStaff> {
               context.push(RoutePaths.staffProfilePath(staff.id!));
             },
             columns: [
-              TableColumn(title: "No.", flex: 1),
-              TableColumn(title: "Name", flex: 4),
-              TableColumn(title: "Designation", flex: 4),
-              TableColumn(title: "Staff Type", flex: 4),
-              TableColumn(title: "Contact No.", flex: 3),
-              TableColumn(title: "Created Date", flex: 3),
-              TableColumn(title: "Joining Date", flex: 3),
-              TableColumn(title: "Status", flex: 3),
-              TableColumn(title: "Action", flex: 2),
+              TableColumn(title: "No."),
+              TableColumn(title: "Name"),
+              TableColumn(title: "Designation"),
+              TableColumn(title: "Staff Type"),
+              TableColumn(title: "Contact No."),
+              TableColumn(title: "Created Date"),
+              TableColumn(title: "Joining Date"),
+              TableColumn(title: "Status"),
+              TableColumn(title: "Action"),
             ],
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;

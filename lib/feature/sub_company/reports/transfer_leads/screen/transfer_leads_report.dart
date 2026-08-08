@@ -644,25 +644,13 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                     child: CustomTable(
                                       key: ValueKey(_tableKey),
                                       columns: [
-                                        TableColumn(title: "Sl No.", flex: 1),
-                                        TableColumn(title: "Name", flex: 4),
-                                        TableColumn(
-                                          title: "Contact Number",
-                                          flex: 4,
-                                        ),
-                                        TableColumn(
-                                          title: "From Staff",
-                                          flex: 4,
-                                        ),
-                                        TableColumn(title: "To Staff", flex: 4),
-                                        TableColumn(
-                                          title: "Lead Category",
-                                          flex: 4,
-                                        ),
-                                        TableColumn(
-                                          title: "Transfer Date",
-                                          flex: 4,
-                                        ),
+                                        TableColumn(title: "Sl No."),
+                                        TableColumn(title: "Name"),
+                                        TableColumn(title: "Contact Number"),
+                                        TableColumn(title: "From Staff"),
+                                        TableColumn(title: "To Staff"),
+                                        TableColumn(title: "Lead Category"),
+                                        TableColumn(title: "Transfer Date"),
                                       ],
                                       rows: pagedList.asMap().entries.map((
                                         entry,

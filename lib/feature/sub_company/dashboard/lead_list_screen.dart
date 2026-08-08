@@ -1808,9 +1808,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
         // ];
 
         final columns = [
-          TableColumn(title: 'No.', width: 50),
+          TableColumn(title: 'No.'),
           TableColumn(title: 'NAME'),
-          TableColumn(title: 'CONTACT NO.', width: 120),
+          TableColumn(title: 'CONTACT NO.'),
           TableColumn(title: 'LEAD CATEGORY'),
           TableColumn(title: 'STAFF'),
           TableColumn(title: 'STATUS'),
@@ -1907,7 +1907,17 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               ],
             ),
             // Status
-            SizedBox(child: _StatusBadge(status: lead.leadStage)),
+            // SizedBox(child: _StatusBadge(status: lead.leadStage)),
+            Text(
+              lead.leadStage,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: getStageColor(lead.leadStage),
+                letterSpacing: 0.2,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
 
             if (!isNew)
               Text(
@@ -1924,7 +1934,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
               ),
             // Actions
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 // BrowserAwareLink(
                 //   destination: RoutePaths.followUpPath(
@@ -1961,13 +1971,30 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   destination: RoutePaths.followUpPath(lead.id!, "NEW"),
                   usePush: true,
                   enableInkWell: false,
-                  child: Icon(
-                    Icons.visibility_outlined,
-                    size: 13.sp,
-                    color: Colors.indigo,
+                  child: Tooltip(
+                    message: 'View',
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        // color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: const Color(0xFF4E9CDB)),
+                      ),
+                      child: Image.asset(
+                        "assets/icon/eye.png",
+                        height: 13.sp,
+                        width: 13.sp,
+                        color: const Color(0xFF4E9CDB),
+                      ),
+                      // child: Icon(
+                      //   Icons.eye,
+                      //   size: 13.sp,
+                      //   color: const Color(0xFF4E9CDB),
+                      // ),
+                    ),
                   ),
                 ),
-                SizedBox(width: 0.1.h),
+                const SizedBox(width: 8),
                 BrowserAwareLink(
                   destination: RoutePaths.leadEditPath(lead.id!),
                   onTap: () async {
@@ -1980,14 +2007,54 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   },
                   usePush: true,
                   enableInkWell: false,
-                  child: Icon(Icons.edit, size: 14.sp, color: Colors.blue),
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: const Color(0xff3B82F6).withValues(alpha: 0.4),
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.edit,
+                        size: 13,
+                        color: const Color(0xff3B82F6),
+                      ),
+                    ),
+                  ),
                 ),
-                SizedBox(width: 0.1.w),
-                _ActionButton(
-                  icon: Icons.delete_rounded,
-                  color: AppColors.red,
-                  tooltip: 'Delete',
-                  onTap: () => _onDelete(lead),
+                const SizedBox(width: 8),
+                // _ActionButton(
+                //   icon: Icons.delete_rounded,
+                //   color: AppColors.red,
+                //   tooltip: 'Delete',
+                //   onTap: () => _onDelete(lead),
+                // ),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => _onDelete(lead),
+                    child: Tooltip(
+                      message: 'Delete',
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          // color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFFFCA5A5)),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 13.sp,
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

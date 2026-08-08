@@ -552,10 +552,10 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
               else
                 CustomTable(
                   columns: [
-                    TableColumn(title: 'File Type', flex: 4),
-                    TableColumn(title: 'FileName', flex: 4),
-                    TableColumn(title: 'Date Modified', flex: 4),
-                    TableColumn(title: 'Action', flex: 2),
+                    TableColumn(title: 'File Type'),
+                    TableColumn(title: 'FileName'),
+                    TableColumn(title: 'Date Modified'),
+                    TableColumn(title: 'Action'),
                   ],
                   rows: rows.map((row) {
                     return [

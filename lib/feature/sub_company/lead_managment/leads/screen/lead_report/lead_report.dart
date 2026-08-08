@@ -1804,22 +1804,22 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
   //       return const Color(0xff3B82F6);
   //   }
   // }
-  Color _getStatusColor(String stage) {
-    switch (stage.trim().toUpperCase()) {
-      case 'FOLLOWUP':
-        return const Color(0xFFF59E0B);
-      case 'NEW':
-        return const Color(0xFF10B981);
-      case 'TRANSFERRED':
-        return const Color(0xFF3B82F6);
-      case 'REJECTED':
-        return const Color(0xFFEF4444);
-      case 'CLOSED':
-        return const Color(0xFF0D31E8);
-      default:
-        return const Color(0xFF10B981);
-    }
-  }
+  // Color _getStatusColor(String stage) {
+  //   switch (stage.trim().toUpperCase()) {
+  //     case 'FOLLOWUP':
+  //       return const Color(0xFFF59E0B);
+  //     case 'NEW':
+  //       return const Color(0xFF10B981);
+  //     case 'TRANSFERRED':
+  //       return const Color(0xFF3B82F6);
+  //     case 'REJECTED':
+  //       return const Color(0xFFEF4444);
+  //     case 'CLOSED':
+  //       return const Color(0xFF0D31E8);
+  //     default:
+  //       return const Color(0xFF10B981);
+  //   }
+  // }
 
   Widget _buildActionButton({
     required IconData icon,
@@ -2150,7 +2150,7 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
                                   nameOf: (s) => s.name,
                                 ),
                                 style: AppTextStyle.medium(
-                                  color: _getStatusColor(lead.leadStage),
+                                  color: getStageColor(lead.leadStage),
                                   weight: FontWeight.w500,
                                   size: 11.sp,
                                 ),

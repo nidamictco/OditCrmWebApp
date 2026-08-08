@@ -800,32 +800,17 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                       });
                                     },
                                     columns: [
-                                      TableColumn(title: "Sl No.", flex: 2),
-                                      TableColumn(title: "Name", flex: 4),
-                                      TableColumn(
-                                        title: "Contact No.",
-                                        flex: 4,
-                                      ),
-                                      TableColumn(
-                                        title: "Lead Category",
-                                        flex: 5,
-                                      ),
-                                      TableColumn(title: "Staff ", flex: 4),
-                                      TableColumn(title: "Status", flex: 4),
-                                      TableColumn(title: "Reason", flex: 4),
-                                      TableColumn(
-                                        title: "Followup Date",
-                                        flex: 5,
-                                      ),
-                                      TableColumn(
-                                        title: "Called Date",
-                                        flex: 4,
-                                      ),
-                                      TableColumn(
-                                        title: "Created Date",
-                                        flex: 4,
-                                      ),
-                                      TableColumn(title: "Action", flex: 2),
+                                      TableColumn(title: "Sl No."),
+                                      TableColumn(title: "Name"),
+                                      TableColumn(title: "Contact No."),
+                                      TableColumn(title: "Lead Category"),
+                                      TableColumn(title: "Staff "),
+                                      TableColumn(title: "Status"),
+                                      TableColumn(title: "Reason"),
+                                      TableColumn(title: "Followup Date"),
+                                      TableColumn(title: "Called Date"),
+                                      TableColumn(title: "Created Date"),
+                                      TableColumn(title: "Action"),
                                     ],
                                     rows: pagedList.asMap().entries.map((
                                       entry,
