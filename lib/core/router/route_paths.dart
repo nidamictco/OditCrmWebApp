@@ -87,16 +87,47 @@ class RoutePaths {
   };
 
   // Helper methods to generate parameterized paths
-  static String leadEditPath(String leadId) =>
-      '/leads/edit/${Uri.encodeComponent(leadId)}';
+  static String leadEditPath(
+  String leadId, {
+  String? fromCard,
+  String? fromScreen,
+}) {
+  final query = <String, String>{
+    if (fromCard != null && fromCard.isNotEmpty) 'fromCard': fromCard,
+    if (fromScreen != null && fromScreen.isNotEmpty) 'fromScreen': fromScreen,
+  };
+  return Uri(
+    path: '/leads/edit/${Uri.encodeComponent(leadId)}',
+    queryParameters: query.isEmpty ? null : query,
+  ).toString();
+}
   static String staffEditPath(String staffId) =>
       '/staff/edit/${Uri.encodeComponent(staffId)}';
   static String designationPermissionsPath(String designationId) =>
       '/designations/${Uri.encodeComponent(designationId)}/permissions';
-  static String staffProfilePath(String staffId) =>
-      '/staff/${Uri.encodeComponent(staffId)}';
-  static String followUpPath(String leadId, String fromCard) =>
-      '/follow_up/${Uri.encodeComponent(leadId)}?from_card=$fromCard';
+ static String staffProfilePath(String staffId, {String? fromScreen}) {
+  final query = <String, String>{
+    if (fromScreen != null && fromScreen.isNotEmpty) 'fromScreen': fromScreen,
+  };
+  return Uri(
+    path: '/staff/${Uri.encodeComponent(staffId)}',
+    queryParameters: query.isEmpty ? null : query,
+  ).toString();
+}
+  static String followUpPath(
+  String leadId,
+  String fromCard, {
+  String? fromScreen,
+}) {
+  final query = <String, String>{
+    'fromCard': fromCard,
+    if (fromScreen != null && fromScreen.isNotEmpty) 'fromScreen': fromScreen,
+  };
+  return Uri(
+    path: '/follow_up/${Uri.encodeComponent(leadId)}',
+    queryParameters: query,
+  ).toString();
+}
   static String changePasswordPath(String staffId) =>
       '/staff/${Uri.encodeComponent(staffId)}/change_password';
   static String subCategoryPath(String categoryName, String categoryId) =>

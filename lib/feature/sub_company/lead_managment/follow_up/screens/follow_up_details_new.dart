@@ -365,7 +365,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                         borderColor: const Color(0xFF017EFB),
                         onTap: () async {
                           final didUpdate = await context.push<bool>(
-                            RoutePaths.leadEditPath(_currentLead.id!),
+                            RoutePaths.leadEditPath(_currentLead.id!,fromScreen: 'followupDetails'),
                           );
                           if (didUpdate == true && mounted) {
                             await _reloadLead();

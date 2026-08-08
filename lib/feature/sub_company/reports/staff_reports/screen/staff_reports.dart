@@ -235,13 +235,13 @@ class _StaffReportsState extends State<StaffReports> {
                               child: CustomTable(
                                 getRowDestination: (rowIndex) {
                                   final staff = pagedList[rowIndex];
-                                  return RoutePaths.staffProfilePath(staff.id!);
+                                  return RoutePaths.staffProfilePath(staff.id!,fromScreen: 'staffReports');
                                 },
                                 onRowTap: (rowIndex) {
                                   final staff = pagedList[rowIndex];
                                   log('stafff........$staff');
                                   context.push(
-                                    RoutePaths.staffProfilePath(staff.id!),
+                                    RoutePaths.staffProfilePath(staff.id!,fromScreen: 'staffReports'),
                                   );
                                 },
                                 columns: [
@@ -275,7 +275,7 @@ class _StaffReportsState extends State<StaffReports> {
                                     ),
                                     BrowserAwareLink(
                                       destination: RoutePaths.staffProfilePath(
-                                        staff.id!,
+                                        staff.id!, fromScreen: 'staffReports'
                                       ),
                                       usePush: true,
                                       enableInkWell: false,
