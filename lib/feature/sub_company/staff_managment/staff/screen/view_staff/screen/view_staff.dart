@@ -587,12 +587,12 @@ class _ViewStaffState extends State<ViewStaff> {
             minWidth: MediaQuery.of(context).size.width,
             getRowDestination: (rowIndex) {
               final staff = pagedList[rowIndex];
-              return RoutePaths.staffProfilePath(staff.id!);
+              return RoutePaths.staffProfilePath(staff.id!,fromScreen: 'viewStaff');
             },
             onRowTap: (rowIndex) {
               final staff = pagedList[rowIndex];
               // log('stafff........$staff');
-              context.push(RoutePaths.staffProfilePath(staff.id!));
+              context.push(RoutePaths.staffProfilePath(staff.id!,fromScreen: 'viewStaff'));
             },
             columns: [
               TableColumn(title: "No.", flex: 1),

@@ -409,7 +409,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onEdit(AddLeadModel lead) async {
     final didUpdate = await context.push<bool>(
-      RoutePaths.leadEditPath(lead.id!),
+      RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
     );
     if (didUpdate == true && mounted) {
       context.read<AddLeadCubit>().fetchDashboardLeads(
@@ -1955,10 +1955,10 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 ),
                 SizedBox(width: 0.1.h),
                 BrowserAwareLink(
-                  destination: RoutePaths.leadEditPath(lead.id!),
+                  destination: RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
                   onTap: () async {
                     final didUpdate = await context.push<bool>(
-                      RoutePaths.leadEditPath(lead.id!),
+                      RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
                     );
                     if (didUpdate == true && context.mounted) {
                       context.read<AddLeadCubit>().fetchLeads();

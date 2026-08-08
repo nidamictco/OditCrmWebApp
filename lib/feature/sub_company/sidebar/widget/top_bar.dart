@@ -232,6 +232,7 @@ class _TopBarState extends State<TopBar> {
                                   final path = RoutePaths.followUpPath(
                                     lead.id!,
                                     "NEW",
+
                                   );
                                   return BrowserAwareLink(
                                     destination: path,
@@ -355,6 +356,8 @@ class _TopBarState extends State<TopBar> {
             final page =
                 GoRouterState.of(context).uri.queryParameters['fromCard'] ??
                 GoRouterState.of(context).uri.queryParameters['from_card'];
+            final fromScreen =
+                GoRouterState.of(context).uri.queryParameters['fromScreen'] ?? '';
             final isDashboard =
                 location == RoutePaths.dashboard || location == '/';
             final isLeadListScreen =
@@ -363,7 +366,7 @@ class _TopBarState extends State<TopBar> {
             final isDesignation = location == RoutePaths.designation;
             final isDeletedStaff = location == RoutePaths.deletedStaff;
 
-            final breadcrumbs = _getBreadcrumbs(location, page ?? '');
+            final breadcrumbs = _getBreadcrumbs(location, page ?? '',fromScreen);
 
             return Row(
               children: [
@@ -1011,38 +1014,8 @@ class _BreadcrumbsData {
   _BreadcrumbsData(this.parent, this.current);
 }
 
-// /// Maps a breadcrumb label to the route it should navigate to.
-// /// Returns null if there's no known "section root" for that label
-// /// (in which case it simply won't be made clickable).
-// String? _getBreadcrumbRoute(String label, String path) {
-//   switch (label.trim()) {
-//     case 'Dashboard':
-//       return RoutePaths.dashboard;
-//     case 'Lead List':
-//       return RoutePaths.newLeads;
-//     case 'Staff Management':
-//       return RoutePaths.viewStaff;
-//     case 'Designation':
-//       return RoutePaths.designation;
-//     case 'Lead Management':
-//       // Main/first screen of Lead Management — adjust if you have
-//       // a dedicated route for this vs. newLeads.
-//       return RoutePaths.addLead;
-//     case 'Reports':
-//       // Main/first Reports screen — adjust if you have a distinct
-//       // "reports home" route vs. staffReports.
-//       return RoutePaths.staffReports;
-//     default:
-//       return null;
-//   }
-// }
 
-/// Maps a breadcrumb label to the full destination (path + query params)
-/// it should navigate to. Returns null if there's no known destination
-/// for that label (in which case it simply won't be made clickable).
 String? _getBreadcrumbDestination(String label) {
-  // Lead List card breadcrumbs ("New Leads", "Missed Leads", etc.)
-  // must carry fromCard so they land back on the correct filtered list.
   final fromCardCode = _getFromCardCode(label);
   if (fromCardCode != null) {
     return Uri(
@@ -1055,17 +1028,52 @@ String? _getBreadcrumbDestination(String label) {
     case 'Dashboard':
       return RoutePaths.dashboard;
     case 'Lead List':
-      // Fallback when fromCard was missing/empty — go to the list
-      // without forcing a specific card filter.
       return RoutePaths.newLeads;
     case 'Staff Management':
       return RoutePaths.viewStaff;
+      case 'View Staff':             
+  return RoutePaths.viewStaff;  
     case 'Designation':
       return RoutePaths.designation;
     case 'Lead Management':
       return RoutePaths.addLead;
     case 'Reports':
       return RoutePaths.staffReports;
+
+    // Lead Management leaf screens
+    case 'Leads Report':
+      return RoutePaths.leadsReport;
+    case 'Deleted Leads':
+      return RoutePaths.deletedLeads;
+    case 'Import Leads':
+      return RoutePaths.importLeads;
+    case 'Transfer Leads':
+      return RoutePaths.transferLeads;
+    case 'Lead Category':
+      return RoutePaths.leadCategory;
+    case 'Lead Source':
+      return RoutePaths.leadSource;
+    case 'Custom Fields':
+      return RoutePaths.customFields;
+    case 'Lead Stages':
+      return RoutePaths.leadStages;
+    case 'Lead Distribution':
+      return RoutePaths.leadDistribution;
+    case 'Unassigned Leads':
+      return RoutePaths.unassignedLeads;
+
+    // Reports leaf screens
+    case 'Staff Reports':
+      return RoutePaths.staffReports;
+    case 'Transfer Reports':
+      return RoutePaths.transferReport;
+    case 'Scheduled Reports':
+      return RoutePaths.scheduledReport;
+    case 'Rejected Reports':
+      return RoutePaths.rejectedReport;
+    case 'Outgoing Call History':
+      return RoutePaths.outgoingCallHistory;
+
     default:
       return null;
   }
@@ -1172,7 +1180,9 @@ List<Widget> _buildBreadcrumbWidgets(
   return widgets;
 }
 
-_BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
+_BreadcrumbsData _getBreadcrumbs(String path, String fromCard, [
+  String fromScreen = '',
+]) {
   if (path == RoutePaths.dashboard || path == '/') {
     return _BreadcrumbsData('Dashboard', '');
   }
@@ -1254,8 +1264,10 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
   //   return _BreadcrumbsData('Lead Management', 'Edit Lead');
   // }
   if (path.contains('/leads/edit/')) {
-    final cardLabel = fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
-    return _BreadcrumbsData('Dashboard >> $cardLabel', 'Edit Lead');
+    return _BreadcrumbsData(
+      _getSourceBreadcrumbParent(fromScreen, fromCard),
+      'Edit Lead',
+    );
   }
   if (path.contains('/staff/edit/')) {
     return _BreadcrumbsData('Staff Management', 'Edit Staff');
@@ -1263,16 +1275,21 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard) {
   // if (path.contains('/follow_up/')) {
   //   return _BreadcrumbsData('Dashboard  >>  Lead List', 'Follow Up Details');
   // }
-  if (path.contains('/follow_up/')) {
-  final cardLabel = fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
-  return _BreadcrumbsData('Dashboard >> $cardLabel', 'Follow Up Details');
-}
+ if (path.contains('/follow_up/')) {
+    return _BreadcrumbsData(
+      _getSourceBreadcrumbParent(fromScreen, fromCard),
+      'Follow Up Details',
+    );
+  }
   if (path.contains('/staff/') && path.contains('/change_password')) {
     return _BreadcrumbsData('Staff Management', 'Change Password');
   }
   if (path.contains('/staff/')) {
-    return _BreadcrumbsData('Staff Management', 'Staff Profile');
-  }
+  return _BreadcrumbsData(
+    _getStaffProfileBreadcrumbParent(fromScreen),
+    'Staff Profile',
+  );
+}
 // Designation Permissions screen (used for BOTH add and edit)
 if (path.contains('/designations/') && path.contains('/permissions')) {
   final segments = path.split('/').where((s) => s.isNotEmpty).toList();
@@ -1304,6 +1321,62 @@ if (path.contains('/designations/') && path.contains('/permissions')) {
   }
 
   return _BreadcrumbsData('Pages', 'Odit CRM');
+}
+
+/// Builds the parent breadcrumb chain for Staff Profile based on
+/// which screen the user navigated from.
+String _getStaffProfileBreadcrumbParent(String fromScreen) {
+  switch (fromScreen) {
+    case 'staffReports':
+      return 'Reports >> Staff Reports';
+    case 'viewStaff':
+    default:
+      // Fallback covers old links with no fromScreen param.
+      return 'Staff Management >> View Staff';
+  }
+}
+
+/// Builds the parent breadcrumb chain for Edit Lead / Follow Up Details
+/// based on which screen the user actually navigated from.
+/// `fromScreen` identifies the source screen; `fromCard` only matters
+/// when the source is the Dashboard lead-card list itself.
+String _getSourceBreadcrumbParent(String fromScreen, String fromCard) {
+  switch (fromScreen) {
+    case 'newLeads':
+      final cardLabel =
+          fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
+      return 'Dashboard >> $cardLabel';
+
+    case 'leadsReport':
+      return 'Lead Management >> Leads Report';
+    case 'deletedLeads':
+      return 'Lead Management >> Deleted Leads';
+    case 'importLeads':
+      return 'Lead Management >> Import Leads';
+    case 'transferLeads':
+      return 'Lead Management >> Transfer Leads';
+    case 'unassignedLeads':
+      return 'Lead Management >> Unassigned Leads';
+
+    case 'staffReports':
+      return 'Reports >> Staff Reports';
+    case 'transferReport':
+      return 'Reports >> Transfer Reports';
+    case 'scheduledReport':
+      return 'Reports >> Scheduled Reports';
+    case 'rejectedReport':
+      return 'Reports >> Rejected Reports';
+    case 'outgoingCallHistory':
+      return 'Reports >> Outgoing Call History';
+
+    default:
+      // No fromScreen given (older links, or navigation not yet updated
+      // to pass it) — fall back to the previous Dashboard/card behavior
+      // instead of guessing wrong.
+      final cardLabel =
+          fromCard.trim().isEmpty ? 'Lead List' : getPageName(fromCard);
+      return 'Dashboard >> $cardLabel';
+  }
 }
 
 

@@ -357,12 +357,12 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                           _headerIcon(
                             Icons.edit_outlined,
                             destination: RoutePaths.leadEditPath(
-                              _currentLead.id!,
+                              _currentLead.id!,fromScreen: 'followupDetails'
                             ),
                             onTap: () async {
                               // ← async
                               final didUpdate = await context.push<bool>(
-                                RoutePaths.leadEditPath(_currentLead.id!),
+                                RoutePaths.leadEditPath(_currentLead.id!,fromScreen: 'followupDetails'),
                               );
 
                               // ✅ Reload the lead data when edit completes

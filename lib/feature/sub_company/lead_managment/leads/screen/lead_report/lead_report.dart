@@ -1287,7 +1287,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                   },
                                   onEdit: (lead) async {
                                     final didUpdate = await context.push<bool>(
-                                      RoutePaths.leadEditPath(lead.id!),
+                                      RoutePaths.leadEditPath(lead.id!,fromScreen: 'leadsReport'),
                                     );
                                     if (didUpdate == true && context.mounted) {
                                       context.read<AddLeadCubit>().fetchLeads();
@@ -1298,7 +1298,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                   },
                                   onTap: (lead) {
                                     context.push(
-                                      RoutePaths.followUpPath(lead.id!, "NEW"),
+                                      RoutePaths.followUpPath(lead.id!, "NEW",fromScreen: 'leadsReport'),
                                     );
                                   },
                                   getPriorityColor: getPriorityColor,

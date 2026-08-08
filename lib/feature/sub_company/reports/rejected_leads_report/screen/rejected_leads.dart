@@ -902,6 +902,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                                   RoutePaths.followUpPath(
                                                     lead.id!,
                                                     "NEW",
+                                                    fromScreen: 'rejectedReport'
                                                   ),
                                               usePush: true,
                                               enableInkWell: false,
