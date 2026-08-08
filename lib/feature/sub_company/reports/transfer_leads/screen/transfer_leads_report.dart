@@ -389,173 +389,112 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                 .toList();
                             return Column(
                               children: [
-                                // ── ROW 1: 5 Columns
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InputDate(
-                                        label: "From Date",
-                                        fromController: _fromDateController,
-                                        toController: _toDateController,
-                                        isFrom: true,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: InputDate(
-                                        label: "To Date",
-                                        fromController: _fromDateController,
-                                        toController: _toDateController,
-                                        isFrom: false,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        showClear: true,
-                                        hint: 'select category',
-                                        // showHelp: true,
-                                        // message:
-                                        //     'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
-                                        items: categoryItems,
-                                        selectedValues: selectedCategories,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedCategories = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                        label: "Lead Category",
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        showClear: true,
-                                        label: "Status",
-                                        hint: 'select Status',
-                                        // showHelp: false,
-                                        // message:
-                                        //     'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
-                                        items: stageItems,
-                                        selectedValues: selectedStatuses,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedStatuses = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.h),
+                                _buildFilterCard(state),
 
-                                // ── ROW 2: 5 Columns
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "From Staff",
-                                        hint: 'select staff',
-                                        showHelp: true,
-                                        message:
-                                            'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                        items: staffItems,
-                                        selectedValues: selectedfromstaffs,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedfromstaffs = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
+                                // // ── ROW 1: 5 Columns
+                                // Row(
+                                //   children: [
+                                //     Expanded(
+                                //       child: InputDate(
+                                //         label: "From Date",
+                                //         fromController: _fromDateController,
+                                //         toController: _toDateController,
+                                //         isFrom: true,
+                                //       ),
+                                //     ),
+                                //     SizedBox(width: 2.w),
+                                //     Expanded(
+                                //       child: InputDate(
+                                //         label: "To Date",
+                                //         fromController: _fromDateController,
+                                //         toController: _toDateController,
+                                //         isFrom: false,
+                                //       ),
+                                //     ),
+                                //     SizedBox(width: 2.w),
+                                //     Expanded(
+                                //       child: MultiSelectDropdown(
+                                //         showChips: true,
+                                //         showClear: true,
+                                //         hint: 'select category',
+                                //         // showHelp: true,
+                                //         // message:
+                                //         //     'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
+                                //         items: categoryItems,
+                                //         selectedValues: selectedCategories,
+                                //         onChanged: (val) {
+                                //           setState(() {
+                                //             selectedCategories = val;
+                                //             _resetPage();
+                                //           });
+                                //         },
+                                //         label: "Lead Category",
+                                //       ),
+                                //     ),
+                                //     SizedBox(width: 2.w),
+                                //     Expanded(
+                                //       child: MultiSelectDropdown(
+                                //         showChips: true,
+                                //         showClear: true,
+                                //         label: "Status",
+                                //         hint: 'select Status',
+                                //         // showHelp: false,
+                                //         // message:
+                                //         //     'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                //         items: stageItems,
+                                //         selectedValues: selectedStatuses,
+                                //         onChanged: (val) {
+                                //           setState(() {
+                                //             selectedStatuses = val;
+                                //             _resetPage();
+                                //           });
+                                //         },
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
+                                // SizedBox(height: 1.h),
 
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "To Staff",
-                                        hint: 'select staff',
-                                        items: staffItems,
-                                        selectedValues: selectedtostaffs,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedtostaffs = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                // // ── ROW 2: 5 Columns
+                                // Row(
+                                //   children: [
+                                //     Expanded(
+                                //       child: MultiSelectDropdown(
+                                //         showChips: true,
+                                //         label: "From Staff",
+                                //         hint: 'select staff',
+                                //         showHelp: true,
+                                //         message:
+                                //             'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                //         items: staffItems,
+                                //         selectedValues: selectedfromstaffs,
+                                //         onChanged: (vals) {
+                                //           setState(() {
+                                //             selectedfromstaffs = vals;
+                                //             _resetPage();
+                                //           });
+                                //         },
+                                //       ),
+                                //     ),
+                                //     SizedBox(width: 2.w),
 
-                                SizedBox(height: 2.h),
-
-                                // ── ROW 4: ACTIONS ROW
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        _applyFilters();
-                                      },
-
-                                      child: Container(
-                                        height: 4.h,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 1.5.w,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xff00b087),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "View Report",
-                                          style: AppTextStyle.small(
-                                            size: 11.sp,
-                                            color: Colors.white,
-                                            weight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    if (_hasActiveFilters()) ...[
-                                      SizedBox(width: 1.w),
-                                      InkWell(
-                                        onTap: _clearFilters,
-                                        child: Container(
-                                          height: 4.h,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 1.5.w,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xffe95757),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'Reset Filters',
-                                            style: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: Colors.white,
-                                              weight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
+                                //     Expanded(
+                                //       child: MultiSelectDropdown(
+                                //         showChips: true,
+                                //         label: "To Staff",
+                                //         hint: 'select staff',
+                                //         items: staffItems,
+                                //         selectedValues: selectedtostaffs,
+                                //         onChanged: (vals) {
+                                //           setState(() {
+                                //             selectedtostaffs = vals;
+                                //             _resetPage();
+                                //           });
+                                //         },
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
                               ],
                               // ),
                             );
@@ -1021,181 +960,174 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
     ];
   }
 
+  /// ── Filter Card (matches TransferLeads screen UX) ──
+  Widget _buildFilterCard(AddLeadState state) {
+    final categoryItems = state.categories.map((e) => e.name).toList();
+    final stageItems = state.stages.map((e) => e.name).toList();
+    final staffItems = state.staffList.map((e) => e.name).toList();
 
-/// ── Filter Card (matches TransferLeads screen UX) ──
-Widget _buildFilterCard(AddLeadState state) {
-  final categoryItems = state.categories.map((e) => e.name).toList();
-  final stageItems = state.stages.map((e) => e.name).toList();
-  final staffItems = state.staffList.map((e) => e.name).toList();
-
-  // Same "rows of 4" grouping pattern used in TransferLeads' _buildFilterCard,
-  // applied to this screen's own report-specific fields.
-  final List<Widget> filterWidgets = [
-    InputDate(
-      label: "From Date",
-      fromController: _fromDateController,
-      toController: _toDateController,
-      isFrom: true,
-    ),
-    InputDate(
-      label: "To Date",
-      fromController: _fromDateController,
-      toController: _toDateController,
-      isFrom: false,
-    ),
-    MultiSelectDropdown(
-      showChips: true,
-      showClear: true,
-      hint: 'select category',
-      items: categoryItems,
-      selectedValues: selectedCategories,
-      onChanged: (val) {
-        setState(() {
-          selectedCategories = val;
-          _resetPage();
-        });
-      },
-      label: "Lead Category",
-    ),
-    MultiSelectDropdown(
-      showChips: true,
-      showClear: true,
-      label: "Status",
-      hint: 'select Status',
-      items: stageItems,
-      selectedValues: selectedStatuses,
-      onChanged: (val) {
-        setState(() {
-          selectedStatuses = val;
-          _resetPage();
-        });
-      },
-    ),
-    MultiSelectDropdown(
-      showChips: true,
-      label: "From Staff",
-      hint: 'select staff',
-      showHelp: true,
-      message:
-          'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-      items: staffItems,
-      selectedValues: selectedfromstaffs,
-      onChanged: (vals) {
-        setState(() {
-          selectedfromstaffs = vals;
-          _resetPage();
-        });
-      },
-    ),
-    MultiSelectDropdown(
-      showChips: true,
-      label: "To Staff",
-      hint: 'select staff',
-      items: staffItems,
-      selectedValues: selectedtostaffs,
-      onChanged: (vals) {
-        setState(() {
-          selectedtostaffs = vals;
-          _resetPage();
-        });
-      },
-    ),
-  ];
-
-  // Group into rows of 4, same as TransferLeads.
-  List<List<Widget>> rows = [];
-  for (int i = 0; i < filterWidgets.length; i += 4) {
-    rows.add(
-      filterWidgets.sublist(
-        i,
-        i + 4 > filterWidgets.length ? filterWidgets.length : i + 4,
+    // Same "rows of 4" grouping pattern used in TransferLeads' _buildFilterCard,
+    // applied to this screen's own report-specific fields.
+    final List<Widget> filterWidgets = [
+      InputDate(
+        label: "From Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: true,
       ),
-    );
-  }
+      InputDate(
+        label: "To Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: false,
+      ),
+      MultiSelectDropdown(
+        showChips: true,
+        showClear: true,
+        hint: 'select category',
+        items: categoryItems,
+        selectedValues: selectedCategories,
+        onChanged: (val) {
+          setState(() {
+            selectedCategories = val;
+            _resetPage();
+          });
+        },
+        label: "Lead Category",
+      ),
+      MultiSelectDropdown(
+        showChips: true,
+        showClear: true,
+        label: "Status",
+        hint: 'select Status',
+        items: stageItems,
+        selectedValues: selectedStatuses,
+        onChanged: (val) {
+          setState(() {
+            selectedStatuses = val;
+            _resetPage();
+          });
+        },
+      ),
+      MultiSelectDropdown(
+        showChips: true,
+        label: "From Staff",
+        hint: 'select staff',
+        showHelp: true,
+        message:
+            'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+        items: staffItems,
+        selectedValues: selectedfromstaffs,
+        onChanged: (vals) {
+          setState(() {
+            selectedfromstaffs = vals;
+            _resetPage();
+          });
+        },
+      ),
+      MultiSelectDropdown(
+        showChips: true,
+        label: "To Staff",
+        hint: 'select staff',
+        items: staffItems,
+        selectedValues: selectedtostaffs,
+        onChanged: (vals) {
+          setState(() {
+            selectedtostaffs = vals;
+            _resetPage();
+          });
+        },
+      ),
+    ];
 
-  return Column(
-    children: [
-      ...rows.map((rowItems) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: 1.5.h),
-          child: Row(
-            children: [
-              ...rowItems.map(
-                (widget) => Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.5.w),
-                    child: widget,
+    // Group into rows of 4, same as TransferLeads.
+    List<List<Widget>> rows = [];
+    for (int i = 0; i < filterWidgets.length; i += 4) {
+      rows.add(
+        filterWidgets.sublist(
+          i,
+          i + 4 > filterWidgets.length ? filterWidgets.length : i + 4,
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...rows.map((rowItems) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: 1.5.h),
+            child: Row(
+              children: [
+                ...rowItems.map(
+                  (widget) => Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                      child: widget,
+                    ),
                   ),
                 ),
-              ),
-              // Fill remaining space if row has fewer than 4 items,
-              // exactly like TransferLeads does for its own uneven rows.
-              ...List.generate(
-                4 - rowItems.length,
-                (_) => Expanded(child: SizedBox()),
-              ),
-            ],
-          ),
-        );
-      }),
+                // Fill remaining space if row has fewer than 4 items,
+                // exactly like TransferLeads does for its own uneven rows.
+                ...List.generate(
+                  4 - rowItems.length,
+                  (_) => Expanded(child: SizedBox()),
+                ),
+              ],
+            ),
+          );
+        }),
 
-      // ── Action buttons: same style, order, and behavior as TransferLeads ──
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: _clearFilters,
+        // ── Action buttons: same style, order, and behavior as TransferLeads ──
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            InkWell(
+              onTap: () {
+                _applyFilters();
+              },
+
               child: Container(
                 height: 4.h,
                 padding: EdgeInsets.symmetric(horizontal: 1.5.w),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFFCA5A5)),
+                  color: const Color(0xff00b087),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Clear All',
+                  "Apply",
                   style: AppTextStyle.small(
-                    size: 10.sp,
-                    color: const Color(0xFFEF4444),
-                    weight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 1.w),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: _applyFilters,
-              child: Container(
-                height: 4.h,
-                padding: EdgeInsets.symmetric(horizontal: 2.w),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  "View",
-                  style: AppTextStyle.small(
-                    size: 10.sp,
+                    size: 11.5,
                     color: Colors.white,
                     weight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-
+            SizedBox(width: 1.w),
+            InkWell(
+              onTap: _clearFilters,
+              child: Container(
+                height: 4.h,
+                padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xffe95757),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Reset',
+                  style: AppTextStyle.small(
+                    size: 11.5,
+                    color: Colors.white,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
