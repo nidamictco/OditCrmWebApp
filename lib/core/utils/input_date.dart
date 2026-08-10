@@ -211,7 +211,7 @@ class _InputDateState extends State<InputDate> {
             height: 35,
             decoration: _box(),
             alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(horizontal: 1.w),
+            // padding: EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
                 Padding(

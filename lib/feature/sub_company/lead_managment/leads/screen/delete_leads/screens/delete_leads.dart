@@ -1097,7 +1097,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
                 /// Action Buttons & Row Checkbox
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     /// Restore Icon Button
                     MouseRegion(
@@ -1189,7 +1189,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               Text(
                 "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
                 style: AppTextStyle.medium(
-                  size: 10.sp,
+                  size: 10.5,
                   weight: FontWeight.w600,
                   color: Colors.grey.shade600,
                 ),
@@ -1289,7 +1289,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                             Text(
                               'Selected Item',
                               style: AppTextStyle.small(
-                                size: 10.sp,
+                                size: 10.5,
                                 color: Colors.white,
                                 weight: FontWeight.w500,
                               ),
@@ -1330,7 +1330,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           child: Text(
             '1',
             style: AppTextStyle.small(
-              size: 10.sp,
+              size: 10.5,
               color: Colors.white,
               weight: FontWeight.w600,
             ),
@@ -1370,7 +1370,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 child: Text(
                   '$i',
                   style: AppTextStyle.small(
-                    size: 10.sp,
+                    size: 10.5,
                     color: isSelected ? Colors.white : const Color(0xFF334155),
                     weight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
@@ -1394,7 +1394,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
             child: Text(
               '...',
               style: AppTextStyle.small(
-                size: 10.sp,
+                size: 10.5,
                 color: const Color(0xFF475569),
               ),
             ),
@@ -1439,17 +1439,19 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               onPressed: () async {
                 // Navigator.pop(dialogContext);
                 await addLeadCubit.bulkRestoreLeads(selectedLeads);
-    if (!mounted) return;
-    Navigator.pop(dialogContext);
-      
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${selectedLeads.length} Lead(s) restored successfully.'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.green,
-      ),
-    );
-    setState(() => _selectedIndices.clear());
+                if (!mounted) return;
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${selectedLeads.length} Lead(s) restored successfully.',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppColors.green,
+                  ),
+                );
+                setState(() => _selectedIndices.clear());
               },
               child: Text(
                 'Restore Selected',
@@ -1459,16 +1461,19 @@ class _DeleteLeadsState extends State<DeleteLeads> {
             TextButton(
               onPressed: () async {
                 await addLeadCubit.bulkDeleteLeads(selectedLeads);
-    if (!mounted) return;Navigator.pop(dialogContext);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${selectedLeads.length} Lead(s) deleted successfully.'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.red,
-      ),
-    );
-    setState(() => _selectedIndices.clear());
+                if (!mounted) return;
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${selectedLeads.length} Lead(s) deleted successfully.',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppColors.red,
+                  ),
+                );
+                setState(() => _selectedIndices.clear());
               },
               child: Text(
                 'Delete Selected',
@@ -1511,12 +1516,12 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 Navigator.of(dialogContext).pop();
                 addLeadCubit.restoreLead(lead);
                 ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${lead.clientName} restored successfully.'),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: AppColors.green,
-                            ), 
-                          );
+                  SnackBar(
+                    content: Text('${lead.clientName} restored successfully.'),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppColors.green,
+                  ),
+                );
               },
               child: Text(
                 'Restore',
@@ -1555,12 +1560,12 @@ class _DeleteLeadsState extends State<DeleteLeads> {
               // addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
               addLeadCubit.deleteLead(lead.id!, lead);
               ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Lead(s) deleted successfully.'),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: AppColors.red,
-                            ), 
-                          );
+                const SnackBar(
+                  content: Text('Lead(s) deleted successfully.'),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: AppColors.red,
+                ),
+              );
             },
             child: Text(
               'Delete',

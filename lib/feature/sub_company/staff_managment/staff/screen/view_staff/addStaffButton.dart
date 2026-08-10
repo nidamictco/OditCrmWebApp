@@ -36,7 +36,7 @@ class _AddNewStaffButtonState extends State<AddNewStaffButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 7.5.w,
+      // width: 7.5.w,
       height: 4.5.h,
       child: MouseRegion(
         onEnter: (_) => setState(() => isHovering = true),
@@ -47,6 +47,7 @@ class _AddNewStaffButtonState extends State<AddNewStaffButton> {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
             height: 5.h,
+            padding: EdgeInsets.symmetric(horizontal: 5),
             decoration: BoxDecoration(
               border: Border.all(
                 color: AppThemeColors.basicGreen,
@@ -58,20 +59,17 @@ class _AddNewStaffButtonState extends State<AddNewStaffButton> {
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "Add Staff",
-                    style: AppTextStyle.small(
-                      color: Colors.white,
-                      size: 11.5,
-                    ),
+                    style: AppTextStyle.medium(color: Colors.white, size: 11),
                   ),
                   SizedBox(width: 0.5.w),
                   const Icon(
                     Icons.person_add_alt_1_outlined,
                     color: Colors.white,
-                    size: 15,
+                    size: 14,
                   ),
                 ],
               ),

@@ -402,7 +402,7 @@ class _CustomTableState extends State<CustomTable> {
             _kMinColWidth,
             double.infinity,
           ) +
-          5;
+          2;
       scaled.add(lastColWidth);
       return scaled;
     }
@@ -422,7 +422,17 @@ class _CustomTableState extends State<CustomTable> {
             ? constraints.maxWidth
             : MediaQuery.of(context).size.width;
 
-        final List<double> displayWidths = _getDisplayColumnWidths(parentWidth);
+        final double totalComputedWidth = _columnWidths.fold(
+          _kOuterHorizontalPadding * 2,
+          (sum, w) => sum + w,
+        );
+
+        final bool contentExceedsParent =
+            totalComputedWidth > parentWidth + 1.0;
+
+        final List<double> displayWidths = contentExceedsParent
+            ? List<double>.from(_columnWidths)
+            : _getDisplayColumnWidths(parentWidth);
 
         final double totalTableWidth = displayWidths.fold(
           _kOuterHorizontalPadding * 2,
@@ -430,7 +440,9 @@ class _CustomTableState extends State<CustomTable> {
         );
 
         final double effectiveWidth =
-            widget.minWidth != null && widget.minWidth! > totalTableWidth
+            (contentExceedsParent &&
+                widget.minWidth != null &&
+                widget.minWidth! > totalTableWidth)
             ? widget.minWidth!
             : totalTableWidth;
 
@@ -454,7 +466,8 @@ class _CustomTableState extends State<CustomTable> {
           ],
         );
 
-        final bool needsScroll = effectiveWidth > parentWidth + 1.0;
+        final bool needsScroll =
+            contentExceedsParent || effectiveWidth > parentWidth + 1.0;
 
         if (needsScroll) {
           tableContent = Scrollbar(

@@ -336,66 +336,63 @@ class _ViewStaffState extends State<ViewStaff> {
                           _selectedEntries = v;
                           _resetPage();
                         }),
-                        middleWidget: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 1.w),
-                          child: BlocBuilder<StaffCubit, StaffState>(
-                            builder: (context, state) {
-                              final List<StaffModel> rawList =
-                                  state is StaffListLoaded
-                                  ? state.staffList
-                                  : _cachedStaffList;
+                        middleWidget: BlocBuilder<StaffCubit, StaffState>(
+                          builder: (context, state) {
+                            final List<StaffModel> rawList =
+                                state is StaffListLoaded
+                                ? state.staffList
+                                : _cachedStaffList;
 
-                              final activeCount = rawList
-                                  .where(
-                                    (s) => s.status.toLowerCase() == 'active',
-                                  )
-                                  .length;
-                              final inactiveCount = rawList
-                                  .where(
-                                    (s) => s.status.toLowerCase() != 'active',
-                                  )
-                                  .length;
+                            final activeCount = rawList
+                                .where(
+                                  (s) => s.status.toLowerCase() == 'active',
+                                )
+                                .length;
+                            final inactiveCount = rawList
+                                .where(
+                                  (s) => s.status.toLowerCase() != 'active',
+                                )
+                                .length;
 
-                              final activeStr = activeCount < 10
-                                  ? '0$activeCount'
-                                  : '$activeCount';
-                              final inactiveStr = inactiveCount < 10
-                                  ? '0$inactiveCount'
-                                  : '$inactiveCount';
+                            final activeStr = activeCount < 10
+                                ? '0$activeCount'
+                                : '$activeCount';
+                            final inactiveStr = inactiveCount < 10
+                                ? '0$inactiveCount'
+                                : '$inactiveCount';
 
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _filterButton(
-                                    label: 'All',
-                                    isSelected: _activeFilter == 'All',
-                                    onTap: () => setState(() {
-                                      _activeFilter = 'All';
-                                      _resetPage();
-                                    }),
-                                  ),
-                                  SizedBox(width: 0.5.w),
-                                  _filterButton(
-                                    label: 'Active ($activeStr)',
-                                    isSelected: _activeFilter == 'Active',
-                                    onTap: () => setState(() {
-                                      _activeFilter = 'Active';
-                                      _resetPage();
-                                    }),
-                                  ),
-                                  SizedBox(width: 0.5.w),
-                                  _filterButton(
-                                    label: 'Inactive ($inactiveStr)',
-                                    isSelected: _activeFilter == 'Inactive',
-                                    onTap: () => setState(() {
-                                      _activeFilter = 'Inactive';
-                                      _resetPage();
-                                    }),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+                            return Row(
+                              // mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _filterButton(
+                                  label: 'All',
+                                  isSelected: _activeFilter == 'All',
+                                  onTap: () => setState(() {
+                                    _activeFilter = 'All';
+                                    _resetPage();
+                                  }),
+                                ),
+                                SizedBox(width: 0.5.w),
+                                _filterButton(
+                                  label: 'Active ($activeStr)',
+                                  isSelected: _activeFilter == 'Active',
+                                  onTap: () => setState(() {
+                                    _activeFilter = 'Active';
+                                    _resetPage();
+                                  }),
+                                ),
+                                SizedBox(width: 0.5.w),
+                                _filterButton(
+                                  label: 'Inactive ($inactiveStr)',
+                                  isSelected: _activeFilter == 'Inactive',
+                                  onTap: () => setState(() {
+                                    _activeFilter = 'Inactive';
+                                    _resetPage();
+                                  }),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         exportWidget: AddNewStaffButton(),
                       ),
@@ -458,7 +455,7 @@ class _ViewStaffState extends State<ViewStaff> {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: EdgeInsets.symmetric(horizontal: 0.8.w, vertical: 0.7.h),
+          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 0.7.h),
           decoration: BoxDecoration(
             color: isSelected ? selectedBg : Colors.white,
             border: Border.all(
@@ -566,33 +563,35 @@ class _ViewStaffState extends State<ViewStaff> {
 
     // ─── Populated table ───────────────────────────────────────────────────
     return Container(
-       decoration: BoxDecoration(
-                          color: AppColors.white,
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0x14000000,
-                              ), // #00000014 (8% opacity)
-                              offset: const Offset(0, 1),
-                              blurRadius: 8,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
           CustomTable(
-            minWidth: MediaQuery.of(context).size.width,
             getRowDestination: (rowIndex) {
               final staff = pagedList[rowIndex];
-              return RoutePaths.staffProfilePath(staff.id!,fromScreen: 'viewStaff');
+              return RoutePaths.staffProfilePath(
+                staff.id!,
+                fromScreen: 'viewStaff',
+              );
             },
             onRowTap: (rowIndex) {
               final staff = pagedList[rowIndex];
               // log('stafff........$staff');
-              context.push(RoutePaths.staffProfilePath(staff.id!,fromScreen: 'viewStaff'));
+              context.push(
+                RoutePaths.staffProfilePath(staff.id!, fromScreen: 'viewStaff'),
+              );
             },
             columns: [
               TableColumn(title: "No."),
@@ -609,13 +608,13 @@ class _ViewStaffState extends State<ViewStaff> {
               final index = entry.key;
               final staff = entry.value;
               final serial = (_currentPage - 1) * limit + index + 1;
-      
+
               final createdAt = staff.createdAt != null
                   ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
                         '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
                         '${staff.createdAt!.year}'
                   : '—';
-      
+
               return [
                 Text('$serial', style: AppTextStyle.medium(fontSize: 11.5)),
                 Text(
@@ -655,7 +654,8 @@ class _ViewStaffState extends State<ViewStaff> {
                                 providers: [
                                   BlocProvider.value(value: staffCubit),
                                   BlocProvider(
-                                    create: (_) => DesignationCubit()..fetchAll(),
+                                    create: (_) =>
+                                        DesignationCubit()..fetchAll(),
                                   ),
                                 ],
                                 child: AddStaff(staff: staff),
@@ -671,7 +671,7 @@ class _ViewStaffState extends State<ViewStaff> {
                             ),
                           ),
                         ),
-      
+
                       // Center(
                       //   child: BrowserAwareLink(
                       //     destination: RoutePaths.staffProfilePath(staff.id!),
@@ -751,7 +751,7 @@ class _ViewStaffState extends State<ViewStaff> {
               ];
             }).toList(),
           ),
-      
+
           /// 🔹 FOOTER
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
@@ -797,10 +797,10 @@ class _ViewStaffState extends State<ViewStaff> {
                         ),
                       ),
                     ),
-      
+
                     /// Page Numbers
                     ..._buildPageNumbers(totalPages, totalCount),
-      
+
                     /// Next button
                     MouseRegion(
                       cursor: _currentPage < totalPages
