@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
@@ -388,7 +389,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: BlocListener<AddLeadCubit, AddLeadState>(
         listenWhen: (previous, current) =>
             previous.listStatus != LeadListStatus.loaded &&
@@ -397,608 +398,671 @@ class _RejectedLeadsState extends State<RejectedLeads> {
           _applyFilters();
         },
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              StaffTopBar(
-                title: '',
-                parent: 'Reports',
-                current: 'Rejected Leads',
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-                child: Container(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(25),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppColors.divider),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x14000000),
+                        offset: const Offset(0, 1),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                      ),
+                    ],
                   ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 2.w,
-                          vertical: 2.h,
+                  child: BlocBuilder<AddLeadCubit, AddLeadState>(
+                    builder: (context, state) {
+                      final categoryItems = state.categories
+                          .map((e) => e.name)
+                          .toList();
+                      final sourceItems = state.sources
+                          .map((e) => e.name)
+                          .toList();
+                      final staffItems = state.staffList
+                          .map((e) => e.name)
+                          .toList();
+
+                      // Find the REJECTED lead stage from the loaded stages list
+                      final rejectedStage = state.stages
+                          .where(
+                            (s) => s.name.trim().toUpperCase() == 'REJECTED',
+                          )
+                          .firstOrNull;
+
+                      const priorityItems = [
+                        "High",
+                        "Low",
+                        "Negative",
+                        "Normal",
+                      ];
+                      const callStatusItems = [
+                        "Connected",
+                        "Busy",
+                        "Not Connected",
+                        "Wrong Number",
+                        "Switched Off",
+                        "Rejected",
+                        "Out of Coverage",
+                      ];
+                      return StreamBuilder<List<LeadsModel>>(
+                        stream: rejectedStage != null
+                            ? LeadTagRepository(
+                                tagId: rejectedStage.id,
+                              ).watchLeadTags()
+                            : const Stream.empty(),
+                        builder: (context, tagSnapshot) {
+                          final rejectedReasonItems =
+                              (tagSnapshot.data ?? [])
+                                  .map((tag) => tag.name.trim())
+                                  .where((name) => name.isNotEmpty)
+                                  .toSet()
+                                  .toList()
+                                ..sort();
+                          // ...existing body, StreamBuilder, etc. — now ends with
+                          return _buildFilterCard(
+                            categoryItems: categoryItems,
+                            sourceItems: sourceItems,
+                            staffItems: staffItems,
+                            rejectedReasonItems: rejectedReasonItems,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+
+                // BlocBuilder<AddLeadCubit, AddLeadState>(
+                //   builder: (context, state) {
+                // final categoryItems = state.categories
+                //     .map((e) => e.name)
+                //     .toList();
+                // final sourceItems = state.sources
+                //     .map((e) => e.name)
+                //     .toList();
+                // final staffItems = state.staffList
+                //     .map((e) => e.name)
+                //     .toList();
+
+                // // Find the REJECTED lead stage from the loaded stages list
+                // final rejectedStage = state.stages
+                //     .where((s) => s.name.trim().toUpperCase() == 'REJECTED')
+                //     .firstOrNull;
+
+                // const priorityItems = ["High", "Low", "Negative", "Normal"];
+                // const callStatusItems = [
+                //   "Connected",
+                //   "Busy",
+                //   "Not Connected",
+                //   "Wrong Number",
+                //   "Switched Off",
+                //   "Rejected",
+                //   "Out of Coverage",
+                // ];
+                // return StreamBuilder<List<LeadsModel>>(
+                //   stream: rejectedStage != null
+                //       ? LeadTagRepository(
+                //           tagId: rejectedStage.id,
+                //         ).watchLeadTags()
+                //       : const Stream.empty(),
+                //   builder: (context, tagSnapshot) {
+                //     final rejectedReasonItems =
+                //         (tagSnapshot.data ?? [])
+                //             .map((tag) => tag.name.trim())
+                //             .where((name) => name.isNotEmpty)
+                //             .toSet()
+                //             .toList()
+                //           ..sort();
+
+                //         return Column(
+                //           children: [
+                //             Row(
+                //               children: [
+                //                 Expanded(
+                //                   child: InputDate(
+                //                     label: 'From Date',
+                //                     fromController: _fromDateController,
+                //                     toController: _toDateController,
+                //                     isFrom: true,
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: InputDate(
+                //                     label: 'To Date',
+                //                     fromController: _fromDateController,
+                //                     toController: _toDateController,
+                //                     isFrom: false,
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     hint: 'select category',
+                //                     items: categoryItems,
+                //                     selectedValues: selectedCategories,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedCategories = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                     label: "Lead Category",
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     label: "Priority",
+                //                     hint: 'select priority',
+                //                     items: priorityItems,
+                //                     selectedValues: selectedPriorities,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedPriorities = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+
+                //             SizedBox(height: 1.h),
+
+                //             Row(
+                //               children: [
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     label: "Staff",
+                //                     hint: 'select staff',
+                //                     items: staffItems,
+                //                     selectedValues: selectedStaffs,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedStaffs = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     label: "Rejected Reason",
+                //                     hint: 'select reason',
+                //                     items: rejectedReasonItems,
+                //                     selectedValues: selectedRejectedReasons,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedRejectedReasons = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     label: "Lead Source",
+                //                     hint: 'select source',
+                //                     items: sourceItems,
+                //                     selectedValues: selectedSources,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedSources = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                     message: ".",
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 Expanded(
+                //                   child: MultiSelectDropdown(
+                //                     label: "Call Status",
+                //                     hint: 'select status',
+                //                     items: callStatusItems,
+                //                     selectedValues: selectedCallStatuses,
+                //                     onChanged: (val) {
+                //                       setState(() {
+                //                         selectedCallStatuses = val;
+                //                         _resetPage();
+                //                       });
+                //                     },
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+
+                //             SizedBox(height: 1.h),
+
+                //             /// 🔥 VIEW BUTTON (perfect aligned)
+                //             Row(
+                //               mainAxisAlignment: MainAxisAlignment.start,
+                //               children: [
+                //                 InkWell(
+                //                   onTap: () => _applyFilters(),
+                //                   child: Padding(
+                //                     padding: EdgeInsets.only(top: 2.h),
+                //                     child: SizedBox(
+                //                       width: 7.w,
+                //                       height: 4.5.h,
+                //                       child: DecoratedBox(
+                //                         decoration: BoxDecoration(
+                //                           color: const Color(0xff1BAA90),
+                //                           borderRadius: BorderRadius.circular(
+                //                             6,
+                //                           ),
+                //                         ),
+                //                         child: Center(
+                //                           child: Text(
+                //                             "View",
+                //                             style: AppTextStyle.small(
+                //                               size: 10.sp,
+                //                               color: Colors.white,
+                //                             ),
+                //                           ),
+                //                         ),
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 2.w),
+                //                 if (_hasActiveFilters())
+                //                   InkWell(
+                //                     onTap: _clearFilters,
+                //                     child: Container(
+                //                       height: 4.5.h,
+                //                       padding: EdgeInsets.all(1.h),
+                //                       margin: EdgeInsets.only(top: 2.h),
+                //                       decoration: BoxDecoration(
+                //                         color: AppColors.orange,
+                //                         borderRadius: BorderRadius.circular(6),
+                //                       ),
+                //                       child: Text(
+                //                         'Reset Filters',
+                //                         style: AppTextStyle.small(
+                //                           size: 10.sp,
+                //                           color: Colors.white,
+                //                         ),
+                //                         textAlign: TextAlign.center,
+                //                       ),
+                //                     ),
+                //                   ),
+                //               ],
+                //             ),
+                //           ],
+                //         );
+                //       },
+                //     );
+                //   },
+                // ),
+                SizedBox(height: 2.h),
+                ShowEntries(
+                  initialSearch: _searchQuery,
+                  initialEntries: _selectedEntries,
+                  onSearchChanged: (v) => setState(() {
+                    _searchQuery = v;
+                    _resetPage();
+                  }),
+                  onEntriesChanged: (v) => setState(() {
+                    _selectedEntries = v;
+                    _resetPage();
+                  }),
+                  exportWidget: GestureDetector(
+                    onTap: () {
+                      final leads = context.read<AddLeadCubit>().state.leads;
+                      final filtered = _filteredLeads(
+                        leads,
+                      ); // exports only filtered data
+                      exportLeadsToExcel(filtered, 'rejected_leads_');
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.4.w,
+                        vertical: 1.2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffE5E7EB),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        "Export",
+                        style: AppTextStyle.medium(
+                          color: Colors.indigo[900],
+                          weight: FontWeight.w400,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 2.h),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(
+                          0x14000000,
+                        ), // #00000014 (8% opacity)
+                        offset: const Offset(0, 1),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<AddLeadCubit, AddLeadState>(
+                    builder: (context, state) {
+                      if (state.listStatus == LeadListStatus.loading) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+
+                      if (state.listStatus == LeadListStatus.failure) {
+                        return Padding(
+                          padding: EdgeInsets.all(4.w),
+                          child: Text(
+                            state.listError ?? 'Something went wrong.',
+                            style: AppTextStyle.medium(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      final List<AddLeadModel> rawList =
+                          state.listStatus == LeadListStatus.loaded
+                          ? state.leads
+                          : [];
+
+                      final allFiltered = _filteredLeads(rawList);
+                      final totalCount = allFiltered.length;
+                      final totalPages = _totalPages(totalCount);
+                      final limit = int.tryParse(_selectedEntries) ?? 10;
+                      if (_currentPage > totalPages) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          setState(() => _currentPage = totalPages);
+                        });
+                      }
+                      final pagedList = _pagedLeads(allFiltered);
+
+                      final showFrom = totalCount == 0
+                          ? 0
+                          : (_currentPage - 1) * limit + 1;
+                      final showTo = (showFrom + pagedList.length - 1).clamp(
+                        0,
+                        totalCount,
+                      );
+
+                      if (state.listStatus == LeadListStatus.loaded) {
+                        // if (allFiltered.isEmpty) {
+                        //   return Padding(
+                        //     padding: EdgeInsets.symmetric(vertical: 6.h),
+                        //     child: Center(
+                        //       child: Text(
+                        //         "No Rejected Leads Found",
+                        //         style: AppTextStyle.medium(
+                        //           color: AppColors.black.withOpacity(0.5),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   );
+                        // }
+                        return Column(
                           children: [
-                            Text(
-                              "Rejected Leads Report",
-                              style: AppTextStyle.medium(
-                                size: 13.6.sp,
-                                color: AppColors.black.withOpacity(0.77),
-                                weight: FontWeight.w600,
+                            SizedBox(
+                              child: CustomTable(
+                                key: ValueKey(_tableKey),
+                                showCheckboxes: true,
+                                onCheckChanged: (rowIndex, isChecked) {
+                                  setState(() {
+                                    if (isChecked) {
+                                      if (!_selectedIndices.contains(
+                                        rowIndex,
+                                      )) {
+                                        _selectedIndices.add(rowIndex);
+                                      }
+                                    } else {
+                                      _selectedIndices.remove(rowIndex);
+                                    }
+                                  });
+                                },
+                                columns: [
+                                  TableColumn(title: "Sl No."),
+                                  TableColumn(title: "Name"),
+                                  TableColumn(title: "Contact No."),
+                                  TableColumn(title: "Lead Category"),
+                                  TableColumn(title: "Staff "),
+                                  TableColumn(title: "Status"),
+                                  TableColumn(title: "Reason"),
+                                  TableColumn(title: "Followup Date"),
+                                  TableColumn(title: "Called Date"),
+                                  TableColumn(title: "Created Date"),
+                                  TableColumn(title: "Action"),
+                                ],
+                                rows: pagedList.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final lead = entry.value;
+                                  final serial =
+                                      (_currentPage - 1) * limit + index + 1;
+                                  return [
+                                    Text(
+                                      '$serial',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.clientName,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.contactNumber,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.leadSubCategory.isEmpty
+                                          ? lead.leadCategory
+                                          : '${lead.leadCategory} - ${lead.leadSubCategory}',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.assignedStaff,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.leadStage,
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.leadTag ?? '--',
+                                      style: AppTextStyle.medium(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      lead.followUpDate != null
+                                          ? DateFormat(
+                                              'dd-MM-yyyy',
+                                            ).format(lead.followUpDate!)
+                                          : '--',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.calledDate != null
+                                          ? DateFormat(
+                                              'dd-MM-yyyy',
+                                            ).format(lead.calledDate!)
+                                          : '--',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Text(
+                                      lead.createdAt != null
+                                          ? DateFormat(
+                                              'dd-MM-yyyy',
+                                            ).format(lead.createdAt!)
+                                          : '-',
+                                      style: AppTextStyle.medium(),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        BrowserAwareLink(
+                                          destination: RoutePaths.followUpPath(
+                                            lead.id!,
+                                            "NEW",
+                                            fromScreen: 'rejectedReport',
+                                          ),
+                                          usePush: true,
+                                          enableInkWell: false,
+                                          child: Icon(
+                                            Icons.visibility_outlined,
+                                            size: 13.sp,
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ];
+                                }).toList(),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                final leads = context
-                                    .read<AddLeadCubit>()
-                                    .state
-                                    .leads;
-                                final filtered = _filteredLeads(
-                                  leads,
-                                ); // exports only filtered data
-                                exportLeadsToExcel(filtered, 'rejected_leads_');
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 1.4.w,
-                                  vertical: 1.2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffE5E7EB),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  "Export",
-                                  style: AppTextStyle.medium(
-                                    color: Colors.indigo[900],
-                                    weight: FontWeight.w400,
+
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2.w,
+                                vertical: 1.5.h,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "SHOWING ${showFrom.toString().toUpperCase()} TO ${showTo.toString().toUpperCase()} OF ${totalCount.toString().toUpperCase()} ENTRIES",
+                                    style: AppTextStyle.medium(
+                                      weight: FontWeight.w600,
+                                      color: const Color(0xff64748B),
+                                      size: 9.8.sp,
+                                    ),
                                   ),
-                                ),
+                                  Row(
+                                    children: [
+                                      _buildPaginationButton(
+                                        enabled: _currentPage > 1,
+                                        onTap: () => _goToPage(
+                                          _currentPage - 1,
+                                          totalCount,
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_left,
+                                          size: 16,
+                                          color: Color(0xff94A3B8),
+                                        ),
+                                      ),
+                                      ..._buildCustomPageNumbers(
+                                        totalPages,
+                                        totalCount,
+                                      ),
+                                      _buildPaginationButton(
+                                        enabled: _currentPage < totalPages,
+                                        onTap: () => _goToPage(
+                                          _currentPage + 1,
+                                          totalCount,
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_right,
+                                          size: 16,
+                                          color: Color(0xff94A3B8),
+                                        ),
+                                      ),
+
+                                      BlocBuilder<AddLeadCubit, AddLeadState>(
+                                        builder: (context, state) {
+                                          final List<AddLeadModel> rawList =
+                                              state.listStatus ==
+                                                  LeadListStatus.loaded
+                                              ? state.leads
+                                              : [];
+                                          final filteredList = _filteredLeads(
+                                            rawList,
+                                          );
+
+                                          final selectedLeads = _selectedIndices
+                                              .where(
+                                                (i) => i < filteredList.length,
+                                              )
+                                              .map((i) => filteredList[i])
+                                              .toList();
+
+                                          final hasSelection =
+                                              selectedLeads.isNotEmpty;
+                                          return GestureDetector(
+                                            onTap: hasSelection
+                                                ? () => _deleteSelectedLeads(
+                                                    selectedLeads,
+                                                  )
+                                                : null,
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 1.2.w,
+                                                vertical: 0.8.h,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xffEF4444),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Selected Item",
+                                                    style: AppTextStyle.medium(
+                                                      color: Colors.white,
+                                                      weight: FontWeight.w500,
+                                                      size: 9.sp,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  const Icon(
+                                                    Icons.delete_outline,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                      ),
-
-                      Divider(color: AppColors.divider),
-                      BlocBuilder<AddLeadCubit, AddLeadState>(
-                        builder: (context, state) {
-                          final categoryItems = state.categories
-                              .map((e) => e.name)
-                              .toList();
-                          final sourceItems = state.sources
-                              .map((e) => e.name)
-                              .toList();
-                          final staffItems = state.staffList
-                              .map((e) => e.name)
-                              .toList();
-
-                          // Find the REJECTED lead stage from the loaded stages list
-                          final rejectedStage = state.stages
-                              .where(
-                                (s) =>
-                                    s.name.trim().toUpperCase() == 'REJECTED',
-                              )
-                              .firstOrNull;
-
-                          const priorityItems = [
-                            "High",
-                            "Low",
-                            "Negative",
-                            "Normal",
-                          ];
-                          const callStatusItems = [
-                            "Connected",
-                            "Busy",
-                            "Not Connected",
-                            "Wrong Number",
-                            "Switched Off",
-                            "Rejected",
-                            "Out of Coverage",
-                          ];
-                          return StreamBuilder<List<LeadsModel>>(
-                            stream: rejectedStage != null
-                                ? LeadTagRepository(
-                                    tagId: rejectedStage.id,
-                                  ).watchLeadTags()
-                                : const Stream.empty(),
-                            builder: (context, tagSnapshot) {
-                              final rejectedReasonItems =
-                                  (tagSnapshot.data ?? [])
-                                      .map((tag) => tag.name.trim())
-                                      .where((name) => name.isNotEmpty)
-                                      .toSet()
-                                      .toList()
-                                    ..sort();
-
-                              return Padding(
-                                padding: EdgeInsets.only(
-                              left: 2.w,
-                              right: 2.w,
-                              top: 2.w,
-                              bottom: 1.h,
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InputDate(
-                                        label: 'From Date',
-                                        fromController: _fromDateController,
-                                        toController: _toDateController,
-                                        isFrom: true,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: InputDate(
-                                        label: 'To Date',
-                                        fromController: _fromDateController,
-                                        toController: _toDateController,
-                                        isFrom: false,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        hint: 'select category',
-                                        items: categoryItems,
-                                        selectedValues: selectedCategories,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedCategories = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                        label: "Lead Category",
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        label: "Priority",
-                                        hint: 'select priority',
-                                        items: priorityItems,
-                                        selectedValues: selectedPriorities,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedPriorities = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                SizedBox(height: 1.h),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        label: "Staff",
-                                        hint: 'select staff',
-                                        items: staffItems,
-                                        selectedValues: selectedStaffs,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedStaffs = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        label: "Rejected Reason",
-                                        hint: 'select reason',
-                                        items: rejectedReasonItems,
-                                        selectedValues: selectedRejectedReasons,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedRejectedReasons = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        label: "Lead Source",
-                                        hint: 'select source',
-                                        items: sourceItems,
-                                        selectedValues: selectedSources,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedSources = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                        message: ".",
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        label: "Call Status",
-                                        hint: 'select status',
-                                        items: callStatusItems,
-                                        selectedValues: selectedCallStatuses,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            selectedCallStatuses = val;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                SizedBox(height: 1.h),
-
-                                /// 🔥 VIEW BUTTON (perfect aligned)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => _applyFilters(),
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 2.h),
-                                        child: SizedBox(
-                                          width: 7.w,
-                                          height: 4.5.h,
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xff1BAA90),
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                "View",
-                                                style: AppTextStyle.small(
-                                                  size: 10.sp,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    if (_hasActiveFilters())
-                                      InkWell(
-                                        onTap: _clearFilters,
-                                        child: Container(
-                                          height: 4.5.h,
-                                          padding: EdgeInsets.all(1.h),
-                                          margin: EdgeInsets.only(top: 2.h),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.orange,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            'Reset Filters',
-                                            style: AppTextStyle.small(
-                                              size: 10.sp,
-                                              color: Colors.white,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                            },
-                          );
-                        },
-                      ),
-                      Divider(color: AppColors.divider),
-                      SizedBox(height: 2.h),
-                      ShowEntries(
-                        initialSearch: _searchQuery,
-                        initialEntries: _selectedEntries,
-                        onSearchChanged: (v) => setState(() {
-                          _searchQuery = v;
-                          _resetPage();
-                        }),
-                        onEntriesChanged: (v) => setState(() {
-                          _selectedEntries = v;
-                          _resetPage();
-                        }),
-                      ),
-
-                      SizedBox(height: 2.h),
-                      BlocBuilder<AddLeadCubit, AddLeadState>(
-                        builder: (context, state) {
-                          if (state.listStatus == LeadListStatus.loading) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6.h),
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
-
-                          if (state.listStatus == LeadListStatus.failure) {
-                            return Padding(
-                              padding: EdgeInsets.all(4.w),
-                              child: Text(
-                                state.listError ?? 'Something went wrong.',
-                                style: AppTextStyle.medium(color: Colors.red),
-                              ),
-                            );
-                          }
-
-                          final List<AddLeadModel> rawList =
-                              state.listStatus == LeadListStatus.loaded
-                              ? state.leads
-                              : [];
-
-                          final allFiltered = _filteredLeads(rawList);
-                          final totalCount = allFiltered.length;
-                          final totalPages = _totalPages(totalCount);
-                          final limit = int.tryParse(_selectedEntries) ?? 10;
-                          if (_currentPage > totalPages) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              setState(() => _currentPage = totalPages);
-                            });
-                          }
-                          final pagedList = _pagedLeads(allFiltered);
-
-                          final showFrom = totalCount == 0
-                              ? 0
-                              : (_currentPage - 1) * limit + 1;
-                          final showTo = (showFrom + pagedList.length - 1)
-                              .clamp(0, totalCount);
-
-                          if (state.listStatus == LeadListStatus.loaded) {
-                            // if (allFiltered.isEmpty) {
-                            //   return Padding(
-                            //     padding: EdgeInsets.symmetric(vertical: 6.h),
-                            //     child: Center(
-                            //       child: Text(
-                            //         "No Rejected Leads Found",
-                            //         style: AppTextStyle.medium(
-                            //           color: AppColors.black.withOpacity(0.5),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   );
-                            // }
-                            return Column(
-                              children: [
-                                SizedBox(
-                                  child: CustomTable(
-                                    key: ValueKey(_tableKey),
-                                    showCheckboxes: true,
-                                    onCheckChanged: (rowIndex, isChecked) {
-                                      setState(() {
-                                        if (isChecked) {
-                                          if (!_selectedIndices.contains(
-                                            rowIndex,
-                                          )) {
-                                            _selectedIndices.add(rowIndex);
-                                          }
-                                        } else {
-                                          _selectedIndices.remove(rowIndex);
-                                        }
-                                      });
-                                    },
-                                    columns: [
-                                      TableColumn(title: "Sl No."),
-                                      TableColumn(title: "Name"),
-                                      TableColumn(title: "Contact No."),
-                                      TableColumn(title: "Lead Category"),
-                                      TableColumn(title: "Staff "),
-                                      TableColumn(title: "Status"),
-                                      TableColumn(title: "Reason"),
-                                      TableColumn(title: "Followup Date"),
-                                      TableColumn(title: "Called Date"),
-                                      TableColumn(title: "Created Date"),
-                                      TableColumn(title: "Action"),
-                                    ],
-                                    rows: pagedList.asMap().entries.map((
-                                      entry,
-                                    ) {
-                                      final index = entry.key;
-                                      final lead = entry.value;
-                                      final serial =
-                                          (_currentPage - 1) * limit +
-                                          index +
-                                          1;
-                                      return [
-                                        Text(
-                                          '$serial',
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.clientName,
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.contactNumber,
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.leadSubCategory.isEmpty
-                                            ? lead.leadCategory
-                                            : '${lead.leadCategory} - ${lead.leadSubCategory}',
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.assignedStaff,
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.leadStage,
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.leadTag ?? '--',
-                                          style: AppTextStyle.medium(),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          lead.followUpDate != null
-                                              ? DateFormat(
-                                                  'dd-MM-yyyy',
-                                                ).format(lead.followUpDate!)
-                                              : '--',
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.calledDate != null
-                                              ? DateFormat(
-                                                  'dd-MM-yyyy',
-                                                ).format(lead.calledDate!)
-                                              : '--',
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Text(
-                                          lead.createdAt != null
-                                              ? DateFormat(
-                                                  'dd-MM-yyyy',
-                                                ).format(lead.createdAt!)
-                                              : '-',
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            BrowserAwareLink(
-                                              destination:
-                                                  RoutePaths.followUpPath(
-                                                    lead.id!,
-                                                    "NEW",
-                                                    fromScreen: 'rejectedReport'
-                                                  ),
-                                              usePush: true,
-                                              enableInkWell: false,
-                                              child: Icon(
-                                                Icons.visibility_outlined,
-                                                size: 13.sp,
-                                                color: Colors.indigo,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ];
-                                    }).toList(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 2.w,
-                                    vertical: 1.5.h,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Showing $showFrom to $showTo of $totalCount entries",
-                                        style: AppTextStyle.medium(
-                                          weight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          PageButton(
-                                            label: 'Previous',
-                                            enabled: _currentPage > 1,
-                                            isLeft: true,
-                                            onTap: () => _goToPage(
-                                              _currentPage - 1,
-                                              totalCount,
-                                            ),
-                                          ),
-                                          ..._buildPageNumbers(
-                                            totalPages,
-                                            totalCount,
-                                          ),
-                                          PageButton(
-                                            label: 'Next',
-                                            enabled: _currentPage < totalPages,
-                                            isRight: true,
-                                            onTap: () => _goToPage(
-                                              _currentPage + 1,
-                                              totalCount,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            return SizedBox.shrink();
-                          }
-                        },
-                      ),
-
-                      BlocBuilder<AddLeadCubit, AddLeadState>(
-                        builder: (context, state) {
-                          final List<AddLeadModel> rawList =
-                              state.listStatus == LeadListStatus.loaded
-                              ? state.leads
-                              : [];
-                          final filteredList = _filteredLeads(rawList);
-
-                          final selectedLeads = _selectedIndices
-                              .where((i) => i < filteredList.length)
-                              .map((i) => filteredList[i])
-                              .toList();
-
-                          final hasSelection = selectedLeads.isNotEmpty;
-                          return Center(
-                            child: GestureDetector(
-                              onTap: hasSelection
-                                  ? () => _deleteSelectedLeads(selectedLeads)
-                                  : null,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 1.w,
-                                  vertical: 1.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.red.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Icon(
-                                  Icons.delete_forever,
-                                  size: 14.sp,
-                                  color: AppColors.red,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 1.h),
-                    ],
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
                   ),
                 ),
-              ),
-            ],
+
+                SizedBox(height: 1.h),
+              ],
+            ),
           ),
         ),
       ),
@@ -1042,7 +1106,372 @@ class _RejectedLeadsState extends State<RejectedLeads> {
     );
   }
 
+  /// ── Filter Card (matches TransferLeadsReport screen UX) ──
+  Widget _buildFilterCard({
+    required List<String> categoryItems,
+    required List<String> sourceItems,
+    required List<String> staffItems,
+    required List<String> rejectedReasonItems,
+  }) {
+    const priorityItems = ["High", "Low", "Negative", "Normal"];
+    const callStatusItems = [
+      "Connected",
+      "Busy",
+      "Not Connected",
+      "Wrong Number",
+      "Switched Off",
+      "Rejected",
+      "Out of Coverage",
+    ];
+
+    // Same "rows of 4" grouping pattern used in TransferLeadsReport,
+    // applied to this screen's own report-specific fields — none of the
+    // fields themselves change, only how they're laid out.
+    final List<Widget> filterWidgets = [
+      InputDate(
+        label: "From Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: true,
+      ),
+      InputDate(
+        label: "To Date",
+        fromController: _fromDateController,
+        toController: _toDateController,
+        isFrom: false,
+      ),
+      MultiSelectDropdown(
+        hint: 'select category',
+        items: categoryItems,
+        selectedValues: selectedCategories,
+        onChanged: (val) {
+          setState(() {
+            selectedCategories = val;
+            _resetPage();
+          });
+        },
+        label: "Lead Category",
+      ),
+      MultiSelectDropdown(
+        label: "Priority",
+        hint: 'select priority',
+        items: priorityItems,
+        selectedValues: selectedPriorities,
+        onChanged: (val) {
+          setState(() {
+            selectedPriorities = val;
+            _resetPage();
+          });
+        },
+      ),
+      MultiSelectDropdown(
+        label: "Staff",
+        hint: 'select staff',
+        items: staffItems,
+        selectedValues: selectedStaffs,
+        onChanged: (val) {
+          setState(() {
+            selectedStaffs = val;
+            _resetPage();
+          });
+        },
+      ),
+      MultiSelectDropdown(
+        label: "Rejected Reason",
+        hint: 'select reason',
+        items: rejectedReasonItems,
+        selectedValues: selectedRejectedReasons,
+        onChanged: (val) {
+          setState(() {
+            selectedRejectedReasons = val;
+            _resetPage();
+          });
+        },
+      ),
+      MultiSelectDropdown(
+        label: "Lead Source",
+        hint: 'select source',
+        items: sourceItems,
+        selectedValues: selectedSources,
+        onChanged: (val) {
+          setState(() {
+            selectedSources = val;
+            _resetPage();
+          });
+        },
+        message: ".",
+      ),
+      MultiSelectDropdown(
+        label: "Call Status",
+        hint: 'select status',
+        items: callStatusItems,
+        selectedValues: selectedCallStatuses,
+        onChanged: (val) {
+          setState(() {
+            selectedCallStatuses = val;
+            _resetPage();
+          });
+        },
+      ),
+    ];
+
+    // Group into rows of 4, same as TransferLeadsReport.
+    List<List<Widget>> rows = [];
+    for (int i = 0; i < filterWidgets.length; i += 4) {
+      rows.add(
+        filterWidgets.sublist(
+          i,
+          i + 4 > filterWidgets.length ? filterWidgets.length : i + 4,
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...rows.map((rowItems) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: 1.5.h),
+            child: Row(
+              children: [
+                ...rowItems.map(
+                  (widget) => Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+                      child: widget,
+                    ),
+                  ),
+                ),
+                // Fill remaining space if the last row has fewer than 4 items,
+                // exactly like TransferLeadsReport does for its own uneven rows.
+                ...List.generate(
+                  4 - rowItems.length,
+                  (_) => Expanded(child: SizedBox()),
+                ),
+              ],
+            ),
+          );
+        }),
+
+        // ── Action buttons: same style, order, and behavior as TransferLeadsReport ──
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: _clearFilters,
+                child: Container(
+                  height: 4.h,
+                  padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFFCA5A5)),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Clear All',
+                    style: AppTextStyle.small(
+                      size: 10.sp,
+                      color: const Color(0xFFEF4444),
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 1.w),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: _applyFilters,
+                child: Container(
+                  height: 4.h,
+                  padding: EdgeInsets.symmetric(horizontal: 2.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "View",
+                    style: AppTextStyle.small(
+                      size: 10.sp,
+                      color: Colors.white,
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   // ── Page number chips ───────────────────────
+  Widget _buildPaginationButton({
+    required Widget child,
+    required bool enabled,
+    required VoidCallback onTap,
+    bool isActive = false,
+    bool hasBorder = true,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        decoration: BoxDecoration(
+          color: isActive
+              ? const Color(0xff002060)
+              : (enabled ? Colors.white : const Color(0xffF8FAFC)),
+          border: hasBorder
+              ? Border.all(
+                  color: isActive
+                      ? const Color(0xff002060)
+                      : const Color(0xffE2E8F0),
+                  width: 1,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  List<Widget> _buildCustomPageNumbers(int totalPages, int totalCount) {
+    final List<Widget> chips = [];
+
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == i,
+            enabled: _currentPage != i,
+            onTap: () => _goToPage(i, totalCount),
+            child: Text(
+              '$i',
+              style: AppTextStyle.medium(
+                color: _currentPage == i
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == i ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == 1,
+          enabled: _currentPage != 1,
+          onTap: () => _goToPage(1, totalCount),
+          child: Text(
+            '1',
+            style: AppTextStyle.medium(
+              color: _currentPage == 1 ? Colors.white : const Color(0xff334155),
+              weight: _currentPage == 1 ? FontWeight.w600 : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+
+      if (_currentPage > 3) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      final start = (_currentPage - 1).clamp(2, totalPages - 1);
+      final end = (_currentPage + 1).clamp(2, totalPages - 1);
+
+      final List<int> middlePages = [];
+      for (int i = start; i <= end; i++) {
+        if (!middlePages.contains(i)) middlePages.add(i);
+      }
+      if (_currentPage <= 3) {
+        if (!middlePages.contains(2)) middlePages.add(2);
+        if (!middlePages.contains(3)) middlePages.add(3);
+      } else if (_currentPage >= totalPages - 2) {
+        if (!middlePages.contains(totalPages - 2))
+          middlePages.insert(0, totalPages - 2);
+        if (!middlePages.contains(totalPages - 1))
+          middlePages.insert(0, totalPages - 1);
+      }
+      middlePages.sort();
+
+      for (final p in middlePages) {
+        if (p == 1 || p == totalPages) continue;
+        chips.add(
+          _buildPaginationButton(
+            isActive: _currentPage == p,
+            enabled: _currentPage != p,
+            onTap: () => _goToPage(p, totalCount),
+            child: Text(
+              '$p',
+              style: AppTextStyle.medium(
+                color: _currentPage == p
+                    ? Colors.white
+                    : const Color(0xff334155),
+                weight: _currentPage == p ? FontWeight.w600 : FontWeight.w500,
+                size: 9.sp,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (_currentPage < totalPages - 2) {
+        chips.add(
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            child: Text(
+              '...',
+              style: TextStyle(color: const Color(0xff94A3B8), fontSize: 11.sp),
+            ),
+          ),
+        );
+      }
+
+      chips.add(
+        _buildPaginationButton(
+          isActive: _currentPage == totalPages,
+          enabled: _currentPage != totalPages,
+          onTap: () => _goToPage(totalPages, totalCount),
+          child: Text(
+            '$totalPages',
+            style: AppTextStyle.medium(
+              color: _currentPage == totalPages
+                  ? Colors.white
+                  : const Color(0xff334155),
+              weight: _currentPage == totalPages
+                  ? FontWeight.w600
+                  : FontWeight.w500,
+              size: 9.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return chips;
+  }
+
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
     if (totalPages <= 1) return [];
 

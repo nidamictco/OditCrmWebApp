@@ -604,7 +604,7 @@ class _LeadsReportState extends State<LeadsReport> {
             //   title: 'Lead Management',
             // ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
               child: Column(
                 children: [
                   // ── CARD 1: FILTERS CARD ───────────────────────────────────
@@ -1056,7 +1056,7 @@ class _LeadsReportState extends State<LeadsReport> {
                     ),
                   ),
 
-                  SizedBox(height: 13),
+                  SizedBox(height: 1.h),
 
                   ShowEntries(
                     initialSearch: _searchQuery,
@@ -1162,7 +1162,7 @@ class _LeadsReportState extends State<LeadsReport> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 13),
+                  SizedBox(height: 1.h),
 
                   // ── CARD 2: TABLE & DATA CARD ──────────────────────────────
                   Container(
