@@ -1010,9 +1010,9 @@ class _LeadsReportState extends State<LeadsReport> {
                                             ),
                                             alignment: Alignment.center,
                                             child: Text(
-                                              "Apply",
+                                              "Applycr",
                                               style: AppTextStyle.small(
-                                                size: 10.sp,
+                                                size: 11,
                                                 color: Colors.white,
                                                 weight: FontWeight.w500,
                                               ),
@@ -1037,7 +1037,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                               child: Text(
                                                 'Reset',
                                                 style: AppTextStyle.small(
-                                                  size: 10.sp,
+                                                  size: 11,
                                                   color: Colors.white,
                                                   weight: FontWeight.w500,
                                                 ),
@@ -1478,7 +1478,7 @@ class _LeadsReportState extends State<LeadsReport> {
     //     ],
     //   ),
     // );
-     ConfirmAlertWidget.show(
+    ConfirmAlertWidget.show(
       context,
       type: ConfirmAlertType.delete,
       title: 'Delete Lead',
@@ -1559,7 +1559,7 @@ class _LeadsReportState extends State<LeadsReport> {
     //     ],
     //   ),
     // );
-     ConfirmAlertWidget.show(
+    ConfirmAlertWidget.show(
       context,
       type: ConfirmAlertType.delete,
       title: 'Delete Leads',
