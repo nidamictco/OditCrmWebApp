@@ -4,6 +4,7 @@ import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -873,8 +874,6 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-           
-
               /// View Button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -900,32 +899,30 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                 ),
               ),
               SizedBox(width: 1.w),
-                 /// Clear All Button
+
+              /// Clear All Button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
-                child:  InkWell(
-                                            onTap: _clearFilters,
-                                            child: Container(
-                                              height: 4.h,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 1.5.w,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xffe95757),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Reset',
-                                                style: AppTextStyle.small(
-                                                  size: 11.sp,
-                                                  color: Colors.white,
-                                                  weight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                child: InkWell(
+                  onTap: _clearFilters,
+                  child: Container(
+                    height: 4.h,
+                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffe95757),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Reset',
+                      style: AppTextStyle.small(
+                        size: 11.sp,
+                        color: Colors.white,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -1285,24 +1282,18 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                           vertical: 0.8.h,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEF4444), // Coral Red
+                          color: AppThemeColors.appPrimaryColor, // Coral Red
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           children: [
                             Text(
-                              'Selected Item',
+                              'Selected Items Action',
                               style: AppTextStyle.small(
                                 size: 10.5,
                                 color: Colors.white,
                                 weight: FontWeight.w500,
                               ),
-                            ),
-                            SizedBox(width: 0.4.w),
-                            Icon(
-                              Icons.delete_outline,
-                              color: Colors.white,
-                              size: 13.sp,
                             ),
                           ],
                         ),
@@ -1417,75 +1408,110 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         .map((i) => pagedList[i])
         .toList();
 
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: Text(
-            'Selected Items (${selectedLeads.length})',
-            style: AppTextStyle.medium(size: 14.sp),
-          ),
-          content: Text(
-            'What would you like to do with the ${selectedLeads.length} selected lead(s)?',
-            style: AppTextStyle.medium(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(
-                'Cancel',
-                style: AppTextStyle.medium(color: AppColors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Navigator.pop(dialogContext);
-                await addLeadCubit.bulkRestoreLeads(selectedLeads);
-                if (!mounted) return;
-                Navigator.pop(dialogContext);
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) {
+    //     return AlertDialog(
+    //       backgroundColor: AppColors.white,
+    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //       title: Text(
+    //         'Selected Items (${selectedLeads.length})',
+    //         style: AppTextStyle.medium(size: 14.sp),
+    //       ),
+    //       content: Text(
+    //         'What would you like to do with the ${selectedLeads.length} selected lead(s)?',
+    //         style: AppTextStyle.medium(),
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.pop(dialogContext),
+    //           child: Text(
+    //             'Cancel',
+    //             style: AppTextStyle.medium(color: AppColors.grey),
+    //           ),
+    //         ),
+    //         TextButton(
+    //           onPressed: () async {
+    //             // Navigator.pop(dialogContext);
+    //             await addLeadCubit.bulkRestoreLeads(selectedLeads);
+    //             if (!mounted) return;
+    //             Navigator.pop(dialogContext);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${selectedLeads.length} Lead(s) restored successfully.',
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: AppColors.green,
-                  ),
-                );
-                setState(() => _selectedIndices.clear());
-              },
-              child: Text(
-                'Restore Selected',
-                style: AppTextStyle.medium(color: Colors.green),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                await addLeadCubit.bulkDeleteLeads(selectedLeads);
-                if (!mounted) return;
-                Navigator.pop(dialogContext);
+    //             ScaffoldMessenger.of(context).showSnackBar(
+    //               SnackBar(
+    //                 content: Text(
+    //                   '${selectedLeads.length} Lead(s) restored successfully.',
+    //                 ),
+    //                 behavior: SnackBarBehavior.floating,
+    //                 backgroundColor: AppColors.green,
+    //               ),
+    //             );
+    //             setState(() => _selectedIndices.clear());
+    //           },
+    //           child: Text(
+    //             'Restore Selected',
+    //             style: AppTextStyle.medium(color: Colors.green),
+    //           ),
+    //         ),
+    //         TextButton(
+    //           onPressed: () async {
+    //             await addLeadCubit.bulkDeleteLeads(selectedLeads);
+    //             if (!mounted) return;
+    //             Navigator.pop(dialogContext);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${selectedLeads.length} Lead(s) deleted successfully.',
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: AppColors.red,
-                  ),
-                );
-                setState(() => _selectedIndices.clear());
-              },
-              child: Text(
-                'Delete Selected',
-                style: AppTextStyle.medium(color: Colors.red),
-              ),
+    //             ScaffoldMessenger.of(context).showSnackBar(
+    //               SnackBar(
+    //                 content: Text(
+    //                   '${selectedLeads.length} Lead(s) deleted successfully.',
+    //                 ),
+    //                 behavior: SnackBarBehavior.floating,
+    //                 backgroundColor: AppColors.red,
+    //               ),
+    //             );
+    //             setState(() => _selectedIndices.clear());
+    //           },
+    //           child: Text(
+    //             'Delete Selected',
+    //             style: AppTextStyle.medium(color: Colors.red),
+    //           ),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      title: 'Selected Items (${selectedLeads.length})',
+      message:
+          'What would you like to do with the ${selectedLeads.length} selected lead(s)?',
+      type: ConfirmAlertType.both,
+      onDelete: () {
+        context.pop();
+        addLeadCubit.bulkDeleteLeads(selectedLeads);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${selectedLeads.length} Lead(s) deleted successfully.',
             ),
-          ],
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.red,
+          ),
         );
+        setState(() => _selectedIndices.clear());
+      },
+      onRestore: () {
+        context.pop();
+        addLeadCubit.bulkRestoreLeads(selectedLeads);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${selectedLeads.length} Lead(s) restored successfully.',
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.green,
+          ),
+        );
+        setState(() => _selectedIndices.clear());
       },
     );
   }
@@ -1494,45 +1520,62 @@ class _DeleteLeadsState extends State<DeleteLeads> {
   void _confirmRestore(BuildContext ctx, AddLeadModel lead) {
     final addLeadCubit = ctx.read<AddLeadCubit>();
 
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: Text('Restore Lead', style: AppTextStyle.medium(size: 14.sp)),
-          content: Text(
-            'Restore "${lead.clientName}" back to leads reports?',
-            style: AppTextStyle.medium(),
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) {
+    //     return AlertDialog(
+    //       backgroundColor: AppColors.white,
+    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //       title: Text('Restore Lead', style: AppTextStyle.medium(size: 14.sp)),
+    //       content: Text(
+    //         'Restore "${lead.clientName}" back to leads reports?',
+    //         style: AppTextStyle.medium(),
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(dialogContext).pop();
+    //           },
+    //           child: Text(
+    //             'Cancel',
+    //             style: AppTextStyle.medium(color: AppColors.grey),
+    //           ),
+    //         ),
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(dialogContext).pop();
+    //             addLeadCubit.restoreLead(lead);
+    //             ScaffoldMessenger.of(context).showSnackBar(
+    //               SnackBar(
+    //                 content: Text('${lead.clientName} restored successfully.'),
+    //                 behavior: SnackBarBehavior.floating,
+    //                 backgroundColor: AppColors.green,
+    //               ),
+    //             );
+    //           },
+    //           child: Text(
+    //             'Restore',
+    //             style: AppTextStyle.medium(color: Colors.green),
+    //           ),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      title: 'Restore Lead',
+      message: 'Restore "${lead.clientName}" back to leads reports?',
+      type: ConfirmAlertType.restore,
+      onRestore: () {
+        context.pop();
+        addLeadCubit.restoreLead(lead);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${lead.clientName} restored successfully.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.green,
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: AppTextStyle.medium(color: AppColors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                addLeadCubit.restoreLead(lead);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${lead.clientName} restored successfully.'),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: AppColors.green,
-                  ),
-                );
-              },
-              child: Text(
-                'Restore',
-                style: AppTextStyle.medium(color: Colors.green),
-              ),
-            ),
-          ],
         );
       },
     );
@@ -1546,8 +1589,9 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       message: 'Delete "${lead.clientName}" permanently?',
       type: ConfirmAlertType.delete,
       onDelete: () {
+        context.pop();
         addLeadCubit.deleteLead(lead.id!, lead);
-        // context.pop();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Lead(s) deleted successfully.'),

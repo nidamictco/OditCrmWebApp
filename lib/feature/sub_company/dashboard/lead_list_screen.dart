@@ -445,7 +445,14 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       onDelete: () async {
         context.pop();
         await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+     ScaffoldMessenger.of(context).showSnackBar(
+       SnackBar(
+         content: Text('Lead deleted successfully.'),
+         backgroundColor: AppColors.red,
+       ),
+     );
       },
+    
     );
   }
 
@@ -1909,17 +1916,15 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             //       ),
             //     ),
             //     const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                lead.assignedStaff,
-                style: AppTextStyle.medium(),
-                // style: const TextStyle(
-                //   fontSize: 12,
-                //   color: AppTheme.textPrimary,
-                //   fontWeight: FontWeight.w500,
-                // ),
-                overflow: TextOverflow.ellipsis,
-              ),
+            Text(
+              lead.assignedStaff,
+              style: AppTextStyle.medium(),
+              // style: const TextStyle(
+              //   fontSize: 12,
+              //   color: AppTheme.textPrimary,
+              //   fontWeight: FontWeight.w500,
+              // ),
+              overflow: TextOverflow.ellipsis,
             ),
             //   ],
             // ),
