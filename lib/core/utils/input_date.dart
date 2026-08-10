@@ -218,7 +218,7 @@ class _InputDateState extends State<InputDate> {
                   padding: EdgeInsets.symmetric(horizontal: 0.5.w),
                   child: Icon(
                     Icons.calendar_month_outlined,
-                    size: 16,
+                    size: 13,
                     color: const Color(0xff4a5d9e),
                   ),
                 ),
@@ -249,7 +249,7 @@ class _InputDateState extends State<InputDate> {
                         horizontal: 6.0,
                         vertical: 4.0,
                       ),
-                      child: Icon(Icons.clear, size: 16, color: AppColors.grey),
+                      child: Icon(Icons.clear, size: 12, color: AppColors.grey),
                     ),
                   ),
                 // Padding(
