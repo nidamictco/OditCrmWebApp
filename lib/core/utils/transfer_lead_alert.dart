@@ -9,7 +9,7 @@ import '../../feature/sub_company/lead_managment/leads/model/add_lead_model.dart
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'dropdown.dart';
-import 'popup_msg.dart';
+import 'alert_dialog/popup_msg.dart';
 
 void showAssignStaffDialog(
   String fromPage,

@@ -332,7 +332,10 @@ class _DropdownState extends State<Dropdown> {
                     dropdownBuilder: (context, selectedItem) {
                       if (selectedItem == null) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 0.5.w,
+                            vertical: 0.5.h,
+                          ),
                           child: Text(
                             widget.hint,
                             style: AppTextStyle.small(
@@ -360,7 +363,10 @@ class _DropdownState extends State<Dropdown> {
                           //   ),
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0.5.w,
+                                vertical: 0.5.h,
+                              ),
                               child: Text(
                                 selectedItem,
                                 style: AppTextStyle.medium(
@@ -399,11 +405,19 @@ class _DropdownState extends State<Dropdown> {
                         iconClosed:
                             (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
-                            : const Icon(Icons.keyboard_arrow_down),
+                            : const Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 12.5,
+                                weight: 12.5,
+                              ),
                         iconOpened:
                             (widget.showClear && widget.selectedValue != null)
                             ? const SizedBox.shrink()
-                            : const Icon(Icons.keyboard_arrow_up),
+                            : const Icon(
+                                Icons.keyboard_arrow_up,
+                                size: 12.5,
+                                weight: 12.5,
+                              ),
                       ),
                     ),
 
@@ -582,7 +596,7 @@ class _DropdownState extends State<Dropdown> {
                       child: IconButton(
                         padding: EdgeInsets.only(right: 1.w),
                         constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.close, size: 18),
+                        icon: const Icon(Icons.close, size: 12.5, weight: 12),
                         onPressed: () => widget.onChanged?.call(null),
                       ),
                     ),

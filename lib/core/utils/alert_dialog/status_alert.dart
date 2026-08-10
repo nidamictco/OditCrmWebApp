@@ -27,10 +27,6 @@ const double _designHeight = 1043;
 double wPx(double px, double min, double max) =>
     ((px / _designWidth) * 100).w.clamp(min, max);
 
-/// Same as [wPx] but scaled against frame height (1043) and using `.h`.
-double hPx(double px, double min, double max) =>
-    ((px / _designHeight) * 100).h.clamp(min, max);
-
 /// A single reusable widget for both "Success" and "Error" result dialogs.
 ///
 /// Everything that differs between success/error (image, label color,
@@ -100,12 +96,12 @@ class StatusAlertWidget extends StatelessWidget {
     // Width: Hug (318px)  Height: Hug (330.58px)  Radius: 24px  Border: 1px
     // Padding: top 30 / right 60 / bottom 30 / left 60   Gap: 25px
     // Background: #FFFFFF
-    final double gap = hPx(25, 20, 30);
+    final double gap = 25;
 
     return Dialog(
       // backgroundColor: AppThemeColors.appPrimaryColor,
       backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.symmetric(horizontal: wPx(60, 20, 36)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 2.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,12 +117,12 @@ class StatusAlertWidget extends StatelessWidget {
           //   ),
           // ),
           Container(
-            width:318,
-            constraints: BoxConstraints(minHeight: hPx(330.58, 320, 400)),
+            width: 323,
+            constraints: const BoxConstraints(minHeight: 330.58),
             padding: EdgeInsets.only(top: 30, right: 60, bottom: 30, left: 60),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.circular(wPx(24, 18, 28)),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: accentColor.withOpacity(0.3),
                 width: wPx(1, 1, 2),
@@ -164,7 +160,7 @@ class StatusAlertWidget extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: accentColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       elevation: 0,
                     ),

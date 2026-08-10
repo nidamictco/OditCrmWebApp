@@ -367,35 +367,6 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                                                 ),
                                                 child: Row(
                                                   children: [
-                                                    // SizedBox(
-                                                    //   width: 18,
-                                                    //   height: 18,
-                                                    //   child: Checkbox(
-                                                    //     value: isChecked,
-                                                    //     materialTapTargetSize:
-                                                    //         MaterialTapTargetSize
-                                                    //             .shrinkWrap,
-                                                    //     visualDensity:
-                                                    //         VisualDensity
-                                                    //             .compact,
-                                                    //     activeColor:
-                                                    //         Colors.white,
-                                                    //     checkColor:
-                                                    //         highlightColor,
-                                                    //     side: isChecked
-                                                    //         ? const BorderSide(
-                                                    //             color: Colors
-                                                    //                 .white,
-                                                    //           )
-                                                    //         : BorderSide(
-                                                    //             color: AppColors
-                                                    //                 .divider,
-                                                    //           ),
-                                                    //     onChanged: (_) =>
-                                                    //         _toggleItem(item),
-                                                    //   ),
-                                                    // ),
-                                                    SizedBox(width: 2.w),
                                                     Expanded(
                                                       child: Text(
                                                         item,
@@ -478,7 +449,10 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                   Expanded(
                     child: _selected.isEmpty
                         ? Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 0.5.w,
+                              vertical: 0.5.h,
+                            ),
                             child: Text(
                               widget.hint,
                               style: AppTextStyle.small(
@@ -531,7 +505,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                       child: IconButton(
                         padding: EdgeInsets.only(right: 1.w),
                         constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.close, size: 18),
+                        icon: const Icon(Icons.close, weight: 12, size: 12),
                         color: AppColors.grey,
                         onPressed: _clearAll,
                       ),
@@ -544,6 +518,8 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                             ? Icons.keyboard_arrow_up
                             : Icons.keyboard_arrow_down,
                         color: AppColors.grey,
+                        size: 13,
+                        weight: 12,
                       ),
                     ),
                 ],
@@ -606,7 +582,12 @@ class _SelectedChip extends StatelessWidget {
           SizedBox(width: 1.w),
           GestureDetector(
             onTap: onRemove,
-            child: const Icon(Icons.close, size: 13, color: Colors.white),
+            child: const Icon(
+              Icons.close,
+              size: 12,
+              weight: 12,
+              color: Colors.white,
+            ),
           ),
         ],
       ),

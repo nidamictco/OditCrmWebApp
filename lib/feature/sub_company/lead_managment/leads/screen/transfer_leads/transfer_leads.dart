@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 
 import 'package:Odit_CRM/core/utils/export_excel.dart';
@@ -460,7 +461,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                         child: Column(
                           children: [
                             /// Table Section
-                            _buildTableSection(state),
+                            _buildTableSection(state, context),
                           ],
                         ),
                       ),
@@ -816,7 +817,7 @@ class _TransferLeadsState extends State<TransferLeads> {
   }
 
   /// ── Table Section ──
-  Widget _buildTableSection(AddLeadState leadState) {
+  Widget _buildTableSection(AddLeadState leadState, BuildContext context) {
     if (leadState.listStatus == LeadListStatus.loading) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -985,7 +986,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                         destination: RoutePaths.followUpPath(
                           lead.id!,
                           "TRANSFERED",
-                          fromScreen: 'transferLeads'
+                          fromScreen: 'transferLeads',
                         ),
                         usePush: true,
                         enableInkWell: false,
@@ -1423,53 +1424,82 @@ class _TransferLeadsState extends State<TransferLeads> {
 
   // ── Delete confirmation dialog ───────────────────────────────────────────
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(dialogContext),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () {
+    //           Navigator.pop(dialogContext);
+    //           ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             SnackBar(
+    //               content: Text(
+    //                 '${lead.clientName} deleted successfully.',
+    //                 style: AppTextStyle.medium(
+    //                   color: AppColors.white,
+    //                   weight: FontWeight.w400,
+    //                 ),
+    //               ),
+    //               backgroundColor: AppColors.red,
+    //               behavior: SnackBarBehavior.floating,
+    //               shape: RoundedRectangleBorder(
+    //                 borderRadius: BorderRadius.circular(8),
+    //               ),
+    //               duration: const Duration(seconds: 3),
+    //             ),
+    //           );
+    //         },
+    //         child: Text(
+    //           'Delete',
+    //           style: AppTextStyle.medium(color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      type: ConfirmAlertType.delete,
+      title: 'Delete Lead',
+      message:
           'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
+      // onCancel: () => Navigator.pop(context),
+      onDelete: () async {
+        context.pop();
+        ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${lead.clientName} deleted successfully.',
+              style: AppTextStyle.medium(
+                color: AppColors.white,
+                weight: FontWeight.w400,
+              ),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${lead.clientName} deleted successfully.',
-                    style: AppTextStyle.medium(
-                      color: AppColors.white,
-                      weight: FontWeight.w400,
-                    ),
-                  ),
-                  backgroundColor: AppColors.red,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            },
-            child: Text(
-              'Delete',
-              style: AppTextStyle.medium(color: Colors.red),
+            backgroundColor: AppColors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
+            duration: const Duration(seconds: 3),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

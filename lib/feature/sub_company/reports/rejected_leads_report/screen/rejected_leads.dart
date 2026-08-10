@@ -478,232 +478,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                   ),
                 ),
 
-                // BlocBuilder<AddLeadCubit, AddLeadState>(
-                //   builder: (context, state) {
-                // final categoryItems = state.categories
-                //     .map((e) => e.name)
-                //     .toList();
-                // final sourceItems = state.sources
-                //     .map((e) => e.name)
-                //     .toList();
-                // final staffItems = state.staffList
-                //     .map((e) => e.name)
-                //     .toList();
-
-                // // Find the REJECTED lead stage from the loaded stages list
-                // final rejectedStage = state.stages
-                //     .where((s) => s.name.trim().toUpperCase() == 'REJECTED')
-                //     .firstOrNull;
-
-                // const priorityItems = ["High", "Low", "Negative", "Normal"];
-                // const callStatusItems = [
-                //   "Connected",
-                //   "Busy",
-                //   "Not Connected",
-                //   "Wrong Number",
-                //   "Switched Off",
-                //   "Rejected",
-                //   "Out of Coverage",
-                // ];
-                // return StreamBuilder<List<LeadsModel>>(
-                //   stream: rejectedStage != null
-                //       ? LeadTagRepository(
-                //           tagId: rejectedStage.id,
-                //         ).watchLeadTags()
-                //       : const Stream.empty(),
-                //   builder: (context, tagSnapshot) {
-                //     final rejectedReasonItems =
-                //         (tagSnapshot.data ?? [])
-                //             .map((tag) => tag.name.trim())
-                //             .where((name) => name.isNotEmpty)
-                //             .toSet()
-                //             .toList()
-                //           ..sort();
-
-                //         return Column(
-                //           children: [
-                //             Row(
-                //               children: [
-                //                 Expanded(
-                //                   child: InputDate(
-                //                     label: 'From Date',
-                //                     fromController: _fromDateController,
-                //                     toController: _toDateController,
-                //                     isFrom: true,
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: InputDate(
-                //                     label: 'To Date',
-                //                     fromController: _fromDateController,
-                //                     toController: _toDateController,
-                //                     isFrom: false,
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     hint: 'select category',
-                //                     items: categoryItems,
-                //                     selectedValues: selectedCategories,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedCategories = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                     label: "Lead Category",
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     label: "Priority",
-                //                     hint: 'select priority',
-                //                     items: priorityItems,
-                //                     selectedValues: selectedPriorities,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedPriorities = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-
-                //             SizedBox(height: 1.h),
-
-                //             Row(
-                //               children: [
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     label: "Staff",
-                //                     hint: 'select staff',
-                //                     items: staffItems,
-                //                     selectedValues: selectedStaffs,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedStaffs = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     label: "Rejected Reason",
-                //                     hint: 'select reason',
-                //                     items: rejectedReasonItems,
-                //                     selectedValues: selectedRejectedReasons,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedRejectedReasons = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     label: "Lead Source",
-                //                     hint: 'select source',
-                //                     items: sourceItems,
-                //                     selectedValues: selectedSources,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedSources = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                     message: ".",
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 Expanded(
-                //                   child: MultiSelectDropdown(
-                //                     label: "Call Status",
-                //                     hint: 'select status',
-                //                     items: callStatusItems,
-                //                     selectedValues: selectedCallStatuses,
-                //                     onChanged: (val) {
-                //                       setState(() {
-                //                         selectedCallStatuses = val;
-                //                         _resetPage();
-                //                       });
-                //                     },
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-
-                //             SizedBox(height: 1.h),
-
-                //             /// 🔥 VIEW BUTTON (perfect aligned)
-                //             Row(
-                //               mainAxisAlignment: MainAxisAlignment.start,
-                //               children: [
-                //                 InkWell(
-                //                   onTap: () => _applyFilters(),
-                //                   child: Padding(
-                //                     padding: EdgeInsets.only(top: 2.h),
-                //                     child: SizedBox(
-                //                       width: 7.w,
-                //                       height: 4.5.h,
-                //                       child: DecoratedBox(
-                //                         decoration: BoxDecoration(
-                //                           color: const Color(0xff1BAA90),
-                //                           borderRadius: BorderRadius.circular(
-                //                             6,
-                //                           ),
-                //                         ),
-                //                         child: Center(
-                //                           child: Text(
-                //                             "View",
-                //                             style: AppTextStyle.small(
-                //                               size: 10.sp,
-                //                               color: Colors.white,
-                //                             ),
-                //                           ),
-                //                         ),
-                //                       ),
-                //                     ),
-                //                   ),
-                //                 ),
-                //                 SizedBox(width: 2.w),
-                //                 if (_hasActiveFilters())
-                //                   InkWell(
-                //                     onTap: _clearFilters,
-                //                     child: Container(
-                //                       height: 4.5.h,
-                //                       padding: EdgeInsets.all(1.h),
-                //                       margin: EdgeInsets.only(top: 2.h),
-                //                       decoration: BoxDecoration(
-                //                         color: AppColors.orange,
-                //                         borderRadius: BorderRadius.circular(6),
-                //                       ),
-                //                       child: Text(
-                //                         'Reset Filters',
-                //                         style: AppTextStyle.small(
-                //                           size: 10.sp,
-                //                           color: Colors.white,
-                //                         ),
-                //                         textAlign: TextAlign.center,
-                //                       ),
-                //                     ),
-                //                   ),
-                //               ],
-                //             ),
-                //           ],
-                //         );
-                //       },
-                //     );
-                //   },
-                // ),
+                
                 SizedBox(height: 2.h),
                 ShowEntries(
                   initialSearch: _searchQuery,
@@ -721,26 +496,36 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                       final leads = context.read<AddLeadCubit>().state.leads;
                       final filtered = _filteredLeads(
                         leads,
-                      ); // exports only filtered data
+                      ); 
                       exportLeadsToExcel(filtered, 'rejected_leads_');
                     },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 1.4.w,
-                        vertical: 1.2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xffE5E7EB),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        "Export",
-                        style: AppTextStyle.medium(
-                          color: Colors.indigo[900],
-                          weight: FontWeight.w400,
+                    child:  Container(
+                        height: 4.h,
+                        padding: EdgeInsets.symmetric(horizontal: 0.8.w),
+                        decoration: BoxDecoration(
+                          color: AppThemeColors.appPrimaryColor,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            Text(
+                              "Export",
+                              style: AppTextStyle.medium(
+                                color: Colors.white,
+                                weight: FontWeight.w500,
+                                size: 10.sp,
+                              ),
+                            ),
+                            SizedBox(width: 0.4.w),
+                            Icon(
+                              Icons.file_download_outlined,
+                              color: Colors.white,
+                              size: 12.sp,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
                   ),
                 ),
 
@@ -926,11 +711,30 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           ),
                                           usePush: true,
                                           enableInkWell: false,
-                                          child: Icon(
-                                            Icons.visibility_outlined,
-                                            size: 13.sp,
-                                            color: Colors.indigo,
-                                          ),
+                                          child:  Tooltip(
+                          message: 'View',
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              // color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color(0xFF4E9CDB),
+                              ),
+                            ),
+                            child: Image.asset(
+                              "assets/icon/eye.png",
+                              height: 13.sp,
+                              width: 13.sp,
+                              color: const Color(0xFF4E9CDB),
+                            ),
+                            // child: Icon(
+                            //   Icons.eye,
+                            //   size: 13.sp,
+                            //   color: const Color(0xFF4E9CDB),
+                            // ),
+                          ),
+                        ),
                                         ),
                                       ],
                                     ),
@@ -1199,7 +1003,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
             _resetPage();
           });
         },
-        message: ".",
       ),
       MultiSelectDropdown(
         label: "Call Status",
@@ -1256,31 +1059,8 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: _clearFilters,
-                child: Container(
-                  height: 4.h,
-                  padding: EdgeInsets.symmetric(horizontal: 1.5.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFFFCA5A5)),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Clear All',
-                    style: AppTextStyle.small(
-                      size: 10.sp,
-                      color: const Color(0xFFEF4444),
-                      weight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 1.w),
+           
+            
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -1294,7 +1074,7 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    "View",
+                    "Apply",
                     style: AppTextStyle.small(
                       size: 10.sp,
                       color: Colors.white,
@@ -1303,6 +1083,33 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                   ),
                 ),
               ),
+            ),
+            SizedBox(width: 1.w),
+             MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: InkWell(
+                                            onTap: _clearFilters,
+                                            child: Container(
+                                              height: 4.h,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 1.5.w,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xffe95757),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'Reset',
+                                                style: AppTextStyle.small(
+                                                  size: 11.sp,
+                                                  color: Colors.white,
+                                                  weight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
             ),
           ],
         ),

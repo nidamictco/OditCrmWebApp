@@ -872,32 +872,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              /// Clear All Button
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: _clearFilters,
-                  child: Container(
-                    height: 4.h,
-                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFCA5A5)),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Clear All',
-                      style: AppTextStyle.small(
-                        size: 10.sp,
-                        color: const Color(0xFFEF4444),
-                        weight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 1.w),
+           
 
               /// View Button
               MouseRegion(
@@ -913,7 +888,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      "View",
+                      "Apply",
                       style: AppTextStyle.small(
                         size: 10.sp,
                         color: Colors.white,
@@ -922,6 +897,34 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                     ),
                   ),
                 ),
+              ),
+              SizedBox(width: 1.w),
+                 /// Clear All Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child:  InkWell(
+                                            onTap: _clearFilters,
+                                            child: Container(
+                                              height: 4.h,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 1.5.w,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xffe95757),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'Reset',
+                                                style: AppTextStyle.small(
+                                                  size: 11.sp,
+                                                  color: Colors.white,
+                                                  weight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
               ),
             ],
           ),
