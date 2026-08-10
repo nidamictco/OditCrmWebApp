@@ -249,7 +249,7 @@ class _StaffReportsState extends State<StaffReports> {
                                   TableColumn(title: "Name"),
                                   TableColumn(title: "Phone Number"),
                                   TableColumn(title: "Designation"),
-                                  TableColumn(title: "Action"),
+                                  // TableColumn(title: "Action"),
                                 ],
                                 rows: pagedList.asMap().entries.map((entry) {
                                   final index = entry.key;
@@ -273,27 +273,27 @@ class _StaffReportsState extends State<StaffReports> {
                                       staff.designation ?? '---',
                                       style: AppTextStyle.medium(),
                                     ),
-                                    BrowserAwareLink(
-                                      destination: RoutePaths.staffProfilePath(
-                                        staff.id!, fromScreen: 'staffReports'
-                                      ),
-                                      usePush: true,
-                                      enableInkWell: false,
-                                      child: Container(
-                                        padding: EdgeInsets.all(0.1.w),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue.shade900,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.ads_click_outlined,
-                                          size: 12.sp,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
+                                    // BrowserAwareLink(
+                                    //   destination: RoutePaths.staffProfilePath(
+                                    //     staff.id!, fromScreen: 'staffReports'
+                                    //   ),
+                                    //   usePush: true,
+                                    //   enableInkWell: false,
+                                    //   child: Container(
+                                    //     padding: EdgeInsets.all(0.1.w),
+                                    //     decoration: BoxDecoration(
+                                    //       color: Colors.blue.shade900,
+                                    //       borderRadius: BorderRadius.circular(
+                                    //         6,
+                                    //       ),
+                                    //     ),
+                                    //     child: Icon(
+                                    //       Icons.ads_click_outlined,
+                                    //       size: 12.sp,
+                                    //       color: Colors.white,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ];
                                 }).toList(),
                               ),

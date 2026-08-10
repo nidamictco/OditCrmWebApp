@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/utils/page_button.dart';
-import 'package:Odit_CRM/core/utils/popup_msg.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/popup_msg.dart';
 import 'package:Odit_CRM/core/utils/show_entries.dart';
 import 'package:Odit_CRM/core/utils/table.dart';
 import 'package:Odit_CRM/core/utils/top_bread_crumb_bar.dart';

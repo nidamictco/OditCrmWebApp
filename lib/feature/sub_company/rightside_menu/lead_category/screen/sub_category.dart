@@ -6,7 +6,7 @@ import '../../../../../core/utils/page_button.dart';
 import '../../../../../core/utils/show_entries.dart';
 import '../../../../../core/utils/table.dart';
 import '../../../../../core/utils/top_bread_crumb_bar.dart';
-import '../../../../../core/utils/popup_msg.dart';
+import '../../../../../core/utils/alert_dialog/popup_msg.dart';
 import 'package:sizer/sizer.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';

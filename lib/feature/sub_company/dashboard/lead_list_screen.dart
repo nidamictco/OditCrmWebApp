@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
@@ -426,14 +427,25 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
   }
 
   void _onDelete(AddLeadModel lead) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => _DeleteConfirmDialog(
-        leadName: lead.clientName,
-        onConfirm: () async {
-          await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
-        },
-      ),
+    // showDialog(
+    //   context: context,
+    //   builder: (dialogContext) => _DeleteConfirmDialog(
+    //     leadName: lead.clientName,
+    //     onConfirm: () async {
+    //       await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+    //     },
+    //   ),
+    ConfirmAlertWidget.show(
+      context,
+      type: ConfirmAlertType.delete,
+      title: 'DELETE LEAD',
+      message:
+          'Are you sure want to delete "${lead.clientName}"?\nThis action cannot be undone.',
+      onCancel: () => Navigator.pop(context),
+      onDelete: () async {
+        context.pop();
+        await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+      },
     );
   }
 
@@ -2306,116 +2318,165 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                 child: GestureDetector(
                                   onTap: hasSelection
                                       ? () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) => AlertDialog(
-                                              backgroundColor: AppColors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              title: const Text(
-                                                'Delete Selected Leads',
-                                                style: TextStyle(
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: AppTheme.textPrimary,
-                                                ),
-                                              ),
-                                              content: Text(
+                                          // showDialog(
+                                          //   context: context,
+                                          //   builder: (dialogContext) => AlertDialog(
+                                          //     backgroundColor: AppColors.white,
+                                          //     shape: RoundedRectangleBorder(
+                                          //       borderRadius:
+                                          //           BorderRadius.circular(16),
+                                          //     ),
+                                          //     title: const Text(
+                                          //       'Delete Selected Leads',
+                                          //       style: TextStyle(
+                                          //         fontSize: 17,
+                                          //         fontWeight: FontWeight.w700,
+                                          //         color: AppTheme.textPrimary,
+                                          //       ),
+                                          //     ),
+                                          //     content: Text(
+                                          //       'Are you sure you want to delete ${selectedLeads.length} selected lead(s)? This action cannot be undone.',
+                                          //       style: const TextStyle(
+                                          //         fontSize: 14,
+                                          //         color: AppTheme.textSecondary,
+                                          //       ),
+                                          //     ),
+                                          //     actions: [
+                                          //       TextButton(
+                                          //         onPressed: () =>
+                                          //             Navigator.pop(
+                                          //               dialogContext,
+                                          //             ),
+                                          //         style: TextButton.styleFrom(
+                                          //           foregroundColor:
+                                          //               AppTheme.textSecondary,
+                                          //         ),
+                                          //         child: const Text('Cancel'),
+                                          //       ),
+                                          //       ElevatedButton(
+                                          //         onPressed: () async {
+                                          //           Navigator.pop(
+                                          //             dialogContext,
+                                          //           );
+                                          //           for (final lead
+                                          //               in selectedLeads) {
+                                          //             await context
+                                          //                 .read<AddLeadCubit>()
+                                          //                 .deleteLead(
+                                          //                   lead.id!,
+                                          //                   lead,
+                                          //                 );
+                                          //           }
+                                          //           ScaffoldMessenger.of(
+                                          //             context,
+                                          //           ).showSnackBar(
+                                          //             SnackBar(
+                                          //               content: Text(
+                                          //                 '${selectedLeads.length} lead(s) deleted successfully.',
+                                          //                 style:
+                                          //                     AppTextStyle.medium(
+                                          //                       color: AppColors
+                                          //                           .white,
+                                          //                       weight:
+                                          //                           FontWeight
+                                          //                               .w400,
+                                          //                     ),
+                                          //               ),
+                                          //               backgroundColor:
+                                          //                   AppColors.red,
+                                          //               behavior:
+                                          //                   SnackBarBehavior
+                                          //                       .floating,
+                                          //               shape: RoundedRectangleBorder(
+                                          //                 borderRadius:
+                                          //                     BorderRadius.circular(
+                                          //                       8,
+                                          //                     ),
+                                          //               ),
+                                          //               duration:
+                                          //                   const Duration(
+                                          //                     seconds: 3,
+                                          //                   ),
+                                          //             ),
+                                          //           );
+                                          //           // ── Clear selections after delete ──
+                                          //           setState(() {
+                                          //             _selectedIds = {};
+                                          //             _selectAll = false;
+                                          //             _tableKey++;
+                                          //           });
+                                          //         },
+                                          //         style: ElevatedButton.styleFrom(
+                                          //           backgroundColor:
+                                          //               AppColors.red,
+                                          //           foregroundColor:
+                                          //               Colors.white,
+                                          //           elevation: 0,
+                                          //           shape: RoundedRectangleBorder(
+                                          //             borderRadius:
+                                          //                 BorderRadius.circular(
+                                          //                   8,
+                                          //                 ),
+                                          //           ),
+                                          //         ),
+                                          //         child: Text(
+                                          //           'Delete',
+                                          //           style: AppTextStyle.medium(
+                                          //             size: 12,
+                                          //           ),
+                                          //         ),
+                                          //       ),
+                                          //     ],
+                                          //   ),
+                                          // );
+                                          ConfirmAlertWidget.show(
+                                            context,
+                                            type: ConfirmAlertType.delete,
+                                            title: 'Delete Selected Leads',
+                                            message:
                                                 'Are you sure you want to delete ${selectedLeads.length} selected lead(s)? This action cannot be undone.',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppTheme.textSecondary,
-                                                ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(
-                                                        dialogContext,
-                                                      ),
-                                                  style: TextButton.styleFrom(
-                                                    foregroundColor:
-                                                        AppTheme.textSecondary,
-                                                  ),
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    Navigator.pop(
-                                                      dialogContext,
-                                                    );
-                                                    for (final lead
-                                                        in selectedLeads) {
-                                                      await context
-                                                          .read<AddLeadCubit>()
-                                                          .deleteLead(
-                                                            lead.id!,
-                                                            lead,
-                                                          );
-                                                    }
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '${selectedLeads.length} lead(s) deleted successfully.',
-                                                          style:
-                                                              AppTextStyle.medium(
-                                                                color: AppColors
-                                                                    .white,
-                                                                weight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                        ),
-                                                        backgroundColor:
-                                                            AppColors.red,
-                                                        behavior:
-                                                            SnackBarBehavior
-                                                                .floating,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8,
-                                                              ),
-                                                        ),
-                                                        duration:
-                                                            const Duration(
-                                                              seconds: 3,
-                                                            ),
-                                                      ),
-                                                    );
-                                                    // ── Clear selections after delete ──
-                                                    setState(() {
-                                                      _selectedIds = {};
-                                                      _selectAll = false;
-                                                      _tableKey++;
-                                                    });
-                                                  },
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        AppColors.red,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                    elevation: 0,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    'Delete',
+                                            // onCancel: () => Navigator.pop(context),
+                                            onDelete: () async {
+                                              context.pop();
+                                              for (final lead
+                                                  in selectedLeads) {
+                                                await context
+                                                    .read<AddLeadCubit>()
+                                                    .deleteLead(lead.id!, lead);
+                                              }
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    '${selectedLeads.length} lead(s) deleted successfully.',
                                                     style: AppTextStyle.medium(
-                                                      size: 12,
+                                                      color: AppColors.white,
+                                                      weight: FontWeight.w400,
                                                     ),
                                                   ),
+                                                  backgroundColor:
+                                                      AppColors.red,
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  duration: const Duration(
+                                                    seconds: 3,
+                                                  ),
                                                 ),
-                                              ],
-                                            ),
+                                              );
+                                              // ── Clear selections after delete ──
+                                              setState(() {
+                                                _selectedIds = {};
+                                                _selectAll = false;
+                                                _tableKey++;
+                                              });
+                                            },
                                           );
                                         }
                                       : () => ScaffoldMessenger.of(context)
