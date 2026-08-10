@@ -117,7 +117,7 @@ class _ShowEntriesState extends State<ShowEntries> {
                 //   ),
                 // ),
                 Container(
-                  width: 12.w,
+                  width: MediaQuery.of(context).size.width * 0.12,
                   height: 4.h,
                   padding: EdgeInsets.only(right: 0.7.h),
                   decoration: _box(),

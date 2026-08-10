@@ -1547,7 +1547,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       type: ConfirmAlertType.delete,
       onDelete: () {
         addLeadCubit.deleteLead(lead.id!, lead);
-        context.pop();
+        // context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Lead(s) deleted successfully.'),
