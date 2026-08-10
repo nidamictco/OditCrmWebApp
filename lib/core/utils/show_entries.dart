@@ -100,7 +100,7 @@ class _ShowEntriesState extends State<ShowEntries> {
             Row(
               children: [
                 Text("Search:", style: AppTextStyle.medium(size: 12)),
-                SizedBox(width: 1.w),
+                SizedBox(width: 10),
                 // Container(
                 //   width: 12.w,
                 //   height: 4.h,
@@ -132,7 +132,7 @@ class _ShowEntriesState extends State<ShowEntries> {
                       isDense: true,
                       hintText: "Enter...",
                       hintStyle: AppTextStyle.small(
-                        size: 11.sp,
+                        size: 11,
                         color: Colors.grey,
                       ),
                       contentPadding: EdgeInsets.symmetric(

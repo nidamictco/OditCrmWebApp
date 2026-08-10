@@ -409,7 +409,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
   void _onEdit(AddLeadModel lead) async {
     final didUpdate = await context.push<bool>(
-      RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
+      RoutePaths.leadEditPath(lead.id!, fromScreen: widget.fromCard),
     );
     if (didUpdate == true && mounted) {
       context.read<AddLeadCubit>().fetchDashboardLeads(
@@ -1698,9 +1698,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Clear All',
-                      style: AppTextStyle.small(
-                        size: 11,
+                      'Reset',
+                      style: AppTextStyle.medium(
+                        size: 11.5,
                         color: const Color(0xFFEF4444),
                         weight: FontWeight.w500,
                       ),
@@ -1724,9 +1724,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      "View",
-                      style: AppTextStyle.small(
-                        size: 11,
+                      "Apply",
+                      style: AppTextStyle.medium(
+                        size: 11.5,
                         color: Colors.white,
                         weight: FontWeight.w500,
                       ),
@@ -1809,14 +1809,14 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
 
         final columns = [
           TableColumn(title: 'No.'),
-          TableColumn(title: 'NAME'),
-          TableColumn(title: 'CONTACT NO.'),
-          TableColumn(title: 'LEAD CATEGORY'),
-          TableColumn(title: 'STAFF'),
-          TableColumn(title: 'STATUS'),
-          if (!isNew) TableColumn(title: 'FOLLOWUP DATE'),
-          if (!isNew) TableColumn(title: 'CALLED DATE'),
-          TableColumn(title: 'SELECT ALL'),
+          TableColumn(title: 'Name'),
+          TableColumn(title: 'Contact No.'),
+          TableColumn(title: 'Lead Category'),
+          TableColumn(title: 'Staff'),
+          TableColumn(title: 'Status'),
+          if (!isNew) TableColumn(title: 'Followup Date'),
+          if (!isNew) TableColumn(title: 'Called Date'),
+          TableColumn(title: 'Select All'),
         ];
 
         final _fmt = DateFormat('dd-MM-yyyy hh:mm a');
@@ -1831,20 +1831,22 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             // #
             Text(
               '$serial',
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyle.medium(),
+              // style: const TextStyle(
+              //   fontSize: 13,
+              //   color: AppTheme.textSecondary,
+              //   fontWeight: FontWeight.w500,
+              // ),
             ),
             // Name
             Text(
               lead.clientName,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppTheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyle.medium(),
+              // style: const TextStyle(
+              //   fontSize: 13,
+              //   color: AppTheme.primary,
+              //   fontWeight: FontWeight.w600,
+              // ),
               // overflow: TextOverflow.ellipsis,
             ),
             // Contact
@@ -1853,11 +1855,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   Clipboard.setData(ClipboardData(text: lead.contactNumber)),
               child: Text(
                 lead.contactNumber,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyle.medium(),
+                // style: const TextStyle(
+                //   fontSize: 12,
+                //   color: AppTheme.primary,
+                //   fontWeight: FontWeight.w500,
+                // ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1873,49 +1876,56 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                       idOf: (s) => s.id,
                       nameOf: (s) => s.name,
                     ),
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
-              ),
+              style: AppTextStyle.medium(),
+              // style: const TextStyle(
+              //   fontSize: 12,
+              //   color: AppTheme.textSecondary,
+              // ),
               overflow: TextOverflow.ellipsis,
             ),
             // Staff
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: 12,
-                  backgroundColor: AppTheme.border,
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 14,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    lead.assignedStaff,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+            // Row(
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: [
+            //     CircleAvatar(
+            //       radius: 12,
+            //       backgroundColor: AppTheme.border,
+            //       child: const Icon(
+            //         Icons.person_rounded,
+            //         size: 14,
+            //         color: AppTheme.textSecondary,
+            //       ),
+            //     ),
+            //     const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                lead.assignedStaff,
+                style: AppTextStyle.medium(),
+                // style: const TextStyle(
+                //   fontSize: 12,
+                //   color: AppTheme.textPrimary,
+                //   fontWeight: FontWeight.w500,
+                // ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            //   ],
+            // ),
             // Status
             // SizedBox(child: _StatusBadge(status: lead.leadStage)),
             Text(
               lead.leadStage,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyle.medium(
                 color: getStageColor(lead.leadStage),
+                fontWeight: FontWeight.w600,
                 letterSpacing: 0.2,
               ),
+              // style: TextStyle(
+              //   fontSize: 11,
+              //   fontWeight: FontWeight.w700,
+              //   color: getStageColor(lead.leadStage),
+              //   letterSpacing: 0.2,
+              // ),
               overflow: TextOverflow.ellipsis,
             ),
 
@@ -1924,13 +1934,15 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 lead.followUpDate != null
                     ? _fmt.format(lead.followUpDate!)
                     : '',
-                style: _dateStyle,
+                style: AppTextStyle.medium(),
+                // style: _dateStyle,
               ),
             // Called Date (conditional — already correct, no change needed)
             if (!isNew)
               Text(
                 lead.calledDate != null ? _fmt.format(lead.calledDate!) : '',
-                style: _dateStyle,
+                style: AppTextStyle.medium(),
+                // style: _dateStyle,
               ),
             // Actions
             Row(
@@ -1996,10 +2008,16 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                 ),
                 const SizedBox(width: 8),
                 BrowserAwareLink(
-                  destination: RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
+                  destination: RoutePaths.leadEditPath(
+                    lead.id!,
+                    fromScreen: widget.fromCard,
+                  ),
                   onTap: () async {
                     final didUpdate = await context.push<bool>(
-                      RoutePaths.leadEditPath(lead.id!,fromScreen: widget.fromCard),
+                      RoutePaths.leadEditPath(
+                        lead.id!,
+                        fromScreen: widget.fromCard,
+                      ),
                     );
                     if (didUpdate == true && context.mounted) {
                       context.read<AddLeadCubit>().fetchLeads();
@@ -2007,22 +2025,25 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   },
                   usePush: true,
                   enableInkWell: false,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xff3B82F6).withValues(alpha: 0.4),
-                        width: 1,
+                  child: Tooltip(
+                    message: 'Edit',
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color(0xff3B82F6).withValues(alpha: 0.4),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.edit,
-                        size: 13,
-                        color: const Color(0xff3B82F6),
+                      child: Center(
+                        child: Icon(
+                          Icons.edit,
+                          size: 13,
+                          color: const Color(0xff3B82F6),
+                        ),
                       ),
                     ),
                   ),
@@ -2049,7 +2070,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         ),
                         child: Icon(
                           Icons.delete_outline,
-                          size: 13.sp,
+                          size: 13,
                           color: const Color(0xFFEF4444),
                         ),
                       ),
@@ -2142,7 +2163,6 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
             CustomTable(
               key: ValueKey(_tableKey),
               height: 0,
-              minWidth: MediaQuery.of(context).size.width,
               columns: columns,
               rows: rows,
               showCheckboxes: true,
@@ -2186,7 +2206,7 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   Text(
                     "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
                     style: AppTextStyle.medium(
-                      size: 10.sp,
+                      size: 10.5,
                       weight: FontWeight.w600,
                       color: Colors.grey.shade600,
                     ),
@@ -2387,7 +2407,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                           ),
                                                     ),
                                                   ),
-                                                  child: const Text('Delete'),
+                                                  child: Text(
+                                                    'Delete',
+                                                    style: AppTextStyle.medium(
+                                                      size: 12,
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -2416,34 +2441,37 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                               ),
                                             ),
 
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 0.8.w,
-                                      vertical: 0.8.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(
-                                        0xFFEF4444,
-                                      ), // Coral Red
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Selected Item',
-                                          style: AppTextStyle.small(
-                                            size: 10.sp,
-                                            color: Colors.white,
-                                            weight: FontWeight.w500,
+                                  child: Tooltip(
+                                    message: 'Delete Selected',
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 0.8.w,
+                                        vertical: 0.8.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFFEF4444,
+                                        ), // Coral Red
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Selected Item',
+                                            style: AppTextStyle.small(
+                                              size: 10.5,
+                                              color: Colors.white,
+                                              weight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 0.4.w),
-                                        Icon(
-                                          Icons.delete_outline,
-                                          color: Colors.white,
-                                          size: 13.sp,
-                                        ),
-                                      ],
+                                          SizedBox(width: 0.4.w),
+                                          Icon(
+                                            Icons.delete_outline,
+                                            color: Colors.white,
+                                            size: 13,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -2675,32 +2703,35 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                                                 ),
                                               ),
                                             ),
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 0.8.w,
-                                      vertical: 0.8.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppThemeColors.appPrimaryColor,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Selected Item',
-                                          style: AppTextStyle.small(
-                                            size: 10.sp,
-                                            color: Colors.white,
-                                            weight: FontWeight.w500,
+                                  child: Tooltip(
+                                    message: 'Bulk Transfer',
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 0.8.w,
+                                        vertical: 0.8.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppThemeColors.appPrimaryColor,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Selected Item',
+                                            style: AppTextStyle.small(
+                                              size: 10.sp,
+                                              color: Colors.white,
+                                              weight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 0.4.w),
-                                        Icon(
-                                          Icons.swap_horiz,
-                                          color: Colors.white,
-                                          size: 13.sp,
-                                        ),
-                                      ],
+                                          SizedBox(width: 0.4.w),
+                                          Icon(
+                                            Icons.swap_horiz,
+                                            color: Colors.white,
+                                            size: 13.sp,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

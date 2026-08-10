@@ -211,7 +211,7 @@ class _InputDateState extends State<InputDate> {
             height: 35,
             decoration: _box(),
             alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(horizontal: 1.w),
+            // padding: EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
                 Padding(
@@ -245,9 +245,9 @@ class _InputDateState extends State<InputDate> {
                       }
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6.0,
-                        vertical: 4.0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 0.9.w,
+                        vertical: 0.5.h,
                       ),
                       child: Icon(Icons.clear, size: 12, color: AppColors.grey),
                     ),

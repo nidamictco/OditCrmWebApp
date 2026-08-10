@@ -450,7 +450,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                     child: _selected.isEmpty
                         ? Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 1.w,
+                              horizontal: 0.5.w,
                               vertical: 0.5.h,
                             ),
                             child: Text(

@@ -19,7 +19,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.grey,
-      fontSize: fontSize ?? size ?? 9.sp,
+      fontSize: fontSize ?? size ?? 9.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w400,
       height: height,
       fontStyle: fontStyle,
@@ -42,7 +42,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.black,
-      fontSize: fontSize ?? size ?? 10.sp,
+      fontSize: fontSize ?? size ?? 10.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w400,
       height: height,
       fontStyle: fontStyle,
@@ -65,7 +65,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.black,
-      fontSize: fontSize ?? size ?? 10.5.sp,
+      fontSize: fontSize ?? size ?? 11.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w500,
       height: height,
       fontStyle: fontStyle,
@@ -88,7 +88,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.grey,
-      fontSize: fontSize ?? size ?? 10.sp,
+      fontSize: fontSize ?? size ?? 10.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w500,
       height: height,
       fontStyle: fontStyle,
@@ -111,7 +111,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.black,
-      fontSize: fontSize ?? size ?? 18.sp,
+      fontSize: fontSize ?? size ?? 18.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w600,
       height: height,
       fontStyle: fontStyle,
@@ -134,7 +134,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.inter(
       color: color ?? AppColors.black,
-      fontSize: fontSize ?? size ?? 16.sp,
+      fontSize: fontSize ?? size ?? 16.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w700,
       height: height,
       fontStyle: fontStyle,
@@ -157,7 +157,7 @@ class AppTextStyle {
   }) {
     return GoogleFonts.poppins(
       color: color ?? AppColors.primary,
-      fontSize: fontSize ?? size ?? 11.sp,
+      fontSize: fontSize ?? size ?? 11.5,
       fontWeight: fontWeight ?? weight ?? FontWeight.w500,
       height: height,
       fontStyle: fontStyle,

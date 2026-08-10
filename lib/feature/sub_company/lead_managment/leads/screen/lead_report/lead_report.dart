@@ -685,9 +685,12 @@ class _LeadsReportState extends State<LeadsReport> {
                             final categoryItems = state.categories
                                 .map((e) => e.name)
                                 .toList();
-                            // final subCategoryItems = state.subCategories
-                            //     .map((e) => e.name)
-                            //     .toList();
+                            final subCategoryItems = state.subCategories
+                                .map((e) => e.name)
+                                .toList();
+                            final tagItems = state.leadTag
+                                .map((e) => e.name)
+                                .toList();
                             final sourceItems = state.sources
                                 .map((e) => e.name)
                                 .toList();
@@ -697,15 +700,13 @@ class _LeadsReportState extends State<LeadsReport> {
                             final staffItems = state.staffList
                                 .map((e) => e.name)
                                 .toList();
+                            final createdByItems = state.staffList
+                                .map((e) => e.name)
+                                .toList();
                             final isAdmin =
                                 (_currentUserRole ?? '').toLowerCase() ==
                                 'admin';
 
-                            // createdBy uses staff list too (same people create leads)
-                            final createdByItems = state.staffList
-                                .map((e) => e.name)
-                                .toList();
-                            // Priority is still static (not stored in Firestore)
                             const priorityItems = [
                               "High",
                               "Low",
@@ -713,352 +714,341 @@ class _LeadsReportState extends State<LeadsReport> {
                               "Normal",
                             ];
 
-                            return Column(
-                              children: [
-                                // ── ROW 1: 5 Columns
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InputDate(
-                                        label: "From Date",
-                                        fromController: fromDate,
-                                        toController: toDate,
-                                        isFrom: true,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: InputDate(
-                                        label: "To Date",
-                                        fromController: fromDate,
-                                        toController: toDate,
-                                        isFrom: false,
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        showClear: true,
-                                        hint: 'select category',
-                                        showHelp: true,
-                                        message:
-                                            'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
-                                        items: categoryItems,
-                                        selectedValues: selectedCategories,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedCategories = vals;
-                                            selectedSubCategories = [];
-                                            _resetPage();
-                                          });
-                                          if (vals.isNotEmpty) {
-                                            context
-                                                .read<AddLeadCubit>()
-                                                .selectCategory(vals.last);
-                                          } else {
-                                            context
-                                                .read<AddLeadCubit>()
-                                                .selectCategory(null);
-                                          }
-                                        },
-                                        label: "Lead Category",
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Lead Stage",
-                                        hint: 'select stage',
-                                        showHelp: true,
-                                        message:
-                                            'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
-                                        items: stageItems,
-                                        selectedValues: selectedLeadStages,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedLeadStages = vals;
-                                            selectedTags = [];
-                                            _resetPage();
-                                          });
-                                          if (vals.isNotEmpty) {
-                                            context
-                                                .read<AddLeadCubit>()
-                                                .selectLeadStage(vals.last);
-                                          } else {
-                                            context
-                                                .read<AddLeadCubit>()
-                                                .selectLeadStage(null);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Priority",
-                                        hint: 'select priority',
-                                        items: priorityItems,
-                                        selectedValues: selectedPriorities,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedPriorities = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 1.h),
+                            final showSubCategory =
+                                selectedCategories.isNotEmpty &&
+                                state.subCategories.isNotEmpty;
+                            final showTags =
+                                selectedLeadStages.isNotEmpty &&
+                                state.leadTag.isNotEmpty;
 
-                                // ── ROW 2: 5 Columns
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Lead Source",
-                                        hint: 'select source',
-                                        showHelp: true,
-                                        message:
-                                            'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
-                                        items: sourceItems,
-                                        selectedValues: selectedSources,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedSources = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    if (isAdmin) ...[
-                                      Expanded(
-                                        child: MultiSelectDropdown(
-                                          showChips: true,
-                                          label: "Staff",
-                                          hint: 'select staff',
-                                          items: staffItems,
-                                          selectedValues: selectedStaff,
-                                          onChanged: (vals) {
-                                            setState(() {
-                                              selectedStaff = vals;
-                                              _resetPage();
-                                            });
-                                          },
-                                          message: ".",
-                                        ),
-                                      ),
-                                      SizedBox(width: 2.w),
-                                    ],
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Created By",
-                                        hint: 'select creator',
-                                        items: createdByItems,
-                                        selectedValues: selectedCreatedBy,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedCreatedBy = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "State",
-                                        hint: "select state",
-                                        items: stateDistrictMap.keys.toList(),
-                                        selectedValues: selectedStates,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedStates = vals;
-                                            final validDistricts =
-                                                _availableDistricts();
-                                            selectedDistricts =
-                                                selectedDistricts
-                                                    .where(
-                                                      (d) => validDistricts
-                                                          .contains(d),
-                                                    )
-                                                    .toList();
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Expanded(
-                                      child: MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "District",
-                                        hint: "select district",
-                                        items: _availableDistricts(),
-                                        selectedValues: selectedDistricts,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedDistricts = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                // ── ROW 3: Conditional Extra Fields
-                                (() {
-                                  final showSubCategory =
-                                      selectedCategories.isNotEmpty &&
-                                      state.subCategories.isNotEmpty;
-                                  final showTags =
-                                      selectedLeadStages.isNotEmpty &&
-                                      state.leadTag.isNotEmpty;
-                                  final showCallResult =
-                                      selectedLeadStages.isNotEmpty &&
-                                      selectedLeadStages.any(
-                                        (s) => s.toUpperCase() != 'NEW',
-                                      );
-
-                                  final List<Widget> row3Cols = [];
-
-                                  if (showSubCategory) {
-                                    final subCategoryItems = state.subCategories
-                                        .map((e) => e.name)
-                                        .toList();
-                                    row3Cols.add(
-                                      MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Lead Sub Category",
-                                        hint: "select sub category",
-                                        items: subCategoryItems,
-                                        selectedValues: selectedSubCategories,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedSubCategories = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
+                            final List<Widget> filterWidgets = [
+                              InputDate(
+                                label: "From Date",
+                                fromController: fromDate,
+                                toController: toDate,
+                                isFrom: true,
+                              ),
+                              InputDate(
+                                label: "To Date",
+                                fromController: fromDate,
+                                toController: toDate,
+                                isFrom: false,
+                              ),
+                              MultiSelectDropdown(
+                                showChips: true,
+                                showClear: true,
+                                hint: 'select category',
+                                showHelp: true,
+                                message:
+                                    'Lead Category is the type\n of product, service, or solution \na potential customer is \ninterested in, helping businesses\n identify and classify inquiries \nfor better follow-up.',
+                                items: categoryItems,
+                                selectedValues: selectedCategories,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedCategories = vals;
+                                    selectedSubCategories = [];
+                                    _resetPage();
+                                  });
+                                  if (vals.isNotEmpty) {
+                                    context.read<AddLeadCubit>().selectCategory(
+                                      vals.last,
+                                    );
+                                  } else {
+                                    context.read<AddLeadCubit>().selectCategory(
+                                      null,
                                     );
                                   }
+                                },
+                                label: "Lead Category",
+                              ),
+                            ];
 
-                                  if (showTags) {
-                                    final tagItems = state.leadTag
-                                        .map((e) => e.name)
+                            if (showSubCategory) {
+                              filterWidgets.add(
+                                MultiSelectDropdown(
+                                  showChips: true,
+                                  label: "Lead Sub Category",
+                                  hint: "select sub category",
+                                  items: subCategoryItems,
+                                  selectedValues: selectedSubCategories,
+                                  onChanged: (vals) {
+                                    setState(() {
+                                      selectedSubCategories = vals;
+                                      _resetPage();
+                                    });
+                                  },
+                                ),
+                              );
+                            }
+
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "Lead Stage",
+                                hint: 'select stage',
+                                showHelp: true,
+                                message:
+                                    'Lead Status lets you track \nthe stage of a lead, and you can \nadd new statuses as needed to match \nyour sales process.',
+                                items: stageItems,
+                                selectedValues: selectedLeadStages,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedLeadStages = vals;
+                                    selectedTags = [];
+                                    _resetPage();
+                                  });
+                                  if (vals.isNotEmpty) {
+                                    context
+                                        .read<AddLeadCubit>()
+                                        .selectLeadStage(vals.last);
+                                  } else {
+                                    context
+                                        .read<AddLeadCubit>()
+                                        .selectLeadStage(null);
+                                  }
+                                },
+                              ),
+                            );
+
+                            if (showTags) {
+                              filterWidgets.add(
+                                MultiSelectDropdown(
+                                  showChips: true,
+                                  label: "Tag",
+                                  hint: "select tag",
+                                  items: tagItems,
+                                  selectedValues: selectedTags,
+                                  onChanged: (vals) {
+                                    setState(() {
+                                      selectedTags = vals;
+                                      _resetPage();
+                                    });
+                                  },
+                                ),
+                              );
+                            }
+
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "Priority",
+                                hint: 'select priority',
+                                items: priorityItems,
+                                selectedValues: selectedPriorities,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedPriorities = vals;
+                                    _resetPage();
+                                  });
+                                },
+                              ),
+                            );
+
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "Lead Source",
+                                hint: 'select source',
+                                showHelp: true,
+                                message:
+                                    'It refers to the source of the \nlead, showing how the potential \ncustomer discovered or engaged with \nthe business, such as through marketing \ncampaigns, social media, referrals, events,\n or website inquiries.',
+                                items: sourceItems,
+                                selectedValues: selectedSources,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedSources = vals;
+                                    _resetPage();
+                                  });
+                                },
+                              ),
+                            );
+
+                            if (isAdmin) {
+                              filterWidgets.add(
+                                MultiSelectDropdown(
+                                  showChips: true,
+                                  label: "Staff",
+                                  hint: 'select staff',
+                                  items: staffItems,
+                                  selectedValues: selectedStaff,
+                                  onChanged: (vals) {
+                                    setState(() {
+                                      selectedStaff = vals;
+                                      _resetPage();
+                                    });
+                                  },
+                                  message: ".",
+                                ),
+                              );
+                            }
+
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "Created By",
+                                hint: 'select creator',
+                                items: createdByItems,
+                                selectedValues: selectedCreatedBy,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedCreatedBy = vals;
+                                    _resetPage();
+                                  });
+                                },
+                              ),
+                            );
+
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "State",
+                                hint: "select state",
+                                items: stateDistrictMap.keys.toList(),
+                                selectedValues: selectedStates,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedStates = vals;
+                                    final validDistricts =
+                                        _availableDistricts();
+                                    selectedDistricts = selectedDistricts
+                                        .where(
+                                          (d) => validDistricts.contains(d),
+                                        )
                                         .toList();
-                                    row3Cols.add(
-                                      MultiSelectDropdown(
-                                        showChips: true,
-                                        label: "Tag",
-                                        hint: "select tag",
-                                        items: tagItems,
-                                        selectedValues: selectedTags,
-                                        onChanged: (vals) {
-                                          setState(() {
-                                            selectedTags = vals;
-                                            _resetPage();
-                                          });
-                                        },
-                                      ),
-                                    );
-                                  }
+                                    _resetPage();
+                                  });
+                                },
+                              ),
+                            );
 
-                                  if (row3Cols.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
+                            filterWidgets.add(
+                              MultiSelectDropdown(
+                                showChips: true,
+                                label: "District",
+                                hint: "select district",
+                                items: _availableDistricts(),
+                                selectedValues: selectedDistricts,
+                                onChanged: (vals) {
+                                  setState(() {
+                                    selectedDistricts = vals;
+                                    _resetPage();
+                                  });
+                                },
+                              ),
+                            );
 
-                                  return Column(
-                                    children: [
-                                      SizedBox(height: 1.h),
-                                      Row(
-                                        children: [
-                                          for (int i = 0; i < 5; i++) ...[
-                                            if (i > 0) SizedBox(width: 2.w),
-                                            Expanded(
-                                              child: i < row3Cols.length
-                                                  ? row3Cols[i]
-                                                  : const SizedBox(),
+                            return LayoutBuilder(
+                              builder: (context, constraints) {
+                                final int fieldsPerRow =
+                                    constraints.maxWidth >= 1150 ? 5 : 4;
+
+                                List<List<Widget>> rows = [];
+                                for (
+                                  int i = 0;
+                                  i < filterWidgets.length;
+                                  i += fieldsPerRow
+                                ) {
+                                  rows.add(
+                                    filterWidgets.sublist(
+                                      i,
+                                      i + fieldsPerRow > filterWidgets.length
+                                          ? filterWidgets.length
+                                          : i + fieldsPerRow,
+                                    ),
+                                  );
+                                }
+
+                                return Column(
+                                  children: [
+                                    ...rows.map((rowItems) {
+                                      return Padding(
+                                        padding: EdgeInsets.only(bottom: 1.h),
+                                        child: Row(
+                                          children: [
+                                            ...rowItems.map(
+                                              (widget) => Expanded(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 0.4.w,
+                                                  ),
+                                                  child: widget,
+                                                ),
+                                              ),
+                                            ),
+                                            // Fill remaining space if row has fewer items
+                                            ...List.generate(
+                                              fieldsPerRow - rowItems.length,
+                                              (_) => const Expanded(
+                                                child: SizedBox(),
+                                              ),
                                             ),
                                           ],
+                                        ),
+                                      );
+                                    }),
+
+                                    SizedBox(height: 1.h),
+
+                                    // ── ACTIONS ROW
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            _applyFilters();
+                                          },
+                                          child: Container(
+                                            height: 4.h,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 1.5.w,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xff00b087),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              "Apply",
+                                              style: AppTextStyle.small(
+                                                size: 11.sp,
+                                                color: Colors.white,
+                                                weight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        if (_hasActiveFilters()) ...[
+                                          SizedBox(width: 1.w),
+                                          InkWell(
+                                            onTap: _clearFilters,
+                                            child: Container(
+                                              height: 4.h,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 1.5.w,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xffe95757),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'Reset',
+                                                style: AppTextStyle.small(
+                                                  size: 11.sp,
+                                                  color: Colors.white,
+                                                  weight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ],
-                                      ),
-                                    ],
-                                  );
-                                })(),
-
-                                SizedBox(height: 2.h),
-
-                                // ── ROW 4: ACTIONS ROW
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        _applyFilters();
-                                      },
-
-                                      child: Container(
-                                        height: 4.h,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 1.5.w,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xff00b087),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "View Report",
-                                          style: AppTextStyle.small(
-                                            size: 11.sp,
-                                            color: Colors.white,
-                                            weight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
-                                    if (_hasActiveFilters()) ...[
-                                      SizedBox(width: 1.w),
-                                      InkWell(
-                                        onTap: _clearFilters,
-                                        child: Container(
-                                          height: 4.h,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 1.5.w,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xffe95757),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'Reset Filters',
-                                            style: AppTextStyle.small(
-                                              size: 11.sp,
-                                              color: Colors.white,
-                                              weight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   ],
-                                ),
-                              ],
-                              // ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -1082,7 +1072,7 @@ class _LeadsReportState extends State<LeadsReport> {
                     middleWidget: Container(
                       height: 4.h,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 1.w,
+                        horizontal: 8,
                         // vertical: 0.5.h,
                       ),
                       decoration: BoxDecoration(
@@ -1098,7 +1088,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'High',
                             style: AppTextStyle.small(
-                              size: 10.sp,
+                              size: 10.5,
                               color: Colors.white,
                             ),
                           ),
@@ -1108,7 +1098,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Normal',
                             style: AppTextStyle.small(
-                              size: 10.sp,
+                              size: 10.5,
                               color: Colors.white,
                             ),
                           ),
@@ -1118,7 +1108,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Low',
                             style: AppTextStyle.small(
-                              size: 10.sp,
+                              size: 10.5,
                               color: Colors.white,
                             ),
                           ),
@@ -1128,7 +1118,7 @@ class _LeadsReportState extends State<LeadsReport> {
                           Text(
                             'Negative',
                             style: AppTextStyle.small(
-                              size: 10.sp,
+                              size: 10.5,
                               color: Colors.white,
                             ),
                           ),
@@ -1158,14 +1148,14 @@ class _LeadsReportState extends State<LeadsReport> {
                               style: AppTextStyle.medium(
                                 color: Colors.white,
                                 weight: FontWeight.w500,
-                                size: 11.sp,
+                                size: 10.sp,
                               ),
                             ),
-                            SizedBox(width: 0.3.w),
+                            SizedBox(width: 0.4.w),
                             Icon(
                               Icons.file_download_outlined,
                               color: Colors.white,
-                              size: 3.h,
+                              size: 12.sp,
                             ),
                           ],
                         ),
@@ -1287,7 +1277,10 @@ class _LeadsReportState extends State<LeadsReport> {
                                   },
                                   onEdit: (lead) async {
                                     final didUpdate = await context.push<bool>(
-                                      RoutePaths.leadEditPath(lead.id!,fromScreen: 'leadsReport'),
+                                      RoutePaths.leadEditPath(
+                                        lead.id!,
+                                        fromScreen: 'leadsReport',
+                                      ),
                                     );
                                     if (didUpdate == true && context.mounted) {
                                       context.read<AddLeadCubit>().fetchLeads();
@@ -1298,7 +1291,11 @@ class _LeadsReportState extends State<LeadsReport> {
                                   },
                                   onTap: (lead) {
                                     context.push(
-                                      RoutePaths.followUpPath(lead.id!, "NEW",fromScreen: 'leadsReport'),
+                                      RoutePaths.followUpPath(
+                                        lead.id!,
+                                        "NEW",
+                                        fromScreen: 'leadsReport',
+                                      ),
                                     );
                                   },
                                   getPriorityColor: getPriorityColor,
@@ -1322,7 +1319,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                         style: AppTextStyle.medium(
                                           weight: FontWeight.w600,
                                           color: const Color(0xff64748B),
-                                          size: 9.8.sp,
+                                          size: 10,
                                         ),
                                       ),
                                       Row(
@@ -1384,7 +1381,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                                             color: Colors.white,
                                                             weight:
                                                                 FontWeight.w500,
-                                                            size: 9.sp,
+                                                            size: 9.5,
                                                           ),
                                                     ),
                                                     const SizedBox(width: 6),

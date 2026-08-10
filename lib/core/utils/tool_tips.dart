@@ -24,15 +24,15 @@ class _ToolTipWidgetState extends State<ToolTipWidget> {
       textStyle: TextStyle(color: Colors.white, fontSize: 12),
       waitDuration: Duration(milliseconds: 200),
       child: Container(
-        height: 2.h,
-        width: 2.w,
+        height: 1.5.h,
+        width: 1.5.w,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.green, width: 1),
         ),
         child: Icon(
           Icons.question_mark_rounded,
-          size: 10.sp,
+          size: 9.sp,
           color: AppColors.green,
         ),
       ),

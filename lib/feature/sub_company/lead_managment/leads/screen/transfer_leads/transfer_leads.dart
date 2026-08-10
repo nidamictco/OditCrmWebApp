@@ -985,7 +985,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                         destination: RoutePaths.followUpPath(
                           lead.id!,
                           "TRANSFERED",
-                          fromScreen: 'transferLeads'
+                          fromScreen: 'transferLeads',
                         ),
                         usePush: true,
                         enableInkWell: false,
