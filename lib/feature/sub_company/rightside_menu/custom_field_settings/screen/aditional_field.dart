@@ -307,7 +307,7 @@ class _AdditionalFieldsSectionState extends State<AdditionalFieldsSection> {
                           return SizedBox(
                             child: CustomTable(
                               columns: [
-                                TableColumn(title: "Sl No."),
+                                TableColumn(title: "No."),
                                 TableColumn(title: "Field Name"),
                                 TableColumn(title: "Action"),
                               ],

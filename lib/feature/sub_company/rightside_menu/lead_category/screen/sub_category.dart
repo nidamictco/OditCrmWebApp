@@ -144,27 +144,29 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
           onSubmit: () async {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
-   final cubit = context.read<SubCategoryCubit>();
+            final cubit = context.read<SubCategoryCubit>();
 
-             if (cubit.subcategoryExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This sub category already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.subcategoryExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This sub category already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
             Navigator.pop(ctx);
 
             await context.read<SubCategoryCubit>().addSubCategory(name: name);
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$name added successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("$name added successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -216,18 +218,20 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
 
             if (name.isEmpty) return;
 
- final cubit = context.read<SubCategoryCubit>();
+            final cubit = context.read<SubCategoryCubit>();
 
-             if (cubit.subcategoryExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This sub category already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.subcategoryExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This sub category already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx); // pop first
 
@@ -237,11 +241,11 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
               name: name,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} updated successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("${category.name} updated successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -269,10 +273,10 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
           Navigator.pop(ctx);
           context.read<SubCategoryCubit>().deleteSubCategory(id: category.id);
           ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} deleted successfully!"),
-            backgroundColor: Colors.red,
-            )
+            SnackBar(
+              content: Text("${category.name} deleted successfully!"),
+              backgroundColor: Colors.red,
+            ),
           );
         },
       ),
@@ -424,7 +428,7 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Category Name"),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),

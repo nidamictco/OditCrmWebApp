@@ -40,23 +40,23 @@ class _PhoneLogTabState extends State<PhoneLogTab> {
           child: Row(
             children: [
               Expanded(
-  child: InputDate(
-    label: "From Date",
-    fromController: fromDateController,
-    toController: toDateController,
-    isFrom: true,  // shows fromDate value
-  ),
-),
-SizedBox(width: 2.w),
-Expanded(
-  child: InputDate(
-    label: "To Date",
-    fromController: fromDateController,
-    toController: toDateController,
-    isFrom: false, // shows toDate value
-  ),
-),
-SizedBox(width: 2.w),
+                child: InputDate(
+                  label: "From Date",
+                  fromController: fromDateController,
+                  toController: toDateController,
+                  isFrom: true, // shows fromDate value
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Expanded(
+                child: InputDate(
+                  label: "To Date",
+                  fromController: fromDateController,
+                  toController: toDateController,
+                  isFrom: false, // shows toDate value
+                ),
+              ),
+              SizedBox(width: 2.w),
               Expanded(
                 child: Dropdown(
                   // "Staff",
@@ -66,7 +66,9 @@ SizedBox(width: 2.w),
                     setState(() {
                       selectedStaff = val;
                     });
-                  }, label: 'Staff', hint: 'Select Staff',
+                  },
+                  label: 'Staff',
+                  hint: 'Select Staff',
                 ),
               ),
               SizedBox(width: 2.w),
@@ -82,7 +84,7 @@ SizedBox(width: 2.w),
         SizedBox(
           child: CustomTable(
             columns: [
-              TableColumn(title: "Sl No."),
+              TableColumn(title: "No."),
               TableColumn(title: "Name"),
               TableColumn(title: "Phone"),
               TableColumn(title: "Duration"),

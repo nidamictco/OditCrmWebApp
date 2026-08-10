@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/core/utils/dotted_down_arrow.dart';
 import 'package:Odit_CRM/core/utils/follow_up_left_notch.dart';
@@ -162,60 +163,95 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
   }
 
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
-    showDialog(
-      context: ctx,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
+    // showDialog(
+    //   context: ctx,
+    //   builder: (_) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => context.pop(ctx),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () async {
+    //           await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+
+    //           context.pop(ctx);
+
+    //           final user = await SessionService().getSavedUser();
+    //           context.read<AddLeadCubit>().fetchDashboardLeads(
+    //             staffId: user?.id! ?? "",
+    //             role: user?.staffType ?? "",
+    //             fromCard: widget.fromCard ?? "NEW",
+    //           );
+
+    //           final path = Uri(
+    //             path: RoutePaths.newLeads,
+    //             queryParameters: {
+    //               'fromCard': widget.fromCard ?? "NEW",
+    //               if (user?.id != null) 'staffId': user?.id!,
+    //             },
+    //           ).toString();
+
+    //           context.go(path);
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             SnackBar(
+    //               content: Text('${lead.clientName} deleted successfully!'),
+    //               backgroundColor: Colors.red,
+    //             ),
+    //           );
+    //         },
+    //         child: Text(
+    //           'Delete',
+    //           style: AppTextStyle.medium(color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      type: ConfirmAlertType.delete,
+      title: 'Delete Lead',
+      message:
           'Are you sure you want to delete "${lead.clientName}"? This action cannot be undone.',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(ctx),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
+      onDelete: () async {
+        await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
+
+        context.pop(ctx);
+
+        final user = await SessionService().getSavedUser();
+        context.read<AddLeadCubit>().fetchDashboardLeads(
+          staffId: user?.id! ?? "",
+          role: user?.staffType ?? "",
+          fromCard: widget.fromCard ?? "NEW",
+        );
+
+        final path = Uri(
+          path: RoutePaths.newLeads,
+          queryParameters: {
+            'fromCard': widget.fromCard ?? "NEW",
+            if (user?.id != null) 'staffId': user?.id!,
+          },
+        ).toString();
+
+        context.go(path);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${lead.clientName} deleted successfully!'),
+            backgroundColor: Colors.red,
           ),
-          TextButton(
-            onPressed: () async {
-              await ctx.read<AddLeadCubit>().deleteLead(lead.id!, lead);
-
-              context.pop(ctx);
-
-              final user = await SessionService().getSavedUser();
-              context.read<AddLeadCubit>().fetchDashboardLeads(
-                staffId: user?.id! ?? "",
-                role: user?.staffType ?? "",
-                fromCard: widget.fromCard ?? "NEW",
-              );
-
-              final path = Uri(
-                path: RoutePaths.newLeads,
-                queryParameters: {
-                  'fromCard': widget.fromCard ?? "NEW",
-                  if (user?.id != null) 'staffId': user?.id!,
-                },
-              ).toString();
-
-              context.go(path);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${lead.clientName} deleted successfully!'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
-            child: Text(
-              'Delete',
-              style: AppTextStyle.medium(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -317,13 +353,15 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
           nameOf: (s) => s.name,
         );
 
-        final sourceName = _currentLead.leadSource.isNotEmpty?resolveLeadName(
-          list: state.sources,
-          id: _currentLead.leadSourceId,
-          fallback: _currentLead.leadSource,
-          idOf: (s) => s.id,
-          nameOf: (s) => s.name,
-        ):'N/A';
+        final sourceName = _currentLead.leadSource.isNotEmpty
+            ? resolveLeadName(
+                list: state.sources,
+                id: _currentLead.leadSourceId,
+                fallback: _currentLead.leadSource,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              )
+            : 'N/A';
 
         return Container(
           padding: EdgeInsets.all(1.8.w),
@@ -365,7 +403,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                         borderColor: const Color(0xFF017EFB),
                         onTap: () async {
                           final didUpdate = await context.push<bool>(
-                            RoutePaths.leadEditPath(_currentLead.id!,fromScreen: 'followupDetails'),
+                            RoutePaths.leadEditPath(
+                              _currentLead.id!,
+                              fromScreen: 'followupDetails',
+                            ),
                           );
                           if (didUpdate == true && mounted) {
                             await _reloadLead();
@@ -540,16 +581,16 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                           // categoryName.isEmpty
                           //     ? 'Category: N/A'
                           //     :
-                               subCategoryName.isNotEmpty
-                                  ? 'Category: $categoryName - $subCategoryName'
-                                  : 'Category: $categoryName',
+                          subCategoryName.isNotEmpty
+                              ? 'Category: $categoryName - $subCategoryName'
+                              : 'Category: $categoryName',
                         ),
                         _metaChip(
                           Icons.link_outlined,
                           // sourceName.isEmpty
                           //     ? 'Lead Source: N/A'
-                          //     : 
-                              'Lead Source: $sourceName',
+                          //     :
+                          'Lead Source: $sourceName',
                         ),
                         _metaChip(
                           Icons.person_outline,
@@ -3623,10 +3664,7 @@ class _NewStaffCard extends StatelessWidget {
   final LeadStaffHandler handler;
   final StaffModel? currentStaff;
 
-  const _NewStaffCard({
-    required this.handler,
-    this.currentStaff,
-  });
+  const _NewStaffCard({required this.handler, this.currentStaff});
 
   @override
   Widget build(BuildContext context) {

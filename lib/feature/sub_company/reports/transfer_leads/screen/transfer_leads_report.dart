@@ -601,7 +601,7 @@ class _TransferLeadsReportState extends State<TransferLeadsReport> {
                                 child: CustomTable(
                                   key: ValueKey(_tableKey),
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Name"),
                                     TableColumn(title: "Contact Number"),
                                     TableColumn(title: "From Staff"),

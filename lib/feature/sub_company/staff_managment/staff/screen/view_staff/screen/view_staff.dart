@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/designation_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/view_staff/addStaffButton.dart';
@@ -111,37 +112,48 @@ class _ViewStaffState extends State<ViewStaff> {
   // ─── Delete confirmation dialog ────────────────────────────────────────────
 
   void _confirmDelete(BuildContext ctx, StaffModel staff) {
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Are you sure you want to delete "${staff.name}"? This action cannot be undone.',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(dialogContext),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () {
+    //           Navigator.pop(dialogContext);
+    //           // ctx.read<StaffCubit>().restoreStaff(staff);
+    //           ctx.read<StaffCubit>().deleteStaff(staff.id!, staff);
+    //         },
+    //         child: Text(
+    //           'Delete',
+    //           style: AppTextStyle.medium(color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      title: 'Delete Staff',
+      message:
           'Are you sure you want to delete "${staff.name}"? This action cannot be undone.',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              // ctx.read<StaffCubit>().restoreStaff(staff);
-              ctx.read<StaffCubit>().deleteStaff(staff.id!, staff);
-            },
-            child: Text(
-              'Delete',
-              style: AppTextStyle.medium(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
+      onDelete: () {
+        context.pop();
+        ctx.read<StaffCubit>().deleteStaff(staff.id!, staff);
+      },
+      type: ConfirmAlertType.delete,
     );
   }
 

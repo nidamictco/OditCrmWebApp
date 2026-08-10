@@ -1649,7 +1649,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
       wrapColumnIndices: [2],
       rows: leads,
       columns: [
-        ExcelColumn(header: 'SL No.', value: (l) => '${leads.indexOf(l) + 1}'),
+        ExcelColumn(header: 'No.', value: (l) => '${leads.indexOf(l) + 1}'),
         ExcelColumn(header: 'Client Name', value: (l) => l.clientName),
         ExcelColumn(header: 'Phone No', value: (l) => l.contactNumber),
         ExcelColumn(header: 'WhatsApp No', value: (l) => l.whatsappNumber),

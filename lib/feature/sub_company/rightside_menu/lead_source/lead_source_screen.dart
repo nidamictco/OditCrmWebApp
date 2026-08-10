@@ -32,11 +32,10 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
   // ─── search query (wired to the search box) ───────────────────────────────
   String _searchQuery = '';
   String _selectedEntries = '10';
-  
+
   List<int> _selectedIndices = [];
   int _tableKey = 0;
   int _currentPage = 1;
-
 
   @override
   void initState() {
@@ -67,7 +66,6 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
     return filtered;
   }
 
-  
   List<LeadsModel> _pagedLeads(List<LeadsModel> allFiltered) {
     final limit = int.tryParse(_selectedEntries) ?? 10;
     final start = (_currentPage - 1) * limit;
@@ -138,18 +136,20 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
             final name = sourceController.text.trim();
             if (name.isEmpty) return;
 
-             final cubit = context.read<LeadSourceCubit>();
+            final cubit = context.read<LeadSourceCubit>();
 
-             if (cubit.sourceExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This source already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.sourceExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This source already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx);
 
@@ -175,8 +175,8 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                 Text("Lead Category",style: AppTextStyle.medium(size: 12.sp),),
-                 SizedBox(height: 0.5.h),
+                Text("Lead Category", style: AppTextStyle.medium(size: 12.sp)),
+                SizedBox(height: 0.5.h),
                 TextField(
                   controller: sourceController,
                   decoration: InputDecoration(
@@ -201,16 +201,18 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
             if (name.isEmpty) return;
 
             final cubit = context.read<LeadSourceCubit>();
- if (cubit.sourceExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This source already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.sourceExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This source already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx); // pop first
 
@@ -220,11 +222,11 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
               name: name,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} updated successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("${category.name} updated successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -251,12 +253,12 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
         onSubmit: () {
           Navigator.pop(ctx);
           context.read<LeadSourceCubit>().deleteSource(id: source.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${source.name} deleted successfully!"),
-            backgroundColor: Colors.red,
-          ),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("${source.name} deleted successfully!"),
+              backgroundColor: Colors.red,
+            ),
+          );
         },
       ),
     );
@@ -404,18 +406,17 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                       SizedBox(height: 3.h),
 
                       /// 🔹 FILTER
-                      
                       ShowEntries(
-                         initialSearch: _searchQuery,
-                      initialEntries: _selectedEntries,
-                      onSearchChanged: (v) => setState(() {
-                        _searchQuery = v;
-                        _resetPage();
-                      }),
-                      onEntriesChanged: (v) => setState(() {
-                        _selectedEntries = v;
-                        _resetPage();
-                      }),
+                        initialSearch: _searchQuery,
+                        initialEntries: _selectedEntries,
+                        onSearchChanged: (v) => setState(() {
+                          _searchQuery = v;
+                          _resetPage();
+                        }),
+                        onEntriesChanged: (v) => setState(() {
+                          _selectedEntries = v;
+                          _resetPage();
+                        }),
                       ),
 
                       SizedBox(height: 2.h),
@@ -440,32 +441,29 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                           final rows = _filtered(state.sources);
 
                           final allFiltered = _filtered(rows);
-                        final totalCount = allFiltered.length;
-                        final totalPages = _totalPages(totalCount);
-                        final limit = int.tryParse(_selectedEntries) ?? 10;
-                        if (_currentPage > totalPages) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() => _currentPage = totalPages);
-                          });
-                        }
-                        final pagedList = _pagedLeads(allFiltered);
+                          final totalCount = allFiltered.length;
+                          final totalPages = _totalPages(totalCount);
+                          final limit = int.tryParse(_selectedEntries) ?? 10;
+                          if (_currentPage > totalPages) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              setState(() => _currentPage = totalPages);
+                            });
+                          }
+                          final pagedList = _pagedLeads(allFiltered);
 
-                        // "Showing X to Y of Z entries"
-                        final showFrom = totalCount == 0
-                            ? 0
-                            : (_currentPage - 1) * limit + 1;
-                        final showTo = (showFrom + pagedList.length - 1).clamp(
-                          0,
-                          totalCount,
-                        );
+                          // "Showing X to Y of Z entries"
+                          final showFrom = totalCount == 0
+                              ? 0
+                              : (_currentPage - 1) * limit + 1;
+                          final showTo = (showFrom + pagedList.length - 1)
+                              .clamp(0, totalCount);
 
-                         
                           return Column(
                             children: [
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Lead Source"),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),
@@ -473,20 +471,24 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                   rows: pagedList.asMap().entries.map((entry) {
                                     final index = entry.key;
                                     final cat = entry.value;
-                                    final isDeleting = state.deletingId == cat.id;
+                                    final isDeleting =
+                                        state.deletingId == cat.id;
                                     final serial =
-                                          (_currentPage - 1) * limit + index + 1;
+                                        (_currentPage - 1) * limit + index + 1;
                                     return [
                                       Text(
                                         serial.toString(),
                                         style: AppTextStyle.medium(),
                                       ),
-                                      Text(cat.name, style: AppTextStyle.medium()),
+                                      Text(
+                                        cat.name,
+                                        style: AppTextStyle.medium(),
+                                      ),
                                       Text(
                                         cat.createdBy,
                                         style: AppTextStyle.medium(),
                                       ),
-                              
+
                                       /// ACTION
                                       isDeleting
                                           ? const SizedBox(
@@ -503,17 +505,19 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                               children: [
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
-                                                  onTap: () => _showEditDialog(cat),
+                                                  onTap: () =>
+                                                      _showEditDialog(cat),
                                                   child: Icon(
                                                     Icons.edit_outlined,
                                                     size: 14.sp,
                                                     color: Colors.blue,
                                                   ),
                                                 ),
-                                                SizedBox(width: 1.w,),
+                                                SizedBox(width: 1.w),
                                                 // 🔹 Delete — opens confirm dialog
                                                 GestureDetector(
-                                                  onTap: () => _confirmDelete(cat),
+                                                  onTap: () =>
+                                                      _confirmDelete(cat),
                                                   child: Icon(
                                                     Icons.delete_outline,
                                                     size: 14.sp,
@@ -526,6 +530,7 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                                   }).toList(),
                                 ),
                               ),
+
                               /// 🔹 FOOTER
                               Padding(
                                 padding: EdgeInsets.symmetric(
@@ -575,8 +580,6 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
                           );
                         },
                       ),
-
-                     
                     ],
                   ),
                 ),
@@ -589,29 +592,25 @@ class _LeadSourceScreenState extends State<LeadSourceScreen> {
   }
 
   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+    return [
+      GestureDetector(
+        onTap: () {}, // already on this page
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Text(
+            '$_currentPage',
+            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
           ),
         ),
       ),
-    ),
-  ];
-}
-
+    ];
+  }
 }

@@ -23,7 +23,12 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            TopBreadcrumbBar(title: "Lead Management", subTitle: 'Outgoing Call History',show2ndTitle: true,subTitle2: 'Call History',),
+            TopBreadcrumbBar(
+              title: "Lead Management",
+              subTitle: 'Outgoing Call History',
+              show2ndTitle: true,
+              subTitle2: 'Call History',
+            ),
             Padding(
               padding: EdgeInsets.all(2.w),
               child: Container(
@@ -103,7 +108,7 @@ class _OutGoingCallhistoryState extends State<OutGoingCallhistory> {
                       child: CustomTable(
                         columns: [
                           // TableColumn(title: "", flex: 1),
-                          TableColumn(title: "Sl No."),
+                          TableColumn(title: "No."),
                           TableColumn(title: "Staff"),
                           TableColumn(title: "To Phone"),
                           TableColumn(title: "Date"),
