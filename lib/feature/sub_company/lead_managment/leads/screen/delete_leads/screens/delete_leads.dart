@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 import 'package:flutter/material.dart';
@@ -1539,45 +1540,62 @@ class _DeleteLeadsState extends State<DeleteLeads> {
 
   void _confirmDelete(BuildContext ctx, AddLeadModel lead) {
     final addLeadCubit = ctx.read<AddLeadCubit>();
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
-          'Delete "${lead.clientName}" permanently?',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
+    ConfirmAlertWidget.show(
+      context,
+      title: 'Delete Lead',
+      message: 'Delete "${lead.clientName}" permanently?',
+      type: ConfirmAlertType.delete,
+      onDelete: () {
+        addLeadCubit.deleteLead(lead.id!, lead);
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lead(s) deleted successfully.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.red,
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              // addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
-              addLeadCubit.deleteLead(lead.id!, lead);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Lead(s) deleted successfully.'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppColors.red,
-                ),
-              );
-            },
-            child: Text(
-              'Delete',
-              style: AppTextStyle.medium(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Delete Lead', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Delete "${lead.clientName}" permanently?',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(dialogContext),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () {
+    //           Navigator.pop(dialogContext);
+    //           // addLeadCubit.permanentlyDeleteLead(lead.id ?? '');
+    //           addLeadCubit.deleteLead(lead.id!, lead);
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             const SnackBar(
+    //               content: Text('Lead(s) deleted successfully.'),
+    //               behavior: SnackBarBehavior.floating,
+    //               backgroundColor: AppColors.red,
+    //             ),
+    //           );
+    //         },
+    //         child: Text(
+    //           'Delete',
+    //           style: AppTextStyle.medium(color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   // -------------export to excel function (filtered)-------------
