@@ -1010,9 +1010,9 @@ class _LeadsReportState extends State<LeadsReport> {
                                             ),
                                             alignment: Alignment.center,
                                             child: Text(
-                                              "Applycr",
+                                              "Apply",
                                               style: AppTextStyle.small(
-                                                size: 11,
+                                                size: 11.5,
                                                 color: Colors.white,
                                                 weight: FontWeight.w500,
                                               ),
@@ -1037,7 +1037,7 @@ class _LeadsReportState extends State<LeadsReport> {
                                               child: Text(
                                                 'Reset',
                                                 style: AppTextStyle.small(
-                                                  size: 11,
+                                                  size: 11.5,
                                                   color: Colors.white,
                                                   weight: FontWeight.w500,
                                                 ),
@@ -1843,45 +1843,6 @@ class _ReportLeadsTable extends StatefulWidget {
 }
 
 class _ReportLeadsTableState extends State<_ReportLeadsTable> {
-  final ScrollController _hScrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _hScrollController.dispose();
-    super.dispose();
-  }
-
-  // Color _getStatusColor(String stage) {
-  //   switch (stage.trim().toLowerCase()) {
-  //     case 'new':
-  //       return const Color(0xff22C55E);
-  //     case 'reject':
-  //     case 'rejected':
-  //       return const Color(0xffEF4444);
-  //     case 'follow up':
-  //     case 'follow-up':
-  //       return const Color(0xff3B82F6);
-  //     default:
-  //       return const Color(0xff3B82F6);
-  //   }
-  // }
-  // Color _getStatusColor(String stage) {
-  //   switch (stage.trim().toUpperCase()) {
-  //     case 'FOLLOWUP':
-  //       return const Color(0xFFF59E0B);
-  //     case 'NEW':
-  //       return const Color(0xFF10B981);
-  //     case 'TRANSFERRED':
-  //       return const Color(0xFF3B82F6);
-  //     case 'REJECTED':
-  //       return const Color(0xFFEF4444);
-  //     case 'CLOSED':
-  //       return const Color(0xFF0D31E8);
-  //     default:
-  //       return const Color(0xFF10B981);
-  //   }
-  // }
-
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -1904,387 +1865,163 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
 
   @override
   Widget build(BuildContext context) {
-    // local aliases so the rest of the build body is unchanged
-    final leads = widget.leads;
-    final selectedIndices = widget.selectedIndices;
-    final currentPage = widget.currentPage;
-    final limit = widget.limit;
-    final onCheckChanged = widget.onCheckChanged;
-    final onToggleSelectAll = widget.onToggleSelectAll;
-    final isAllSelected = widget.isAllSelected;
-    final onEdit = widget.onEdit;
-    final onDelete = widget.onDelete;
-    final onTap = widget.onTap;
-    final getPriorityColor = widget.getPriorityColor;
-    final categories = widget.categories;
-    final subCategories = widget.subCategories;
-    final sources = widget.sources;
-    final stages = widget.stages;
-    final tags = widget.tags;
-
-    if (leads.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h),
-        child: const Center(
-          child: Text(
-            "No data available in table",
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final tableWidth = screenWidth > 1100 ? screenWidth - 4.w : 1100.0;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: .5.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffE2E8F0)),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-        ),
+    return CustomTable(
+      showCheckboxes: true,
+      initialCheckedStates: List.generate(
+        widget.leads.length,
+        (index) {
+          final absoluteIndex =
+              (widget.currentPage - 1) * widget.limit + index;
+          return widget.selectedIndices.contains(absoluteIndex);
+        },
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Scrollbar(
-          controller: _hScrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _hScrollController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: tableWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Table Header
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xffF8FAFC),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(12),
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: 1.8.h,
-                      horizontal: 1.5.w,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            "No.",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.radio_button_unchecked,
-                                size: 12,
-                                color: Color(0xff94A3B8),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                "Name",
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff475569),
-                                  weight: FontWeight.w600,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Phone No.",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Category",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Staff",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Status",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Created Date",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Lead Source",
-                            style: AppTextStyle.medium(
-                              color: const Color(0xff475569),
-                              weight: FontWeight.w600,
-                              size: 11.sp,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "Select All",
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff475569),
-                                  weight: FontWeight.w600,
-                                  size: 11.sp,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              buildRoundedCheckbox(
-                                value: isAllSelected,
-                                onTap: onToggleSelectAll,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1, color: Color(0xffE2E8F0)),
-                  // Table Body
-                  ...List.generate(leads.length, (index) {
-                    final lead = leads[index];
-                    final serial = (currentPage - 1) * limit + index + 1;
-                    final absoluteIndex = (currentPage - 1) * limit + index;
-                    final isChecked = selectedIndices.contains(absoluteIndex);
-                    final priorityColor = getPriorityColor(lead.priority);
+      onCheckChanged: (rowIndex, isChecked) {
+        final absoluteIndex =
+            (widget.currentPage - 1) * widget.limit + rowIndex;
+        final isCurrentlySelected =
+            widget.selectedIndices.contains(absoluteIndex);
+        if (isChecked != isCurrentlySelected) {
+          widget.onCheckChanged(absoluteIndex);
+        }
+      },
+      priorityColors: widget.leads
+          .map((lead) => widget.getPriorityColor(lead.priority))
+          .toList(),
+      onRowTap: (rowIndex) {
+        if (rowIndex < widget.leads.length) {
+          widget.onTap(widget.leads[rowIndex]);
+        }
+      },
+      columns: const [
+        TableColumn(title: "No."),
+        TableColumn(title: "Name"),
+        TableColumn(title: "Phone No."),
+        TableColumn(title: "Category"),
+        TableColumn(title: "Staff"),
+        TableColumn(title: "Status"),
+        TableColumn(title: "Created Date"),
+        TableColumn(title: "Lead Source"),
+        TableColumn(title: "Select All"),
+      ],
+      rows: widget.leads.asMap().entries.map((entry) {
+        final index = entry.key;
+        final lead = entry.value;
+        final serial = (widget.currentPage - 1) * widget.limit + index + 1;
 
-                    return InkWell(
-                      onTap: () => onTap(lead),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 1.h,
-                          horizontal: 1.5.w,
-                        ),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Color(0xffF1F5F9)),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                '$serial',
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: priorityColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      lead.clientName,
-                                      style: AppTextStyle.medium(
-                                        color: const Color(0xff0F172A),
-                                        weight: FontWeight.w400,
-                                        size: 11.sp,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                lead.contactNumber,
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                lead.leadSubCategory.isNotEmpty
-                                    ? '${resolveLeadName(list: categories, id: lead.leadCategoryId, fallback: lead.leadCategory, idOf: (s) => s.id, nameOf: (s) => s.name)} - ${resolveLeadName(list: subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s) => s.id, nameOf: (s) => s.name)}'
-                                    // : lead.leadCategory,
-                                    : resolveLeadName(
-                                        list: categories,
-                                        id: lead.leadCategoryId,
-                                        fallback: lead.leadCategory,
-                                        idOf: (s) => s.id,
-                                        nameOf: (s) => s.name,
-                                      ),
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                lead.assignedStaff,
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                // lead.leadStage,
-                                resolveLeadName(
-                                  list: stages,
-                                  id: lead.leadStageId,
-                                  fallback: lead.leadStage,
-                                  idOf: (s) => s.id,
-                                  nameOf: (s) => s.name,
-                                ),
-                                style: AppTextStyle.medium(
-                                  color: getStageColor(lead.leadStage),
-                                  weight: FontWeight.w500,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                lead.createdAt != null
-                                    ? DateFormat(
-                                        'dd-MM-yyyy',
-                                      ).format(lead.createdAt!)
-                                    : '-',
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                // lead.leadSource,
-                                resolveLeadName(
-                                  list: sources,
-                                  id: lead.leadSourceId,
-                                  fallback: lead.leadSource,
-                                  idOf: (s) => s.id,
-                                  nameOf: (s) => s.name,
-                                ),
-                                style: AppTextStyle.medium(
-                                  color: const Color(0xff0F172A),
-                                  weight: FontWeight.w400,
-                                  size: 11.sp,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  _buildActionButton(
-                                    icon: Icons.edit_outlined,
-                                    color: const Color(0xff3B82F6),
-                                    onTap: () => onEdit(lead),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  _buildActionButton(
-                                    icon: Icons.delete_outline,
-                                    color: const Color(0xffEF4444),
-                                    onTap: () => onDelete(lead),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  buildRoundedCheckbox(
-                                    value: isChecked,
-                                    onTap: () => onCheckChanged(absoluteIndex),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
+        final categoryText = lead.leadSubCategory.isNotEmpty
+            ? '${resolveLeadName(list: widget.categories, id: lead.leadCategoryId, fallback: lead.leadCategory, idOf: (s) => s.id, nameOf: (s) => s.name)} - ${resolveLeadName(list: widget.subCategories, id: lead.leadSubCategoryId, fallback: lead.leadSubCategory, idOf: (s) => s.id, nameOf: (s) => s.name)}'
+            : resolveLeadName(
+                list: widget.categories,
+                id: lead.leadCategoryId,
+                fallback: lead.leadCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              );
+
+        final stageText = resolveLeadName(
+          list: widget.stages,
+          id: lead.leadStageId,
+          fallback: lead.leadStage,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        );
+
+        final sourceText = resolveLeadName(
+          list: widget.sources,
+          id: lead.leadSourceId,
+          fallback: lead.leadSource,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        );
+
+        final dateText = lead.createdAt != null
+            ? DateFormat('dd-MM-yyyy').format(lead.createdAt!)
+            : '-';
+
+        return [
+          Text(
+            '$serial',
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
             ),
           ),
-        ),
-      ),
+          Text(
+            lead.clientName,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            lead.contactNumber,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+          ),
+          Text(
+            categoryText,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+          ),
+          Text(
+            lead.assignedStaff,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+          ),
+          Text(
+            stageText,
+            style: AppTextStyle.medium(
+              color: getStageColor(lead.leadStage),
+              weight: FontWeight.w500,
+              size: 11.sp,
+            ),
+          ),
+          Text(
+            dateText,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+          ),
+          Text(
+            sourceText,
+            style: AppTextStyle.medium(
+              color: const Color(0xff0F172A),
+              weight: FontWeight.w400,
+              size: 11.sp,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildActionButton(
+                icon: Icons.edit_outlined,
+                color: const Color(0xff3B82F6),
+                onTap: () => widget.onEdit(lead),
+              ),
+              const SizedBox(width: 8),
+              _buildActionButton(
+                icon: Icons.delete_outline,
+                color: const Color(0xffEF4444),
+                onTap: () => widget.onDelete(lead),
+              ),
+            ],
+          ),
+        ];
+      }).toList(),
     );
   }
 }

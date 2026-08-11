@@ -168,12 +168,10 @@ class _CustomTableState extends State<CustomTable> {
         }
       }
 
-      // Add padding and clamp (use extra padding for date/time columns)
+      // Add padding and clamp (use extra padding for date/time columns, minimum 120 for select-all)
       final double padding = isDateCol ? _kDateCellPadding : _kCellPadding;
-      widths[col] = (maxCellWidth + padding).clamp(
-        _kMinColWidth,
-        _kMaxColWidth,
-      );
+      final double minColW = isSelectAll ? 120.0 : _kMinColWidth;
+      widths[col] = (maxCellWidth + padding).clamp(minColW, _kMaxColWidth);
     }
 
     return widths;
@@ -372,13 +370,13 @@ class _CustomTableState extends State<CustomTable> {
   }
 
   /// Calculates display column widths. If available width exceeds computed content width,
-  /// columns are scaled up proportionally to fit the container without shrinking.
-  /// Uses precise floor allocation to ensure the sum of column widths matches contentAvailableWidth
-  /// exactly down to the pixel, avoiding sub-pixel RenderFlex overflows.
+  /// extra space is distributed across flexible content columns proportionally, while keeping
+  /// fixed columns (serial numbers & action/select-all columns) at their compact measured sizes.
   List<double> _getDisplayColumnWidths(double availableWidth) {
     if (_columnWidths.isEmpty) return [];
 
-    final double outerPadding = _kOuterHorizontalPadding * 2;
+    // Account for outer horizontal padding (32px) and 2px border width (1px left + 1px right)
+    final double outerPadding = _kOuterHorizontalPadding * 2 + 2.0;
     final double contentAvailableWidth = availableWidth - outerPadding;
 
     final double totalContentWidth = _columnWidths.fold(
@@ -387,24 +385,78 @@ class _CustomTableState extends State<CustomTable> {
     );
 
     if (contentAvailableWidth > totalContentWidth && totalContentWidth > 0) {
-      final double scale = contentAvailableWidth / totalContentWidth;
-      final List<double> scaled = [];
+      final double extraSpace = contentAvailableWidth - totalContentWidth;
+
+      // Identify fixed columns (serial numbers & action/select-all columns) vs flexible data columns
+      final List<bool> isFixed = List<bool>.generate(widget.columns.length, (
+        i,
+      ) {
+        final title = widget.columns[i].title.toLowerCase().trim();
+        final isSerial =
+            title == 'no.' ||
+            title == 'sl no.' ||
+            title == 'sl.no.' ||
+            title == 'sl. no.' ||
+            title == '#' ||
+            title == 'sl';
+        final isAction =
+            title == 'select all' || title == 'action' || title == 'actions';
+        return isSerial || isAction;
+      });
+
+      // Sum the measured width of all flexible columns
+      double totalFlexWidth = 0.0;
+      for (int i = 0; i < _columnWidths.length; i++) {
+        if (!isFixed[i]) {
+          totalFlexWidth += _columnWidths[i];
+        }
+      }
+
+      final List<double> result = List<double>.filled(
+        _columnWidths.length,
+        0.0,
+      );
       double allocated = 0.0;
 
-      for (int i = 0; i < _columnWidths.length - 1; i++) {
-        final double w = (_columnWidths[i] * scale).floorToDouble();
-        scaled.add(w);
-        allocated += w;
-      }
-      // Assign the exact remaining pixels to the last column
-      final double lastColWidth =
-          (contentAvailableWidth - allocated).clamp(
+      if (totalFlexWidth > 0) {
+        // Distribute extraSpace across flexible columns proportionally to their measured widths
+        int lastFlexIndex = -1;
+        for (int i = 0; i < _columnWidths.length; i++) {
+          if (isFixed[i]) {
+            result[i] = _columnWidths[i];
+          } else {
+            final double portion =
+                (_columnWidths[i] / totalFlexWidth) * extraSpace;
+            result[i] = (_columnWidths[i] + portion).floorToDouble();
+            lastFlexIndex = i;
+          }
+          allocated += result[i];
+        }
+
+        // Adjust remaining rounding pixels onto the last flexible column
+        final double remaining = contentAvailableWidth - allocated;
+        if (remaining != 0) {
+          final int targetIdx = lastFlexIndex != -1
+              ? lastFlexIndex
+              : _columnWidths.length - 1;
+          result[targetIdx] = (result[targetIdx] + remaining).clamp(
             _kMinColWidth,
             double.infinity,
-          ) +
-          2;
-      scaled.add(lastColWidth);
-      return scaled;
+          );
+        }
+      } else {
+        // Fallback if all columns are marked fixed: scale across all columns except the last
+        final double scale = contentAvailableWidth / totalContentWidth;
+        for (int i = 0; i < _columnWidths.length - 1; i++) {
+          final double w = (_columnWidths[i] * scale).floorToDouble();
+          result[i] = w;
+          allocated += w;
+        }
+        result[_columnWidths.length - 1] = (contentAvailableWidth - allocated)
+            .clamp(_kMinColWidth, double.infinity);
+      }
+
+      return result;
     }
 
     return List<double>.from(_columnWidths);
@@ -422,20 +474,23 @@ class _CustomTableState extends State<CustomTable> {
             ? constraints.maxWidth
             : MediaQuery.of(context).size.width;
 
+        // Account for Container's 1px left + 1px right border (2px total border offset)
+        final double innerParentWidth = (parentWidth - 2.0).clamp(0.0, double.infinity);
+
         final double totalComputedWidth = _columnWidths.fold(
-          _kOuterHorizontalPadding * 2,
+          _kOuterHorizontalPadding * 2 + 2.0,
           (sum, w) => sum + w,
         );
 
         final bool contentExceedsParent =
-            totalComputedWidth > parentWidth + 1.0;
+            totalComputedWidth > innerParentWidth + 0.5;
 
         final List<double> displayWidths = contentExceedsParent
             ? List<double>.from(_columnWidths)
             : _getDisplayColumnWidths(parentWidth);
 
         final double totalTableWidth = displayWidths.fold(
-          _kOuterHorizontalPadding * 2,
+          _kOuterHorizontalPadding * 2 + 2.0,
           (sum, w) => sum + w,
         );
 
@@ -467,7 +522,7 @@ class _CustomTableState extends State<CustomTable> {
         );
 
         final bool needsScroll =
-            contentExceedsParent || effectiveWidth > parentWidth + 1.0;
+            contentExceedsParent || effectiveWidth > innerParentWidth + 0.5;
 
         if (needsScroll) {
           tableContent = Scrollbar(
@@ -480,7 +535,7 @@ class _CustomTableState extends State<CustomTable> {
             ),
           );
         } else {
-          tableContent = SizedBox(width: parentWidth, child: tableContent);
+          tableContent = SizedBox(width: innerParentWidth, child: tableContent);
         }
 
         return Container(
@@ -551,31 +606,37 @@ class _CustomTableState extends State<CustomTable> {
               );
             } else if (isNameCol && hasPriority) {
               // "Name" header with priority dot icon hint
-              cellChild = Row(
-                children: [
-                  const Icon(
-                    Icons.radio_button_unchecked,
-                    size: 12,
-                    color: Color(0xFF94A3B8),
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      col.title,
-                      style: _headerStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+              cellChild = Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.radio_button_unchecked,
+                      size: 12,
+                      color: Color(0xFF94A3B8),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        col.title,
+                        style: _headerStyle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               );
             } else {
               // Normal header
-              cellChild = Text(
-                col.title,
-                style: _headerStyle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              cellChild = Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  col.title,
+                  style: _headerStyle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
             }
 
@@ -632,29 +693,38 @@ class _CustomTableState extends State<CustomTable> {
 
               if (isNameCol && hasDot) {
                 // Name cell with priority dot before the content
-                cellChild = Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: dotColor,
-                        shape: BoxShape.circle,
+                cellChild = Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: dotColor,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(child: widget.rows[rowIndex][colIndex]),
-                  ],
+                      const SizedBox(width: 8),
+                      Expanded(child: widget.rows[rowIndex][colIndex]),
+                    ],
+                  ),
                 );
               } else if (isLastCol &&
                   widget.showCheckboxes &&
                   col.title.toLowerCase() == 'select all') {
                 // Last column ("Select All") — append checkbox at the end
                 cellChild = Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(child: widget.rows[rowIndex][colIndex]),
-                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: widget.rows[rowIndex][colIndex],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     buildRoundedCheckbox(
                       value: _checkedStates[rowIndex],
                       onTap: () {
@@ -671,7 +741,10 @@ class _CustomTableState extends State<CustomTable> {
                   ],
                 );
               } else {
-                cellChild = widget.rows[rowIndex][colIndex];
+                cellChild = Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: widget.rows[rowIndex][colIndex],
+                );
               }
 
               final double colWidth = colIndex < columnWidths.length
