@@ -153,27 +153,29 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
 
- final cubit = context.read<LeadTagCubit>();
+            final cubit = context.read<LeadTagCubit>();
 
-             if (cubit.leaTagExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This tag already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.leaTagExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This tag already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
             Navigator.pop(ctx);
 
             await context.read<LeadTagCubit>().addLeadTag(name: name);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$name added successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("$name added successfully"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -222,18 +224,20 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
             if (name.isEmpty) return;
 
- final cubit = context.read<LeadTagCubit>();
+            final cubit = context.read<LeadTagCubit>();
 
-             if (cubit.leaTagExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This tag already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.leaTagExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This tag already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx); // pop first
 
@@ -243,11 +247,11 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
               name: name,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} updated successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("${category.name} updated successfully"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -274,12 +278,12 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
         onSubmit: () {
           Navigator.pop(ctx);
           context.read<LeadTagCubit>().deleteLeadTag(id: leadTag.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${leadTag.name} deleted successfully"),
-            backgroundColor: Colors.red,
-          ),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("${leadTag.name} deleted successfully"),
+              backgroundColor: Colors.red,
+            ),
+          );
         },
       ),
     );
@@ -477,7 +481,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Lead Tag"),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),

@@ -133,31 +133,34 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
             final name = stagesController.text.trim();
             if (name.isEmpty) return;
 
- final cubit = context.read<LeadStageCubit>();
+            final cubit = context.read<LeadStageCubit>();
 
-             if (cubit.stageExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This stage already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.stageExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This stage already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx);
 
             await context.read<LeadStageCubit>().addCategory(
-              name: name,tagMandatory: false
+              name: name,
+              tagMandatory: false,
               // createdBy: '-',
             );
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$name added successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("$name added successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -220,29 +223,31 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
             final id = category.id;
 
             if (name.isEmpty) return;
- final cubit = context.read<LeadStageCubit>();
+            final cubit = context.read<LeadStageCubit>();
 
-             if (cubit.stageExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This stage already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.stageExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This stage already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
             Navigator.pop(ctx);
             await context.read<LeadStageCubit>().updateStage(
               id: id,
               name: name,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} updated successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+              SnackBar(
+                content: Text("${category.name} updated successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -276,11 +281,11 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
           Navigator.pop(ctx);
           context.read<LeadStageCubit>().deleteStage(id: category.id);
           ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${category.name} deleted successfully!"),
-            backgroundColor: Colors.red,
-          ),
-        );
+            SnackBar(
+              content: Text("${category.name} deleted successfully!"),
+              backgroundColor: Colors.red,
+            ),
+          );
         },
       ),
     );
@@ -500,7 +505,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Lead Status"),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),
@@ -545,41 +550,41 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                           //       color: AppColors.grey,
                                           //     ),
                                           //   )
-                                          ?BrowserAwareLink(
-                                                    destination:
-                                                        RoutePaths.leadTagPath(
-                                                          cat.name,
-                                                          cat.id,
-                                                          cat.tagMandatory
-                                                        ),
-                                                    usePush: true,
-                                                    enableInkWell: false,
-                                                    child: Icon(
-                                                      Icons.list,
-                                                      size: 14.sp,
-                                                      color: Colors.lightGreen,
-                                                    ),
-                                                  )
+                                          ? BrowserAwareLink(
+                                              destination:
+                                                  RoutePaths.leadTagPath(
+                                                    cat.name,
+                                                    cat.id,
+                                                    cat.tagMandatory,
+                                                  ),
+                                              usePush: true,
+                                              enableInkWell: false,
+                                              child: Icon(
+                                                Icons.list,
+                                                size: 14.sp,
+                                                color: Colors.lightGreen,
+                                              ),
+                                            )
                                           : Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               children: [
                                                 BrowserAwareLink(
-                                                    destination:
-                                                        RoutePaths.leadTagPath(
-                                                          cat.name,
-                                                          cat.id,
-                                                          cat.tagMandatory
-                                                        ),
-                                                    usePush: true,
-                                                    enableInkWell: false,
-                                                    child: Icon(
-                                                      Icons.list,
-                                                      size: 14.sp,
-                                                      color: Colors.lightGreen,
-                                                    ),
+                                                  destination:
+                                                      RoutePaths.leadTagPath(
+                                                        cat.name,
+                                                        cat.id,
+                                                        cat.tagMandatory,
+                                                      ),
+                                                  usePush: true,
+                                                  enableInkWell: false,
+                                                  child: Icon(
+                                                    Icons.list,
+                                                    size: 14.sp,
+                                                    color: Colors.lightGreen,
                                                   ),
-                                                  SizedBox(width: 1.w),
+                                                ),
+                                                SizedBox(width: 1.w),
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
                                                   onTap: () =>
@@ -601,7 +606,6 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                     color: Colors.red,
                                                   ),
                                                 ),
-
                                               ],
                                             ),
                                     ];

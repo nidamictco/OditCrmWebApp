@@ -245,7 +245,7 @@ class _StaffReportsState extends State<StaffReports> {
                                   );
                                 },
                                 columns: [
-                                  TableColumn(title: "Sl No."),
+                                  TableColumn(title: "No."),
                                   TableColumn(title: "Name"),
                                   TableColumn(title: "Phone Number"),
                                   TableColumn(title: "Designation"),

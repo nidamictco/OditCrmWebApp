@@ -141,18 +141,20 @@ class _LeadCategoryState extends State<LeadCategory> {
             final name = categoryController.text.trim();
             if (name.isEmpty) return;
 
-             final cubit = context.read<LeadCategoryCubit>();
+            final cubit = context.read<LeadCategoryCubit>();
 
-  if (cubit.categoryExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This category already exists.', isSuccess: false, onButtonPressed: () {  
-context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.categoryExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This category already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx);
 
@@ -201,7 +203,6 @@ context.pop();
                     ),
                   ),
                 ),
-               
               ],
             ),
           ),
@@ -212,18 +213,20 @@ context.pop();
 
             if (name.isEmpty) return;
 
- final cubit = context.read<LeadCategoryCubit>();
+            final cubit = context.read<LeadCategoryCubit>();
 
-             if (cubit.categoryExists(name)) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This category already exists.', isSuccess: false, onButtonPressed: () {  
-        context.pop();
-      },
-    );
-    return; // keep the dialog open, don't pop
-  }
+            if (cubit.categoryExists(name)) {
+              StatusAlertWidget.show(
+                ctx,
+                title: 'Validation',
+                message: 'This category already exists.',
+                isSuccess: false,
+                onButtonPressed: () {
+                  context.pop();
+                },
+              );
+              return; // keep the dialog open, don't pop
+            }
 
             Navigator.pop(ctx); // pop first
 
@@ -232,12 +235,12 @@ context.pop();
               id: id,
               name: name,
             );
-             ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$name updated successfully'),
-              backgroundColor: AppColors.green,
-            ),
-          );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$name updated successfully'),
+                backgroundColor: AppColors.green,
+              ),
+            );
           },
         );
       },
@@ -444,7 +447,7 @@ context.pop();
                               SizedBox(
                                 child: CustomTable(
                                   columns: [
-                                    TableColumn(title: "Sl No."),
+                                    TableColumn(title: "No."),
                                     TableColumn(title: "Category Name"),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),

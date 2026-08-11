@@ -11,7 +11,7 @@ Future<void> exportLeadsToPdf(List<AddLeadModel> leads) async {
 
   // ── Column definitions: [header label, flex weight] ───────────────────────
   const columns = [
-    ('Sl No.', 1),
+    ('No.', 1),
     ('Name', 3),
     ('Phone', 2),
     ('Category', 3),

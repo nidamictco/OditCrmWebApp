@@ -82,7 +82,7 @@ SizedBox(width: 2.w),
          SizedBox(
                       child: CustomTable(
                         columns: [
-                          TableColumn(title: "Sl No."),
+                          TableColumn(title: "No."),
                           TableColumn(title: "Client Name"),
                           TableColumn(title: "Contact No"),
                           TableColumn(title: "Lead Category"),

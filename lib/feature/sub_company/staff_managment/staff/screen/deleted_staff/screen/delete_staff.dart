@@ -1,6 +1,8 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/app_text_style.dart';
 import '../../../../../../../core/utils/footer.dart';
@@ -96,82 +98,114 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
 
   // ─── Restore confirmation dialog ───────────────────────────────────────────
   void _confirmRestore(BuildContext ctx, StaffModel staff) {
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Restore Staff', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
-          'Restore "${staff.name}" back to active staff?',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Restore Staff', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Restore "${staff.name}" back to active staff?',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(dialogContext),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () {
+    //           Navigator.pop(dialogContext);
+    //           ctx.read<StaffCubit>().restoreStaff(staff);
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             SnackBar(
+    //               backgroundColor: AppColors.green,
+    //               content: Text('Staff "${staff.name}" restored!'),
+    //             ),
+    //           );
+    //         },
+    //         child: Text(
+    //           'Restore',
+    //           style: AppTextStyle.medium(color: Colors.green),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      type: ConfirmAlertType.restore,
+      title: 'Restore Staff',
+      message: 'Restore "${staff.name}" back to active staff?',
+      onRestore: () {
+        context.pop();
+        ctx.read<StaffCubit>().restoreStaff(staff);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Staff "${staff.name}" restored!'),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              ctx.read<StaffCubit>().restoreStaff(staff);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: AppColors.green,
-                  content: Text('Staff "${staff.name}" restored!'),
-                ),
-              );
-            },
-            child: Text(
-              'Restore',
-              style: AppTextStyle.medium(color: Colors.green),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   void _confirmDelete(BuildContext ctx, StaffModel staff) {
-    showDialog(
-      context: ctx,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
-        content: Text(
-          'Delete "${staff.name}" permanently?',
-          style: AppTextStyle.medium(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.medium(color: AppColors.grey),
-            ),
+    // showDialog(
+    //   context: ctx,
+    //   builder: (dialogContext) => AlertDialog(
+    //     backgroundColor: AppColors.white,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //     title: Text('Delete Staff', style: AppTextStyle.medium(size: 14.sp)),
+    //     content: Text(
+    //       'Delete "${staff.name}" permanently?',
+    //       style: AppTextStyle.medium(),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(dialogContext),
+    //         child: Text(
+    //           'Cancel',
+    //           style: AppTextStyle.medium(color: AppColors.grey),
+    //         ),
+    //       ),
+    //       TextButton(
+    //         onPressed: () {
+    //           Navigator.pop(dialogContext);
+    //           ctx.read<StaffCubit>().deleteStaffPermanently(staff.id ?? '');
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             SnackBar(
+    //               backgroundColor: Colors.red,
+    //               content: Text('Staff "${staff.name}" deleted permanently!'),
+    //             ),
+    //           );
+    //         },
+    //         child: Text(
+    //           'Delete',
+    //           style: AppTextStyle.medium(color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    ConfirmAlertWidget.show(
+      context,
+      type: ConfirmAlertType.delete,
+      title: 'Delete Staff',
+      message: 'Delete "${staff.name}" permanently?',
+      onDelete: () {
+        context.pop();
+        ctx.read<StaffCubit>().deleteStaffPermanently(staff.id ?? '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Staff "${staff.name}" deleted permanently!'),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              ctx.read<StaffCubit>().deleteStaffPermanently(staff.id ?? '');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.red,
-                  content: Text('Staff "${staff.name}" deleted permanently!'),
-                ),
-              );
-            },
-            child: Text(
-              'Delete',
-              style: AppTextStyle.medium(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -305,26 +339,24 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
 
     // ─── Populated table ──────────────────────────────────────────────────
     return Container(
-       decoration: BoxDecoration(
-                          color: AppColors.white,
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0x14000000,
-                              ), // #00000014 (8% opacity)
-                              offset: const Offset(0, 1),
-                              blurRadius: 8,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x14000000), // #00000014 (8% opacity)
+            offset: const Offset(0, 1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
           CustomTable(
             columns: [
-              TableColumn(title: "Sl No."),
+              TableColumn(title: "No."),
               TableColumn(title: "Name"),
               TableColumn(title: "Phone Number"),
               TableColumn(title: "Designation"),
@@ -334,13 +366,13 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
             rows: pagedList.asMap().entries.map((entry) {
               final index = entry.key;
               final staff = entry.value;
-      
+
               final deletedAt = staff.createdAt != null
                   ? '${staff.createdAt!.day.toString().padLeft(2, '0')}/'
                         '${staff.createdAt!.month.toString().padLeft(2, '0')}/'
                         '${staff.createdAt!.year}'
                   : '—';
-      
+
               return [
                 Text('${index + 1}', style: AppTextStyle.medium()),
                 Text(
@@ -371,7 +403,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
               ];
             }).toList(),
           ),
-      
+
           /// 🔹 FOOTER
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
