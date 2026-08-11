@@ -38,6 +38,13 @@ class AuthCubit extends Cubit<AuthState> {
   // needing the caller to thread a PermissionCubit through every callback.
   PermissionCubit? _permissionCubit;
 
+
+
+  Future<void> updateCurrentUser(StaffModel user) async {
+  await _sessionService.saveSession(user);
+  emit(Authenticated(user: user));
+}
+
   // ─── Check saved session on app start ────────────────────────────────────
 
   Future<void> checkSession({PermissionCubit? permissionCubit}) async {

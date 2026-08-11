@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
 
@@ -758,33 +759,6 @@ class _TransferLeadsState extends State<TransferLeads> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              /// Clear All Button
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: _clearFilters,
-                  child: Container(
-                    height: 4.h,
-                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFCA5A5)),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Clear All',
-                      style: AppTextStyle.small(
-                        size: 10.sp,
-                        color: const Color(0xFFEF4444),
-                        weight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 1.w),
-
               /// View Button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -794,14 +768,41 @@ class _TransferLeadsState extends State<TransferLeads> {
                     height: 4.h,
                     padding: EdgeInsets.symmetric(horizontal: 2.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
-                      borderRadius: BorderRadius.circular(6),
+                      color: const Color(0xff00b087),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      "View",
+                      "Apply",
                       style: AppTextStyle.small(
-                        size: 10.sp,
+                        size: 11.5,
+                        color: Colors.white,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(width: 1.w),
+
+              /// Clear All Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: _clearFilters,
+                  child: Container(
+                    height: 4.h,
+                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffe95757),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Reset',
+                      style: AppTextStyle.small(
+                        size: 11.5,
                         color: Colors.white,
                         weight: FontWeight.w500,
                       ),
@@ -993,7 +994,7 @@ class _TransferLeadsState extends State<TransferLeads> {
                         child: Tooltip(
                           message: 'View',
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               // color: const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(4),
@@ -1003,8 +1004,9 @@ class _TransferLeadsState extends State<TransferLeads> {
                             ),
                             child: Image.asset(
                               "assets/icon/eye.png",
-                              height: 13.sp,
-                              width: 13.sp,
+                              // height: 15,
+                              // width: 15,
+                              scale: 3,
                               color: const Color(0xFF4E9CDB),
                             ),
                             // child: Icon(
@@ -1026,7 +1028,8 @@ class _TransferLeadsState extends State<TransferLeads> {
                         child: Tooltip(
                           message: 'Delete',
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            height: 28,
+                            width: 28,
                             decoration: BoxDecoration(
                               // color: const Color(0xFFFEF2F2),
                               borderRadius: BorderRadius.circular(4),
@@ -1034,10 +1037,17 @@ class _TransferLeadsState extends State<TransferLeads> {
                                 color: const Color(0xFFFCA5A5),
                               ),
                             ),
-                            child: Icon(
-                              Icons.delete_outline,
-                              size: 13.sp,
-                              color: const Color(0xFFEF4444),
+                            // child: Icon(
+                            //   Icons.delete_outline,
+                            //   size: 14,
+                            //   color: const Color(0xFFEF4444),
+                            // ),
+                            child: Center(
+                              child: Image.asset(
+                                AssetResources.deleteIcon,
+                                scale: 1.7,
+                                color: const Color(0xFFEF4444),
+                              ),
                             ),
                           ),
                         ),

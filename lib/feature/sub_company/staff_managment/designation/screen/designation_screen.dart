@@ -249,7 +249,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                                 usePush: true,
                                 enableInkWell: false,
                                 child: _buildActionButton(
-                                  icon: Icons.edit_outlined,
+                                  icon: AssetResources.edit,
                                   color: Colors.blue,
                                   // onTap: () => _confirmRestore(context, staff),
                                   onTap: () async {
@@ -279,7 +279,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
                               //   ),
                               // ),
                               _buildActionButton(
-                                icon: Icons.delete_outline,
+                                icon: AssetResources.deleteIcon,
                                 color: Colors.red,
                                 // onTap: () => _confirmDelete(context, staff),
                                 onTap: () async {
@@ -438,7 +438,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
   }
 
   Widget _buildActionButton({
-    required IconData icon,
+    required String icon,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -452,7 +452,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
           border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Center(child: Icon(icon, size: 13, color: color)),
+        child: Center(child:Image.asset(icon,scale: 1.7,)),
       ),
     );
   }

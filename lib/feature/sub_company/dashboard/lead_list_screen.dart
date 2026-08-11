@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
@@ -445,14 +446,13 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
       onDelete: () async {
         context.pop();
         await context.read<AddLeadCubit>().deleteLead(lead.id!, lead);
-     ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(
-         content: Text('Lead deleted successfully.'),
-         backgroundColor: AppColors.red,
-       ),
-     );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lead deleted successfully.'),
+            backgroundColor: AppColors.red,
+          ),
+        );
       },
-    
     );
   }
 
@@ -1702,6 +1702,33 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              /// View Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: _applyFilters,
+                  child: Container(
+                    height: 4.h,
+                    padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff00b087), // Emerald Green
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Apply",
+                      style: AppTextStyle.medium(
+                        size: 11.5,
+                        color: Colors.white,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(width: 1.w),
+
               /// Clear All Button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -1711,39 +1738,12 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     height: 4.h,
                     padding: EdgeInsets.symmetric(horizontal: 1.5.w),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                      color: const Color(0xffe95757),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       'Reset',
-                      style: AppTextStyle.medium(
-                        size: 11.5,
-                        color: const Color(0xFFEF4444),
-                        weight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 1.w),
-
-              /// View Button
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: _applyFilters,
-                  child: Container(
-                    height: 4.h,
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981), // Emerald Green
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Apply",
                       style: AppTextStyle.medium(
                         size: 11.5,
                         color: Colors.white,
@@ -2003,17 +2003,18 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                   child: Tooltip(
                     message: 'View',
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         // color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: const Color(0xFF4E9CDB)),
                       ),
-                      child: Image.asset(
-                        "assets/icon/eye.png",
-                        height: 13.sp,
-                        width: 13.sp,
-                        color: const Color(0xFF4E9CDB),
+                      child: Center(
+                        child: Image.asset(
+                          "assets/icon/eye.png",
+                          scale: 3,
+                          color: const Color(0xFF4E9CDB),
+                        ),
                       ),
                       // child: Icon(
                       //   Icons.eye,
@@ -2056,9 +2057,9 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.edit,
-                          size: 13,
+                        child: Image.asset(
+                          AssetResources.edit,
+                          scale: 1.7,
                           color: const Color(0xff3B82F6),
                         ),
                       ),
@@ -2079,15 +2080,16 @@ class _NewLeadsPageState extends State<NewLeadsPage> {
                     child: Tooltip(
                       message: 'Delete',
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        height: 28,
+                        width: 28,
                         decoration: BoxDecoration(
                           // color: const Color(0xFFFEF2F2),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: const Color(0xFFFCA5A5)),
                         ),
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 13,
+                        child: Image.asset(
+                          AssetResources.deleteIcon,
+                          scale: 1.7,
                           color: const Color(0xFFEF4444),
                         ),
                       ),

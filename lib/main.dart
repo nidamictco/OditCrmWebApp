@@ -1,5 +1,6 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/text_theme_extension.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_cubit.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -97,6 +98,7 @@ class _OxdoAppState extends State<OxdoApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthCubit>.value(value: _authCubit),
+        BlocProvider<StaffCubit>(create: (_) => StaffCubit()),
         BlocProvider<PermissionCubit>.value(value: _permissionCubit),
       ],
       child: MaterialApp.router(

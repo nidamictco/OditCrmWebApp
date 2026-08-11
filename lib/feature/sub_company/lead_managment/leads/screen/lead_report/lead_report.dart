@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/migration_functions.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
@@ -1844,7 +1845,7 @@ class _ReportLeadsTable extends StatefulWidget {
 
 class _ReportLeadsTableState extends State<_ReportLeadsTable> {
   Widget _buildActionButton({
-    required IconData icon,
+    required String icon,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -1858,7 +1859,8 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
           border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Center(child: Icon(icon, size: 13, color: color)),
+        // child: Center(child: Icon(icon, size: 14, color: color)),
+        child: Center(child: Image.asset(icon, scale: 1.7, color: color)),
       ),
     );
   }
@@ -1867,19 +1869,16 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
   Widget build(BuildContext context) {
     return CustomTable(
       showCheckboxes: true,
-      initialCheckedStates: List.generate(
-        widget.leads.length,
-        (index) {
-          final absoluteIndex =
-              (widget.currentPage - 1) * widget.limit + index;
-          return widget.selectedIndices.contains(absoluteIndex);
-        },
-      ),
+      initialCheckedStates: List.generate(widget.leads.length, (index) {
+        final absoluteIndex = (widget.currentPage - 1) * widget.limit + index;
+        return widget.selectedIndices.contains(absoluteIndex);
+      }),
       onCheckChanged: (rowIndex, isChecked) {
         final absoluteIndex =
             (widget.currentPage - 1) * widget.limit + rowIndex;
-        final isCurrentlySelected =
-            widget.selectedIndices.contains(absoluteIndex);
+        final isCurrentlySelected = widget.selectedIndices.contains(
+          absoluteIndex,
+        );
         if (isChecked != isCurrentlySelected) {
           widget.onCheckChanged(absoluteIndex);
         }
@@ -2008,13 +2007,13 @@ class _ReportLeadsTableState extends State<_ReportLeadsTable> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               _buildActionButton(
-                icon: Icons.edit_outlined,
+                icon: AssetResources.edit,
                 color: const Color(0xff3B82F6),
                 onTap: () => widget.onEdit(lead),
               ),
               const SizedBox(width: 8),
               _buildActionButton(
-                icon: Icons.delete_outline,
+                icon: AssetResources.deleteIcon,
                 color: const Color(0xffEF4444),
                 onTap: () => widget.onDelete(lead),
               ),

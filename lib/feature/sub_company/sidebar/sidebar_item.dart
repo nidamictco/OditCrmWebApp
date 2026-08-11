@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -946,9 +947,10 @@ class _UserProfileAlertDialogState extends State<_UserProfileAlertDialog> {
                 InkWell(
                   onTap: () {
                     Navigator.of(context).pop();
-                    widget.parentContext.go(
-                      RoutePaths.changePasswordPath(widget.user.id ?? ''),
-                    );
+                    // widget.parentContext.go(
+                    //   RoutePaths.changePasswordPath(widget.user.id ?? ''),
+                    // );
+                    showChangePasswordDialog(context, staff: widget.user);
                   },
                   borderRadius: BorderRadius.circular(6),
                   child: Padding(

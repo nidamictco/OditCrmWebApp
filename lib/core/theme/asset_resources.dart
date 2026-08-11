@@ -13,6 +13,8 @@ class AssetResources {
   static const String errorImage = "assets/images/error.png";
   static const String designation = "assets/icon/designation.png";
   static const String delete = "assets/images/delete_alert.png";
+  static const String edit = 'assets/icon/edit.png';
+  static const String deleteIcon = 'assets/icon/delete.png';
   static const String restore = "assets/images/restore_alert.png";
   static const String bothDeleteAndRestore = "assets/images/tick.png";
 }
