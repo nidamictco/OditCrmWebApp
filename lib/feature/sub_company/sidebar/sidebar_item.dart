@@ -58,6 +58,8 @@ class _SidebarItemState extends State<SidebarItem> {
     final isReportsSelected =
         (widget.selectedIndex >= 22 && widget.selectedIndex <= 25) ||
         widget.selectedIndex == 2;
+    final isLeadSettingsSelected =
+        (widget.selectedIndex >= 7 && widget.selectedIndex <= 10);
 
     // Lead sub-items visible
     final leadChildren = [
@@ -169,6 +171,41 @@ class _SidebarItemState extends State<SidebarItem> {
         subMenuItem(
           "Rejected Leads Reports",
           25,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+    ];
+
+    final leadSettingsChildren = [
+      if (perm.canViewStaffReport)
+        subMenuItem(
+          "Leads Category",
+          7,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewTransferReport)
+        subMenuItem(
+          "Custom Field Settings",
+          8,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewTotalReport)
+        subMenuItem(
+          "Lead Source",
+          9,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewRejectedReport)
+        subMenuItem(
+          "Lead Stage",
+          10,
           itemHorizontalPadding: itemHorizontalPadding,
           itemVerticalPadding: isCompactHeight ? 8 : 10,
           fontSizeSub: fontSizeSub,
@@ -288,6 +325,20 @@ class _SidebarItemState extends State<SidebarItem> {
                       subItemLeftMargin: subItemLeftMargin,
                       fontSizeMain: fontSizeMain,
                       children: reportChildren,
+                    ),
+
+                  if (reportChildren.isNotEmpty) SizedBox(height: 10),
+                  // REPORTS
+                  if (reportChildren.isNotEmpty)
+                    CustomExpandedTile(
+                      icon: Symbols.leaderboard,
+                      title: "Leads Settings",
+                      isSelected: isLeadSettingsSelected,
+                      itemHorizontalPadding: itemHorizontalPadding,
+                      itemVerticalPadding: itemVerticalPadding,
+                      subItemLeftMargin: subItemLeftMargin,
+                      fontSizeMain: fontSizeMain,
+                      children: leadSettingsChildren,
                     ),
                 ],
               ),
