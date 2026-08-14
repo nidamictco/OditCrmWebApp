@@ -15,6 +15,9 @@ import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_sta
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/cubit/add_staff_state.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
+import '../../../dashboard/widget/calender.dart';
+import '../widget/calender.dart';
+
 class StaffInfo {
   final String name;
   final String role;
@@ -120,6 +123,7 @@ class StaffProfileScreen extends StatefulWidget {
 class _StaffProfileScreenState extends State<StaffProfileScreen> {
   DateTime? _selectedDateValue;
   DateTime? _toDateValue;
+  String _displayLabel = '';
 
   late StaffModel _liveModel;
 
@@ -157,6 +161,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
 
     context.read<AddLeadCubit>().fetchProfileCounts(
       date,
+      toDate: _toDateValue,
       staffId: staffId,
       role: role,
     );
@@ -186,6 +191,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
     _liveModel = widget.staff;
     _selectedDateValue = DateTime.now();
     _toDateValue = null;
+    _displayLabel = _formatDate(_selectedDateValue!);
 
     if (widget.staff.id != null) {
       context.read<StaffCubit>().getStaff(widget.staff.id!);
@@ -592,7 +598,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
                                         ),
                                       )
                                       .then((_) {
-                                        if (context.mounted) {
+                                        if (mounted) {
                                           context.read<StaffCubit>().fetchAll();
                                         }
                                       });
@@ -967,8 +973,12 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
       builder: (context, leadState) {
         final totalCalled =
             int.tryParse(leadState.profileTotalCalledCount) ?? 0;
-        final completed = int.tryParse(leadState.profileConnectedCount) ?? 0;
         final closed = int.tryParse(leadState.profileClosedCount) ?? 0;
+        final rejected =
+            int.tryParse(
+              leadState.profileCallResultCounts['Rejected'].toString(),
+            ) ??
+            0;
 
         return Row(
           children: [
@@ -987,8 +997,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
               child: _statCard(
                 icon: Icons.check_circle_outline,
                 iconBgColor: const Color(0xFF00B16E),
-                label: 'Completed',
-                value: completed.toString().padLeft(2, '0'),
+                label: 'Rejected',
+                value: rejected.toString().padLeft(2, '0'),
                 cardColor: const Color(0xFFE6F9F3),
                 borderColor: const Color(0xFFA7F3D0),
               ),
@@ -1083,83 +1093,103 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           callResultCounts: leadState.profileCallResultCounts,
         );
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0A000000),
-                blurRadius: 10,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Column 1: Information
-              Expanded(flex: 3, child: _buildInformationSection(staffInfo)),
-              // Vertical divider
-              Container(
-                width: 1,
-                height: 260,
-                color: const Color(0xFFF1F5F9),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-              ),
-              // Column 2: Call Status Details
-              Expanded(flex: 4, child: _buildCallStatusSection(liveCallData)),
-              // Vertical divider
-              Container(
-                width: 1,
-                height: 260,
-                color: const Color(0xFFF1F5F9),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-              ),
-              // Column 3: Lead Status
-              Expanded(flex: 3, child: _buildLeadStatusSection(liveCallData)),
-            ],
-          ),
+        // return Container(
+        //   padding: const EdgeInsets.all(20),
+        //   decoration: BoxDecoration(
+        //     color: Colors.white,
+        //     borderRadius: BorderRadius.circular(12),
+        //     border: Border.all(color: const Color(0xFFE2E8F0)),
+        //     boxShadow: const [
+        //       BoxShadow(
+        //         color: Color(0x0A000000),
+        //         blurRadius: 10,
+        //         offset: Offset(0, 2),
+        //       ),
+        //     ],
+        //   ),
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Column 1: Information
+            Expanded(flex: 3, child: _buildInformationSection(staffInfo)),
+            SizedBox(width: 12),
+            // Vertical divider
+            // Container(
+            //   width: 1,
+            //   height: 260,
+            //   color: const Color(0xFFF1F5F9),
+            //   margin: const EdgeInsets.symmetric(horizontal: 20),
+            // ),
+            // Column 2: Call Status Details
+            Expanded(flex: 4, child: _buildCallStatusSection(liveCallData)),
+            SizedBox(width: 12),
+            // Vertical divider
+            // Container(
+            //   width: 1,
+            //   height: 260,
+            //   color: const Color(0xFFF1F5F9),
+            //   margin: const EdgeInsets.symmetric(horizontal: 20),
+            // ),
+            // Column 3: Lead Status
+            Expanded(flex: 3, child: _buildLeadStatusSection(liveCallData)),
+          ],
         );
+        // ),
       },
     );
   }
 
   // ─── INFORMATION SECTION ───────────────────────────────────
   Widget _buildInformationSection(StaffInfo staffInfo) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'INFORMATION',
-          style: AppTextStyle.medium(
-            size: 11.5,
-            fontWeight: FontWeight.w600,
-            color: AppThemeColors.appPrimaryColor,
-            letterSpacing: 0.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
-        ),
-        const SizedBox(height: 20),
-        _infoRow('Name:', staffInfo.name.isNotEmpty ? staffInfo.name : '—'),
-        _infoRow(
-          'Mobile:',
-          staffInfo.mobile.isNotEmpty ? staffInfo.mobile : '—',
-        ),
-        _infoRow('Email:', staffInfo.email.isNotEmpty ? staffInfo.email : '—'),
-        _infoRow(
-          'Join Date:',
-          staffInfo.joiningDate.isNotEmpty ? staffInfo.joiningDate : '—',
-        ),
-        _infoRow('Created Date:', staffInfo.createdDate),
-        const SizedBox(height: 12),
-        _infoRow(
-          'Address:',
-          staffInfo.address.isNotEmpty ? staffInfo.address : '—',
-          isMultiLine: true,
-        ),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'INFORMATION',
+            style: AppTextStyle.medium(
+              size: 11.5,
+              fontWeight: FontWeight.w600,
+              color: AppThemeColors.appPrimaryColor,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _infoRow('Name:', staffInfo.name.isNotEmpty ? staffInfo.name : '—'),
+          _infoRow(
+            'Mobile:',
+            staffInfo.mobile.isNotEmpty ? staffInfo.mobile : '—',
+          ),
+          _infoRow(
+            'Email:',
+            staffInfo.email.isNotEmpty ? staffInfo.email : '—',
+          ),
+          _infoRow(
+            'Join Date:',
+            staffInfo.joiningDate.isNotEmpty ? staffInfo.joiningDate : '—',
+          ),
+          _infoRow('Created Date:', staffInfo.createdDate),
+          const SizedBox(height: 12),
+          _infoRow(
+            'Address:',
+            staffInfo.address.isNotEmpty ? staffInfo.address : '—',
+            isMultiLine: true,
+          ),
+        ],
+      ),
     );
   }
 
@@ -1199,47 +1229,62 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
 
   // ─── CALL STATUS SECTION ───────────────────────────────────
   Widget _buildCallStatusSection(CallStatusData data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'CALL STATUS DETAILS',
-          style: AppTextStyle.medium(
-            size: 11.5,
-            fontWeight: FontWeight.w600,
-            color: AppThemeColors.appPrimaryColor,
-            letterSpacing: 0.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
-        ),
-        const SizedBox(height: 20),
-        _callStatusRow(
-          'Total Called',
-          data.totalCalled,
-          data.totalCalled,
-          const Color(0xFF0F2442), // Dark Navy
-        ),
-        const SizedBox(height: 14),
-        _callStatusRow(
-          'Connected',
-          data.connectedCount,
-          data.totalCalled,
-          const Color(0xFF00B16E), // Green
-        ),
-        const SizedBox(height: 14),
-        _callStatusRow(
-          'Closed',
-          data.closedCount,
-          data.totalCalled,
-          const Color(0xFF8B5CF6), // Purple
-        ),
-        const SizedBox(height: 14),
-        _callStatusRow(
-          'Total Connected',
-          data.notConnectedCount,
-          data.totalCalled,
-          const Color(0xFF00B4D8), // Teal/Cyan
-        ),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CALL STATUS DETAILS',
+            style: AppTextStyle.medium(
+              size: 11.5,
+              fontWeight: FontWeight.w600,
+              color: AppThemeColors.appPrimaryColor,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _callStatusRow(
+            'Total Called',
+            data.totalCalled,
+            data.totalCalled,
+            const Color(0xFF0F2442), // Dark Navy
+          ),
+          const SizedBox(height: 14),
+          _callStatusRow(
+            'Connected',
+            data.connectedCount,
+            data.totalCalled,
+            const Color(0xFF00B16E), // Green
+          ),
+          const SizedBox(height: 14),
+          _callStatusRow(
+            'Not Connected',
+            data.notConnectedCount,
+            data.totalCalled,
+            const Color(0xFF8B5CF6), // Purple
+          ),
+          // const SizedBox(height: 14),
+          // _callStatusRow(
+          //   'Total Connected',
+          //   data.,
+          //   data.totalCalled,
+          //   const Color(0xFF00B4D8), // Teal/Cyan
+          // ),
+        ],
+      ),
     );
   }
 
@@ -1303,31 +1348,116 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
 
   // ─── LEAD STATUS SECTION ───────────────────────────────────
   Widget _buildLeadStatusSection(CallStatusData data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'LEAD STATUS',
-          style: AppTextStyle.medium(
-            size: 13.5,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
-            letterSpacing: 0.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
-        ),
-        const SizedBox(height: 12),
-        // Donut chart
-        Center(
-          child: SizedBox(
-            height: 130,
-            width: 130,
-            child: DonutChart(leadsByCategory: data.leadsByCategory),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'LEAD STATUS',
+                style: AppTextStyle.medium(
+                  size: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppThemeColors.appPrimaryColor,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () async {
+                  final initialResult = _selectedDateValue != null
+                      ? CalendarResult(
+                          from: _selectedDateValue!,
+                          to: _toDateValue ?? _selectedDateValue!,
+                          isRange: _toDateValue != null,
+                        )
+                      : null;
+
+                  final result = await showCustomCalendarDialog(
+                    context,
+                    initialResult: initialResult,
+                  );
+                  if (result == null) return;
+                  if (!mounted) return;
+
+                  setState(() {
+                    if (result.isRange) {
+                      _selectedDateValue = result.from;
+                      _toDateValue = result.to;
+                      _displayLabel =
+                          '${_formatDate(result.from)} - ${_formatDate(result.to)}';
+                    } else {
+                      _selectedDateValue = result.from;
+                      _toDateValue = null;
+                      _displayLabel = _formatDate(result.from);
+                    }
+                  });
+
+                  _refreshCounts();
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFF7FAFC),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 14,
+                        color: Color(0xFF718096),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        // widget.selectedDate,
+                        _displayLabel,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF4A5568),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        // Dynamic Grid legend
-        _buildLeadLegendGrid(data.leadsByCategory),
-      ],
+          const SizedBox(height: 12),
+          // Donut chart
+          Center(
+            child: SizedBox(
+              height: 130,
+              width: 130,
+              child: DonutChart(leadsByCategory: data.leadsByCategory),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Dynamic Grid legend
+          _buildLeadLegendGrid(data.leadsByCategory),
+        ],
+      ),
     );
   }
 
