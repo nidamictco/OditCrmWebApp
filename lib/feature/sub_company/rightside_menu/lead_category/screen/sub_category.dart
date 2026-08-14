@@ -1,7 +1,10 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/widget/new_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../core/theme/asset_resources.dart';
 import '../../../../../core/utils/page_button.dart';
 import '../../../../../core/utils/show_entries.dart';
 import '../../../../../core/utils/table.dart';
@@ -300,23 +303,15 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
         );
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppThemeColors.scaffoldBg,
         body: SingleChildScrollView(
           child: Column(
             children: [
-              TopBreadcrumbBar(
-                title: "Lead Management",
-                subTitle: "Lead Sub Category ",
-                subTitle2: 'Category',
-                show2ndTitle: true,
-                onPressed: () => context.pop(),
-              ),
-
               /// 🔹 MAIN CONTENT
               Padding(
-                padding: EdgeInsets.all(2.w),
+                padding: EdgeInsets.symmetric(horizontal: 2.w),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 2.w),
+                  padding: EdgeInsets.only(bottom: 2.w),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(3),
@@ -324,55 +319,55 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /// 🔹 HEADER
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Lead Sub Category - ${widget.categoryName}",
-                                  style: AppTextStyle.medium(
-                                    size: 13.6.sp,
-                                    color: AppColors.black.withOpacity(0.77),
-                                    weight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 0.2.w),
-                              ],
-                            ),
+                      // /// 🔹 HEADER
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Row(
+                      //         children: [
+                      //           Text(
+                      //             "Lead Sub Category - ${widget.categoryName}",
+                      //             style: AppTextStyle.medium(
+                      //               size: 13.6.sp,
+                      //               color: AppColors.black.withOpacity(0.77),
+                      //               weight: FontWeight.w600,
+                      //             ),
+                      //           ),
+                      //           SizedBox(width: 0.2.w),
+                      //         ],
+                      //       ),
 
-                            // 🔹 Add New button
-                            BlocBuilder<SubCategoryCubit, SubCategoryState>(
-                              buildWhen: (p, c) =>
-                                  p.isSubmitting != c.isSubmitting,
-                              builder: (context, state) {
-                                return Row(
-                                  children: [
-                                    _actionBtn(
-                                      0,
-                                      "Add New",
-                                      AppColors.greenLight,
-                                      AppColors.green,
-                                      state.isSubmitting
-                                          ? null // disabled during submit
-                                          : _showAddDialog,
-                                      isLoading: state.isSubmitting,
-                                    ),
-                                    SizedBox(width: 1.w),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+                      //       // 🔹 Add New button
+                      //       BlocBuilder<SubCategoryCubit, SubCategoryState>(
+                      //         buildWhen: (p, c) =>
+                      //             p.isSubmitting != c.isSubmitting,
+                      //         builder: (context, state) {
+                      //           return Row(
+                      //             children: [
+                      //               _actionBtn(
+                      //                 0,
+                      //                 "Add New",
+                      //                 AppColors.greenLight,
+                      //                 AppColors.green,
+                      //                 state.isSubmitting
+                      //                     ? null // disabled during submit
+                      //                     : _showAddDialog,
+                      //                 isLoading: state.isSubmitting,
+                      //               ),
+                      //               SizedBox(width: 1.w),
+                      //             ],
+                      //           );
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
-                      SizedBox(height: 1.h),
-                      Divider(color: AppColors.divider),
-                      SizedBox(height: 3.h),
+                      // SizedBox(height: 1.h),
+                      // Divider(color: AppColors.divider),
+                      // SizedBox(height: 3.h),
 
                       /// 🔹 FILTER ROW
                       ShowEntries(
@@ -386,163 +381,377 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                           _selectedEntries = v;
                           _resetPage();
                         }),
+                        exportWidget: BlocBuilder<SubCategoryCubit, SubCategoryState>(
+                          buildWhen: (p, c) => p.isSubmitting != c.isSubmitting,
+                          builder: (context, state) {
+                            return Row(
+                              children: [
+                                _actionBtn(
+                                  0,
+                                  "New Sub Category",
+                                  AppColors.greenLight,
+                                  AppThemeColors.statusActive,
+                                  state.isSubmitting
+                                      ? null // disabled during submit
+                                      : () {
+                                          if (!state.isSubmitting) {
+                                            final cubit = context
+                                                .read<SubCategoryCubit>();
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (dialogContext) =>
+                                                  LeadSettingsAlert(
+                                                    constrainsWidth: 1000,
+                                                    fieldLabel:
+                                                        'Lead Sub Category',
+                                                    title:
+                                                        'Add Lead Sub Category',
+                                                    onSubmit: (String value) async {
+                                                      if (cubit
+                                                          .subcategoryExists(
+                                                            value,
+                                                          )) {
+                                                        StatusAlertWidget.show(
+                                                          dialogContext,
+                                                          title: 'Validation',
+                                                          message:
+                                                              'This category already exists.',
+                                                          isSuccess: false,
+                                                          onButtonPressed: () =>
+                                                              Navigator.pop(
+                                                                dialogContext,
+                                                              ),
+                                                        );
+                                                        return;
+                                                      }
+                                                      Navigator.pop(
+                                                        dialogContext,
+                                                      );
+                                                      await cubit
+                                                          .addSubCategory(
+                                                            name: value,
+                                                          );
+                                                    },
+                                                  ),
+                                            );
+                                          }
+                                        },
+                                  isLoading: state.isSubmitting,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                       SizedBox(height: 2.h),
 
                       /// 🔹 TABLE
-                      BlocBuilder<SubCategoryCubit, SubCategoryState>(
-                        builder: (context, state) {
-                          // Loading skeleton
-                          if (state.isLoading) {
-                            return SizedBox(
-                              height: 20.h,
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0x14000000),
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: BlocBuilder<SubCategoryCubit, SubCategoryState>(
+                          builder: (context, state) {
+                            // Loading skeleton
+                            if (state.isLoading) {
+                              return SizedBox(
+                                height: 20.h,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
 
-                          final rows = _filtered(state.subCategories);
-                          final allFiltered = _filtered(rows);
-                          final totalCount = allFiltered.length;
-                          final totalPages = _totalPages(totalCount);
-                          final limit = int.tryParse(_selectedEntries) ?? 10;
+                            final rows = _filtered(state.subCategories);
+                            final allFiltered = _filtered(rows);
+                            final totalCount = allFiltered.length;
+                            final totalPages = _totalPages(totalCount);
+                            final limit = int.tryParse(_selectedEntries) ?? 10;
 
-                          if (_currentPage > totalPages && totalPages > 0) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              setState(() => _currentPage = totalPages);
-                            });
-                          }
+                            if (_currentPage > totalPages && totalPages > 0) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                setState(() => _currentPage = totalPages);
+                              });
+                            }
 
-                          final pagedList = _pagedLeads(allFiltered);
+                            final pagedList = _pagedLeads(allFiltered);
 
-                          // "Showing X to Y of Z entries"
-                          final showFrom = totalCount == 0
-                              ? 0
-                              : (_currentPage - 1) * limit + 1;
-                          final showTo = (showFrom + pagedList.length - 1)
-                              .clamp(0, totalCount);
+                            // "Showing X to Y of Z entries"
+                            final showFrom = totalCount == 0
+                                ? 0
+                                : (_currentPage - 1) * limit + 1;
+                            final showTo = (showFrom + pagedList.length - 1)
+                                .clamp(0, totalCount);
 
-                          return Column(
-                            children: [
-                              SizedBox(
-                                child: CustomTable(
-                                  columns: [
-                                    TableColumn(title: "No."),
-                                    TableColumn(title: "Category Name"),
-                                    TableColumn(title: "Created By"),
-                                    TableColumn(title: "Action"),
-                                  ],
-                                  rows: pagedList.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final cat = entry.value;
-                                    final isDeleting =
-                                        state.deletingId == cat.id;
-                                    final serial =
-                                        (_currentPage - 1) * limit + index + 1;
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  child: CustomTable(
+                                    columns: [
+                                      TableColumn(title: "No."),
+                                      TableColumn(title: "Category Name"),
+                                      TableColumn(title: "Created By"),
+                                      TableColumn(title: "Action"),
+                                    ],
+                                    rows: pagedList.asMap().entries.map((
+                                      entry,
+                                    ) {
+                                      final index = entry.key;
+                                      final cat = entry.value;
+                                      final isDeleting =
+                                          state.deletingId == cat.id;
+                                      final serial =
+                                          (_currentPage - 1) * limit +
+                                          index +
+                                          1;
 
-                                    return [
-                                      Text(
-                                        '$serial',
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        cat.name,
-                                        style: AppTextStyle.medium(),
-                                      ),
-                                      Text(
-                                        cat.createdBy,
-                                        style: AppTextStyle.medium(),
-                                      ),
+                                      return [
+                                        Text(
+                                          '$serial',
+                                          style: AppTextStyle.medium(),
+                                        ),
+                                        Text(
+                                          cat.name,
+                                          style: AppTextStyle.medium(),
+                                        ),
+                                        Text(
+                                          cat.createdBy,
+                                          style: AppTextStyle.medium(),
+                                        ),
 
-                                      /// ACTION
-                                      isDeleting
-                                          ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.red,
+                                        /// ACTION
+                                        isDeleting
+                                            ? const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.red,
+                                                    ),
+                                              )
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  // 🔹 Edit — opens edit dialog
+                                                  GestureDetector(
+                                                   onTap: () {
+  final id = cat.id;
+
+  if (!state.isSubmitting) {
+    final cubit = context.read<SubCategoryCubit>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => LeadSettingsAlert(
+        constrainsWidth: 1000,
+        fieldLabel: 'Lead Sub Category',
+        title: 'Edit Lead Sub Category',
+        initialValue: cat.name, // pre-fill with current name
+        onSubmit: (String value) async {
+          if (value != cat.name && cubit.subcategoryExists(value)) {
+            StatusAlertWidget.show(
+              dialogContext,
+              title: 'Validation',
+              message: 'This sub category already exists',
+              isSuccess: false,
+              onButtonPressed: () => Navigator.pop(dialogContext),
+            );
+            return;
+          }
+          Navigator.pop(dialogContext);
+          await cubit.updateSubCategory(id: id, name: value); // use `value`, not `name`
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("$value updated successfully!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+                                                        },
+                                                    child: Container(
+                                                      height: 28,
+                                                      width: 28,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: const Color(
+                                                            0xff3B82F6,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      child: Image.asset(
+                                                        AssetResources.edit,
+                                                        scale: 1.7,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 1.w),
+                                                  // 🔹 Delete — opens confirm dialog
+                                                  GestureDetector(
+                                                    onTap: () =>
+                                                        _confirmDelete(cat),
+                                                    child: Container(
+                                                      height: 28,
+                                                      width: 28,
+                                                      decoration: BoxDecoration(
+                                                        // color: const Color(0xFFFEF2F2),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: const Color(
+                                                            0xFFFCA5A5,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      child: Image.asset(
+                                                        AssetResources
+                                                            .deleteIcon,
+                                                        scale: 1.7,
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            )
-                                          : Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                // 🔹 Edit — opens edit dialog
-                                                GestureDetector(
-                                                  onTap: () =>
-                                                      _showEditDialog(cat),
-                                                  child: Icon(
-                                                    Icons.edit_outlined,
-                                                    size: 14.sp,
-                                                    color: Colors.blue,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 1.w),
-                                                // 🔹 Delete — opens confirm dialog
-                                                GestureDetector(
-                                                  onTap: () =>
-                                                      _confirmDelete(cat),
-                                                  child: Icon(
-                                                    Icons.delete_outline,
-                                                    size: 14.sp,
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                    ];
-                                  }).toList(),
+                                      ];
+                                    }).toList(),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Showing $showFrom to $showTo of $totalCount entries",
-                                      style: AppTextStyle.medium(
-                                        weight: FontWeight.w400,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2.w,
+                                    vertical: 1.5.h,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Showing $showFrom to $showTo of $totalCount entries",
+                                        style: AppTextStyle.medium(
+                                          weight: FontWeight.w400,
+                                        ),
                                       ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
+                                      Row(
+                                        children: [
+                                          /// Previous button
+                                          MouseRegion(
+                                            cursor: _currentPage > 1
+                                                ? SystemMouseCursors.click
+                                                : SystemMouseCursors.basic,
+                                            child: GestureDetector(
+                                              onTap: _currentPage > 1
+                                                  ? () => _goToPage(
+                                                      _currentPage - 1,
+                                                      totalCount,
+                                                    )
+                                                  : null,
+                                              child: Container(
+                                                width: 32,
+                                                height: 32,
+                                                alignment: Alignment.center,
+                                                margin: const EdgeInsets.only(
+                                                  right: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFFE2E8F0,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Icon(
+                                                  Icons.chevron_left,
+                                                  size: 16,
+                                                  color: _currentPage > 1
+                                                      ? const Color(0xFF475569)
+                                                      : Colors.grey.shade300,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                          ..._buildPageNumbers(
+                                            totalPages,
                                             totalCount,
                                           ),
-                                        ),
-                                        ..._buildPageNumbers(
-                                          totalPages,
-                                          totalCount,
-                                        ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
+
+                                          /// Next button
+                                          MouseRegion(
+                                            cursor: _currentPage < totalPages
+                                                ? SystemMouseCursors.click
+                                                : SystemMouseCursors.basic,
+                                            child: GestureDetector(
+                                              onTap: _currentPage < totalPages
+                                                  ? () => _goToPage(
+                                                      _currentPage + 1,
+                                                      totalCount,
+                                                    )
+                                                  : null,
+                                              child: Container(
+                                                width: 32,
+                                                height: 32,
+                                                alignment: Alignment.center,
+                                                margin: const EdgeInsets.only(
+                                                  left: 4,
+                                                  right: 12,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFFE2E8F0,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Icon(
+                                                  Icons.chevron_right,
+                                                  size: 16,
+                                                  color:
+                                                      _currentPage < totalPages
+                                                      ? const Color(0xFF475569)
+                                                      : Colors.grey.shade300,
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
+                              ],
+                            );
+                          },
+                        ),
                       ),
 
                       SizedBox(height: 2.h),
@@ -570,37 +779,29 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
   }) {
     final isHovering = hoveringIndex == index;
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => hoveringIndex = index),
-      onExit: (_) => setState(() => hoveringIndex = null),
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 5.h,
-          padding: EdgeInsets.symmetric(horizontal: 3.w),
-          decoration: BoxDecoration(
-            color: isHovering ? color : bg,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Center(
-            child: isLoading
-                ? SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: isHovering ? Colors.white : color,
-                    ),
-                  )
-                : Text(
-                    text,
-                    style: AppTextStyle.small(
-                      color: isHovering ? Colors.white : color,
-                      size: 10.sp,
-                    ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 5.h,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(
+          child: isLoading
+              ? SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: color,
                   ),
-          ),
+                )
+              : Text(
+                  text,
+                  style: AppTextStyle.small(color: Colors.white, size: 10.sp),
+                ),
         ),
       ),
     );
@@ -608,24 +809,92 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
-
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+    if (totalPages <= 1) {
+      return [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
+            color: AppThemeColors.appPrimaryColor,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            '1',
+            style: AppTextStyle.small(
+              size: 10.sp,
+              color: Colors.white,
+              weight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ];
+      ];
+    }
+
+    List<Widget> pages = [];
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= _currentPage - 1 && i <= _currentPage + 1)) {
+        final isSelected = i == _currentPage;
+        pages.add(
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _goToPage(i, totalCount),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 32),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppThemeColors.appPrimaryColor
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppThemeColors.appPrimaryColor
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  '$i',
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == _currentPage - 2 || i == _currentPage + 2) {
+        pages.add(
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              '...',
+              style: AppTextStyle.small(
+                size: 10.sp,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return pages;
   }
 }

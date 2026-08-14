@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -387,14 +388,36 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _buildActionButton(
-                      icon: Icons.restore,
-                      color: AppColors.green,
+                    // _buildActionButton(
+                    //   icon: AssetResources.restore,
+                    //   color: AppColors.green,
+                    //   onTap: () => _confirmRestore(context, staff),
+                    // ),
+                    GestureDetector(
                       onTap: () => _confirmRestore(context, staff),
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: AppColors.green.withValues(alpha: 0.4),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.restore,
+                            color: AppColors.green,
+                            size: 15,
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(width: 0.5.w),
                     _buildActionButton(
-                      icon: Icons.delete_outline,
+                      icon: AssetResources.deleteIcon,
                       color: Colors.red,
                       onTap: () => _confirmDelete(context, staff),
                     ),
@@ -493,7 +516,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
   }
 
   Widget _buildActionButton({
-    required IconData icon,
+    required String icon,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -507,7 +530,7 @@ class _DeletedStaffScreenState extends State<DeletedStaffScreen> {
           border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Center(child: Icon(icon, size: 13, color: color)),
+        child: Center(child: Image.asset(icon, scale: 1.7)),
       ),
     );
   }

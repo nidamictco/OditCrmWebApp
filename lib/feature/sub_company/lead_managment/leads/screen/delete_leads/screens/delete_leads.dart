@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/multi_select_dropdown.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
@@ -883,7 +884,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                     height: 4.h,
                     padding: EdgeInsets.symmetric(horizontal: 2.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981), // Emerald Green
+                      color: const Color(0xff00b087), // Emerald Green
                       borderRadius: BorderRadius.circular(6),
                     ),
                     alignment: Alignment.center,
@@ -1108,19 +1109,20 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                         child: Tooltip(
                           message: 'Restore',
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            height: 28,
+                            width: 28,
                             decoration: BoxDecoration(
                               // color: const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: AppThemeColors.appPrimaryColor
-                                    .withValues(alpha: 0.5),
+                                color: AppColors.green.withValues(alpha: 0.4),
+                                width: 1,
                               ),
                             ),
                             child: Icon(
                               Icons.restore,
-                              size: 13.sp,
-                              color: AppThemeColors.appPrimaryColor,
+                              size: 15,
+                              color: AppColors.green,
                             ),
                           ),
                         ),
@@ -1136,18 +1138,22 @@ class _DeleteLeadsState extends State<DeleteLeads> {
                         child: Tooltip(
                           message: 'Delete Permanently',
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            height: 28,
+                            width: 28,
                             decoration: BoxDecoration(
                               // color: const Color(0xFFFEF2F2),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: const Color(0xFFFCA5A5),
+                                width: 1,
                               ),
                             ),
-                            child: Icon(
-                              Icons.delete_outline,
-                              size: 13.sp,
-                              color: const Color(0xFFEF4444),
+                            child: Center(
+                              child: Image.asset(
+                                AssetResources.deleteIcon,
+                                scale: 1.7,
+                                color: const Color(0xFFEF4444),
+                              ),
                             ),
                           ),
                         ),

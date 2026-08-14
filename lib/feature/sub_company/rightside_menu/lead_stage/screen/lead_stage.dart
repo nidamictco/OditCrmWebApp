@@ -1,6 +1,9 @@
 import 'package:Odit_CRM/core/router/browser_aware_link.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/widget/new_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -150,7 +153,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
 
             Navigator.pop(ctx);
 
-            await context.read<LeadStageCubit>().addCategory(
+            await context.read<LeadStageCubit>().addLeadStage(
               name: name,
               tagMandatory: false,
               // createdBy: '-',
@@ -306,169 +309,242 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
         );
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppThemeColors.scaffoldBg,
 
         body: SingleChildScrollView(
           child: Column(
             children: [
-              TopBreadcrumbBar(subTitle: "Lead Stages", title: "Dashboard"),
               Padding(
-                padding: EdgeInsets.all(2.w),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 2.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(3),
-                    border: Border.all(color: AppColors.lightGrey),
-                  ),
+                padding: EdgeInsets.only(right: 2.w, left: 2.w, bottom: 1.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // /// 🔹 HEADER
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Row(
+                    //         children: [
+                    //           Text(
+                    //             "Lead Stages",
+                    //             style: AppTextStyle.medium(
+                    //               size: 13.6.sp,
+                    //               color: AppColors.black.withOpacity(0.77),
+                    //               weight: FontWeight.w600,
+                    //             ),
+                    //           ),
+                    //           SizedBox(width: 0.2.w),
+                    //           Tooltip(
+                    //             textAlign: TextAlign.center,
+                    //             message:
+                    //                 "Lead Stages lets you track the\nstage of a lead, and you can\nadd new statuses as needed\nto match your sales process.",
+                    //             decoration: BoxDecoration(
+                    //               color: Colors.black,
+                    //               borderRadius: BorderRadius.circular(6),
+                    //             ),
+                    //             textStyle: const TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: 12,
+                    //             ),
+                    //             waitDuration: const Duration(
+                    //               milliseconds: 200,
+                    //             ),
+                    //             child: Container(
+                    //               height: 2.h,
+                    //               width: 2.w,
+                    //               decoration: BoxDecoration(
+                    //                 shape: BoxShape.circle,
+                    //                 border: Border.all(
+                    //                   color: AppColors.green,
+                    //                   width: 1,
+                    //                 ),
+                    //               ),
+                    //               child: Icon(
+                    //                 Icons.question_mark_rounded,
+                    //                 size: 10.sp,
+                    //                 color: AppColors.green,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
 
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// 🔹 HEADER
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Lead Stages",
-                                  style: AppTextStyle.medium(
-                                    size: 13.6.sp,
-                                    color: AppColors.black.withOpacity(0.77),
-                                    weight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 0.2.w),
-                                Tooltip(
-                                  textAlign: TextAlign.center,
-                                  message:
-                                      "Lead Stages lets you track the\nstage of a lead, and you can\nadd new statuses as needed\nto match your sales process.",
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  textStyle: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                  waitDuration: const Duration(
-                                    milliseconds: 200,
-                                  ),
-                                  child: Container(
-                                    height: 2.h,
-                                    width: 2.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.green,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.question_mark_rounded,
-                                      size: 10.sp,
-                                      color: AppColors.green,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                    //       BlocBuilder<LeadStageCubit, LeadStageState>(
+                    //         buildWhen: (prev, cur) =>
+                    //             cur.isSubmitting != prev.isSubmitting,
+                    //         builder: (context, state) {
+                    //           return MouseRegion(
+                    //             onEnter: (_) =>
+                    //                 setState(() => isHovering = true),
+                    //             onExit: (_) =>
+                    //                 setState(() => isHovering = false),
+                    //             child: GestureDetector(
+                    //               onTap: () {
+                    //                 if (!state.isSubmitting) _showAddDialog();
+                    //               },
+                    //               child: AnimatedContainer(
+                    //                 duration: const Duration(
+                    //                   milliseconds: 200,
+                    //                 ),
+                    //                 curve: Curves.easeInOut,
+                    //                 height: 5.h,
+                    //                 padding: EdgeInsets.symmetric(
+                    //                   horizontal: 3.w,
+                    //                 ),
+                    //                 decoration: BoxDecoration(
+                    //                   color: isHovering
+                    //                       ? AppColors.green
+                    //                       : AppColors.green.withOpacity(0.1),
+                    //                   borderRadius: BorderRadius.circular(6),
+                    //                 ),
+                    //                 child: Center(
+                    //                   child: Text(
+                    //                     "Add New",
+                    //                     style: AppTextStyle.small(
+                    //                       color: isHovering
+                    //                           ? Colors.white
+                    //                           : AppColors.green,
+                    //                       size: 10.sp,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           );
+                    //         },
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
 
-                            BlocBuilder<LeadStageCubit, LeadStageState>(
-                              buildWhen: (prev, cur) =>
-                                  cur.isSubmitting != prev.isSubmitting,
-                              builder: (context, state) {
-                                return MouseRegion(
-                                  onEnter: (_) =>
-                                      setState(() => isHovering = true),
-                                  onExit: (_) =>
-                                      setState(() => isHovering = false),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (!state.isSubmitting) _showAddDialog();
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      curve: Curves.easeInOut,
-                                      height: 5.h,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 3.w,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isHovering
-                                            ? AppColors.green
-                                            : AppColors.green.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Add New",
-                                          style: AppTextStyle.small(
-                                            color: isHovering
-                                                ? Colors.white
-                                                : AppColors.green,
-                                            size: 10.sp,
-                                          ),
-                                        ),
-                                      ),
+                    // SizedBox(height: 1.h),
+                    // Divider(color: AppColors.divider),
+                    // SizedBox(height: 3.h),
+
+                    /// 🔹 SWITCH
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    //   child: Row(
+                    //     children: [
+                    //       Text(
+                    //         "Priority Required for All Stages",
+                    //         style: AppTextStyle.medium(),
+                    //       ),
+                    //       SizedBox(width: 0.4.w),
+                    //       Transform.scale(
+                    //         scale: 0.6,
+                    //         child: Switch(
+                    //           value: false,
+                    //           activeColor: AppColors.primary,
+                    //           onChanged: (value) {},
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    // SizedBox(height: 3.h),
+
+                    /// 🔹 FILTER
+                    ShowEntries(
+                      initialSearch: _searchQuery,
+                      initialEntries: _selectedEntries,
+                      onSearchChanged: (v) => setState(() {
+                        _searchQuery = v;
+                        _resetPage();
+                      }),
+                      onEntriesChanged: (v) => setState(() {
+                        _selectedEntries = v;
+                        _resetPage();
+                      }),
+                      exportWidget: BlocBuilder<LeadStageCubit, LeadStageState>(
+                        buildWhen: (prev, cur) =>
+                            cur.isSubmitting != prev.isSubmitting,
+                        builder: (context, state) {
+                          return MouseRegion(
+                            onEnter: (_) => setState(() => isHovering = true),
+                            onExit: (_) => setState(() => isHovering = false),
+                            child: GestureDetector(
+                              onTap: () {
+                                // if (!state.isSubmitting) _showAddDialog();
+                                if(!state.isSubmitting){
+                                  final cubit =
+                                                    context.read<LeadStageCubit>();
+
+                                  showDialog(
+                                    context: context,
+                                    builder: (dialogContext) => LeadSettingsAlert(
+                                      fieldLabel: 'Lead Stage',
+                                      title: 'Add Lead Stage',
+                                      constrainsWidth: 700,
+                                      onSubmit: (String value) async {
+                                        if (cubit.stageExists(value)) {
+                                          StatusAlertWidget.show(
+                                            dialogContext,
+                                            title: 'Validation',
+                                            message:
+                                                'This stage already exists.',
+                                            isSuccess: false,
+                                            onButtonPressed: () =>
+                                                Navigator.pop(dialogContext),
+                                          );
+                                          return;
+                                        }
+                                        Navigator.pop(
+                                          dialogContext,
+                                        ); // close LeadSettingsAlert
+                                        await cubit.addLeadStage(name: value, tagMandatory:false );
+                                      },
                                     ),
-                                  ),
-                                );
+                                  );
+                                }
                               },
+                              child: Container(
+                                height: 5.h,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppThemeColors.statusActive,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "New Lead Stage",
+                                    style: AppTextStyle.small(
+                                      color: Colors.white,
+                                      size: 10.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
+                    ),
 
-                      SizedBox(height: 1.h),
-                      Divider(color: AppColors.divider),
-                      SizedBox(height: 3.h),
+                    SizedBox(height: 2.h),
 
-                      /// 🔹 SWITCH
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      //   child: Row(
-                      //     children: [
-                      //       Text(
-                      //         "Priority Required for All Stages",
-                      //         style: AppTextStyle.medium(),
-                      //       ),
-                      //       SizedBox(width: 0.4.w),
-                      //       Transform.scale(
-                      //         scale: 0.6,
-                      //         child: Switch(
-                      //           value: false,
-                      //           activeColor: AppColors.primary,
-                      //           onChanged: (value) {},
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
-                      // SizedBox(height: 3.h),
-
-                      /// 🔹 FILTER
-                      ShowEntries(
-                        initialSearch: _searchQuery,
-                        initialEntries: _selectedEntries,
-                        onSearchChanged: (v) => setState(() {
-                          _searchQuery = v;
-                          _resetPage();
-                        }),
-                        onEntriesChanged: (v) => setState(() {
-                          _selectedEntries = v;
-                          _resetPage();
-                        }),
+                    /// 🔹 TABLE
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0x14000000),
+                            offset: const Offset(0, 1),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
-
-                      /// 🔹 TABLE
-                      BlocBuilder<LeadStageCubit, LeadStageState>(
+                      child: BlocBuilder<LeadStageCubit, LeadStageState>(
                         // bloc: leadStageCubit,
                         builder: (context, state) {
                           // Loading skeleton
@@ -559,10 +635,24 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                   ),
                                               usePush: true,
                                               enableInkWell: false,
-                                              child: Icon(
-                                                Icons.list,
-                                                size: 14.sp,
-                                                color: Colors.lightGreen,
+                                              child: Container(
+                                                height: 28,
+                                                width: 28,
+                                                padding: EdgeInsets.all(6),
+                                                decoration: BoxDecoration(
+                                                  // color: const Color(
+                                                  //   0xFFFEF2F2,
+                                                  // ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: AppThemeColors
+                                                        .statusActive,
+                                                  ),
+                                                ),
+                                                child: Image.asset(
+                                                  AssetResources.tag,
+                                                ),
                                               ),
                                             )
                                           : Row(
@@ -578,21 +668,95 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                       ),
                                                   usePush: true,
                                                   enableInkWell: false,
-                                                  child: Icon(
-                                                    Icons.list,
-                                                    size: 14.sp,
-                                                    color: Colors.lightGreen,
+                                                  child: Container(
+                                                    height: 28,
+                                                    width: 28,
+                                                    padding: EdgeInsets.all(6),
+                                                    decoration: BoxDecoration(
+                                                      // color: const Color(
+                                                      //   0xFFFEF2F2,
+                                                      // ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: AppThemeColors
+                                                            .statusActive,
+                                                      ),
+                                                    ),
+                                                    child: Image.asset(
+                                                      AssetResources.tag,
+                                                      // scale: 0.7,
+                                                    ),
                                                   ),
                                                 ),
                                                 SizedBox(width: 1.w),
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
-                                                  onTap: () =>
-                                                      _showEditDialog(cat),
-                                                  child: Icon(
-                                                    Icons.edit_outlined,
-                                                    size: 14.sp,
-                                                    color: Colors.blue,
+                                                  onTap: (){
+                                                      // _showEditDialog(cat),
+                                                      if (!state.isSubmitting) {
+                                            final cubit = context
+                                                .read<LeadStageCubit>();
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (dialogContext) => LeadSettingsAlert(
+                                                fieldLabel: 'Lead Stage',
+                                                title: 'Edit Lead Stage',
+                                                constrainsWidth: 700,
+                                                initialValue: cat.name,
+                                                onSubmit: (String value) async {
+                                                  if (cubit.stageExists(value)) {
+                                                    StatusAlertWidget.show(
+                                                      dialogContext,
+                                                      title: 'Validation',
+                                                      message:
+                                                          'This stage already exists.',
+                                                      isSuccess: false,
+                                                      onButtonPressed: () =>
+                                                          Navigator.pop(dialogContext),
+                                                    );
+                                                    return;
+                                                  }
+                                                  Navigator.pop(
+                                                    dialogContext,
+                                                  ); // close LeadSettingsAlert
+                                                  await cubit.updateStage(name: value, id: cat.id,  );
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text("$value updated successfully!"),
+                                                      backgroundColor: Colors.green,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          }
+                                                      
+                                                      },
+                                                  child: Container(
+                                                    height: 28,
+                                                    width: 28,
+                                                    decoration: BoxDecoration(
+                                                      // color: const Color(
+                                                      //   0xFFFEF2F2,
+                                                      // ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xff3B82F6,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Image.asset(
+                                                      AssetResources.edit,
+                                                      scale: 1.7,
+                                                    ),
                                                   ),
                                                 ),
                                                 SizedBox(width: 1.w),
@@ -600,10 +764,25 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                 GestureDetector(
                                                   onTap: () =>
                                                       _confirmDelete(cat),
-                                                  child: Icon(
-                                                    Icons.delete_outline,
-                                                    size: 14.sp,
-                                                    color: Colors.red,
+                                                  child: Container(
+                                                    height: 28,
+                                                    width: 28,
+                                                    decoration: BoxDecoration(
+                                                      // color: const Color(0xFFFEF2F2),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xFFFCA5A5,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Image.asset(
+                                                      AssetResources.deleteIcon,
+                                                      scale: 1.7,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -629,26 +808,88 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                     ),
                                     Row(
                                       children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
-                                            totalCount,
+                                        /// Previous button
+                                        MouseRegion(
+                                          cursor: _currentPage > 1
+                                              ? SystemMouseCursors.click
+                                              : SystemMouseCursors.basic,
+                                          child: GestureDetector(
+                                            onTap: _currentPage > 1
+                                                ? () => _goToPage(
+                                                    _currentPage - 1,
+                                                    totalCount,
+                                                  )
+                                                : null,
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              alignment: Alignment.center,
+                                              margin: const EdgeInsets.only(
+                                                right: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFE2E8F0,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.chevron_left,
+                                                size: 16,
+                                                color: _currentPage > 1
+                                                    ? const Color(0xFF475569)
+                                                    : Colors.grey.shade300,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         ..._buildPageNumbers(
                                           totalPages,
                                           totalCount,
                                         ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
+
+                                        /// Next button
+                                        MouseRegion(
+                                          cursor: _currentPage < totalPages
+                                              ? SystemMouseCursors.click
+                                              : SystemMouseCursors.basic,
+                                          child: GestureDetector(
+                                            onTap: _currentPage < totalPages
+                                                ? () => _goToPage(
+                                                    _currentPage + 1,
+                                                    totalCount,
+                                                  )
+                                                : null,
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              alignment: Alignment.center,
+                                              margin: const EdgeInsets.only(
+                                                left: 4,
+                                                right: 12,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFE2E8F0,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.chevron_right,
+                                                size: 16,
+                                                color: _currentPage < totalPages
+                                                    ? const Color(0xFF475569)
+                                                    : Colors.grey.shade300,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -660,8 +901,8 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                           );
                         },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -673,24 +914,92 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
-
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+    if (totalPages <= 1) {
+      return [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
+            color: AppThemeColors.appPrimaryColor,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            '1',
+            style: AppTextStyle.small(
+              size: 10.sp,
+              color: Colors.white,
+              weight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ];
+      ];
+    }
+
+    List<Widget> pages = [];
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= _currentPage - 1 && i <= _currentPage + 1)) {
+        final isSelected = i == _currentPage;
+        pages.add(
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _goToPage(i, totalCount),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 32),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppThemeColors.appPrimaryColor
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppThemeColors.appPrimaryColor
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  '$i',
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == _currentPage - 2 || i == _currentPage + 2) {
+        pages.add(
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              '...',
+              style: AppTextStyle.small(
+                size: 10.sp,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return pages;
   }
 }

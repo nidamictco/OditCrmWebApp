@@ -478,7 +478,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                   ),
                 ),
 
-                
                 SizedBox(height: 2.h),
                 ShowEntries(
                   initialSearch: _searchQuery,
@@ -494,38 +493,36 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                   exportWidget: GestureDetector(
                     onTap: () {
                       final leads = context.read<AddLeadCubit>().state.leads;
-                      final filtered = _filteredLeads(
-                        leads,
-                      ); 
+                      final filtered = _filteredLeads(leads);
                       exportLeadsToExcel(filtered, 'rejected_leads_');
                     },
-                    child:  Container(
-                        height: 4.h,
-                        padding: EdgeInsets.symmetric(horizontal: 0.8.w),
-                        decoration: BoxDecoration(
-                          color: AppThemeColors.appPrimaryColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        alignment: Alignment.center,
-                        child: Row(
-                          children: [
-                            Text(
-                              "Export",
-                              style: AppTextStyle.medium(
-                                color: Colors.white,
-                                weight: FontWeight.w500,
-                                size: 10.sp,
-                              ),
-                            ),
-                            SizedBox(width: 0.4.w),
-                            Icon(
-                              Icons.file_download_outlined,
-                              color: Colors.white,
-                              size: 12.sp,
-                            ),
-                          ],
-                        ),
+                    child: Container(
+                      height: 4.h,
+                      padding: EdgeInsets.symmetric(horizontal: 0.8.w),
+                      decoration: BoxDecoration(
+                        color: AppThemeColors.appPrimaryColor,
+                        borderRadius: BorderRadius.circular(6),
                       ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        children: [
+                          Text(
+                            "Export",
+                            style: AppTextStyle.medium(
+                              color: Colors.white,
+                              weight: FontWeight.w500,
+                              size: 10.sp,
+                            ),
+                          ),
+                          SizedBox(width: 0.4.w),
+                          Icon(
+                            Icons.file_download_outlined,
+                            color: Colors.white,
+                            size: 12.sp,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
 
@@ -711,30 +708,33 @@ class _RejectedLeadsState extends State<RejectedLeads> {
                                           ),
                                           usePush: true,
                                           enableInkWell: false,
-                                          child:  Tooltip(
-                          message: 'View',
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              // color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: const Color(0xFF4E9CDB),
-                              ),
-                            ),
-                            child: Image.asset(
-                              "assets/icon/eye.png",
-                              height: 13.sp,
-                              width: 13.sp,
-                              color: const Color(0xFF4E9CDB),
-                            ),
-                            // child: Icon(
-                            //   Icons.eye,
-                            //   size: 13.sp,
-                            //   color: const Color(0xFF4E9CDB),
-                            // ),
-                          ),
-                        ),
+                                          child: Tooltip(
+                                            message: 'View',
+                                            child: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                // color: const Color(0xFFF1F5F9),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFF4E9CDB,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Image.asset(
+                                                "assets/icon/eye.png",
+                                                height: 15,
+                                                width: 15,
+                                                color: const Color(0xFF4E9CDB),
+                                              ),
+                                              // child: Icon(
+                                              //   Icons.eye,
+                                              //   size: 13.sp,
+                                              //   color: const Color(0xFF4E9CDB),
+                                              // ),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1059,8 +1059,6 @@ class _RejectedLeadsState extends State<RejectedLeads> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-           
-            
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -1085,31 +1083,28 @@ class _RejectedLeadsState extends State<RejectedLeads> {
               ),
             ),
             SizedBox(width: 1.w),
-             MouseRegion(
+            MouseRegion(
               cursor: SystemMouseCursors.click,
               child: InkWell(
-                                            onTap: _clearFilters,
-                                            child: Container(
-                                              height: 4.h,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 1.5.w,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xffe95757),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Reset',
-                                                style: AppTextStyle.small(
-                                                  size: 11.sp,
-                                                  color: Colors.white,
-                                                  weight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                onTap: _clearFilters,
+                child: Container(
+                  height: 4.h,
+                  padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffe95757),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Reset',
+                    style: AppTextStyle.small(
+                      size: 11.sp,
+                      color: Colors.white,
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

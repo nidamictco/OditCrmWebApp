@@ -3,9 +3,9 @@ import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
-import '../add_staff/screen/add_staff.dart';
-import '../../cubit/add_staff_cubit.dart';
-import '../../../designation/cubit/designation_cubit.dart';
+import '../../add_staff/screen/add_staff.dart';
+import '../../../cubit/add_staff_cubit.dart';
+import '../../../../designation/cubit/designation_cubit.dart';
 
 class AddNewStaffButton extends StatefulWidget {
   final VoidCallback? onTap;

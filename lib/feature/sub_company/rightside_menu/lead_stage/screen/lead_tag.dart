@@ -1,8 +1,11 @@
 import 'package:Odit_CRM/core/router/route_paths.dart';
+import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/cubit/lead_tag_state.dart';
+import 'package:Odit_CRM/feature/sub_company/rightside_menu/widget/new_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -306,144 +309,172 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
         );
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppThemeColors.scaffoldBg,
         body: SingleChildScrollView(
           child: Column(
             children: [
-              TopBreadcrumbBar(
-                title: "Lead Management",
-                subTitle: "Lead Tag",
-                subTitle2: 'Lead Stage',
-                show2ndTitle: true,
-                // onPressed: () => context.pop(),
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(RoutePaths.leadStages);
-                  }
-                },
-              ),
-
               /// 🔹 MAIN CONTENT
               Padding(
-                padding: EdgeInsets.all(2.w),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 2.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// 🔹 HEADER
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Lead Tag - ${widget.leadStageName}",
-                                  style: AppTextStyle.medium(
-                                    size: 13.6.sp,
-                                    color: AppColors.black.withOpacity(0.77),
-                                    weight: FontWeight.w600,
-                                  ),
+                padding: EdgeInsets.only(right: 2.w, left: 2.w, bottom: 1.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // /// 🔹 HEADER
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Row(
+                    //         children: [
+                    //           Text(
+                    //             "Lead Tag - ${widget.leadStageName}",
+                    //             style: AppTextStyle.medium(
+                    //               size: 13.6.sp,
+                    //               color: AppColors.black.withOpacity(0.77),
+                    //               weight: FontWeight.w600,
+                    //             ),
+                    //           ),
+                    //           SizedBox(width: 0.2.w),
+                    //         ],
+                    //       ),
+
+                    //       // 🔹 Add New button
+
+                    //     ],
+                    //   ),
+                    // ),
+
+                    // SizedBox(height: 1.h),
+                    // Divider(color: AppColors.divider),
+                    // SizedBox(height: 1.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Tags are Mandatory',
+                            style: AppTextStyle.medium(
+                              size: 11.sp,
+                              color: AppColors.black.withOpacity(0.77),
+                            ),
+                          ),
+                          SizedBox(width: 0.5.w),
+                          SizedBox(
+                            height: 24,
+                            child: Transform.scale(
+                              scale: 0.65,
+                              child: Switch(
+                                value: _tagMandatory,
+                                activeColor: AppColors.green,
+                                trackColor: MaterialStateProperty.all(
+                                  AppColors.greenLight,
                                 ),
-                                SizedBox(width: 0.2.w),
-                              ],
-                            ),
-
-                            // 🔹 Add New button
-                            BlocBuilder<LeadTagCubit, LeadTagState>(
-                              buildWhen: (p, c) =>
-                                  p.isSubmitting != c.isSubmitting,
-                              builder: (context, state) {
-                                return Row(
-                                  children: [
-                                    _actionBtn(
-                                      0,
-                                      "Add New",
-                                      AppColors.greenLight,
-                                      AppColors.green,
-                                      state.isSubmitting
-                                          ? null // disabled during submit
-                                          : _showAddDialog,
-                                      isLoading: state.isSubmitting,
-                                    ),
-                                    SizedBox(width: 1.w),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 1.h),
-                      Divider(color: AppColors.divider),
-                      SizedBox(height: 1.h),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Tags are Mandatory',
-                              style: AppTextStyle.medium(
-                                size: 11.sp,
-                                color: AppColors.black.withOpacity(0.77),
+                                onChanged: (value) async {
+                                  setState(
+                                    () => _tagMandatory = value,
+                                  ); // optimistic update
+                                  await context
+                                      .read<LeadStageCubit>()
+                                      .updateTagMandatory(
+                                        id: widget.leadStageId,
+                                        tagMandatory: value,
+                                      );
+                                },
                               ),
                             ),
-                            SizedBox(width: 0.5.w),
-                            SizedBox(
-                              height: 24,
-                              child: Transform.scale(
-                                scale: 0.65,
-                                child: Switch(
-                                  value: _tagMandatory,
-                                  activeColor: AppColors.green,
-                                  trackColor: MaterialStateProperty.all(
-                                    AppColors.greenLight,
-                                  ),
-                                  onChanged: (value) async {
-                                    setState(
-                                      () => _tagMandatory = value,
-                                    ); // optimistic update
-                                    await context
-                                        .read<LeadStageCubit>()
-                                        .updateTagMandatory(
-                                          id: widget.leadStageId,
-                                          tagMandatory: value,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 0.2.h),
+
+                    /// 🔹 FILTER ROW
+                    ShowEntries(
+                      initialSearch: _searchQuery,
+                      initialEntries: _selectedEntries,
+                      onSearchChanged: (v) => setState(() {
+                        _searchQuery = v;
+                        _resetPage();
+                      }),
+                      onEntriesChanged: (v) => setState(() {
+                        _selectedEntries = v;
+                        _resetPage();
+                      }),
+                      exportWidget: BlocBuilder<LeadTagCubit, LeadTagState>(
+                        buildWhen: (p, c) => p.isSubmitting != c.isSubmitting,
+                        builder: (context, state) {
+                          return Row(
+                            children: [
+                              _actionBtn(
+                                0,
+                                "Add New",
+                                AppColors.greenLight,
+                                AppThemeColors.statusActive,
+                                state.isSubmitting
+                                    ? null // disabled during submit
+                                    // : _showAddDialog,
+                                    : () {
+                                        final cubit = context
+                                            .read<LeadTagCubit>();
+                                        showDialog(
+                                          context: context,
+                                          builder: (dialogContext) =>
+                                              LeadSettingsAlert(
+                                                constrainsWidth: 600,
+                                                fieldLabel: 'Lead Tag',
+                                                title: 'Add Lead Tag',
+                                                onSubmit: (value) async {
+                                                  if (cubit.leaTagExists(
+                                                    value,
+                                                  )) {
+                                                    StatusAlertWidget.show(
+                                                      dialogContext,
+                                                      title: 'Validation',
+                                                      message:
+                                                          'This category already exists.',
+                                                      isSuccess: false,
+                                                      onButtonPressed: () =>
+                                                          Navigator.pop(
+                                                            dialogContext,
+                                                          ),
+                                                    );
+                                                    return;
+                                                  }
+                                                  Navigator.pop(dialogContext);
+                                                  await cubit.addLeadTag(
+                                                    name: value,
+                                                  );
+                                                },
+                                              ),
                                         );
-                                  },
-                                ),
+                                      },
+                                isLoading: state.isSubmitting,
                               ),
-                            ),
-                          ],
-                        ),
+                              SizedBox(width: 1.w),
+                            ],
+                          );
+                        },
                       ),
-                      SizedBox(height: 3.h),
+                    ),
+                    SizedBox(height: 2.h),
 
-                      /// 🔹 FILTER ROW
-                      ShowEntries(
-                        initialSearch: _searchQuery,
-                        initialEntries: _selectedEntries,
-                        onSearchChanged: (v) => setState(() {
-                          _searchQuery = v;
-                          _resetPage();
-                        }),
-                        onEntriesChanged: (v) => setState(() {
-                          _selectedEntries = v;
-                          _resetPage();
-                        }),
+                    /// 🔹 TABLE
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0x14000000),
+                            offset: const Offset(0, 1),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 2.h),
-
-                      /// 🔹 TABLE
-                      BlocBuilder<LeadTagCubit, LeadTagState>(
+                      child: BlocBuilder<LeadTagCubit, LeadTagState>(
                         builder: (context, state) {
                           // Loading skeleton
                           if (state.isLoading) {
@@ -524,12 +555,69 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                               children: [
                                                 // 🔹 Edit — opens edit dialog
                                                 GestureDetector(
-                                                  onTap: () =>
-                                                      _showEditDialog(cat),
-                                                  child: Icon(
-                                                    Icons.edit_outlined,
-                                                    size: 14.sp,
-                                                    color: Colors.blue,
+                                                  onTap: () {
+                                                  if (!state.isSubmitting) {
+                                            final cubit = context
+                                                .read<LeadTagCubit>();
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (dialogContext) => LeadSettingsAlert(
+                                                fieldLabel: 'Lead Tag',
+                                                title: 'Edit Lead Tag',
+                                                constrainsWidth: 700,
+                                                initialValue: cat.name,
+                                                onSubmit: (String value) async {
+                                                  if (cubit.leaTagExists(
+                                                    value,
+                                                  )) {
+                                                    StatusAlertWidget.show(
+                                                      dialogContext,
+                                                      title: 'Validation',
+                                                      message:
+                                                          'This category already exists.',
+                                                      isSuccess: false,
+                                                      onButtonPressed: () =>
+                                                          Navigator.pop(dialogContext),
+                                                    );
+                                                    return;
+                                                  }
+                                                  Navigator.pop(
+                                                    dialogContext,
+                                                  ); // close LeadSettingsAlert
+                                                  await cubit.updateLeadTag(name: value, id: cat.id,  );
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text("$value updated successfully!"),
+                                                      backgroundColor: Colors.green,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          }
+                                                      },
+                                                  child: Container(
+                                                    height: 28,
+                                                    width: 28,
+                                                    decoration: BoxDecoration(
+                                                      // color: const Color(
+                                                      //   0xFFFEF2F2,
+                                                      // ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xff3B82F6,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Image.asset(
+                                                      AssetResources.edit,
+                                                      scale: 1.7,
+                                                    ),
                                                   ),
                                                 ),
                                                 SizedBox(width: 1.w),
@@ -537,10 +625,25 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                                 GestureDetector(
                                                   onTap: () =>
                                                       _confirmDelete(cat),
-                                                  child: Icon(
-                                                    Icons.delete_outline,
-                                                    size: 14.sp,
-                                                    color: Colors.red,
+                                                  child: Container(
+                                                    height: 28,
+                                                    width: 28,
+                                                    decoration: BoxDecoration(
+                                                      // color: const Color(0xFFFEF2F2),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xFFFCA5A5,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Image.asset(
+                                                      AssetResources.deleteIcon,
+                                                      scale: 1.7,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -566,26 +669,88 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                     ),
                                     Row(
                                       children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
-                                            totalCount,
+                                        /// Previous button
+                                        MouseRegion(
+                                          cursor: _currentPage > 1
+                                              ? SystemMouseCursors.click
+                                              : SystemMouseCursors.basic,
+                                          child: GestureDetector(
+                                            onTap: _currentPage > 1
+                                                ? () => _goToPage(
+                                                    _currentPage - 1,
+                                                    totalCount,
+                                                  )
+                                                : null,
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              alignment: Alignment.center,
+                                              margin: const EdgeInsets.only(
+                                                right: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFE2E8F0,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.chevron_left,
+                                                size: 16,
+                                                color: _currentPage > 1
+                                                    ? const Color(0xFF475569)
+                                                    : Colors.grey.shade300,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         ..._buildPageNumbers(
                                           totalPages,
                                           totalCount,
                                         ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
+
+                                        /// Next button
+                                        MouseRegion(
+                                          cursor: _currentPage < totalPages
+                                              ? SystemMouseCursors.click
+                                              : SystemMouseCursors.basic,
+                                          child: GestureDetector(
+                                            onTap: _currentPage < totalPages
+                                                ? () => _goToPage(
+                                                    _currentPage + 1,
+                                                    totalCount,
+                                                  )
+                                                : null,
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              alignment: Alignment.center,
+                                              margin: const EdgeInsets.only(
+                                                left: 4,
+                                                right: 12,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFE2E8F0,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.chevron_right,
+                                                size: 16,
+                                                color: _currentPage < totalPages
+                                                    ? const Color(0xFF475569)
+                                                    : Colors.grey.shade300,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -597,10 +762,10 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                           );
                         },
                       ),
+                    ),
 
-                      SizedBox(height: 2.h),
-                    ],
-                  ),
+                    SizedBox(height: 2.h),
+                  ],
                 ),
               ),
             ],
@@ -628,12 +793,11 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
       onExit: (_) => setState(() => hoveringIndex = null),
       child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+        child: Container(
           height: 5.h,
-          padding: EdgeInsets.symmetric(horizontal: 3.w),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isHovering ? color : bg,
+            color: color,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -648,10 +812,7 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                   )
                 : Text(
                     text,
-                    style: AppTextStyle.small(
-                      color: isHovering ? Colors.white : color,
-                      size: 10.sp,
-                    ),
+                    style: AppTextStyle.small(color: Colors.white, size: 10.sp),
                   ),
           ),
         ),
@@ -661,24 +822,92 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
 
   // ── Page number chips ───────────────────────
   List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-    if (totalPages <= 1) return [];
-
-    return [
-      GestureDetector(
-        onTap: () {}, // already on this page
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-          padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
+    if (totalPages <= 1) {
+      return [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            border: Border.all(color: AppColors.lightGrey),
+            color: AppThemeColors.appPrimaryColor,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '$_currentPage',
-            style: AppTextStyle.small(size: 11.sp, color: AppColors.white),
+            '1',
+            style: AppTextStyle.small(
+              size: 10.sp,
+              color: Colors.white,
+              weight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ];
+      ];
+    }
+
+    List<Widget> pages = [];
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= _currentPage - 1 && i <= _currentPage + 1)) {
+        final isSelected = i == _currentPage;
+        pages.add(
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _goToPage(i, totalCount),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 32),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppThemeColors.appPrimaryColor
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppThemeColors.appPrimaryColor
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  '$i',
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == _currentPage - 2 || i == _currentPage + 2) {
+        pages.add(
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              '...',
+              style: AppTextStyle.small(
+                size: 10.sp,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return pages;
   }
 }

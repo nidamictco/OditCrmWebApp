@@ -53,7 +53,7 @@ class LeadStageCubit extends Cubit<LeadStageState> {
   // ─── Write Operations ─────────────────────────────────────────────────────
 
   /// Add a new category.
-  Future<void> addCategory({
+  Future<void> addLeadStage({
     required String name,required bool tagMandatory
   }) async {
     if (state.isSubmitting) return;

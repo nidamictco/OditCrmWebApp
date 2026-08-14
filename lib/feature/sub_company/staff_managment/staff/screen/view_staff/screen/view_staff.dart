@@ -1,8 +1,9 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/designation_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
-import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/view_staff/addStaffButton.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/view_staff/widget/addStaffButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../../core/theme/app_colors.dart';
@@ -676,84 +677,51 @@ class _ViewStaffState extends State<ViewStaff> {
                           },
                           child: Tooltip(
                             message: 'Edit',
-                            child: Icon(
-                              Icons.edit_outlined,
-                              size: 13.sp,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-
-                      // Center(
-                      //   child: BrowserAwareLink(
-                      //     destination: RoutePaths.staffProfilePath(staff.id!),
-                      //     onTap: () {
-                      //       context
-                      //           .push(RoutePaths.staffProfilePath(staff.id!))
-                      //           .then((_) {
-                      //             // ✅ Refresh the list when returning from profile screen
-                      //             if (context.mounted) {
-                      //               context.read<StaffCubit>().fetchAll();
-                      //             }
-                      //           });
-                      //     },
-                      //     usePush: true,
-                      //     enableInkWell: false,
-                      //     child: Container(
-                      //       padding: EdgeInsets.all(0.1.w),
-                      //       decoration: BoxDecoration(
-                      //         color: Colors.blue.shade900,
-                      //         borderRadius: BorderRadius.circular(1),
-                      //       ),
-                      //       child: Tooltip(
-                      //         message: 'View profile',
-                      //         child: Icon(
-                      //           Icons.ads_click_outlined,
-                      //           size: 10.sp,
-                      //           color: Colors.white,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      SizedBox(width: 0.1.w),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            context
-                                .push(RoutePaths.changePasswordPath(staff.id!))
-                                .then((_) {
-                                  if (context.mounted) {
-                                    context.read<StaffCubit>().fetchAll();
-                                  }
-                                });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(0.1.w),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                            child: Tooltip(
-                              message: 'Change Password',
-                              child: Icon(
-                                Icons.vpn_key_outlined,
-                                size: 10.sp,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
                                 color: Colors.white,
+                                border: Border.all(
+                                  color: Color(
+                                    0xff3B82F6,
+                                  ).withValues(alpha: 0.4),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child:Image.asset(
+                                AssetResources.edit,
+                                scale: 1.7,
+                                color: const Color(0xff3B82F6),
                               ),
                             ),
                           ),
                         ),
-                      ),
+
+                      SizedBox(width: 8),
                       if (staff.designation != "Company_Admin")
                         GestureDetector(
                           onTap: () => _confirmDelete(context, staff),
                           child: Tooltip(
                             message: 'Delete',
-                            child: Icon(
-                              Icons.delete_outline,
-                              size: 14.sp,
-                              color: Colors.red,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Color(
+                                    0xffEF4444,
+                                  ).withValues(alpha: 0.4),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Image.asset(
+                                AssetResources.deleteIcon,
+                                scale: 1.7,
+                              )
                             ),
                           ),
                         ),

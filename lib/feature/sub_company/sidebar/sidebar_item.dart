@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:Odit_CRM/feature/auth/cubit/auth/auth_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,6 +58,8 @@ class _SidebarItemState extends State<SidebarItem> {
     final isReportsSelected =
         (widget.selectedIndex >= 22 && widget.selectedIndex <= 25) ||
         widget.selectedIndex == 2;
+    final isLeadSettingsSelected =
+        (widget.selectedIndex >= 7 && widget.selectedIndex <= 10);
 
     // Lead sub-items visible
     final leadChildren = [
@@ -168,6 +171,41 @@ class _SidebarItemState extends State<SidebarItem> {
         subMenuItem(
           "Rejected Leads Reports",
           25,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+    ];
+
+    final leadSettingsChildren = [
+      if (perm.canViewStaffReport)
+        subMenuItem(
+          "Leads Category",
+          7,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewTransferReport)
+        subMenuItem(
+          "Custom Field Settings",
+          8,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewTotalReport)
+        subMenuItem(
+          "Lead Source",
+          9,
+          itemHorizontalPadding: itemHorizontalPadding,
+          itemVerticalPadding: isCompactHeight ? 8 : 10,
+          fontSizeSub: fontSizeSub,
+        ),
+      if (perm.canViewRejectedReport)
+        subMenuItem(
+          "Lead Stage",
+          10,
           itemHorizontalPadding: itemHorizontalPadding,
           itemVerticalPadding: isCompactHeight ? 8 : 10,
           fontSizeSub: fontSizeSub,
@@ -287,6 +325,20 @@ class _SidebarItemState extends State<SidebarItem> {
                       subItemLeftMargin: subItemLeftMargin,
                       fontSizeMain: fontSizeMain,
                       children: reportChildren,
+                    ),
+
+                  if (reportChildren.isNotEmpty) SizedBox(height: 10),
+                  // REPORTS
+                  if (reportChildren.isNotEmpty)
+                    CustomExpandedTile(
+                      icon: Symbols.leaderboard,
+                      title: "Leads Settings",
+                      isSelected: isLeadSettingsSelected,
+                      itemHorizontalPadding: itemHorizontalPadding,
+                      itemVerticalPadding: itemVerticalPadding,
+                      subItemLeftMargin: subItemLeftMargin,
+                      fontSizeMain: fontSizeMain,
+                      children: leadSettingsChildren,
                     ),
                 ],
               ),
@@ -946,9 +998,10 @@ class _UserProfileAlertDialogState extends State<_UserProfileAlertDialog> {
                 InkWell(
                   onTap: () {
                     Navigator.of(context).pop();
-                    widget.parentContext.go(
-                      RoutePaths.changePasswordPath(widget.user.id ?? ''),
-                    );
+                    // widget.parentContext.go(
+                    //   RoutePaths.changePasswordPath(widget.user.id ?? ''),
+                    // );
+                    showChangePasswordDialog(context, staff: widget.user);
                   },
                   borderRadius: BorderRadius.circular(6),
                   child: Padding(
