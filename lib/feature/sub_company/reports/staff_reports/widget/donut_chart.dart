@@ -1,41 +1,62 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class DonutChart extends StatelessWidget {
   final Map<String, int> leadsByCategory;
 
-  const DonutChart({required this.leadsByCategory});
+  const DonutChart({super.key, required this.leadsByCategory});
 
-  static const _colors = [
-    Color(0xFF4F6BED), // New
-    Color(0xFF7BC96F), // Follow Up
-    Color(0xFFF87171), // Rejected
-    Color(0xFF38B2AC), // Closed
-    Color(0xFFECC94B), // Pending
-    Color(0xFF9F7AEA), // fallback
+  static const _categoryColors = <String, Color>{
+    'New': Color(0xFF0085FF),
+    'Follow-Up': Color(0xFF00B16E),
+    'Follow Up': Color(0xFF00B16E),
+    'Rejected': Color(0xFFEF4444),
+    'Closed': Color(0xFF00B4D8),
+    'Transferred': Color(0xFFF97316),
+    'Pending': Color(0xFFF97316),
+  };
+
+  static const _defaultColors = [
+    Color(0xFF0085FF),
+    Color(0xFF00B16E),
+    Color(0xFFEF4444),
+    Color(0xFF00B4D8),
+    Color(0xFFF97316),
   ];
 
   @override
   Widget build(BuildContext context) {
     final entries = leadsByCategory.entries.toList();
     final total = entries.fold<int>(0, (sum, e) => sum + e.value);
+    final allZero = total == 0;
 
-    // Build sections dynamically from leadsByCategory
-    final sections = entries.asMap().entries.map((mapEntry) {
-      final index = mapEntry.key;
-      final entry = mapEntry.value;
-      final isNoData = entry.key == 'No Data';
+    final List<PieChartSectionData> sections;
 
-      return PieChartSectionData(
-        value: entry.value.toDouble(),
-        color: isNoData
-            ? Colors.grey.shade300
-            : _colors[index % _colors.length],
-        radius: 22,
-        showTitle: false,
-      );
-    }).toList();
+    if (allZero) {
+      // Render single clean grey ring section when total is 0
+      sections = [
+        PieChartSectionData(
+          value: 1,
+          color: const Color(0xFFE2E8F0),
+          radius: 20,
+          showTitle: false,
+        ),
+      ];
+    } else {
+      sections = entries.asMap().entries.map((mapEntry) {
+        final index = mapEntry.key;
+        final entry = mapEntry.value;
+        final color = _categoryColors[entry.key] ??
+            _defaultColors[index % _defaultColors.length];
+
+        return PieChartSectionData(
+          value: entry.value == 0 ? 0.001 : entry.value.toDouble(),
+          color: color,
+          radius: 20,
+          showTitle: false,
+        );
+      }).toList();
+    }
 
     return Stack(
       alignment: Alignment.center,
@@ -44,8 +65,8 @@ class DonutChart extends StatelessWidget {
           PieChartData(
             startDegreeOffset: -90,
             sectionsSpace: 2,
-            centerSpaceRadius: 45,
-            sections: sections, // ← now dynamic
+            centerSpaceRadius: 42,
+            sections: sections,
           ),
         ),
         Column(
@@ -54,19 +75,18 @@ class DonutChart extends StatelessWidget {
             Text(
               '$total',
               style: const TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1A202C),
+                color: Color(0xFF1E293B),
               ),
             ),
-            const SizedBox(height: 2),
             const Text(
-              'Total\nLeads',
+              'Leads',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 10,
-                height: 1.2,
-                color: Color(0xFF718096),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
               ),
             ),
           ],

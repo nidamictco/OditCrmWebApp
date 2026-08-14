@@ -61,6 +61,8 @@ class AppTextStyle {
     double? height,
     FontStyle? fontStyle,
     TextDecoration? decoration,
+    TextDecorationStyle? decorationStyle,
+    Color? decorationColor,
     double? letterSpacing,
   }) {
     return GoogleFonts.poppins(
@@ -70,6 +72,8 @@ class AppTextStyle {
       height: height,
       fontStyle: fontStyle,
       decoration: decoration,
+      decorationStyle: decorationStyle,
+      decorationColor: decorationColor,
       letterSpacing: letterSpacing ?? 0.2,
     );
   }
