@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:Odit_CRM/core/constant/firebase_const.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_tag_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/data/lead_tag_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/shared_preference/session_service.dart';
@@ -12,11 +12,11 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/data/add_lead_
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/notification/data/notification_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/custom_field_settings/data/custom_field_repo.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/data/lead_category_repository.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/data/sub_category_repository.dart'; // NEW
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/data/lead_source_repo.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_stage_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/custom_field_settings/data/custom_field_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_category/data/lead_category_repository.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_category/data/sub_category_repository.dart'; // NEW
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_source/data/lead_source_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/data/lead_stage_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/settings/general_settings/data/general_settings_repo.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'package:intl/intl.dart';

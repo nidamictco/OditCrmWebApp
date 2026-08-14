@@ -9,7 +9,7 @@ import 'import_lead_state.dart';
 import '../data/import_lead_repo.dart';
 import '../model/import_leads_model.dart';
 import '../../../notification/data/notification_repo.dart';
-import '../../../rightside_menu/common_model/lead_model.dart';
+import '../../../leads_settings_.dart/common_model/lead_model.dart';
 import '../../../staff_managment/staff/model/staff_model.dart';
 
 // class ImportLeadsCubit extends Cubit<ImportLeadsState> {

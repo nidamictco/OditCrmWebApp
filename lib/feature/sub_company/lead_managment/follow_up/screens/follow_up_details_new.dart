@@ -25,7 +25,7 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_category/cubit/lead_category_cubit.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../../core/shared_preference/session_service.dart';
@@ -3503,6 +3503,53 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
               ],
             ),
           ),
+          const SizedBox(height: 15),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         padding: const EdgeInsets.all(20),
+          //         decoration: BoxDecoration(
+          //           color: Colors.white,
+          //           borderRadius: BorderRadius.circular(12),
+          //           border: Border.all(color: const Color(0xFFE2E8F0)),
+          //         ),
+          //         child: Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           children: [
+          //             Text(
+          //               'Additional Fields',
+          //               style: AppTextStyle.heading(
+          //                 size: 13,
+          //                 weight: FontWeight.w700,
+          //                 color: const Color(0xFF0F2942),
+          //               ),
+          //             ),
+          //             const SizedBox(height: 12),
+          //             _detailItem(
+          //               'WhatsApp Number:',
+          //               widget.lead.whatsappNumber.isNotEmpty
+          //                   ? widget.lead.whatsappNumber
+          //                   : (widget.lead.contactNumber.isNotEmpty
+          //                         ? widget.lead.contactNumber
+          //                         : 'N/A'),
+          //             ),
+          //             SizedBox(height: 10),
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //     const SizedBox(width: 20),
+          //     Expanded(child: SizedBox()),
+          //   ],
+          // ),
+          Row(
+            children: [
+              Expanded(child: _buildAdditionalDetailsSection(state)),
+              const SizedBox(width: 20),
+              Expanded(child: SizedBox()),
+            ],
+          ),
 
           const SizedBox(height: 24),
 
@@ -3578,6 +3625,62 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
           ),
           const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+
+  // ── Additional Fields (dynamic, from Additional Fields module) ────────────
+  Widget _buildAdditionalDetailsSection(AddLeadState state) {
+    final fieldDefs = state.additionalFields; // already ordered by createdAt
+    final storedValues = widget.lead.additionalFields ?? const <String, String>{};
+
+    final rows = <MapEntry<String, String>>[];
+    for (final field in fieldDefs) {
+      // Resolve value by id first (stable across renames), fall back to
+      // fieldName in case older data was saved keyed by name.
+      String? raw;
+      if (field.id != null && storedValues.containsKey(field.id)) {
+        raw = storedValues[field.id];
+      } else {
+        raw = storedValues[field.fieldName];
+      }
+      final value = (raw ?? '').trim();
+      if (value.isEmpty) continue; // skip fields with no value for this lead
+      rows.add(MapEntry(field.fieldName, value));
+    }
+
+    if (rows.isEmpty) return const SizedBox.shrink(); // nothing to show at all
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 15),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'ADDITIONAL DETAILS',
+              style: AppTextStyle.heading(
+                size: 13,
+                weight: FontWeight.w700,
+                color: const Color(0xFF0F2942),
+              ),
+            ),
+            const SizedBox(height: 12),
+            for (int i = 0; i < rows.length; i++)
+              _detailItem(
+                '${rows[i].key}:',
+                rows[i].value,
+                showDivider: i != rows.length - 1,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -3838,4 +3941,6 @@ class _NewStatusChip extends StatelessWidget {
       ),
     );
   }
+
+  
 }

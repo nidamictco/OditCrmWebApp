@@ -9,7 +9,7 @@ import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/core/constant/firebase_const.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/model/import_leads_model.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 import '../../follow_up/models/follow_up_activities_model.dart';
 

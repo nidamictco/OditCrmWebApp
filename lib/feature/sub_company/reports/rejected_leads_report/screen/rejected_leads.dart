@@ -18,8 +18,8 @@ import '../../../../../core/utils/table.dart';
 import '../../../lead_managment/leads/cubit/add_lead_cubit.dart';
 import '../../../lead_managment/leads/cubit/add_lead_state.dart';
 import '../../../lead_managment/leads/model/add_lead_model.dart';
-import '../../../rightside_menu/lead_stage/data/lead_tag_repo.dart';
-import '../../../rightside_menu/common_model/lead_model.dart';
+import '../../../leads_settings_.dart/lead_stage/data/lead_tag_repo.dart';
+import '../../../leads_settings_.dart/common_model/lead_model.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:go_router/go_router.dart';
