@@ -16,10 +16,10 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/cubit/i
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/cubit/import_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/field_position_dialog.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/sample_file.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_stage/data/lead_tag_repo.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_category/cubit/lead_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_source/cubit/lead_source_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/data/lead_tag_repo.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:intl/intl.dart';

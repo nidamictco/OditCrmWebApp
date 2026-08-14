@@ -486,8 +486,8 @@ class _TopBarState extends State<TopBar> {
                 //   tooltip: 'Menu',
                 //   onTap: widget.onMenuTap,
                 // ),
-                const MenuHoverButton(),
-                SizedBox(width: 0.6.w),
+                // const MenuHoverButton(),
+                // SizedBox(width: 0.6.w),
 
                 // Notification Bell with Badge
                 BlocBuilder<NotificationCubit, NotificationState>(
@@ -1039,6 +1039,8 @@ String? _getBreadcrumbDestination(String label) {
       return RoutePaths.addLead;
     case 'Reports':
       return RoutePaths.staffReports;
+    case 'Leads Settings':
+      return RoutePaths.leadCategory;
 
     // Lead Management leaf screens
     case 'Leads Report':
@@ -1049,14 +1051,14 @@ String? _getBreadcrumbDestination(String label) {
       return RoutePaths.importLeads;
     case 'Transfer Leads':
       return RoutePaths.transferLeads;
-    case 'Lead Category':
-      return RoutePaths.leadCategory;
-    case 'Lead Source':
-      return RoutePaths.leadSource;
-    case 'Custom Fields':
-      return RoutePaths.customFields;
-    case 'Lead Stages':
-      return RoutePaths.leadStages;
+    // case 'Lead Category':
+    //   return RoutePaths.leadCategory;
+    // case 'Lead Source':
+    //   return RoutePaths.leadSource;
+    // case 'Custom Fields':
+    //   return RoutePaths.customFields;
+    // case 'Lead Stages':
+    //   return RoutePaths.leadStages;
     case 'Lead Distribution':
       return RoutePaths.leadDistribution;
     case 'Unassigned Leads':
@@ -1073,6 +1075,16 @@ String? _getBreadcrumbDestination(String label) {
       return RoutePaths.rejectedReport;
     case 'Outgoing Call History':
       return RoutePaths.outgoingCallHistory;
+
+    // leads settings
+    case 'Leads Category':
+    return RoutePaths.leadCategory;
+    case 'Leads Source':
+    return RoutePaths.leadSource;
+    case 'Custom Fields':
+    return RoutePaths.customFields;
+    case 'Lead Stages':
+    return RoutePaths.leadStages;
 
     default:
       return null;
@@ -1202,16 +1214,16 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard, [
     return _BreadcrumbsData('Lead Management', 'Transfer Leads');
   }
   if (path == RoutePaths.leadCategory) {
-    return _BreadcrumbsData('Lead Management', 'Lead Category');
+    return _BreadcrumbsData('Leads Settings', 'Lead Category');
   }
   if (path == RoutePaths.leadSource) {
-    return _BreadcrumbsData('Lead Management', 'Lead Source');
+    return _BreadcrumbsData('Leads Settings', 'Lead Source');
   }
   if (path == RoutePaths.customFields) {
-    return _BreadcrumbsData('Lead Management', 'Custom Fields');
+    return _BreadcrumbsData('Leads Settings', 'Custom Fields');
   }
   if (path == RoutePaths.leadStages) {
-    return _BreadcrumbsData('Lead Management', 'Lead Stages');
+    return _BreadcrumbsData('Leads Settings', 'Lead Stages');
   }
   if (path == RoutePaths.leadDistribution) {
     return _BreadcrumbsData('Lead Management', 'Lead Distribution');
@@ -1289,6 +1301,12 @@ _BreadcrumbsData _getBreadcrumbs(String path, String fromCard, [
     _getStaffProfileBreadcrumbParent(fromScreen),
     'Staff Profile',
   );
+}
+if(path.contains('/sub_category')){
+  return _BreadcrumbsData('Leads Settings >> Leads Category', 'Sub Category');
+}
+if(path.contains('/lead_tag')){
+  return _BreadcrumbsData('Leads Settings >> Lead Stages', 'Tag');
 }
 // Designation Permissions screen (used for BOTH add and edit)
 if (path.contains('/designations/') && path.contains('/permissions')) {

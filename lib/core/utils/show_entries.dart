@@ -182,7 +182,7 @@ class _ShowEntriesState extends State<ShowEntries> {
         child: Container(
           // width: 4.2.w,
           // height: 4.h,
-          padding: EdgeInsets.all(0.5.h),
+          padding: EdgeInsets.symmetric(horizontal: 0.5.h, vertical: 0.3.h),
           decoration: _box(),
           alignment: Alignment.center,
           child: Row(

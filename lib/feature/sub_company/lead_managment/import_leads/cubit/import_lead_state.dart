@@ -3,7 +3,7 @@
 
 import 'dart:typed_data';
 
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/common_model/lead_model.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/common_model/lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
 
 

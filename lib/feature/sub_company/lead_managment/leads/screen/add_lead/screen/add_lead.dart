@@ -20,8 +20,8 @@ import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/cubit/add_lead_state.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/leads/model/add_lead_model.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_category/cubit/lead_category_cubit.dart';
-import 'package:Odit_CRM/feature/sub_company/rightside_menu/lead_source/cubit/lead_source_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_category/cubit/lead_category_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_source/cubit/lead_source_cubit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/model/staff_model.dart';
