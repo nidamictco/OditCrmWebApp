@@ -256,6 +256,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
                   // ── Stats Summary Row ──
                   _buildStatsRow(),
                   const SizedBox(height: 12),
+                  _dateSelectionField(),
+                  const SizedBox(height: 12),
                   // ── 3-Column Body ──
                   _buildThreeColumnBody(staffInfo),
                   const SizedBox(height: 12),
@@ -267,6 +269,72 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _dateSelectionField() {
+    return InkWell(
+      onTap: () async {
+        final initialResult = _selectedDateValue != null
+            ? CalendarResult(
+                from: _selectedDateValue!,
+                to: _toDateValue ?? _selectedDateValue!,
+                isRange: _toDateValue != null,
+              )
+            : null;
+
+        final result = await showCustomCalendarDialog(
+          context,
+          initialResult: initialResult,
+        );
+        if (result == null) return;
+        if (!mounted) return;
+
+        setState(() {
+          if (result.isRange) {
+            _selectedDateValue = result.from;
+            _toDateValue = result.to;
+            _displayLabel =
+                '${_formatDate(result.from)} - ${_formatDate(result.to)}';
+          } else {
+            _selectedDateValue = result.from;
+            _toDateValue = null;
+            _displayLabel = _formatDate(result.from);
+          }
+        });
+
+        _refreshCounts();
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.26,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 13,
+              color: AppThemeColors.appPrimaryColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              // widget.selectedDate,
+              _displayLabel,
+              style: const TextStyle(
+                fontSize: 11.5,
+                color: AppThemeColors.commonText,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1365,84 +1433,14 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                'LEAD STATUS',
-                style: AppTextStyle.medium(
-                  size: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: AppThemeColors.appPrimaryColor,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const Spacer(),
-              InkWell(
-                onTap: () async {
-                  final initialResult = _selectedDateValue != null
-                      ? CalendarResult(
-                          from: _selectedDateValue!,
-                          to: _toDateValue ?? _selectedDateValue!,
-                          isRange: _toDateValue != null,
-                        )
-                      : null;
-
-                  final result = await showCustomCalendarDialog(
-                    context,
-                    initialResult: initialResult,
-                  );
-                  if (result == null) return;
-                  if (!mounted) return;
-
-                  setState(() {
-                    if (result.isRange) {
-                      _selectedDateValue = result.from;
-                      _toDateValue = result.to;
-                      _displayLabel =
-                          '${_formatDate(result.from)} - ${_formatDate(result.to)}';
-                    } else {
-                      _selectedDateValue = result.from;
-                      _toDateValue = null;
-                      _displayLabel = _formatDate(result.from);
-                    }
-                  });
-
-                  _refreshCounts();
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    borderRadius: BorderRadius.circular(8),
-                    color: const Color(0xFFF7FAFC),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: Color(0xFF718096),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        // widget.selectedDate,
-                        _displayLabel,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF4A5568),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'LEAD STATUS',
+            style: AppTextStyle.medium(
+              size: 11.5,
+              fontWeight: FontWeight.w600,
+              color: AppThemeColors.appPrimaryColor,
+              letterSpacing: 0.5,
+            ),
           ),
           const SizedBox(height: 12),
           // Donut chart
