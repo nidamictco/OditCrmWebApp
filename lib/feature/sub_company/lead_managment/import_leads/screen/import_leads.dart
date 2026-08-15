@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/custom_switch.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -132,10 +134,10 @@ class _ImportLeadsState extends State<ImportLeads> {
                                       color: const Color(0xFFFFF7ED),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text(
+                                    child:  Text(
                                       'Sample File',
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                      style: AppTextStyle.medium(
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFFEA580C),
                                       ),
@@ -162,10 +164,10 @@ class _ImportLeadsState extends State<ImportLeads> {
                                       color: const Color(0xFF3B82F6),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text(
+                                    child:  Text(
                                       'Field Settings',
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                      style: AppTextStyle.medium(
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
@@ -221,12 +223,12 @@ class _ImportLeadsState extends State<ImportLeads> {
                                   vertical: 14,
                                 ),
                               ),
-                              child: const Text(
+                              child:  Text(
                                 'Clear All',
-                                style: TextStyle(
+                                style: AppTextStyle.medium(
                                   color: Color(0xFFEF4444),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: 11.5,
                                 ),
                               ),
                             ),
@@ -262,12 +264,12 @@ class _ImportLeadsState extends State<ImportLeads> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text(
+                                  :  Text(
                                       'Submit',
-                                      style: TextStyle(
+                                      style: AppTextStyle.medium(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 13,
+                                        fontSize: 11.5,
                                       ),
                                     ),
                             ),
@@ -370,7 +372,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                   hasFile
                       ? (_pickedFileName ?? 'File Selected')
                       : 'Import CSV File',
-                  style: TextStyle(
+                  style: AppTextStyle.medium(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: hasFile
@@ -385,7 +387,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                   hasFile
                       ? '${(_pickedCsvBytes!.length / 1024).toStringAsFixed(1)} KB'
                       : 'Drop file or click here to choose file.',
-                  style: TextStyle(
+                  style: AppTextStyle.medium(
                     fontSize: 10,
                     color: hasFile
                         ? const Color(0xFF059669)
@@ -496,37 +498,49 @@ class _ImportLeadsState extends State<ImportLeads> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+           Text(
             'Country Code',
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyle.medium(
+              fontSize: 11.5,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),
             ),
           ),
           const SizedBox(width: 8),
-          Transform.scale(
-            scale: 0.65,
-            // scaleX: 0.8,
-            // scaleY: 0.6,
-            alignment: Alignment.centerRight,
-            child: Switch(
-              focusColor: Colors.transparent,
-              inactiveTrackColor: Colors.white,
-              inactiveThumbColor: Color(0xFF1E3A8A),
-              value: isWithCountryCode,
-              activeTrackColor: Color(0xFF1E3A8A),
-              activeThumbColor: Colors.white,
-              trackOutlineWidth: WidgetStateProperty.all(3),
-              trackOutlineColor: WidgetStateProperty.all(
-                AppThemeColors.borderLight,
-              ),
+          // Transform.scale(
+          //   scale: 0.65,
+          //   // scaleX: 0.8,
+          //   // scaleY: 0.6,
+          //   alignment: Alignment.centerRight,
+          //   child: Switch(
+          //     focusColor: Colors.transparent,
+          //     inactiveTrackColor: Colors.white,
+          //     inactiveThumbColor: Color(0xFF1E3A8A),
+          //     value: isWithCountryCode,
+          //     activeTrackColor: Color(0xFF1E3A8A),
+          //     activeThumbColor: Colors.white,
+          //     trackOutlineWidth: WidgetStateProperty.all(3),
+          //     trackOutlineColor: WidgetStateProperty.all(
+          //       AppThemeColors.borderLight,
+          //     ),
 
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-              onChanged: (val) {
-                cubit.selectTab(val ? 0 : 1);
-              },
-            ),
+          //     materialTapTargetSize: MaterialTapTargetSize.padded,
+          //     onChanged: (val) {
+          //       cubit.selectTab(val ? 0 : 1);
+          //     },
+          //   ),
+          // ),
+          CustomSwitch(
+            value: isWithCountryCode,
+            onChanged: (value) {
+              cubit.selectTab(value ? 0 : 1);
+            },
+            inactiveCircleColor: Color(0xFF1E3A8A),
+            activeContainerColor: Color(0xFF1E3A8A),
+            // width: 46,
+            // height: 24,
+            // activeColor: AppThemeColors.statusActive,
+            // inactiveColor: Colors.white,
           ),
         ],
       ),
@@ -548,9 +562,9 @@ class _ImportLeadsState extends State<ImportLeads> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+         Text(
           'Next Follow-Up Date',
-          style: TextStyle(
+          style: AppTextStyle.medium(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: Color(0xFF475569),
@@ -583,7 +597,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             alignment: Alignment.centerLeft,
             child: Text(
               displayText,
-              style: TextStyle(
+              style: AppTextStyle.medium(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF0F172A),
@@ -843,10 +857,10 @@ class _ImportLeadsState extends State<ImportLeads> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+         Text(
           'Country Code',
-          style: TextStyle(
-            fontSize: 12,
+          style: AppTextStyle.medium(
+            fontSize: 11.5,
             fontWeight: FontWeight.w600,
             color: Color(0xFF475569),
           ),
@@ -872,8 +886,8 @@ class _ImportLeadsState extends State<ImportLeads> {
               showOnlyCountryWhenClosed: false,
               alignLeft: false,
               padding: EdgeInsets.zero,
-              textStyle: const TextStyle(
-                fontSize: 13,
+              textStyle: AppTextStyle.medium(
+                fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF0F172A),
               ),
@@ -903,7 +917,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11.5,
             fontWeight: FontWeight.w600,
             color: Color(0xFF475569),
           ),
@@ -942,8 +956,8 @@ class _ImportLeadsState extends State<ImportLeads> {
                         : null,
                     hint: Text(
                       hint,
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: AppTextStyle.medium(
+                        fontSize: 11.5,
                         color: Color(0xFF94A3B8),
                       ),
                     ),
@@ -953,8 +967,8 @@ class _ImportLeadsState extends State<ImportLeads> {
                       size: 20,
                     ),
                     isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: AppTextStyle.medium(
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF0F172A),
                     ),
@@ -995,7 +1009,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF475569),
               ),
@@ -1003,8 +1017,8 @@ class _ImportLeadsState extends State<ImportLeads> {
             isrequered == true
                 ? Text(
                     " *",
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: AppTextStyle.medium(
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       color: AppColors.red,
                     ),
@@ -1032,8 +1046,8 @@ class _ImportLeadsState extends State<ImportLeads> {
                         : null,
                     hint: Text(
                       hint,
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: AppTextStyle.medium(
+                        fontSize: 11.5,
                         color: Color(0xFF94A3B8),
                       ),
                     ),
@@ -1052,8 +1066,8 @@ class _ImportLeadsState extends State<ImportLeads> {
                             size: 20,
                           ),
                     isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: AppTextStyle.medium(
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF0F172A),
                     ),
@@ -1363,9 +1377,9 @@ class _ImportLeadsState extends State<ImportLeads> {
                 ),
               ),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(
+              child:  Text(
                 'Import Anyway',
-                style: TextStyle(color: Colors.white),
+                style: AppTextStyle.medium(color: Colors.white),
               ),
             ),
           ],

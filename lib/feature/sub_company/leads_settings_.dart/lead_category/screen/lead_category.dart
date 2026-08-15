@@ -560,9 +560,6 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                       child: Container(
                                                         height: 28,
                                                         width: 28,
-                                                        padding: EdgeInsets.all(
-                                                          6,
-                                                        ),
                                                         decoration: BoxDecoration(
                                                           // color: const Color(
                                                           //   0xFFFEF2F2,
@@ -578,6 +575,7 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                         ),
                                                         child: Image.asset(
                                                           AssetResources.tag,
+                                                          scale: 3,
                                                         ),
                                                       ),
                                                     ),
