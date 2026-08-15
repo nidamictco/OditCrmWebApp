@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_colors.dart';
@@ -83,7 +84,7 @@ class _NotesDialogState extends State<NotesDialog> {
       child: Dialog(
         backgroundColor: Colors.transparent,
         child: Container(
-          width: 50.w,
+          width: 500,
           padding: EdgeInsets.all(2.w),
           decoration: BoxDecoration(
             color: const Color(0xFFF9FAFB),
@@ -94,19 +95,26 @@ class _NotesDialogState extends State<NotesDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Header ────────────────────────────────
+              Text(
+                'Add Note',
+                style: AppTextStyle.heading(
+                  fontWeight: FontWeight.w700,
+                  size: 14,
+                  color: AppColors.black.withOpacity(0.8),
+                ),
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Add Note',
-                    style: AppTextStyle.heading(
-                      size: 14.sp,
-                      color: AppColors.black.withOpacity(0.8),
+                  Container(
+                    height: 2,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: AppThemeColors.primary,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context, false),
+                  Expanded(
+                    child: Container(height: 2, color: AppColors.greyCard),
                   ),
                 ],
               ),
@@ -114,85 +122,117 @@ class _NotesDialogState extends State<NotesDialog> {
               SizedBox(height: 1.5.h),
 
               // ── Body ──────────────────────────────────
-              Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Title field
-                    Text(
-                      'Title',
-                      style: AppTextStyle.medium(
-                        size: 11.sp,
-                        color: AppColors.grey,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title field
+                  Text(
+                    'Title',
+                    style: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppThemeColors.commonText,
                     ),
-                    SizedBox(height: 0.5.h),
-                    _inputField(
-                      controller: _titleController,
-                      hint: 'Enter title...',
-                      maxLines: 1,
+                  ),
+                  SizedBox(height: 0.5.h),
+                  _inputField(
+                    controller: _titleController,
+                    hint: 'Enter title...',
+                    maxLines: 1,
+                  ),
+
+                  SizedBox(height: 1.5.h),
+
+                  // Content field
+                  Text(
+                    'Content',
+                    style: AppTextStyle.medium(
+                      size: 11.sp,
+                      color: AppThemeColors.commonText,
                     ),
+                  ),
+                  SizedBox(height: 0.5.h),
+                  _inputField(
+                    controller: _contentController,
+                    hint: 'Write your note here...',
+                    maxLines: 4,
+                  ),
 
-                    SizedBox(height: 1.5.h),
+                  SizedBox(height: 2.h),
 
-                    // Content field
-                    Text(
-                      'Content',
-                      style: AppTextStyle.medium(
-                        size: 10.sp,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 0.5.h),
-                    _inputField(
-                      controller: _contentController,
-                      hint: 'Write your note here...',
-                      maxLines: 4,
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    // Save button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _save,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E3A5F),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                  // Save button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppThemeColors.borderLight),
                         ),
-                        child: _isSaving
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: _isSaving
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  'Cancel',
+                                  style: AppTextStyle.medium(
+                                    color: AppThemeColors.subText,
+                                    size: 11.5,
+                                  ),
                                 ),
-                              )
-                            : Text(
-                                'Save',
-                                style: AppTextStyle.medium(
-                                  color: Colors.white,
-                                  size: 12.sp,
-                                ),
-                              ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(width: 1.w),
+                      SizedBox(
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : _save,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E3A5F),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: _isSaving
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  'Save',
+                                  style: AppTextStyle.medium(
+                                    color: Colors.white,
+                                    size: 11.5,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -202,36 +242,35 @@ class _NotesDialogState extends State<NotesDialog> {
   }
 
   Widget _inputField({
-    required TextEditingController controller,
-    required String hint,
-    required int maxLines,
-  }) {
-    return Container(
-      color: AppColors.background,
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.grey.withOpacity(0.6),
-          ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF4F6BED)),
-          ),
-        ),
+  required TextEditingController controller,
+  required String hint,
+  required int maxLines,
+}) {
+  return TextField(
+    controller: controller,
+    maxLines: maxLines,
+    minLines: maxLines, // ensures it doesn't collapse smaller than the intended paragraph size
+    textAlignVertical: TextAlignVertical.top,
+    decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: AppTextStyle.small(
+        size: 11.sp,
+        color: AppThemeColors.subText,
       ),
-    );
-  }
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: AppThemeColors.textfieldBorder),
+      ),
+    ),
+  );
+}
 }

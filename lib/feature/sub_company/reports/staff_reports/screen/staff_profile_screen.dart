@@ -1,4 +1,5 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -204,6 +205,14 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
     }
   }
 
+  final ScrollController _categoryScrollController = ScrollController();
+
+@override
+void dispose() {
+  _categoryScrollController.dispose();
+  super.dispose();
+}
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AddLeadCubit, AddLeadState>(
@@ -244,7 +253,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppThemeColors.scaffoldBg,
-            endDrawer: NotesDrawer(staffId: widget.staff.id!),
+            endDrawer: RecentNotesPanel(staffId: widget.staff.id!),
             body: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
               child: Column(
@@ -276,68 +285,78 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
   }
 
   Widget _dateSelectionField() {
-    return InkWell(
-      onTap: () async {
-        final initialResult = _selectedDateValue != null
-            ? CalendarResult(
-                from: _selectedDateValue!,
-                to: _toDateValue ?? _selectedDateValue!,
-                isRange: _toDateValue != null,
-              )
-            : null;
-
-        final result = await showCustomCalendarDialog(
-          context,
-          initialResult: initialResult,
-        );
-        if (result == null) return;
-        if (!mounted) return;
-
-        setState(() {
-          if (result.isRange) {
-            _selectedDateValue = result.from;
-            _toDateValue = result.to;
-            _displayLabel =
-                '${_formatDate(result.from)} - ${_formatDate(result.to)}';
-          } else {
-            _selectedDateValue = result.from;
-            _toDateValue = null;
-            _displayLabel = _formatDate(result.from);
-          }
-        });
-
-        _refreshCounts();
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: MediaQuery.sizeOf(context).width * 0.26,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.calendar_today_outlined,
-              size: 13,
-              color: AppThemeColors.appPrimaryColor,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              // widget.selectedDate,
-              _displayLabel,
-              style: const TextStyle(
-                fontSize: 11.5,
-                color: AppThemeColors.commonText,
-                fontWeight: FontWeight.w500,
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: () async {
+              final initialResult = _selectedDateValue != null
+                  ? CalendarResult(
+                      from: _selectedDateValue!,
+                      to: _toDateValue ?? _selectedDateValue!,
+                      isRange: _toDateValue != null,
+                    )
+                  : null;
+          
+              final result = await showCustomCalendarDialog(
+                context,
+                initialResult: initialResult,
+              );
+              if (result == null) return;
+              if (!mounted) return;
+          
+              setState(() {
+                if (result.isRange) {
+                  _selectedDateValue = result.from;
+                  _toDateValue = result.to;
+                  _displayLabel =
+                      '${_formatDate(result.from)} - ${_formatDate(result.to)}';
+                } else {
+                  _selectedDateValue = result.from;
+                  _toDateValue = null;
+                  _displayLabel = _formatDate(result.from);
+                }
+              });
+          
+              _refreshCounts();
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              // width: MediaQuery.sizeOf(context).width * 0.26,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 13,
+                    color: AppThemeColors.appPrimaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    // widget.selectedDate,
+                    _displayLabel,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: AppThemeColors.commonText,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        SizedBox(width: 14),
+        Expanded(child: Container()),
+        SizedBox(width: 14,),
+        Expanded(child: Container()),
+      ],
     );
   }
 
@@ -661,17 +680,26 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
                                 onTap: () {
-                                  context
-                                      .push(
-                                        RoutePaths.changePasswordPath(
-                                          _liveModel.id!,
-                                        ),
-                                      )
-                                      .then((_) {
-                                        if (mounted) {
-                                          context.read<StaffCubit>().fetchAll();
-                                        }
-                                      });
+                                  // context
+                                  //     .push(
+                                  //       RoutePaths.changePasswordPath(
+                                  //         _liveModel.id!,
+                                  //       ),
+                                  //     )
+                                  //     .then((_) {
+                                  //       if (mounted) {
+                                  //         context.read<StaffCubit>().fetchAll();
+                                  //       }
+                                  //     });
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => ChangePasswordDialog(
+                                      staff: _liveModel,
+                                    ),
+                                  );
+                                   if (mounted) {
+                                         context.read<StaffCubit>().fetchAll();
+                                       }
                                 },
                                 child: Text(
                                   'Change?',
@@ -1212,7 +1240,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
   // ─── INFORMATION SECTION ───────────────────────────────────
   Widget _buildInformationSection(StaffInfo staffInfo) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 25),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -1253,11 +1281,11 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           ),
           _infoRow('Created Date:', staffInfo.createdDate),
           // const SizedBox(height: 12),
-          _infoRow(
-            'Address:',
-            staffInfo.address.isNotEmpty ? staffInfo.address : '—',
-            isMultiLine: true,
-          ),
+          // _infoRow(
+          //   'Address:',
+          //   staffInfo.address.isNotEmpty ? staffInfo.address : '—',
+          //   isMultiLine: true,
+          // ),
         ],
       ),
     );
@@ -1419,6 +1447,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
   // ─── LEAD STATUS SECTION ───────────────────────────────────
   Widget _buildLeadStatusSection(CallStatusData data) {
     return Container(
+      height: 310,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1432,31 +1461,33 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'LEAD STATUS',
-            style: AppTextStyle.medium(
-              size: 11.5,
-              fontWeight: FontWeight.w600,
-              color: AppThemeColors.appPrimaryColor,
-              letterSpacing: 0.5,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'LEAD STATUS',
+              style: AppTextStyle.medium(
+                size: 11.5,
+                fontWeight: FontWeight.w600,
+                color: AppThemeColors.appPrimaryColor,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          // Donut chart
-          Center(
-            child: SizedBox(
-              height: 150,
-              width: 150,
-              child: DonutChart(leadsByCategory: data.leadsByCategory),
+            const SizedBox(height: 12),
+            // Donut chart
+            Center(
+              child: SizedBox(
+                height: 150,
+                width: 150,
+                child: DonutChart(leadsByCategory: data.leadsByCategory),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          // Dynamic Grid legend
-          _buildLeadLegendGrid(data.leadsByCategory),
-        ],
+            const SizedBox(height: 12),
+            // Dynamic Grid legend
+            _buildLeadLegendGrid(data.leadsByCategory),
+          ],
+        ),
       ),
     );
   }
@@ -1579,186 +1610,391 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
   }
 
   // ─── LEAD CATEGORY STATUS TABLE ───────────────────────────
-  Widget _buildCategoryStatusSection(List<LeadCategoryTableRow> categoryRows) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 10,
-            offset: Offset(0, 2),
+  // Widget _buildCategoryStatusSection(List<LeadCategoryTableRow> categoryRows) {
+  //   return Container(
+  //     height: 308,
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: const Color(0xFFE2E8F0)),
+  //       boxShadow: const [
+  //         BoxShadow(
+  //           color: Color(0x0A000000),
+  //           blurRadius: 10,
+  //           offset: Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: SingleChildScrollView(
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             'LEAD CATEGORY STATUS',
+  //             style: AppTextStyle.medium(
+  //               size: 13.5,
+  //               fontWeight: FontWeight.w700,
+  //               color: const Color(0xFF1E293B),
+  //               letterSpacing: 0.5,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 14),
+  //           // Table header strip
+  //           Container(
+  //             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+  //             decoration: BoxDecoration(
+  //               color: const Color(0xFFF8FAFC),
+  //               borderRadius: BorderRadius.circular(6),
+  //             ),
+  //             child: const Row(
+  //               children: [
+  //                 Expanded(
+  //                   flex: 3,
+  //                   child: Text(
+  //                     'Category',
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Color(0xFF475569),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'New',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Color(0xFF475569),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Followup',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Color(0xFF475569),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Reject',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Color(0xFF475569),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Close',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: Color(0xFF475569),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           const SizedBox(height: 4),
+  //           // Table Rows from Cubit/Repo
+  //           if (categoryRows.isEmpty)
+  //             const Padding(
+  //               padding: EdgeInsets.symmetric(vertical: 24),
+  //               child: Center(
+  //                 child: Text(
+  //                   'No data',
+  //                   style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+  //                 ),
+  //               ),
+  //             )
+  //           else
+  //             ...categoryRows.map(
+  //               (r) => Container(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   vertical: 10,
+  //                   horizontal: 10,
+  //                 ),
+  //                 decoration: const BoxDecoration(
+  //                   border: Border(
+  //                     bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+  //                   ),
+  //                 ),
+  //                 child: Row(
+  //                   children: [
+  //                     Expanded(
+  //                       flex: 3,
+  //                       child: Text(
+  //                         r.category,
+  //                         style: const TextStyle(
+  //                           fontSize: 12,
+  //                           fontWeight: FontWeight.w500,
+  //                           color: Color(0xFF1E293B),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Text(
+  //                         '${r.newCount}',
+  //                         textAlign: TextAlign.center,
+  //                         style: const TextStyle(
+  //                           fontSize: 12,
+  //                           color: Color(0xFF1E293B),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Text(
+  //                         '${r.followUpCount}',
+  //                         textAlign: TextAlign.center,
+  //                         style: const TextStyle(
+  //                           fontSize: 12,
+  //                           color: Color(0xFF1E293B),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Text(
+  //                         '${r.rejectedCount}',
+  //                         textAlign: TextAlign.center,
+  //                         style: const TextStyle(
+  //                           fontSize: 12,
+  //                           color: Color(0xFF1E293B),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Text(
+  //                         '${r.closedCount}',
+  //                         textAlign: TextAlign.center,
+  //                         style: const TextStyle(
+  //                           fontSize: 12,
+  //                           color: Color(0xFF1E293B),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
+Widget _buildCategoryStatusSection(List<LeadCategoryTableRow> categoryRows) {
+  return Container(
+    height: 308,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x0A000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'LEAD CATEGORY STATUS',
+          style: AppTextStyle.medium(
+            size: 13.5,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1E293B),
+            letterSpacing: 0.5,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'LEAD CATEGORY STATUS',
-            style: AppTextStyle.medium(
-              size: 13.5,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
-              letterSpacing: 0.5,
-            ),
+        ),
+        const SizedBox(height: 14),
+        // Table header strip (fixed, does not scroll)
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(6),
           ),
-          const SizedBox(height: 14),
-          // Table header strip
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'New',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Followup',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Reject',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Close',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          // Table Rows from Cubit/Repo
-          if (categoryRows.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(
+          child: const Row(
+            children: [
+              Expanded(
+                flex: 3,
                 child: Text(
-                  'No data',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
-                ),
-              ),
-            )
-          else
-            ...categoryRows.map(
-              (r) => Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 10,
-                ),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+                  'Category',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        r.category,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${r.newCount}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${r.followUpCount}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${r.rejectedCount}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${r.closedCount}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                  ],
+              ),
+              Expanded(
+                child: Text(
+                  'New',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
+              Expanded(
+                child: Text(
+                  'Followup',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Reject',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Close',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Scrollable rows only
+        Expanded(
+          child: categoryRows.isEmpty
+              ?  Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      'No data available',
+                      style: AppTextStyle.medium(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                )
+              : Scrollbar(
+                  controller: _categoryScrollController,
+                  thumbVisibility: true, // always shows, positioned right
+                  radius: const Radius.circular(8),
+                  thickness: 5,
+                  child: SingleChildScrollView(
+                    controller: _categoryScrollController,
+                    padding: const EdgeInsets.only(right: 10), // keeps thumb off the text
+                    child: Column(
+                      children: categoryRows
+                          .map(
+                            (r) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 10,
+                              ),
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Color(0xFFF1F5F9),
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      r.category,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${r.newCount}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${r.followUpCount}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${r.rejectedCount}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${r.closedCount}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ─── RECENT ACTIVITY SECTION ───────────────────────────────
   Widget _buildRecentActivitySection() {

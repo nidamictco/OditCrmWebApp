@@ -86,6 +86,7 @@ class AppThemeColors {
   static const Color followupDateCardBg = Color(0xffF4F6F8);
 
   static const Color commonText = Color(0xff2D2D2D);
+  static const Color greyCard = Color(0xffE9E9E9);
 }
 
 Color getStageColor(String stage) {
