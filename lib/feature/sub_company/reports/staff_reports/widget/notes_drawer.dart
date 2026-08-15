@@ -570,7 +570,7 @@ class RecentNotesHeader extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      height: 3,
+                      height: 2,
                       width: 110,
                       decoration: BoxDecoration(
                         color: AppThemeColors.primary,
@@ -659,10 +659,10 @@ class NotesSearchField extends StatelessWidget {
               horizontal: 10,
               vertical: 5,
             ),
-             border: InputBorder.none,
-  enabledBorder: InputBorder.none,
-  focusedBorder: InputBorder.none,
-  disabledBorder: InputBorder.none,
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
             // filled: true,
             // fillColor: Colors.white,
             // border: OutlineInputBorder(
