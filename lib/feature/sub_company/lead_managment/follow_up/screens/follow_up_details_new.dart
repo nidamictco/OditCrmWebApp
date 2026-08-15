@@ -2560,7 +2560,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                     backgroundColor: Color(0xFFE2E8F0),
                     child: Icon(
                       Icons.person,
-                      size: 18,
+                      size: 15,
                       color: Color(0xFF64748B),
                     ),
                   ),
@@ -2572,7 +2572,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                           : 'Unknown',
                       style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 13,
                         color: const Color(0xFF1E293B),
                       ),
                     ),
@@ -2618,7 +2618,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.edit_outlined,
-                          size: 12,
+                          size: 13,
                           color: AppThemeColors.appPrimaryColor,
                         ),
                       ),
@@ -2733,110 +2733,6 @@ class _NewTimelineDateGroup extends StatelessWidget {
     );
   }
 
-  // Widget _buildPendingCard(BuildContext context) {
-  //   final state = context.watch<AddLeadCubit>().state;
-  //   return Padding(
-  //     padding: const EdgeInsets.only(top: 16, bottom: 8),
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         color: const Color(0xFFFFFBEB),
-  //         borderRadius: BorderRadius.circular(10),
-  //         border: Border.all(color: const Color(0xFFFDE68A)),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Colors.black.withOpacity(0.03),
-  //             blurRadius: 6,
-  //             offset: const Offset(0, 2),
-  //           ),
-  //         ],
-  //       ),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Padding(
-  //             padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-  //             child: Row(
-  //               children: [
-  //                 const CircleAvatar(
-  //                   radius: 16,
-  //                   backgroundColor: Color(0xFFFEF3C7),
-  //                   child: Icon(
-  //                     Icons.person,
-  //                     size: 18,
-  //                     color: Color(0xFFD97706),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 10),
-  //                 Text(
-  //                   lead.assignedStaff,
-  //                   style: AppTextStyle.body(
-  //                     fontWeight: FontWeight.w600,
-  //                     fontSize: 14,
-  //                     color: const Color(0xFF1E293B),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //           const Divider(height: 1, color: Color(0xFFFDE68A)),
-  //           Padding(
-  //             padding: const EdgeInsets.all(16),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 _detailRow(
-  //                   Icons.calendar_today_outlined,
-  //                   'Scheduled Date:',
-  //                   DateFormat(
-  //                     'dd-MM-yyyy, hh:mm a',
-  //                   ).format(lead.followUpDate!),
-  //                 ),
-  //                 const SizedBox(height: 8),
-  //                 Row(
-  //                   children: [
-  //                     Icon(
-  //                       Icons.info_outline,
-  //                       size: 14,
-  //                       color: const Color(0xFF6B7280),
-  //                     ),
-  //                     const SizedBox(width: 6),
-  //                     Text(
-  //                       'Status:',
-  //                       style: AppTextStyle.body(
-  //                         fontSize: 12,
-  //                         color: const Color(0xFF6B7280),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 8),
-  //                     _NewStatusChip(
-  //                       label: resolveLeadName(
-  //                         list: state.stages,
-  //                         id: lead.leadStageId,
-  //                         fallback: lead.leadStage,
-  //                         idOf: (s) => s.id,
-  //                         nameOf: (s) => s.name,
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 4),
-  //                     Text(
-  //                       '(Pending)',
-  //                       style: AppTextStyle.body(
-  //                         fontSize: 12,
-  //                         color: const Color(0xFFD97706),
-  //                         fontWeight: FontWeight.w500,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildCreationCard(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 28),
@@ -2858,7 +2754,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                     backgroundColor: Color(0xFFE2E8F0),
                     child: Icon(
                       Icons.person,
-                      size: 18,
+                      size: 15,
                       color: Color(0xFF64748B),
                     ),
                   ),
@@ -2868,7 +2764,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                       lead.createdBy,
                       style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 13,
                         color: const Color(0xFF1E293B),
                       ),
                     ),
@@ -2946,7 +2842,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF6B7280)),
+        Icon(icon, size: 12, color: const Color(0xFF6B7280)),
         const SizedBox(width: 6),
         Text(
           label,
@@ -2987,7 +2883,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 16,
+                    radius: 15,
                     backgroundColor: Colors.grey.shade200,
                     child: const Icon(Icons.person, size: 18),
                   ),
@@ -2999,7 +2895,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                       lead.assignedStaff,
                       style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 13,
                         color: const Color(0xff374151),
                       ),
                     ),
@@ -3008,7 +2904,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                   Text(
                     "Pending",
                     style: AppTextStyle.body(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.red,
                       fontWeight: FontWeight.w500,
                     ),
@@ -3228,7 +3124,7 @@ class _NewActivityItem extends StatelessWidget {
                           backgroundColor: Color(0xFFE2E8F0),
                           child: Icon(
                             Icons.person,
-                            size: 16,
+                            size: 15,
                             color: Color(0xFF64748B),
                           ),
                         ),
@@ -3237,7 +3133,7 @@ class _NewActivityItem extends StatelessWidget {
                           activity.changedBy,
                           style: AppTextStyle.body(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 13,
                             color: const Color(0xFF1E293B),
                           ),
                         ),
@@ -3255,7 +3151,7 @@ class _NewActivityItem extends StatelessWidget {
                         const SizedBox(width: 4),
                         const Icon(
                           Icons.calendar_today_outlined,
-                          size: 13,
+                          size: 12,
                           color: AppThemeColors.cardText,
                         ),
                       ],
@@ -3632,7 +3528,8 @@ class _NewDetailsTabContentState extends State<_NewDetailsTabContent> {
   // ── Additional Fields (dynamic, from Additional Fields module) ────────────
   Widget _buildAdditionalDetailsSection(AddLeadState state) {
     final fieldDefs = state.additionalFields; // already ordered by createdAt
-    final storedValues = widget.lead.additionalFields ?? const <String, String>{};
+    final storedValues =
+        widget.lead.additionalFields ?? const <String, String>{};
 
     final rows = <MapEntry<String, String>>[];
     for (final field in fieldDefs) {
@@ -3846,7 +3743,7 @@ class _NewStaffCard extends StatelessWidget {
               Text(
                 '${handler.activityCount.toString().padLeft(2, '0')}',
                 style: AppTextStyle.heading(
-                  size: 14,
+                  size: 13.5,
                   weight: FontWeight.w700,
                   color: const Color(0xFF00B16E),
                 ),
@@ -3902,7 +3799,7 @@ class _NewPriorityBadge extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyle.small(
-          fontSize: 11.5,
+          fontSize: 11,
           color: Colors.white,
           weight: FontWeight.w600,
         ),
@@ -3926,21 +3823,22 @@ class _NewStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      height: 3.h,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
         color: _chipColor(label),
         borderRadius: BorderRadius.circular(99),
       ),
-      child: Text(
-        label,
-        style: AppTextStyle.small(
-          fontSize: 11.5,
-          color: Colors.white,
-          weight: FontWeight.w600,
+      child: Center(
+        child: Text(
+          label,
+          style: AppTextStyle.small(
+            fontSize: 11,
+            color: Colors.white,
+            weight: FontWeight.w600,
+          ),
         ),
       ),
     );
   }
-
-  
 }
