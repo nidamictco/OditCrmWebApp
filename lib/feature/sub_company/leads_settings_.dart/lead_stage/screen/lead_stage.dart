@@ -644,7 +644,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                               child: Container(
                                                 height: 28,
                                                 width: 28,
-                                                padding: EdgeInsets.all(6),
+                                                // padding: EdgeInsets.all(6),
                                                 decoration: BoxDecoration(
                                                   // color: const Color(
                                                   //   0xFFFEF2F2,
@@ -656,8 +656,11 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                         .statusActive,
                                                   ),
                                                 ),
-                                                child: Image.asset(
-                                                  AssetResources.tag,
+                                                child: Center(
+                                                  child: Image.asset(
+                                                    AssetResources.tag,
+                                                    scale: 3,
+                                                  ),
                                                 ),
                                               ),
                                             )
@@ -693,7 +696,7 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                     ),
                                                     child: Image.asset(
                                                       AssetResources.tag,
-                                                      // scale: 0.7,
+                                                      scale: 3,
                                                     ),
                                                   ),
                                                 ),
@@ -815,10 +818,9 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                               Navigator.pop(
                                                                 dialogContext,
                                                               );
-                                                              cubit
-                                                                  .deleteStage(
-                                                                    id: cat.id,
-                                                                  );
+                                                              cubit.deleteStage(
+                                                                id: cat.id,
+                                                              );
                                                               ScaffoldMessenger.of(
                                                                 context,
                                                               ).showSnackBar(

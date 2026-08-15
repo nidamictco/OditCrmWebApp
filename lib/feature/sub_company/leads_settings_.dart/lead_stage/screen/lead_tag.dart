@@ -3,6 +3,7 @@ import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/custom_switch.dart';
 import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/cubit/lead_stage_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/cubit/lead_tag_cubit.dart';
 import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/cubit/lead_tag_state.dart';
@@ -394,28 +395,47 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                               ),
                             ),
                             SizedBox(width: 0.5.w),
+                            // SizedBox(
+                            //   height: 24,
+                            //   child: Transform.scale(
+                            //     scale: 0.65,
+                            //     child: Switch(
+                            //       value: _tagMandatory,
+                            //       activeColor: AppColors.green,
+                            //       trackColor: MaterialStateProperty.all(
+                            //         AppColors.greenLight,
+                            //       ),
+                            //       onChanged: (value) async {
+                            //         setState(
+                            //           () => _tagMandatory = value,
+                            //         ); // optimistic update
+                            //         await context
+                            //             .read<LeadStageCubit>()
+                            //             .updateTagMandatory(
+                            //               id: widget.leadStageId,
+                            //               tagMandatory: value,
+                            //             );
+                            //       },
+                            //     ),
+                            //   ),
+                            // ),
                             SizedBox(
-                              height: 24,
-                              child: Transform.scale(
-                                scale: 0.65,
-                                child: Switch(
-                                  value: _tagMandatory,
-                                  activeColor: AppColors.green,
-                                  trackColor: MaterialStateProperty.all(
-                                    AppColors.greenLight,
-                                  ),
-                                  onChanged: (value) async {
-                                    setState(
-                                      () => _tagMandatory = value,
-                                    ); // optimistic update
-                                    await context
-                                        .read<LeadStageCubit>()
-                                        .updateTagMandatory(
-                                          id: widget.leadStageId,
-                                          tagMandatory: value,
-                                        );
-                                  },
-                                ),
+                              height: 20,
+                              child: CustomSwitch(
+                                value: _tagMandatory,
+                                onChanged: (value) async {
+                                  setState(
+                                    () => _tagMandatory = value,
+                                  ); // optimistic update
+                                  await context
+                                      .read<LeadStageCubit>()
+                                      .updateTagMandatory(
+                                        id: widget.leadStageId,
+                                        tagMandatory: value,
+                                      );
+                                },
+                                inactiveCircleColor: AppColors.grey,
+                                activeContainerColor: AppColors.green,
                               ),
                             ),
                           ],

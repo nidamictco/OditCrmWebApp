@@ -1039,6 +1039,7 @@
 // }
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/custom_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -1709,6 +1710,7 @@ class _DesignationPermissionsScreenState
               padding: EdgeInsets.only(right: 1.w),
               child: Row(
                 children: [
+                  SizedBox(width: 1.w),
                   _buildSwitch(
                     value: group.selected,
                     onChanged: (_) => _toggleGroupHeader(groupIndex),
@@ -1718,7 +1720,7 @@ class _DesignationPermissionsScreenState
                     inactiveThumbColor: AppThemeColors.switchBorder,
                     // trackOutlineWidth,
                   ),
-                  // SizedBox(width: 0.2.w),
+                  SizedBox(width: 1.w),
                   Expanded(
                     child: Text(
                       group.title.toUpperCase(),
@@ -1860,6 +1862,7 @@ class _DesignationPermissionsScreenState
             flex: 4,
             child: Row(
               children: [
+                SizedBox(width: 1.w),
                 _buildSwitch(
                   value: item.selected,
                   onChanged: (_) => _toggleItemRow(groupIndex, itemIndex),
@@ -1868,7 +1871,7 @@ class _DesignationPermissionsScreenState
                   inactiveTrackColor: AppThemeColors.scaffoldBg,
                   inactiveThumbColor: AppThemeColors.switchBorder,
                 ),
-                SizedBox(width: 0.w),
+                SizedBox(width: 1.w),
                 Flexible(
                   child: Text(
                     item.name,
@@ -1975,6 +1978,8 @@ class _DesignationPermissionsScreenState
                   activeThumbColor: Colors.white,
                   inactiveTrackColor: AppThemeColors.switchhidecolor,
                   inactiveThumbColor: Colors.white,
+                  inactiveContainerColor: AppThemeColors.switchhidecolor,
+                  notHaveBoader: true,
                 ),
         ),
       );
@@ -1990,26 +1995,36 @@ class _DesignationPermissionsScreenState
     required Color activeThumbColor,
     required Color inactiveTrackColor,
     required Color inactiveThumbColor,
+    Color? inactiveContainerColor,
+    bool? notHaveBoader,
   }) {
     // Outline shows only when the switch is enabled AND currently inactive.
     final isEnabled = onChanged != null;
     final showOutline = isEnabled && !value;
 
-    return Transform.scale(
-      scale: 0.59,
-      child: Switch(
-        value: value,
-        onChanged: onChanged == null ? null : (v) => onChanged(v),
-        activeColor: activeThumbColor,
-        activeTrackColor: activeTrackColor,
-        inactiveThumbColor: inactiveThumbColor,
-        inactiveTrackColor: inactiveTrackColor,
-        trackOutlineColor: WidgetStateProperty.all(
-          showOutline ? AppThemeColors.switchBorder : Colors.transparent,
-        ),
-        trackOutlineWidth: WidgetStateProperty.all(showOutline ? 2 : 0),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+    // return Transform.scale(
+    //   scale: 0.59,
+    //   child: Switch(
+    //     value: value,
+    //     onChanged: onChanged == null ? null : (v) => onChanged(v),
+    //     activeColor: activeThumbColor,
+    //     activeTrackColor: activeTrackColor,
+    //     inactiveThumbColor: inactiveThumbColor,
+    //     inactiveTrackColor: inactiveTrackColor,
+    //     trackOutlineColor: WidgetStateProperty.all(
+    //       showOutline ? AppThemeColors.switchBorder : Colors.transparent,
+    //     ),
+    //     trackOutlineWidth: WidgetStateProperty.all(showOutline ? 2 : 0),
+    //     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    //   ),
+    // );
+    return CustomSwitch(
+      value: value,
+      onChanged: onChanged == null ? null : (v) => onChanged(v),
+      activeContainerColor: activeTrackColor,
+      inactiveCircleColor: inactiveThumbColor,
+      inactiveContainerColor: inactiveContainerColor,
+      notHaveBoader: notHaveBoader == true ? true : false,
     );
   }
 
