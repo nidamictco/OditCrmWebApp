@@ -263,6 +263,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
                   const SizedBox(height: 12),
                   // ── Bottom Row: Category Table + Recent Activity ──
                   _buildBottomRow(),
+                  const SizedBox(height: 12),
+                  _buildRecentActivitySection(),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -1190,7 +1192,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
             // ),
             // Column 2: Call Status Details
             Expanded(flex: 4, child: _buildCallStatusSection(liveCallData)),
-            SizedBox(width: 12),
+            // SizedBox(width: 12),
             // Vertical divider
             // Container(
             //   width: 1,
@@ -1199,7 +1201,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
             //   margin: const EdgeInsets.symmetric(horizontal: 20),
             // ),
             // Column 3: Lead Status
-            Expanded(flex: 3, child: _buildLeadStatusSection(liveCallData)),
+            // Expanded(flex: 3, child: _buildLeadStatusSection(liveCallData)),
           ],
         );
         // ),
@@ -1250,7 +1252,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
             staffInfo.joiningDate.isNotEmpty ? staffInfo.joiningDate : '—',
           ),
           _infoRow('Created Date:', staffInfo.createdDate),
-          const SizedBox(height: 12),
+          // const SizedBox(height: 12),
           _infoRow(
             'Address:',
             staffInfo.address.isNotEmpty ? staffInfo.address : '—',
@@ -1446,8 +1448,8 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           // Donut chart
           Center(
             child: SizedBox(
-              height: 130,
-              width: 130,
+              height: 150,
+              width: 150,
               child: DonutChart(leadsByCategory: data.leadsByCategory),
             ),
           ),
@@ -1484,7 +1486,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
         ),
       );
       if (i + 2 < entries.length) {
-        rows.add(const SizedBox(height: 6));
+        rows.add(const SizedBox(height: 12));
       }
     }
 
@@ -1521,7 +1523,7 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
           '$label:',
           style: const TextStyle(
             fontSize: 11,
-            color: Color(0xFF475569),
+            color: AppThemeColors.commonText,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1542,6 +1544,20 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
   Widget _buildBottomRow() {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, leadState) {
+        final liveCallData = CallStatusData(
+          cloudCallDuration: '-',
+          phoneCallDuration: '-',
+          closedCount: int.tryParse(leadState.profileClosedCount) ?? 0,
+          costAmount: 0,
+          totalCalled: int.tryParse(leadState.profileTotalCalledCount) ?? 0,
+          leadsByCategory: leadState.leadChartCounts.isNotEmpty
+              ? leadState.leadChartCounts
+              : _defaultLeadsByCategory,
+          connectedCount: int.tryParse(leadState.profileConnectedCount) ?? 0,
+          notConnectedCount:
+              int.tryParse(leadState.profileNotConnectedCount) ?? 0,
+          callResultCounts: leadState.profileCallResultCounts,
+        );
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1553,8 +1569,9 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
               ),
             ),
             const SizedBox(width: 16),
+            Expanded(flex: 3, child: _buildLeadStatusSection(liveCallData)),
             // Right: Recent Activity
-            Expanded(flex: 5, child: _buildRecentActivitySection()),
+            // Expanded(flex: 5, child: _buildRecentActivitySection()),
           ],
         );
       },
