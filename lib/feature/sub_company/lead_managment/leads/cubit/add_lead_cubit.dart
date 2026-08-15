@@ -1504,6 +1504,7 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
   // ── Staff profile fetch (ALWAYS filters by staffId) ───────────────────────
   Future<void> fetchProfileCounts(
     DateTime selectedDate, {
+    DateTime? toDate,
     required String staffId,
     required String role,
   }) async {
@@ -1513,6 +1514,7 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
       final counts = await _leadRepository.fetchLeadCounts(
         staffId: staffId,
         selectedDate: selectedDate,
+        toDate: toDate,
         role: role,
         forceStaffFilter: true, // ← ALWAYS filter by this specific staffId
       );
