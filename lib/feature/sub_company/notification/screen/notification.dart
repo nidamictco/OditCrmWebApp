@@ -154,40 +154,45 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _deleteSelected(List<NotificationModel> notifications) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.white,
-        title: const Text('Delete Selected'),
-        content: Text(
-          'Are you sure you want to delete ${_selectedIndices.length} selected notification(s)?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              final cubit = context.read<NotificationCubit>();
-              for (final index in _selectedIndices) {
-                cubit.deleteOne(notifications[index].id);
-              }
-              setState(() => _selectedIndices.clear());
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: AppColors.white,
+      title: const Text('Delete Selected'),
+      content: Text(
+        'Are you sure you want to delete ${_selectedIndices.length} selected notification(s)?',
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            final cubit = context.read<NotificationCubit>();
+            for (final index in _selectedIndices) {
+              cubit.deleteOne(notifications[index].id);
+            }
+            setState(() {
+              _selectedIndices.clear();
+              _tableKey++;
+            });
+          },
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+}
 
-  void _deleteAll() {
-    context.read<NotificationCubit>().deleteAll(_staffId);
-    setState(() => _selectedIndices.clear());
-  }
-
+void _deleteAll() {
+  context.read<NotificationCubit>().deleteAll(_staffId);
+  setState(() {
+    _selectedIndices.clear();
+    _tableKey++;
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -349,6 +354,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           children: [
                             // ── Table (unchanged) ─────────────────────
                             CustomTable(
+                              key: ValueKey(_tableKey),
                               columns: [
                                 TableColumn(title: '#'),
                                 TableColumn(title: 'Title'),
@@ -378,16 +384,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               }).toList(),
                               showCheckboxes: true,
                               onCheckChanged: (rowIndex, isChecked) {
-                                setState(() {
-                                  if (isChecked) {
-                                    if (!_selectedIndices.contains(rowIndex)) {
-                                      _selectedIndices.add(rowIndex);
-                                    }
-                                  } else {
-                                    _selectedIndices.remove(rowIndex);
-                                  }
-                                });
-                              },
+    setState(() {
+      if (isChecked) {
+        if (!_selectedIndices.contains(rowIndex)) {
+          _selectedIndices.add(rowIndex);
+        }
+      } else {
+        _selectedIndices.remove(rowIndex);
+      }
+    });
+  },
                             ),
 
                             /// ── FOOTER & PAGINATION ──
@@ -492,6 +498,67 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           ),
                                         ),
                                       ),
+
+                                      if (notifications.isNotEmpty)
+                                        if (_selectedIndices.isNotEmpty) ...[
+                                          InkWell(
+                                            onTap: isDeleting
+                                                ? null
+                                                : () => _deleteSelected(
+                                                    notifications,
+                                                  ),
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 0.8.w,
+                                                vertical: 0.8.h,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: isDeleting
+                                                    ? Colors.red.withOpacity(
+                                                        0.5,
+                                                      )
+                                                    : Colors.red,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Center(
+                                                    child: isDeleting
+                                                        ? const SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                          )
+                                                        : Text(
+                                                            'Delete (${_selectedIndices.length})',
+                                                            style:
+                                                                AppTextStyle.medium(
+                                                                  size: 11.5,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                          ),
+                                                  ),
+                                                  SizedBox(width: 0.7),
+                                                  Icon(
+                                                    Icons.delete_outline,
+                                                    color: Colors.white,
+                                                    size: 13,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+
+                                          SizedBox(width: 1.w),
+                                        ],
                                     ],
                                   ),
                                 ],
@@ -510,131 +577,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                ),
-                              ),
-
-                            // ── Delete Buttons below table ────────────
-                            if (notifications.isNotEmpty)
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    // Delete Selected — only when rows checked
-                                    if (_selectedIndices.isNotEmpty) ...[
-                                      InkWell(
-                                        onTap: isDeleting
-                                            ? null
-                                            : () => _deleteSelected(
-                                                notifications,
-                                              ),
-                                        child: SizedBox(
-                                          width: 10.w,
-                                          height: 4.5.h,
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              color: isDeleting
-                                                  ? Colors.red.withOpacity(0.5)
-                                                  : Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Center(
-                                              child: isDeleting
-                                                  ? const SizedBox(
-                                                      width: 16,
-                                                      height: 16,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                            color: Colors.white,
-                                                          ),
-                                                    )
-                                                  : Text(
-                                                      'Delete (${_selectedIndices.length})',
-                                                      style: AppTextStyle.small(
-                                                        size: 10.sp,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 1.w),
-                                    ],
-
-                                    // Clear All
-                                    InkWell(
-                                      onTap: isDeleting
-                                          ? null
-                                          : () => showDialog(
-                                              context: context,
-                                              builder: (dialogContext) =>
-                                                  AlertDialog(
-                                                    title: const Text(
-                                                      'Clear All',
-                                                    ),
-                                                    content: const Text(
-                                                      'Are you sure you want to delete all notifications?',
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                              dialogContext,
-                                                            ),
-                                                        child: const Text(
-                                                          'Cancel',
-                                                        ),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                            dialogContext,
-                                                          );
-                                                          _deleteAll();
-                                                        },
-                                                        child: const Text(
-                                                          'Delete',
-                                                          style: TextStyle(
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                            ),
-                                      child: SizedBox(
-                                        width: 9.w,
-                                        height: 4.5.h,
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            color: isDeleting
-                                                ? Colors.redAccent.withOpacity(
-                                                    0.5,
-                                                  )
-                                                : Colors.redAccent,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'Clear All',
-                                              style: AppTextStyle.small(
-                                                size: 10.sp,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ),
                           ],

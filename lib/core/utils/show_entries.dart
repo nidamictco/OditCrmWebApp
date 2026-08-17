@@ -132,7 +132,7 @@ class _ShowEntriesState extends State<ShowEntries> {
                       isDense: true,
                       hintText: "Enter...",
                       hintStyle: AppTextStyle.small(
-                        size: 11,
+                        size: 11.5,
                         color: Colors.grey,
                       ),
                       contentPadding: EdgeInsets.symmetric(
