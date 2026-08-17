@@ -49,6 +49,8 @@ class ActivityRepository {
 
   Future<List<ActivityModel>> getActivitiesByStaff(
     String staffId, {
+       required DateTime selectedDate,
+  DateTime? toDate,
     int limit = 20,
   }) async {
     // final snap = await _db
@@ -58,15 +60,31 @@ class ActivityRepository {
     //     .limit(limit)
     //     .get();
 
-    final now = DateTime.now();
-  final todayStart = DateTime(now.year, now.month, now.day);
-  final todayEnd = todayStart.add(const Duration(days: 1));
+     final start = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+  );
+
+ final end = toDate != null
+      ? DateTime(
+          toDate.year,
+          toDate.month,
+          toDate.day,
+        ).add(const Duration(days: 1))
+      : start.add(const Duration(days: 1));
 
   final snap = await _db
       .collectionGroup('ACTIVITIES')
       .where('changedById', isEqualTo: staffId)
-      .where('changedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))  // ← add
-      .where('changedAt', isLessThan: Timestamp.fromDate(todayEnd))                // ← add
+      .where(
+        'changedAt',
+        isGreaterThanOrEqualTo: Timestamp.fromDate(start),
+      )
+      .where(
+        'changedAt',
+        isLessThan: Timestamp.fromDate(end),
+      )
       .orderBy('changedAt', descending: true)
       .limit(limit)
       .get();

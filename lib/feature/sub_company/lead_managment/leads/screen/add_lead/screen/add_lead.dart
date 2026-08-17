@@ -563,7 +563,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           );
           if (state.status == AddLeadStatus.success) {
             context.read<AddLeadCubit>().clearMessages();
-           
+
             StatusAlertWidget.show(
               context,
               isSuccess: true,
@@ -1341,7 +1341,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                         ? 'Select Date'
                         : nextFollowUpCtrl.text,
                     style: AppTextStyle.body(
-                      size: 11.sp,
+                      size: 11,
                       color: const Color(0xFF0F172A),
                     ),
                     maxLines: 1,
@@ -1379,7 +1379,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             child: Text(
               'Clear All',
               style: AppTextStyle.medium(
-                size: 11.sp,
+                size: 11.5,
                 color: AppColors.red,
                 weight: FontWeight.w600,
               ),
@@ -1430,7 +1430,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       : Text(
                           _isEditMode ? 'Update' : 'Save Lead',
                           style: AppTextStyle.medium(
-                            size: 11.sp,
+                            size: 11.5,
                             color: AppColors.white,
                             weight: FontWeight.w600,
                           ),
@@ -1461,7 +1461,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lead Category', style: AppTextStyle.medium(size: 11.sp)),
+              Text('Lead Category', style: AppTextStyle.medium(size: 11.5)),
               SizedBox(height: 2.h),
               TextField(
                 controller: _dialogNameCtrl,
@@ -1469,7 +1469,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 decoration: InputDecoration(
                   hintText: 'Enter Category',
                   hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
+                    size: 11.5,
                     color: AppColors.grey,
                   ),
                   border: OutlineInputBorder(
@@ -1535,7 +1535,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Lead Source', style: AppTextStyle.medium(size: 11.sp)),
+              Text('Lead Source', style: AppTextStyle.medium(size: 11.5)),
               SizedBox(height: 2.h),
               TextField(
                 controller: _dialogNameCtrl,
@@ -1543,7 +1543,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 decoration: InputDecoration(
                   hintText: 'Enter Source',
                   hintStyle: AppTextStyle.medium(
-                    size: 11.sp,
+                    size: 11.5,
                     color: AppColors.grey,
                   ),
                   border: OutlineInputBorder(
@@ -1607,7 +1607,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           Text(
             title.toUpperCase(),
             style: AppTextStyle.medium(
-              size: 12.sp,
+              size: 12.5,
               color: const Color(0xFF0F2C59),
               weight: FontWeight.w700,
             ),
@@ -1648,7 +1648,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ? TextInputAction.next
                 : TextInputAction.done,
             style: AppTextStyle.body(
-              size: 11.sp,
+              size: 11.5,
               color: const Color(0xFF0F172A),
             ),
             decoration: InputDecoration(
@@ -1656,12 +1656,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
               fillColor: Colors.white,
               prefixIcon: Icon(
                 icons,
-                size: 12.sp,
+                size: 12.5,
                 color: const Color(0xFF64748B),
               ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
-                size: 11.sp,
+                size: 11.5,
                 color: const Color(0xFF94A3B8),
               ),
               contentPadding: EdgeInsets.symmetric(
@@ -1718,18 +1718,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
-              Icon(icons, size: 12.sp, color: const Color(0xFF64748B)),
+              Icon(icons, size: 12.5, color: const Color(0xFF64748B)),
               SizedBox(width: 0.5.w),
               Expanded(
                 child: Text(
                   value.isEmpty ? 'Loading...' : value,
                   style: value.isEmpty
                       ? AppTextStyle.small(
-                          size: 11.sp,
+                          size: 11.5,
                           color: const Color(0xFF94A3B8),
                         )
                       : AppTextStyle.body(
-                          size: 11.sp,
+                          size: 11.5,
                           color: const Color(0xFF0F172A),
                         ),
                   maxLines: 1,
@@ -1783,18 +1783,18 @@ class _AddLeadPageState extends State<AddLeadPage> {
             //     alignLeft: false,
             //     padding: EdgeInsets.all(1),
             //     textStyle: AppTextStyle.body(
-            //       size: 11.sp,
+            //       size: 11.5,
             //       color: const Color(0xFF0F172A),
             //     ),
             //     flagWidth: 0,
             //     dialogBackgroundColor: AppColors.white,
             //     dialogSize: Size(30.w, 80.h),
-            //     dialogTextStyle: AppTextStyle.body(size: 11.sp),
-            //     searchStyle: AppTextStyle.body(size: 11.sp),
+            //     dialogTextStyle: AppTextStyle.body(size: 11.5),
+            //     searchStyle: AppTextStyle.body(size: 11.5),
             //     searchDecoration: InputDecoration(
             //       hintText: 'Search country',
             //       hintStyle: AppTextStyle.small(
-            //         size: 11.sp,
+            //         size: 11.5,
             //         color: AppColors.grey,
             //       ),
             //       border: OutlineInputBorder(
@@ -1813,7 +1813,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   controller: controller,
                   focusNode: focusNode,
                   style: AppTextStyle.body(
-                    size: 11.sp,
+                    size: 11.5,
                     color: const Color(0xFF0F172A),
                   ),
                   inputFormatters: [
@@ -1829,7 +1829,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     fillColor: Colors.white,
                     hintText: hint ?? 'Enter number',
                     hintStyle: AppTextStyle.small(
-                      size: 11.sp,
+                      size: 11.5,
                       color: const Color(0xFF94A3B8),
                     ),
                     prefixIconConstraints: const BoxConstraints(
@@ -1866,7 +1866,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                                 Text(
                                   country?.dialCode ?? '+91',
                                   style: AppTextStyle.body(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     color: const Color(0xFF0F172A),
                                     weight: FontWeight.w500,
                                   ),
@@ -1883,12 +1883,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
                         },
                         dialogBackgroundColor: AppColors.white,
                         dialogSize: Size(30.w, 80.h),
-                        dialogTextStyle: AppTextStyle.body(size: 11.sp),
-                        searchStyle: AppTextStyle.body(size: 11.sp),
+                        dialogTextStyle: AppTextStyle.body(size: 11.5),
+                        searchStyle: AppTextStyle.body(size: 11.5),
                         searchDecoration: InputDecoration(
                           hintText: 'Search country',
                           hintStyle: AppTextStyle.small(
-                            size: 11.sp,
+                            size: 11.5,
                             color: AppColors.grey,
                           ),
                           border: OutlineInputBorder(
@@ -1969,7 +1969,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             focusNode: focusNode,
             maxLines: 3,
             style: AppTextStyle.body(
-              size: 11.sp,
+              size: 11.5,
               color: const Color(0xFF0F172A),
             ),
             decoration: InputDecoration(
@@ -1977,11 +1977,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
               fillColor: Colors.white,
               prefixIcon: Padding(
                 padding: EdgeInsets.only(bottom: 4.h),
-                child: Icon(icons, size: 12.sp, color: const Color(0xFF64748B)),
+                child: Icon(icons, size: 12.5, color: const Color(0xFF64748B)),
               ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
-                size: 11.sp,
+                size: 11.5,
                 color: const Color(0xFF94A3B8),
               ),
               contentPadding: EdgeInsets.symmetric(
@@ -2013,7 +2013,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         Text(
           text,
           style: AppTextStyle.medium(
-            size: 11.sp,
+            size: 11.5,
             color: const Color(0xFF1E293B),
             weight: FontWeight.w500,
           ),
@@ -2022,7 +2022,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           Text(
             '*',
             style: AppTextStyle.medium(
-              size: 11.sp,
+              size: 11.5,
               color: AppColors.red,
               weight: FontWeight.w600,
             ),
@@ -2045,7 +2045,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   //         Text(
   //           _isEditMode ? 'EDIT LEAD' : 'ADD NEW LEAD',
   //           style: AppTextStyle.medium(
-  //             size: 13.sp,
+  //             size: 13.5,
   //             color: AppColors.black.withOpacity(0.77),
   //             weight: FontWeight.w700,
   //           ),
@@ -2055,7 +2055,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   //             Row(
   //               children: [
   //                 Text('Lead Management', style: AppTextStyle.medium()),
-  //                 Icon(Icons.chevron_right, size: 16.sp),
+  //                 Icon(Icons.chevron_right, size: 16.5),
   //                 Text(
   //                   _isEditMode ? 'Edit Lead' : 'Add Lead',
   //                   style: AppTextStyle.medium(color: AppColors.grey),
@@ -2088,7 +2088,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             const SizedBox(width: 8),
             Text(
               isWhatsapp ? 'Duplicate WhatsApp' : 'Duplicate Contact',
-              style: AppTextStyle.medium(size: 13.sp, weight: FontWeight.w600),
+              style: AppTextStyle.medium(size: 13.5, weight: FontWeight.w600),
             ),
           ],
         ),
@@ -2096,7 +2096,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(message, style: AppTextStyle.medium(size: 11.sp)),
+            Text(message, style: AppTextStyle.medium(size: 11.5)),
             SizedBox(height: 1.5.h),
             Container(
               padding: EdgeInsets.all(1.w),
@@ -2119,7 +2119,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                           ? 'Please use a different WhatsApp number or update the existing lead.'
                           : 'Please use a different contact number or update the existing lead instead.',
                       style: AppTextStyle.medium(
-                        size: 10.sp,
+                        size: 10.5,
                         color: Colors.orange.shade800,
                       ),
                     ),
@@ -2140,7 +2140,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'OK',
-              style: AppTextStyle.medium(size: 11.sp, color: AppColors.white),
+              style: AppTextStyle.medium(size: 11.5, color: AppColors.white),
             ),
           ),
         ],
@@ -2349,7 +2349,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
         color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(4),
       ),
-      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      textStyle: AppTextStyle.small(size: 10.5, color: Colors.white),
       child: child,
     );
   }
@@ -2365,7 +2365,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
             Text(
               widget.label,
               style: AppTextStyle.medium(
-                size: 11.sp,
+                size: 11.5,
                 color: const Color(0xFF1E293B),
                 weight: FontWeight.w500,
               ),
@@ -2374,7 +2374,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
               Text(
                 '*',
                 style: AppTextStyle.medium(
-                  size: 11.sp,
+                  size: 11.5,
                   color: AppColors.red,
                   weight: FontWeight.w600,
                 ),
@@ -2416,7 +2416,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                               if (widget.showIcon) ...[
                                 Icon(
                                   widget.icon,
-                                  size: 12.sp,
+                                  size: 12.5,
                                   color: const Color(0xFF64748B),
                                 ),
                                 const SizedBox(width: 6.0),
@@ -2425,7 +2425,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                                 child: Text(
                                   widget.hint,
                                   style: AppTextStyle.small(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     color: const Color(0xFF94A3B8),
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -2439,7 +2439,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                             if (widget.showIcon) ...[
                               Icon(
                                 widget.icon,
-                                size: 12.sp,
+                                size: 12.5,
                                 color: const Color(0xFF64748B),
                               ),
                               // SizedBox(width: 0.5.w),
@@ -2448,7 +2448,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                               child: Text(
                                 selectedItem,
                                 style: AppTextStyle.medium(
-                                  size: 11.sp,
+                                  size: 11.5,
                                   weight: FontWeight.w400,
                                   color: const Color(0xFF0F172A),
                                 ),
@@ -2532,7 +2532,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                                 child: Text(
                                   item,
                                   style: AppTextStyle.medium(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     weight: FontWeight.w400,
                                     color: isSelected
                                         ? Colors.white
@@ -2553,13 +2553,13 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                           focusNode: _popupSearchFocusNode,
                           controller: _searchController,
                           style: AppTextStyle.small(
-                            size: 11.sp,
+                            size: 11.5,
                             color: const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
                             hintText: 'Search...',
                             hintStyle: AppTextStyle.small(
-                              size: 11.sp,
+                              size: 11.5,
                               color: const Color(0xFF94A3B8),
                             ),
                             isDense: true,
@@ -2825,7 +2825,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
         color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(4),
       ),
-      textStyle: AppTextStyle.small(size: 10.sp, color: Colors.white),
+      textStyle: AppTextStyle.small(size: 10.5, color: Colors.white),
       child: child,
     );
   }
@@ -2841,7 +2841,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
             Text(
               widget.label,
               style: AppTextStyle.medium(
-                size: 11.sp,
+                size: 11.5,
                 color: const Color(0xFF1E293B),
                 weight: FontWeight.w500,
               ),
@@ -2850,7 +2850,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
               Text(
                 '*',
                 style: AppTextStyle.medium(
-                  size: 11.sp,
+                  size: 11.5,
                   color: AppColors.red,
                   weight: FontWeight.w600,
                 ),
@@ -2909,7 +2909,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                               if (widget.showIcon && widget.icon != null) ...[
                                 Icon(
                                   widget.icon,
-                                  size: 12.sp,
+                                  size: 12.5,
                                   color: const Color(0xFF64748B),
                                 ),
                                 const SizedBox(width: 6.0),
@@ -2918,7 +2918,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                                 child: Text(
                                   widget.hint,
                                   style: AppTextStyle.small(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     color: const Color(0xFF94A3B8),
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -2932,7 +2932,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                             if (widget.showIcon && widget.icon != null) ...[
                               Icon(
                                 widget.icon,
-                                size: 12.sp,
+                                size: 12.5,
                                 color: const Color(0xFF64748B),
                               ),
                               const SizedBox(width: 6.0),
@@ -2941,7 +2941,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                               child: Text(
                                 selectedItem,
                                 style: AppTextStyle.medium(
-                                  size: 11.sp,
+                                  size: 11.5,
                                   weight: FontWeight.w400,
                                   color: const Color(0xFF0F172A),
                                 ),
@@ -3025,7 +3025,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                                 child: Text(
                                   item,
                                   style: AppTextStyle.medium(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     weight: FontWeight.w400,
                                     color: isSelected
                                         ? Colors.white
@@ -3046,13 +3046,13 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                           focusNode: _popupSearchFocusNode,
                           controller: _searchController,
                           style: AppTextStyle.small(
-                            size: 11.sp,
+                            size: 11.5,
                             color: const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
                             hintText: 'Search...',
                             hintStyle: AppTextStyle.small(
-                              size: 11.sp,
+                              size: 11.5,
                               color: const Color(0xFF94A3B8),
                             ),
                             isDense: true,
@@ -3224,7 +3224,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                   onPressed: _prevMonth,
                   icon: Icon(
                     Icons.chevron_left,
-                    size: 12.sp,
+                    size: 12.5,
                     color: Colors.white,
                   ),
                   splashRadius: 16,
@@ -3236,7 +3236,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                     Text(
                       _months[_focusedMonth.month - 1],
                       style: AppTextStyle.medium(
-                        size: 11.sp,
+                        size: 11.5,
                         weight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -3244,7 +3244,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                     Text(
                       '${_focusedMonth.year}',
                       style: AppTextStyle.small(
-                        size: 9.sp,
+                        size: 9.5,
                         color: Colors.white.withOpacity(0.85),
                       ),
                     ),
@@ -3254,7 +3254,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                   onPressed: _nextMonth,
                   icon: Icon(
                     Icons.chevron_right,
-                    size: 12.sp,
+                    size: 12.5,
                     color: Colors.white,
                   ),
                   splashRadius: 16,
@@ -3279,7 +3279,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                         child: Text(
                           day,
                           style: AppTextStyle.small(
-                            size: 8.5.sp,
+                            size: 8.5,
                             weight: FontWeight.w700,
                             color: AppColors.primary.withOpacity(0.7),
                           ),
@@ -3319,7 +3319,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                           child: Text(
                             '${date.day}',
                             style: AppTextStyle.small(
-                              size: 8.5.sp,
+                              size: 8.5,
                               weight: selected
                                   ? FontWeight.w700
                                   : FontWeight.w400,
@@ -3358,7 +3358,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                     child: Text(
                       'Today',
                       style: AppTextStyle.small(
-                        size: 9.sp,
+                        size: 9.5,
                         color: AppColors.primary,
                         weight: FontWeight.w600,
                       ),

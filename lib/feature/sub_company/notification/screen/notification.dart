@@ -1,3 +1,4 @@
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -153,37 +154,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _deleteSelected(List<NotificationModel> notifications) {
-  showDialog(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      backgroundColor: AppColors.white,
-      title: const Text('Delete Selected'),
-      content: Text(
-        'Are you sure you want to delete ${_selectedIndices.length} selected notification(s)?',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Cancel'),
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.white,
+        title: const Text('Delete Selected'),
+        content: Text(
+          'Are you sure you want to delete ${_selectedIndices.length} selected notification(s)?',
         ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(dialogContext);
-            final cubit = context.read<NotificationCubit>();
-            for (final index in _selectedIndices) {
-              cubit.deleteOne(notifications[index].id);
-            }
-            setState(() => _selectedIndices.clear());
-          },
-          child: const Text(
-            'Delete',
-            style: TextStyle(color: Colors.red),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              final cubit = context.read<NotificationCubit>();
+              for (final index in _selectedIndices) {
+                cubit.deleteOne(notifications[index].id);
+              }
+              setState(() => _selectedIndices.clear());
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _deleteAll() {
     context.read<NotificationCubit>().deleteAll(_staffId);
@@ -193,175 +191,162 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppThemeColors.scaffoldBg,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            StaffTopBar(
-              title: 'Lead Notifications',
-              parent: 'Dashboard',
-              current: 'Notifications',
-            ),
             Padding(
-              padding: EdgeInsets.all(2.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.divider),
-                ),
-                child: Column(
-                  children: [
-                    // ── Filter Row (unchanged) ──────────────────────────
-                    BlocBuilder<NotificationCubit, NotificationState>(
-                      builder: (context, state) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            left: 2.w,
-                            right: 2.w,
-                            top: 2.w,
-                            bottom: 1.h,
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              child: Column(
+                children: [
+                  // ── Filter Row (unchanged) ──────────────────────────
+                  BlocBuilder<NotificationCubit, NotificationState>(
+                    builder: (context, state) {
+                      return Row(
+                        children: [
+                          SizedBox(
+                            width: 20.w,
+                            child: InputDate(
+                              label: "From Date",
+                              fromController: fromDate,
+                              toController: toDate,
+                              isFrom: true,
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 20.w,
-                                child: InputDate(
-                                  label: "From Date",
-                                  fromController: fromDate,
-                                  toController: toDate,
-                                  isFrom: true,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              SizedBox(
-                                width: 20.w,
-                                child: InputDate(
-                                  label: "To Date",
-                                  fromController: fromDate,
-                                  toController: toDate,
-                                  isFrom: false,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Padding(
-                                padding: EdgeInsets.only(top: 2.h),
-                                child: InkWell(
-                                  onTap: () {
-                                    _applyFilters();
-                                  },
-                                  child: SizedBox(
-                                    width: 7.w,
-                                    height: 4.5.h,
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xff1BAA90),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Search",
-                                          style: AppTextStyle.small(
-                                            size: 10.sp,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                          SizedBox(width: 1.w),
+                          SizedBox(
+                            width: 20.w,
+                            child: InputDate(
+                              label: "To Date",
+                              fromController: fromDate,
+                              toController: toDate,
+                              isFrom: false,
+                            ),
+                          ),
+                          SizedBox(width: 1.w),
+                          Padding(
+                            padding: EdgeInsets.only(top: 2.h),
+                            child: InkWell(
+                              onTap: () {
+                                _applyFilters();
+                              },
+                              child: SizedBox(
+                                width: 7.w,
+                                height: 4.5.h,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xff1BAA90),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Apply",
+                                      style: AppTextStyle.small(
+                                        size: 10.sp,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: 1.5.h),
+                  // ── Show Entries (unchanged) ──────────────
+                  ShowEntries(
+                    initialSearch: _searchQuery,
+                    initialEntries: _selectedEntries,
+                    onSearchChanged: (v) => setState(() => _searchQuery = v),
+                    onEntriesChanged: (v) =>
+                        setState(() => _selectedEntries = v),
+                  ),
+                  SizedBox(height: 2.h),
+
+                  // ── BlocConsumer ────────────────────────────────────
+                  BlocConsumer<NotificationCubit, NotificationState>(
+                    listener: (context, state) {
+                      if (state is NotificationDeleteError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.message),
+                            backgroundColor: Colors.red,
                           ),
                         );
-                      },
-                    ),
+                      }
+                    },
+                    builder: (context, state) {
+                      final notifications = switch (state) {
+                        NotificationLoaded() => state.notifications,
+                        NotificationDeleting() => state.notifications,
+                        NotificationDeleteError() => state.notifications,
+                        _ => <NotificationModel>[],
+                      };
 
-                    Divider(color: AppColors.divider),
+                      final allFiltered = _filteredLeads(notifications);
+                      final totalCount = allFiltered.length;
+                      final totalPages = _totalPages(totalCount);
+                      final limit = int.tryParse(_selectedEntries) ?? 10;
+                      if (_currentPage > totalPages) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          setState(() => _currentPage = totalPages);
+                        });
+                      }
+                      final pagedList = _pagedLeads(allFiltered);
 
-                    // ── BlocConsumer ────────────────────────────────────
-                    BlocConsumer<NotificationCubit, NotificationState>(
-                      listener: (context, state) {
-                        if (state is NotificationDeleteError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(state.message),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        final notifications = switch (state) {
-                          NotificationLoaded() => state.notifications,
-                          NotificationDeleting() => state.notifications,
-                          NotificationDeleteError() => state.notifications,
-                          _ => <NotificationModel>[],
-                        };
+                      // "Showing X to Y of Z entries"
+                      final showFrom = totalCount == 0
+                          ? 0
+                          : (_currentPage - 1) * limit + 1;
+                      final showTo = (showFrom + pagedList.length - 1).clamp(
+                        0,
+                        totalCount,
+                      );
 
-                         final allFiltered = _filteredLeads(notifications);
-                        final totalCount = allFiltered.length;
-                        final totalPages = _totalPages(totalCount);
-                        final limit = int.tryParse(_selectedEntries) ?? 10;
-                        if (_currentPage > totalPages) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() => _currentPage = totalPages);
-                          });
-                        }
-                        final pagedList = _pagedLeads(allFiltered);
+                      final isDeleting = state is NotificationDeleting;
 
-                        // "Showing X to Y of Z entries"
-                        final showFrom = totalCount == 0
-                            ? 0
-                            : (_currentPage - 1) * limit + 1;
-                        final showTo = (showFrom + pagedList.length - 1).clamp(
-                          0,
-                          totalCount,
+                      // ── Loading ──────────────────────────────────
+                      if (state is NotificationLoading) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
                         );
+                      }
 
-                        final isDeleting = state is NotificationDeleting;
-
-                        // ── Loading ──────────────────────────────────
-                        if (state is NotificationLoading) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4.h),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
+                      // ── Error ────────────────────────────────────
+                      if (state is NotificationError) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                          child: Center(
+                            child: Text(
+                              'Error: ${state.message}',
+                              style: const TextStyle(color: Colors.red),
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
 
-                        // ── Error ────────────────────────────────────
-                        if (state is NotificationError) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4.h),
-                            child: Center(
-                              child: Text(
-                                'Error: ${state.message}',
-                                style: const TextStyle(color: Colors.red),
-                              ),
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0x14000000),
+                              offset: const Offset(0, 1),
+                              blurRadius: 8,
+                              spreadRadius: 0,
                             ),
-                          );
-                        }
-
-                        return Column(
+                          ],
+                        ),
+                        child: Column(
                           children: [
-                            // ── Show Entries (unchanged) ──────────────
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 2.w,
-                                vertical: 1.h,
-                              ),
-                              child: ShowEntries(
-                                initialSearch: _searchQuery,
-                                initialEntries: _selectedEntries,
-                                onSearchChanged: (v) =>
-                                    setState(() => _searchQuery = v),
-                                onEntriesChanged: (v) =>
-                                    setState(() => _selectedEntries = v),
-                              ),
-                            ),
-
                             // ── Table (unchanged) ─────────────────────
                             CustomTable(
                               columns: [
@@ -369,12 +354,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 TableColumn(title: 'Title'),
                                 TableColumn(title: 'Reminder'),
                                 TableColumn(title: 'Created At'),
+                                TableColumn(title: 'Select All'),
                               ],
                               rows: pagedList.asMap().entries.map((entry) {
-                                 final index = entry.key;
-                                 final serial =
-                                        (_currentPage - 1) * limit + index + 1;
-                                   
+                                final index = entry.key;
+                                final serial =
+                                    (_currentPage - 1) * limit + index + 1;
+
                                 final item = entry.value;
                                 return [
                                   Text('${serial}'),
@@ -387,6 +373,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           ).format(item.createdAt!)
                                         : '—',
                                   ),
+                                  SizedBox(),
                                 ];
                               }).toList(),
                               showCheckboxes: true,
@@ -402,50 +389,114 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 });
                               },
                             ),
+
+                            /// ── FOOTER & PAGINATION ──
                             Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w,
-                                  vertical: 1.5.h,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Showing $showFrom to $showTo of $totalCount entries",
-                                      style: AppTextStyle.medium(
-                                        weight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        PageButton(
-                                          label: 'Previous',
-                                          enabled: _currentPage > 1,
-                                          isLeft: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage - 1,
-                                            totalCount,
-                                          ),
-                                        ),
-                                        ..._buildPageNumbers(
-                                          totalPages,
-                                          totalCount,
-                                        ),
-                                        PageButton(
-                                          label: 'Next',
-                                          enabled: _currentPage < totalPages,
-                                          isRight: true,
-                                          onTap: () => _goToPage(
-                                            _currentPage + 1,
-                                            totalCount,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2.w,
+                                vertical: 1.5.h,
                               ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "SHOWING $showFrom TO $showTo OF $totalCount ENTRIES",
+                                    style: AppTextStyle.medium(
+                                      size: 10.sp,
+                                      weight: FontWeight.w600,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      /// Previous button
+                                      MouseRegion(
+                                        cursor: _currentPage > 1
+                                            ? SystemMouseCursors.click
+                                            : SystemMouseCursors.basic,
+                                        child: GestureDetector(
+                                          onTap: _currentPage > 1
+                                              ? () => _goToPage(
+                                                  _currentPage - 1,
+                                                  totalCount,
+                                                )
+                                              : null,
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            alignment: Alignment.center,
+                                            margin: const EdgeInsets.only(
+                                              right: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: const Color(0xFFE2E8F0),
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.chevron_left,
+                                              size: 16,
+                                              color: _currentPage > 1
+                                                  ? const Color(0xFF475569)
+                                                  : Colors.grey.shade300,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      /// Page Numbers
+                                      ..._buildPageNumbers(
+                                        totalPages,
+                                        totalCount,
+                                      ),
+
+                                      /// Next button
+                                      MouseRegion(
+                                        cursor: _currentPage < totalPages
+                                            ? SystemMouseCursors.click
+                                            : SystemMouseCursors.basic,
+                                        child: GestureDetector(
+                                          onTap: _currentPage < totalPages
+                                              ? () => _goToPage(
+                                                  _currentPage + 1,
+                                                  totalCount,
+                                                )
+                                              : null,
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            alignment: Alignment.center,
+                                            margin: const EdgeInsets.only(
+                                              left: 4,
+                                              right: 12,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: const Color(0xFFE2E8F0),
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.chevron_right,
+                                              size: 16,
+                                              color: _currentPage < totalPages
+                                                  ? const Color(0xFF475569)
+                                                  : Colors.grey.shade300,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
 
                             // ── Empty State ───────────────────────────
                             if (notifications.isEmpty)
@@ -477,7 +528,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       InkWell(
                                         onTap: isDeleting
                                             ? null
-                                            : () => _deleteSelected(notifications),
+                                            : () => _deleteSelected(
+                                                notifications,
+                                              ),
                                         child: SizedBox(
                                           width: 10.w,
                                           height: 4.5.h,
@@ -520,31 +573,40 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           ? null
                                           : () => showDialog(
                                               context: context,
-                                              builder: (dialogContext) => AlertDialog(
-                                                title: const Text('Clear All'),
-                                                content: const Text(
-                                                  'Are you sure you want to delete all notifications?',
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(dialogContext),
-                                                    child: const Text('Cancel'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(dialogContext);
-                                                      _deleteAll();
-                                                    },
-                                                    child: const Text(
-                                                      'Delete',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                      ),
+                                              builder: (dialogContext) =>
+                                                  AlertDialog(
+                                                    title: const Text(
+                                                      'Clear All',
                                                     ),
+                                                    content: const Text(
+                                                      'Are you sure you want to delete all notifications?',
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              dialogContext,
+                                                            ),
+                                                        child: const Text(
+                                                          'Cancel',
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                            dialogContext,
+                                                          );
+                                                          _deleteAll();
+                                                        },
+                                                        child: const Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
                                             ),
                                       child: SizedBox(
                                         width: 9.w,
@@ -576,11 +638,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 ),
                               ),
                           ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -588,30 +650,95 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
     );
   }
-   // ── Page number chips ───────────────────────
- List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
-  if (totalPages <= 1) return [];
 
-  return [
-    GestureDetector(
-      onTap: () {}, // already on this page
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 0.2.w),
-        padding: EdgeInsets.symmetric(horizontal: 1.2.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          border: Border.all(color: AppColors.lightGrey),
-        ),
-        child: Text(
-          '$_currentPage',
-          style: AppTextStyle.small(
-            size: 11.sp,
-            color: AppColors.white,
+  // ── Page number chips ───────────────────────
+  List<Widget> _buildPageNumbers(int totalPages, int totalCount) {
+    if (totalPages <= 1) {
+      return [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            color: AppThemeColors.appPrimaryColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            '1',
+            style: AppTextStyle.small(
+              size: 10.sp,
+              color: Colors.white,
+              weight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ),
-  ];
-}
+      ];
+    }
 
+    List<Widget> pages = [];
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= _currentPage - 1 && i <= _currentPage + 1)) {
+        final isSelected = i == _currentPage;
+        pages.add(
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _goToPage(i, totalCount),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 32),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppThemeColors.appPrimaryColor
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppThemeColors.appPrimaryColor
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  '$i',
+                  style: AppTextStyle.small(
+                    size: 10.sp,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == _currentPage - 2 || i == _currentPage + 2) {
+        pages.add(
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Text(
+              '...',
+              style: AppTextStyle.small(
+                size: 10.sp,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return pages;
+  }
 }

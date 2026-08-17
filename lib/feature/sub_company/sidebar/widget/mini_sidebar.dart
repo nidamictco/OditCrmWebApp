@@ -162,6 +162,39 @@ class MiniSidebar extends StatelessWidget {
               },
             ),
 
+
+if (perm.canViewLeadCategory ||
+              perm.canViewCustomFields ||
+              perm.canViewLeadSource ||
+              perm.canViewLeadStages)
+            HoverSidebarItem(
+              icon: Symbols.leaderboard,
+              title: "Leads Settings",
+              isExpandable: true,
+              children: [
+                if (perm.canViewLeadCategory) "Leads Category",
+                if (perm.canViewCustomFields) "Custom Field Settings",
+                if (perm.canViewLeadSource) "Lead Source",
+                if (perm.canViewLeadStages) "Lead Stage",
+              ],
+              destinations: [
+                if (perm.canViewLeadCategory) RoutePaths.leadCategory,
+                if (perm.canViewCustomFields) RoutePaths.customFields,
+                if (perm.canViewLeadSource) RoutePaths.leadSource,
+                if (perm.canViewLeadStages) RoutePaths.leadStages,
+              ],
+              isSelected: _isGroupSelected([7, 8, 9, 10]),
+              onItemTap: (index) {
+                final list = [
+                  if (perm.canViewLeadCategory) 7,
+                  if (perm.canViewCustomFields) 8,
+                  if (perm.canViewLeadSource) 9,
+                  if (perm.canViewLeadStages) 10,
+                ];
+                onItemSelected(list[index]);
+              },
+            ),
+
           const Spacer(),
 
           /// USER AVATAR AT BOTTOM

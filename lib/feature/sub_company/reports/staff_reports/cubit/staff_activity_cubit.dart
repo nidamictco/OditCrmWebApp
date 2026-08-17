@@ -7,10 +7,18 @@ class StaffActivityCubit extends Cubit<StaffActivityState> {
   final ActivityRepository _repo;
   StaffActivityCubit(this._repo) : super(StaffActivityInitial());
 
-  Future<void> load(String staffId) async {
+  Future<void> load(
+  String staffId, {
+  required DateTime selectedDate,
+  DateTime? toDate,
+}) async {
   emit(StaffActivityLoading());
-  try {
-    final items = await _repo.getActivitiesByStaff(staffId);
+  try { 
+    final items = await _repo.getActivitiesByStaff(
+      staffId,
+      selectedDate: selectedDate,
+      toDate: toDate,
+    );
     // Add this temporarily
     print('StaffActivityCubit: staffId=$staffId, found=${items.length}');
     emit(StaffActivityLoaded(items));

@@ -178,7 +178,7 @@ class _SidebarItemState extends State<SidebarItem> {
     ];
 
     final leadSettingsChildren = [
-      if (perm.canViewStaffReport)
+      if (perm.canViewLeadCategory)
         subMenuItem(
           "Leads Category",
           7,
@@ -186,7 +186,7 @@ class _SidebarItemState extends State<SidebarItem> {
           itemVerticalPadding: isCompactHeight ? 8 : 10,
           fontSizeSub: fontSizeSub,
         ),
-      if (perm.canViewTransferReport)
+      if (perm.canViewCustomFields)
         subMenuItem(
           "Custom Field Settings",
           8,
@@ -194,7 +194,7 @@ class _SidebarItemState extends State<SidebarItem> {
           itemVerticalPadding: isCompactHeight ? 8 : 10,
           fontSizeSub: fontSizeSub,
         ),
-      if (perm.canViewTotalReport)
+      if (perm.canViewLeadSource)
         subMenuItem(
           "Lead Source",
           9,
@@ -202,7 +202,7 @@ class _SidebarItemState extends State<SidebarItem> {
           itemVerticalPadding: isCompactHeight ? 8 : 10,
           fontSizeSub: fontSizeSub,
         ),
-      if (perm.canViewRejectedReport)
+      if (perm.canViewLeadStages)
         subMenuItem(
           "Lead Stage",
           10,
@@ -587,9 +587,9 @@ class _CustomExpandedTileState extends State<CustomExpandedTile> {
   @override
   void didUpdateWidget(covariant CustomExpandedTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isSelected != widget.isSelected && widget.isSelected) {
-      _isExpanded = true;
-    }
+    // if (oldWidget.isSelected != widget.isSelected && widget.isSelected) {
+      _isExpanded = widget.isSelected;
+    // }
   }
 
   @override
