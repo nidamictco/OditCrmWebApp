@@ -969,6 +969,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
         final staffList = state.staffList;
         final staffNames = staffList.map((s) => s.name).toList();
 
+        const addCategory = '+ Add Category';
+        const addSource = '+ Add Source';
+        final categoryItems = [...categoryNames, addCategory];
+        final sourceItems = [...sourceNames, addSource];
+
         if (_isEditMode) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -986,8 +991,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       nextFocusNode: state.subCategories.isNotEmpty
                           ? _subCategoryFocus
                           : _sourceFocus,
-                      onChanged: (v) =>
-                          context.read<AddLeadCubit>().selectCategory(v),
+                      onChanged: (v) => {
+                        context.read<AddLeadCubit>().selectCategory(v),
+                      },
                     ),
                   ),
                   if (state.subCategories.isNotEmpty) ...[
@@ -1111,7 +1117,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           }
           conditionalRowChildren.add(
             Expanded(
-              child: _CustomDropdown(
+              child: Dropdown(
                 label: 'Tags',
                 hint: 'Select Tags',
                 showStar: true,
@@ -1216,40 +1222,48 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ],
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  child: _CustomDropdownWithAdd(
+                  child: Dropdown(
                     label: 'Lead Category',
                     icon: Icons.layers_outlined,
                     showIcon: false,
-                    items: categoryNames,
+                    items: categoryItems,
                     selectedValue: _leadCategory,
                     focusNode: _categoryFocus,
                     nextFocusNode: state.subCategories.isNotEmpty
                         ? _subCategoryFocus
                         : _sourceFocus,
                     onChanged: (v) {
-                      setState(() => _leadCategory = v);
-                      cubit.selectCategory(v);
-                      cubit.selectSubCategory(null);
+                      if (v == addCategory) {
+                        _showAddCategoryDialog();
+                      } else {
+                        setState(() => _leadCategory = v);
+                        cubit.selectCategory(v);
+                        cubit.selectSubCategory(null);
+                      }
                     },
-                    onTap: _showAddCategoryDialog,
+                    // onTap: _showAddCategoryDialog,
                     hint: 'select category',
                   ),
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  child: _CustomDropdownWithAdd(
+                  child: Dropdown(
                     label: 'Lead Source',
                     showIcon: false,
                     icon: Icons.layers_rounded,
-                    items: sourceNames,
+                    items: sourceItems,
                     selectedValue: _leadSource,
                     focusNode: _sourceFocus,
                     nextFocusNode: _priorityFocus,
                     onChanged: (v) {
-                      setState(() => _leadSource = v);
-                      cubit.selectSource(v);
+                      if (v == addSource) {
+                        _showAddSourceDialog();
+                      } else {
+                        setState(() => _leadSource = v);
+                        cubit.selectSource(v);
+                      }
                     },
-                    onTap: _showAddSourceDialog,
+                    // onTap: _showAddSourceDialog,
                     hint: 'Select Source',
                   ),
                 ),
