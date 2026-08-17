@@ -7,6 +7,7 @@ import 'package:Odit_CRM/core/utils/dropdown_without_search.dart';
 import 'package:Odit_CRM/core/utils/follow_up_left_notch.dart';
 import 'package:Odit_CRM/core/utils/functions.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/widget/new_alert.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -1518,47 +1519,25 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                   required ValueChanged<String?> onChanged,
                   required VoidCallback onAddTap,
                 }) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildAlertLabel(label, isRequired: false),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: onAddTap,
-                            child: Container(
-                              width: 32,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00B074),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 0.1.w),
-                          Expanded(
-                            child: SimpleDropdown(
-                              label: '',
-                              hint: 'Select Category',
-                              items: items,
-                              selectedValue:
-                                  (selectedValue != null &&
-                                      items.contains(selectedValue))
-                                  ? selectedValue
-                                  : null,
-                              onChanged: onChanged,
-                              showClear: false,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  const addCategoryLabel = '+ Add Category';
+                  final dropdownItems = [...items, addCategoryLabel];
+
+                  return SimpleDropdown(
+                    label: label,
+                    hint: 'Select Category',
+                    items: dropdownItems,
+                    selectedValue:
+                        (selectedValue != null && items.contains(selectedValue))
+                        ? selectedValue
+                        : null,
+                    onChanged: (v) {
+                      if (v == addCategoryLabel) {
+                        onAddTap();
+                        return;
+                      }
+                      onChanged(v);
+                    },
+                    showClear: false,
                   );
                 }
 
@@ -1972,62 +1951,159 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
     );
   }
 
-  void _showAddCategoryDialog() {
-    _dialogNameCtrl.clear();
-    showDialog(
-      context: context,
-      builder: (ctx) => AppDialog(
-        width: 35.w,
-        title: 'Add Lead Category',
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Lead Category', style: AppTextStyle.medium(fontSize: 11.5)),
-              SizedBox(height: 2.h),
-              TextField(
-                controller: _dialogNameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Category',
-                  hintStyle: AppTextStyle.medium(
-                    fontSize: 11.5,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
-          if (name.isEmpty) return;
-          final normalized = name.toUpperCase();
-          final newId = await context.read<LeadCategoryCubit>().addCategory(
-            name: normalized,
-          );
-          setState(() => _leadCategory = normalized);
-          context.read<AddLeadCubit>().selectCategoryDirect(
-            name: normalized,
-            id: newId,
-          );
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$normalized" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
-      ),
+  // void _showAddCategoryDialog() {
+  //   _dialogNameCtrl.clear();
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => LeadSettingsAlert(
+  //       fieldLabel: 'Lead Category',
+  //       title: 'Add Lead Category',
+  //       constrainsWidth: 840,
+  //       onSubmit: (String value) async {
+  //         if (context.read<LeadCategoryCubit>().categoryExists(value)) {
+  //           StatusAlertWidget.show(
+  //             ctx,
+  //             title: 'Validation',
+  //             message: 'This category already exists.',
+  //             isSuccess: false,
+  //             onButtonPressed: () =>
+  //                 Navigator.pop(ctx),
+  //           );
+  //           return;
+  //         }
+  //         // Navigator.pop(
+  //         //   dialogContext,
+  //         // ); // close LeadSettingsAlert
+  //         // await cubit.addCategory(name: value);
+
+  //         final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+  //         final normalized = name.toUpperCase();
+  //         final newId = await context.read<LeadCategoryCubit>().addCategory(
+  //           name: normalized,
+  //         );
+  //         setState(() => _leadCategory = normalized);
+  //         context.read<AddLeadCubit>().selectCategoryDirect(
+  //           name: normalized,
+  //           id: newId,
+  //         );
+  //         context.pop();
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Category "$normalized" added.'),
+  //             backgroundColor: AppColors.green,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //     // AppDialog(
+  //     //   width: 35.w,
+  //     //   title: 'Add Lead Category',
+  //     //   body: Padding(
+  //     //     padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+  //     //     child: Column(
+  //     //       crossAxisAlignment: CrossAxisAlignment.start,
+  //     //       mainAxisSize: MainAxisSize.min,
+  //     //       children: [
+  //     //         Text('Lead Category', style: AppTextStyle.medium(fontSize: 11.5)),
+  //     //         SizedBox(height: 2.h),
+  //     //         TextField(
+  //     //           controller: _dialogNameCtrl,
+  //     //           autofocus: true,
+  //     //           decoration: InputDecoration(
+  //     //             hintText: 'Enter Category',
+  //     //             hintStyle: AppTextStyle.medium(
+  //     //               fontSize: 11.5,
+  //     //               color: AppColors.grey,
+  //     //             ),
+  //     //             border: OutlineInputBorder(
+  //     //               borderRadius: BorderRadius.circular(4),
+  //     //             ),
+  //     //           ),
+  //     //         ),
+  //     //       ],
+  //     //     ),
+  //     //   ),
+  //     // onSubmit: () async {
+  //     //   final name = _dialogNameCtrl.text.trim();
+  //     //   if (name.isEmpty) return;
+  //     //   final normalized = name.toUpperCase();
+  //     //   final newId = await context.read<LeadCategoryCubit>().addCategory(
+  //     //     name: normalized,
+  //     //   );
+  //     //   setState(() => _leadCategory = normalized);
+  //     //   context.read<AddLeadCubit>().selectCategoryDirect(
+  //     //     name: normalized,
+  //     //     id: newId,
+  //     //   );
+  //     //   Navigator.pop(ctx);
+  //     //   ScaffoldMessenger.of(context).showSnackBar(
+  //     //     SnackBar(
+  //     //       content: Text('Category "$normalized" added.'),
+  //     //       backgroundColor: AppColors.green,
+  //     //       behavior: SnackBarBehavior.floating,
+  //     //     ),
+  //     //   );
+  //     // },
+  //     // ),
+  //   );
+  // }
+
+void _showAddCategoryDialog() {
+    context.read<LeadCategoryCubit>().watchCategories();
+  showDialog(
+    context: context,
+    builder: (ctx) => LeadSettingsAlert(
+      fieldLabel: 'Lead Category',
+      title: 'Add Lead Category',
+      constrainsWidth: 840,
+      onSubmit: (String value) async {
+        final name = value.trim();
+  if (name.isEmpty) return;
+  final normalized = name.toUpperCase();
+
+  final alreadyExists = context.read<LeadCategoryCubit>().state.categories.any(
+    (c) => c.name.trim().toUpperCase() == normalized,
+  );
+  if (alreadyExists) {
+    StatusAlertWidget.show(
+      ctx,
+      title: 'Validation',
+      message: 'This category already exists.',
+      isSuccess: false,
+      onButtonPressed: () => Navigator.pop(ctx),
     );
+    return;
   }
+
+  final newId = await context.read<LeadCategoryCubit>().addCategory(
+    name: normalized,
+  );
+        setState(() => _leadCategory = normalized);
+        context.read<AddLeadCubit>().selectCategoryDirect(
+          name: normalized,
+          id: newId,
+        );
+        context.pop();
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('Category "$normalized" added.'),
+        //     backgroundColor: AppColors.green,
+        //     behavior: SnackBarBehavior.floating,
+        //   ),
+        // );
+        StatusAlertWidget.show(
+      ctx,
+      title: 'Success',
+      message: 'Category "$normalized" added.',
+      isSuccess: true,
+      onButtonPressed: () => context.pop(),
+    );
+      },
+    ),
+  );
+}
 
   Widget _field(
     String label,
