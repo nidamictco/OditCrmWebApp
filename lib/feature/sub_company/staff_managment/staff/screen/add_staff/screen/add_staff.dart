@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/core/utils/dropdown_without_search.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -197,6 +199,13 @@ class _AddStaffState extends State<AddStaff> {
     if (phone.length != 10 || !RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
       return 'Phone number must be exactly 10 digits';
     }
+    if (phone.length > 12 || !RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
+      return 'Phone number must be less than 12 digits';
+    }
+
+    if(_emailCtrl.text.trim().isEmpty){
+      return 'Email is required';
+    }
 
     final email = _emailCtrl.text.trim();
     if (email.isNotEmpty) {
@@ -287,43 +296,105 @@ class _AddStaffState extends State<AddStaff> {
 
   void _showSnack(String message, {bool isError = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: AppTextStyle.body(color: AppColors.white),
-        ),
-        backgroundColor: isError ? AppColors.red : AppColors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(
+    //       message,
+    //       style: AppTextStyle.body(color: AppColors.white),
+    //     ),
+    //     backgroundColor: isError ? AppColors.red : AppColors.green,
+    //     behavior: SnackBarBehavior.floating,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    //   ),
+    // );
+     StatusAlertWidget.show(
+                    context,
+                    isSuccess: false,
+                    title: "Validation",
+                    message: message,
+                    onButtonPressed: () {
+                      if (!context.mounted) return;
+                      // Navigator.pop(context); // just dismiss the status alert
+                      context.pop();
+                     
+                    },
+                  );
   }
 
   // ─── Open Designation Dialog ──────────────────────────────────────────────
 
-  void _openDesignationDialog() async {
-    final designationCubit = context.read<DesignationCubit>();
+  // void _openDesignationDialog() async {
+  //   final designationCubit = context.read<DesignationCubit>();
 
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (_) => BlocProvider.value(
-        value: designationCubit,
-        child: const Dialog(child: DesignationPermissionsScreen()),
+  //   final result = await showDialog<Map<String, dynamic>>(
+  //     context: context,
+  //     builder: (_) => BlocProvider.value(
+  //       value: designationCubit,
+  //       child: const Dialog(child: DesignationPermissionsScreen()),
+  //     ),
+  //   );
+
+  //   if (mounted) {
+  //     await designationCubit.fetchAll();
+  //     if (result != null && result['name'] != null && result['id'] != null) {
+  //       setState(() {
+  //         _designation = result['name'] as String;
+  //         _designationId = result['id'] as String;
+  //       });
+  //     }
+  //   }
+  // }
+void _openDesignationDialog() async {
+  final designationCubit = context.read<DesignationCubit>();
+
+  final result = await showDialog<Map<String, dynamic>>(
+    context: context,
+    builder: (dialogContext) => BlocProvider.value(
+      value: designationCubit,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: Colors.white,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const DesignationPermissionsScreen(),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: GestureDetector(
+                onTap: () => Navigator.of(dialogContext).pop(),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    );
+    ),
+  );
 
-    if (mounted) {
-      await designationCubit.fetchAll();
-      if (result != null && result['name'] != null && result['id'] != null) {
-        setState(() {
-          _designation = result['name'] as String;
-          _designationId = result['id'] as String;
-        });
-      }
+  if (mounted) {
+    await designationCubit.fetchAll();
+    if (result != null && result['name'] != null && result['id'] != null) {
+      setState(() {
+        _designation = result['name'] as String;
+        _designationId = result['id'] as String;
+      });
     }
   }
-
+}
   // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
@@ -816,13 +887,18 @@ class _AddStaffState extends State<AddStaff> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Password',
-          style: AppTextStyle.medium(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF344054),
-          ),
+        Row(
+          children: [
+            Text(
+              'Password',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF344054),
+              ),
+            ),
+            Text('*',style: AppTextStyle.medium(fontSize: 11.5,color: AppColors.red),)
+          ],
         ),
         const SizedBox(height: 5),
         Container(
@@ -885,229 +961,317 @@ class _AddStaffState extends State<AddStaff> {
     );
   }
 
-  Widget _buildDesignationField() {
-    return BlocBuilder<DesignationCubit, DesignationState>(
-      builder: (context, state) {
-        List<String> designationItems = [];
-        Map<String, String> designationMap = {};
+Widget _buildDesignationField() {
+  return BlocBuilder<DesignationCubit, DesignationState>(
+    builder: (context, state) {
+      List<String> designationItems = [];
+      Map<String, String> designationMap = {};
 
-        if (state is DesignationListLoaded) {
-          for (final d in state.designations) {
-            designationItems.add(d.designationName);
-            if (d.id != null) {
-              designationMap[d.designationName] = d.id!;
-            }
+      if (state is DesignationListLoaded) {
+        for (final d in state.designations) {
+          designationItems.add(d.designationName);
+          if (d.id != null) {
+            designationMap[d.designationName] = d.id!;
           }
         }
+      }
 
-        if (_designation != null &&
-            _designation!.isNotEmpty &&
-            !designationItems.contains(_designation)) {
-          designationItems.insert(0, _designation!);
-        }
+      if (_designation != null &&
+          _designation!.isNotEmpty &&
+          !designationItems.contains(_designation)) {
+        designationItems.insert(0, _designation!);
+      }
 
-        final isCompanyAdmin =
-            _isEditMode && widget.staff?.designation == "Company_Admin";
+      const addNewLabel = '+ Add New Designation';
+      designationItems.add(addNewLabel);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      final isCompanyAdmin =
+          _isEditMode && widget.staff?.designation == "Company_Admin";
+
+      return SimpleDropdown(
+        label: 'Designation',
+        hint: 'Select Designation',
+        showStar: true,
+        showClear: false,
+        enabled: !isCompanyAdmin,
+        items: designationItems,
+        selectedValue: _designation,
+        onChanged: (val) {
+          if (val == addNewLabel) {
+            _openDesignationDialog();
+            return;
+          }
+          setState(() {
+            _designation = val;
+            _designationId = val == null ? null : designationMap[val];
+          });
+        },
+      );
+    },
+  );
+}
+
+Widget _buildStaffTypeField() {
+  final isCompanyAdmin =
+      _isEditMode && widget.staff?.designation == "Company_Admin";
+  final staffTypeItems = const [
+    'Admin',
+    'Marketing',
+    'Team Lead',
+    'Technical',
+    'Telecalling',
+  ];
+
+  return SimpleDropdown(
+    label: 'Staff Type',
+    hint: 'Select Field',
+    showStar: true,
+    showClear: false,
+    enabled: !isCompanyAdmin,
+    items: staffTypeItems,
+    selectedValue: _staffType,
+    onChanged: (val) => setState(() => _staffType = val),
+  );
+}
+
+  // Widget _buildDesignationField() {
+  //   return BlocBuilder<DesignationCubit, DesignationState>(
+  //     builder: (context, state) {
+  //       List<String> designationItems = [];
+  //       Map<String, String> designationMap = {};
+
+  //       if (state is DesignationListLoaded) {
+  //         for (final d in state.designations) {
+  //           designationItems.add(d.designationName);
+  //           if (d.id != null) {
+  //             designationMap[d.designationName] = d.id!;
+  //           }
+  //         }
+  //       }
+
+  //       if (_designation != null &&
+  //           _designation!.isNotEmpty &&
+  //           !designationItems.contains(_designation)) {
+  //         designationItems.insert(0, _designation!);
+  //       }
+
+  //       final isCompanyAdmin =
+  //           _isEditMode && widget.staff?.designation == "Company_Admin";
+
+  //       return Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Text(
+  //                 'Designation',
+  //                 style: AppTextStyle.medium(
+  //                   fontSize: 11.5,
+  //                   fontWeight: FontWeight.w500,
+  //                   color: const Color(0xFF344054),
+  //                 ),
+  //               ),
+  //               Text('*',style: AppTextStyle.medium(fontSize: 11.5,color: AppColors.red),)
+  //             ],
+  //           ),
+  //           const SizedBox(height: 5),
+  //           PopupMenuButton<String>(
+  //             enabled: !isCompanyAdmin,
+  //             onSelected: (val) {
+  //               if (val == '__ADD_NEW__') {
+  //                 _openDesignationDialog();
+  //               } else {
+  //                 setState(() {
+  //                   _designation = val;
+  //                   _designationId = designationMap[val];
+  //                 });
+  //               }
+  //             },
+  //             itemBuilder: (context) => [
+  //               ...designationItems.map(
+  //                 (item) => PopupMenuItem<String>(
+  //                   value: item,
+  //                   child: Text(
+  //                     item,
+  //                     style: AppTextStyle.medium(fontSize: 11.5),
+  //                   ),
+  //                 ),
+  //               ),
+  //               const PopupMenuDivider(),
+  //               PopupMenuItem<String>(
+  //                 value: '__ADD_NEW__',
+  //                 child: Row(
+  //                   children: [
+  //                     const Icon(
+  //                       Icons.add,
+  //                       size: 16,
+  //                       color: AppThemeColors.basicGreen,
+  //                     ),
+  //                     const SizedBox(width: 8),
+  //                     Text(
+  //                       'Add New Designation',
+  //                       style: AppTextStyle.medium(
+  //                         fontSize: 11.5,
+  //                         color: const Color(0xFF00B074),
+  //                         fontWeight: FontWeight.w500,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //             child: Container(
+  //               height: 40,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white,
+  //                 borderRadius: BorderRadius.circular(8),
+  //                 border: Border.all(color: AppThemeColors.textfieldBorder),
+  //               ),
+  //               padding: const EdgeInsets.symmetric(horizontal: 12),
+  //               child: Row(
+  //                 children: [
+  //                   GestureDetector(
+  //                     onTap: isCompanyAdmin ? null : _openDesignationDialog,
+  //                     child: Container(
+  //                       width: 20,
+  //                       height: 20,
+  //                       decoration: BoxDecoration(
+  //                         color: const Color(0xFF00B074),
+  //                         borderRadius: BorderRadius.circular(4),
+  //                       ),
+  //                       child: const Icon(
+  //                         Icons.add,
+  //                         size: 14,
+  //                         color: Colors.white,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 8),
+  //                   Expanded(
+  //                     child: Text(
+  //                       _designation ?? 'Select Designation',
+  //                       style: AppTextStyle.medium(
+  //                         fontSize: 11.5,
+  //                         color: _designation != null
+  //                             ? const Color(0xFF101828)
+  //                             : const Color(0xFF98A2B3),
+  //                         fontWeight: FontWeight.w400,
+  //                       ),
+  //                       overflow: TextOverflow.ellipsis,
+  //                     ),
+  //                   ),
+  //                   const Icon(
+  //                     Icons.keyboard_arrow_down_rounded,
+  //                     size: 20,
+  //                     color: Color(0xFF667085),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildStaffTypeField() {
+  //   final isCompanyAdmin =
+  //       _isEditMode && widget.staff?.designation == "Company_Admin";
+  //   final staffTypeItems = const [
+  //     'Admin',
+  //     'Marketing',
+  //     'Team Lead',
+  //     'Technical',
+  //     'Telecalling',
+  //   ];
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Text(
+  //             'Staff Type',
+  //             style: AppTextStyle.medium(
+  //               fontSize: 11.5,
+  //               fontWeight: FontWeight.w500,
+  //               color: const Color(0xFF344054),
+  //             ),
+  //           ),
+  //           Text('*',style: AppTextStyle.medium(fontSize: 11.5,color: AppColors.red),)
+  //         ],
+  //       ),
+  //       const SizedBox(height: 5),
+  //       PopupMenuButton<String>(
+  //         enabled: !isCompanyAdmin,
+  //         onSelected: (val) => setState(() => _staffType = val),
+  //         itemBuilder: (context) => staffTypeItems
+  //             .map(
+  //               (item) => PopupMenuItem<String>(
+  //                 value: item,
+  //                 child: Text(item, style: AppTextStyle.medium(fontSize: 11.5)),
+  //               ),
+  //             )
+  //             .toList(),
+  //         child: Container(
+  //           height: 40,
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(8),
+  //             border: Border.all(color: AppThemeColors.textfieldBorder),
+  //           ),
+  //           padding: const EdgeInsets.symmetric(horizontal: 12),
+  //           child: Row(
+  //             children: [
+  //               const Icon(
+  //                 Icons.person_outline_rounded,
+  //                 size: 18,
+  //                 color: Color(0xFF667085),
+  //               ),
+  //               const SizedBox(width: 8),
+  //               Expanded(
+  //                 child: Text(
+  //                   _staffType ?? 'Select Field',
+  //                   style: AppTextStyle.medium(
+  //                     fontSize: 11.5,
+  //                     color: _staffType != null
+  //                         ? const Color(0xFF101828)
+  //                         : const Color(0xFF98A2B3),
+  //                     fontWeight: FontWeight.w400,
+  //                   ),
+  //                   overflow: TextOverflow.ellipsis,
+  //                 ),
+  //               ),
+  //               const Icon(
+  //                 Icons.keyboard_arrow_down_rounded,
+  //                 size: 20,
+  //                 color: Color(0xFF667085),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
             Text(
-              'Designation',
+              'Email Id',
               style: AppTextStyle.medium(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF344054),
               ),
             ),
-            const SizedBox(height: 5),
-            PopupMenuButton<String>(
-              enabled: !isCompanyAdmin,
-              onSelected: (val) {
-                if (val == '__ADD_NEW__') {
-                  _openDesignationDialog();
-                } else {
-                  setState(() {
-                    _designation = val;
-                    _designationId = designationMap[val];
-                  });
-                }
-              },
-              itemBuilder: (context) => [
-                ...designationItems.map(
-                  (item) => PopupMenuItem<String>(
-                    value: item,
-                    child: Text(
-                      item,
-                      style: AppTextStyle.medium(fontSize: 11.5),
-                    ),
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem<String>(
-                  value: '__ADD_NEW__',
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.add,
-                        size: 16,
-                        color: AppThemeColors.basicGreen,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Add New Designation',
-                        style: AppTextStyle.medium(
-                          fontSize: 11.5,
-                          color: const Color(0xFF00B074),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppThemeColors.textfieldBorder),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: isCompanyAdmin ? null : _openDesignationDialog,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00B074),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _designation ?? 'Select Designation',
-                        style: AppTextStyle.medium(
-                          fontSize: 11.5,
-                          color: _designation != null
-                              ? const Color(0xFF101828)
-                              : const Color(0xFF98A2B3),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 20,
-                      color: Color(0xFF667085),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            Text('*',style: AppTextStyle.medium(fontSize: 11.5,color: AppColors.red),)
           ],
-        );
-      },
-    );
-  }
-
-  Widget _buildStaffTypeField() {
-    final isCompanyAdmin =
-        _isEditMode && widget.staff?.designation == "Company_Admin";
-    final staffTypeItems = const [
-      'Admin',
-      'Marketing',
-      'Team Lead',
-      'Technical',
-      'Telecalling',
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Staff Type',
-          style: AppTextStyle.medium(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF344054),
-          ),
-        ),
-        const SizedBox(height: 5),
-        PopupMenuButton<String>(
-          enabled: !isCompanyAdmin,
-          onSelected: (val) => setState(() => _staffType = val),
-          itemBuilder: (context) => staffTypeItems
-              .map(
-                (item) => PopupMenuItem<String>(
-                  value: item,
-                  child: Text(item, style: AppTextStyle.medium(fontSize: 11.5)),
-                ),
-              )
-              .toList(),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppThemeColors.textfieldBorder),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.person_outline_rounded,
-                  size: 18,
-                  color: Color(0xFF667085),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _staffType ?? 'Select Field',
-                    style: AppTextStyle.medium(
-                      fontSize: 11.5,
-                      color: _staffType != null
-                          ? const Color(0xFF101828)
-                          : const Color(0xFF98A2B3),
-                      fontWeight: FontWeight.w400,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: Color(0xFF667085),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmailField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Email Id',
-          style: AppTextStyle.medium(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF344054),
-          ),
         ),
         const SizedBox(height: 5),
         Container(
@@ -1266,6 +1430,10 @@ class _AddStaffState extends State<AddStaff> {
                     color: const Color(0xFF101828),
                     fontWeight: FontWeight.w400,
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                   decoration: InputDecoration(
                     hintText: 'Enter Salary',
                     hintStyle: AppTextStyle.medium(

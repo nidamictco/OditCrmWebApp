@@ -1273,18 +1273,18 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          _infoRow('Name:', staffInfo.name.isNotEmpty ? staffInfo.name : '—'),
+          _infoRow('Name:', staffInfo.name.isNotEmpty ? staffInfo.name : 'N/A'),
           _infoRow(
             'Mobile:',
-            staffInfo.mobile.isNotEmpty ? staffInfo.mobile : '—',
+            staffInfo.mobile.isNotEmpty ? staffInfo.mobile : 'N/A',
           ),
           _infoRow(
             'Email:',
-            staffInfo.email.isNotEmpty ? staffInfo.email : '—',
+            staffInfo.email.isNotEmpty ? staffInfo.email : 'N/A',
           ),
           _infoRow(
             'Join Date:',
-            staffInfo.joiningDate.isNotEmpty ? staffInfo.joiningDate : '—',
+            staffInfo.joiningDate.isNotEmpty ? staffInfo.joiningDate : 'N/A',
           ),
           _infoRow('Created Date:', staffInfo.createdDate),
           // const SizedBox(height: 12),

@@ -3,6 +3,7 @@ import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/confirm_alert.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/core/utils/dotted_down_arrow.dart';
+import 'package:Odit_CRM/core/utils/dropdown_without_search.dart';
 import 'package:Odit_CRM/core/utils/follow_up_left_notch.dart';
 import 'package:Odit_CRM/core/utils/functions.dart';
 import 'package:Odit_CRM/core/utils/resolved_lead_name.dart';
@@ -1183,9 +1184,10 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 // ── Helper 1: Label Builder ──────────────────────────
                 Widget buildAlertLabel(String text, {bool isRequired = false}) {
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
+                    padding: EdgeInsets.zero,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           text,
@@ -1332,6 +1334,72 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 }
 
                 // ── Helper 4: Dropdown Field Builder ─────────────────
+                // Widget buildAlertDropdownField({
+                //   required String label,
+                //   required String hint,
+                //   required List<String> items,
+                //   required String? selectedValue,
+                //   required ValueChanged<String?> onChanged,
+                //   bool isRequired = false,
+                // }) {
+                //   return Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       buildAlertLabel(label, isRequired: isRequired),
+                //       Container(
+                //         height: 42,
+                //         decoration: BoxDecoration(
+                //           color: Colors.white,
+                //           borderRadius: BorderRadius.circular(8),
+                //           border: Border.all(color: const Color(0xFFE2E8F0)),
+                //         ),
+                //         padding: const EdgeInsets.symmetric(horizontal: 12),
+                //         child: DropdownButtonHideUnderline(
+                //           child: DropdownButton<String>(
+                //             value:
+                //                 (selectedValue != null &&
+                //                     items.contains(selectedValue))
+                //                 ? selectedValue
+                //                 : null,
+                //             hint: Text(
+                //               hint,
+                //               style: AppTextStyle.medium(
+                //                 fontSize: 11.5,
+                //                 fontWeight: FontWeight.w400,
+                //                 color: const Color(0xFF94A3B8),
+                //               ),
+                //             ),
+                //             isExpanded: true,
+                //             icon: const Icon(
+                //               Icons.keyboard_arrow_down,
+                //               size: 18,
+                //               color: Color(0xFF94A3B8),
+                //             ),
+                //             style: AppTextStyle.medium(
+                //               fontSize: 11.5,
+                //               fontWeight: FontWeight.w500,
+                //               color: const Color(0xFF1E293B),
+                //             ),
+                //             onChanged: onChanged,
+                //             items: items.map((String item) {
+                //               return DropdownMenuItem<String>(
+                //                 value: item,
+                //                 child: Text(
+                //                   item,
+                //                   style: AppTextStyle.medium(
+                //                     fontSize: 11.5,
+                //                     color: const Color(0xFF1E293B),
+                //                   ),
+                //                 ),
+                //               );
+                //             }).toList(),
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   );
+                // }
+
                 Widget buildAlertDropdownField({
                   required String label,
                   required String hint,
@@ -1340,65 +1408,109 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                   required ValueChanged<String?> onChanged,
                   bool isRequired = false,
                 }) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildAlertLabel(label, isRequired: isRequired),
-                      Container(
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value:
-                                (selectedValue != null &&
-                                    items.contains(selectedValue))
-                                ? selectedValue
-                                : null,
-                            hint: Text(
-                              hint,
-                              style: AppTextStyle.medium(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF94A3B8),
-                              ),
-                            ),
-                            isExpanded: true,
-                            icon: const Icon(
-                              Icons.keyboard_arrow_down,
-                              size: 18,
-                              color: Color(0xFF94A3B8),
-                            ),
-                            style: AppTextStyle.medium(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1E293B),
-                            ),
-                            onChanged: onChanged,
-                            items: items.map((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(
-                                  item,
-                                  style: AppTextStyle.medium(
-                                    fontSize: 11.5,
-                                    color: const Color(0xFF1E293B),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
+                  return SimpleDropdown(
+                    label: label,
+                    hint: hint,
+                    items: items,
+                    selectedValue:
+                        (selectedValue != null && items.contains(selectedValue))
+                        ? selectedValue
+                        : null,
+                    onChanged: onChanged,
+                    showStar: isRequired,
+                    showClear: false,
                   );
                 }
 
                 // ── Helper 5: Category Dropdown Field Builder ────────
+                // Widget buildAlertCategoryField({
+                //   required String label,
+                //   required List<String> items,
+                //   required String? selectedValue,
+                //   required ValueChanged<String?> onChanged,
+                //   required VoidCallback onAddTap,
+                // }) {
+                //   return Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       buildAlertLabel(label, isRequired: false),
+                //       Container(
+                //         height: 42,
+                //         decoration: BoxDecoration(
+                //           color: Colors.white,
+                //           borderRadius: BorderRadius.circular(8),
+                //           border: Border.all(color: const Color(0xFFE2E8F0)),
+                //         ),
+                //         padding: const EdgeInsets.symmetric(horizontal: 8),
+                //         child: Row(
+                //           children: [
+                //             InkWell(
+                //               onTap: onAddTap,
+                //               child: Container(
+                //                 width: 24,
+                //                 height: 24,
+                //                 decoration: BoxDecoration(
+                //                   color: const Color(0xFF00B074),
+                //                   borderRadius: BorderRadius.circular(4),
+                //                 ),
+                //                 child: const Icon(
+                //                   Icons.add,
+                //                   color: Colors.white,
+                //                   size: 16,
+                //                 ),
+                //               ),
+                //             ),
+                //             const SizedBox(width: 8),
+                //             Expanded(
+                //               child: DropdownButtonHideUnderline(
+                //                 child: DropdownButton<String>(
+                //                   value:
+                //                       (selectedValue != null &&
+                //                           items.contains(selectedValue))
+                //                       ? selectedValue
+                //                       : null,
+                //                   hint: Text(
+                //                     'Select Category',
+                //                     style: AppTextStyle.medium(
+                //                       fontSize: 11.5,
+                //                       fontWeight: FontWeight.w400,
+                //                       color: const Color(0xFF94A3B8),
+                //                     ),
+                //                   ),
+                //                   isExpanded: true,
+                //                   icon: const Icon(
+                //                     Icons.keyboard_arrow_down,
+                //                     size: 18,
+                //                     color: Color(0xFF94A3B8),
+                //                   ),
+                //                   style: AppTextStyle.medium(
+                //                     fontSize: 11.5,
+                //                     fontWeight: FontWeight.w500,
+                //                     color: const Color(0xFF1E293B),
+                //                   ),
+                //                   onChanged: onChanged,
+                //                   items: items.map((String item) {
+                //                     return DropdownMenuItem<String>(
+                //                       value: item,
+                //                       child: Text(
+                //                         item,
+                //                         style: AppTextStyle.medium(
+                //                           fontSize: 11.5,
+                //                           color: const Color(0xFF1E293B),
+                //                         ),
+                //                       ),
+                //                     );
+                //                   }).toList(),
+                //                 ),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   );
+                // }
+
                 Widget buildAlertCategoryField({
                   required String label,
                   required List<String> items,
@@ -1410,78 +1522,41 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildAlertLabel(label, isRequired: false),
-                      Container(
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: onAddTap,
-                              child: Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00B074),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          InkWell(
+                            onTap: onAddTap,
+                            child: Container(
+                              width: 32,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00B074),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 16,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value:
-                                      (selectedValue != null &&
-                                          items.contains(selectedValue))
-                                      ? selectedValue
-                                      : null,
-                                  hint: Text(
-                                    'Select Category',
-                                    style: AppTextStyle.medium(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w400,
-                                      color: const Color(0xFF94A3B8),
-                                    ),
-                                  ),
-                                  isExpanded: true,
-                                  icon: const Icon(
-                                    Icons.keyboard_arrow_down,
-                                    size: 18,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                  style: AppTextStyle.medium(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF1E293B),
-                                  ),
-                                  onChanged: onChanged,
-                                  items: items.map((String item) {
-                                    return DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: AppTextStyle.medium(
-                                          fontSize: 11.5,
-                                          color: const Color(0xFF1E293B),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
+                          ),
+                          SizedBox(width: 0.1.w),
+                          Expanded(
+                            child: SimpleDropdown(
+                              label: '',
+                              hint: 'Select Category',
+                              items: items,
+                              selectedValue:
+                                  (selectedValue != null &&
+                                      items.contains(selectedValue))
+                                  ? selectedValue
+                                  : null,
+                              onChanged: onChanged,
+                              showClear: false,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   );

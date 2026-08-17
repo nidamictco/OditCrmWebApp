@@ -633,12 +633,12 @@ class _ViewStaffState extends State<ViewStaff> {
                 Text(
                   staff.name,
                   style: AppTextStyle.medium(fontSize: 11.5),
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.visible,
                 ),
                 Text(
                   staff.designation ?? '—',
                   style: AppTextStyle.medium(fontSize: 11.5),
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.visible,
                 ),
                 Text(
                   staff.staffType ?? '—',
