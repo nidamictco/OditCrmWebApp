@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/core/utils/dropdown.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -832,7 +833,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                             ),
                           ),
                         )
-                      : _CustomDropdown(
+                      : Dropdown(
                           showIcon: true,
                           icon: Icons.location_on_outlined,
                           items: stateDistrictMap.keys.toList(),
@@ -848,7 +849,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  child: _CustomDropdown(
+                  child: Dropdown(
                     showIcon: true,
                     icon: Icons.location_on_outlined,
                     items: state.selectedState == null
@@ -976,7 +977,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _CustomDropdown(
+                    child: Dropdown(
                       label: 'Lead Category',
                       hint: 'Select Category',
                       items: categoryNames,
@@ -992,7 +993,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   if (state.subCategories.isNotEmpty) ...[
                     SizedBox(width: 1.5.w),
                     Expanded(
-                      child: _CustomDropdown(
+                      child: Dropdown(
                         label: 'Lead Sub Type',
                         hint: 'Select Lead Sub Type',
                         items: subCategoryName,
@@ -1006,7 +1007,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ],
                   SizedBox(width: 1.5.w),
                   Expanded(
-                    child: _CustomDropdown(
+                    child: Dropdown(
                       label: 'Lead Source',
                       hint: 'Select Lead Source',
                       items: sourceNames,
@@ -1019,7 +1020,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ),
                   SizedBox(width: 1.5.w),
                   Expanded(
-                    child: _CustomDropdown(
+                    child: Dropdown(
                       label: 'Priority',
                       hint: 'Priority',
                       items: priority,
@@ -1050,7 +1051,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         if (state.subCategories.isNotEmpty) {
           conditionalRowChildren.add(
             Expanded(
-              child: _CustomDropdown(
+              child: Dropdown(
                 label: 'Lead Sub Category',
                 hint: 'select sub category',
                 items: subCategoryName,
@@ -1070,7 +1071,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
         }
         conditionalRowChildren.add(
           Expanded(
-            child: _CustomDropdown(
+            child: Dropdown(
               icon: Icons.check_box_outlined,
               showIcon: true,
               items: stagesNames,
@@ -1132,7 +1133,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           }
           conditionalRowChildren.add(
             Expanded(
-              child: _CustomDropdown(
+              child: Dropdown(
                 label: 'Call Result',
                 hint: 'Select Call Result',
                 showStar: true,
@@ -1191,7 +1192,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     )
                   else
                     Expanded(
-                      child: _CustomDropdown(
+                      child: Dropdown(
                         icon: Icons.person_outline,
                         showIcon: true,
                         items: staffNames,
@@ -1254,7 +1255,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  child: _CustomDropdown(
+                  child: Dropdown(
                     icon: Icons.flag_outlined,
                     showIcon: true,
                     items: priority,
@@ -2478,6 +2479,7 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                                   child: const Icon(
                                     Icons.keyboard_arrow_down,
                                     color: Color(0xFF64748B),
+                                    size: 15,
                                   ),
                                 ),
                           iconOpened:

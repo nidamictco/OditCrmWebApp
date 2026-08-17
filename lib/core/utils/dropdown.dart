@@ -677,7 +677,6 @@
 //   }
 // }
 
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -768,7 +767,8 @@ class _DropdownPopupGeometry {
     required double bottomInset,
     required int itemCount,
   }) {
-    final spaceBelow = overlaySize.height -
+    final spaceBelow =
+        overlaySize.height -
         fieldOffset.dy -
         fieldSize.height -
         bottomInset -
@@ -778,8 +778,9 @@ class _DropdownPopupGeometry {
     // The popup's natural (unclamped-by-available-space) height for the
     // current item count — used only to decide which side to prefer, not
     // as the height that gets rendered.
-    final rawHeight =
-        itemCount == 0 ? _kEmptyStateHeight : itemCount * _kItemExtent;
+    final rawHeight = itemCount == 0
+        ? _kEmptyStateHeight
+        : itemCount * _kItemExtent;
     final naturalHeight = rawHeight.clamp(0.0, _kMaxMenuHeight);
 
     final fitsBelow = spaceBelow >= naturalHeight;
@@ -955,13 +956,18 @@ class _DropdownState extends State<Dropdown> {
     final overlayBox = overlayState.context.findRenderObject() as RenderBox;
     final renderBox = _fieldKey.currentContext!.findRenderObject() as RenderBox;
     final fieldSize = renderBox.size;
-    final fieldOffset = renderBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final fieldOffset = renderBox.localToGlobal(
+      Offset.zero,
+      ancestor: overlayBox,
+    );
     final overlaySize = overlayBox.size;
 
     // Keyboard + safe-area aware: don't treat space the keyboard or a
     // system inset is about to cover as "available".
     final mq = MediaQuery.of(context);
-    final bottomInset = mq.viewInsets.bottom > 0 ? mq.viewInsets.bottom : mq.padding.bottom;
+    final bottomInset = mq.viewInsets.bottom > 0
+        ? mq.viewInsets.bottom
+        : mq.padding.bottom;
 
     // Recomputed fresh on every open — the field may have moved (scroll,
     // keyboard, rotation) since it was last shown, so the side it opens on
@@ -992,28 +998,29 @@ class _DropdownState extends State<Dropdown> {
             CompositedTransformFollower(
               link: _layerLink,
               showWhenUnlinked: false,
-              targetAnchor: showBelow ? Alignment.bottomLeft : Alignment.topLeft,
-              followerAnchor: showBelow ? Alignment.topLeft : Alignment.bottomLeft,
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Material(
-                  color: Colors.transparent,
-                  child: _DropdownMenu(
-                    width: safeWidth,
-                    maxHeight: menuHeightCap,
-                    controller: _menuController,
-                    popupFocusNode: _popupFocusNode,
-                    selectedValue: widget.selectedValue,
-                    onItemTap: (item) {
-                      _closeDropdown(refocusField: widget.nextFocusNode == null);
-                      widget.onChanged?.call(item);
-                      if (widget.nextFocusNode != null) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) widget.nextFocusNode!.requestFocus();
-                        });
-                      }
-                    },
-                  ),
+              targetAnchor: showBelow
+                  ? Alignment.bottomLeft
+                  : Alignment.topLeft,
+              followerAnchor: showBelow
+                  ? Alignment.topLeft
+                  : Alignment.bottomLeft,
+              child: Material(
+                color: Colors.transparent,
+                child: _DropdownMenu(
+                  width: safeWidth,
+                  maxHeight: menuHeightCap,
+                  controller: _menuController,
+                  popupFocusNode: _popupFocusNode,
+                  selectedValue: widget.selectedValue,
+                  onItemTap: (item) {
+                    _closeDropdown(refocusField: widget.nextFocusNode == null);
+                    widget.onChanged?.call(item);
+                    if (widget.nextFocusNode != null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) widget.nextFocusNode!.requestFocus();
+                      });
+                    }
+                  },
                 ),
               ),
             ),
@@ -1160,7 +1167,7 @@ class _DropdownState extends State<Dropdown> {
                       child: widget.selectedValue == null
                           ? Padding(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 2.5.w,
+                                horizontal: 1.w,
                                 vertical: 0.5.h,
                               ),
                               child: Align(
@@ -1168,7 +1175,7 @@ class _DropdownState extends State<Dropdown> {
                                 child: Text(
                                   widget.hint,
                                   style: AppTextStyle.small(
-                                    size: 11.sp,
+                                    size: 11,
                                     color: AppColors.grey,
                                   ),
                                 ),
@@ -1176,7 +1183,7 @@ class _DropdownState extends State<Dropdown> {
                             )
                           : Padding(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 2.5.w,
+                                horizontal: 1.w,
                                 vertical: 0.5.h,
                               ),
                               child: Align(
@@ -1184,7 +1191,7 @@ class _DropdownState extends State<Dropdown> {
                                 child: Text(
                                   widget.selectedValue!,
                                   style: AppTextStyle.medium(
-                                    size: 11.sp,
+                                    size: 11,
                                     weight: FontWeight.w400,
                                     color: AppColors.black,
                                   ),
@@ -1270,6 +1277,7 @@ class _DropdownMenuController extends ChangeNotifier {
 // ─────────────────────────────────────────────────────────────────────────
 class _DropdownMenu extends StatefulWidget {
   final double width;
+
   /// Ceiling only — the menu sizes itself to fit its actual item count and
   /// only reaches (and scrolls at) this value once content exceeds it.
   final double maxHeight;
