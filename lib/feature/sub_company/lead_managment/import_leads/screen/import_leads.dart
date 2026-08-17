@@ -4,8 +4,11 @@ import 'dart:typed_data';
 
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
 import 'package:Odit_CRM/core/theme/app_theme.dart';
+import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
+import 'package:Odit_CRM/core/utils/dropdown.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/screens/widget/calender.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/import_leads/widget/custom_switch.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/widget/new_alert.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/widget/calender.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -25,6 +28,7 @@ import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/lead_stage/dat
 import 'package:go_router/go_router.dart';
 import 'package:Odit_CRM/core/router/route_paths.dart';
 import 'package:intl/intl.dart';
+import 'package:sizer/sizer.dart';
 
 class ImportLeads extends StatefulWidget {
   const ImportLeads({super.key});
@@ -134,7 +138,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                                       color: const Color(0xFFFFF7ED),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child:  Text(
+                                    child: Text(
                                       'Sample File',
                                       style: AppTextStyle.medium(
                                         fontSize: 11.5,
@@ -164,7 +168,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                                       color: const Color(0xFF3B82F6),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child:  Text(
+                                    child: Text(
                                       'Field Settings',
                                       style: AppTextStyle.medium(
                                         fontSize: 11.5,
@@ -223,7 +227,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                                   vertical: 14,
                                 ),
                               ),
-                              child:  Text(
+                              child: Text(
                                 'Clear All',
                                 style: AppTextStyle.medium(
                                   color: Color(0xFFEF4444),
@@ -264,7 +268,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  :  Text(
+                                  : Text(
                                       'Submit',
                                       style: AppTextStyle.medium(
                                         color: Colors.white,
@@ -498,7 +502,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-           Text(
+          Text(
             'Country Code',
             style: AppTextStyle.medium(
               fontSize: 11.5,
@@ -562,7 +566,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text(
+        Text(
           'Next Follow-Up Date',
           style: AppTextStyle.medium(
             fontSize: 12,
@@ -674,7 +678,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     // ── Construct list of active fields in sequence ────────────────────────
     // final contactField = _buildCountrySelectorField(state, cubit);
 
-    final stageField = _buildStandardDropdown(
+    final stageField = Dropdown(
       label: 'Lead Stage',
       hint: 'Select Field',
       items: stagesNames,
@@ -684,19 +688,29 @@ class _ImportLeadsState extends State<ImportLeads> {
       },
     );
 
-    final categoryField = _buildDropdownWithAddButton(
+    const addCategoryLabel = '+ Add Category';
+    final categoryDropdownItems = [...categoryNames, addCategoryLabel];
+
+    const addSourceLabel = '+ Add Source';
+    final sourceDropdownItems = [...sourceNames, addSourceLabel];
+
+    final categoryField = Dropdown(
       label: 'Lead Category',
       hint: 'Select Category',
-      items: categoryNames,
+      items: categoryDropdownItems,
       selectedValue: state.selectedCategory,
       onChanged: (val) {
+        if (val == addCategoryLabel) {
+          _showAddCategoryDialog();
+          return;
+        }
         log("gfdfdgvbcbc selectedCategory: $val");
         cubit.selectCategory(val);
       },
-      onAddTap: _showAddCategoryDialog,
+      // onAddTap: _showAddCategoryDialog,
     );
 
-    final staffField = _buildStandardDropdown(
+    final staffField = Dropdown(
       label: 'Staff',
       hint: 'Select Field',
       items: staffNames,
@@ -706,19 +720,27 @@ class _ImportLeadsState extends State<ImportLeads> {
       onChanged: cubit.selectStaff,
       enabled: state.isAdmin,
       showClear: true,
-      isrequered: true,
+      // isrequered: true,
+      showStar: true,
     );
 
-    final sourceField = _buildDropdownWithAddButton(
+    final sourceField = Dropdown(
       label: 'Lead Source',
       hint: 'Select Source',
-      items: sourceNames,
+      items: sourceDropdownItems,
       selectedValue: state.selectedSource,
-      onChanged: cubit.selectSource,
-      onAddTap: _showAddSourceDialog,
+      onChanged: (val) {
+        if (val == addSourceLabel) {
+          _showAddSourceDialog();
+          return;
+        }
+        log("gfdfdgvbcbc selectedSource: $val");
+        cubit.selectSource(val);
+      },
+      // onAddTap: _showAddSourceDialog,
     );
 
-    final priorityField = _buildStandardDropdown(
+    final priorityField = Dropdown(
       label: 'Priority',
       hint: 'Select Field',
       items: _priorities,
@@ -726,7 +748,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       onChanged: cubit.selectPriority,
     );
 
-    final stateField = _buildStandardDropdown(
+    final stateField = Dropdown(
       label: 'State',
       hint: 'Select Field',
       items: _stateDistrictMap.keys.toList(),
@@ -735,7 +757,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       showClear: true,
     );
 
-    final districtField = _buildStandardDropdown(
+    final districtField = Dropdown(
       label: 'District',
       hint: 'Select Field',
       items: state.selectedState == null
@@ -857,7 +879,7 @@ class _ImportLeadsState extends State<ImportLeads> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text(
+        Text(
           'Country Code',
           style: AppTextStyle.medium(
             fontSize: 11.5,
@@ -867,7 +889,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         ),
         const SizedBox(height: 6),
         Container(
-          height: 44,
+          height: 5.h,
           width: double.infinity, // stretch to match other fields
           decoration: BoxDecoration(
             color: Colors.white,
@@ -1131,139 +1153,259 @@ class _ImportLeadsState extends State<ImportLeads> {
   // DIALOGS
   // ─────────────────────────────────────────────────────────────────────────
 
+  // void _showAddCategoryDialog() {
+  //   _dialogNameCtrl.clear();
+  //   final importCubit = context.read<ImportLeadsCubit>();
+  //   final categoryCubit = context.read<LeadCategoryCubit>();
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => LeadSettingsAlert(
+  //     fieldLabel: 'Lead Category',
+  //     title: 'Add Lead Category',
+  //     constrainsWidth: 840,
+  //     onSubmit: (String value) async {
+  //           final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+
+  //         await categoryCubit.addCategory(name: name);
+  //         await importCubit.refreshCategories();
+  //         importCubit.selectCategory(name);
+
+  //         if (ctx.mounted) context.pop(ctx);
+
+  //         if (mounted) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(
+  //               content: Text('Category "$name" added.'),
+  //               backgroundColor: AppColors.green,
+  //               behavior: SnackBarBehavior.floating,
+  //             ),
+  //           );
+  //         }
+        
+  //     },
+  //   ),
+  //     //  AppDialog(
+  //     //   width: 400,
+  //     //   title: 'Add Lead Category',
+  //     //   body: Padding(
+  //     //     padding: const EdgeInsets.all(8.0),
+  //     //     child: Column(
+  //     //       crossAxisAlignment: CrossAxisAlignment.start,
+  //     //       mainAxisSize: MainAxisSize.min,
+  //     //       children: [
+  //     //         const Text(
+  //     //           'Lead Category',
+  //     //           style: TextStyle(
+  //     //             fontSize: 13,
+  //     //             fontWeight: FontWeight.w600,
+  //     //             color: Color(0xFF475569),
+  //     //           ),
+  //     //         ),
+  //     //         const SizedBox(height: 8),
+  //     //         TextField(
+  //     //           controller: _dialogNameCtrl,
+  //     //           autofocus: true,
+  //     //           decoration: InputDecoration(
+  //     //             hintText: 'Enter Category',
+  //     //             hintStyle: const TextStyle(
+  //     //               fontSize: 13,
+  //     //               color: Color(0xFF94A3B8),
+  //     //             ),
+  //     //             border: OutlineInputBorder(
+  //     //               borderRadius: BorderRadius.circular(8),
+  //     //               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+  //     //             ),
+  //     //           ),
+  //     //         ),
+  //     //       ],
+  //     //     ),
+  //     //   ),
+  //     //   onSubmit: () async {
+  //       //   final name = _dialogNameCtrl.text.trim();
+  //       //   if (name.isEmpty) return;
+
+  //       //   await categoryCubit.addCategory(name: name);
+  //       //   await importCubit.refreshCategories();
+  //       //   importCubit.selectCategory(name);
+
+  //       //   if (ctx.mounted) Navigator.pop(ctx);
+
+  //       //   if (mounted) {
+  //       //     ScaffoldMessenger.of(context).showSnackBar(
+  //       //       SnackBar(
+  //       //         content: Text('Category "$name" added.'),
+  //       //         backgroundColor: AppColors.green,
+  //       //         behavior: SnackBarBehavior.floating,
+  //       //       ),
+  //       //     );
+  //       //   }
+  //       // },
+  //     // ),
+  //   );
+  // }
+
   void _showAddCategoryDialog() {
-    _dialogNameCtrl.clear();
-    final importCubit = context.read<ImportLeadsCubit>();
-    final categoryCubit = context.read<LeadCategoryCubit>();
+  final importCubit = context.read<ImportLeadsCubit>();
+  final categoryCubit = context.read<LeadCategoryCubit>();
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AppDialog(
-        width: 400,
-        title: 'Add Lead Category',
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Lead Category',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF475569),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _dialogNameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Category',
-                  hintStyle: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF94A3B8),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
-          if (name.isEmpty) return;
+  showDialog(
+    context: context,
+    builder: (ctx) => LeadSettingsAlert(
+      fieldLabel: 'Lead Category',
+      title: 'Add Lead Category',
+      constrainsWidth: 840,
+      onSubmit: (String value) async {
+        final name = value.trim();
+        if (name.isEmpty) return;
 
-          await categoryCubit.addCategory(name: name);
-          await importCubit.refreshCategories();
-          importCubit.selectCategory(name);
+        await categoryCubit.addCategory(name: name);
+        await importCubit.refreshCategories();
+        importCubit.selectCategory(name);
 
-          if (ctx.mounted) Navigator.pop(ctx);
+        if (ctx.mounted) Navigator.pop(ctx);
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Category "$name" added.'),
-                backgroundColor: AppColors.green,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Category "$name" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
+
+  // void _showAddSourceDialog() {
+  //   _dialogNameCtrl.clear();
+  //   final importCubit = context.read<ImportLeadsCubit>();
+  //   final sourceCubit = context.read<LeadSourceCubit>();
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => LeadSettingsAlert(
+  //     fieldLabel: 'Lead Category',
+  //     title: 'Add Lead Category',
+  //     constrainsWidth: 840,
+  //     onSubmit: (String value) async {
+  //             final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+
+  //         await sourceCubit.addSource(name: name);
+  //         await importCubit.refreshSources();
+  //         importCubit.selectSource(name);
+
+  //         if (ctx.mounted) Navigator.pop(ctx);
+
+  //         if (mounted) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(
+  //               content: Text('Source "$name" added.'),
+  //               backgroundColor: AppColors.green,
+  //               behavior: SnackBarBehavior.floating,
+  //             ),
+  //           );
+  //         }
+        
+  //     },
+  //   ),
+  //     // AppDialog(
+  //     //   width: 400,
+  //     //   title: 'Add Lead Source',
+  //     //   body: Padding(
+  //     //     padding: const EdgeInsets.all(8.0),
+  //     //     child: Column(
+  //     //       crossAxisAlignment: CrossAxisAlignment.start,
+  //     //       mainAxisSize: MainAxisSize.min,
+  //     //       children: [
+  //     //         const Text(
+  //     //           'Lead Source',
+  //     //           style: TextStyle(
+  //     //             fontSize: 13,
+  //     //             fontWeight: FontWeight.w600,
+  //     //             color: Color(0xFF475569),
+  //     //           ),
+  //     //         ),
+  //     //         const SizedBox(height: 8),
+  //     //         TextField(
+  //     //           controller: _dialogNameCtrl,
+  //     //           autofocus: true,
+  //     //           decoration: InputDecoration(
+  //     //             hintText: 'Enter Source',
+  //     //             hintStyle: const TextStyle(
+  //     //               fontSize: 13,
+  //     //               color: Color(0xFF94A3B8),
+  //     //             ),
+  //     //             border: OutlineInputBorder(
+  //     //               borderRadius: BorderRadius.circular(8),
+  //     //               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+  //     //             ),
+  //     //           ),
+  //     //         ),
+  //     //       ],
+  //     //     ),
+  //     //   ),
+  //     //   onSubmit: () async {
+  //         // final name = _dialogNameCtrl.text.trim();
+  //         // if (name.isEmpty) return;
+
+  //         // await sourceCubit.addSource(name: name);
+  //         // await importCubit.refreshSources();
+  //         // importCubit.selectSource(name);
+
+  //         // if (ctx.mounted) Navigator.pop(ctx);
+
+  //         // if (mounted) {
+  //         //   ScaffoldMessenger.of(context).showSnackBar(
+  //         //     SnackBar(
+  //         //       content: Text('Source "$name" added.'),
+  //         //       backgroundColor: AppColors.green,
+  //         //       behavior: SnackBarBehavior.floating,
+  //         //     ),
+  //         //   );
+  //         // }
+  //     //   },
+  //     // ),
+  //   );
+  // }
 
   void _showAddSourceDialog() {
-    _dialogNameCtrl.clear();
-    final importCubit = context.read<ImportLeadsCubit>();
-    final sourceCubit = context.read<LeadSourceCubit>();
+  final importCubit = context.read<ImportLeadsCubit>();
+  final sourceCubit = context.read<LeadSourceCubit>();
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AppDialog(
-        width: 400,
-        title: 'Add Lead Source',
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Lead Source',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF475569),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _dialogNameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Source',
-                  hintStyle: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF94A3B8),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
-          if (name.isEmpty) return;
+  showDialog(
+    context: context,
+    builder: (ctx) => LeadSettingsAlert(
+      fieldLabel: 'Lead Source',
+      title: 'Add Lead Source',
+      constrainsWidth: 840,
+      onSubmit: (String value) async {
+        final name = value.trim();
+        if (name.isEmpty) return;
 
-          await sourceCubit.addSource(name: name);
-          await importCubit.refreshSources();
-          importCubit.selectSource(name);
+        await sourceCubit.addSource(name: name);
+        await importCubit.refreshSources();
+        importCubit.selectSource(name);
 
-          if (ctx.mounted) Navigator.pop(ctx);
+        if (ctx.mounted) Navigator.pop(ctx);
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Source "$name" added.'),
-                backgroundColor: AppColors.green,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Source "$name" added.'),
+              backgroundColor: AppColors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────────────────────────────────
   // CONFIRM AND IMPORT
@@ -1377,7 +1519,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                 ),
               ),
               onPressed: () => Navigator.pop(ctx, true),
-              child:  Text(
+              child: Text(
                 'Import Anyway',
                 style: AppTextStyle.medium(color: Colors.white),
               ),
