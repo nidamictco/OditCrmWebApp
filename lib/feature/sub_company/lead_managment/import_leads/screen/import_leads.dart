@@ -1183,7 +1183,7 @@ class _ImportLeadsState extends State<ImportLeads> {
   //             ),
   //           );
   //         }
-        
+
   //     },
   //   ),
   //     //  AppDialog(
@@ -1247,38 +1247,51 @@ class _ImportLeadsState extends State<ImportLeads> {
   // }
 
   void _showAddCategoryDialog() {
-  final importCubit = context.read<ImportLeadsCubit>();
-  final categoryCubit = context.read<LeadCategoryCubit>();
+    final importCubit = context.read<ImportLeadsCubit>();
+    final categoryCubit = context.read<LeadCategoryCubit>();
 
-  showDialog(
-    context: context,
-    builder: (ctx) => LeadSettingsAlert(
-      fieldLabel: 'Lead Category',
-      title: 'Add Lead Category',
-      constrainsWidth: 840,
-      onSubmit: (String value) async {
-        final name = value.trim();
-        if (name.isEmpty) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => LeadSettingsAlert(
+        fieldLabel: 'Lead Category',
+        title: 'Add Lead Category',
+        constrainsWidth: 840,
+        onSubmit: (String value) async {
+          final name = value.trim();
+          if (name.isEmpty) return;
 
-        await categoryCubit.addCategory(name: name);
-        await importCubit.refreshCategories();
-        importCubit.selectCategory(name);
+          if (categoryCubit.categoryExists(name)) {
+            StatusAlertWidget.show(
+              context,
+              isSuccess: false,
+              title: 'Validation',
+              message: 'Category "$name" already exists.',
+              onButtonPressed: () {
+                context.pop();
+              },
+            );
+            return;
+          }
 
-        if (ctx.mounted) Navigator.pop(ctx);
+          await categoryCubit.addCategory(name: name);
+          await importCubit.refreshCategories();
+          importCubit.selectCategory(name);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$name" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
+          if (ctx.mounted) Navigator.pop(ctx);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Category "$name" added.'),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
 
   // void _showAddSourceDialog() {
   //   _dialogNameCtrl.clear();
@@ -1310,7 +1323,7 @@ class _ImportLeadsState extends State<ImportLeads> {
   //             ),
   //           );
   //         }
-        
+
   //     },
   //   ),
   //     // AppDialog(
@@ -1374,38 +1387,51 @@ class _ImportLeadsState extends State<ImportLeads> {
   // }
 
   void _showAddSourceDialog() {
-  final importCubit = context.read<ImportLeadsCubit>();
-  final sourceCubit = context.read<LeadSourceCubit>();
+    final importCubit = context.read<ImportLeadsCubit>();
+    final sourceCubit = context.read<LeadSourceCubit>();
 
-  showDialog(
-    context: context,
-    builder: (ctx) => LeadSettingsAlert(
-      fieldLabel: 'Lead Source',
-      title: 'Add Lead Source',
-      constrainsWidth: 840,
-      onSubmit: (String value) async {
-        final name = value.trim();
-        if (name.isEmpty) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => LeadSettingsAlert(
+        fieldLabel: 'Lead Source',
+        title: 'Add Lead Source',
+        constrainsWidth: 840,
+        onSubmit: (String value) async {
+          final name = value.trim();
+          if (name.isEmpty) return;
 
-        await sourceCubit.addSource(name: name);
-        await importCubit.refreshSources();
-        importCubit.selectSource(name);
+          if (sourceCubit.sourceExists(name)) {
+            StatusAlertWidget.show(
+              context, 
+              isSuccess: false,
+              title: 'Validation',
+              message: 'Source "$name" already exists.',
+              onButtonPressed: () {
+                context.pop();
+              },
+            );
+            return;
+          }
 
-        if (ctx.mounted) Navigator.pop(ctx);
+          await sourceCubit.addSource(name: name);
+          await importCubit.refreshSources();
+          importCubit.selectSource(name);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Source "$name" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
+          if (ctx.mounted) Navigator.pop(ctx);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Source "$name" added.'),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // CONFIRM AND IMPORT
