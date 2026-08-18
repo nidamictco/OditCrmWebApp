@@ -2050,60 +2050,62 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
   //   );
   // }
 
-void _showAddCategoryDialog() {
+  void _showAddCategoryDialog() {
     context.read<LeadCategoryCubit>().watchCategories();
-  showDialog(
-    context: context,
-    builder: (ctx) => LeadSettingsAlert(
-      fieldLabel: 'Lead Category',
-      title: 'Add Lead Category',
-      constrainsWidth: 840,
-      onSubmit: (String value) async {
-        final name = value.trim();
-  if (name.isEmpty) return;
-  final normalized = name.toUpperCase();
+    showDialog(
+      context: context,
+      builder: (ctx) => LeadSettingsAlert(
+        fieldLabel: 'Lead Category',
+        title: 'Add Lead Category',
+        constrainsWidth: 840,
+        onSubmit: (String value) async {
+          final name = value.trim();
+          if (name.isEmpty) return;
+          final normalized = name.toUpperCase();
 
-  final alreadyExists = context.read<LeadCategoryCubit>().state.categories.any(
-    (c) => c.name.trim().toUpperCase() == normalized,
-  );
-  if (alreadyExists) {
-    StatusAlertWidget.show(
-      ctx,
-      title: 'Validation',
-      message: 'This category already exists.',
-      isSuccess: false,
-      onButtonPressed: () => Navigator.pop(ctx),
+          final alreadyExists = context
+              .read<LeadCategoryCubit>()
+              .state
+              .categories
+              .any((c) => c.name.trim().toUpperCase() == normalized);
+          if (alreadyExists) {
+            StatusAlertWidget.show(
+              ctx,
+              title: 'Validation',
+              message: 'This category already exists.',
+              isSuccess: false,
+              onButtonPressed: () => Navigator.pop(ctx),
+            );
+            return;
+          }
+
+          final newId = await context.read<LeadCategoryCubit>().addCategory(
+            name: normalized,
+          );
+          setState(() => _leadCategory = normalized);
+          context.read<AddLeadCubit>().selectCategoryDirect(
+            name: normalized,
+            id: newId,
+          );
+          context.pop();
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text('Category "$normalized" added.'),
+          //     backgroundColor: AppColors.green,
+          //     behavior: SnackBarBehavior.floating,
+          //   ),
+          // );
+          StatusAlertWidget.show(
+            ctx,
+            title: 'Success',
+            message: 'Category "$normalized" added.',
+            isSuccess: true,
+            onButtonPressed: () => context.pop(),
+          );
+        },
+      ),
     );
-    return;
   }
-
-  final newId = await context.read<LeadCategoryCubit>().addCategory(
-    name: normalized,
-  );
-        setState(() => _leadCategory = normalized);
-        context.read<AddLeadCubit>().selectCategoryDirect(
-          name: normalized,
-          id: newId,
-        );
-        context.pop();
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('Category "$normalized" added.'),
-        //     backgroundColor: AppColors.green,
-        //     behavior: SnackBarBehavior.floating,
-        //   ),
-        // );
-        StatusAlertWidget.show(
-      ctx,
-      title: 'Success',
-      message: 'Category "$normalized" added.',
-      isSuccess: true,
-      onButtonPressed: () => context.pop(),
-    );
-      },
-    ),
-  );
-}
 
   Widget _field(
     String label,
