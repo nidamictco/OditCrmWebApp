@@ -4,6 +4,7 @@ import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/core/theme/asset_resources.dart';
 import 'package:Odit_CRM/core/utils/alert_dialog/status_alert.dart';
 import 'package:Odit_CRM/core/utils/dropdown.dart';
+import 'package:Odit_CRM/feature/sub_company/leads_settings_.dart/widget/new_alert.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1227,7 +1228,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     icon: Icons.layers_outlined,
                     showIcon: false,
                     items: categoryItems,
-                    selectedValue: _leadCategory,
+                    // selectedValue: _leadCategory,
+                    selectedValue: state.selectedCategory,
                     focusNode: _categoryFocus,
                     nextFocusNode: state.subCategories.isNotEmpty
                         ? _subCategoryFocus
@@ -1252,7 +1254,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     showIcon: false,
                     icon: Icons.layers_rounded,
                     items: sourceItems,
-                    selectedValue: _leadSource,
+                    // selectedValue: _leadSource,
+                    selectedValue: state.selectedSource,
                     focusNode: _sourceFocus,
                     nextFocusNode: _priorityFocus,
                     onChanged: (v) {
@@ -1459,136 +1462,239 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
+Widget _fieldError(String? message) {
+    if (message == null || message.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(top: 0.5.h, left: 2),
+      child: Text(
+        message,
+        style: AppTextStyle.small(size: 10, color: AppColors.red),
+      ),
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Dialogs
   // ─────────────────────────────────────────────────────────────────────────────
 
-  void _showAddCategoryDialog() {
-    _dialogNameCtrl.clear();
+  // void _showAddCategoryDialog() {
+  //   _dialogNameCtrl.clear();
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AppDialog(
+  //       width: 35.w,
+  //       title: 'Add Lead Category',
+  //       body: Padding(
+  //         padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text('Lead Category', style: AppTextStyle.medium(size: 11.5)),
+  //             SizedBox(height: 2.h),
+  //             TextField(
+  //               controller: _dialogNameCtrl,
+  //               autofocus: true,
+  //               decoration: InputDecoration(
+  //                 hintText: 'Enter Category',
+  //                 hintStyle: AppTextStyle.medium(
+  //                   size: 11.5,
+  //                   color: AppColors.grey,
+  //                 ),
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(4),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       // onSubmit: () async {
+  //       //   final name = _dialogNameCtrl.text.trim();
+  //       //   if (name.isEmpty) return;
+  //       //   context.read<LeadCategoryCubit>().addCategory(name: name);
+  //       //   setState(() => _leadCategory = name);
+  //       //   context.read<AddLeadCubit>().selectCategory(name);
+  //       //   Navigator.pop(ctx);
+  //       //   ScaffoldMessenger.of(context).showSnackBar(
+  //       //     SnackBar(
+  //       //       content: Text('Category "$name" added.'),
+  //       //       backgroundColor: AppColors.green,
+  //       //       behavior: SnackBarBehavior.floating,
+  //       //     ),
+  //       //   );
+  //       // },
+  //       onSubmit: () async {
+  //         final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+  //         final normalized = name
+  //             .toUpperCase(); // ← match what fromFirestore produces
+  //         final newId = await context.read<LeadCategoryCubit>().addCategory(
+  //           name: normalized,
+  //         );
+  //         setState(() => _leadCategory = normalized);
+  //         // context.read<AddLeadCubit>().selectCategory(normalized);
+  //         context.read<AddLeadCubit>().selectCategoryDirect(
+  //           name: normalized,
+  //           id: newId,
+  //         );
+  //         Navigator.pop(ctx);
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Category "$normalized" added.'),
+  //             backgroundColor: AppColors.green,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
+
+ void _showAddCategoryDialog() {
+    final importCubit = context.read<AddLeadCubit>();
+    final categoryCubit = context.read<LeadCategoryCubit>();
+
     showDialog(
       context: context,
-      builder: (ctx) => AppDialog(
-        width: 35.w,
+      builder: (ctx) => LeadSettingsAlert(
+        fieldLabel: 'Lead Category',
         title: 'Add Lead Category',
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Lead Category', style: AppTextStyle.medium(size: 11.5)),
-              SizedBox(height: 2.h),
-              TextField(
-                controller: _dialogNameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Category',
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.5,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // onSubmit: () async {
-        //   final name = _dialogNameCtrl.text.trim();
-        //   if (name.isEmpty) return;
-        //   context.read<LeadCategoryCubit>().addCategory(name: name);
-        //   setState(() => _leadCategory = name);
-        //   context.read<AddLeadCubit>().selectCategory(name);
-        //   Navigator.pop(ctx);
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(
-        //       content: Text('Category "$name" added.'),
-        //       backgroundColor: AppColors.green,
-        //       behavior: SnackBarBehavior.floating,
-        //     ),
-        //   );
-        // },
-        onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
+        constrainsWidth: 840,
+        onSubmit: (String value) async {
+          final name = value.trim();
           if (name.isEmpty) return;
-          final normalized = name
-              .toUpperCase(); // ← match what fromFirestore produces
-          final newId = await context.read<LeadCategoryCubit>().addCategory(
-            name: normalized,
-          );
-          setState(() => _leadCategory = normalized);
-          // context.read<AddLeadCubit>().selectCategory(normalized);
-          context.read<AddLeadCubit>().selectCategoryDirect(
-            name: normalized,
-            id: newId,
-          );
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$normalized" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+
+          if (categoryCubit.categoryExists(name)) {
+            StatusAlertWidget.show(
+              context,
+              isSuccess: false,
+              title: 'Validation',
+              message: 'Category "$name" already exists.',
+              onButtonPressed: () {
+                context.pop();
+              },
+            );
+            return;
+          }
+
+          await categoryCubit.addCategory(name: name);
+          importCubit.selectCategory(name);
+
+          if (ctx.mounted) Navigator.pop(ctx);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Category "$name" added.'),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         },
       ),
     );
   }
 
+  // void _showAddSourceDialog() {
+  //   _dialogNameCtrl.clear();
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AppDialog(
+  //       width: 35.w,
+  //       title: 'Add Lead Source',
+  //       body: Padding(
+  //         padding: EdgeInsets.symmetric(horizontal: 0.5.w),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text('Lead Source', style: AppTextStyle.medium(size: 11.5)),
+  //             SizedBox(height: 2.h),
+  //             TextField(
+  //               controller: _dialogNameCtrl,
+  //               autofocus: true,
+  //               decoration: InputDecoration(
+  //                 hintText: 'Enter Source',
+  //                 hintStyle: AppTextStyle.medium(
+  //                   size: 11.5,
+  //                   color: AppColors.grey,
+  //                 ),
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(4),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       onSubmit: () async {
+  //         final name = _dialogNameCtrl.text.trim();
+  //         if (name.isEmpty) return;
+  //         final normalized = name.toUpperCase();
+  //         final newId = await context.read<LeadSourceCubit>().addSource(
+  //           name: normalized,
+  //         );
+  //         setState(() => _leadSource = normalized);
+  //         context.read<AddLeadCubit>().selectSourceDirect(
+  //           name: normalized,
+  //           id: newId,
+  //         );
+  //         Navigator.pop(ctx);
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Source "$normalized" added.'),
+  //             backgroundColor: AppColors.green,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
+
   void _showAddSourceDialog() {
-    _dialogNameCtrl.clear();
+    final importCubit = context.read<AddLeadCubit>();
+    final sourceCubit = context.read<LeadSourceCubit>();
+
     showDialog(
       context: context,
-      builder: (ctx) => AppDialog(
-        width: 35.w,
+      builder: (ctx) => LeadSettingsAlert(
+        fieldLabel: 'Lead Source',
         title: 'Add Lead Source',
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.5.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Lead Source', style: AppTextStyle.medium(size: 11.5)),
-              SizedBox(height: 2.h),
-              TextField(
-                controller: _dialogNameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Source',
-                  hintStyle: AppTextStyle.medium(
-                    size: 11.5,
-                    color: AppColors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        onSubmit: () async {
-          final name = _dialogNameCtrl.text.trim();
+        constrainsWidth: 840,
+        onSubmit: (String value) async {
+          final name = value.trim();
           if (name.isEmpty) return;
-          final normalized = name.toUpperCase();
-          final newId = await context.read<LeadSourceCubit>().addSource(
-            name: normalized,
-          );
-          setState(() => _leadSource = normalized);
-          context.read<AddLeadCubit>().selectSourceDirect(
-            name: normalized,
-            id: newId,
-          );
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Source "$normalized" added.'),
-              backgroundColor: AppColors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+
+          if (sourceCubit.sourceExists(name)) {
+            StatusAlertWidget.show(
+              context, 
+              isSuccess: false,
+              title: 'Validation',
+              message: 'Source "$name" already exists.',
+              onButtonPressed: () {
+                context.pop();
+              },
+            );
+            return;
+          }
+
+          await sourceCubit.addSource(name: name);
+          importCubit.selectSource(name);
+
+          if (ctx.mounted) Navigator.pop(ctx);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Source "$name" added.'),
+                backgroundColor: AppColors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         },
       ),
     );
