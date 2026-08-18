@@ -996,12 +996,13 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 state.successMessage == 'Follow-up added successfully.' &&
                 !_dialogShown) {
               _dialogShown = true;
+               Navigator.pop(dialogContext);
               await _reloadLead();
               await cubit.fetchDashboardCounts(
                 DateTime.now(),
                 forceFetch: true,
               );
-              Navigator.pop(dialogContext);
+             
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
                   // _showAlertDialog(
