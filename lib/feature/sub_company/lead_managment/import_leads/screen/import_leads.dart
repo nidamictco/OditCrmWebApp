@@ -686,6 +686,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       onChanged: (val) {
         cubit.selectLeadStage(val);
       },
+      showClear: false,
     );
 
     const addCategoryLabel = '+ Add Category';
@@ -746,6 +747,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       items: _priorities,
       selectedValue: state.selectedPriority,
       onChanged: cubit.selectPriority,
+      showClear: false,
     );
 
     final stateField = Dropdown(
@@ -1402,7 +1404,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
           if (sourceCubit.sourceExists(name)) {
             StatusAlertWidget.show(
-              context, 
+              context,
               isSuccess: false,
               title: 'Validation',
               message: 'Source "$name" already exists.',
