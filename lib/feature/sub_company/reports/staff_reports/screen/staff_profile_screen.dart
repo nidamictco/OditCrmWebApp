@@ -1,5 +1,7 @@
 import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:Odit_CRM/feature/sub_company/reports/staff_reports/screen/change_password.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/designation/cubit/designation_cubit.dart';
+import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/screen/add_staff/screen/add_staff.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Odit_CRM/core/theme/app_text_style.dart';
@@ -475,9 +477,21 @@ class _StaffProfileScreenState extends State<StaffProfileScreen> {
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
                                 onTap: () {
-                                  context.push(
-                                    RoutePaths.staffEditPath(_liveModel.id!),
-                                  );
+                                  final staffCubit = context.read<StaffCubit>();
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (dialogContext) => MultiBlocProvider(
+                                providers: [
+                                  BlocProvider.value(value: staffCubit),
+                                  BlocProvider(
+                                    create: (_) =>
+                                        DesignationCubit()..fetchAll(),
+                                  ),
+                                ],
+                                child: AddStaff(staff: _liveModel),
+                              ),
+                            );
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
