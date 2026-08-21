@@ -677,6 +677,7 @@
 //   }
 // }
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -838,7 +839,7 @@ class _DropdownState extends State<Dropdown> {
   // ── Helpers ─────────────────────────────────────────────────────────────
   BoxDecoration _box() => BoxDecoration(
     border: Border.all(
-      color: _hasFocus ? AppColors.primary : AppColors.divider,
+      color: _hasFocus ? AppThemeColors.primary : AppColors.divider,
       width: _hasFocus ? 1.5 : 1.0,
     ),
     borderRadius: BorderRadius.circular(8),
