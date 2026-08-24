@@ -1153,7 +1153,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                       sbContext,
                       isSuccess: false,
                       title: 'Validation',
-                      message: 'Please select tag for rejected lead.',
+                      message: 'Please select tag for lead stage.',
                       onButtonPressed: () {
                         _dialogShown = false;
                         Navigator.pop(sbContext);
