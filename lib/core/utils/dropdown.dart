@@ -1124,7 +1124,7 @@ class _DropdownState extends State<Dropdown> {
           children: [
             if (widget.showIcon)
               Icon(widget.icon, size: 13, color: AppColors.green),
-            Text(widget.label, style: AppTextStyle.medium(size: 12)),
+            Text(widget.label, style: AppTextStyle.medium(size: 11.5)),
             if (widget.showStar)
               Text(
                 '*',

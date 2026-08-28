@@ -100,6 +100,7 @@
 //   }
 // }
 
+import 'package:Odit_CRM/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
@@ -217,9 +218,10 @@ class _InputDateState extends State<InputDate> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0.5.w),
                   child: Icon(
-                    Icons.calendar_month_outlined,
+                    Icons.calendar_today_outlined,
                     size: 13,
-                    color: const Color(0xff4a5d9e),
+                    fontWeight: FontWeight.w500,
+                    color: AppThemeColors.appPrimaryColor,
                   ),
                 ),
                 SizedBox(width: 0.3.w),

@@ -247,7 +247,8 @@ class _ImportLeadsState extends State<ImportLeads> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     (_pickedCsvBytes != null &&
-                                        !state.isImporting)
+                                        !state.isImporting &&
+                                        state.selectedStaff != null)
                                     ? const Color(0xFF00C853)
                                     : Colors.grey.shade400,
                                 elevation: 0,
@@ -559,22 +560,34 @@ class _ImportLeadsState extends State<ImportLeads> {
     ImportLeadsState state,
     ImportLeadsCubit cubit,
   ) {
-    final displayDate =
-        state.nextFollowUpDate ?? DateTime.now().add(const Duration(hours: 2));
-    final displayText = DateFormat('dd-MM-yyyy hh:mm a').format(displayDate);
+    final displayText = state.nextFollowUpDate == null
+        ? 'Select Date'
+        : DateFormat('dd-MM-yyyy hh:mm a').format(state.nextFollowUpDate!);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Next Follow-Up Date',
-          style: AppTextStyle.medium(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF475569),
-          ),
+        Row(
+          children: [
+            Text(
+              'Next Follow-Up Date',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: AppThemeColors.commonText,
+              ),
+            ),
+            Text(
+              '*',
+              style: AppTextStyle.medium(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+                color: Colors.red,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         InkWell(
           onTap: () async {
             final result = await showCalendarDialogUsingTimePicker(
@@ -592,7 +605,7 @@ class _ImportLeadsState extends State<ImportLeads> {
             }
           },
           child: Container(
-            height: 44,
+            height: 4.5.h,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               border: Border.all(color: const Color(0xFFE2E8F0)),
@@ -602,9 +615,11 @@ class _ImportLeadsState extends State<ImportLeads> {
             child: Text(
               displayText,
               style: AppTextStyle.medium(
-                fontSize: 13,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF0F172A),
+                color: state.nextFollowUpDate == null
+                    ? AppThemeColors.subText
+                    : AppThemeColors.commonText,
               ),
             ),
           ),
@@ -1032,10 +1047,10 @@ class _ImportLeadsState extends State<ImportLeads> {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: AppTextStyle.medium(
                 fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF475569),
+                fontWeight: FontWeight.w500,
+                color: AppThemeColors.commonText,
               ),
             ),
             isrequered == true
@@ -1052,7 +1067,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         ),
         const SizedBox(height: 6),
         Container(
-          height: 44,
+          height: 4.5.h,
           decoration: BoxDecoration(
             color: enabled ? Colors.white : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(8),
@@ -1070,9 +1085,9 @@ class _ImportLeadsState extends State<ImportLeads> {
                         : null,
                     hint: Text(
                       hint,
-                      style: AppTextStyle.medium(
+                      style: AppTextStyle.small(
                         fontSize: 11.5,
-                        color: Color(0xFF94A3B8),
+                        color: AppThemeColors.subText,
                       ),
                     ),
                     icon: showClear && selectedValue != null
@@ -1087,7 +1102,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                         : const Icon(
                             Icons.keyboard_arrow_down,
                             color: Color(0xFF94A3B8),
-                            size: 20,
+                            size: 14,
                           ),
                     isExpanded: true,
                     style: AppTextStyle.medium(
@@ -1444,6 +1459,29 @@ class _ImportLeadsState extends State<ImportLeads> {
     ImportLeadsState state,
     ImportLeadsCubit cubit,
   ) async {
+    if (state.selectedLeadStage == 'FOLLOWUP' &&
+        state.nextFollowUpDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Please select a next follow up date before importing leads.',
+          ),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (state.selectedSource == null || state.selectedSource!.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select a source before importing leads.'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     if (state.isAdmin &&
         (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(

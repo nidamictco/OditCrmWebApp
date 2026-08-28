@@ -841,8 +841,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   //       )
                   //     :
                   child: Dropdown(
-                    showIcon: true,
-                    icon: Icons.location_on_outlined,
+                    // showIcon: true,
+                    // icon: Icons.location_on_outlined,
                     items: stateDistrictMap.keys.toList(),
                     selectedValue: state.selectedState,
                     focusNode: _stateFocus,
@@ -857,8 +857,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 SizedBox(width: 1.5.w),
                 Expanded(
                   child: Dropdown(
-                    showIcon: true,
-                    icon: Icons.location_on_outlined,
+                    // showIcon: true,
+                    // icon: Icons.location_on_outlined,
                     items: state.selectedState == null
                         ? []
                         : stateDistrictMap[state.selectedState] ?? [],
@@ -1042,6 +1042,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                       label: 'Priority',
                       hint: 'Priority',
                       items: priority,
+                      showIcon: false,
                       selectedValue: state.selectedPriority,
                       focusNode: _priorityFocus,
                       nextFocusNode: _remarksFocus,
@@ -1090,8 +1091,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
         conditionalRowChildren.add(
           Expanded(
             child: Dropdown(
-              icon: Icons.check_box_outlined,
-              showIcon: true,
               items: stagesNames,
               selectedValue: _leadStage,
               showClear: false,
@@ -1211,8 +1210,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   else
                     Expanded(
                       child: Dropdown(
-                        icon: Icons.person_outline,
-                        showIcon: true,
                         items: staffNames,
                         selectedValue: _selectStaff,
                         focusNode: _assignStaffFocus,
@@ -1284,8 +1281,6 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 SizedBox(width: 1.5.w),
                 Expanded(
                   child: Dropdown(
-                    icon: Icons.flag_outlined,
-                    showIcon: true,
                     items: priority,
                     selectedValue: _leadPriority,
                     focusNode: _priorityFocus,
@@ -1349,29 +1344,33 @@ class _AddLeadPageState extends State<AddLeadPage> {
           },
           child: Container(
             height: 5.h,
-            padding: EdgeInsets.symmetric(horizontal: 1.2.w),
+            padding: EdgeInsets.symmetric(horizontal: 1.w),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: const Color(0xFFCBD5E1)),
+              border: Border.all(
+                color: AppThemeColors.borderClr.withValues(alpha: 0.2),
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerLeft,
             child: Row(
               children: [
-                const Icon(
-                  Icons.calendar_month_outlined,
-                  color: Color(0xFF64748B),
-                  size: 18,
-                ),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  color: AppThemeColors.appPrimaryColor,
+                  fontWeight: FontWeight.w500,
+                  size: 12,
+                ), 
                 SizedBox(width: 0.5.w),
                 Expanded(
                   child: Text(
                     nextFollowUpCtrl.text.isEmpty
                         ? 'Select Date'
                         : nextFollowUpCtrl.text,
-                    style: AppTextStyle.body(
+                    style: AppTextStyle.medium(
                       size: 11,
-                      color: const Color(0xFF0F172A),
+                      weight: FontWeight.w400,
+                      color: AppThemeColors.subText,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1732,7 +1731,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
           ),
         ],
       ),
-      padding: EdgeInsets.all(2.w),
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1793,7 +1792,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
               ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
-                size: 11.5,
+                size: 11,
+                weight: FontWeight.w400,
                 color: AppThemeColors.hintColor,
               ),
               contentPadding: EdgeInsets.symmetric(
@@ -1861,7 +1861,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   value.isEmpty ? 'Loading...' : value,
                   style: value.isEmpty
                       ? AppTextStyle.small(
-                          size: 11.5,
+                          size: 11,
                           color: AppThemeColors.hintColor,
                         )
                       : AppTextStyle.body(
@@ -1990,8 +1990,8 @@ class _AddLeadPageState extends State<AddLeadPage> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(
-                                color: const Color(0xFF10B981),
-                                width: 1.0,
+                                color: AppThemeColors.basicGreen,
+                                width: 0.5,
                               ),
                               borderRadius: BorderRadius.circular(6),
                             ),
@@ -2024,7 +2024,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                         searchDecoration: InputDecoration(
                           hintText: 'Search country',
                           hintStyle: AppTextStyle.small(
-                            size: 11.5,
+                            size: 11,
                             color: AppThemeColors.hintColor,
                           ),
                           border: OutlineInputBorder(
@@ -2134,7 +2134,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                borderSide: BorderSide(
+                  color: AppThemeColors.borderClr.withValues(alpha: 0.2),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -3036,7 +3038,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Icon(
-                        Icons.add_a_photo,
+                        Icons.add,
                         color: Colors.white,
                         size: 16,
                       ),
