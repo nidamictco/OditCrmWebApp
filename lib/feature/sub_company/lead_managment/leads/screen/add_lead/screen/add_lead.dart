@@ -63,9 +63,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
   final TextEditingController _remarksCtrl = TextEditingController();
   final TextEditingController _dialogNameCtrl = TextEditingController();
   final TextEditingController nextFollowUpCtrl = TextEditingController(
-    text: DateFormat(
-      'dd-MM-yyyy hh:mm a',
-    ).format(DateTime.now().add(const Duration(days: 1))),
+    // text: DateFormat(
+    //   'dd-MM-yyyy hh:mm a',
+    // ).format(DateTime.now().add(const Duration(days: 1))),
   );
   DateTime nextFollowUpDate = DateTime.now().add(const Duration(days: 1));
   DateTime calledDateValue = DateTime.now();
@@ -409,6 +409,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
         _showError('Pin code must be a 6-digit number.');
         return;
       }
+    }
+
+    if (_leadStage == "FOLLOWUP" && nextFollowUpCtrl.text.isEmpty) {
+      _showError('Next Follow Up Date is required.');
+      return;
     }
 
     final tag = _leadTag;
@@ -773,7 +778,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     Icons.email_outlined,
                     controller: _emailCtrl,
                     focusNode: _emailFocus,
-                    nextFocusNode: _addressFocus,
+                    nextFocusNode: _pinFocus,
                     hint: 'example@gmail.com',
                   ),
                 ),
@@ -815,38 +820,39 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  child: stateDistrictMap.isEmpty
-                      ? Container(
-                          height: 5.2.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFCBD5E1)),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.white,
-                          ),
-                          child: const Center(
-                            child: SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.green,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Dropdown(
-                          showIcon: true,
-                          icon: Icons.location_on_outlined,
-                          items: stateDistrictMap.keys.toList(),
-                          selectedValue: state.selectedState,
-                          focusNode: _stateFocus,
-                          nextFocusNode: _districtFocus,
-                          onChanged: (v) =>
-                              context.read<AddLeadCubit>().selectState(v),
-                          label: 'State',
-                          hint: 'Select State',
-                          showClear: true,
-                        ),
+                  // child: stateDistrictMap.isEmpty
+                  //     ? Container(
+                  //         height: 5.h,
+                  //         decoration: BoxDecoration(
+                  //           border: Border.all(color: const Color(0xFFCBD5E1)),
+                  //           borderRadius: BorderRadius.circular(8),
+                  //           color: Colors.white,
+                  //         ),
+                  //         child: const Center(
+                  //           child: SizedBox(
+                  //             width: 14,
+                  //             height: 14,
+                  //             child: CircularProgressIndicator(
+                  //               strokeWidth: 2,
+                  //               color: AppColors.green,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       )
+                  //     :
+                  child: Dropdown(
+                    showIcon: true,
+                    icon: Icons.location_on_outlined,
+                    items: stateDistrictMap.keys.toList(),
+                    selectedValue: state.selectedState,
+                    focusNode: _stateFocus,
+                    nextFocusNode: _districtFocus,
+                    onChanged: (v) =>
+                        context.read<AddLeadCubit>().selectState(v),
+                    label: 'State',
+                    hint: 'Select State',
+                    showClear: true,
+                  ),
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
@@ -859,12 +865,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     selectedValue: state.selectedDistrict,
                     enabled: state.selectedState != null,
                     focusNode: _districtFocus,
-                    nextFocusNode:
-                        (!_isEditMode &&
-                            _currentUser != null &&
-                            _currentUser!.staffType == 'Admin')
-                        ? _assignStaffFocus
-                        : _categoryFocus,
+                    nextFocusNode: _addressFocus,
+                    // (!_isEditMode &&
+                    //     _currentUser != null &&
+                    //     _currentUser!.staffType == 'Admin')
+                    // ? _assignStaffFocus
+                    // : _categoryFocus,
                     onChanged: (v) =>
                         context.read<AddLeadCubit>().selectDistrict(v),
                     label: 'District',
@@ -882,7 +888,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
               Icons.location_on_outlined,
               controller: _addressCtrl,
               focusNode: _addressFocus,
-              nextFocusNode: _pinFocus,
+              nextFocusNode:
+                  (!_isEditMode &&
+                      _currentUser != null &&
+                      _currentUser!.staffType == 'Admin')
+                  ? _assignStaffFocus
+                  : _categoryFocus,
               hint: 'Enter detailed address',
             ),
           ],
@@ -1316,7 +1327,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('Next Follow Up Date', false),
+        _label('Next Follow Up Date', true),
         SizedBox(height: 0.8.h),
         GestureDetector(
           onTap: () async {
@@ -1335,9 +1346,9 @@ class _AddLeadPageState extends State<AddLeadPage> {
                 ).format(result.from);
               });
             }
-          }, 
+          },
           child: Container(
-            height: 5.2.h,
+            height: 5.h,
             padding: EdgeInsets.symmetric(horizontal: 1.2.w),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -1417,7 +1428,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   onPressed: isBusy ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _submitFocus.hasFocus
-                        ? AppColors.primary
+                        ? AppThemeColors.primary
                         : AppThemeColors.basicGreen,
                     disabledBackgroundColor: AppThemeColors.basicGreen
                         .withOpacity(0.5),
@@ -1462,7 +1473,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     );
   }
 
-Widget _fieldError(String? message) {
+  Widget _fieldError(String? message) {
     if (message == null || message.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: EdgeInsets.only(top: 0.5.h, left: 2),
@@ -1551,7 +1562,7 @@ Widget _fieldError(String? message) {
   //   );
   // }
 
- void _showAddCategoryDialog() {
+  void _showAddCategoryDialog() {
     final importCubit = context.read<AddLeadCubit>();
     final categoryCubit = context.read<LeadCategoryCubit>();
 
@@ -1670,7 +1681,7 @@ Widget _fieldError(String? message) {
 
           if (sourceCubit.sourceExists(name)) {
             StatusAlertWidget.show(
-              context, 
+              context,
               isSuccess: false,
               title: 'Validation',
               message: 'Source "$name" already exists.',
@@ -1758,7 +1769,7 @@ Widget _fieldError(String? message) {
         _label(label, required),
         SizedBox(height: 0.8.h),
         SizedBox(
-          height: 5.2.h,
+          height: 5.h,
           child: TextFormField(
             controller: controller,
             focusNode: focusNode,
@@ -1768,9 +1779,9 @@ Widget _fieldError(String? message) {
             textInputAction: nextFocusNode != null
                 ? TextInputAction.next
                 : TextInputAction.done,
-            style: AppTextStyle.body(
+            style: AppTextStyle.medium(
               size: 11.5,
-              color: const Color(0xFF0F172A),
+              color: AppThemeColors.commonText,
             ),
             decoration: InputDecoration(
               filled: true,
@@ -1778,12 +1789,12 @@ Widget _fieldError(String? message) {
               prefixIcon: Icon(
                 icons,
                 size: 12.5,
-                color: const Color(0xFF64748B),
+                color: AppThemeColors.appPrimaryColor,
               ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
                 size: 11.5,
-                color: const Color(0xFF94A3B8),
+                color: AppThemeColors.hintColor,
               ),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 1.2.w,
@@ -1791,12 +1802,14 @@ Widget _fieldError(String? message) {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                borderSide: BorderSide(
+                  color: AppThemeColors.borderClr.withValues(alpha: 0.2),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: AppColors.primary,
+                  color: AppThemeColors.primary,
                   width: 1.5,
                 ),
               ),
@@ -1829,10 +1842,12 @@ Widget _fieldError(String? message) {
         _label(label, false),
         SizedBox(height: 0.8.h),
         Container(
-          height: 5.2.h,
+          height: 5.h,
           decoration: BoxDecoration(
             color: const Color(0xFFF8FAFC),
-            border: Border.all(color: const Color(0xFFCBD5E1)),
+            border: Border.all(
+              color: AppThemeColors.borderClr.withValues(alpha: 0.2),
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           padding: EdgeInsets.symmetric(horizontal: 1.2.w),
@@ -1847,11 +1862,11 @@ Widget _fieldError(String? message) {
                   style: value.isEmpty
                       ? AppTextStyle.small(
                           size: 11.5,
-                          color: const Color(0xFF94A3B8),
+                          color: AppThemeColors.hintColor,
                         )
                       : AppTextStyle.body(
                           size: 11.5,
-                          color: const Color(0xFF0F172A),
+                          color: AppThemeColors.commonText,
                         ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1929,13 +1944,13 @@ Widget _fieldError(String? message) {
             // SizedBox(width: 0.5.w),
             Expanded(
               child: SizedBox(
-                height: 5.2.h,
+                height: 5.h,
                 child: TextFormField(
                   controller: controller,
                   focusNode: focusNode,
                   style: AppTextStyle.body(
                     size: 11.5,
-                    color: const Color(0xFF0F172A),
+                    color: AppThemeColors.commonText,
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -1951,7 +1966,7 @@ Widget _fieldError(String? message) {
                     hintText: hint ?? 'Enter number',
                     hintStyle: AppTextStyle.small(
                       size: 11.5,
-                      color: const Color(0xFF94A3B8),
+                      color: AppThemeColors.hintColor,
                     ),
                     prefixIconConstraints: const BoxConstraints(
                       minWidth: 0,
@@ -2010,12 +2025,14 @@ Widget _fieldError(String? message) {
                           hintText: 'Search country',
                           hintStyle: AppTextStyle.small(
                             size: 11.5,
-                            color: AppColors.grey,
+                            color: AppThemeColors.hintColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: AppColors.divider,
+                            borderSide: BorderSide(
+                              color: AppThemeColors.borderClr.withValues(
+                                alpha: 0.2,
+                              ),
                             ),
                           ),
                         ),
@@ -2038,12 +2055,14 @@ Widget _fieldError(String? message) {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                      borderSide: BorderSide(
+                        color: AppThemeColors.borderClr.withValues(alpha: 0.2),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
-                        color: AppColors.primary,
+                        color: AppThemeColors.primary,
                         width: 1.5,
                       ),
                     ),
@@ -2098,12 +2117,16 @@ Widget _fieldError(String? message) {
               fillColor: Colors.white,
               prefixIcon: Padding(
                 padding: EdgeInsets.only(bottom: 4.h),
-                child: Icon(icons, size: 12.5, color: const Color(0xFF64748B)),
+                child: Icon(
+                  icons,
+                  size: 12.5,
+                  color: AppThemeColors.appPrimaryColor,
+                ),
               ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
                 size: 11.5,
-                color: const Color(0xFF94A3B8),
+                color: AppThemeColors.hintColor,
               ),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 1.2.w,
@@ -2116,7 +2139,7 @@ Widget _fieldError(String? message) {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: AppColors.primary,
+                  color: AppThemeColors.primary,
                   width: 1.5,
                 ),
               ),
@@ -2510,12 +2533,12 @@ class _CustomDropdownState extends State<_CustomDropdown> {
           child: _wrapWithTooltip(
             message: widget.selectedValue,
             child: Container(
-              height: 5.2.h,
+              height: 5.h,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(
                   color: _hasFocus
-                      ? AppColors.primary
+                      ? AppThemeColors.primary
                       : const Color(0xFFCBD5E1),
                   width: _hasFocus ? 1.5 : 1.0,
                 ),
@@ -2647,9 +2670,11 @@ class _CustomDropdownState extends State<_CustomDropdown> {
                                   vertical: 1.h,
                                 ),
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? AppThemeColors.primary
                                     : (currentIndex == highlightedIndex
-                                          ? AppColors.primary.withOpacity(0.12)
+                                          ? AppThemeColors.primary.withOpacity(
+                                              0.12,
+                                            )
                                           : Colors.white),
                                 child: Text(
                                   item,
@@ -2987,12 +3012,12 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
           child: _wrapWithTooltip(
             message: widget.selectedValue,
             child: Container(
-              height: 5.2.h,
+              height: 5.h,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(
                   color: _hasFocus
-                      ? AppColors.primary
+                      ? AppThemeColors.primary
                       : const Color(0xFFCBD5E1),
                   width: _hasFocus ? 1.5 : 1.0,
                 ),
@@ -3011,7 +3036,7 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Icon(
-                        Icons.add,
+                        Icons.add_a_photo,
                         color: Colors.white,
                         size: 16,
                       ),
@@ -3140,9 +3165,11 @@ class _CustomDropdownWithAddState extends State<_CustomDropdownWithAdd> {
                                   vertical: 1.h,
                                 ),
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? AppThemeColors.primary
                                     : (currentIndex == highlightedIndex
-                                          ? AppColors.primary.withOpacity(0.12)
+                                          ? AppThemeColors.primary.withOpacity(
+                                              0.12,
+                                            )
                                           : Colors.white),
                                 child: Text(
                                   item,
@@ -3334,8 +3361,8 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary,
-                  AppColors.primary.withOpacity(0.75),
+                  AppThemeColors.primary,
+                  AppThemeColors.primary.withOpacity(0.75),
                 ],
               ),
             ),
@@ -3403,7 +3430,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                           style: AppTextStyle.small(
                             size: 8.5,
                             weight: FontWeight.w700,
-                            color: AppColors.primary.withOpacity(0.7),
+                            color: AppThemeColors.primary.withOpacity(0.7),
                           ),
                         ),
                       ),
@@ -3431,9 +3458,9 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                         duration: const Duration(milliseconds: 150),
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.primary
+                              ? AppThemeColors.primary
                               : today
-                              ? AppColors.primary.withOpacity(0.12)
+                              ? AppThemeColors.primary.withOpacity(0.12)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -3448,7 +3475,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                               color: selected
                                   ? Colors.white
                                   : today
-                                  ? AppColors.primary
+                                  ? AppThemeColors.primary
                                   : AppColors.black,
                             ),
                           ),
@@ -3481,7 +3508,7 @@ class _CustomCalendarPickOneState extends State<CustomCalendarPickOne> {
                       'Today',
                       style: AppTextStyle.small(
                         size: 9.5,
-                        color: AppColors.primary,
+                        color: AppThemeColors.primary,
                         weight: FontWeight.w600,
                       ),
                     ),
