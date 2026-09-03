@@ -458,8 +458,8 @@ class _SimpleDropdownState extends State<SimpleDropdown> {
         Row(
           children: [
             if (widget.showIcon)
-              Icon(widget.icon, size: 13, color: AppColors.green),
-            Text(widget.label, style: AppTextStyle.medium(size: 12)),
+              Icon(widget.icon, size: 12.5, color: AppColors.green),
+            Text(widget.label, style: AppTextStyle.medium(size: 11.5)),
             if (widget.showStar)
               Text(
                 '*',
@@ -512,7 +512,7 @@ class _SimpleDropdownState extends State<SimpleDropdown> {
                                 child: Text(
                                   widget.hint,
                                   style: AppTextStyle.small(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     color: AppColors.grey,
                                   ),
                                 ),
@@ -528,7 +528,7 @@ class _SimpleDropdownState extends State<SimpleDropdown> {
                                 child: Text(
                                   widget.selectedValue!,
                                   style: AppTextStyle.medium(
-                                    size: 11.sp,
+                                    size: 11.5,
                                     weight: FontWeight.w400,
                                     color: AppColors.black,
                                   ),
@@ -713,7 +713,7 @@ class _SimpleDropdownMenuState extends State<_SimpleDropdownMenu> {
                     child: Text(
                       'No items available',
                       style: AppTextStyle.small(
-                        size: 11.sp,
+                        size: 11.5,
                         color: AppColors.grey,
                       ),
                     ),

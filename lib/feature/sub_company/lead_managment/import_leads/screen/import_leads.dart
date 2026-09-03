@@ -681,6 +681,7 @@ class _ImportLeadsState extends State<ImportLeads> {
         .toList();
 
     final stagesNames = state.stages
+        .where((e) => e.name != 'TRANSFERRED')
         .map((s) => s.name)
         .where((n) => n.isNotEmpty)
         .toList();
@@ -813,7 +814,15 @@ class _ImportLeadsState extends State<ImportLeads> {
           .where((n) => n.isNotEmpty)
           .toList();
       activeFields.add(
-        _buildStandardDropdown(
+        // _buildStandardDropdown(
+        //   label: 'Lead Sub Category',
+        //   hint: 'Select Sub Category',
+        //   items: subCatNames,
+        //   selectedValue: state.selectedSubCategory,
+        //   onChanged: cubit.selectSubCategory,
+        //   showClear: true,
+        // ),
+        Dropdown(
           label: 'Lead Sub Category',
           hint: 'Select Sub Category',
           items: subCatNames,

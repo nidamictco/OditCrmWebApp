@@ -57,26 +57,6 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
 
   late AddLeadModel _currentLead;
 
-  final List<ActivityEntry> _activities = const [
-    ActivityEntry(
-      agent: 'Shahid',
-      description:
-          'Status changed to Rejected. Cost Updated from to 0\nLead Category Updated from May Visit to',
-      dateTime: '20-04-2026 04:42 PM',
-    ),
-    ActivityEntry(
-      agent: 'Shahid',
-      description:
-          'Status changed to Follow Up. Next followup scheduled to 20-04-2026 10:38\nCost Updated from to 0',
-      dateTime: '19-04-2026 08:39 PM',
-    ),
-    ActivityEntry(
-      agent: 'Shahid',
-      description: 'Lead Created. Assigned to Shahid',
-      dateTime: '18-04-2026 06:30 PM',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -289,202 +269,224 @@ class _FollowUpDetailsScreenState extends State<FollowUpDetailsScreen>
                   color: Color(0xFF888888),
                 ),
               ),
-               BlocBuilder<AddLeadCubit, AddLeadState>(
-                      builder: (context, state) {
-                        final categoryName = resolveLeadName(
-                          list: state.categories,
-                          id: _currentLead.leadCategoryId,
-                          fallback: _currentLead.leadCategory,
-                          idOf: (c) => c.id,
-                          nameOf: (c) => c.name,
-                        );
+              BlocBuilder<AddLeadCubit, AddLeadState>(
+                builder: (context, state) {
+                  final categoryName = resolveLeadName(
+                    list: state.categories,
+                    id: _currentLead.leadCategoryId,
+                    fallback: _currentLead.leadCategory,
+                    idOf: (c) => c.id,
+                    nameOf: (c) => c.name,
+                  );
 
-                        final subCategoryName = resolveLeadName(
-                          list: state.subCategories,
-                          id: _currentLead.leadSubCategoryId,
-                          fallback: _currentLead.leadSubCategory,
-                          idOf: (s) => s.id,
-                          nameOf: (s) => s.name,
-                        );
+                  final subCategoryName = resolveLeadName(
+                    list: state.subCategories,
+                    id: _currentLead.leadSubCategoryId,
+                    fallback: _currentLead.leadSubCategory,
+                    idOf: (s) => s.id,
+                    nameOf: (s) => s.name,
+                  );
 
-                        return Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min, // shrink-wrap
-                  children: [
-                    // Name row
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              _currentLead.clientName ?? '',
-                              style: AppTextStyle.heading(
-                                size: 20,
-                                weight: FontWeight.w700,
-                                color: Color(0xFF222222),
+                  return Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min, // shrink-wrap
+                      children: [
+                        // Name row
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  _currentLead.clientName ?? '',
+                                  style: AppTextStyle.heading(
+                                    size: 20,
+                                    weight: FontWeight.w700,
+                                    color: Color(0xFF222222),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 5,
+                                ),
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 5,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          _PriorityBadge(
-                            priority: _currentLead.priority,
-                            label: 'Lead priority: ${_currentLead.priority}',
-                          ),
-                          const Spacer(),
-                          // _headerIcon(
-                          //   Icons.edit_outlined,
-                          //   onTap: () {
-                          //     Navigator.push(
-                          //       context,
-                          //       MaterialPageRoute(
-                          //         builder: (context) => MainScreen(
-                          //           selectedIndex: 1,
-                          //           lead: _currentLead,
-                          //         ),
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
-                          // CHANGE TO:
-                          _headerIcon(
-                            Icons.edit_outlined,
-                            destination: RoutePaths.leadEditPath(
-                              _currentLead.id!,fromScreen: 'followupDetails'
-                            ),
-                            onTap: () async {
-                              // ← async
-                              final didUpdate = await context.push<bool>(
-                                RoutePaths.leadEditPath(_currentLead.id!,fromScreen: 'followupDetails'),
-                              );
+                              const SizedBox(width: 10),
+                              _PriorityBadge(
+                                priority: _currentLead.priority,
+                                label:
+                                    'Lead priority: ${_currentLead.priority}',
+                              ),
+                              const Spacer(),
+                              // _headerIcon(
+                              //   Icons.edit_outlined,
+                              //   onTap: () {
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) => MainScreen(
+                              //           selectedIndex: 1,
+                              //           lead: _currentLead,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   },
+                              // ),
+                              // CHANGE TO:
+                              _headerIcon(
+                                Icons.edit_outlined,
+                                destination: RoutePaths.leadEditPath(
+                                  _currentLead.id!,
+                                  fromScreen: 'followupDetails',
+                                ),
+                                onTap: () async {
+                                  // ← async
+                                  final didUpdate = await context.push<bool>(
+                                    RoutePaths.leadEditPath(
+                                      _currentLead.id!,
+                                      fromScreen: 'followupDetails',
+                                    ),
+                                  );
 
-                              // ✅ Reload the lead data when edit completes
-                              if (didUpdate == true && mounted) {
-                                await _reloadLead();
-                              }
-                            },
+                                  // ✅ Reload the lead data when edit completes
+                                  if (didUpdate == true && mounted) {
+                                    await _reloadLead();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              _headerIcon(
+                                Icons.swap_horiz,
+                                onTap: () {
+                                  showAssignStaffDialog(
+                                    'followup',
+                                    [_currentLead],
+                                    context,
+                                    onSubmit:
+                                        (
+                                          String? selectedStaffId,
+                                          String? selectedStaffName,
+                                        ) async {
+                                          print("pppppppp");
+                                          if (selectedStaffId == null ||
+                                              selectedStaffName == null)
+                                            return;
+
+                                          // for (final lead in selectedLeads) {
+                                          //   await context.read<AddLeadCubit>().assignStaff(
+                                          //     leadId: lead.id!,
+                                          //     staffId: selectedStaffId!,
+                                          //     staffName: selectedStaffName!,
+                                          //   );
+                                          // }
+                                          // for (final lead in selectedLeads) {
+
+                                          String _resolveTransferredStageId(
+                                            BuildContext context,
+                                          ) {
+                                            final stages = context
+                                                .read<AddLeadCubit>()
+                                                .state
+                                                .stages;
+                                            final match = stages.where(
+                                              (s) =>
+                                                  s.name.trim().toUpperCase() ==
+                                                  'TRANSFERRED',
+                                            );
+                                            if (match.isEmpty) {
+                                              log(
+                                                '[Transfer] Could not resolve "TRANSFERRED" stage id — '
+                                                'stages loaded=${stages.map((s) => s.name).toList()}',
+                                              );
+                                              return '';
+                                            }
+                                            return match.first.id;
+                                          }
+
+                                          await context
+                                              .read<AddLeadCubit>()
+                                              .transferLead(
+                                                leadId: _currentLead.id!,
+                                                leadName:
+                                                    _currentLead.clientName,
+                                                contactNumber:
+                                                    _currentLead.contactNumber,
+                                                leadCategory:
+                                                    _currentLead.leadCategory,
+                                                leadCategoryId:
+                                                    _currentLead.leadCategoryId,
+                                                leadSubCategory: _currentLead
+                                                    .leadSubCategory,
+                                                leadSubCategoryId: _currentLead
+                                                    .leadSubCategoryId,
+                                                leadStage: "TRANSFERRED",
+                                                leadStageId:
+                                                    _resolveTransferredStageId(
+                                                      context,
+                                                    ),
+                                                fromStaffId: _currentLead
+                                                    .assignedStaffId,
+                                                fromStaff:
+                                                    _currentLead.assignedStaff,
+                                                toStaffId: selectedStaffId,
+                                                toStaff: selectedStaffName,
+                                              );
+                                          // }
+
+                                          print("oooooooooooooo");
+                                          // await _reloadFollowUps();
+                                          await _reloadLead();
+                                          setState(() {
+                                            _currentLead = _currentLead
+                                                .copyWith(
+                                                  assignedStaffId:
+                                                      selectedStaffId,
+                                                  assignedStaff:
+                                                      selectedStaffName,
+                                                );
+                                          });
+                                          // Navigator.pop(context);
+                                          // Navigator.pop(context);
+                                          context.pop();
+                                          context.pop();
+                                          context
+                                              .read<AddLeadCubit>()
+                                              .fetchLeads();
+                                          // 🔹 Clear selection — assigned leads auto-disappear
+                                          // because _filteredLeads filters out assignedStaffId != ''
+                                          // setState(() {
+                                          //   _selectedIndices = [];
+                                          //   _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
+                                          // });
+                                          // context.read<AddLeadCubit>().fetchLeads();
+                                        },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              _headerIcon(
+                                Icons.add_box_outlined,
+                                destination: RoutePaths.addLead,
+                                onTap: () {
+                                  context.push(RoutePaths.addLead);
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              _headerIcon(
+                                Icons.delete_outline,
+                                color: Colors.red.shade300,
+                                onTap: () {
+                                  _confirmDelete(context, _currentLead);
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                          _headerIcon(
-                            Icons.swap_horiz,
-                            onTap: () {
-                              showAssignStaffDialog(
-                                'followup',
-                                [_currentLead],
-                                context,
-                                onSubmit:
-                                    (
-                                      String? selectedStaffId,
-                                      String? selectedStaffName,
-                                    ) async {
-                                      print("pppppppp");
-                                      if (selectedStaffId == null ||
-                                          selectedStaffName == null)
-                                        return;
+                        ),
 
-                                      // for (final lead in selectedLeads) {
-                                      //   await context.read<AddLeadCubit>().assignStaff(
-                                      //     leadId: lead.id!,
-                                      //     staffId: selectedStaffId!,
-                                      //     staffName: selectedStaffName!,
-                                      //   );
-                                      // }
-                                      // for (final lead in selectedLeads) {
-
-String _resolveTransferredStageId(BuildContext context) {
-  final stages = context.read<AddLeadCubit>().state.stages;
-  final match = stages.where(
-    (s) => s.name.trim().toUpperCase() == 'TRANSFERRED',
-  );
-  if (match.isEmpty) {
-    log('[Transfer] Could not resolve "TRANSFERRED" stage id — '
-        'stages loaded=${stages.map((s) => s.name).toList()}');
-    return '';
-  }
-  return match.first.id;
-}
-
-                                      await context
-                                          .read<AddLeadCubit>()
-                                          .transferLead(
-                                            leadId: _currentLead.id!,
-                                            leadName: _currentLead.clientName,
-                                            contactNumber:
-                                                _currentLead.contactNumber,
-                                            leadCategory:
-                                                _currentLead.leadCategory,
-                                            leadCategoryId:
-                                                _currentLead.leadCategoryId,
-                                            leadSubCategory:
-                                                _currentLead.leadSubCategory,
-                                            leadSubCategoryId:
-                                                _currentLead.leadSubCategoryId,
-                                            leadStage:"TRANSFERRED",
-                                            leadStageId:
-                                                _resolveTransferredStageId(context),
-                                            fromStaffId:
-                                                _currentLead.assignedStaffId,
-                                            fromStaff:
-                                                _currentLead.assignedStaff,
-                                            toStaffId: selectedStaffId,
-                                            toStaff: selectedStaffName,
-                                          );
-                                      // }
-
-                                      print("oooooooooooooo");
-                                      // await _reloadFollowUps();
-                                      await _reloadLead();
-                                      setState(() {
-                                        _currentLead = _currentLead.copyWith(
-                                          assignedStaffId: selectedStaffId,
-                                          assignedStaff: selectedStaffName,
-                                        );
-                                      });
-                                      // Navigator.pop(context);
-                                      // Navigator.pop(context);
-                                      context.pop();
-                                      context.pop();
-                                      context.read<AddLeadCubit>().fetchLeads();
-                                      // 🔹 Clear selection — assigned leads auto-disappear
-                                      // because _filteredLeads filters out assignedStaffId != ''
-                                      // setState(() {
-                                      //   _selectedIndices = [];
-                                      //   _tableKey++; // 🔹 forces CustomTable to rebuild fresh with all boxes unchecked
-                                      // });
-                                      // context.read<AddLeadCubit>().fetchLeads();
-                                    },
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 10),
-                          _headerIcon(
-                            Icons.add_box_outlined,
-                            destination: RoutePaths.addLead,
-                            onTap: () {
-                              context.push(RoutePaths.addLead);
-                            },
-                          ),
-                          const SizedBox(width: 10),
-                          _headerIcon(
-                            Icons.delete_outline,
-                            color: Colors.red.shade300,
-                            onTap: () {
-                              _confirmDelete(context, _currentLead);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Meta row
-                    Padding(
+                        // Meta row
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Wrap(
                             spacing: 6,
@@ -540,21 +542,20 @@ String _resolveTransferredStageId(BuildContext context) {
                             ],
                           ),
                         ),
-                     
 
-                    const SizedBox(height: 6),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _metaText(
-                        'Lead Source : ${resolveLeadName(list: state.sources, id: _currentLead.leadSourceId, fallback: _currentLead.leadSource, idOf: (s) => s.id, nameOf: (s) => s.name)}',
-                      ),
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _metaText(
+                            'Lead Source : ${resolveLeadName(list: state.sources, id: _currentLead.leadSourceId, fallback: _currentLead.leadSource, idOf: (s) => s.id, nameOf: (s) => s.name)}',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              );
-               },
-                    ),
+                  );
+                },
+              ),
             ],
           ),
           // ✅ TabBar only — NO TabBarView.
@@ -959,62 +960,67 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       cubit.selectCategory(
         // leadFollowup!.leadCategory,
         resolveLeadName(
-        list: cubit.state.categories,
-        id: leadFollowup!.leadCategoryId,
-        fallback: leadFollowup.leadCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+          list: cubit.state.categories,
+          id: leadFollowup!.leadCategoryId,
+          fallback: leadFollowup.leadCategory,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
         pendingSubCategory: resolveLeadName(
-        list: cubit.state.subCategories,
-        id: leadFollowup.leadSubCategoryId,
-        fallback: leadFollowup.leadSubCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+          list: cubit.state.subCategories,
+          id: leadFollowup.leadSubCategoryId,
+          fallback: leadFollowup.leadSubCategory,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
       );
       cubit.selectLeadStage(
         resolveLeadName(
-        list: cubit.state.stages,
-        id: leadFollowup.leadStageId,
-        fallback: leadFollowup.leadStage,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+          list: cubit.state.stages,
+          id: leadFollowup.leadStageId,
+          fallback: leadFollowup.leadStage,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
         pendingTag: resolveLeadName(
-        list: cubit.state.leadTag,
-        id: leadFollowup.leadTagId,
-        fallback: leadFollowup.leadTag,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+          list: cubit.state.leadTag,
+          id: leadFollowup.leadTagId,
+          fallback: leadFollowup.leadTag,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
       );
       cubit.selectPriority(leadFollowup.priority);
       cubit.selectCallResult(leadFollowup.calledStatus);
       cubit.state.copyWith(successMessage: "", status: AddLeadStatus.initial);
 
-      final editStage = (resolveLeadName(
-        list: cubit.state.stages,
-        id: leadFollowup.leadStageId,
-        fallback: leadFollowup.leadStage,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ).toUpperCase() == 'NEW')
+      final editStage =
+          (resolveLeadName(
+                list: cubit.state.stages,
+                id: leadFollowup.leadStageId,
+                fallback: leadFollowup.leadStage,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              ).toUpperCase() ==
+              'NEW')
           ? 'FOLLOWUP'
-          :  resolveLeadName(
-        list: cubit.state.stages,
-        id: leadFollowup.leadStageId,
-        fallback: leadFollowup.leadStage,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
+          : resolveLeadName(
+              list: cubit.state.stages,
+              id: leadFollowup.leadStageId,
+              fallback: leadFollowup.leadStage,
+              idOf: (s) => s.id,
+              nameOf: (s) => s.name,
+            );
+      cubit.selectLeadStage(
+        editStage,
+        pendingTag: resolveLeadName(
+          list: cubit.state.leadTag,
+          id: leadFollowup.leadTagId,
+          fallback: leadFollowup.leadTag,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
       );
-      cubit.selectLeadStage(editStage, pendingTag: resolveLeadName(
-        list: cubit.state.leadTag,
-        id: leadFollowup.leadTagId,
-        fallback: leadFollowup.leadTag,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ));
       nextFollowUpCtrl.text = DateFormat(
         'dd-MM-yyyy',
       ).format(leadFollowup.nextFollowUpDate);
@@ -1053,27 +1059,28 @@ class _FollowupTabContentState extends State<_FollowupTabContent> {
       cubit.selectLeadStage('FOLLOWUP');
       cubit.selectCategory(
         resolveLeadName(
-        list: cubit.state.categories,
-        id: lead.leadCategoryId,
-        fallback: lead.leadCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
-        pendingSubCategory:   resolveLeadName(
-        list: cubit.state.categories,
-        id: lead.leadCategoryId,
-        fallback: lead.leadCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ).isEmpty
+          list: cubit.state.categories,
+          id: lead.leadCategoryId,
+          fallback: lead.leadCategory,
+          idOf: (s) => s.id,
+          nameOf: (s) => s.name,
+        ),
+        pendingSubCategory:
+            resolveLeadName(
+              list: cubit.state.categories,
+              id: lead.leadCategoryId,
+              fallback: lead.leadCategory,
+              idOf: (s) => s.id,
+              nameOf: (s) => s.name,
+            ).isEmpty
             ? null
-            :   resolveLeadName(
-        list: cubit.state.categories,
-        id: lead.leadCategoryId,
-        fallback: lead.leadCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+            : resolveLeadName(
+                list: cubit.state.categories,
+                id: lead.leadCategoryId,
+                fallback: lead.leadCategory,
+                idOf: (s) => s.id,
+                nameOf: (s) => s.name,
+              ),
       );
       cubit.selectPriority(lead.priority.isEmpty ? null : lead.priority);
     }
@@ -2208,19 +2215,22 @@ class _FollowupCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         // if (entry.leadStage.toLowerCase() == 'rejected')
                         if (resolveLeadName(
-        list: state.leadTag,
-        id: lead.leadTagId,
-        fallback:  lead.leadTag ?? '',
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ).isNotEmpty)
-                          _cardRow('Tags', resolveLeadName(
-        list: state.leadTag,
-        id: lead.leadTagId,
-        fallback: lead.leadTag,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      )),
+                          list: state.leadTag,
+                          id: lead.leadTagId,
+                          fallback: lead.leadTag ?? '',
+                          idOf: (s) => s.id,
+                          nameOf: (s) => s.name,
+                        ).isNotEmpty)
+                          _cardRow(
+                            'Tags',
+                            resolveLeadName(
+                              list: state.leadTag,
+                              id: lead.leadTagId,
+                              fallback: lead.leadTag,
+                              idOf: (s) => s.id,
+                              nameOf: (s) => s.name,
+                            ),
+                          ),
                         if (entry.leadStage.toLowerCase() == 'rejected')
                           const SizedBox(height: 4),
                         _remarkRow('-${entry.remarks}'),
@@ -2247,13 +2257,15 @@ class _FollowupCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            _StatusChip(label: resolveLeadName(
-        list: state.stages,
-        id: entry.leadStageId,
-        fallback: entry.leadStage,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      )),
+                            _StatusChip(
+                              label: resolveLeadName(
+                                list: state.stages,
+                                id: entry.leadStageId,
+                                fallback: entry.leadStage,
+                                idOf: (s) => s.id,
+                                nameOf: (s) => s.name,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -2612,7 +2624,15 @@ class _LastFollowupCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Row(
                               children: [
-                                _StatusChip(label: resolveLeadName(list: state.stages, id: lead.leadStageId, fallback: lead.leadStage, idOf: (s) => s.id, nameOf: (s) => s.name)),
+                                _StatusChip(
+                                  label: resolveLeadName(
+                                    list: state.stages,
+                                    id: lead.leadStageId,
+                                    fallback: lead.leadStage,
+                                    idOf: (s) => s.id,
+                                    nameOf: (s) => s.name,
+                                  ),
+                                ),
                                 Text(
                                   "(Pending)",
                                   style: AppTextStyle.body(
@@ -3080,12 +3100,12 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
                 'Lead Category',
                 // widget.lead.leadCategory,
                 resolveLeadName(
-        list: state.categories,
-        id: widget.lead.leadCategoryId,
-        fallback: widget.lead.leadCategory,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+                  list: state.categories,
+                  id: widget.lead.leadCategoryId,
+                  fallback: widget.lead.leadCategory,
+                  idOf: (s) => s.id,
+                  nameOf: (s) => s.name,
+                ),
                 'Assigned Staff',
                 widget.lead.assignedStaff,
               ],
@@ -3095,13 +3115,13 @@ class _DetailsTabContentState extends State<_DetailsTabContent> {
                 widget.lead.callResult ?? "-",
                 'Lead Stage',
                 // widget.lead.leadStage,
-resolveLeadName(
-        list: state.stages,
-        id: widget.lead.leadStageId,
-        fallback: widget.lead.leadStage,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      ),
+                resolveLeadName(
+                  list: state.stages,
+                  id: widget.lead.leadStageId,
+                  fallback: widget.lead.leadStage,
+                  idOf: (s) => s.id,
+                  nameOf: (s) => s.name,
+                ),
               ],
               // ['Products', '', '', ''],
             ],
@@ -3112,12 +3132,12 @@ resolveLeadName(
             valueStyle: valueStyle,
             left: 'Lead Method',
             leftVal: resolveLeadName(
-        list: state.sources,
-        id: widget.lead.leadSourceId,
-        fallback: widget.lead.leadSource,
-        idOf: (s) => s.id,
-        nameOf: (s) => s.name,
-      )!,
+              list: state.sources,
+              id: widget.lead.leadSourceId,
+              fallback: widget.lead.leadSource,
+              idOf: (s) => s.id,
+              nameOf: (s) => s.name,
+            )!,
             right: 'Remarks',
             rightVal: widget.lead.remarks.isEmpty
                 ? '-'

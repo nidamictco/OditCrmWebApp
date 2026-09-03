@@ -501,7 +501,10 @@ class _LeaSubCategoryScreenState extends State<LeaSubCategoryScreen> {
                                   child: CustomTable(
                                     columns: [
                                       TableColumn(title: "No."),
-                                      TableColumn(title: "Category Name"),
+                                      TableColumn(
+                                        title:
+                                            "Category Name (${widget.categoryName})",
+                                      ),
                                       TableColumn(title: "Created By"),
                                       TableColumn(title: "Action"),
                                     ],

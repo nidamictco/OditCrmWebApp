@@ -181,11 +181,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
       _contactFocus,
       _whatsappFocus,
       _emailFocus,
-      _addressFocus,
       _pinFocus,
       _postOfficeFocus,
       _stateFocus,
       _districtFocus,
+      _addressFocus,
     ];
 
     // Additional fields in order
@@ -795,6 +795,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     'Pin Code',
                     false,
                     Icons.pin_drop_outlined,
+                    prefixWidget: Image.asset(
+                      AssetResources.pincodeIcon,
+                      scale: 4.2,
+                    ),
                     keyboardtype: TextInputType.number,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
@@ -811,7 +815,11 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   child: _field(
                     'Post Office',
                     false,
-                    Icons.location_city,
+                    Icons.markunread_mailbox,
+                    prefixWidget: Image.asset(
+                      AssetResources.postOfficeIcon,
+                      scale: 1.3,
+                    ),
                     controller: _postOfficeCtrl,
                     focusNode: _postOfficeFocus,
                     nextFocusNode: _stateFocus,
@@ -977,7 +985,10 @@ class _AddLeadPageState extends State<AddLeadPage> {
         final categoryNames = state.categories.map((e) => e.name).toList();
         final subCategoryName = state.subCategories.map((e) => e.name).toList();
         final sourceNames = state.sources.map((e) => e.name).toList();
-        final stagesNames = state.stages.map((e) => e.name).toList();
+        final stagesNames = state.stages
+            .where((e) => e.name != 'TRANSFERRED')
+            .map((e) => e.name)
+            .toList();
         final staffList = state.staffList;
         final staffNames = staffList.map((s) => s.name).toList();
 
@@ -1360,7 +1371,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   color: AppThemeColors.appPrimaryColor,
                   fontWeight: FontWeight.w500,
                   size: 12,
-                ), 
+                ),
                 SizedBox(width: 0.5.w),
                 Expanded(
                   child: Text(
@@ -1761,6 +1772,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
     FocusNode? focusNode,
     FocusNode? nextFocusNode,
     String? hint,
+    Widget? prefixWidget,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1785,11 +1797,13 @@ class _AddLeadPageState extends State<AddLeadPage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
-              prefixIcon: Icon(
-                icons,
-                size: 12.5,
-                color: AppThemeColors.appPrimaryColor,
-              ),
+              prefixIcon:
+                  prefixWidget ??
+                  Icon(
+                    icons,
+                    size: 12.5,
+                    color: AppThemeColors.appPrimaryColor,
+                  ),
               hintText: hint ?? label,
               hintStyle: AppTextStyle.small(
                 size: 11,
@@ -1963,7 +1977,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    hintText: hint ?? 'Enter number',
+                    hintText: hint ?? 'Enter Post Office',
                     hintStyle: AppTextStyle.small(
                       size: 11.5,
                       color: AppThemeColors.hintColor,

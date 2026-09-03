@@ -18,4 +18,8 @@ class AssetResources {
   static const String deleteIcon = 'assets/icon/delete.png';
   static const String restore = "assets/images/restore_alert.png";
   static const String bothDeleteAndRestore = "assets/images/tick.png";
+  static const String postOfficeIcon = "assets/icon/post_office_icon.png";
+  static const String pincodeIcon = "assets/icon/pincodeIcon.png";
+  static const String stateIcon = "assets/icon/state_icon.png";
+  static const String districtIcon = "assets/icon/district_icon.png";
 }

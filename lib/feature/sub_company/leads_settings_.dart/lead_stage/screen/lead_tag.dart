@@ -553,7 +553,9 @@ class _LeaTagScreenState extends State<LeaTagScreen> {
                                 child: CustomTable(
                                   columns: [
                                     TableColumn(title: "No."),
-                                    TableColumn(title: "Lead Tag"),
+                                    TableColumn(
+                                      title: "Lead Tag (${widget.leadStageName})",
+                                    ),
                                     TableColumn(title: "Created By"),
                                     TableColumn(title: "Action"),
                                   ],

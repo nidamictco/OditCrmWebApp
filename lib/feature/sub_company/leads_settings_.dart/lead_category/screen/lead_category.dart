@@ -557,25 +557,28 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                           ),
                                                       usePush: true,
                                                       enableInkWell: false,
-                                                      child: Container(
-                                                        height: 28,
-                                                        width: 28,
-                                                        decoration: BoxDecoration(
-                                                          // color: const Color(
-                                                          //   0xFFFEF2F2,
-                                                          // ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                          border: Border.all(
-                                                            color: AppThemeColors
-                                                                .statusActive,
+                                                      child: Tooltip(
+                                                        message: 'Sub Categories',
+                                                        child: Container(
+                                                          height: 28,
+                                                          width: 28,
+                                                          decoration: BoxDecoration(
+                                                            // color: const Color(
+                                                            //   0xFFFEF2F2,
+                                                            // ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                            border: Border.all(
+                                                              color: AppThemeColors
+                                                                  .statusActive,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        child: Image.asset(
-                                                          AssetResources.tag,
-                                                          scale: 3,
+                                                          child: Image.asset(
+                                                            AssetResources.tag,
+                                                            scale: 3,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -583,59 +586,78 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                     GestureDetector(
                                                       onTap: () {
                                                         final name = cat.name;
-            final id = cat.id; // ✅ capture id too
+                                                        final id = cat
+                                                            .id; // ✅ capture id too
 
-            if (name.isEmpty) return;
+                                                        if (name.isEmpty)
+                                                          return;
                                                         // _showEditDialog(cat),
-                                                         if (!state.isSubmitting) {
-                                            final cubit = context
-                                                .read<LeadCategoryCubit>();
+                                                        if (!state
+                                                            .isSubmitting) {
+                                                          final cubit = context
+                                                              .read<
+                                                                LeadCategoryCubit
+                                                              >();
 
-                                            showDialog(
-                                              context: context,
-                                              builder: (dialogContext) =>
-                                                  LeadSettingsAlert(
-                                                    constrainsWidth: 1000,
-                                                    fieldLabel:
-                                                        'Lead Category',
-                                                    title:
-                                                        'Edit Lead Category',
-                                                        initialValue: cat.name,
-                                                    onSubmit: (String value) async {
-                                                      if (cubit
-                                                          .categoryExists(
-                                                            value,
-                                                          )) {
-                                                        StatusAlertWidget.show(
-                                                          dialogContext,
-                                                          title: 'Validation',
-                                                          message:
-                                                              'This category already exists',
-                                                          isSuccess: false,
-                                                          onButtonPressed: () =>
-                                                              Navigator.pop(
-                                                                dialogContext,
-                                                              ),
-                                                        );
-                                                        return;
-                                                      }
-                                                      Navigator.pop(
-                                                        dialogContext,
-                                                      );
-                                                      await context.read<LeadCategoryCubit>().updateCategory(
-              id: id,
-              name: value,
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("$value updated successfully!"),
-                backgroundColor: Colors.green,
-              ),
-            );
-                                                    },
-                                                  ),
-                                            );
-                                          }
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (dialogContext) => LeadSettingsAlert(
+                                                              constrainsWidth:
+                                                                  1000,
+                                                              fieldLabel:
+                                                                  'Lead Category',
+                                                              title:
+                                                                  'Edit Lead Category',
+                                                              initialValue:
+                                                                  cat.name,
+                                                              onSubmit: (String value) async {
+                                                                if (cubit
+                                                                    .categoryExists(
+                                                                      value,
+                                                                    )) {
+                                                                  StatusAlertWidget.show(
+                                                                    dialogContext,
+                                                                    title:
+                                                                        'Validation',
+                                                                    message:
+                                                                        'This category already exists',
+                                                                    isSuccess:
+                                                                        false,
+                                                                    onButtonPressed: () =>
+                                                                        Navigator.pop(
+                                                                          dialogContext,
+                                                                        ),
+                                                                  );
+                                                                  return;
+                                                                }
+                                                                Navigator.pop(
+                                                                  dialogContext,
+                                                                );
+                                                                await context
+                                                                    .read<
+                                                                      LeadCategoryCubit
+                                                                    >()
+                                                                    .updateCategory(
+                                                                      id: id,
+                                                                      name:
+                                                                          value,
+                                                                    );
+                                                                ScaffoldMessenger.of(
+                                                                  context,
+                                                                ).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text(
+                                                                      "$value updated successfully!",
+                                                                    ),
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .green,
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          );
+                                                        }
                                                       },
                                                       child: Container(
                                                         height: 28,
@@ -663,15 +685,16 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                     // 🔹 Delete — opens confirm dialog
                                                     GestureDetector(
                                                       onTap: () {
-                                                          // _confirmDelete(cat);
-                                                          
-                                                    final cubit = context
-                                                        .read<LeadCategoryCubit>();
+                                                        // _confirmDelete(cat);
 
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (dialogContext) =>
-                                                          ConfirmAlertWidget(
+                                                        final cubit = context
+                                                            .read<
+                                                              LeadCategoryCubit
+                                                            >();
+
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (dialogContext) => ConfirmAlertWidget(
                                                             type:
                                                                 ConfirmAlertType
                                                                     .delete,
@@ -706,8 +729,8 @@ class _LeadCategoryState extends State<LeadCategory> {
                                                               );
                                                             },
                                                           ),
-                                                    );
-                                                          },
+                                                        );
+                                                      },
                                                       child: Container(
                                                         height: 28,
                                                         width: 28,

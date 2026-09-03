@@ -350,6 +350,7 @@ String get _dateLabel {
                               cardWidth = totalWidth;
                             }
 
+
                             if (state.isLoadingCounts) {
                               return SizedBox(
                                 height: 130,

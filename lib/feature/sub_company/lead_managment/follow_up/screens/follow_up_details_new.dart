@@ -996,13 +996,13 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 state.successMessage == 'Follow-up added successfully.' &&
                 !_dialogShown) {
               _dialogShown = true;
-               Navigator.pop(dialogContext);
+              Navigator.pop(dialogContext);
               await _reloadLead();
               await cubit.fetchDashboardCounts(
                 DateTime.now(),
                 forceFetch: true,
               );
-             
+
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
                   // _showAlertDialog(
@@ -1111,6 +1111,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
                 .map((e) => e.name)
                 .toList();
             final stagesNames = state.stages
+                .where((e) => e.name != 'TRANSFERRED')
                 .map((e) => e.name)
                 .where((name) => name.toUpperCase() != 'NEW')
                 .toList();
@@ -2250,6 +2251,7 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
 
 class _StatusChip extends StatelessWidget {
   final String label;
+
   const _StatusChip({required this.label});
 
   Color get _color {
@@ -2587,7 +2589,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isPending
-                            ? AppThemeColors.appPrimaryColor
+                            ? AppThemeColors.primary
                             : AppThemeColors.followupDateCardBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -3050,7 +3052,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
                       style: AppTextStyle.body(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: const Color(0xff374151),
+                        color: AppThemeColors.cardText,
                       ),
                     ),
                   ),
@@ -3090,6 +3092,7 @@ class _NewTimelineDateGroup extends StatelessWidget {
 
 class _NewActivitiesTabContent extends StatefulWidget {
   final AddLeadModel lead;
+
   const _NewActivitiesTabContent({required this.lead});
 
   @override
@@ -3162,6 +3165,7 @@ class _NewActivitiesTabContentState extends State<_NewActivitiesTabContent> {
 class _NewActivityItem extends StatelessWidget {
   final ActivityModel activity;
   final bool isLast;
+
   const _NewActivityItem({required this.activity, required this.isLast});
 
   IconData get _icon {
@@ -3341,6 +3345,7 @@ class _NewActivityItem extends StatelessWidget {
 
 class _NewDetailsTabContent extends StatefulWidget {
   final AddLeadModel lead;
+
   const _NewDetailsTabContent({required this.lead});
 
   @override
@@ -3939,6 +3944,7 @@ Color _getNewPriorityColor(String priority) {
 class _NewPriorityBadge extends StatelessWidget {
   final String label;
   final String priority;
+
   const _NewPriorityBadge({required this.label, required this.priority});
 
   @override
@@ -3964,6 +3970,7 @@ class _NewPriorityBadge extends StatelessWidget {
 
 class _NewStatusChip extends StatelessWidget {
   final String label;
+
   const _NewStatusChip({required this.label});
 
   Color _chipColor(String txt) {

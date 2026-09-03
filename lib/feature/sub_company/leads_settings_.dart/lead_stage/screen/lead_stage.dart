@@ -641,25 +641,28 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                   ),
                                               usePush: true,
                                               enableInkWell: false,
-                                              child: Container(
-                                                height: 28,
-                                                width: 28,
-                                                // padding: EdgeInsets.all(6),
-                                                decoration: BoxDecoration(
-                                                  // color: const Color(
-                                                  //   0xFFFEF2F2,
-                                                  // ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                  border: Border.all(
-                                                    color: AppThemeColors
-                                                        .statusActive,
+                                              child: Tooltip(
+                                                message: 'Lead Tags',
+                                                child: Container(
+                                                  height: 28,
+                                                  width: 28,
+                                                  // padding: EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    // color: const Color(
+                                                    //   0xFFFEF2F2,
+                                                    // ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(4),
+                                                    border: Border.all(
+                                                      color: AppThemeColors
+                                                          .statusActive,
+                                                    ),
                                                   ),
-                                                ),
-                                                child: Center(
-                                                  child: Image.asset(
-                                                    AssetResources.tag,
-                                                    scale: 3,
+                                                  child: Center(
+                                                    child: Image.asset(
+                                                      AssetResources.tag,
+                                                      scale: 3,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -677,26 +680,29 @@ class _LeadStagesScreenState extends State<LeadStagesScreen> {
                                                       ),
                                                   usePush: true,
                                                   enableInkWell: false,
-                                                  child: Container(
-                                                    height: 28,
-                                                    width: 28,
-                                                    padding: EdgeInsets.all(6),
-                                                    decoration: BoxDecoration(
-                                                      // color: const Color(
-                                                      //   0xFFFEF2F2,
-                                                      // ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                      border: Border.all(
-                                                        color: AppThemeColors
-                                                            .statusActive,
+                                                  child: Tooltip(
+                                                    message: 'Lead Tags',
+                                                    child: Container(
+                                                      height: 28,
+                                                      width: 28,
+                                                      padding: EdgeInsets.all(6),
+                                                      decoration: BoxDecoration(
+                                                        // color: const Color(
+                                                        //   0xFFFEF2F2,
+                                                        // ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: AppThemeColors
+                                                              .statusActive,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    child: Image.asset(
-                                                      AssetResources.tag,
-                                                      scale: 3,
+                                                      child: Image.asset(
+                                                        AssetResources.tag,
+                                                        scale: 3,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
