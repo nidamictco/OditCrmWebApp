@@ -42,11 +42,25 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<AddLeadCubit>().fetchDashboardCounts(null);
-      context.read<AddLeadCubit>().fetchRecentActivities();
+     final cubit = context.read<AddLeadCubit>();
+    cubit.fetchPackageDetailsIfNeeded();       // once/day, cheap no-op otherwise
+    cubit.fetchDashboardCounts(null);          // dirty-flag + cache-key gated
+    cubit.fetchRecentActivities();  
       _loadUser();
     });
   }
+
+@override
+void didPopNext() {
+  final cubit = context.read<AddLeadCubit>();
+  // forceFetch removed — relies on _countsDirty / _activitiesDirty being
+  // set by markDashboardDirty() when a mutation actually happened.
+  cubit.fetchDashboardCounts(
+    _selectedRange?.from,
+    toDate: _selectedRange?.isRange == true ? _selectedRange!.to : null,
+  );
+  cubit.fetchRecentActivities();
+}
 
   Future<void> _loadUser() async {
     final user = await SessionService().getSavedUser();
@@ -119,23 +133,16 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
     super.dispose();
   }
 
-  // @override
+ 
+  //  @override
   // void didPopNext() {
-  //   final today = _dateController.text.isNotEmpty
-  //       ? DateFormat('dd-MM-yyyy').parse(_dateController.text)
-  //       : null;
-  //   context.read<AddLeadCubit>().fetchDashboardCounts(today, forceFetch: true);
+  //   context.read<AddLeadCubit>().fetchDashboardCounts(
+  //         _selectedRange?.from,
+  //         toDate: _selectedRange?.isRange == true ? _selectedRange!.to : null,
+  //         forceFetch: true,
+  //       );
   //   context.read<AddLeadCubit>().fetchRecentActivities();
   // }
-   @override
-  void didPopNext() {
-    context.read<AddLeadCubit>().fetchDashboardCounts(
-          _selectedRange?.from,
-          toDate: _selectedRange?.isRange == true ? _selectedRange!.to : null,
-          forceFetch: true,
-        );
-    context.read<AddLeadCubit>().fetchRecentActivities();
-  }
 
 String get _dateLabel {
     if (_selectedRange == null) return 'Select Date';

@@ -956,31 +956,49 @@ class _FollowUpDetailsNewScreenState extends State<FollowUpDetailsNewScreen>
       _addressm.text = lead.address;
       _WhtsppNoCtrl.text = lead.whatsappNumber;
       cubit.selectLeadStage('FOLLOWUP');
+      // cubit.selectCategory(
+      //   resolveLeadName(
+      //     list: cubit.state.categories,
+      //     id: lead.leadCategoryId,
+      //     fallback: lead.leadCategory,
+      //     idOf: (s) => s.id,
+      //     nameOf: (s) => s.name,
+      //   ),
+      //   pendingSubCategory:
+      //       resolveLeadName(
+      //         list: cubit.state.categories,
+      //         id: lead.leadCategoryId,
+      //         fallback: lead.leadCategory,
+      //         idOf: (s) => s.id,
+      //         nameOf: (s) => s.name,
+      //       ).isEmpty
+      //       ? null
+      //       : resolveLeadName(
+      //           list: cubit.state.categories,
+      //           id: lead.leadCategoryId,
+      //           fallback: lead.leadCategory,
+      //           idOf: (s) => s.id,
+      //           nameOf: (s) => s.name,
+      //         ),
+      // );
       cubit.selectCategory(
-        resolveLeadName(
-          list: cubit.state.categories,
-          id: lead.leadCategoryId,
-          fallback: lead.leadCategory,
+  resolveLeadName(
+    list: cubit.state.categories,
+    id: lead.leadCategoryId,
+    fallback: lead.leadCategory,
+    idOf: (s) => s.id,
+    nameOf: (s) => s.name,
+  ),
+  pendingSubCategory: lead.leadSubCategory.isEmpty
+      ? null
+      : resolveLeadName(
+          list: cubit.state.subCategories,
+          id: lead.leadSubCategoryId,
+          fallback: lead.leadSubCategory,
           idOf: (s) => s.id,
           nameOf: (s) => s.name,
         ),
-        pendingSubCategory:
-            resolveLeadName(
-              list: cubit.state.categories,
-              id: lead.leadCategoryId,
-              fallback: lead.leadCategory,
-              idOf: (s) => s.id,
-              nameOf: (s) => s.name,
-            ).isEmpty
-            ? null
-            : resolveLeadName(
-                list: cubit.state.categories,
-                id: lead.leadCategoryId,
-                fallback: lead.leadCategory,
-                idOf: (s) => s.id,
-                nameOf: (s) => s.name,
-              ),
-      );
+);
       cubit.selectPriority(lead.priority.isEmpty ? null : lead.priority);
     }
 

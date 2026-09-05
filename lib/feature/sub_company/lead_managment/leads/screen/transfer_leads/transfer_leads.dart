@@ -675,7 +675,7 @@ class _TransferLeadsState extends State<TransferLeads> {
     filterWidgets.add(
       Dropdown(
         label: "Priority",
-        hint: 'Select Field',
+        hint: 'Select Priority',
         items: priority,
         selectedValue: selectedPriority,
         onChanged: (val) {
@@ -691,7 +691,7 @@ class _TransferLeadsState extends State<TransferLeads> {
       filterWidgets.add(
         Dropdown(
           label: "Staff",
-          hint: 'Select Field',
+          hint: 'Select Staff',
           items: staffItems,
           selectedValue: selectedStaff,
           onChanged: (val) {

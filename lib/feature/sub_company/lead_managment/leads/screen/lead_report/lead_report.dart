@@ -923,21 +923,54 @@ class _LeadsReportState extends State<LeadsReport> {
                               ),
                             );
 
-                            filterWidgets.add(
-                              MultiSelectDropdown(
-                                showChips: true,
-                                label: "District",
-                                hint: "select district",
-                                items: _availableDistricts(),
-                                selectedValues: selectedDistricts,
-                                onChanged: (vals) {
-                                  setState(() {
-                                    selectedDistricts = vals;
-                                    _resetPage();
-                                  });
-                                },
-                              ),
-                            );
+                            // filterWidgets.add(
+                            //   MultiSelectDropdown(
+                            //     showChips: true,
+                            //     label: "District",
+                            //     hint: "select district",
+                            //     items: _availableDistricts(),
+                            //     selectedValues: selectedDistricts,
+                            //     onChanged: (vals) {
+                            //       setState(() {
+                            //         selectedDistricts = vals;
+                            //         _resetPage();
+                            //       });
+                            //     },
+                            //   ),
+                            // );
+                            final hasStates = selectedStates.isNotEmpty;
+
+filterWidgets.add(
+  GestureDetector(
+    onTap: !hasStates
+        ? () {
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please select a state first.',style: TextStyle(color: AppColors.white),),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+            ),
+          );
+          }
+        : null,
+    child: AbsorbPointer(
+      absorbing: !hasStates,
+      child: MultiSelectDropdown(
+        showChips: true,
+        label: "District",
+        hint: "select district",
+        items: _availableDistricts(),
+        selectedValues: selectedDistricts,
+        onChanged: (vals) {
+          setState(() {
+            selectedDistricts = vals;
+            _resetPage();
+          });
+        },
+      ),
+    ),
+  ),
+);
 
                             return LayoutBuilder(
                               builder: (context, constraints) {

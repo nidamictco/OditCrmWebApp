@@ -238,7 +238,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         _appliedFromDate!.day,
       );
       result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isBefore(from))
+          .where((l) => l.deletedAt != null && !l.deletedAt!.isBefore(from))
           .toList();
     }
     if (_appliedToDate != null) {
@@ -251,7 +251,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
         59,
       );
       result = result
-          .where((l) => l.createdAt != null && !l.createdAt!.isAfter(to))
+          .where((l) => l.deletedAt != null && !l.deletedAt!.isAfter(to))
           .toList();
     }
 
@@ -793,7 +793,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     filterWidgets.add(
       Dropdown(
         label: "Assigned Staff",
-        hint: 'Select Field',
+        hint: 'Select Staff',
         items: staffItems,
         selectedValue: selectedAssignedStaff,
         onChanged: (val) {
@@ -808,7 +808,7 @@ class _DeleteLeadsState extends State<DeleteLeads> {
     filterWidgets.add(
       Dropdown(
         label: "Deleted By",
-        hint: 'Select Field',
+        hint: 'Select Staff',
         items: deletedByItems,
         selectedValue: selectedDeletedBy,
         onChanged: (val) {

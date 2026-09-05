@@ -55,7 +55,6 @@ import '../../feature/sub_company/staff_managment/designation/screen/add_designa
 import '../../feature/sub_company/leads_settings_.dart/call_settings.dart/screen/call_settings.dart';
 import '../../feature/sub_company/reports/staff_reports/screen/staff_profile_screen.dart';
 import '../../feature/sub_company/reports/staff_reports/screen/time_line.dart';
-import '../../feature/sub_company/lead_managment/follow_up/screens/follow_up_details_screen.dart';
 import '../../feature/sub_company/staff_managment/staff/screen/view_staff/screen/psswrd.dart';
 import '../../feature/sub_company/sidebar/widget/profile.dart';
 import '../../feature/sub_company/notification/screen/notification.dart';

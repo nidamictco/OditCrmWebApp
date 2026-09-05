@@ -1024,7 +1024,7 @@ Widget _buildStaffTypeField() {
 
   return SimpleDropdown(
     label: 'Staff Type',
-    hint: 'Select Field',
+    hint: 'Select Staff Type',
     showStar: true,
     showClear: false,
     enabled: !isCompanyAdmin,
@@ -1232,7 +1232,7 @@ Widget _buildStaffTypeField() {
   //               const SizedBox(width: 8),
   //               Expanded(
   //                 child: Text(
-  //                   _staffType ?? 'Select Field',
+  //                   _staffType ?? 'Select staff type',
   //                   style: AppTextStyle.medium(
   //                     fontSize: 11.5,
   //                     color: _staffType != null

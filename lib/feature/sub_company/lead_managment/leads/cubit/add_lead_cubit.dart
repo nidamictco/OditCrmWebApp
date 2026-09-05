@@ -21,6 +21,7 @@ import 'package:Odit_CRM/feature/sub_company/settings/general_settings/data/gene
 import 'package:Odit_CRM/feature/sub_company/staff_managment/staff/data/add_staff_repo.dart';
 import 'package:intl/intl.dart';
 import 'package:Odit_CRM/feature/sub_company/lead_managment/follow_up/models/follow_up_activities_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddLeadCubit extends Cubit<AddLeadState> {
   final IAddLeadRepository _leadRepository;
@@ -143,41 +144,82 @@ class AddLeadCubit extends Cubit<AddLeadState> {
     }
   }
 
-  void _watchCategories() {
-    _categorySubscription?.cancel();
-    _categorySubscription = _categoryRepository.watchCategories().listen(
-      (cats) {
-        if (isClosed) return;
-        emit(state.copyWith(categories: [...cats]));
+  // void _watchCategories() {
+  //   _categorySubscription?.cancel();
+  //   _categorySubscription = _categoryRepository.watchCategories().listen(
+  //     (cats) {
+  //       if (isClosed) return;
+  //       emit(state.copyWith(categories: [...cats]));
 
-        // ── Edit-mode race condition fix ────────────────────────────────────────
-        // selectCategory() may have been called (via _prefillIfEditing) before
-        // this stream fired its first event.  If a category is already recorded
-        // in state but no sub-category subscription is running yet, start it now.
-        final alreadySelected = state.selectedCategory;
-        if (alreadySelected != null &&
-            alreadySelected.isNotEmpty &&
-            _subCategorySubscription == null) {
+  //       // ── Edit-mode race condition fix ────────────────────────────────────────
+  //       // selectCategory() may have been called (via _prefillIfEditing) before
+  //       // this stream fired its first event.  If a category is already recorded
+  //       // in state but no sub-category subscription is running yet, start it now.
+  //       final alreadySelected = state.selectedCategory;
+  //       if (alreadySelected != null &&
+  //           alreadySelected.isNotEmpty &&
+  //           _subCategorySubscription == null) {
+  //         log(
+  //           '[AddLeadCubit] _watchCategories: auto-starting subCat watcher '
+  //           'for already-selected category="$alreadySelected"',
+  //         );
+  //         final match = cats.where((c) => c.name == alreadySelected);
+  //         if (match.isNotEmpty && match.first.id.isNotEmpty) {
+  //           _watchSubCategoriesForCategory(match.first.id);
+  //         } else {
+  //           log(
+  //             '[AddLeadCubit] _watchCategories: no match found for '
+  //             'selectedCategory="$alreadySelected" in loaded cats=${cats.map((c) => c.name).toList()}',
+  //           );
+  //         }
+  //       }
+  //     },
+  //     onError: (e) {
+  //       log('[AddLeadCubit] _watchCategories error: $e');
+  //     },
+  //   );
+  // }
+
+  void _watchCategories() {
+  _categorySubscription?.cancel();
+  _categorySubscription = _categoryRepository.watchCategories().listen(
+    (cats) {
+      if (isClosed) return;
+      emit(state.copyWith(categories: [...cats]));
+
+      // ── Edit-mode race condition fix ──────────────────────────────────
+      final alreadySelected = state.selectedCategory;
+      if (alreadySelected != null &&
+          alreadySelected.isNotEmpty &&
+          _subCategorySubscription == null) {
+        final match = cats.where((c) => c.name == alreadySelected);
+        if (match.isNotEmpty && match.first.id.isNotEmpty) {
           log(
             '[AddLeadCubit] _watchCategories: auto-starting subCat watcher '
-            'for already-selected category="$alreadySelected"',
+            'for already-selected category="$alreadySelected", '
+            'pendingSub="$_pendingSubCategoryName"',
           );
-          final match = cats.where((c) => c.name == alreadySelected);
-          if (match.isNotEmpty && match.first.id.isNotEmpty) {
-            _watchSubCategoriesForCategory(match.first.id);
-          } else {
-            log(
-              '[AddLeadCubit] _watchCategories: no match found for '
-              'selectedCategory="$alreadySelected" in loaded cats=${cats.map((c) => c.name).toList()}',
-            );
-          }
+          emit(state.copyWith(selectedCategoryId: match.first.id)); // NEW — was missing
+          final pendingSub = _pendingSubCategoryName;
+          _pendingCategoryName = null;
+          _pendingSubCategoryName = null;
+          _watchSubCategoriesForCategory(
+            match.first.id,
+            pendingSubCategoryName: pendingSub, // NEW — carries it through
+          );
+        } else {
+          log(
+            '[AddLeadCubit] _watchCategories: no match found for '
+            'selectedCategory="$alreadySelected" in loaded cats=${cats.map((c) => c.name).toList()}',
+          );
         }
-      },
-      onError: (e) {
-        log('[AddLeadCubit] _watchCategories error: $e');
-      },
-    );
-  }
+      }
+    },
+    onError: (e) {
+      log('[AddLeadCubit] _watchCategories error: $e');
+    },
+  );
+}
 
   void _watchSources() {
     _sourceSubscription?.cancel();
@@ -308,39 +350,74 @@ class AddLeadCubit extends Cubit<AddLeadState> {
 
   // ── Selection helpers ─────────────────────────────────────────────────────
 
-  void selectCategory(String? value, {String? pendingSubCategory}) {
-    log(
-      '[AddLeadCubit] selectCategory: value="$value", '
-      'cats loaded=${state.categories.length}',
-    );
-    emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
+  // void selectCategory(String? value, {String? pendingSubCategory}) {
+  //   log(
+  //     '[AddLeadCubit] selectCategory: value="$value", '
+  //     'cats loaded=${state.categories.length}',
+  //   );
+  //   emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
 
-    // Reset sub-category selection + list + stream whenever the category changes
-    _subCategorySubscription?.cancel();
-    _subCategorySubscription = null;
-    emit(state.copyWith(subCategories: [], clearSubCategory: true));
+  //   // Reset sub-category selection + list + stream whenever the category changes
+  //   _subCategorySubscription?.cancel();
+  //   _subCategorySubscription = null;
+  //   emit(state.copyWith(subCategories: [], clearSubCategory: true));
 
-    if (value == null) return;
+  //   if (value == null) return;
 
-    // Resolve the Firestore doc ID of the chosen category from already-loaded list.
-    final match = state.categories.where((c) => c.name == value);
-    if (match.isEmpty) {
-      log(
-        '[AddLeadCubit] selectCategory: no match for "$value" in '
-        'categories=${state.categories.map((c) => c.name).toList()} — '
-        'sub-category watcher NOT started (stream not yet loaded?)',
-      );
-      return;
-    }
+  //   // Resolve the Firestore doc ID of the chosen category from already-loaded list.
+  //   final match = state.categories.where((c) => c.name == value);
+  //   if (match.isEmpty) {
+  //     log(
+  //       '[AddLeadCubit] selectCategory: no match for "$value" in '
+  //       'categories=${state.categories.map((c) => c.name).toList()} — '
+  //       'sub-category watcher NOT started (stream not yet loaded?)',
+  //     );
+  //     return;
+  //   }
 
-    final categoryId = match.first.id;
-    emit(state.copyWith(selectedCategoryId: categoryId));
+  //   final categoryId = match.first.id;
+  //   emit(state.copyWith(selectedCategoryId: categoryId));
 
-    _watchSubCategoriesForCategory(
-      categoryId,
-      pendingSubCategoryName: pendingSubCategory,
-    );
+  //   _watchSubCategoriesForCategory(
+  //     categoryId,
+  //     pendingSubCategoryName: pendingSubCategory,
+  //   );
+  // }
+
+  // AddLeadCubit fields
+String? _pendingCategoryName;
+String? _pendingSubCategoryName;
+
+void selectCategory(String? value, {String? pendingSubCategory}) {
+  emit(state.copyWith(selectedCategory: value, clearCategory: value == null));
+  _subCategorySubscription?.cancel();
+  _subCategorySubscription = null;
+  emit(state.copyWith(subCategories: [], clearSubCategory: true));
+
+  if (value == null) {
+    _pendingCategoryName = null;
+    _pendingSubCategoryName = null;
+    return;
   }
+
+  final match = state.categories.where((c) => c.name == value);
+  if (match.isEmpty) {
+    // Categories haven't loaded yet — stash both names for later.
+    _pendingCategoryName = value;
+    _pendingSubCategoryName = pendingSubCategory;
+    log('[AddLeadCubit] selectCategory: categories not loaded yet, '
+        'deferring "$value" / "$pendingSubCategory"');
+    return;
+  }
+
+  _pendingCategoryName = null;
+  final categoryId = match.first.id;
+  emit(state.copyWith(selectedCategoryId: categoryId));
+  _watchSubCategoriesForCategory(
+    categoryId,
+    pendingSubCategoryName: pendingSubCategory,
+  );
+}
 
   void selectCategoryDirect({required String name, required String id}) {
     emit(state.copyWith(selectedCategory: name, selectedCategoryId: id));
@@ -1334,11 +1411,23 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
 
   // // In AddLeadCubit — add these fields
  
+ /// Call this after any lead create/update/delete/status-change/transfer
+/// succeeds, so the next dashboard visit knows to refresh instead of
+/// silently reusing stale cached counts/activities.
+void markDashboardDirty() {
+  _countsDirty = true;
+  _activitiesDirty = true;
+}
+
 
   DateTime? _lastCountDate;
   DateTime? _lastCountToDate; // NEW — track range end for cache validity
   DashboardCountModel? _cachedCounts;
   int? _cachedTotalCalled;
+
+  bool _countsDirty = true;
+bool _activitiesDirty = true;
+DateTime? _packageDetailsFetchedOn;
 
   Future<void> fetchDashboardCounts(
     DateTime? selectedDate, {
@@ -1360,6 +1449,7 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
         _sameDay(_lastCountToDate, toDate);
 
     if (!forceFetch &&
+     !_countsDirty &&
         isSameSelection &&
         _cachedCounts != null &&
         _cachedTotalCalled != null) {
@@ -1425,6 +1515,7 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
       _lastCountToDate = toDate; // NEW
       _cachedCounts = counts;
       _cachedTotalCalled = totalCalled;
+      _countsDirty = false; 
 
       // ... rest of the method (subscription plan lookup, emit(...)) is unchanged
 
@@ -1488,10 +1579,10 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
           dashboardTotalCalledCount: totalCalled.toString(),
           missedLeadCount: counts.missedLeadCount.toString(),
           transferredCount: counts.transferredCount.toString(),
-          subscriptionPlan: subscriptionPlan,
-          subscriptionStartDate: startDateStr,
-          subscriptionEndDate: endDateStr,
-          companyUserCount: userCountStr,
+          // subscriptionPlan: subscriptionPlan,
+          // subscriptionStartDate: startDateStr,
+          // subscriptionEndDate: endDateStr,
+          // companyUserCount: userCountStr,
         ),
       );
       log("kkkkkkkkkk ${state.dashboardTotalCalledCount}");
@@ -1814,6 +1905,7 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
           clearError: true,
         ),
       );
+      _activitiesDirty = false;
     } catch (e) {
       log('[AddLeadCubit] Error fetching recent activities: $e');
       if (isClosed) return; // ← ADD THIS
@@ -1822,4 +1914,84 @@ Future<void> bulkDeleteLeads(List<AddLeadModel> leads) async {
       );
     }
   }
+
+  static const _kPkgFetchedOn = 'dash_pkg_fetched_on';
+static const _kPkgPlan = 'dash_pkg_plan';
+static const _kPkgStart = 'dash_pkg_start';
+static const _kPkgEnd = 'dash_pkg_end';
+static const _kPkgUsers = 'dash_pkg_users';
+
+Future<void> fetchPackageDetailsIfNeeded({bool forceFetch = false}) async {
+  final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  final prefs = await SharedPreferences.getInstance();
+  if (isClosed) return;
+
+  if (!forceFetch && prefs.getString(_kPkgFetchedOn) == todayStr) {
+    final plan = prefs.getString(_kPkgPlan);
+    if (plan != null) {
+      log('[fetchPackageDetailsIfNeeded] Using cached package info ($todayStr)');
+      emit(state.copyWith(
+        subscriptionPlan: plan,
+        subscriptionStartDate: prefs.getString(_kPkgStart) ?? '',
+        subscriptionEndDate: prefs.getString(_kPkgEnd) ?? '',
+        companyUserCount: prefs.getString(_kPkgUsers) ?? '0',
+      ));
+      return;
+    }
+  }
+
+  final user = await SessionService().getSavedUser();
+  if (isClosed || user == null) return;
+
+  final role = user.staffType ?? '';
+  if (role.toLowerCase() != 'admin') return; // only admin banner needs this
+
+  final companyId = user.companyId ?? '';
+  if (companyId.isEmpty) return;
+
+  try {
+    String subscriptionPlan = 'ACTIVE PACKAGE';
+    String startDateStr = '';
+    String endDateStr = '';
+
+    final companySnap = await FirebaseFirestore.instance
+        .collection('COMPANY')
+        .doc(companyId)
+        .get();
+
+    if (companySnap.exists) {
+      final data = companySnap.data();
+      subscriptionPlan =
+          (data?['subscriptionPlan'] as String? ?? 'ACTIVE PACKAGE').toUpperCase();
+      final startTs = data?['subscriptionStartDate'] as Timestamp?;
+      final endTs = data?['subscriptionEndDate'] as Timestamp?;
+      if (startTs != null) startDateStr = DateFormat('dd-MM-yyyy').format(startTs.toDate());
+      if (endTs != null) endDateStr = DateFormat('dd-MM-yyyy').format(endTs.toDate());
+    }
+
+    final staffSnap = await FirebaseFirestore.instance
+        .collection('COMPANY')
+        .doc(companyId)
+        .collection('STAFF')
+        .get();
+    final userCountStr = staffSnap.docs.length.toString();
+
+    if (isClosed) return;
+    emit(state.copyWith(
+      subscriptionPlan: subscriptionPlan,
+      subscriptionStartDate: startDateStr,
+      subscriptionEndDate: endDateStr,
+      companyUserCount: userCountStr,
+    ));
+
+    await prefs.setString(_kPkgFetchedOn, todayStr);
+    await prefs.setString(_kPkgPlan, subscriptionPlan);
+    await prefs.setString(_kPkgStart, startDateStr);
+    await prefs.setString(_kPkgEnd, endDateStr);
+    await prefs.setString(_kPkgUsers, userCountStr);
+  } catch (e) {
+    log('[fetchPackageDetailsIfNeeded] Error: $e');
+  }
+}
 }

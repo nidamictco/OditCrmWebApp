@@ -244,7 +244,15 @@ class _AddLeadPageState extends State<AddLeadPage> {
       final cubit = context.read<AddLeadCubit>();
       if (lead.state.isNotEmpty) cubit.selectState(lead.state);
       if (lead.district.isNotEmpty) cubit.selectDistrict(lead.district);
-      if (lead.leadCategory.isNotEmpty) cubit.selectCategory(lead.leadCategory);
+      // if (lead.leadCategory.isNotEmpty) cubit.selectCategory(lead.leadCategory);
+       if (lead.leadCategory.isNotEmpty) {
+    cubit.selectCategory(
+      lead.leadCategory,
+      pendingSubCategory: lead.leadSubCategory.isNotEmpty
+          ? lead.leadSubCategory
+          : null,
+    );
+  }
       if (lead.leadSource.isNotEmpty) cubit.selectSource(lead.leadSource);
       if (lead.priority.isNotEmpty) cubit.selectPriority(lead.priority);
       if (lead.leadStage.isNotEmpty) cubit.selectLeadStage(lead.leadStage);
@@ -714,6 +722,7 @@ class _AddLeadPageState extends State<AddLeadPage> {
   Widget _buildCustomerDetails() {
     return BlocBuilder<AddLeadCubit, AddLeadState>(
       builder: (context, state) {
+        final hasState = state.selectedState != null;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -823,34 +832,12 @@ class _AddLeadPageState extends State<AddLeadPage> {
                     controller: _postOfficeCtrl,
                     focusNode: _postOfficeFocus,
                     nextFocusNode: _stateFocus,
-                    hint: 'Enter number',
+                    hint: 'Enter post Office',
                   ),
                 ),
                 SizedBox(width: 1.5.w),
                 Expanded(
-                  // child: stateDistrictMap.isEmpty
-                  //     ? Container(
-                  //         height: 5.h,
-                  //         decoration: BoxDecoration(
-                  //           border: Border.all(color: const Color(0xFFCBD5E1)),
-                  //           borderRadius: BorderRadius.circular(8),
-                  //           color: Colors.white,
-                  //         ),
-                  //         child: const Center(
-                  //           child: SizedBox(
-                  //             width: 14,
-                  //             height: 14,
-                  //             child: CircularProgressIndicator(
-                  //               strokeWidth: 2,
-                  //               color: AppColors.green,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       )
-                  //     :
                   child: Dropdown(
-                    // showIcon: true,
-                    // icon: Icons.location_on_outlined,
                     items: stateDistrictMap.keys.toList(),
                     selectedValue: state.selectedState,
                     focusNode: _stateFocus,
@@ -863,27 +850,44 @@ class _AddLeadPageState extends State<AddLeadPage> {
                   ),
                 ),
                 SizedBox(width: 1.5.w),
+
                 Expanded(
-                  child: Dropdown(
-                    // showIcon: true,
-                    // icon: Icons.location_on_outlined,
-                    items: state.selectedState == null
-                        ? []
-                        : stateDistrictMap[state.selectedState] ?? [],
-                    selectedValue: state.selectedDistrict,
-                    enabled: state.selectedState != null,
-                    focusNode: _districtFocus,
-                    nextFocusNode: _addressFocus,
-                    // (!_isEditMode &&
-                    //     _currentUser != null &&
-                    //     _currentUser!.staffType == 'Admin')
-                    // ? _assignStaffFocus
-                    // : _categoryFocus,
-                    onChanged: (v) =>
-                        context.read<AddLeadCubit>().selectDistrict(v),
-                    label: 'District',
-                    hint: 'Select District',
-                    showClear: true,
+                  child: GestureDetector(
+                    onTap: !hasState
+                        ? () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please select a state first.',
+                                  style: TextStyle(color: AppColors.white),
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.red,
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 10,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
+                    child: AbsorbPointer(
+                      absorbing: !hasState,
+                      child: Dropdown(
+                        items: state.selectedState == null
+                            ? []
+                            : stateDistrictMap[state.selectedState] ?? [],
+                        selectedValue: state.selectedDistrict,
+                        enabled: state.selectedState != null,
+                        focusNode: _districtFocus,
+                        nextFocusNode: _addressFocus,
+                        onChanged: (v) =>
+                            context.read<AddLeadCubit>().selectDistrict(v),
+                        label: 'District',
+                        hint: 'Select District',
+                        showClear: true,
+                      ),
+                    ),
                   ),
                 ),
               ],

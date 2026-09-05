@@ -1221,12 +1221,23 @@ class _DropdownState extends State<Dropdown> {
                   else
                     Padding(
                       padding: EdgeInsets.only(right: 2.w),
-                      child: Icon(
-                        _isOpen
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        size: 12.5,
-                        color: AppColors.grey,
+                      child: GestureDetector(
+                       onTap: () {
+  _focusNode.requestFocus();
+
+  if (_isOpen) {
+    _closeDropdown();
+  } else {
+    _openDropdown();
+  }
+},
+                        child: Icon(
+                          _isOpen
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 12.5,
+                          color: AppColors.grey,
+                        ),
                       ),
                     ),
                 ],

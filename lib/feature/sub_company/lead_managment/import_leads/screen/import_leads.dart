@@ -696,7 +696,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
     final stageField = Dropdown(
       label: 'Lead Stage',
-      hint: 'Select Field',
+      hint: 'Select Stage',
       items: stagesNames,
       selectedValue: state.selectedLeadStage,
       onChanged: (val) {
@@ -729,7 +729,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
     final staffField = Dropdown(
       label: 'Staff',
-      hint: 'Select Field',
+      hint: 'Select Staff',
       items: staffNames,
       selectedValue: state.assignedStaffName.isNotEmpty
           ? state.assignedStaffName
@@ -759,7 +759,7 @@ class _ImportLeadsState extends State<ImportLeads> {
 
     final priorityField = Dropdown(
       label: 'Priority',
-      hint: 'Select Field',
+      hint: 'Select Priority',
       items: _priorities,
       selectedValue: state.selectedPriority,
       onChanged: cubit.selectPriority,
@@ -768,24 +768,53 @@ class _ImportLeadsState extends State<ImportLeads> {
 
     final stateField = Dropdown(
       label: 'State',
-      hint: 'Select Field',
+      hint: 'Select State',
       items: _stateDistrictMap.keys.toList(),
       selectedValue: state.selectedState,
       onChanged: cubit.selectState,
       showClear: true,
     );
 
-    final districtField = Dropdown(
+    // final districtField = Dropdown(
+    //   label: 'District',
+    //   hint: 'Select District',
+    //   items: state.selectedState == null
+    //       ? []
+    //       : _stateDistrictMap[state.selectedState] ?? [],
+    //   selectedValue: state.selectedDistrict,
+    //   onChanged: cubit.selectDistrict,
+    //   enabled: state.selectedState != null,
+    //   showClear: true,
+      
+    // );
+
+    final hasState = state.selectedState != null;
+
+final districtField = GestureDetector(
+  onTap: !hasState
+      ? () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please select a state first.',style: TextStyle(color: AppColors.white),),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      : null,
+  child: AbsorbPointer(
+    absorbing: !hasState,
+    child: Dropdown(
       label: 'District',
-      hint: 'Select Field',
-      items: state.selectedState == null
-          ? []
-          : _stateDistrictMap[state.selectedState] ?? [],
+      hint: 'Select District',
+      items: hasState ? (_stateDistrictMap[state.selectedState] ?? []) : [],
       selectedValue: state.selectedDistrict,
       onChanged: cubit.selectDistrict,
-      enabled: state.selectedState != null,
+      enabled: true, // always visually "enabled" now — AbsorbPointer does the blocking
       showClear: true,
-    );
+    ),
+  ),
+);
 
     // final List<Widget> activeFields = [contactField, stageField];
     final List<Widget> activeFields = [stageField];
@@ -922,9 +951,10 @@ class _ImportLeadsState extends State<ImportLeads> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          // padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Localizations.override(
             context: context,
+            
             locale: const Locale('en'),
             child: CountryCodePicker(
               onChanged: (country) =>
@@ -934,6 +964,16 @@ class _ImportLeadsState extends State<ImportLeads> {
               showOnlyCountryWhenClosed: false,
               alignLeft: false,
               padding: EdgeInsets.zero,
+              searchStyle: AppTextStyle.medium(
+                color: AppColors.black,
+              ),
+              searchDecoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(width: 1,strokeAlign: BorderSide.strokeAlignOutside,color: AppColors.grey)
+                )
+              ),
+              backgroundColor: AppColors.white,
+              dialogSize: Size(500, 600),
               textStyle: AppTextStyle.medium(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
@@ -942,7 +982,7 @@ class _ImportLeadsState extends State<ImportLeads> {
               flagWidth: 18,
               dialogBackgroundColor: Colors.white,
               boxDecoration: BoxDecoration(
-                border: Border.all(color: const Color(0xff00B16E)),
+                // border: Border.all(color: const Color(0xff00B16E)),
               ),
             ),
           ),
@@ -1481,16 +1521,7 @@ class _ImportLeadsState extends State<ImportLeads> {
       );
       return;
     }
-    if (state.selectedSource == null || state.selectedSource!.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please select a source before importing leads.'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
+    
     if (state.isAdmin &&
         (state.selectedStaff == null || state.selectedStaff!.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
