@@ -12,19 +12,6 @@ import '../../../notification/data/notification_repo.dart';
 import '../../../leads_settings_.dart/common_model/lead_model.dart';
 import '../../../staff_managment/staff/model/staff_model.dart';
 
-// class ImportLeadsCubit extends Cubit<ImportLeadsState> {
-//   final IImportLeadsRepository _repository;
-//    final IAddLeadRepository _leadRepository;
-//   final NotificationRepo _notificationRepo;
-
-//   ImportLeadsCubit({
-//      IAddLeadRepository? leadRepository,
-//     IImportLeadsRepository? repository,
-//     NotificationRepo? notificationRepo,
-//   }) :_leadRepository = leadRepository ?? AddLeadRepository(),
-//    _repository = repository ?? ImportLeadsRepository(),
-//        _notificationRepo = notificationRepo ?? NotificationRepo(),
-//        super(const ImportLeadsState());
 
 class ImportLeadsCubit extends Cubit<ImportLeadsState> {
   final IImportLeadsRepository _repository;

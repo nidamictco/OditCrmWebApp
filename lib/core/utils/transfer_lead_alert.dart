@@ -132,6 +132,16 @@ void showAssignStaffDialog(
                               ),
                             ),
                           ],
+                          if(selectedStaffName==null && showSameStaffWarning)...[
+                            SizedBox(height: 1.h),
+                            Text(
+                              'Please select the staff.',
+                              style: AppTextStyle.small(
+                                color: AppColors.red,
+                                // weight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                           SizedBox(height: 2.h),
 
                           // Buttons
@@ -150,6 +160,13 @@ void showAssignStaffDialog(
                                     });
                                     return;
                                   }
+                                  if (selectedStaffName==null) {
+                                    setDialogState(() {
+                                      showSameStaffWarning = true;
+                                    });
+                                    return;
+                                  }
+                                  
                                   onSubmit(
                                     selectedStaffId,
                                     selectedStaffName,

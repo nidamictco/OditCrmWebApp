@@ -417,7 +417,7 @@ class _ImportLeadsState extends State<ImportLeads> {
                   _pickedCsvBytes = null;
                   _pickedFileName = null;
                 });
-                cubit.clearCsvBytes(); // see note below
+                cubit.clearCsvBytes(); 
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(

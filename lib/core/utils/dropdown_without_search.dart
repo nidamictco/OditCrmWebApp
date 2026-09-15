@@ -469,7 +469,7 @@ class _SimpleDropdownState extends State<SimpleDropdown> {
                   color: AppColors.red,
                 ),
               ),
-            if (widget.showHelp) ToolTipWidget(message: widget.message),
+            if (widget.showHelp) ToolTipWidget(message: widget.message,),
           ],
         ),
 
